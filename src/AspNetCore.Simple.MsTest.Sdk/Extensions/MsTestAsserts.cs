@@ -8,7 +8,7 @@ using ObjectsComparer;
 namespace AspNetCore.Simple.MsTest.Sdk
 {
 #pragma warning disable IDE0060 // Remove unused parameter
-    internal static class MsTestAsserts
+    public static class MsTestAsserts
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() } };
 
@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(object1, object2, input => input);
         }
 
-        internal static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
         {
             var obj1 = orderFunc(object1.Compile()());
             var obj2 = orderFunc(object2.Compile()());
@@ -27,7 +27,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Assert.IsTrue(differences.IsEmpty(), differences.ToResultTable(object1.NameOf(), object2.NameOf()));
         }
 
-        internal static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression) where T : class
         {
             var object1 = JsonSerializer.Deserialize<T>(json.Compile()(), JsonSerializerOptions);
             var object2 = objectExpression.Compile()();
@@ -36,7 +36,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Assert.IsTrue(differences.IsEmpty(), differences.ToResultTable(json.NameOf(), objectExpression.NameOf()));
         }
 
-        internal static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
         {
             var object1 = JsonSerializer.Deserialize<T>(json.Compile()(), JsonSerializerOptions);
             var obj2 = object2.Compile()();
