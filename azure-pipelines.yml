@@ -50,3 +50,4 @@ steps:
   displayName: Publish Artifacts
   inputs:
     PathtoPublish: '$(build.artifactstagingdirectory)'
+    artifactName: drop
