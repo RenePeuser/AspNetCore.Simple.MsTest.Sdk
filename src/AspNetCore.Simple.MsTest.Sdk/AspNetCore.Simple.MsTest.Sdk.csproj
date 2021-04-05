@@ -15,10 +15,11 @@
         <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
         <PackageReleaseNotes>WIP - A simple sdk to write easy and fast tests for your web api's</PackageReleaseNotes>
         <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
-        <AssemblyName>AspNetCore.Simple.Sdk</AssemblyName>
+        <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <ApplicationIcon />
         <StartupObject />
+        <PackageId>AspNetCore.Simple.MsTest.Sdk</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
