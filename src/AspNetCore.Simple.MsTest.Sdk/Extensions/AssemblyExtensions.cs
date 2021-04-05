@@ -27,17 +27,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return streamReader.ReadToEnd();
         }
 
-        public static InMemoryFile GetValidExcelFileAsByteArray(this Assembly assembly)
-        {
-            return assembly.GetFileAsByteArrayFrom("co2-sample.xlsx");
-        }
-
-        public static InMemoryFile GetInValidExcelFile(this Assembly assembly)
-        {
-            return assembly.GetFileAsByteArrayFrom("co2-sample-invalid.xlsx");
-        }
-
-
         // very important try to avoid accessing file system during tests, so we fetch our data from
         // our assembly direct from the memory :-) 
         private static InMemoryFile GetFileAsByteArrayFrom(this Assembly assembly, string fileName)
