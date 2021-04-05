@@ -2,25 +2,22 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <AnalysisLevel>latest</AnalysisLevel>
+        <PackageLicenseFile>License.txt</PackageLicenseFile>
         <Authors>Rene Peuser</Authors>
         <Company>Rene Peuser Softwaresolutions</Company>
         <Description>WIP - A simple sdk to write easy and fast tests for your web api's</Description>
-        <PackageLicenseFile>License.txt</PackageLicenseFile>
+        <Copyright>Copyright 2021 (c) Rene Peuser. All rights reserved.</Copyright>
         <PackageProjectUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
         <PackageReleaseNotes>WIP - A simple sdk to write easy and fast tests for your web api's</PackageReleaseNotes>
-        <ApplicationIcon />
         <OutputType>Library</OutputType>
-        <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <AnalysisLevel>latest</AnalysisLevel>
         <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
-        <StartupObject />
+        <AssemblyName>AspNetCore.Simple.Sdk</AssemblyName>
+        <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
     </PropertyGroup>
-
-    <ItemGroup>
-      <None Remove="AspNetCore.Simple.MsTest.Sdk.csproj.DotSettings" />
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="GitVersion.MsBuild" Version="5.6.7">
