@@ -15,6 +15,7 @@
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisLevel>latest</AnalysisLevel>
         <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
+        <StartupObject />
     </PropertyGroup>
 
     <ItemGroup>
