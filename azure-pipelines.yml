@@ -47,6 +47,6 @@ steps:
     versioningScheme: 'off'
 
 - task: PublishBuildArtifacts@1
-  displayName: Publish Artifacts
+  displayName: Publish artifacts
   inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
