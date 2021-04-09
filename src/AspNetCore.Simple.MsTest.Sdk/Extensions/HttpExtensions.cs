@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
@@ -90,6 +89,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<HttpResponseMessage> PostAsJsonStringAsync(this HttpClient httpClient, string url, string jsonContent)
         {
             return httpClient.PostAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json));
+        }
+
+        public static Task<HttpResponseMessage> PutAsJsonStringAsync(this HttpClient httpClient, string url, string jsonContent)
+        {
+            return httpClient.PutAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json));
         }
     }
 }
