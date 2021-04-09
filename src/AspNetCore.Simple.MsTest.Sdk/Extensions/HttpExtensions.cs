@@ -33,6 +33,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"PUT to '{url}' was not success full. Error code: {result.StatusCode}");
         }
 
+        public static async Task<T> PostAsAsync<T>(this HttpClient httpClient, string url, object body) where T : class
+        {
+            var result = await httpClient.PostAsJsonAsync(url, body).ConfigureAwait(false);
+            if (result.IsSuccessStatusCode)
+            {
+                var typeResult = await result.Content.ReadAsAsync<T>().ConfigureAwait(false);
+                return typeResult;
+            }
+
+            throw new InvalidOperationException($"POST to '{url}' was not success full. Error code: {result.StatusCode}");
+        }
+
         public static async Task<T> GetAsExceptionAsync<T>(this HttpClient httpClient, string url) where T : Exception
         {
             var result = await httpClient.GetAsync(url).ConfigureAwait(false);
