@@ -8,7 +8,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static class HttpExtensions
     {
-        public static async Task<T> GetAsAsync<T>(this HttpClient httpClient, string url) where T : class
+        public static async Task<T> GetAsAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.GetAsync(url).ConfigureAwait(false);
             if (result.IsSuccessStatusCode)
@@ -20,7 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"GET to '{url}' was not success full. Error code: {result.StatusCode}");
         }
 
-        public static async Task<T> DeleteAsAsync<T>(this HttpClient httpClient, string url) where T : class
+        public static async Task<T> DeleteAsAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.DeleteAsync(url).ConfigureAwait(false);
             if (result.IsSuccessStatusCode)
@@ -32,7 +32,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"DELETE with'{url}' was not success full. Error code: {result.StatusCode}");
         }
 
-        public static async Task<T> PutAsAsync<T>(this HttpClient httpClient, string url, object body) where T : class
+        public static async Task<T> PutAsAsync<T>(this HttpClient httpClient, string url, object body)
         {
             var result = await httpClient.PutAsJsonAsync(url, body).ConfigureAwait(false);
             if (result.IsSuccessStatusCode)
@@ -44,7 +44,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"PUT to '{url}' was not success full. Error code: {result.StatusCode}");
         }
 
-        public static async Task<T> PostAsAsync<T>(this HttpClient httpClient, string url, object body) where T : class
+        public static async Task<T> PostAsAsync<T>(this HttpClient httpClient, string url, object body)
         {
             var result = await httpClient.PostAsJsonAsync(url, body).ConfigureAwait(false);
             if (result.IsSuccessStatusCode)
@@ -56,7 +56,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"POST to '{url}' was not success full. Error code: {result.StatusCode}");
         }
 
-        public static async Task<T> PostAsAsync<T>(this HttpClient httpClient, string url) where T : class
+        public static async Task<T> PostAsAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.PostAsync(url, null).ConfigureAwait(false);
             if (result.IsSuccessStatusCode)
@@ -79,7 +79,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"GET to '{url}' was success full, but exception was expected.");
         }
 
-        public static async Task<HttpResponseMessage> PatchAsJsonAsync<T>(this HttpClient httpClient, string url, T content) where T : class
+        public static async Task<HttpResponseMessage> PatchAsJsonAsync<T>(this HttpClient httpClient, string url, T content)
         {
             var jsonContent = content.ToJson();
             var patchResponse = await httpClient.PatchAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
