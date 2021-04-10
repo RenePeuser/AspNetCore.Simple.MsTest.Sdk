@@ -40,9 +40,9 @@ public abstract class MsTestBase
         Client = CustomWebApplicationFactory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });        
     }
 
-    internal static CustomWebApplicationFactory CustomWebApplicationFactory { get; set; } = null!;
+    protected  static CustomWebApplicationFactory CustomWebApplicationFactory { get; set; } = null!;
 
-    internal static IServiceProvider ServiceProvider { get; private set; } = null!;    
+    protected  static IServiceProvider ServiceProvider { get; private set; } = null!;    
 
     protected static HttpClient Client { get; private set; } = null!;
 
