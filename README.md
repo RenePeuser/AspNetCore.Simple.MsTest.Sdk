@@ -16,7 +16,15 @@ All the samples currently based on a base class:
 [TestClass]
 public class MyTestClass : MsTestBase
 {
-    // your tests....
+    [TestMethod]
+    public async Task Should_Return_My_Expected_Results()
+    {        
+        var persons = await Client.GetAsAsync<IEnumerable<Person>>("/myApi/persons");
+        
+        var expectedResult = EmbededFile.GetFileContentFrom("get-expected-person-result.json");
+
+        Assert.That.ObjectsAreEqual(() => expectedResult, () => persons);
+    }
 }
 
 [TestClass]
