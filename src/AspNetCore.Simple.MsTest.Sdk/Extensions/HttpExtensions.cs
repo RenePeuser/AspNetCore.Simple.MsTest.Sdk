@@ -186,7 +186,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new InvalidOperationException($"POST '{url}' was not success full. Error code: {result.StatusCode}");
+            throw new InvalidOperationException($"POST '{url}' was success full, but you expect an exception of type: '{typeof(T).Name}'");
         }
 
 
@@ -260,7 +260,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new InvalidOperationException($"PUT '{url}' was not success full. Error code: {postResponse.StatusCode}");
+            throw new InvalidOperationException($"PUT '{url}' was success full, but you expect an exception of type: '{typeof(T).Name}'");
         }
 
 
