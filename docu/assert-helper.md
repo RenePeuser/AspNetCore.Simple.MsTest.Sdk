@@ -27,7 +27,7 @@ public async Task Test_What_You_Expect_Without_The_Test_Sdk()
 }
 ```
 
-With this test SDK
+Test an API result
 ```csharp
 [TestMethod]
 public async Task Test_What_You_Expect_With_The_Test_Sdk()
@@ -44,5 +44,18 @@ public async Task Test_What_You_Expect_With_The_Test_Sdk()
     // Cool, saves you writing tons of test and assert, and if you extend your data or change it this test works
     // as well
     Assert.That.ObjectsAreEqual(() => expectedResult, () => persons);
+}
+```
+
+Test an occuring exception of an API call
+```csharp
+[TestMethod]
+public async Task Test_What_You_Expect_With_The_Test_Sdk()
+{
+    // This extensions will check the type what you request if it is an exception it will handle
+    // correct in the background.
+    var problemDetailsException = await Client.GetAsAsync<ProblemDetailsException>("/myApi/persons");
+
+    // Your assert code....
 }
 ```
