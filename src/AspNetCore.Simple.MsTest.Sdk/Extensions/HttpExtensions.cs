@@ -95,5 +95,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return httpClient.PutAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json));
         }
+
+        public static async Task<T> PostAsJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
+        {
+            var postResponse = await httpClient.PostAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
+            if (postResponse.IsSuccessStatusCode)
+            {
+                var typeResult = await postResponse.Content.ReadAsAsync<T>().ConfigureAwait(false);
+                return typeResult;
+            }
+
+            throw new InvalidOperationException($"POST to '{url}' was not success full. Error code: {postResponse.StatusCode}");
+        }
+
+        public static async Task<T> PutAsJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
+        {
+            var postResponse = await httpClient.PutAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
+            if (postResponse.IsSuccessStatusCode)
+            {
+                var typeResult = await postResponse.Content.ReadAsAsync<T>().ConfigureAwait(false);
+                return typeResult;
+            }
+
+            throw new InvalidOperationException($"PUT to '{url}' was not success full. Error code: {postResponse.StatusCode}");
+        }
     }
 }
