@@ -144,7 +144,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static async Task<T> PostAsExceptionAsync<T>(this HttpClient httpClient, string url, object body)
         {
             var result = await httpClient.PostAsJsonAsync(url, body).ConfigureAwait(false);
-            if (result.IsSuccessStatusCode)
+            if (result.IsSuccessStatusCode is false)
             {
                 var typeResult = await result.Content.ReadAsAsync<T>().ConfigureAwait(false);
                 return typeResult;
@@ -168,7 +168,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static async Task<T> PostAsResultAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.PostAsync(url, null).ConfigureAwait(false);
-            if (result.IsSuccessStatusCode is false)
+            if (result.IsSuccessStatusCode)
             {
                 var typeResult = await result.Content.ReadAsAsync<T>().ConfigureAwait(false);
                 return typeResult;
@@ -180,7 +180,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static async Task<T> PostAsExceptionAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.PostAsync(url, null).ConfigureAwait(false);
-            if (result.IsSuccessStatusCode)
+            if (result.IsSuccessStatusCode is false)
             {
                 var typeResult = await result.Content.ReadAsAsync<T>().ConfigureAwait(false);
                 return typeResult;
