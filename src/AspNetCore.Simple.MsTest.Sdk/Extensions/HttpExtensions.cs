@@ -31,7 +31,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"GET '{url}' was not success full. Error code: {result.StatusCode}");
         }
 
-        private static async Task<T> GetAsExceptionAsync<T>(this HttpClient httpClient, string url)
+        public static async Task<T> GetAsExceptionAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.GetAsync(url).ConfigureAwait(false);
             if (result.IsSuccessStatusCode is false)
@@ -68,7 +68,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"DELETE with'{url}' was not success full. Error code: {result.StatusCode}");
         }
 
-        private static async Task<T> DeleteAsExceptionAsync<T>(this HttpClient httpClient, string url)
+        public static async Task<T> DeleteAsExceptionAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.DeleteAsync(url).ConfigureAwait(false);
             if (result.IsSuccessStatusCode is false)
@@ -105,7 +105,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"PUT '{url}' was not success full. Error code: {result.StatusCode}");
         }
 
-        private static async Task<T> PutAsExceptionAsync<T>(this HttpClient httpClient, string url, object body)
+        public static async Task<T> PutAsExceptionAsync<T>(this HttpClient httpClient, string url, object body)
         {
             var result = await httpClient.PutAsJsonAsync(url, body).ConfigureAwait(false);
             if (result.IsSuccessStatusCode is false)
@@ -141,7 +141,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"POST '{url}' was not success full. Error code: {result.StatusCode}");
         }
 
-        private static async Task<T> PostAsExceptionAsync<T>(this HttpClient httpClient, string url, object body)
+        public static async Task<T> PostAsExceptionAsync<T>(this HttpClient httpClient, string url, object body)
         {
             var result = await httpClient.PostAsJsonAsync(url, body).ConfigureAwait(false);
             if (result.IsSuccessStatusCode)
@@ -177,7 +177,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"POST '{url}' was success full, but you expect an exception of type: '{typeof(T).Name}'");
         }
 
-        private static async Task<T> PostAsExceptionAsync<T>(this HttpClient httpClient, string url)
+        public static async Task<T> PostAsExceptionAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.PostAsync(url, null).ConfigureAwait(false);
             if (result.IsSuccessStatusCode)
@@ -214,7 +214,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"POST '{url}' was not success full. Error code: {postResponse.StatusCode}");
         }
 
-        private static async Task<T> PostAsExceptionWithJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
+        public static async Task<T> PostAsExceptionWithJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
         {
             var postResponse = await httpClient.PostAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (postResponse.IsSuccessStatusCode is false)
@@ -251,7 +251,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidOperationException($"PUT '{url}' was success full, but you expect an exception of type: '{typeof(T).Name}'");
         }
 
-        private static async Task<T> PutAsExceptionWithJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
+        public static async Task<T> PutAsExceptionWithJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
         {
             var postResponse = await httpClient.PutAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (postResponse.IsSuccessStatusCode is false)
