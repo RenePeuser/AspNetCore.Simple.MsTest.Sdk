@@ -31,7 +31,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // our assembly direct from the memory :-) 
         private static InMemoryFile GetFileAsByteArrayFrom(this Assembly assembly, string fileName)
         {
-            var name = assembly.GetManifestResourceNames().FirstOrDefault(name => name.Contains($".{fileName}"));
+            var name = assembly.GetManifestResourceNames().FirstOrDefault(name => name.Contains($"{fileName}"));
             using var stream = assembly.GetManifestResourceStream(name);
             using var ms = new MemoryStream();
             stream.CopyTo(ms);
