@@ -16,5 +16,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var sourceList = source.ToList();
             sourceList.ForEach(action);
         }
+
+        internal static string Flatten(this IEnumerable<string> strings, string separator = "")
+        {
+            return string.Join(separator, strings);
+        }
     }
 }

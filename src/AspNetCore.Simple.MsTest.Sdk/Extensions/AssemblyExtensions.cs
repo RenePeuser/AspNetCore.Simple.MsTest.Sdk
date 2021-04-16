@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
@@ -31,11 +32,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // our assembly direct from the memory :-) 
         private static InMemoryFile GetFileAsByteArrayFrom(this Assembly assembly, string fileName)
         {
-            var name = assembly.GetManifestResourceNames().FirstOrDefault(name => name.Contains($"{fileName}"));
+            var manifestResourceNames = assembly.GetManifestResourceNames();
+            var name = manifestResourceNames.FirstOrDefault(name => name.Contains($"{fileName}"));
+            if (name is null)
+            {
+                throw new EmbededResuorceNotFoundException($"Embeded resource with name: '{fileName}' does not exists. Available for your assembly: '{assembly.GetName().Name}' are: {manifestResourceNames.Flatten(";")}");
+            }
             using var stream = assembly.GetManifestResourceStream(name);
             using var ms = new MemoryStream();
             stream.CopyTo(ms);
             return new InMemoryFile(ms.ToArray(), name);
         }
     }
+
+    public class EmbededResuorceNotFoundException : Exception
+    {
+        public EmbededResuorceNotFoundException(string message) :base(message)
+        {
+        }
+    }
+
+
 }
