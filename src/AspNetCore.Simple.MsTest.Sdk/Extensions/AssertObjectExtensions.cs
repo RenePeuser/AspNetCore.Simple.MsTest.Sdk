@@ -23,6 +23,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(object1, object2, input => input, title);
         }
 
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
+        {
+            assert.ObjectsAreEqual(object1, object2, orderFunc, string.Empty);
+        }
+
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2, Func<T, T> orderFunc, string title) where T : class
         {
             var obj1 = orderFunc(object1.Compile()());
@@ -41,7 +46,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression, string title) where T : class
         {
-            assert.ObjectsAreEqual(json, objectExpression, item => item);
+            assert.ObjectsAreEqual(json, objectExpression, item => item, title);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
