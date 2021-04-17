@@ -45,7 +45,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2,
                                               Func<T, T> orderFunc) where T : class
         {
-            T object1 = default;
+            T object1;
             var object1AsJson = json.Compile()();
             try
             {
