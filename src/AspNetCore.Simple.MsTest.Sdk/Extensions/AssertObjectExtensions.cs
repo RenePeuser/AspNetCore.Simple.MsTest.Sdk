@@ -9,7 +9,7 @@ using ObjectsComparer;
 namespace AspNetCore.Simple.MsTest.Sdk
 {
 #pragma warning disable IDE0060 // Remove unused parameter
-    public static class MsTestAsserts
+    public static class AssertObjectExtensions
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() } };
 
@@ -18,7 +18,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(object1, object2, input => input);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2,
+                                              Func<T, T> orderFunc) where T : class
         {
             var obj1 = orderFunc(object1.Compile()());
             var obj2 = orderFunc(object2.Compile()());
@@ -26,7 +27,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var differences = new Comparer<T>().CalculateDifferences(obj1, obj2);
             var resultTable = differences.ToResultTable(object1.NameOf(), object2.NameOf());
 
-            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, object2));
+            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj2));
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression) where T : class
@@ -34,7 +35,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(json, objectExpression, item => item);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2,
+                                              Func<T, T> orderFunc) where T : class
         {
             var object1 = JsonSerializer.Deserialize<T>(json.Compile()(), JsonSerializerOptions);
             var obj2 = object2.Compile()();
@@ -45,7 +47,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var resultTable = differences.ToResultTable(json.NameOf(), object2.NameOf());
 
-            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, object2));
+            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj2));
         }
 
         private static string GetOutputString(string resultTable, object responseObject)
