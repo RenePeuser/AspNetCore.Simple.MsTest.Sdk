@@ -6,7 +6,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
     {
         public static string GetFileContentFrom(string fileName)
         {
-            return Assembly.GetCallingAssembly().GetJsonFileContentFrom(fileName);
+            return GetFileContentFrom(Assembly.GetCallingAssembly(), fileName);
+        }
+
+        public static string GetFileContentFrom(this Assembly assembly, string fileName)
+        {
+            return assembly.GetJsonFileContentFrom(fileName);
         }
     }
 }

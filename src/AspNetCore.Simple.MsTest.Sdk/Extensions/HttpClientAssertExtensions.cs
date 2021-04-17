@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -135,8 +136,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                           Func<HttpClient, string, string, Task<TResult>> httpFunction,
                                                           HttpMethod httpMethod) where TResult : class
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? EmbeddedFile.GetFileContentFrom(payloadAsJson) : payloadAsJson;
-            var expectedResult = resultAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? EmbeddedFile.GetFileContentFrom(resultAsJson) : resultAsJson;
+            var callingAssembly = Assembly.GetCallingAssembly();
+            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var expectedResult = resultAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(resultAsJson) : resultAsJson;
 
             var currentResult = await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
 
