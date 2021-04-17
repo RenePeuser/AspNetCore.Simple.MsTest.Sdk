@@ -36,7 +36,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var name = manifestResourceNames.FirstOrDefault(name => name.Contains($"{fileName}"));
             if (name is null)
             {
-                throw new EmbededResuorceNotFoundException($"Embeded resource with name: '{fileName}' does not exists. Available for your assembly: '{assembly.GetName().Name}' are: {manifestResourceNames.Flatten(";")}");
+                throw new EmbededResuorceNotFoundException($"Embeded resource with name: '{fileName}' does not exists. Available for your assembly: '{assembly.GetName().Name}' are: {Environment.NewLine}{manifestResourceNames.Flatten(Environment.NewLine)}");
             }
             using var stream = assembly.GetManifestResourceStream(name);
             using var ms = new MemoryStream();
