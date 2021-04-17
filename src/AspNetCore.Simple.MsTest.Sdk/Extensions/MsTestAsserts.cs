@@ -52,6 +52,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var responseJson = responseObject.ToJson();
             var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine();
             stringBuilder.AppendLine(resultTable);
             stringBuilder.AppendLine();
             stringBuilder.AppendLine("Current response was:");
