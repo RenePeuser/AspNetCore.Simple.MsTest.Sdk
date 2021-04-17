@@ -59,3 +59,29 @@ public async Task Test_What_You_Expect_With_The_Test_Sdk()
     // Your assert code....
 }
 ```
+
+WIP - Is in preparation for `POST` `PUT` `GET` `DELETE`
+
+Test an API very ultra simple, with an emdedded `myResult.json` file in your test assembly.
+```csharp
+[TestMethod]
+public Task Should_Return_Expected_Persons()
+{    
+    // This is now the ultimate simple version of, you can assert a complete API cal in one line
+    // 1. Add your url => "/myAPi/persons"
+    // 2. Add your expetced result from your API, you can give a json string or the name of an embedded file
+    return Client.AssertGetAsync<IEnumerable<Person>>("/myApi/persons", "myResult.json");
+}
+```
+
+Test an API very ultra simple, with an emdedded `json string` file in your test assembly.
+```csharp
+[TestMethod]
+public Task Should_Return_Expected_Persons()
+{    
+    // This is now the ultimate simple version of, you can assert a complete API cal in one line
+    // 1. Add your url => "/myAPi/persons"
+    // 2. Add your expetced result from your API, you can give a json string or the name of an embedded file
+    return Client.AssertGetAsync<IEnumerable<Person>>("/myApi/persons", ""[{""firstName"":""Son Goku""}, {""firstName"":""Vegeta""}]"");
+}
+```
