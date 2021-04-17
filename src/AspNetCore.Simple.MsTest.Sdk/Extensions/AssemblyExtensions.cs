@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -33,7 +34,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static InMemoryFile GetFileAsByteArrayFrom(this Assembly assembly, string fileName)
         {
             var manifestResourceNames = assembly.GetManifestResourceNames();
-            var name = manifestResourceNames.FirstOrDefault(name => name.Contains($"{fileName}"));
+            var name = manifestResourceNames.FirstOrDefault(name => name.ToLower(CultureInfo.InvariantCulture).Contains($"{fileName.ToLower(CultureInfo.InvariantCulture)}"));
             if (name is null)
             {
                 throw new EmbededResuorceNotFoundException($"Embeded resource with name: '{fileName}' does not exists. Available for your assembly: '{assembly.GetName().Name}' are: {Environment.NewLine}{manifestResourceNames.Flatten(Environment.NewLine)}");
