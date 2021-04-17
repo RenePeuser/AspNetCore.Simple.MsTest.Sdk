@@ -45,11 +45,4 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return new InMemoryFile(ms.ToArray(), name);
         }
     }
-
-    public class EmbededResuorceNotFoundException : Exception
-    {
-        public EmbededResuorceNotFoundException(string message) : base(message)
-        {
-        }
-    }
 }

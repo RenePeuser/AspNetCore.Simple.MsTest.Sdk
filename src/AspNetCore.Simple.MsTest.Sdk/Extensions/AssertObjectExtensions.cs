@@ -8,13 +8,6 @@ using ObjectsComparer;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public class DeserializeException : Exception
-    {
-        public DeserializeException(string message) : base(message)
-        {
-        }
-    }
-
 #pragma warning disable IDE0060 // Remove unused parameter
     public static class AssertObjectExtensions
     {
@@ -22,11 +15,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2) where T : class
         {
-            assert.ObjectsAreEqual(object1, object2, input => input);
+            assert.ObjectsAreEqual(object1, object2, input => input, string.Empty);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2,
-                                              Func<T, T> orderFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2, string title) where T : class
+        {
+            assert.ObjectsAreEqual(object1, object2, input => input, title);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2, Func<T, T> orderFunc, string title) where T : class
         {
             var obj1 = orderFunc(object1.Compile()());
             var obj2 = orderFunc(object2.Compile()());
@@ -34,7 +31,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var differences = new Comparer<T>().CalculateDifferences(obj1, obj2);
             var resultTable = differences.ToResultTable(object1.NameOf(), object2.NameOf());
 
-            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj2));
+            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj2, title));
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression) where T : class
@@ -42,8 +39,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(json, objectExpression, item => item);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2,
-                                              Func<T, T> orderFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression, string title) where T : class
+        {
+            assert.ObjectsAreEqual(json, objectExpression, item => item);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
+        {
+            assert.ObjectsAreEqual(json, object2, orderFunc, string.Empty);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, string title) where T : class
         {
             T object1;
             var object1AsJson = json.Compile()();
@@ -64,14 +70,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var resultTable = differences.ToResultTable(json.NameOf(), object2.NameOf());
 
-            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj2));
+            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj2, title));
         }
 
-        private static string GetOutputString(string resultTable, object responseObject)
+        private static string GetOutputString(string resultTable, object responseObject, string title)
         {
             var responseJson = responseObject.ToJson();
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
+
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                stringBuilder.AppendLine(title);
+                stringBuilder.AppendLine();
+            }
+
             stringBuilder.AppendLine(resultTable);
             stringBuilder.AppendLine();
             stringBuilder.AppendLine("Current response was:");
