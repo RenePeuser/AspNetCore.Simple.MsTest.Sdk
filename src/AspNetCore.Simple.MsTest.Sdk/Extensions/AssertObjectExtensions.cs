@@ -8,6 +8,13 @@ using ObjectsComparer;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
+    public class DeserializeException : Exception
+    {
+        public DeserializeException(string message) : base(message)
+        {
+        }
+    }
+
 #pragma warning disable IDE0060 // Remove unused parameter
     public static class AssertObjectExtensions
     {
@@ -38,7 +45,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2,
                                               Func<T, T> orderFunc) where T : class
         {
-            var object1 = JsonSerializer.Deserialize<T>(json.Compile()(), JsonSerializerOptions);
+            T object1 = default;
+            var object1AsJson = json.Compile()();
+            try
+            {
+                object1 = JsonSerializer.Deserialize<T>(object1AsJson, JsonSerializerOptions);
+            }
+            catch (Exception)
+            {
+                throw new DeserializeException($"The given json for: '{json.NameOf()}' was not possible to convert into type: {typeof(T).Name}. Json was:{Environment.NewLine}{Environment.NewLine}{object1AsJson}");
+            }
+
             var obj2 = object2.Compile()();
             var orderedObject1 = orderFunc(object1);
             var orderedObject2 = orderFunc(obj2);
