@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,17 +24,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var obj2 = orderFunc(object2.Compile()());
 
             var differences = new Comparer<T>().CalculateDifferences(obj1, obj2);
+            var resultTable = differences.ToResultTable(object1.NameOf(), object2.NameOf());
 
-            Assert.IsTrue(differences.IsEmpty(), differences.ToResultTable(object1.NameOf(), object2.NameOf()));
+            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, object2));
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression) where T : class
         {
-            var object1 = JsonSerializer.Deserialize<T>(json.Compile()(), JsonSerializerOptions);
-            var object2 = objectExpression.Compile()();
-            var differences = new Comparer<T>(new ComparisonSettings()).CalculateDifferences(object1!, object2);
-
-            Assert.IsTrue(differences.IsEmpty(), differences.ToResultTable(json.NameOf(), objectExpression.NameOf()));
+            assert.ObjectsAreEqual(json, objectExpression, item => item);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
@@ -45,7 +43,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var differences = new Comparer<T>(new ComparisonSettings()).CalculateDifferences(orderedObject1, orderedObject2);
 
-            Assert.IsTrue(differences.IsEmpty(), differences.ToResultTable(json.NameOf(), object2.NameOf()));
+            var resultTable = differences.ToResultTable(json.NameOf(), object2.NameOf());
+
+            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, object2));
+        }
+
+        private static string GetOutputString(string resultTable, object responseObject)
+        {
+            var responseJson = responseObject.ToJson();
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine(resultTable);
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine("Current response was:");
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(responseJson);
+            return stringBuilder.ToString();
         }
     }
 #pragma warning restore IDE0060 // Remove unused parameter
