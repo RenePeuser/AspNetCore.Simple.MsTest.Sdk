@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Helpers
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static class EmbeddedFile
     {
