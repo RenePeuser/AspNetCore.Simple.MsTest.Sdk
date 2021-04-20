@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,17 +7,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpExtensions
     {
-        public static Task<T> PostAsAsync<T>(this HttpClient httpClient, string url, object body)
-        {
-            if (typeof(Exception).IsAssignableFrom(typeof(T)))
-            {
-                return httpClient.PostAsErrorResultAsync<T>(url, body);
-            }
-
-            return httpClient.PostAsResultAsync<T>(url, body);
-        }
-
-        private static async Task<T> PostAsResultAsync<T>(this HttpClient httpClient, string url, object body)
+        public static async Task<T> PostAsAsync<T>(this HttpClient httpClient, string url, object body)
         {
             var result = await httpClient.PostAsJsonAsync(url, body).ConfigureAwait(false);
             if (result.IsSuccessStatusCode)
@@ -27,7 +16,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new InvalidOperationException($"POST '{url}' was not success full. Error code: {result.StatusCode}");
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"POST '{url}' was success full, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
         }
 
         public static async Task<T> PostAsErrorResultAsync<T>(this HttpClient httpClient, string url, object body)
@@ -39,23 +28,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new InvalidOperationException($"POST '{url}' was success full, but you expect an exception of type: '{typeof(T).Name}'");
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"POST '{url}' was success full, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
         }
 
-
-
-        public static Task<T> PostAsAsync<T>(this HttpClient httpClient, string url)
-        {
-            // Nice here we check if the caller expect an exception
-            if (typeof(Exception).IsAssignableFrom(typeof(T)))
-            {
-                return httpClient.PostAsErrorResultAsync<T>(url);
-            }
-
-            return httpClient.PostAsResultAsync<T>(url);
-        }
-
-        private static async Task<T> PostAsResultAsync<T>(this HttpClient httpClient, string url)
+        public static async Task<T> PostAsAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.PostAsync(url, null).ConfigureAwait(false);
             if (result.IsSuccessStatusCode)
@@ -64,7 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new InvalidOperationException($"POST '{url}' was success full, but you expect an exception of type: '{typeof(T).Name}'");
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"POST '{url}' was success full, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
         }
 
         public static async Task<T> PostAsErrorResultAsync<T>(this HttpClient httpClient, string url)
@@ -76,23 +52,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new InvalidOperationException($"POST '{url}' was success full, but you expect an exception of type: '{typeof(T).Name}'");
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"POST '{url}' was success full, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
         }
 
 
 
-        public static Task<T> PostAsJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
-        {
-            // Nice here we check if the caller expect an exception
-            if (typeof(Exception).IsAssignableFrom(typeof(T)))
-            {
-                return httpClient.PostAsErrorResultWithJsonStringAsync<T>(url, jsonContent);
-            }
-
-            return httpClient.PostAsResultWithJsonStringAsync<T>(url, jsonContent);
-        }
-
-        private static async Task<T> PostAsResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
+        public static async Task<T> PostAsJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
         {
             var postResponse = await httpClient.PostAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (postResponse.IsSuccessStatusCode)
@@ -101,7 +66,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new InvalidOperationException($"POST '{url}' was not success full. Error code: {postResponse.StatusCode}");
+            throw new UnexpectedResultException(await postResponse.GetResponseInfoAsync($"POST '{url}' was not success full").ConfigureAwait(false));
         }
 
         public static async Task<T> PostAsErrorResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
@@ -113,7 +78,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new InvalidOperationException($"POST '{url}' was success full, but you expect an exception of type: '{typeof(T).Name}'");
+            throw new UnexpectedResultException(await postResponse.GetResponseInfoAsync($"POST '{url}' was success full, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
         }
 
 

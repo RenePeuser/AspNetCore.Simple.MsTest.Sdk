@@ -14,9 +14,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()
         {
-            return Client.AssertPostAsync<$responseType$>(""$url$"",
-                                                          $payload$,
-                                                          $response$);
+            return Client.Assert$httpMethod$$error$Async<$responseType$>(""$url$"",
+                                                                         $payload$,
+                                                                         $response$);
         }
 ";
         public bool CanCreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfo)
@@ -26,12 +26,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
 
         public string CreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfo)
         {
+            var assert = responseInfo.StatusCode is > 200 and < 300 ? string.Empty : "Error";
             var typeName = responseInfo.ResponseType.IsGenericType ? responseInfo.ResponseType.GetGenericArguments().First().Name : responseInfo.ResponseType.Name;
 
             var test = TestTemplate.Replace("$url$", requestInfo.Url)
-                .Replace("$payload$", ToLiteral(requestInfo.Body))
-                .Replace("$response$", ToLiteral(responseInfo.Body))
-                .Replace("$responseType$", typeName);
+                                    .Replace("$payload$", ToLiteral(requestInfo.Body))
+                                    .Replace("$response$", ToLiteral(responseInfo.Body))
+                                    .Replace("$responseType$", typeName)
+                                    .Replace("$httpMethod$", requestInfo.HttpMethod);
 
             Debug.WriteLine(test);
 

@@ -1,23 +1,11 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpExtensions
     {
-        public static Task<T> DeleteAsAsync<T>(this HttpClient httpClient, string url)
-        {
-            // Nice here we check if the caller expect an exception
-            if (typeof(Exception).IsAssignableFrom(typeof(T)))
-            {
-                return httpClient.DeleteAsErrorResultAsync<T>(url);
-            }
-
-            return httpClient.DeleteAsResultAsync<T>(url);
-        }
-
-        private static async Task<T> DeleteAsResultAsync<T>(this HttpClient httpClient, string url)
+        public static async Task<T> DeleteAsAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.DeleteAsync(url).ConfigureAwait(false);
             if (result.IsSuccessStatusCode)
@@ -26,7 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new InvalidOperationException($"DELETE with'{url}' was not success full. Error code: {result.StatusCode}");
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"DELETE with'{url}' was not success full").ConfigureAwait(false));
         }
 
         public static async Task<T> DeleteAsErrorResultAsync<T>(this HttpClient httpClient, string url)
@@ -38,7 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new InvalidOperationException($"DELETE '{url}' was success full, but you expect an exception of type: '{typeof(T).Name}'");
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"DELETE '{url}' was success full, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
         }
     }
 }
