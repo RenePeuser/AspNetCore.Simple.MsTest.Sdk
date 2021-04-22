@@ -34,9 +34,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
 
-        public static async Task<T> PutAsJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson)
+        public static Task<T> PutAsJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? Assembly.GetCallingAssembly().GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            return httpClient.PutAsJsonStringAsync<T>(url, payloadAsJson, Assembly.GetCallingAssembly());
+        }
+
+        public static async Task<T> PutAsJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
+        {
+            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
 
             var postResponse = await httpClient.PutAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (postResponse.IsSuccessStatusCode)
@@ -48,9 +53,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new UnexpectedResultException(await postResponse.GetResponseInfoAsync($"PUT '{url}' was success full, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
         }
 
-        public static async Task<T> PutAsErrorResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson)
+        public static Task<T> PutAsErrorResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? Assembly.GetCallingAssembly().GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            return httpClient.PutAsErrorResultWithJsonStringAsync<T>(url, payloadAsJson, Assembly.GetCallingAssembly());
+        }
+
+        public static async Task<T> PutAsErrorResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
+        {
+            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
 
             var postResponse = await httpClient.PutAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (postResponse.IsSuccessStatusCode is false)
@@ -65,7 +75,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Task<HttpResponseMessage> PutAsJsonStringAsync(this HttpClient httpClient, string url, string jsonContent)
         {
-            return httpClient.PutAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json));
+            return httpClient.PutAsJsonStringAsync(url, jsonContent, Assembly.GetCallingAssembly());
+        }
+
+        public static Task<HttpResponseMessage> PutAsJsonStringAsync(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
+        {
+            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+
+            return httpClient.PutAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json));
         }
     }
 }
