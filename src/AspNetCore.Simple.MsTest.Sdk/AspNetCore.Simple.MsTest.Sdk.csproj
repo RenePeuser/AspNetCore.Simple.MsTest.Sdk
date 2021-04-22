@@ -29,7 +29,7 @@
         <DebugType>embedded</DebugType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <DocumentationFile>D:\AzureDevOps\AspNetCore.Simple.MsTest.Sdk\src\AspNetCore.Simple.MsTest.Sdk\AspNetCore.Simple.MsTest.Sdk.xml</DocumentationFile>
+      <DocumentationFile>.\AspNetCore.Simple.MsTest.Sdk.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
