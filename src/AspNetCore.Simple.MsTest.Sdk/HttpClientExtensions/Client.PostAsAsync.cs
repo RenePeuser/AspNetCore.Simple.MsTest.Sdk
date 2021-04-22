@@ -1,5 +1,7 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Net.Mime;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -57,9 +59,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
 
 
-        public static async Task<T> PostAsJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
+        public static async Task<T> PostAsJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson)
         {
-            var postResponse = await httpClient.PostAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
+            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? Assembly.GetCallingAssembly().GetFileContentFrom(payloadAsJson) : payloadAsJson;
+
+            var postResponse = await httpClient.PostAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (postResponse.IsSuccessStatusCode)
             {
                 var typeResult = await postResponse.Content.ReadAsAsync<T>().ConfigureAwait(false);
@@ -69,9 +73,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new UnexpectedResultException(await postResponse.GetResponseInfoAsync($"POST '{url}' was not success full").ConfigureAwait(false));
         }
 
-        public static async Task<T> PostAsErrorResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string jsonContent)
+        public static async Task<T> PostAsErrorResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson)
         {
-            var postResponse = await httpClient.PostAsync(url, new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
+            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? Assembly.GetCallingAssembly().GetFileContentFrom(payloadAsJson) : payloadAsJson;
+
+            var postResponse = await httpClient.PostAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (postResponse.IsSuccessStatusCode is false)
             {
                 var typeResult = await postResponse.Content.ReadAsAsync<T>().ConfigureAwait(false);
