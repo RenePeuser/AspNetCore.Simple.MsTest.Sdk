@@ -15,16 +15,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api
         {
         }
 
-        public override void ConfigureDevelopmentServices(IServiceCollection services)
+        public override void ConfigureServices(IServiceCollection services)
         {
             services.AddTestCreator();
-            base.ConfigureDevelopmentServices(services);
+            base.ConfigureServices(services);
         }
 
-        public override void ConfigureDevelopment(IApplicationBuilder app)
+        public override void Configure(IApplicationBuilder app)
         {
             app.UseTestCreator();
-            base.ConfigureDevelopment(app);
+            base.Configure(app);
         }
     }
 }
