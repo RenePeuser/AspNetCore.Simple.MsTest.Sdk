@@ -53,8 +53,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
             var bodyAsText = await new StreamReader(response.Body).ReadToEndAsync().ConfigureAwait(false);
             response.Body.Seek(0, SeekOrigin.Begin);
 
+            // Here we need a solutions for inumerable
             var responseType = typeof(object);
-            if (response.Headers.TryGetValue("returnType", out var returnTypeString))
+            if (response.Headers.TryGetValue("returntype-assembly", out var returnTypeString))
             {
                 responseType = Type.GetType(returnTypeString);
             }

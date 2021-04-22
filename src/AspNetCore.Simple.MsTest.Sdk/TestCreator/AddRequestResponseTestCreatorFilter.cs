@@ -11,7 +11,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
 
             services.AddSingleton<TestCreatorMiddleware>();
 
-            services.AddMvc(options => options.Filters.Add<TestCreatorAsActionFilter>());
+            services.AddMvc(options => options.Filters.Add<TestCreatorActionFilter>());
         }
     }
 }

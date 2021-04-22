@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
 {
-    public class TestCreatorAsActionFilter : IAsyncActionFilter
+    public class TestCreatorActionFilter : IAsyncActionFilter
     {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var returnType = context.ActionDescriptor.GetReturnType();
 
             context.HttpContext.Response.Headers.Add("returntype", returnType.ToString());
+            context.HttpContext.Response.Headers.Add("returntype-assembly", returnType.AssemblyQualifiedName);
 
             //Continue down the Middleware pipeline, eventually returning to this class
             await next().ConfigureAwait(false);
