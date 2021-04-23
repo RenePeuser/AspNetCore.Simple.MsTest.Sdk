@@ -1,21 +1,35 @@
 ﻿using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
 {
     public class PostWithBodyTestCreator : ISpecificTestCreator
     {
-        private readonly string TestTemplate = @"
+        private readonly ILogger<PostWithBodyTestCreator> _logger;
 
+        private readonly string ClassTemplate = @"
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.Api.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace AspNetCore.Simple.MsTest.Sdk.Test
+{
+    [TestClass]
+    public class $className$ : MsTestBase
+    {
+        $testMethod$
+    }
+}
+";
+
+        private readonly string TestTemplate = @"
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()
         {
@@ -26,7 +40,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
 ";
 
         private readonly string NoPayloadTestTemplate = @"
-
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()
         {
@@ -34,6 +47,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
                                                                          $response$);
         }
 ";
+
+        public PostWithBodyTestCreator(ILogger<PostWithBodyTestCreator> logger)
+        {
+            _logger = logger;
+        }
 
         public bool CanCreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfo)
         {
@@ -57,15 +75,43 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
                 .Replace("$httpMethod$", httpMethodName)
                 .Replace("$error$", errorPlaceHolder);
 
-            Debug.WriteLine(test);
+            // Debug.WriteLine(test);
+            _logger.LogInformation(test);
+
 
             return test;
+            //if (!responseInfo.httpResponse.Headers.TryGetValue("assembly-location", out _))
+            //{
+            //    return string.Empty;
+            //}
+
+            //// Just test
+            //var assembly = new FileInfo(responseInfo.httpResponse.Headers["assembly-location"]);
+            //var csproj = new FileInfo(responseInfo.httpResponse.Headers["csproj"]);
+            //var test1 = assembly.Directory.Parent.Parent.Parent.Parent;
+
+            //var testProj = test1.EnumerateFiles("AspNetCore.Simple.MsTest.Sdk.Test.csproj",SearchOption.AllDirectories).First();
+            //var testFile = new FileInfo(Path.Combine(testProj.Directory.FullName, "Controllers", "PersonController.cs"));
+            //testFile.Directory.Create();
+
+            //var className = ClassTemplate.Replace("$className$", "PersonController").Replace("$testMethod$", test);
+
+            //File.WriteAllText(testFile.FullName, className);
+
+            //var locationOfController = responseInfo.httpResponse.Headers["controller-name"];
+
+            //return test;
         }
 
         private string GetTypeName(Type type)
         {
             if (type.IsGenericType)
             {
+                if (typeof(Task).IsAssignableFrom(type))
+                {
+                    return type.GenericTypeArguments.First().Name;
+                }
+
                 return type.Name.Replace("`1", $"<{type.GenericTypeArguments.First().Name}>");
             }
             return type.Name;

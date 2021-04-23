@@ -17,25 +17,35 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            //First, get the incoming request
+            ResponseInfoUltra response;
             var request = await GetRequestInfoUltraAsync(context.Request).ConfigureAwait(false);
+            try
+            {
+                //First, get the incoming request
 
-            //Copy a pointer to the original response body stream
-            var originalBodyStream = context.Response.Body;
+                //Copy a pointer to the original response body stream
+                var originalBodyStream = context.Response.Body;
 
-            //Create a new memory stream...
-            await using var responseBody = new MemoryStream();
-            context.Response.Body = responseBody;
-            await next(context).ConfigureAwait(false);
+                //Create a new memory stream...
+                await using var responseBody = new MemoryStream();
+                context.Response.Body = responseBody;
+                await next(context).ConfigureAwait(false);
 
-            //Format the response from the server
-            var response = await GetResponseInfoUltraAsync(context.Response).ConfigureAwait(false);
+                //Format the response from the server
+                response = await GetResponseInfoUltraAsync(context.Response).ConfigureAwait(false);
 
-            var test = _requestTestCreator.CreateTestFor(request, response);
-            // context.Response.Headers.Add("test", test);
+                _requestTestCreator.CreateTestFor(request, response);
 
-            //Copy the contents of the new memory stream (which contains the response) to the original stream, which is then returned to the client.
-            await responseBody.CopyToAsync(originalBodyStream).ConfigureAwait(false);
+                //Copy the contents of the new memory stream (which contains the response) to the original stream, which is then returned to the client.
+                await responseBody.CopyToAsync(originalBodyStream).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                //Format the response from the server
+                response = await GetResponseInfoUltraAsync(context.Response).ConfigureAwait(false);
+                _requestTestCreator.CreateTestFor(request, response);
+                throw;
+            }
         }
 
         private async Task<RequestInfo> GetRequestInfoUltraAsync(HttpRequest request)
@@ -60,7 +70,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
                 responseType = Type.GetType(returnTypeString);
             }
 
-            return new ResponseInfoUltra(responseType, bodyAsText, response.StatusCode);
+            return new ResponseInfoUltra(responseType, bodyAsText, response.StatusCode, response);
         }
     }
 }

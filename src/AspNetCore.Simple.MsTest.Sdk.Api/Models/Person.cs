@@ -1,5 +1,5 @@
 ﻿
 namespace AspNetCore.Simple.MsTest.Sdk.Api.Models
 {
-    public record Person(string Name, string FirstName, int Age);
+    public record Person(long Id, string Name, string FirstName, int Age);
 }

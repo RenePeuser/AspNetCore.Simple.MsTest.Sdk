@@ -28,6 +28,7 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <DebugType>embedded</DebugType>
     </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
       <DocumentationFile>.\AspNetCore.Simple.MsTest.Sdk.xml</DocumentationFile>
     </PropertyGroup>
