@@ -7,7 +7,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
     [Route("v{version:apiversion}/errors")]
     public class ErrorsController : ControllerBase
     {
-        [HttpPost("NotImplementedException")]
+        [HttpPost("not-implemented")]
         public void ThrowNotImplementedException()
         {
             throw new NotImplementedException("Implementation is missing");
