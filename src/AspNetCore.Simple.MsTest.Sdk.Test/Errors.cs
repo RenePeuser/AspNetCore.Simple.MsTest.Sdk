@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using AspNetCore.Simple.Sdk.ErrorHandling;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Test
@@ -10,7 +10,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()
         {
-            return Client.AssertPostError<ProblemDetails>("api/tests/v1/errors/not-implemented", "{\"title\":\"NotImplementedException was thrown.\"}");
+            return Client.AssertPostError<ProblemDetails>("api/tests/v1/errors/not-implemented", "{\"Title\":\"NotImplementedException was thrown.\",\"Details\":\"Implementation is missing\",\"StatusCode\":501,\"ErrorDetails\":{}}");
         }
     }
 }
