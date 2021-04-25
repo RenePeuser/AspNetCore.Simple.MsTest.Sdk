@@ -8,7 +8,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
     [TestClass]
     public abstract class MsTestBase
     {
-        // In this sample we currently use assembley intialize, to save performance, but you can do it also different.
+        // In this sample we currently use assembly initialize, to save performance, but you can do it also different.
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext _)
         {
