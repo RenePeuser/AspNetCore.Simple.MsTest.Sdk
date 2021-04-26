@@ -15,4 +15,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                 "[{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99},{\"Id\":2,\"Name\":\"Vegeta\",\"FirstName\":\"Unknown\",\"Age\":77}]");
         }
     }
+
+    [TestClass]
+    public class UrlExists : MsTestBase
+    {
+        [TestMethod]
+        public void Should_Return_True_If_Absolute_Url_Exists()
+        {
+            Assert.IsTrue(Client.UrlExists("https://www.google.de/"));
+        }
+    }
 }
