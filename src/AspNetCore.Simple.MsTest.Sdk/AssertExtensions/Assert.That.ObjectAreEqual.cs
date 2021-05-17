@@ -36,7 +36,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var differences = new Comparer<T>().CalculateDifferences(obj1, obj2);
             var resultTable = differences.ToResultTable(object1.NameOf(), object2.NameOf());
 
-            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj2, title));
+            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj1, obj2, title));
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression) where T : class
@@ -75,12 +75,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var resultTable = differences.ToResultTable(json.NameOf(), object2.NameOf());
 
-            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj2, title));
+            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, orderedObject1, orderedObject2, title));
         }
 
-        private static string GetOutputString(string resultTable, object responseObject, string title)
+        private static string GetOutputString(string resultTable, object expectedResult,  object current, string title)
         {
-            var responseJson = responseObject.ToJson();
+            var expectedResultAsJson = expectedResult.ToJson();
+            var currentResultAsJson = current.ToJson();
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
 
@@ -92,9 +93,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             stringBuilder.AppendLine(resultTable);
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine("Current response was:");
+            stringBuilder.AppendLine("Current result:");
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(responseJson);
+            stringBuilder.AppendLine(currentResultAsJson);
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine("Expected result:");
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(expectedResultAsJson);
             return stringBuilder.ToString();
         }
     }
