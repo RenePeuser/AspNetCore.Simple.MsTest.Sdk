@@ -8,6 +8,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
+        private static async Task AssertHttpCall(this HttpClient client,
+                                                 string url,
+                                                 string payloadAsJson,
+                                                 Func<HttpClient, string, string, Task> httpFunction,
+                                                 Assembly callingAssembly)
+        {
+            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+
+            await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
+        }
+
         private static Task AssertHttpCall<TResult>(this HttpClient client,
                                                     string url,
                                                     string payloadAsJson,
@@ -15,9 +26,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     Func<TResult, TResult> filterFunc,
                                                     Func<HttpClient, string, Task<TResult>> httpFunction,
                                                     HttpMethod httpMethod,
-                                                    Assembly assembly) where TResult : class
+                                                    Assembly callingAssembly) where TResult : class
         {
-            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client, path, _) => httpFunction(client, path), httpMethod, assembly);
+            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client, path, _) => httpFunction(client, path), httpMethod, callingAssembly);
         }
 
         private static async Task AssertHttpCall<TResult>(this HttpClient client,
