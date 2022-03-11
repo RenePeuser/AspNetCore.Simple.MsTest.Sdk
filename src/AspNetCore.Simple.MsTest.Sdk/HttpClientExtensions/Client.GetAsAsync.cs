@@ -5,6 +5,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpExtensions
     {
+        public static async Task GetAsAsync(this HttpClient httpClient, string url)
+        {
+            var result = await httpClient.GetAsync(url).ConfigureAwait(false);
+            if (result.IsSuccessStatusCode)
+            {
+                return;
+            }
+
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"GET '{url}' was not success full.").ConfigureAwait(false));
+        }
+
         public static async Task<T> GetAsAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.GetAsync(url).ConfigureAwait(false);

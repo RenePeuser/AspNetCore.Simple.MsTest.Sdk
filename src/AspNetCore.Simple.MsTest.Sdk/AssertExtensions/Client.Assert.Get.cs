@@ -6,6 +6,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
+        public static Task AssertGetAsync(this HttpClient client,
+                                          string url)
+        {
+            return client.AssertHttpCall(url, string.Empty, (client, url, _) => HttpExtensions.GetAsAsync(client, url), Assembly.GetCallingAssembly());
+        }
+
         public static Task AssertGetAsync<TResult>(this HttpClient client,
                                                    string url,
                                                    string resultAsJson) where TResult : class
