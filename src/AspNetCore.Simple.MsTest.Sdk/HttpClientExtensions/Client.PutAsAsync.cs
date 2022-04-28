@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Reflection;
 using System.Text;
@@ -18,7 +20,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"PUT '{url}' was not success full. Error code: {result.StatusCode}").ConfigureAwait(false));
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"PUT '{url}' was not successful. Error code: {result.StatusCode}").ConfigureAwait(false));
+        }
+
+        public static async Task PutAsUnauthotizedAsync<T>(this HttpClient httpClient, string url, object body)
+        {
+            // Save original auth header
+            var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Unauthorized token");
+
+            var result = await httpClient.PutAsJsonAsync(url, body).ConfigureAwait(false);
+
+            // Reset back to original
+            httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
+
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return;
+            }
+
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"PUT '{url}' was not successful. Error code: {result.StatusCode}").ConfigureAwait(false));
         }
 
         public static async Task<T> PutAsErrorResultAsync<T>(this HttpClient httpClient, string url, object body)
@@ -30,7 +51,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"PUT '{url}' was success full, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"PUT '{url}' was successful, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
         }
 
 
@@ -50,7 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new UnexpectedResultException(await postResponse.GetResponseInfoAsync($"PUT '{url}' was success full, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
+            throw new UnexpectedResultException(await postResponse.GetResponseInfoAsync($"PUT '{url}' was successful, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
         }
 
         public static Task<T> PutAsErrorResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson)
@@ -69,7 +90,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return typeResult;
             }
 
-            throw new UnexpectedResultException(await postResponse.GetResponseInfoAsync($"PUT '{url}' was success full, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
+            throw new UnexpectedResultException(await postResponse.GetResponseInfoAsync($"PUT '{url}' was successful, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
         }
 
 
