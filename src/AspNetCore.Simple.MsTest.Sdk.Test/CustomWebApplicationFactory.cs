@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
+using System.Net.Http;
 using AspNetCore.Simple.MsTest.Sdk.Api;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Test
 {
@@ -19,6 +21,104 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
             {
                 // if we need to switch between services we have to do it here
             });
+        }
+    }
+
+    public class IntegrationTestWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup>
+        where TStartup : class
+    {
+        private readonly IntegrationTestBase<TStartup> _testBase;
+
+        private readonly (string name, string value)[] _environmentVariables;
+
+        public IntegrationTestWebApplicationFactory(IntegrationTestBase<TStartup> testBase, string environmentName, params (string name, string value)[] environmentVariables)
+        {
+            _testBase = testBase;
+            EnvironmentName = environmentName;
+            _environmentVariables = environmentVariables;
+        }
+        public string EnvironmentName { get; }
+
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
+        {
+            foreach (var environmentVariable in _environmentVariables)
+            {
+                Environment.SetEnvironmentVariable(environmentVariable.name, environmentVariable.value);
+            }
+
+            builder.ConfigureAppConfiguration(_testBase.ConfigureAppConfiguration);
+            builder.ConfigureServices(_testBase.ConfigureServices);
+            builder.UseEnvironment(EnvironmentName);
+        }
+    }
+
+    public abstract class IntegrationTestBase<TStartup> : DisposableBase
+        where TStartup : class
+    {
+        private readonly IntegrationTestWebApplicationFactory<TStartup> _webApplicationFactory;
+
+        protected IntegrationTestBase(string aspEnvironment, params (string name, string value)[] environmentVariables)
+        {
+            // Create this with new, is not a fault, the reason is to keep the test class more cleaner.
+            EnvironmentName = aspEnvironment;
+            _webApplicationFactory = new IntegrationTestWebApplicationFactory<TStartup>(this, EnvironmentName, environmentVariables);
+            Client = _webApplicationFactory.CreateClient();
+            ServiceProvider = _webApplicationFactory.Services;
+        }
+
+        protected string EnvironmentName { get; }
+
+        protected IServiceProvider ServiceProvider { get; }
+
+        protected HttpClient Client { get; }
+
+        protected override void DisposeManagedResources()
+        {
+            _webApplicationFactory.Dispose();
+            Client.Dispose();
+        }
+
+        public virtual void ConfigureAppConfiguration(WebHostBuilderContext webHostBuilderContext, IConfigurationBuilder configurationBuilder)
+        {
+            // Gives the possibility to do test environment specific configurations
+        }
+
+        public virtual void ConfigureServices(IServiceCollection serviceCollection)
+        {
+            // Gives the possibility to do test environment specific configurations
+        }
+    }
+
+    public abstract class DisposableBase : IDisposable
+    {
+        private bool _disposed;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                DisposeManagedResources();
+            }
+
+            _disposed = true;
+        }
+
+        protected abstract void DisposeManagedResources();
+
+        ~DisposableBase()
+        {
+            Dispose(false);
         }
     }
 }
