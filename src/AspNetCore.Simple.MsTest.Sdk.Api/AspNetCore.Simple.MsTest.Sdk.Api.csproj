@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>AspNetCore.Simple.MsTest.Sdk.Api</AssemblyName>
     <RootNamespace>AspNetCore.Simple.MsTest.Sdk.Api</RootNamespace>
   </PropertyGroup>
@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetCore.Simple.Sdk" Version="0.2.0-alpha.35" />
+    <PackageReference Include="AspNetCore.Simple.Sdk" Version="0.2.0-alpha.59" />
   </ItemGroup>
 
   <ItemGroup>

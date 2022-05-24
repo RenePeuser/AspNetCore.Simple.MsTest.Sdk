@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Library</OutputType>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisLevel>latest</AnalysisLevel>
         <PackageLicenseFile>License.txt</PackageLicenseFile>
@@ -13,7 +13,7 @@
         <PackageProjectUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
-        <PackageReleaseNotes>WIP - A simple sdk to write easy and fast tests for your web api's</PackageReleaseNotes>
+        <PackageReleaseNotes>WIP - Upgrade to .Net 6</PackageReleaseNotes>
         <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
         <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
@@ -34,7 +34,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="6.6.0" />
         <PackageReference Include="GitVersion.MsBuild" Version="5.6.10">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
