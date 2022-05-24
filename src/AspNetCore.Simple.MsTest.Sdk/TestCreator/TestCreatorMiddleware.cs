@@ -27,7 +27,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
                 var originalBodyStream = context.Response.Body;
 
                 //Create a new memory stream...
+#pragma warning disable CA2007 // Consider calling ConfigureAwait on the awaited task
                 await using var responseBody = new MemoryStream();
+#pragma warning restore CA2007 // Consider calling ConfigureAwait on the awaited task
                 context.Response.Body = responseBody;
                 await next(context).ConfigureAwait(false);
 
