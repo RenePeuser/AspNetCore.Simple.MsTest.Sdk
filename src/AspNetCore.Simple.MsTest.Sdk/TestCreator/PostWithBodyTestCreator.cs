@@ -12,7 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
     {
         private readonly ILogger<PostWithBodyTestCreator> _logger;
 
-        private readonly string ClassTemplate = @"
+        private readonly string _classTemplate = @"
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Api.Models;
