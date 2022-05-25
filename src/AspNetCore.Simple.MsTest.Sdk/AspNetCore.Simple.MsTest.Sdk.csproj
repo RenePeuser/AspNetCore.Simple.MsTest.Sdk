@@ -13,7 +13,7 @@
         <PackageProjectUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
-        <PackageReleaseNotes>WIP - Upgrade to .Net 6</PackageReleaseNotes>
+        <PackageReleaseNotes>Add new assert helper for OPTIONS call. Add return values to all assert helper.</PackageReleaseNotes>
         <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
         <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
