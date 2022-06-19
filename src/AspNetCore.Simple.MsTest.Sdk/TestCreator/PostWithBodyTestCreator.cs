@@ -12,22 +12,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
     {
         private readonly ILogger<PostWithBodyTestCreator> _logger;
 
-        private readonly string _classTemplate = @"
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.Api.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace AspNetCore.Simple.MsTest.Sdk.Test
-{
-    [TestClass]
-    public class $className$ : MsTestBase
-    {
-        $testMethod$
-    }
-}
-";
-
         private readonly string TestTemplate = @"
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()
@@ -68,11 +52,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
 
 
             var test = template.Replace("$url$", requestInfo.Url)
-                .Replace("$payload$", ToLiteral(requestInfo.Body))
-                .Replace("$response$", ToLiteral(responseInfo.Body))
-                .Replace("$responseType$", typeName)
-                .Replace("$httpMethod$", httpMethodName)
-                .Replace("$error$", errorPlaceHolder);
+                               .Replace("$payload$", ToLiteral(requestInfo.Body))
+                               .Replace("$response$", ToLiteral(responseInfo.Body))
+                               .Replace("$responseType$", typeName)
+                               .Replace("$httpMethod$", httpMethodName)
+                               .Replace("$error$", errorPlaceHolder);
 
             // Debug.WriteLine(test);
             _logger.LogInformation(test);

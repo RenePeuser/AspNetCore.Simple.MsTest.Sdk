@@ -17,8 +17,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static bool UrlExists(this HttpClient httpClient, string url)
         {
-            var absolutePath = url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : Path.Combine(httpClient.BaseAddress.ToString(), url);
+            var absolutePath = url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : Path.Combine(httpClient.BaseAddress?.ToString()!, url);
+#pragma warning disable SYSLIB0014
             var webRequest = System.Net.WebRequest.Create(absolutePath);
+#pragma warning restore SYSLIB0014
             webRequest.Method = "HEAD";
             try
             {
