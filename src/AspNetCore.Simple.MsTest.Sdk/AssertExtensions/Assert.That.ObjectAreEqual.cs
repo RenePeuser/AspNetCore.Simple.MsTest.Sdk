@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -41,30 +42,47 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression) where T : class
         {
-            assert.ObjectsAreEqual(json, objectExpression, item => item);
+            assert.ObjectsAreEqual(json, objectExpression, item => item, Assembly.GetCallingAssembly());
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression, Assembly callingAssembly) where T : class
+        {
+            assert.ObjectsAreEqual(json, objectExpression, item => item, callingAssembly);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression, string title) where T : class
         {
-            assert.ObjectsAreEqual(json, objectExpression, item => item, title);
+            assert.ObjectsAreEqual(json, objectExpression, item => item, title, Assembly.GetCallingAssembly());
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression, string title, Assembly callingAssembly) where T : class
+        {
+            assert.ObjectsAreEqual(json, objectExpression, item => item, title, callingAssembly);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
         {
-            assert.ObjectsAreEqual(json, object2, orderFunc, string.Empty);
+            assert.ObjectsAreEqual(json, object2, orderFunc, string.Empty, Assembly.GetCallingAssembly());
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, string title) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, Assembly callingAssembly) where T : class
+        {
+            assert.ObjectsAreEqual(json, object2, orderFunc, string.Empty, callingAssembly);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, string title, Assembly callingAssembly) where T : class
         {
             T object1;
-            var object1AsJson = json.Compile()();
+            var jsonSource = json.Compile()();
+            var jsonObject = jsonSource.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(jsonSource) : jsonSource;
+
             try
             {
-                object1 = JsonSerializer.Deserialize<T>(object1AsJson, JsonSerializerOptions);
+                object1 = JsonSerializer.Deserialize<T>(jsonObject, JsonSerializerOptions);
             }
             catch (Exception)
             {
-                throw new DeserializeException($"The given json for: '{json.NameOf()}' was not possible to convert into type: {typeof(T).Name}. Json was:{Environment.NewLine}{Environment.NewLine}{object1AsJson}");
+                throw new DeserializeException($"The given json for: '{json.NameOf()}' was not possible to convert into type: {typeof(T).Name}. Json was:{Environment.NewLine}{Environment.NewLine}{jsonSource}");
             }
 
             var obj2 = object2.Compile()();
