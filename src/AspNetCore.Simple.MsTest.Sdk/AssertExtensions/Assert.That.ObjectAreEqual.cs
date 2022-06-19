@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -91,7 +92,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var differences = new Comparer<T>(new ComparisonSettings()).CalculateDifferences(orderedObject1, orderedObject2);
 
-            var resultTable = differences.ToResultTable(json.NameOf(), object2.NameOf());
+            var expectedValueName = jsonSource.EndsWith(".json", StringComparison.InvariantCulture) ? jsonSource : json.NameOf();
+
+            var resultTable = differences.ToResultTable(expectedValueName, object2.NameOf());
 
             Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, orderedObject1, orderedObject2, title));
         }
