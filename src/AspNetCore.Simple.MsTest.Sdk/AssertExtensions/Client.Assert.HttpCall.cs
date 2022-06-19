@@ -41,13 +41,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                           Assembly callingAssembly) where TResult : class
         {
             var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
-            var expectedResult = resultAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(resultAsJson) : resultAsJson;
 
             var currentResult = await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
 
             var httpCallInfo = $"Call: '{httpMethod} {url}' was not successful.";
 
-            Assert.That.ObjectsAreEqual(() => expectedResult, () => currentResult, filterFunc, httpCallInfo);
+            Assert.That.ObjectsAreEqual(() => resultAsJson, () => currentResult, filterFunc, httpCallInfo, callingAssembly);
 
             return currentResult;
         }

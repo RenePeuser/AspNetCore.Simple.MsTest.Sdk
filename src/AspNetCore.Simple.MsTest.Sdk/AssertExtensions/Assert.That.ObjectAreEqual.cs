@@ -96,7 +96,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, orderedObject1, orderedObject2, title));
         }
 
-        private static string GetOutputString(string resultTable, object expectedResult,  object current, string title)
+        private static string GetOutputString(string resultTable, object expectedResult, object current, string title)
         {
             var expectedResultAsJson = expectedResult.ToJson();
             var currentResultAsJson = current.ToJson();

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.6.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Simple.MsTest.Sdk", "src\AspNetCore.Simple.MsTest.Sdk\AspNetCore.Simple.MsTest.Sdk.csproj", "{44DC47AF-8B70-49E5-9CAC-90A9163E455E}"
 EndProject
