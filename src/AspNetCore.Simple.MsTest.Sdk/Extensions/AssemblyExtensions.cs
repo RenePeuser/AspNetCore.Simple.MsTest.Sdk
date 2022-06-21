@@ -9,17 +9,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static class AssemblyExtensions
     {
-        public static T ReadAs<T>(this object assembly, string fileName) where T : class
+        public static T? ReadAs<T>(this object assembly, string fileName) where T : class
         {
             return assembly.GetType().Assembly.ReadAs<T>(fileName);
         }
 
-        public static T ReadAs<T>(this Assembly assembly, string fileName) where T : class
+        public static T? ReadAs<T>(this Assembly assembly, string fileName) where T : class
         {
             var result = assembly.GetFileAsByteArrayFrom(fileName);
             using var streamReader = new StreamReader(new MemoryStream(result.FileContent));
             var stringContent = streamReader.ReadToEnd();
-            return JsonSerializer.Deserialize<T>(stringContent, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+            return JsonSerializer.Deserialize<T>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
 
         public static string GetJsonFileContentFrom(this Assembly assembly, string fileName)
@@ -39,9 +39,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 throw new EmbededResuorceNotFoundException($"Embeded resource with name: '{fileName}' does not exists. Available for your assembly: '{assembly.GetName().Name}' are: {Environment.NewLine}{manifestResourceNames.Flatten(Environment.NewLine)}");
             }
+
+            // steam can not be null check before validates that embedded resource exists.
             using var stream = assembly.GetManifestResourceStream(name);
             using var ms = new MemoryStream();
-            stream.CopyTo(ms);
+            stream!.CopyTo(ms);
             return new InMemoryFile(ms.ToArray(), name);
         }
     }

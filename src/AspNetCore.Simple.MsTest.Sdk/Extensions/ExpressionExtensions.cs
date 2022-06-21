@@ -12,9 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 throw new ArgumentException("Expression is not a LambdaExpression");
             }
 
-            string name = null;
-
-
+            string? name = null;
             if (lambdaExpression.Body is MemberExpression memberExpression)
             {
                 name = memberExpression.Member.Name;

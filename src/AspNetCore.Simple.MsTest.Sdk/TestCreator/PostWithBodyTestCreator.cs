@@ -88,16 +88,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
 
         private string GetTypeName(Type type)
         {
-            if (type.IsGenericType)
+            if (!type.IsGenericType)
             {
-                if (typeof(Task).IsAssignableFrom(type))
-                {
-                    return type.GenericTypeArguments.First().Name;
-                }
-
-                return type.Name.Replace("`1", $"<{type.GenericTypeArguments.First().Name}>");
+                return type.Name;
             }
-            return type.Name;
+
+            if (typeof(Task).IsAssignableFrom(type))
+            {
+                return type.GenericTypeArguments.First().Name;
+            }
+
+            return type.Name.Replace("`1", $"<{type.GenericTypeArguments.First().Name}>");
         }
 
         private static string ToLiteral(string input)

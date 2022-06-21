@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ObjectsComparer;
 
@@ -72,7 +73,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, string title, Assembly callingAssembly) where T : class
         {
-            T object1;
+            T? object1;
             var jsonSource = json.Compile()();
             var jsonObject = jsonSource.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(jsonSource) : jsonSource;
 
@@ -85,11 +86,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 throw new DeserializeException($"The given json for: '{json.NameOf()}' was not possible to convert into type: {typeof(T).Name}. Json was:{Environment.NewLine}{Environment.NewLine}{jsonSource}");
             }
 
+            if (object1 is null)
+            {
+                throw new InvalidOperationException("Expected object is null. This is not allowed for comparison as source object");
+            }
+
+
             var obj2 = object2.Compile()();
             var orderedObject1 = orderFunc(object1);
             var orderedObject2 = orderFunc(obj2);
 
-            var differences = new Comparer<T>(new ComparisonSettings()).CalculateDifferences(orderedObject1, orderedObject2);
+            var differences = new Comparer<T>(new ComparisonSettings()).CalculateDifferences(orderedObject1!, orderedObject2);
 
             var expectedValueName = jsonSource.EndsWith(".json", StringComparison.InvariantCulture) ? jsonSource : json.NameOf();
 
@@ -105,7 +112,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
 
-            if (!string.IsNullOrWhiteSpace(title))
+            if (title.IsNotNullOrWhiteSpace())
             {
                 stringBuilder.AppendLine(title);
                 stringBuilder.AppendLine();

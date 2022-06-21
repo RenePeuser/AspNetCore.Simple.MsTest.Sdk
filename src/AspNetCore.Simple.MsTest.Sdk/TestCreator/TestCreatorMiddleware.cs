@@ -56,7 +56,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
             var bodyAsText = await reader.ReadToEndAsync().ConfigureAwait(false);
             request.Body = new MemoryStream(Encoding.UTF8.GetBytes(bodyAsText));
 
-            return new RequestInfo(request.Method, request.Path.Value, bodyAsText);
+            return new RequestInfo(request.Method, request.Path.Value!, bodyAsText);
         }
 
         private async Task<ResponseInfoUltra> GetResponseInfoUltraAsync(HttpResponse response)
@@ -72,7 +72,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
                 responseType = Type.GetType(returnTypeString);
             }
 
-            return new ResponseInfoUltra(responseType, bodyAsText, response.StatusCode, response);
+            return new ResponseInfoUltra(responseType!, bodyAsText, response.StatusCode, response);
         }
     }
 }
