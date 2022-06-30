@@ -15,30 +15,30 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() } };
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2) where T : class
         {
             assert.ObjectsAreEqual(object1, object2, input => input, string.Empty);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2, string title) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2, string title) where T : class
         {
             assert.ObjectsAreEqual(object1, object2, input => input, title);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2, Func<T?, T?> orderFunc) where T : class
         {
             assert.ObjectsAreEqual(object1, object2, orderFunc, string.Empty);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T>> object1, Expression<Func<T>> object2, Func<T, T> orderFunc, string title) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2, Func<T?, T?> orderFunc, string title) where T : class
         {
             var obj1 = orderFunc(object1.Compile()());
             var obj2 = orderFunc(object2.Compile()());
 
-            var differences = new Comparer<T>().CalculateDifferences(obj1, obj2);
+            var differences = new Comparer<T>().CalculateDifferences(obj1!, obj2!);
             var resultTable = differences.ToResultTable(object1.NameOf(), object2.NameOf());
 
-            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj1, obj2, title));
+            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj1!, obj2!, title));
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression) where T : class
