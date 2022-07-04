@@ -101,7 +101,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparers
             try
             {
                 // Can be null for comparison!
-                object1 = object1AsJson.FromJson<T>()!;
+                object1 = object1AsJson.FromJsonStringAs<T>()!;
             }
             catch (Exception)
             {
