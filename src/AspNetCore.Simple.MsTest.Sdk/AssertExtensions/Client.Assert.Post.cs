@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -88,6 +90,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Assembly callingAssembly) where TResult : class
         {
             return client.AssertHttpCall(url, payloadAsJson, resultAsJson, item => item, HttpExtensions.PostAsErrorResultWithJsonStringAsync<TResult>, HttpMethod.Post, callingAssembly);
+        }
+
+        public static async Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient, string url)
+        {
+            var result = await httpClient.PostAsync(url, null).ConfigureAwait(false);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode, $"POST with'{url}' was successful, but unauthorized was expected");
         }
     }
 }

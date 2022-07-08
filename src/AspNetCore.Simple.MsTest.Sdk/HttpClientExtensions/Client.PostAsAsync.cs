@@ -74,17 +74,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new UnexpectedResultException(await result.GetResponseInfoAsync($"POST '{url}' was successful, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
         }
 
-        public static async Task PostAsUnauthorizedAsync<T>(this HttpClient httpClient, string url)
-        {
-            var result = await httpClient.PostAsync(url, null).ConfigureAwait(false);
-            if (result.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                return;
-            }
-
-            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"POST '{url}' was successful, but unauthorized was expected").ConfigureAwait(false));
-        }
-
         public static async Task<T> PostAsErrorResultAsync<T>(this HttpClient httpClient, string url)
         {
             var result = await httpClient.PostAsync(url, null).ConfigureAwait(false);
