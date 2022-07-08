@@ -18,7 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
         [HttpGet("/{id}")]
         public Task<Person> Get(long id)
         {
-            return Task.FromResult(new Person(3, "son", "goku", 55));
+            return Task.FromResult(new Person(id, "son", "goku", 55));
         }
 
         [HttpPost]
