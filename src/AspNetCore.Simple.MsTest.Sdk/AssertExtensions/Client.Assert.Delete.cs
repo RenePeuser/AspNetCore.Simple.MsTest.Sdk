@@ -31,14 +31,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
 
-        public static Task AssertDeleteErrorAsync<TResult>(this HttpClient client,
+        public static Task AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
                                                            string url,
                                                            string resultAsJson) where TResult : class
         {
-            return client.AssertDeleteErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly());
+            return client.AssertDeleteAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly());
         }
 
-        public static Task AssertDeleteErrorAsync<TResult>(this HttpClient client,
+        public static Task AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
                                                            string url,
                                                            string resultAsJson,
                                                            Assembly callingAssembly) where TResult : class

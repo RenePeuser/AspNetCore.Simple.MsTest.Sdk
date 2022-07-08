@@ -61,30 +61,30 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, HttpExtensions.PatchAsJsonStringAsync<TResult>, HttpMethod.Patch, callingAssembly);
         }
 
-        public static Task<TResult> AssertPatchError<TResult>(this HttpClient client,
+        public static Task<TResult> AssertPatchAsError<TResult>(this HttpClient client,
                                                               string url,
                                                               string resultAsJson) where TResult : class
         {
-            return client.AssertPatchError<TResult>(url, resultAsJson, Assembly.GetCallingAssembly());
+            return client.AssertPatchAsError<TResult>(url, resultAsJson, Assembly.GetCallingAssembly());
         }
 
-        public static Task<TResult> AssertPatchError<TResult>(this HttpClient client,
+        public static Task<TResult> AssertPatchAsError<TResult>(this HttpClient client,
                                                               string url,
                                                               string resultAsJson,
                                                               Assembly callingAssembly) where TResult : class
         {
-            return AssertPatchError<TResult>(client, url, string.Empty, resultAsJson, callingAssembly);
+            return AssertPatchAsError<TResult>(client, url, string.Empty, resultAsJson, callingAssembly);
         }
 
-        public static Task<TResult> AssertPatchError<TResult>(this HttpClient client,
+        public static Task<TResult> AssertPatchAsError<TResult>(this HttpClient client,
                                                               string url,
                                                               string payloadAsJson,
                                                               string resultAsJson) where TResult : class
         {
-            return client.AssertPatchError<TResult>(url, payloadAsJson, resultAsJson, Assembly.GetCallingAssembly());
+            return client.AssertPatchAsError<TResult>(url, payloadAsJson, resultAsJson, Assembly.GetCallingAssembly());
         }
 
-        public static Task<TResult> AssertPatchError<TResult>(this HttpClient client,
+        public static Task<TResult> AssertPatchAsError<TResult>(this HttpClient client,
                                                               string url,
                                                               string payloadAsJson,
                                                               string resultAsJson,
