@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -92,9 +93,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertHttpCall(url, payloadAsJson, resultAsJson, item => item, HttpExtensions.PostAsErrorResultWithJsonStringAsync<TResult>, HttpMethod.Post, callingAssembly);
         }
 
-        public static async Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient, string url)
+        public static async Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient, string url, object body)
         {
-            var result = await httpClient.PostAsync(url, null).ConfigureAwait(false);
+            // Save original auth header
+            var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Unauthorized token");
+
+            var result = await httpClient.PostAsJsonStringAsync(url, body.ToJson()).ConfigureAwait(false);
+
+            // Reset back to original
+            httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
+
             Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode, $"POST with'{url}' was successful, but unauthorized was expected");
         }
     }
