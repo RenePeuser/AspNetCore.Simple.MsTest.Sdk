@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -35,7 +37,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var obj1 = orderFunc(object1.Compile()());
             var obj2 = orderFunc(object2.Compile()());
 
-            var differences = new Comparer<T>().CalculateDifferences(obj1!, obj2!);
+            var differences = new ObjectsComparer.Comparer<T>().CalculateDifferences(obj1!, obj2!).ToImmutableList();
             var resultTable = differences.ToResultTable(object1.NameOf(), object2.NameOf());
 
             Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj1!, obj2!, title));
@@ -53,25 +55,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression, string title) where T : class
         {
-            assert.ObjectsAreEqual(json, objectExpression, item => item, title, Assembly.GetCallingAssembly());
+            assert.ObjectsAreEqual(json, objectExpression, item => item, title, Assembly.GetCallingAssembly(), difference => difference);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression, string title, Assembly callingAssembly) where T : class
         {
-            assert.ObjectsAreEqual(json, objectExpression, item => item, title, callingAssembly);
+            assert.ObjectsAreEqual(json, objectExpression, item => item, title, callingAssembly, difference => difference);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
         {
-            assert.ObjectsAreEqual(json, object2, orderFunc, string.Empty, Assembly.GetCallingAssembly());
+            assert.ObjectsAreEqual(json, object2, orderFunc, string.Empty, Assembly.GetCallingAssembly(), difference => difference);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, Assembly callingAssembly) where T : class
         {
-            assert.ObjectsAreEqual(json, object2, orderFunc, string.Empty, callingAssembly);
+            assert.ObjectsAreEqual(json, object2, orderFunc, string.Empty, callingAssembly, difference => difference);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, string title, Assembly callingAssembly) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, string title, Assembly callingAssembly, Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
         {
             T? object1;
             var jsonSource = json.Compile()();
@@ -96,13 +98,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var orderedObject1 = orderFunc(object1);
             var orderedObject2 = orderFunc(obj2);
 
-            var differences = new Comparer<T>(new ComparisonSettings()).CalculateDifferences(orderedObject1!, orderedObject2);
+            var differences = new ObjectsComparer.Comparer<T>(new ComparisonSettings()).CalculateDifferences(orderedObject1, orderedObject2).ToImmutableList();
+
+            var optimizedDifferences = differenceFunc(differences).ToImmutableList();
 
             var expectedValueName = jsonSource.EndsWith(".json", StringComparison.InvariantCulture) ? jsonSource : json.NameOf();
 
-            var resultTable = differences.ToResultTable(expectedValueName, object2.NameOf());
+            var resultTable = optimizedDifferences.ToResultTable(expectedValueName, object2.NameOf());
 
-            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, orderedObject1, orderedObject2, title));
+            Assert.IsTrue(optimizedDifferences.IsEmpty(), GetOutputString(resultTable, orderedObject1, orderedObject2, title));
         }
 
         private static string GetOutputString(string resultTable, object expectedResult, object current, string title)
