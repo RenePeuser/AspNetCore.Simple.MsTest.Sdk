@@ -6,6 +6,10 @@ using System.Net.Mime;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.Extensions;
+using ConsoleTables;
+using Extensions.Pack;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -18,24 +22,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Task PatchAsJsonStringUnauthorizedAsync(this HttpClient httpClient, string url, string payloadAsJson)
         {
-            return httpClient.PatchAsJsonStringUnauthorizdAsync(url, payloadAsJson, Assembly.GetCallingAssembly());
+            return httpClient.PatchAsJsonStringUnauthorizedAsync(url, payloadAsJson, Assembly.GetCallingAssembly());
         }
 
         public static async Task<T> PatchAsJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
             var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
 
-            var postResponse = await httpClient.PatchAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
-            if (postResponse.IsSuccessStatusCode)
+            var patchResponse = await httpClient.PatchAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
+            if (patchResponse.IsSuccessStatusCode)
             {
-                var typeResult = await postResponse.Content.ReadAsAsync<T>().ConfigureAwait(false);
-                return typeResult;
+                return await patchResponse.ParseResultAsync<T>().ConfigureAwait(false);
             }
 
-            throw new UnexpectedResultException(await postResponse.GetResponseInfoAsync($"PATCH '{url}' was successful, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
+            var responseInfoAsync = await patchResponse.GetResponseInfoAsync(nameof(patchResponse.IsSuccessStatusCode)).ConfigureAwait(false);
+
+            throw new UnexpectedResultException(responseInfoAsync);
         }
 
-        public static async Task PatchAsJsonStringUnauthorizdAsync(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
+        public static async Task PatchAsJsonStringUnauthorizedAsync(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
             var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
 
@@ -53,7 +58,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            throw new UnexpectedResultException(await postResponse.GetResponseInfoAsync($"PATCH '{url}' was successful, but you expect that this call is unauthorized 401").ConfigureAwait(false));
+            var currentResult = new
+            {
+                Request = $"GET {url}",
+                Expected = HttpStatusCode.Unauthorized,
+                Current = postResponse.StatusCode
+            }.ToIList();
+
+            var table = ConsoleTable.From(currentResult);
+            var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
+
+            Assert.AreEqual(HttpStatusCode.Unauthorized, postResponse.StatusCode, errorOutput);
         }
 
         public static Task<T> PatchAsErrorResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson)
@@ -65,14 +80,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
 
-            var postResponse = await httpClient.PatchAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
-            if (postResponse.IsSuccessStatusCode is false)
+            var patchResponse = await httpClient.PatchAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
+            if (patchResponse.IsSuccessStatusCode is false)
             {
-                var typeResult = await postResponse.Content.ReadAsAsync<T>().ConfigureAwait(false);
-                return typeResult;
+                return await patchResponse.ParseResultAsync<T>().ConfigureAwait(false);
             }
 
-            throw new UnexpectedResultException(await postResponse.GetResponseInfoAsync($"PATCH '{url}' was successful, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
+            throw new UnexpectedResultException(await patchResponse.GetResponseInfoAsync("Not successful").ConfigureAwait(false));
         }
 
         public static async Task<HttpResponseMessage> PatchAsJsonAsync<T>(this HttpClient httpClient, string url, T content)

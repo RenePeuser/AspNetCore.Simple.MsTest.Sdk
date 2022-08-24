@@ -1,26 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
+using ConsoleTables;
+using Extensions.Pack;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
     internal static class HttpResponseMessageExtensions
     {
+        internal static async Task<string> GetResponseInfoAsync(this HttpResponseMessage response, string expected)
+        {
+            var errorResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            errorResponse = JToken.Parse(errorResponse).ToString(Formatting.Indented);
+            var errorResult = new
+            {
+                Request = $"{response.RequestMessage?.Method} {response.RequestMessage?.RequestUri}",
+                Expected = expected,
+                Current = response.StatusCode,
+            }.ToIList();
 
-        internal static async Task<string> GetResponseInfoAsync(this HttpResponseMessage response, string title)
-        {
-            var result = await response.GetResponseInfosAsync(title).ToListAsync().ConfigureAwait(false);
-            return result.Flatten(Environment.NewLine);
-        }
-        internal static async IAsyncEnumerable<string> GetResponseInfosAsync(this HttpResponseMessage response, string title)
-        {
-            yield return title;
-            yield return $"{nameof(response.RequestMessage.Method.Method)}: {response.RequestMessage!.Method.Method}";
-            yield return $"{nameof(response.RequestMessage.RequestUri.AbsolutePath)}: {response.RequestMessage.RequestUri!.AbsolutePath}";
-            yield return $"{nameof(response.StatusCode)}: {response.StatusCode}";
-            yield return $"{nameof(response.Content)}: {await response.Content.ReadAsStringAsync().ConfigureAwait(false)}";
+            var table = ConsoleTable.From(errorResult).ToString();
+            var errorOutput = $@"
+{table}
+
+Current response:
+
+{errorResponse}";
+
+            return errorOutput;
         }
     }
 }

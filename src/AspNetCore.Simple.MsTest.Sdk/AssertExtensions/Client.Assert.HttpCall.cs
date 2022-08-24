@@ -73,7 +73,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var currentResult = await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
 
-            var httpCallInfo = $"Call: '{httpMethod} {url}' was not successful.";
+            var httpCallInfo = $"{Environment.NewLine}Call: '{httpMethod} {url}' was not successful.";
 
             Assert.That.ObjectsAreEqual(() => resultAsJson, () => currentResult, filterFunc, httpCallInfo, callingAssembly, differenceFunc);
 

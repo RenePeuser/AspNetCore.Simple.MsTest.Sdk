@@ -1,5 +1,6 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.Extensions;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -13,7 +14,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"DELETE with'{url}' was not successful").ConfigureAwait(false));
+            var responseInfoAsync = await result.GetResponseInfoAsync(nameof(result.IsSuccessStatusCode)).ConfigureAwait(false);
+
+            throw new UnexpectedResultException(responseInfoAsync);
         }
 
         public static async Task<T> DeleteAsAsync<T>(this HttpClient httpClient, string url)
@@ -21,11 +24,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var result = await httpClient.DeleteAsync(url).ConfigureAwait(false);
             if (result.IsSuccessStatusCode)
             {
-                var typeResult = await result.Content.ReadAsAsync<T>().ConfigureAwait(false);
-                return typeResult;
+                return await result.ParseResultAsync<T>().ConfigureAwait(false);
             }
 
-            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"DELETE with'{url}' was not successful").ConfigureAwait(false));
+            var responseInfoAsync = await result.GetResponseInfoAsync(nameof(result.IsSuccessStatusCode)).ConfigureAwait(false);
+
+            throw new UnexpectedResultException(responseInfoAsync);
         }
 
         public static async Task<T> DeleteAsErrorResultAsync<T>(this HttpClient httpClient, string url)
@@ -33,11 +37,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var result = await httpClient.DeleteAsync(url).ConfigureAwait(false);
             if (result.IsSuccessStatusCode is false)
             {
-                var typeResult = await result.Content.ReadAsAsync<T>().ConfigureAwait(false);
-                return typeResult;
+                return await result.ParseResultAsync<T>().ConfigureAwait(false);
             }
 
-            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"DELETE '{url}' was successful, but you expect an error result of type: '{typeof(T).Name}'").ConfigureAwait(false));
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync("Not successful").ConfigureAwait(false));
         }
     }
 }

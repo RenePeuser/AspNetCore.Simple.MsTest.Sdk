@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
+using ConsoleTables;
+using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ObjectsComparer;
 
@@ -105,7 +107,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Reset back to original
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
-            Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode, $"GET with'{url}' was successful, but unauthorized was expected");
+            var currentResult = new
+            {
+                Request = $"GET {url}",
+                Expected = HttpStatusCode.Unauthorized,
+                Current = result.StatusCode
+            }.ToIList();
+
+            var table = ConsoleTable.From(currentResult);
+            var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
+
+            Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode, errorOutput);
         }
     }
 }
