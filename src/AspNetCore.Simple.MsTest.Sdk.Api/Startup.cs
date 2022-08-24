@@ -8,7 +8,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api
     public class Startup : SimpleStartup
     {
         public Startup(IConfiguration configuration,
-                       IWebHostEnvironment webHostEnvironment) : base(configuration, webHostEnvironment, new PathString("/api/tests"), "Test API for AspNetCore.Simple.MsTest.Sdk")
+                       IWebHostEnvironment webHostEnvironment) : base(configuration, webHostEnvironment, new PathString("/api/tests"))
         {
         }
     }
