@@ -12,18 +12,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
-        // Delegate to overwrite the default assert 
-        public delegate Task<dynamic> AssertHttpCallDelegate(HttpClient client,
-                                                             string url,
-                                                             string payloadAsJson,
-                                                             string resultAsJson,
-                                                             Func<dynamic, dynamic> filterFunc,
-                                                             Func<HttpClient, string, string, Task<dynamic>> httpFunction,
-                                                             HttpMethod httpMethod,
-                                                             Assembly callingAssembly,
-                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc);
-
-
+        // This is only for dev who know what they are doing
+        // With this method info you are able to intercept the existing assert functionality
+        // to use external once
         public static MethodInfo? CustomAssertMethod { get; set; }
 
 
