@@ -89,6 +89,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
+                                                                   string url,
+                                                                   string resultAsJson,
+                                                                   Func<TResult, TResult> filterFunc) where TResult : class
+        {
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, HttpExtensions.GetAsErrorResultAsync<TResult>, HttpMethod.Get, Assembly.GetCallingAssembly());
+        }
+
+        public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                  string url,
                                                                  string resultAsJson,
                                                                  Assembly callingAssembly) where TResult : class
