@@ -1,4 +1,7 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.IO.Compression;
+using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Extensions;
 
@@ -40,6 +43,74 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             throw new UnexpectedResultException(await result.GetResponseInfoAsync("Not successful").ConfigureAwait(false));
+        }
+
+        public static async Task<byte[]> GetFileStreamAsByteArray(this HttpClient httpClient, string url)
+        {
+            var result = await httpClient.GetAsync(url).ConfigureAwait(false);
+            if (result.IsSuccessStatusCode)
+            {
+                var fileStreamResult = await result.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                await using (fileStreamResult.ConfigureAwait(false))
+                {
+                    var memoryStream = new MemoryStream();
+                    await using (memoryStream.ConfigureAwait(false))
+                    {
+                        await fileStreamResult.CopyToAsync(memoryStream).ConfigureAwait(false);
+                        var byteArray = memoryStream.ToArray();
+                        return byteArray;
+                    }
+                }
+            }
+
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"GET '{url}' was not success full.").ConfigureAwait(false));
+        }
+
+        public static async Task<InMemoryFile> GetFileAsync(this HttpClient httpClient, string url)
+        {
+            var result = await httpClient.GetAsync(url).ConfigureAwait(false);
+            if (result.IsSuccessStatusCode)
+            {
+                var fileStreamResult = await result.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                await using (fileStreamResult.ConfigureAwait(false))
+                {
+                    var memoryStream = new MemoryStream();
+                    await using (memoryStream.ConfigureAwait(false))
+                    {
+                        await fileStreamResult.CopyToAsync(memoryStream).ConfigureAwait(false);
+                        var byteArray = memoryStream.ToArray();
+                        return new InMemoryFile(byteArray, "test");
+                    }
+                }
+            }
+
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"GET '{url}' was not success full.").ConfigureAwait(false));
+        }
+
+        public static async IAsyncEnumerable<InMemoryFile> GetFilesFromZipResponseAsync(this HttpClient httpClient, string url)
+        {
+            var result = await httpClient.GetAsync(url).ConfigureAwait(false);
+            if (result.IsSuccessStatusCode)
+            {
+                var fileStreamResult = await result.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                await using (fileStreamResult.ConfigureAwait(false))
+                {
+                    using var zipArchive = new ZipArchive(fileStreamResult);
+                    foreach (var entry in zipArchive.Entries)
+                    {
+                        var stream = entry.Open();
+                        var memoryStream = new MemoryStream();
+                        await using (memoryStream.ConfigureAwait(false))
+                        {
+                            await stream.CopyToAsync(memoryStream).ConfigureAwait(false);
+                            var byteArray = memoryStream.ToArray();
+                            yield return new InMemoryFile(byteArray, entry.Name);
+                        }
+                    }
+                }
+            }
+
+            throw new UnexpectedResultException(await result.GetResponseInfoAsync($"GET '{url}' was not success full.").ConfigureAwait(false));
         }
     }
 }
