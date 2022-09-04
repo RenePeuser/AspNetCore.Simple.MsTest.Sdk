@@ -7,13 +7,25 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Extensions;
-using ConsoleTables;
-using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpExtensions
     {
+        public static async Task<T> PostAsAsync<T>(this HttpClient httpClient, string url)
+        {
+            var result = await httpClient.PostAsync(url, null).ConfigureAwait(false);
+            if (result.IsSuccessStatusCode)
+            {
+                var typeResult = await result.Content.ReadAsAsync<T>().ConfigureAwait(false);
+                return typeResult;
+            }
+
+            var responseInfoAsync = await result.GetResponseInfoAsync(nameof(result.IsSuccessStatusCode)).ConfigureAwait(false);
+
+            throw new UnexpectedResultException(responseInfoAsync);
+        }
+
         public static async Task<T> PostAsAsync<T>(this HttpClient httpClient, string url, object body)
         {
             var result = await httpClient.PostAsJsonAsync(url, body).ConfigureAwait(false);
@@ -60,7 +72,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new UnexpectedResultException(responseInfoAsync);
         }
 
-        public static async Task<T> PostAsAsync<T>(this HttpClient httpClient, string url)
+        public static async Task<T> PostAsUnauthorizedAsync<T>(this HttpClient httpClient, string url)
         {
             // Save original auth header
             var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
