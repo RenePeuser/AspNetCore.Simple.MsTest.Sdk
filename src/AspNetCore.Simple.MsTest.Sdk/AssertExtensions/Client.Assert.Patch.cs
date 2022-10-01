@@ -2,7 +2,9 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using ConsoleTables;
 using Extensions.Pack;
@@ -95,13 +97,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertHttpCall(url, payloadAsJson, resultAsJson, item => item, HttpExtensions.PatchAsErrorResultWithJsonStringAsync<TResult>, HttpMethod.Patch, callingAssembly);
         }
 
-        public static async Task AssertPatchAsUnauthorizedAsync(this HttpClient httpClient, string url)
+
+        public static Task AssertPatchAsUnauthorizedAsync(this HttpClient httpClient, string url)
+        {
+            return httpClient.AssertPatchAsUnauthorizedAsync(url, null);
+        }
+        public static async Task AssertPatchAsUnauthorizedAsync(this HttpClient httpClient, string url, object? payload)
         {
             // Save original auth header
             var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Unauthorized token");
 
-            var result = await httpClient.PatchAsync(url, null).ConfigureAwait(false);
+            var httpContent = payload is null ? null : new StringContent(payload.ToJson(), Encoding.UTF8, MediaTypeNames.Application.Json);
+            var result = await httpClient.PatchAsync(url, httpContent).ConfigureAwait(false);
 
             // Reset back to original
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;

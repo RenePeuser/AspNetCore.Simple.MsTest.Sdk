@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -47,7 +48,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var resultTable = optimizedDifferences.ToResultTable(object1.NameOf(), object2.NameOf());
 
-            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj1!, obj2!, title));
+            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj1!, obj2!, title, string.Empty));
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression) where T : class
@@ -80,7 +81,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(json, object2, orderFunc, string.Empty, callingAssembly, difference => difference);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, string title, Assembly callingAssembly, Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<string>> json,
+                                              Expression<Func<T>> object2,
+                                              Func<T, T> orderFunc,
+                                              string title,
+                                              Assembly callingAssembly,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
+        {
+            assert.ObjectsAreEqual(json, object2, orderFunc, title, callingAssembly, differenceFunc, string.Empty);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, string title, Assembly callingAssembly, Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc, string curl) where T : class
         {
             T? object1;
             var jsonSource = json.Compile()();
@@ -113,10 +125,30 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var resultTable = optimizedDifferences.ToResultTable(expectedValueName, object2.NameOf());
 
-            Assert.IsTrue(optimizedDifferences.IsEmpty(), GetOutputString(resultTable, orderedObject1, orderedObject2, title));
+            PrintCurl(curl);
+
+            Assert.IsTrue(optimizedDifferences.IsEmpty(), GetOutputString(resultTable, orderedObject1, orderedObject2, title, curl));
         }
 
-        private static string GetOutputString(string resultTable, object expectedResult, object current, string title)
+        private static void PrintCurl(string curl)
+        {
+            if (curl.IsNotNullOrWhiteSpace())
+            {
+                var maxLength = curl.Split(Environment.NewLine).Max(line => line.Length);
+                var separator = maxLength.Times(() => "-").Flatten();
+
+                var stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine(separator);
+                stringBuilder.AppendLine("Http call as curl");
+                stringBuilder.AppendLine(separator);
+                stringBuilder.AppendLine(curl);
+                stringBuilder.AppendLine(separator);
+                var curlOutput = stringBuilder.ToString();
+                Console.WriteLine(curlOutput);
+            }
+        }
+
+        private static string GetOutputString(string resultTable, object expectedResult, object current, string title, string curl)
         {
             var expectedResultAsJson = expectedResult.ToJson();
             var currentResultAsJson = current.ToJson();
@@ -138,6 +170,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             stringBuilder.AppendLine("Expected result:");
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(expectedResultAsJson);
+            stringBuilder.AppendLine();
+
             return stringBuilder.ToString();
         }
     }

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.Curl;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ObjectsComparer;
@@ -16,6 +17,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // With this method info you are able to intercept the existing assert functionality
         // to use external once
         public static MethodInfo? CustomAssertMethod { get; set; }
+
+        // The base url of the running application. Mostly it will be https://localhost:5001/. Check your launchSettings.json
+        public static string BaseUrl { get; set; } = "https://localhost:5001/";
+
+        // Here you can control the visibility of the token in the curl outputs.
+        public static bool ShowTokenInCurl { get; set; }
 
 
         private static async Task AssertHttpCall(this HttpClient client,
@@ -98,22 +105,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var currentResult = await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
 
-            var httpCallInfo = $"{Environment.NewLine}Call: '{httpMethod} {url}' was not successful.";
+            var absoluteUrl = $"{BaseUrl}{url}";
+            var httpCallInfo = $"{Environment.NewLine}Call: '{httpMethod} {absoluteUrl}' was not successful.";
 
-            Assert.That.ObjectsAreEqual(() => resultAsJson, () => currentResult, filterFunc, httpCallInfo, callingAssembly, differenceFunc);
+            // Call as curl
+            var curlBuilder = new CurlBuilder();
+            var curl = curlBuilder.BuildFrom(httpMethod, absoluteUrl, payloadAsJson, client.DefaultRequestHeaders.Authorization, callingAssembly, ShowTokenInCurl);
+
+            // New we print out also executed curl :) 
+            Assert.That.ObjectsAreEqual(() => resultAsJson, () => currentResult, filterFunc, httpCallInfo, callingAssembly, differenceFunc, curl);
 
             return currentResult;
         }
 
         private static async Task<TResult> AssertCustomHttpCall<TResult>(this HttpClient client,
-                                                                  string url,
-                                                                  string payloadAsJson,
-                                                                  string resultAsJson,
-                                                                  Func<TResult, TResult> filterFunc,
-                                                                  Func<HttpClient, string, string, Task<TResult>> httpFunction,
-                                                                  HttpMethod httpMethod,
-                                                                  Assembly callingAssembly,
-                                                                  Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
+                                                                         string url,
+                                                                         string payloadAsJson,
+                                                                         string resultAsJson,
+                                                                         Func<TResult, TResult> filterFunc,
+                                                                         Func<HttpClient, string, string, Task<TResult>> httpFunction,
+                                                                         HttpMethod httpMethod,
+                                                                         Assembly callingAssembly,
+                                                                         Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
         {
             if (CustomAssertMethod is null)
             {
