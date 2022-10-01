@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Immutable;
 using ConsoleTables;
 using ObjectsComparer;
 
@@ -6,7 +6,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static class DifferenceExtensions
     {
-        public static string ToResultTable(this IEnumerable<Difference> differences, string objectName1, string objectName2)
+        public static string ToResultTable(this IImmutableList<Difference> differences, string objectName1, string objectName2)
         {
             if (differences.IsEmpty())
             {
