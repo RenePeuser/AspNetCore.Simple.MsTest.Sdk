@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public class PostWithBodyTestCreator : ISpecificTestCreator
     {

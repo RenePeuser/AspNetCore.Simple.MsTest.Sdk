@@ -6,7 +6,6 @@ using System.Net.Mime;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.Extensions;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {

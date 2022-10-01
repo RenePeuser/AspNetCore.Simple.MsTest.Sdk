@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public class TestCreatorActionFilter : IAsyncActionFilter
     {

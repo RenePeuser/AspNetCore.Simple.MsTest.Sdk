@@ -7,7 +7,7 @@ using ConsoleTables;
 using Extensions.Pack;
 using ObjectsComparer;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Comparers
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public class DeserializeException : Exception
     {

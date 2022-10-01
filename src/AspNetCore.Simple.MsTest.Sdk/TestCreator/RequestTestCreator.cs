@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public class RequestTestCreator : IRequestTestCreator
     {

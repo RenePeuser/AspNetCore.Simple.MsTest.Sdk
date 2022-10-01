@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using Extensions.Pack;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Curl
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public class CurlBuilder
     {

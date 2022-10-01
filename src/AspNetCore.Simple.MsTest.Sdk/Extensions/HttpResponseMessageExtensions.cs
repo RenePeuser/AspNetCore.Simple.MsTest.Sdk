@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using ConsoleTables;
 using Extensions.Pack;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Extensions
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     internal static class HttpResponseMessageExtensions
     {

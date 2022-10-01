@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public class TestCreatorMiddleware : IMiddleware
     {

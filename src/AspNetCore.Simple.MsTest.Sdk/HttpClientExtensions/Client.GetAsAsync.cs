@@ -3,7 +3,6 @@ using System.IO.Compression;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.Extensions;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {

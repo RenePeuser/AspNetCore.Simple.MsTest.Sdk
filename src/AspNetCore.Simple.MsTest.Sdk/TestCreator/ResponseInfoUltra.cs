@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 
-namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public record ResponseInfoUltra(Type ResponseType,
                                     string Body,

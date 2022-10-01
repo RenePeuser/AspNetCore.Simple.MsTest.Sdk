@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.Curl;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ObjectsComparer;

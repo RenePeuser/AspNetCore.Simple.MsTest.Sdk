@@ -1,4 +1,4 @@
-﻿namespace AspNetCore.Simple.MsTest.Sdk.TestCreator
+﻿namespace AspNetCore.Simple.MsTest.Sdk
 {
     public interface IRequestTestCreator
     {

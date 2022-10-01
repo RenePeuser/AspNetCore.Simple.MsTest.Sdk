@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pulse.Common.MsTest
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public abstract class DisposableObject : IDisposable
     {
