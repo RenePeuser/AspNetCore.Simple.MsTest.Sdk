@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using Extensions.Pack;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -73,9 +76,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private async Task<RequestInfo> GetRequestInfoUltraAsync(HttpRequest request)
         {
-            using var reader = new StreamReader(request.Body);
-            var bodyAsText = await reader.ReadToEndAsync().ConfigureAwait(false);
-            request.Body = new MemoryStream(Encoding.UTF8.GetBytes(bodyAsText));
+            var bodyAsText = "Was not able to read request body";
+            if (request.Body.CanRead)
+            {
+                var contentType = request.ContentType.IsNull() ? string.Empty : request.ContentType;
+                if (contentType.Contains(MediaTypeNames.Application.Json))
+                {
+                    using var reader = new StreamReader(request.Body);
+                    bodyAsText = await reader.ReadToEndAsync().ConfigureAwait(false);
+                    request.Body = new MemoryStream(Encoding.UTF8.GetBytes(bodyAsText));
+                }
+                else
+                {
+                    bodyAsText = $"Request which are not type of {MediaTypeNames.Application.Json} makes no sense to read";
+                }
+            }
 
             var absoluteUrl = $"{request.Scheme}://{request.Host}{request.Path.Value}";
 
