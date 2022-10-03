@@ -56,7 +56,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var bodyAsText = await reader.ReadToEndAsync().ConfigureAwait(false);
             request.Body = new MemoryStream(Encoding.UTF8.GetBytes(bodyAsText));
 
-            return new RequestInfo(request.Method, request.Path.Value!, bodyAsText);
+            var absoluteUrl = $"{request.Scheme}://{request.Host}{request.Path.Value}";
+
+            return new RequestInfo(request.Method, request.Path.Value!, absoluteUrl, bodyAsText);
         }
 
         private async Task<ResponseInfoUltra> GetResponseInfoUltraAsync(HttpResponse response)

@@ -1,10 +1,16 @@
 ﻿using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Extensions.Pack;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -13,22 +19,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private readonly ILogger<PostWithBodyTestCreator> _logger;
 
         private readonly string TestTemplate = @"
-        [TestMethod]
-        public Task Should_Return_Expected_Result_For_Given_Payload()
-        {
-            return Client.Assert$httpMethod$$error$Async<$responseType$>(""$url$"",
-                                                                         $payload$,
-                                                                         $response$);
-        }
+[NUnit.Framework.Test]
+public Task Should_Return_Expected_Result_For_Given_Payload()
+{
+    return Client.Assert$httpMethod$$error$Async<$responseType$>(""$url$"",
+                                                                 Payload,
+                                                                 Response);
+}
 ";
 
         private readonly string NoPayloadTestTemplate = @"
-        [TestMethod]
-        public Task Should_Return_Expected_Result_For_Given_Payload()
-        {
-            return Client.Assert$httpMethod$$error$Async<$responseType$>(""$url$"",                                       
-                                                                         $response$);
-        }
+[NUnit.Framework.Test]
+public Task Should_Return_Expected_Result_For_Given_Payload()
+{
+    return Client.Assert$httpMethod$$error$Async<$responseType$>(""$url$"",                                       
+                                                                 Response);
+}
 ";
 
         public PostWithBodyTestCreator(ILogger<PostWithBodyTestCreator> logger)
@@ -43,47 +49,73 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public string CreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfo)
         {
-            var typeName = GetTypeName(responseInfo.ResponseType);
-
-            var errorPlaceHolder = responseInfo.StatusCode is >= 200 and < 300 ? string.Empty : "Error";
-
-            var template = string.IsNullOrWhiteSpace(requestInfo.Body) ? NoPayloadTestTemplate : TestTemplate;
-            var httpMethodName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(requestInfo.HttpMethod.ToLowerInvariant());
+            var testParts = GeneratedTestParts().ToList();
+            var maxCharsPerLine = testParts.SelectMany(line => line.Split(Environment.NewLine)).Max(line => line.Length);
+            var separator = maxCharsPerLine.Times(() => "-").Flatten();
 
 
-            var test = template.Replace("$url$", requestInfo.Url)
-                               .Replace("$payload$", ToLiteral(requestInfo.Body))
-                               .Replace("$response$", ToLiteral(responseInfo.Body))
-                               .Replace("$responseType$", typeName)
-                               .Replace("$httpMethod$", httpMethodName)
-                               .Replace("$error$", errorPlaceHolder);
+            var testOutput = testParts.Flatten($"{Environment.NewLine}");
+            var outputWithSeparators = testOutput.Replace("$separator$", separator);
 
-            // Debug.WriteLine(test);
-            _logger.LogInformation(test);
+            Debug.WriteLine(outputWithSeparators);
+            Console.WriteLine(outputWithSeparators);
+
+            return outputWithSeparators;
+
+            IEnumerable<string> GeneratedTestParts()
+            {
+                var typeName = GetTypeName(responseInfo.ResponseType);
+
+                var errorPlaceHolder = responseInfo.StatusCode is >= 200 and < 300 ? string.Empty : "AsError";
+
+                var template = requestInfo.Body.IsNullOrWhiteSpace() ? NoPayloadTestTemplate : TestTemplate;
+                var httpMethodName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(requestInfo.HttpMethod.ToLowerInvariant());
 
 
-            return test;
-            //if (!responseInfo.httpResponse.Headers.TryGetValue("assembly-location", out _))
-            //{
-            //    return string.Empty;
-            //}
+                var test = template.Replace("$url$", requestInfo.RelativePath)
+                                   .Replace("$payload$", ToLiteral(requestInfo.Body))
+                                   .Replace("$response$", ToLiteral(responseInfo.Body))
+                                   .Replace("$responseType$", typeName)
+                                   .Replace("$httpMethod$", httpMethodName)
+                                   .Replace("$error$", errorPlaceHolder);
 
-            //// Just test
-            //var assembly = new FileInfo(responseInfo.httpResponse.Headers["assembly-location"]);
-            //var csproj = new FileInfo(responseInfo.httpResponse.Headers["csproj"]);
-            //var test1 = assembly.Directory.Parent.Parent.Parent.Parent;
 
-            //var testProj = test1.EnumerateFiles("AspNetCore.Simple.MsTest.Sdk.Test.csproj",SearchOption.AllDirectories).First();
-            //var testFile = new FileInfo(Path.Combine(testProj.Directory.FullName, "Controllers", "PersonController.cs"));
-            //testFile.Directory.Create();
+                // Debug.WriteLine(test);
+                //                 _logger.LogInformation(test);
 
-            //var className = ClassTemplate.Replace("$className$", "PersonController").Replace("$testMethod$", test);
+                // First return test
+                yield return "$separator$";
+                yield return $"Http Call:     {requestInfo.HttpMethod} {requestInfo.AbsolutePath}";
+                yield return "$separator$";
+                yield return "Created test:";
+                yield return "$separator$";
+                yield return test;
+                yield return "$separator$";
 
-            //File.WriteAllText(testFile.FullName, className);
+                if (requestInfo.Body.IsNotNullOrWhiteSpace())
+                {
+                    yield return "Payload:";
+                    yield return "$separator$";
+                    yield return JToken.Parse(requestInfo.Body).ToString(Formatting.Indented);
+                    yield return "$separator$";
+                }
 
-            //var locationOfController = responseInfo.httpResponse.Headers["controller-name"];
-
-            //return test;
+                if (responseInfo.Body.IsNotNullOrWhiteSpace())
+                {
+                    yield return "Response:";
+                    yield return "$separator$";
+                    // Check it xml or html is returned
+                    if (responseInfo.Body.StartWith("{"))
+                    {
+                        yield return JToken.Parse(responseInfo.Body).ToString(Formatting.Indented);
+                    }
+                    else
+                    {
+                        yield return responseInfo.Body;
+                    }
+                    yield return "$separator$";
+                }
+            }
         }
 
         private string GetTypeName(Type type)
