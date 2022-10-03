@@ -194,7 +194,17 @@ public Task $testmethodname$()
                 {
                     yield return "Payload:";
                     yield return "$separator$";
-                    yield return JToken.Parse(requestInfo.Body).ToString(Formatting.Indented);
+
+                    // Check it xml or html is returned
+                    if (requestInfo.Body.StartWith("{"))
+                    {
+                        yield return JToken.Parse(requestInfo.Body).ToString(Formatting.Indented);
+                    }
+                    else
+                    {
+                        yield return requestInfo.Body;
+                    }
+
                     yield return "$separator$";
                 }
 
@@ -222,7 +232,7 @@ public Task $testmethodname$()
             {
                 >= 200 and < 300 => responseInfo.ResponseType.First(rt => rt.StatusCode is >= 200 and < 300).Type,
                 401 => null,
-                _ => responseInfo.ResponseType.First(rt => rt.StatusCode == 400).Type,
+                _ => responseInfo.ResponseType.LastOrDefault(rt => rt.StatusCode == responseInfo.StatusCode, responseInfo.ResponseType.MaxBy(rt => rt.StatusCode)!).Type
             };
 
             // If null check if we found explicit code declaration

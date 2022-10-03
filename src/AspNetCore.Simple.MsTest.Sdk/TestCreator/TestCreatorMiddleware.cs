@@ -84,9 +84,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private async Task<ResponseInfoUltra?> GetResponseInfoUltraAsync(HttpContext response)
         {
-            response.Response.Body.Seek(0, SeekOrigin.Begin);
-            var bodyAsText = await new StreamReader(response.Response.Body).ReadToEndAsync().ConfigureAwait(false);
-            response.Response.Body.Seek(0, SeekOrigin.Begin);
+            string bodyAsText = "Was not able to read response stream";
+
+            if (response.Response.Body.CanRead)
+            {
+                response.Response.Body.Seek(0, SeekOrigin.Begin);
+                bodyAsText = await new StreamReader(response.Response.Body).ReadToEndAsync().ConfigureAwait(false);
+                response.Response.Body.Seek(0, SeekOrigin.Begin);
+            }
 
             // Yes cool new shit
             var controllerActionDescriptor = response.GetEndpoint()?
