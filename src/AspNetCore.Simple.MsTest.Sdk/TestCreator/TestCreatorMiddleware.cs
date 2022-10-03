@@ -84,7 +84,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private async Task<ResponseInfoUltra?> GetResponseInfoUltraAsync(HttpContext response)
         {
-            string bodyAsText = "Was not able to read response stream";
+            var bodyAsText = "Was not able to read response stream";
 
             if (response.Response.Body.CanRead)
             {
