@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class ActionDescriptorExtensions
+    internal static class ActionDescriptorExtensions
     {
-        public static Type GetReturnType(this ActionDescriptor actionDescriptor)
+        internal static Type GetReturnType(this ActionDescriptor actionDescriptor)
         {
             var methodInfo = (MethodInfo)actionDescriptor.GetType().GetProperty("MethodInfo")!.GetValue(actionDescriptor)!;
             return methodInfo.ReturnType;

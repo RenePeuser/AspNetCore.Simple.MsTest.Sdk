@@ -1,12 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public class TestCreatorMiddleware : IMiddleware
+    internal static class AddTestCreatorMiddlewareExtension
+    {
+        internal static void AddTestCreatorMiddleware(this IServiceCollection services)
+        {
+            services.AddSingleton<TestCreatorMiddleware>();
+        }
+    }
+
+    internal class TestCreatorMiddleware : IMiddleware
     {
         private readonly IRequestTestCreator _requestTestCreator;
 
@@ -34,7 +48,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 await next(context).ConfigureAwait(false);
 
                 //Format the response from the server
-                response = await GetResponseInfoUltraAsync(context.Response).ConfigureAwait(false);
+                response = await GetResponseInfoUltraAsync(context).ConfigureAwait(false);
 
                 _requestTestCreator.CreateTestFor(request, response);
 
@@ -44,7 +58,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             catch (Exception)
             {
                 //Format the response from the server
-                response = await GetResponseInfoUltraAsync(context.Response).ConfigureAwait(false);
+                response = await GetResponseInfoUltraAsync(context).ConfigureAwait(false);
                 _requestTestCreator.CreateTestFor(request, response);
                 throw;
             }
@@ -61,20 +75,40 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return new RequestInfo(request.Method, request.Path.Value!, absoluteUrl, bodyAsText);
         }
 
-        private async Task<ResponseInfoUltra> GetResponseInfoUltraAsync(HttpResponse response)
+        private async Task<ResponseInfoUltra> GetResponseInfoUltraAsync(HttpContext response)
         {
-            response.Body.Seek(0, SeekOrigin.Begin);
-            var bodyAsText = await new StreamReader(response.Body).ReadToEndAsync().ConfigureAwait(false);
-            response.Body.Seek(0, SeekOrigin.Begin);
+            response.Response.Body.Seek(0, SeekOrigin.Begin);
+            var bodyAsText = await new StreamReader(response.Response.Body).ReadToEndAsync().ConfigureAwait(false);
+            response.Response.Body.Seek(0, SeekOrigin.Begin);
 
-            // Here we need a solutions for inumerable
-            var responseType = typeof(object);
-            if (response.Headers.TryGetValue("returntype-assembly", out var returnTypeString))
+            //// Here we need a solutions for inumerable
+            //var responseTypeInfos = ImmutableList<ReturnTypeInfo>.Empty;
+            //if (response.Response.Headers.TryGetValue("returntypes", out var returnTypeString))
+            //{
+            //    responseTypeInfos = System.Text.Json.JsonSerializer.Deserialize<ImmutableList<ReturnTypeInfo>>(returnTypeString) ?? ImmutableList<ReturnTypeInfo>.Empty;
+            //}
+
+            //var responseTypes = responseTypeInfos.Select(rt => new ResponseType(rt.StatusCode, Type.GetType(rt.FullQualifiedName)!)).ToImmutableList();
+
+            // Yes cool new shit
+            var controllerActionDescriptor = response.GetEndpoint()!
+                                                     .Metadata
+                                                     .GetMetadata<ControllerActionDescriptor>()!;
+
+
+
+            var returnType = controllerActionDescriptor.GetReturnType();
+            var producesResponseTypes = controllerActionDescriptor.EndpointMetadata.OfType<ProducesResponseTypeAttribute>();
+            var returnTypes = producesResponseTypes.Select(pr => new ResponseType(pr.StatusCode, pr.Type)).ToImmutableList();
+
+            if (returnTypes.IsEmpty())
             {
-                responseType = Type.GetType(returnTypeString);
+                returnTypes = ImmutableList.Create(new ResponseType(200, returnType), new ResponseType(400, typeof(ProblemDetails)));
             }
 
-            return new ResponseInfoUltra(responseType!, bodyAsText, response.StatusCode, response);
+            return new ResponseInfoUltra(returnTypes, bodyAsText, response.Response.StatusCode, response.Response);
         }
     }
+
+    internal record ResponseType(int StatusCode, Type Type);
 }

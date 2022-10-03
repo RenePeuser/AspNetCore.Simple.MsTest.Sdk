@@ -1,6 +1,6 @@
 ﻿namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public interface ISpecificTestCreator
+    internal interface ISpecificTestCreator
     {
         bool CanCreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfo);
 

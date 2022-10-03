@@ -1,10 +1,10 @@
-﻿using System;
+﻿using System.Collections.Immutable;
 using Microsoft.AspNetCore.Http;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public record ResponseInfoUltra(Type ResponseType,
-                                    string Body,
-                                    int StatusCode,
-                                    HttpResponse httpResponse);
+    internal record ResponseInfoUltra(IImmutableList<ResponseType> ResponseType,
+                                      string Body,
+                                      int StatusCode,
+                                      HttpResponse HttpResponse);
 }

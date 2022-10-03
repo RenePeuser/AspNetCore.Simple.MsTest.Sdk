@@ -1,9 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public class RequestTestCreator : IRequestTestCreator
+    internal static class AddRequestTestCreatorExtension
+    {
+        public static void AddRequestTestCreator(this IServiceCollection services)
+        {
+            services.AddSingleton<IRequestTestCreator, RequestTestCreator>();
+        }
+    }
+
+    internal interface IRequestTestCreator
+    {
+        string CreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfoUltra);
+    }
+
+    internal class RequestTestCreator : IRequestTestCreator
     {
         private readonly IEnumerable<ISpecificTestCreator> _testCreators;
 
