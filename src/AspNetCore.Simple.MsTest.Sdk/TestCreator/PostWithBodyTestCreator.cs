@@ -18,7 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         internal static void AddTestCreatorSettings(this IServiceCollection services, IConfiguration configuration)
         {
-            var settings = configuration.GetSection(nameof(TestCreatorSettings)).Get<TestCreatorSettings>();
+            var settings = configuration.GetSection("TestCreatorSettings").Get<TestCreatorSettings>();
             if (settings.IsNull())
             {
                 settings = new TestCreatorSettings();
