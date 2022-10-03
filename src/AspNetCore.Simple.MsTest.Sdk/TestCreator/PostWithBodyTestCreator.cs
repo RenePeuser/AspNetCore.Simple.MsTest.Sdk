@@ -18,7 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         internal static void AddTestCreatorSettings(this IServiceCollection services, IConfiguration configuration)
         {
-            var settings = configuration.GetSection("TestCreatorSettings").Get<TestCreatorSettings>();
+            var settings = configuration.GetSection(nameof(TestCreatorSettings)).Get<TestCreatorSettings>();
             if (settings.IsNull())
             {
                 settings = new TestCreatorSettings();
@@ -28,9 +28,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    internal record TestCreatorSettings
+    public record TestCreatorSettings
     {
-        internal string TestMethodAttribute { get; init; } = "[TestMethod]";
+        public string TestMethodAttribute { get; init; } = "[TestMethod]";
     }
 
 
