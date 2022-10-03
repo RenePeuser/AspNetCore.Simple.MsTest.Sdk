@@ -2,7 +2,6 @@
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,14 +18,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         internal static void AddTestCreatorSettings(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddTestCreatorSettings(configuration, output => Debug.WriteLine(output));
-        }
-
-
-        internal static void AddTestCreatorSettings(this IServiceCollection services, IConfiguration configuration, Action<string> logAction)
-        {
-            HttpClientAssertExtensions.LogAction = logAction;
-
             var settings = configuration.GetSection(nameof(TestCreatorSettings)).Get<TestCreatorSettings>();
             if (settings.IsNull())
             {
