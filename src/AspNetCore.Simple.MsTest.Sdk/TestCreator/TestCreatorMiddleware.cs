@@ -77,19 +77,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private async Task<RequestInfo> GetRequestInfoUltraAsync(HttpRequest request)
         {
             var bodyAsText = "Was not able to read request body";
-            if (request.Body.CanRead)
+
+            if (request.ContentType.IsNotNull())
             {
-                var contentType = request.ContentType.IsNull() ? string.Empty : request.ContentType;
-                if (contentType.Contains(MediaTypeNames.Application.Json))
+                if (request.Body.CanRead)
                 {
-                    using var reader = new StreamReader(request.Body);
-                    bodyAsText = await reader.ReadToEndAsync().ConfigureAwait(false);
-                    request.Body = new MemoryStream(Encoding.UTF8.GetBytes(bodyAsText));
+                    if (request.ContentType.Contains(MediaTypeNames.Application.Json))
+                    {
+                        using var reader = new StreamReader(request.Body);
+                        bodyAsText = await reader.ReadToEndAsync().ConfigureAwait(false);
+                        request.Body = new MemoryStream(Encoding.UTF8.GetBytes(bodyAsText));
+                    }
+                    else
+                    {
+                        bodyAsText = $"Request which are not type of {MediaTypeNames.Application.Json} makes no sense to read";
+                    }
                 }
-                else
-                {
-                    bodyAsText = $"Request which are not type of {MediaTypeNames.Application.Json} makes no sense to read";
-                }
+            }
+            else
+            {
+                bodyAsText = string.Empty;
             }
 
             var absoluteUrl = $"{request.Scheme}://{request.Host}{request.Path.Value}";
