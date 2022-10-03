@@ -10,7 +10,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddPostWithBodyTestCreator(configuration);
             services.AddRequestTestCreator();
             services.AddTestCreatorMiddleware();
-            services.AddTestCreatorActionFilter();
+            //services.AddTestCreatorActionFilter();
         }
     }
 }

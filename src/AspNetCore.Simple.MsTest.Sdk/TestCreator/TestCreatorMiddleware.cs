@@ -81,21 +81,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var bodyAsText = await new StreamReader(response.Response.Body).ReadToEndAsync().ConfigureAwait(false);
             response.Response.Body.Seek(0, SeekOrigin.Begin);
 
-            //// Here we need a solutions for inumerable
-            //var responseTypeInfos = ImmutableList<ReturnTypeInfo>.Empty;
-            //if (response.Response.Headers.TryGetValue("returntypes", out var returnTypeString))
-            //{
-            //    responseTypeInfos = System.Text.Json.JsonSerializer.Deserialize<ImmutableList<ReturnTypeInfo>>(returnTypeString) ?? ImmutableList<ReturnTypeInfo>.Empty;
-            //}
-
-            //var responseTypes = responseTypeInfos.Select(rt => new ResponseType(rt.StatusCode, Type.GetType(rt.FullQualifiedName)!)).ToImmutableList();
-
             // Yes cool new shit
             var controllerActionDescriptor = response.GetEndpoint()!
                                                      .Metadata
                                                      .GetMetadata<ControllerActionDescriptor>()!;
-
-
 
             var returnType = controllerActionDescriptor.GetReturnType();
             var producesResponseTypes = controllerActionDescriptor.EndpointMetadata.OfType<ProducesResponseTypeAttribute>();

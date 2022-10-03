@@ -22,7 +22,7 @@
         <PackageProjectUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
-        <PackageReleaseNotes>Print out curls in test output for each assert http call.</PackageReleaseNotes>
+        <PackageReleaseNotes>Test creator alpha version</PackageReleaseNotes>
         <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
         <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
