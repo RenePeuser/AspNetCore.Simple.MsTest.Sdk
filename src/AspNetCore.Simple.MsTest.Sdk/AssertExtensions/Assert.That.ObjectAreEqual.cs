@@ -164,8 +164,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 stringBuilder.AppendLine(curl);
                 stringBuilder.AppendLine(separator);
                 var curlOutput = stringBuilder.ToString();
-                Console.WriteLine(curlOutput);
-                Debug.WriteLine(curlOutput);
+
+                HttpClientAssertExtensions.LogAction(curlOutput);
             }
         }
 

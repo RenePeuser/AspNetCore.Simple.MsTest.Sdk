@@ -20,6 +20,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // The base url of the running application. Mostly it will be https://localhost:5001/. Check your launchSettings.json
         public static string BaseUrl { get; set; } = "https://localhost:5001/";
 
+        // Output function
+        public static Action<string> LogAction { get; set; } = Console.WriteLine;
+
         // Here you can control the visibility of the token in the curl outputs.
         public static bool ShowTokenInCurl { get; set; }
 

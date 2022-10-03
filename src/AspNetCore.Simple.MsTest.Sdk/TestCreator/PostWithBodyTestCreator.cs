@@ -19,6 +19,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         internal static void AddTestCreatorSettings(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddTestCreatorSettings(configuration, output => Debug.WriteLine(output));
+        }
+
+
+        internal static void AddTestCreatorSettings(this IServiceCollection services, IConfiguration configuration, Action<string> logAction)
+        {
+            HttpClientAssertExtensions.LogAction = logAction;
+
             var settings = configuration.GetSection(nameof(TestCreatorSettings)).Get<TestCreatorSettings>();
             if (settings.IsNull())
             {
@@ -140,8 +148,8 @@ public Task $testmethodname$()
             var outputWithSeparators = testOutput.Replace("$separator$", separator)
                                                  .Replace("$testattribute$", _testCreatorSettings.TestMethodAttribute);
 
-            Debug.WriteLine(outputWithSeparators);
-            Console.WriteLine(outputWithSeparators);
+            HttpClientAssertExtensions.LogAction(outputWithSeparators);
+
             _logger.LogDebug(outputWithSeparators);
 
             return outputWithSeparators;
