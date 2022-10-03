@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -38,7 +39,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(object1, object2, orderFunc, string.Empty, difference => difference);
         }
 
+
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2, Func<T?, T?> orderFunc, string title, Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
+        {
+            assert.ObjectsAreEqual(object1, object2, orderFunc, title, differenceFunc, string.Empty);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<T?>> object1,
+                                              Expression<Func<T?>> object2,
+                                              Func<T?, T?> orderFunc,
+                                              string title,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              string curl) where T : class
         {
             var obj1 = orderFunc(object1.Compile()());
             var obj2 = orderFunc(object2.Compile()());
@@ -92,7 +105,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(json, object2, orderFunc, title, callingAssembly, differenceFunc, string.Empty);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, string title, Assembly callingAssembly, Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc, string curl) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<string>> json,
+                                              Expression<Func<T>> object2,
+                                              Func<T, T> orderFunc,
+                                              string title,
+                                              Assembly callingAssembly,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              string curl) where T : class
         {
             T? object1;
             var jsonSource = json.Compile()();
@@ -145,6 +165,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 stringBuilder.AppendLine(separator);
                 var curlOutput = stringBuilder.ToString();
                 Console.WriteLine(curlOutput);
+                Debug.WriteLine(curlOutput);
             }
         }
 
