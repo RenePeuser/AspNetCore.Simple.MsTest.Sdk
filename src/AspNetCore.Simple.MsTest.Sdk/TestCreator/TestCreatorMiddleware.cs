@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Extensions.Pack;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -31,7 +32,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            ResponseInfoUltra response;
+            ResponseInfoUltra? response;
             var request = await GetRequestInfoUltraAsync(context.Request).ConfigureAwait(false);
             try
             {
@@ -49,8 +50,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 //Format the response from the server
                 response = await GetResponseInfoUltraAsync(context).ConfigureAwait(false);
-
-                _requestTestCreator.CreateTestFor(request, response);
+                if (response.IsNotNull())
+                {
+                    _requestTestCreator.CreateTestFor(request, response);
+                }
 
                 //Copy the contents of the new memory stream (which contains the response) to the original stream, which is then returned to the client.
                 await responseBody.CopyToAsync(originalBodyStream).ConfigureAwait(false);
@@ -59,7 +62,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 //Format the response from the server
                 response = await GetResponseInfoUltraAsync(context).ConfigureAwait(false);
-                _requestTestCreator.CreateTestFor(request, response);
+                if (response.IsNotNull())
+                {
+                    _requestTestCreator.CreateTestFor(request, response);
+                }
+
                 throw;
             }
         }
@@ -75,16 +82,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return new RequestInfo(request.Method, request.Path.Value!, absoluteUrl, bodyAsText);
         }
 
-        private async Task<ResponseInfoUltra> GetResponseInfoUltraAsync(HttpContext response)
+        private async Task<ResponseInfoUltra?> GetResponseInfoUltraAsync(HttpContext response)
         {
             response.Response.Body.Seek(0, SeekOrigin.Begin);
             var bodyAsText = await new StreamReader(response.Response.Body).ReadToEndAsync().ConfigureAwait(false);
             response.Response.Body.Seek(0, SeekOrigin.Begin);
 
             // Yes cool new shit
-            var controllerActionDescriptor = response.GetEndpoint()!
+            var controllerActionDescriptor = response.GetEndpoint()?
                                                      .Metadata
-                                                     .GetMetadata<ControllerActionDescriptor>()!;
+                                                     .GetMetadata<ControllerActionDescriptor>();
+
+            if (controllerActionDescriptor.IsNull())
+            {
+                return null;
+            }
 
             var returnType = controllerActionDescriptor.GetReturnType();
             var producesResponseTypes = controllerActionDescriptor.EndpointMetadata.OfType<ProducesResponseTypeAttribute>();

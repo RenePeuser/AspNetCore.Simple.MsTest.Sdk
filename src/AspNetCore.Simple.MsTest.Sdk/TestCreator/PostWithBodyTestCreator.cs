@@ -127,7 +127,6 @@ public Task $testmethodname$()
             }
 
             return template;
-
         }
 
         public string CreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfo)
@@ -221,7 +220,7 @@ public Task $testmethodname$()
         {
             var type = responseInfo.StatusCode switch
             {
-                >= 200 and < 300 => responseInfo.ResponseType.First(rt => rt.StatusCode == 200).Type,
+                >= 200 and < 300 => responseInfo.ResponseType.First(rt => rt.StatusCode is >= 200 and < 300).Type,
                 401 => null,
                 _ => responseInfo.ResponseType.First(rt => rt.StatusCode == 400).Type,
             };
