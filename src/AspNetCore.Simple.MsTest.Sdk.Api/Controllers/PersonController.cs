@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.Api.Models;
 using Microsoft.AspNetCore.Mvc;
-using Person = AspNetCore.Simple.MsTest.Sdk.Api.Models.Person;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
 {
