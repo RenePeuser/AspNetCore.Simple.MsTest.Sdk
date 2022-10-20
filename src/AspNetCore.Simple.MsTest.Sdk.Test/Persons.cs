@@ -11,7 +11,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()
         {
-            return Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons", "[{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99},{\"Id\":2,\"Name\":\"Vegeta\",\"FirstName\":\"Unknown\",\"Age\":77}]");
+            return Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons", /*lang=json,strict*/ "[{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99},{\"Id\":2,\"Name\":\"Vegeta\",\"FirstName\":\"Unknown\",\"Age\":77}]");
+        }
+
+        [TestMethod]
+        public Task Should_Return_Expected_Result_For_Given_Payload_By_Embedded_File()
+        {
+            return Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons", "Results.GetPersonResponse.json");
         }
 
         [DataTestMethod]
@@ -23,7 +29,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         public async Task Should_Throw_Exception_If_Json_Is_Invalid(string invalidJson)
         {
             var exception = await Assert.ThrowsExceptionAsync<InvalidJsonException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons", invalidJson)).ConfigureAwait(false);
-            Assert.AreEqual(exception.Message, $"Your given json string does not contains a valid json string. Json strings have to begin with '{{' and end with a '}}' or if you use an array notation then []\r\nYour invalid string is:\r\n{invalidJson}");
+            Assert.IsTrue(exception.Message.Contains(invalidJson));
         }
     }
 }

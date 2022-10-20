@@ -21,11 +21,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return jsonValueOrEmbeddedFile;
             }
 
-            var trimmedJsonValue = jsonValueOrEmbeddedFile.Trim();
+            var trimmedJsonValue = jsonValueOrEmbeddedFile.Trim().TrimEnd(Environment.NewLine.ToCharArray());
 
             if (trimmedJsonValue.EndWith(".json"))
             {
-                var jsonValueFromEmbeddedFile = callingAssembly.GetFileContentFrom(trimmedJsonValue);
+                var jsonValueFromEmbeddedFile = callingAssembly.GetFileContentFrom(trimmedJsonValue).Trim().TrimEnd(Environment.NewLine.ToCharArray());
                 if ((jsonValueFromEmbeddedFile.StartWith("{") && jsonValueFromEmbeddedFile.EndWith("}")) || (jsonValueFromEmbeddedFile.StartWith("[") && jsonValueFromEmbeddedFile.EndWith("]")))
                 {
                     return jsonValueFromEmbeddedFile;

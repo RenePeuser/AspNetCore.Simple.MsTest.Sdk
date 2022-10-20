@@ -9,6 +9,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Results\GetPersonResponse.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Results\GetPersonResponse.json" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.9" />
         <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.9" />
