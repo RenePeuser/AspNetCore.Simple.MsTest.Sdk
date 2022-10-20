@@ -61,7 +61,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static async Task<T> PutAsJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             var putResponse = await httpClient.PutAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (putResponse.IsSuccessStatusCode)
@@ -79,7 +79,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static async Task<T> PutAsErrorResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             var putResponse = await httpClient.PutAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (putResponse.IsSuccessStatusCode is false)
@@ -100,7 +100,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Task<HttpResponseMessage> PutAsJsonStringAsync(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             return httpClient.PutAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json));
         }

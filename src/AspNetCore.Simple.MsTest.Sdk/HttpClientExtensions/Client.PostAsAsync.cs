@@ -110,7 +110,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static async Task<T> PostAsJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             var postResponse = await httpClient.PostAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (postResponse.IsSuccessStatusCode)
@@ -124,7 +124,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static async Task PostAsJsonStringUnauthorizedAsync(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             // Save original auth header
             var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
@@ -151,7 +151,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static async Task<T> PostAsErrorResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             var postResponse = await httpClient.PostAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (postResponse.IsSuccessStatusCode is false)
@@ -170,7 +170,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Task<HttpResponseMessage> PostAsJsonStringAsync(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             return httpClient.PostAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json));
         }

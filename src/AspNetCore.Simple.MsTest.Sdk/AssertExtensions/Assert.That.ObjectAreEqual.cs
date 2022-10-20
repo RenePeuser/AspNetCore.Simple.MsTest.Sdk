@@ -115,7 +115,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             T? object1;
             var jsonSource = json.Compile()();
-            var jsonObject = jsonSource.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(jsonSource) : jsonSource;
+            var jsonObject = jsonSource.GetJsonString(callingAssembly);
 
             try
             {

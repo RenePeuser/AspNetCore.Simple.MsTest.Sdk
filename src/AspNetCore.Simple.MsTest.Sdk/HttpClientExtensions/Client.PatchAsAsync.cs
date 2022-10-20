@@ -26,7 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static async Task<T> PatchAsJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             var patchResponse = await httpClient.PatchAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (patchResponse.IsSuccessStatusCode)
@@ -41,7 +41,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static async Task PatchAsJsonStringUnauthorizedAsync(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             // Save original auth header
             var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
@@ -77,7 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static async Task<T> PatchAsErrorResultWithJsonStringAsync<T>(this HttpClient httpClient, string url, string payloadAsJson, Assembly callingAssembly)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             var patchResponse = await httpClient.PatchAsync(url, new StringContent(jsonPayload, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
             if (patchResponse.IsSuccessStatusCode is false)

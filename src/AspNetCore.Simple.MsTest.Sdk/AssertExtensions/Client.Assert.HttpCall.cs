@@ -33,7 +33,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  Func<HttpClient, string, string, Task> httpFunction,
                                                  Assembly callingAssembly)
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload =payloadAsJson.GetJsonString(callingAssembly);
 
             await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
         }
@@ -103,7 +103,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                            Assembly callingAssembly,
                                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
         {
-            var jsonPayload = payloadAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? callingAssembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             var currentResult = await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
 

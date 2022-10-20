@@ -38,7 +38,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (payloadAsJson.IsNotNullOrWhiteSpace())
                 {
-                    var json = payloadAsJson.EndWith(".json") ? assembly.GetFileContentFrom(payloadAsJson) : payloadAsJson;
+                    var json = payloadAsJson.GetJsonString(assembly);
                     yield return "--header 'Content-Type: application/json'";
                     yield return $"--data-raw '{json}'";
                 }
