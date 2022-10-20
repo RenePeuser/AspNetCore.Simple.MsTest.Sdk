@@ -16,6 +16,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         internal static string GetJsonString(this string jsonValueOrEmbeddedFile, Assembly callingAssembly)
         {
             // ToDo: Current exception string.empty have to fixed soon
+            // ToDo: Regex for start end check for  {} and []
             if (jsonValueOrEmbeddedFile.IsNullOrWhiteSpace())
             {
                 return jsonValueOrEmbeddedFile;
