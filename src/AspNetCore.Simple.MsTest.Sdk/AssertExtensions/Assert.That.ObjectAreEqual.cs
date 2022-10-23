@@ -60,7 +60,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var resultTable = optimizedDifferences.ToResultTable(object1.NameOf(), object2.NameOf());
 
-            Assert.IsTrue(differences.IsEmpty(), GetOutputString(resultTable, obj1!, obj2!, title, string.Empty));
+            Assert.IsTrue(optimizedDifferences.IsEmpty(), GetOutputString(resultTable, obj1!, obj2!, title, string.Empty));
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression) where T : class
