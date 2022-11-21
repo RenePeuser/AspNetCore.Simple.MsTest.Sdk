@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         string CreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfoUltra);
     }
 
-    internal class RequestTestCreator : IRequestTestCreator
+    internal sealed class RequestTestCreator : IRequestTestCreator
     {
         private readonly IEnumerable<ISpecificTestCreator> _testCreators;
 

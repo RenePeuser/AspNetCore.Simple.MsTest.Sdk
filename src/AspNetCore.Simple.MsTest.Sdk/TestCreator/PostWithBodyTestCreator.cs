@@ -45,7 +45,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     }
 
 
-    internal class PostWithBodyTestCreator : ISpecificTestCreator
+    internal sealed class PostWithBodyTestCreator : ISpecificTestCreator
     {
         // ToDo: Optimize template creation => Strategy :)
 

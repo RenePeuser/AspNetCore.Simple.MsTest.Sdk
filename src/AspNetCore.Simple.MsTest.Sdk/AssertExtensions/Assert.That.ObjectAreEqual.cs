@@ -144,13 +144,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var resultTable = optimizedDifferences.ToResultTable(expectedValueName, object2.NameOf());
 
-            PrintCurl(curl);
+            PrintCurl(callingAssembly, curl);
 
             Assert.IsTrue(optimizedDifferences.IsEmpty(), GetOutputString(resultTable, orderedObject1, orderedObject2, title, curl));
         }
 
-        private static void PrintCurl(string curl)
+        private static void PrintCurl(Assembly callingAssembly, string curl)
         {
+            if (callingAssembly.IsCompiledInDebug().IsFalse())
+            {
+                return;
+            }
+
             if (curl.IsNotNullOrWhiteSpace())
             {
                 var maxLength = curl.Split(Environment.NewLine).Max(line => line.Length);

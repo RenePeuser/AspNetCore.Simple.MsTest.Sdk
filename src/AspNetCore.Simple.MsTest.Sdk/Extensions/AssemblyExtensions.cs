@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -45,6 +46,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             using var ms = new MemoryStream();
             stream!.CopyTo(ms);
             return new InMemoryFile(ms.ToArray(), name);
+        }
+
+        public static bool IsCompiledInDebug(this Assembly assembly)
+        {
+            return assembly.GetCustomAttribute<DebuggableAttribute>()?.IsJITTrackingEnabled ?? false;
         }
     }
 }

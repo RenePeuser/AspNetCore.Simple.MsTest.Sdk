@@ -33,7 +33,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  Func<HttpClient, string, string, Task> httpFunction,
                                                  Assembly callingAssembly)
         {
-            var jsonPayload =payloadAsJson.GetJsonString(callingAssembly);
+            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
             await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
         }

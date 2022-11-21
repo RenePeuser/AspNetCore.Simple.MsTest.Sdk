@@ -21,7 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    internal class TestCreatorMiddleware : IMiddleware
+    internal sealed class TestCreatorMiddleware : IMiddleware
     {
         private readonly IRequestTestCreator _requestTestCreator;
 
@@ -135,5 +135,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    internal record ResponseType(int StatusCode, Type Type);
+    internal sealed record ResponseType(int StatusCode, Type Type);
 }
