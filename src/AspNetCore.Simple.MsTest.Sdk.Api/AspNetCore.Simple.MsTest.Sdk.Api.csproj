@@ -15,7 +15,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspNetCore.Simple.Sdk" Version="2.1.0" />
+        <PackageReference Include="AspNetCore.Simple.Sdk" Version="2.2.3" />
     </ItemGroup>
 
     <ItemGroup>
