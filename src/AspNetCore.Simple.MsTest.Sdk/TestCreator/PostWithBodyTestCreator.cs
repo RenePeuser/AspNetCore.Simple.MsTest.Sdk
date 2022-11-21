@@ -262,7 +262,7 @@ public Task $testmethodname$()
         {
             using var writer = new StringWriter();
             using var provider = CodeDomProvider.CreateProvider("CSharp");
-            provider.GenerateCodeFromExpression(new CodePrimitiveExpression(input), writer, null);
+            provider.GenerateCodeFromExpression(new CodePrimitiveExpression(input), writer, new CodeGeneratorOptions());
             return writer.ToString();
         }
     }
