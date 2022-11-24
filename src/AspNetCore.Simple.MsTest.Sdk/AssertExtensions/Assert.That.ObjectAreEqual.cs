@@ -38,6 +38,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(object1, object2, orderFunc, string.Empty, difference => difference);
         }
 
+        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2, Func<T?, T?> orderFunc, Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
+        {
+            assert.ObjectsAreEqual(object1, object2, orderFunc, string.Empty, differenceFunc, string.Empty);
+        }
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2, Func<T?, T?> orderFunc, string title, Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
         {
