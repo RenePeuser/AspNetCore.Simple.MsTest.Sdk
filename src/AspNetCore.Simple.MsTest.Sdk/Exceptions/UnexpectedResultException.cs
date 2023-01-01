@@ -2,9 +2,9 @@
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public class UnexpectedResultException : Exception
+    internal sealed class UnexpectedResultException : Exception
     {
-        public UnexpectedResultException(string message) : base(message)
+        internal UnexpectedResultException(string message) : base(message)
         {
         }
     }

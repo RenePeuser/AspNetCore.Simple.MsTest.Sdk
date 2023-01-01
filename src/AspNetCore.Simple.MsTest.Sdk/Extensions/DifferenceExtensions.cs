@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using ConsoleTables;
+using Extensions.Pack;
 using ObjectsComparer;
 
 namespace AspNetCore.Simple.MsTest.Sdk
