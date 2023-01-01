@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
 {
+    [AllowAnonymous]
     [ApiVersion("1.0")]
     [Route("v{version:apiversion}/persons")]
     public class PersonController : ControllerBase
