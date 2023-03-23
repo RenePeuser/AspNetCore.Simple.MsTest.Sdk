@@ -153,7 +153,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Assert.IsTrue(optimizedDifferences.IsEmpty(), GetOutputString(resultTable, orderedObject1, orderedObject2, title, curl));
         }
 
-        private static void PrintCurl(Assembly callingAssembly, string curl)
+        internal static void PrintCurl(Assembly callingAssembly, string curl)
         {
             if (callingAssembly.IsCompiledInDebug().IsFalse())
             {

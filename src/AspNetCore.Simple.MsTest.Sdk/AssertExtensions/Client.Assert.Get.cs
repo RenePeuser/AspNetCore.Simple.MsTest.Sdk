@@ -18,7 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static async Task AssertGetAsync(this HttpClient client,
                                                 string url)
         {
-            await client.AssertHttpCall(url, string.Empty, (client, url, _) => HttpExtensions.GetAsAsync(client, url), Assembly.GetCallingAssembly()).ConfigureAwait(false);
+            await client.AssertHttpCall(url, string.Empty, (client, url, _) => client.GetAsync(url), HttpMethod.Get, Assembly.GetCallingAssembly()).ConfigureAwait(false);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,

@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
+using ConsoleTables;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ObjectsComparer;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -30,12 +34,59 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static async Task AssertHttpCall(this HttpClient client,
                                                  string url,
                                                  string payloadAsJson,
-                                                 Func<HttpClient, string, string, Task> httpFunction,
+                                                 Func<HttpClient, string, string, Task<HttpResponseMessage>> httpFunction,
+                                                 HttpMethod httpMethod,
                                                  Assembly callingAssembly)
         {
             var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
-            await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
+            var absoluteUrl = $"{BaseUrl}{url}";
+            // Call as curl
+            var curlBuilder = new CurlBuilder();
+            var curl = curlBuilder.BuildFrom(httpMethod, absoluteUrl, payloadAsJson, client.DefaultRequestHeaders.Authorization, callingAssembly, ShowTokenInCurl);
+            AssertObjectExtensions.PrintCurl(callingAssembly, curl);
+
+            var httpResponse = await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                return;
+            }
+
+            var errorOutput = await GetOutputAsync(absoluteUrl, httpMethod, httpResponse).ConfigureAwait(false);
+
+            Assert.IsTrue(httpResponse.IsSuccessStatusCode, errorOutput);
+
+
+            static async Task<string> GetOutputAsync(string absoluteUrl, HttpMethod httpMethod, HttpResponseMessage httpResponseMessage)
+            {
+                var stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine("Error occured when calling endpoint");
+                stringBuilder.AppendLine();
+
+                // Table for call infos
+                var callInfos = new
+                {
+                    HttpMethod = httpMethod.Method,
+                    Url = absoluteUrl,
+                    HttpStatusCode = httpResponseMessage.StatusCode.Cast<int>(),
+                    HttpStatusName = httpResponseMessage.StatusCode
+                }.ToIList();
+
+                var table = ConsoleTable.From(callInfos).ToString();
+                stringBuilder.AppendLine(table);
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine("Error content:");
+
+                var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                var formattedContent = JToken.Parse(content.IsNullOrEmpty() ? "{}" : content).ToString(Formatting.Indented);
+                stringBuilder.AppendLine(formattedContent);
+
+                return stringBuilder.ToString();
+            }
         }
 
         private static Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
@@ -147,13 +198,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 await task.ConfigureAwait(false);
 
                 var resultProperty = task.GetType().GetProperty("Result");
-                if (resultProperty is null)
+                if (resultProperty.IsNull())
                 {
                     throw new InvalidOperationException("Property of Result from executing task was not found, please check that your method have a Task<T> that a result exists.");
                 }
 
                 var returnValue = resultProperty.GetValue(task);
-                if (returnValue is null)
+                if (returnValue.IsNull())
                 {
                     throw new InvalidOperationException("The return value of your async method was NULL which was unexpected, please check your code execution");
                 }

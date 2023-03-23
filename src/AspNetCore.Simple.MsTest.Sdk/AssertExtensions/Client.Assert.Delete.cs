@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task AssertDeleteAsync(this HttpClient client,
                                                    string url)
         {
-            return client.AssertHttpCall(url, string.Empty, (client, url, _) => client.DeleteAsAsync(url), Assembly.GetCallingAssembly());
+            return client.AssertHttpCall(url, string.Empty, (client, url, _) => client.DeleteAsync(url), HttpMethod.Delete, Assembly.GetCallingAssembly());
         }
 
         public static Task AssertDeleteAsync<TResult>(this HttpClient client,
