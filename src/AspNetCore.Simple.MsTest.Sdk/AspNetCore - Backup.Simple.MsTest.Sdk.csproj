@@ -10,7 +10,7 @@
         <PackageProjectUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
-        <PackageReleaseNotes>Update nuget packages and removed unused once</PackageReleaseNotes>
+        <PackageReleaseNotes>Create new cool output and fix error situation when using assert helpers without return type</PackageReleaseNotes>
         <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
         <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
@@ -36,8 +36,9 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
         <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="1.1.1" PrivateAssets="All" />
         <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
         <PackageReference Include="MSTest.TestFramework" Version="3.0.2" />

@@ -11,11 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspNetCore.Simple.Sdk" Version="3.0.6" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk\AspNetCore.Simple.MsTest.Sdk.csproj" />
+        <PackageReference Include="AspNetCore.Simple.Sdk" Version="3.2.0-alpha.21" />
     </ItemGroup>
 
 </Project>
