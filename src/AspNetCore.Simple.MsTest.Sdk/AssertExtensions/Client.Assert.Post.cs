@@ -15,13 +15,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
-        public delegate IImmutableList<Difference> FilterDifferences(IImmutableList<Difference> CurrentDifferences);
+        public static Task AssertPostAsync(this HttpClient client,
+                                           string url)
+        {
+            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PostAsync(urlParam, null), HttpMethod.Post, Assembly.GetCallingAssembly());
+        }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string resultAsJson) where TResult : class
         {
             return client.AssertPostAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly());
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string resultAsJson,
+                                                             Func<TResult, TResult> filterFunc) where TResult : class
+        {
+            return client.AssertPostAsync(url, string.Empty, resultAsJson, filterFunc, Assembly.GetCallingAssembly());
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
