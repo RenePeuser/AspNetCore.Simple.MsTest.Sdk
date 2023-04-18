@@ -2,7 +2,9 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using ConsoleTables;
 using Extensions.Pack;
@@ -95,13 +97,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertHttpCall(url, payloadAsJson, resultAsJson, item => item, HttpExtensions.PutAsErrorResultWithJsonStringAsync<TResult>, HttpMethod.Put, callingAssembly);
         }
 
-        public static async Task AssertPutAsUnauthorizedAsync(this HttpClient httpClient, string url)
+        public static Task AssertPutAsUnauthorizedAsync(this HttpClient httpClient, string url)
+        {
+            return httpClient.AssertPutAsUnauthorizedAsync(url, null);
+        }
+
+        public static async Task AssertPutAsUnauthorizedAsync(this HttpClient httpClient, string url, object? body)
         {
             // Save original auth header
             var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Unauthorized token");
 
-            var result = await httpClient.PutAsync(url, null).ConfigureAwait(false);
+            // ToDo: fix mutlipart form data issues
+            var result = await httpClient.PutAsync(url, body.IsNull() ? null : new StringContent(body.ToJson(), Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
 
             // Reset back to original
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
