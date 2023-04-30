@@ -23,27 +23,54 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(object1, object2, input => input, string.Empty);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2, string title) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<T?>> object1,
+                                              Expression<Func<T?>> object2,
+                                              string title) where T : class
         {
             assert.ObjectsAreEqual(object1, object2, input => input, title);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2, Func<T?, T?> orderFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<T?>> object1,
+                                              Expression<Func<T?>> object2,
+                                              Func<T?, T?> orderFunc) where T : class
         {
             assert.ObjectsAreEqual(object1, object2, orderFunc, string.Empty);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2, Func<T?, T?> orderFunc, string title) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<T?>> object1,
+                                              Expression<Func<T?>> object2,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
+        {
+            assert.ObjectsAreEqual(object1, object2, item => item, string.Empty, differenceFunc, string.Empty);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<T?>> object1,
+                                              Expression<Func<T?>> object2,
+                                              Func<T?, T?> orderFunc,
+                                              string title) where T : class
         {
             assert.ObjectsAreEqual(object1, object2, orderFunc, string.Empty, difference => difference);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2, Func<T?, T?> orderFunc, Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<T?>> object1,
+                                              Expression<Func<T?>> object2,
+                                              Func<T?, T?> orderFunc,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
         {
             assert.ObjectsAreEqual(object1, object2, orderFunc, string.Empty, differenceFunc, string.Empty);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2, Func<T?, T?> orderFunc, string title, Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<T?>> object1,
+                                              Expression<Func<T?>> object2,
+                                              Func<T?, T?> orderFunc,
+                                              string title,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
         {
             assert.ObjectsAreEqual(object1, object2, orderFunc, title, differenceFunc, string.Empty);
         }
@@ -67,32 +94,59 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Assert.IsTrue(optimizedDifferences.IsEmpty(), GetOutputString(resultTable, obj1!, obj2!, title, string.Empty));
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<string>> json,
+                                              Expression<Func<T>> objectExpression) where T : class
         {
             assert.ObjectsAreEqual(json, objectExpression, item => item, Assembly.GetCallingAssembly());
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression, Assembly callingAssembly) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<string>> json,
+                                              Expression<Func<T>> objectExpression,
+                                              Assembly callingAssembly) where T : class
         {
             assert.ObjectsAreEqual(json, objectExpression, item => item, callingAssembly);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression, string title) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<string>> json,
+                                              Expression<Func<T>> objectExpression,
+                                              string title) where T : class
         {
             assert.ObjectsAreEqual(json, objectExpression, item => item, title, Assembly.GetCallingAssembly(), difference => difference);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> objectExpression, string title, Assembly callingAssembly) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<string>> json,
+                                              Expression<Func<T>> objectExpression,
+                                              string title,
+                                              Assembly callingAssembly) where T : class
         {
             assert.ObjectsAreEqual(json, objectExpression, item => item, title, callingAssembly, difference => difference);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<string>> json,
+                                              Expression<Func<T>> object2,
+                                              Func<T, T> orderFunc) where T : class
         {
             assert.ObjectsAreEqual(json, object2, orderFunc, string.Empty, Assembly.GetCallingAssembly(), difference => difference);
         }
 
-        public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<string>> json, Expression<Func<T>> object2, Func<T, T> orderFunc, Assembly callingAssembly) where T : class
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<string>> json,
+                                              Expression<Func<T>> object2,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where T : class
+        {
+            assert.ObjectsAreEqual(json, object2, item => item, string.Empty, Assembly.GetCallingAssembly(), differenceFunc);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              Expression<Func<string>> json,
+                                              Expression<Func<T>> object2,
+                                              Func<T, T> orderFunc,
+                                              Assembly callingAssembly) where T : class
         {
             assert.ObjectsAreEqual(json, object2, orderFunc, string.Empty, callingAssembly, difference => difference);
         }
@@ -177,7 +231,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private static string GetOutputString(string resultTable, object expectedResult, object current, string title, string curl)
+        private static string GetOutputString(string resultTable,
+                                              object expectedResult,
+                                              object current,
+                                              string title,
+                                              string curl)
         {
             var expectedResultAsJson = expectedResult.ToJson();
             var currentResultAsJson = current.ToJson();
