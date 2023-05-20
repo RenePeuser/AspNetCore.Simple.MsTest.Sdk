@@ -18,38 +18,38 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public static partial class HttpClientAssertExtensions
     {
         public static Task AssertPutAsync(this HttpClient client,
-                                           string url)
+                                          string url)
         {
             return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PutAsync(urlParam, null), HttpMethod.Put, Assembly.GetCallingAssembly());
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string resultAsJson) where TResult : class
+                                                            string url,
+                                                            string resultAsJson) where TResult : class
         {
             return client.AssertPutAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly());
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string resultAsJson,
-                                                             Func<TResult, TResult> filterFunc) where TResult : class
+                                                            string url,
+                                                            string resultAsJson,
+                                                            Func<TResult, TResult> filterFunc) where TResult : class
         {
             return client.AssertPutAsync(url, string.Empty, resultAsJson, filterFunc, Assembly.GetCallingAssembly());
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string resultAsJson,
-                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
+                                                            string url,
+                                                            string resultAsJson,
+                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
         {
             return client.AssertPutAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), differenceFunc);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string resultAsJson,
-                                                             Assembly callingAssembly) where TResult : class
+                                                            string url,
+                                                            string resultAsJson,
+                                                            Assembly callingAssembly) where TResult : class
         {
             return AssertPutAsync<TResult>(client, url, string.Empty, resultAsJson, callingAssembly);
         }
@@ -64,20 +64,47 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string payloadAsJson,
-                                                             string resultAsJson) where TResult : class
+                                                            string url,
+                                                            object payloadAsObject,
+                                                            string resultAsJson) where TResult : class
+        {
+            return client.AssertPutAsync<TResult>(url, payloadAsObject.ToJson(), resultAsJson, Assembly.GetCallingAssembly());
+        }
+
+        public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string payloadAsJson,
+                                                            string resultAsJson) where TResult : class
         {
             return client.AssertPutAsync<TResult>(url, payloadAsJson, resultAsJson, Assembly.GetCallingAssembly());
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string payloadAsJson,
-                                                             string resultAsJson,
-                                                             Assembly callingAssembly) where TResult : class
+                                                            string url,
+                                                            object payloadAsObject,
+                                                            string resultAsJson,
+                                                            Assembly callingAssembly) where TResult : class
+        {
+            return AssertPutAsync<TResult>(client, url, payloadAsObject.ToJson(), resultAsJson, result => result, callingAssembly);
+        }
+
+        public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string payloadAsJson,
+                                                            string resultAsJson,
+                                                            Assembly callingAssembly) where TResult : class
         {
             return AssertPutAsync<TResult>(client, url, payloadAsJson, resultAsJson, result => result, callingAssembly);
+        }
+
+        public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            object payloadAsObject,
+                                                            string resultAsJson,
+                                                            Assembly callingAssembly,
+                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
+        {
+            return AssertPutAsync<TResult>(client, url, payloadAsObject.ToJson(), resultAsJson, result => result, differenceFunc, callingAssembly);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -91,6 +118,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            object payloadAsObject,
+                                                            string resultAsJson,
+                                                            Func<TResult, TResult> filterFunc) where TResult : class
+        {
+            return client.AssertPutAsync(url, payloadAsObject.ToJson(), resultAsJson, filterFunc, Assembly.GetCallingAssembly());
+        }
+
+        public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string payloadAsJson,
                                                              string resultAsJson,
@@ -100,12 +136,31 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string payloadAsJson,
-                                                             string resultAsJson,
-                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
+                                                            string url,
+                                                            object payloadAsObject,
+                                                            string resultAsJson,
+                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
+        {
+            return client.AssertPutAsync<TResult>(url, payloadAsObject.ToJson(), resultAsJson, item => item, differenceFunc, Assembly.GetCallingAssembly());
+        }
+
+        public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string payloadAsJson,
+                                                            string resultAsJson,
+                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
         {
             return client.AssertPutAsync<TResult>(url, payloadAsJson, resultAsJson, item => item, differenceFunc, Assembly.GetCallingAssembly());
+        }
+
+        public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            object payloadAsObject,
+                                                            string resultAsJson,
+                                                            Func<TResult, TResult> filterFunc,
+                                                            Assembly callingAssembly) where TResult : class
+        {
+            return client.AssertHttpCall(url, payloadAsObject.ToJson(), resultAsJson, filterFunc, HttpExtensions.PutAsJsonStringAsync<TResult>, HttpMethod.Put, callingAssembly, difference => difference);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -116,6 +171,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Assembly callingAssembly) where TResult : class
         {
             return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, HttpExtensions.PutAsJsonStringAsync<TResult>, HttpMethod.Put, callingAssembly, difference => difference);
+        }
+
+        public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            object payloadAsObject,
+                                                            string resultAsJson,
+                                                            Func<TResult, TResult> filterFunc,
+                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                            Assembly callingAssembly) where TResult : class
+        {
+            return client.AssertHttpCall(url, payloadAsObject.ToJson(), resultAsJson, filterFunc, HttpExtensions.PutAsJsonStringAsync<TResult>, HttpMethod.Put, callingAssembly, differenceFunc);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -130,33 +196,51 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string resultAsJson) where TResult : class
+                                                                   string url,
+                                                                   string resultAsJson) where TResult : class
         {
             return client.AssertPutAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly());
         }
 
         public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string resultAsJson,
-                                                             Assembly callingAssembly) where TResult : class
+                                                                   string url,
+                                                                   string resultAsJson,
+                                                                   Assembly callingAssembly) where TResult : class
         {
             return client.AssertPutAsErrorAsync<TResult>(url, string.Empty, resultAsJson, callingAssembly);
         }
 
         public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string payloadAsJson,
-                                                             string resultAsJson) where TResult : class
+                                                                   string url,
+                                                                   object payloadAsObject,
+                                                                   string resultAsJson) where TResult : class
+        {
+            return client.AssertPutAsErrorAsync<TResult>(url, payloadAsObject.ToJson(), resultAsJson, Assembly.GetCallingAssembly());
+        }
+
+        public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
+                                                                   string url,
+                                                                   string payloadAsJson,
+                                                                   string resultAsJson) where TResult : class
         {
             return client.AssertPutAsErrorAsync<TResult>(url, payloadAsJson, resultAsJson, Assembly.GetCallingAssembly());
         }
 
+
         public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string payloadAsJson,
-                                                             string resultAsJson,
-                                                             Assembly callingAssembly) where TResult : class
+                                                                   string url,
+                                                                   object payloadAsObject,
+                                                                   string resultAsJson,
+                                                                   Assembly callingAssembly) where TResult : class
+        {
+            return client.AssertHttpCall(url, payloadAsObject.ToJson(), resultAsJson, item => item, HttpExtensions.PutAsErrorResultWithJsonStringAsync<TResult>, HttpMethod.Put, callingAssembly);
+        }
+
+        public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
+                                                                   string url,
+                                                                   string payloadAsJson,
+                                                                   string resultAsJson,
+                                                                   Assembly callingAssembly) where TResult : class
         {
             return client.AssertHttpCall(url, payloadAsJson, resultAsJson, item => item, HttpExtensions.PutAsErrorResultWithJsonStringAsync<TResult>, HttpMethod.Put, callingAssembly);
         }
