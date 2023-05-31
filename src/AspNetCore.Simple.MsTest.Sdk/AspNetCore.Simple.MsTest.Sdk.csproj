@@ -11,8 +11,6 @@
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
         <PackageReleaseNotes>Add possibility to set objects as payload for Post, Put and Patch http assert calls</PackageReleaseNotes>
-        <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
-        <AssemblyName>AspNetCore.Simple.MsTest.Sdk</AssemblyName>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <ApplicationIcon />
         <StartupObject />
@@ -26,6 +24,14 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <DebugType>embedded</DebugType>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\License.txt">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+        <None Include="..\..\readme.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <DocumentationFile>.\AspNetCore.Simple.MsTest.Sdk.xml</DocumentationFile>
@@ -45,14 +51,6 @@
         <PackageReference Include="ObjectsComparer" Version="1.4.1" />
         <PackageReference Include="ConsoleTables" Version="2.4.2" />
         <PackageReference Include="System.CodeDom" Version="7.0.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="..\..\License.txt">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
-        <None Include="..\..\readme.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

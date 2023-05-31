@@ -59,7 +59,7 @@ public Task Should_Not_Return_All_Users_Without_Authentication()
 }
 ```
 
-## Assert that GET a user which not exists returns ProblemDetails
+### Assert that GET a user which not exists returns ProblemDetails
 
 ```csharp
 [TestMethod]
