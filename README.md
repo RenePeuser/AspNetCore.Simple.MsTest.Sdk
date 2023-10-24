@@ -83,10 +83,10 @@ public Task Should_Return_No_Users_If_No_One_Was_Added()
 [TestMethod]
 public Task Should_Return_Expected_Result_For_Given_Payload_But_Ignore_Id()
 {
-    return Client.AssertGetAsync<IEnumerable<Person>>($"api/v1/users/",                                                                        
-                                                      "Users.V1.Payloads.NewUser.json,
-                                                      "Users.V1.Results.NewUser.json,
-                                                      differenceFunc:DifferenceFunc);
+    await Client.AssertPostAsync<AddUserReponse>($"api/v1/users/",                                                                        
+                                                 "Users.V1.Payloads.NewUser.json,
+                                                 "Users.V1.Results.NewUser.json,
+                                                 differenceFunc: DifferenceFunc);
 }
 
 // Difference func can be used to intercept the object comparison in the background
@@ -103,5 +103,26 @@ private IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differ
         yield return difference;
     }
 }
+```
 
+### Fetch data from an API and do a post order to bring the items in the right order
+```csharp
+[TestMethod]
+public Task Should_Return_Expected_Result_For_Given_Payload_And_Sorted()
+{
+    return Client.AssertGetAsync<IEnumerable<Person>>($"api/v1/users/",                                                                                                                             
+                                                      "Users.V1.Results.NewUser.json,
+                                                      filterFunc: FilterFunc);
+}
+
+// The filter func can be used to sort or do some custom post filtering
+// Sample: You get unsorted results from API so each call will provide
+//         the users in different order. Why a something like a DB query
+//         without sort action will not guarantee the order of the results.
+//         If results does not match the expected results (order as well), 
+//         the test will fail
+private IEnumerable<Person> FilterFunc(IEnumerable<Person> arg)
+{
+    return arg.OrderBy(x => x.Id).ToImmutableList();
+}
 ```

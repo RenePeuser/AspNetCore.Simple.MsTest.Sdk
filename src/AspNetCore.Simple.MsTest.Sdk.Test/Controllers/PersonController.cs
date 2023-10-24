@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Api.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,6 +23,23 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
             return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons",
                                                               /*lang=json,strict*/ "[{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99},{\"Id\":2,\"Name\":\"Vegeta\",\"FirstName\":\"Unknown\",\"Age\":77}]",
                                                               differenceFunc: DifferenceFunc);
+        }
+
+        [TestMethod]
+        public Task Should_Return_Expected_Result_For_Given_Payload_With_Post_Sort()
+        {
+            return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons",
+                                                              /*lang=json,strict*/ "[{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99},{\"Id\":2,\"Name\":\"Vegeta\",\"FirstName\":\"Unknown\",\"Age\":77}]",
+                                                              FilterFunc);
+        }
+
+        // The filter func can be used to sort or do some custom filtering
+        // Sample: You get unsorted results from API so each call will provide
+        //         the users in different order. You can sort them before comparison
+        //         Because if order is not matching the Assert will fail
+        private IEnumerable<Person> FilterFunc(IEnumerable<Person> arg)
+        {
+            return arg.OrderBy(x => x.Id).ToImmutableList();
         }
 
         // Difference func can be used to ignore some properties inside the object comparison
