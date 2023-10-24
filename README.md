@@ -84,8 +84,8 @@ public Task Should_Return_No_Users_If_No_One_Was_Added()
 public Task Should_Return_Expected_Result_For_Given_Payload_But_Ignore_Id()
 {
     await Client.AssertPostAsync<AddUserReponse>($"api/v1/users/",                                                                        
-                                                 "Users.V1.Payloads.NewUser.json,
-                                                 "Users.V1.Results.NewUser.json,
+                                                 "Users.V1.Payloads.NewUser.json",
+                                                 "Users.V1.Results.NewUser.json",
                                                  differenceFunc: DifferenceFunc);
 }
 
@@ -135,15 +135,15 @@ public Task Should_Return_The_User_Which_Was_Added()
 {
     // 1. Add an user
     var addedUserResponse = await Client.AssertPostAsync<AddUserReponse>($"api/v1/users/",
-                                                                         "Users.V1.Payloads.NewUser.json,
-                                                                         "Users.V1.Results.NewUser.json); 
+                                                                         "Users.V1.Payloads.NewUser.json",
+                                                                         "Users.V1.Results.NewUser.json"); 
 
     // 2. Get the currently added user
     await Client.AssertGetAsync<GetAllUserResponse>($"api/v1/users/{addedUserResponse.User.Id}"
-                                                     "Users.V1.Results.AddedUser.json);
+                                                     "Users.V1.Results.AddedUser.json");
 
     // 3. Delete the alrady added user -> Dependent on your test setup a test-tear down can also contain a cleanup step to remove all the created sources
     await Client.AssertDeleteAsync($"api/v1/users/{addedUserResponse.User.Id}"
-                                   "Users.V1.Results.Deleteduser.json);
+                                   "Users.V1.Results.Deleteduser.json");
 }
 ```
