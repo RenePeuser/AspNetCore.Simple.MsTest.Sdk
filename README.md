@@ -150,7 +150,8 @@ public Task Should_Return_The_User_Which_Was_Added()
 
 ### Curl for each `Asserted` call
 How pratical can it be so share call scenarios with your consumers.
-For that reason you see in the test output the curl command for each call.
+For that reason you see in the test output the curl command for each 
+asserted call.
 ```curl
 -----------------------------------------------------------
 Http call as curl
