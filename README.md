@@ -111,7 +111,7 @@ private IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differ
 public Task Should_Return_Expected_Result_For_Given_Payload_And_Sorted()
 {
     return Client.AssertGetAsync<IEnumerable<Person>>($"api/v1/users/",                                                                                                                             
-                                                      "Users.V1.Results.NewUser.json,
+                                                      "Users.V1.Results.NewUser.json",
                                                       filterFunc: FilterFunc);
 }
 
