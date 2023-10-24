@@ -126,3 +126,24 @@ private IEnumerable<Person> FilterFunc(IEnumerable<Person> arg)
     return arg.OrderBy(x => x.Id).ToImmutableList();
 }
 ```
+
+
+### Hold create, get and delete scenario. Looks nice and clean
+```csharp
+[TestMethod]    
+public Task Should_Return_The_User_Which_Was_Added()
+{
+    // 1. Add an user
+    var addedUserResponse = await Client.AssertPostAsync<AddUserReponse>($"api/v1/users/",
+                                                                         "Users.V1.Payloads.NewUser.json,
+                                                                         "Users.V1.Results.NewUser.json); 
+
+    // 2. Get the currently added user
+    await Client.AssertGetAsync<GetAllUserResponse>($"api/v1/users/{addedUserResponse.User.Id}"
+                                                     "Users.V1.Results.AddedUser.json);
+
+    // 3. Delete the alrady added user -> Dependent on your test setup a test-tear down can also contain a cleanup step to remove all the created sources
+    await Client.AssertDeleteAsync($"api/v1/users/{addedUserResponse.User.Id}"
+                                   "Users.V1.Results.Deleteduser.json);
+}
+```
