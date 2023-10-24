@@ -38,18 +38,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Extensions.Pack" Version="3.0.5" />
+        <PackageReference Include="Extensions.Pack" Version="4.0.1" />
         <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.9" />
-        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.9" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.12" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.12" />
         <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="1.1.1" PrivateAssets="All" />
-        <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
+        <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
         <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
         <PackageReference Include="ObjectsComparer" Version="1.4.1" />
-        <PackageReference Include="ConsoleTables" Version="2.4.2" />
+        <PackageReference Include="ConsoleTables" Version="2.5.0" />
         <PackageReference Include="System.CodeDom" Version="7.0.0" />
     </ItemGroup>
 
