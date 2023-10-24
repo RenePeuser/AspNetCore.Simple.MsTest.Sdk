@@ -147,3 +147,16 @@ public Task Should_Return_The_User_Which_Was_Added()
                                    "Users.V1.Results.Deleteduser.json");
 }
 ```
+
+### Curl for each `Asserted` call
+How pratical can it be so share call scenarios with your consumers.
+For that reason you see in the test output the curl command for each call.
+```curl
+-----------------------------------------------------------
+Http call as curl
+-----------------------------------------------------------
+curl \
+--location \
+--request GET 'https://localhost:5001/api/tests/v1/persons'
+-----------------------------------------------------------
+```
