@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         {
             var testAppsettingsJson = Path.Combine(Environment.CurrentDirectory, "appsettings.test.json");
 
-            builder.ConfigureAppConfiguration((_, configurationBuilder) => configurationBuilder.AddJsonFile(testAppsettingsJson));
+            builder.ConfigureAppConfiguration((_, configurationBuilder) => configurationBuilder.AddJsonFile(testAppsettingsJson, optional: true));
 
             builder.ConfigureServices(services =>
             {
@@ -24,14 +24,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         }
     }
 
-    public class IntegrationTestWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup>
-        where TStartup : class
+    public class IntegrationTestWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
     {
         private readonly IntegrationTestBase<TStartup> _testBase;
 
         private readonly (string name, string value)[] _environmentVariables;
 
-        public IntegrationTestWebApplicationFactory(IntegrationTestBase<TStartup> testBase, string environmentName, params (string name, string value)[] environmentVariables)
+        public IntegrationTestWebApplicationFactory(IntegrationTestBase<TStartup> testBase,
+                                                    string environmentName,
+                                                    params (string name, string value)[] environmentVariables)
         {
             _testBase = testBase;
             EnvironmentName = environmentName;
@@ -57,7 +58,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
     {
         private readonly IntegrationTestWebApplicationFactory<TStartup> _webApplicationFactory;
 
-        protected IntegrationTestBase(string aspEnvironment, params (string name, string value)[] environmentVariables)
+        protected IntegrationTestBase(string aspEnvironment,
+                                      params (string name, string value)[] environmentVariables)
         {
             // Create this with new, is not a fault, the reason is to keep the test class more cleaner.
             EnvironmentName = aspEnvironment;

@@ -47,14 +47,14 @@ public async Task Test_What_You_Expect_With_The_Test_Sdk()
 }
 ```
 
-Test an occuring exception of an API call
+Test an occuring errors of an API call
 ```csharp
 [TestMethod]
 public async Task Test_What_You_Expect_With_The_Test_Sdk()
 {
-    // This extensions will check the type what you request if it is an exception it will handle
+    // This extensions will check the type what you request if it is an errors it will handle
     // correct in the background.
-    var problemDetailsException = await Client.GetAsAsync<ProblemDetailsException>("/myApi/persons");
+    var problemDetails = await Client.GetAsAsync<ProblemDetails>("/myApi/persons");
 
     // Your assert code....
 }

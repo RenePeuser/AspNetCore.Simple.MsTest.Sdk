@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Test
+namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
 {
     [TestClass]
-    public class Errors : MsTestBase
+    public class ErrorsController : MsTestBase
     {
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()
