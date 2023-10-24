@@ -14,13 +14,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
         [HttpGet]
         public IEnumerable<Person> Get()
         {
-            return new List<Person>() { new Person(1, "Son", "Goku", 99), new Person(2, "Vegeta", "Unknown", 77) };
+            return new List<Person> { new(1, "Son", "Goku", 99), new(2, "Vegeta", "Unknown", 77) };
         }
 
         [HttpGet("{id}")]
         public Task<Person> Get(long id)
         {
-            return Task.FromResult(new Person(id, "son", "goku", 55));
+            var result = new Person(id, "son", "goku", 55);
+            return Task.FromResult(result);
         }
 
         [HttpPost]
