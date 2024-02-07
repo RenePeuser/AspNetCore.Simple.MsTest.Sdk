@@ -108,7 +108,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Assembly callingAssembly,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
         {
-            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client, path, assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly, differenceFunc);
+            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client, path, payloadAsJson, assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly, differenceFunc);
         }
 
         private static Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
