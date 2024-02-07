@@ -23,6 +23,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PutAsync(urlParam, null), HttpMethod.Put, Assembly.GetCallingAssembly());
         }
 
+        public static Task AssertPutAsync(this HttpClient client,
+                                                string url,
+                                                string payload)
+        {
+            var jsonBody = payload.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ? Assembly.GetCallingAssembly().GetFileContentFrom(payload) : payload;
+            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PutAsync(urlParam, new StringContent(jsonBody, Encoding.UTF8, MediaTypeNames.Application.Json)), HttpMethod.Put, Assembly.GetCallingAssembly());
+        }
+
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
                                                             string url,
                                                             string resultAsJson) where TResult : class

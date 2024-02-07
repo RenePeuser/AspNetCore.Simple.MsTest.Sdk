@@ -49,7 +49,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string resultAsJson,
                                                             Assembly callingAssembly) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, HttpExtensions.GetAsAsync<TResult>, HttpMethod.Get, callingAssembly);
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
@@ -58,7 +58,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                             Assembly callingAssembly) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, HttpExtensions.GetAsAsync<TResult>, HttpMethod.Get, callingAssembly, differenceFunc);
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, differenceFunc);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
@@ -67,7 +67,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             Assembly callingAssembly,
                                                             Func<TResult, TResult> filterFunc) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, HttpExtensions.GetAsAsync<TResult>, HttpMethod.Get, callingAssembly);
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
@@ -77,7 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             Func<TResult, TResult> filterFunc,
                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, HttpExtensions.GetAsAsync<TResult>, HttpMethod.Get, callingAssembly, differenceFunc);
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, differenceFunc);
         }
 
 
@@ -93,7 +93,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string resultAsJson,
                                                                    Func<TResult, TResult> filterFunc) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, HttpExtensions.GetAsErrorResultAsync<TResult>, HttpMethod.Get, Assembly.GetCallingAssembly());
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, Assembly.GetCallingAssembly());
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
@@ -101,7 +101,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                  string resultAsJson,
                                                                  Assembly callingAssembly) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, HttpExtensions.GetAsErrorResultAsync<TResult>, HttpMethod.Get, callingAssembly);
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly);
         }
 
         public static async Task AssertGetAsUnauthorizedAsync(this HttpClient httpClient, string url)

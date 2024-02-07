@@ -30,7 +30,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       string resultAsJson,
                                                       Assembly callingAssembly) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, HttpExtensions.DeleteAsAsync<TResult>, HttpMethod.Delete, callingAssembly);
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly);
         }
 
 
@@ -46,7 +46,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string resultAsJson,
                                                                       Assembly callingAssembly) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, HttpExtensions.DeleteAsErrorResultAsync<TResult>, HttpMethod.Delete, callingAssembly);
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly);
         }
 
         public static async Task AssertDeleteAsUnauthorizedAsync(this HttpClient httpClient, string url)

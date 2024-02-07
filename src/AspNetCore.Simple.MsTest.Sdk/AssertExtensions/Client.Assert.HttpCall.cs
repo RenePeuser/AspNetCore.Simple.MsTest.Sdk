@@ -67,13 +67,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 stringBuilder.AppendLine();
 
                 // Table for call infos
-                var callInfos = new
-                {
-                    HttpMethod = httpMethod.Method,
-                    Url = absoluteUrl,
-                    HttpStatusCode = httpResponseMessage.StatusCode.Cast<int>(),
-                    HttpStatusName = httpResponseMessage.StatusCode
-                }.ToIList();
+                var callInfos = new { HttpMethod = httpMethod.Method, Url = absoluteUrl, HttpStatusCode = httpResponseMessage.StatusCode.Cast<int>(), HttpStatusName = httpResponseMessage.StatusCode }.ToIList();
 
                 var table = ConsoleTable.From(callInfos).ToString();
                 stringBuilder.AppendLine(table);
@@ -94,11 +88,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string payloadAsJson,
                                                              string resultAsJson,
                                                              Func<TResult, TResult> filterFunc,
-                                                             Func<HttpClient, string, Task<TResult>> httpFunction,
+                                                             Func<HttpClient, string, Assembly, Task<TResult>> httpFunction,
                                                              HttpMethod httpMethod,
                                                              Assembly callingAssembly) where TResult : class
         {
-            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client, path, _) => httpFunction(client, path), httpMethod, callingAssembly);
+            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client,
+                                                                                        path,
+                                                                                        _,
+                                                                                        assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly);
         }
 
         private static Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
@@ -106,22 +103,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string payloadAsJson,
                                                              string resultAsJson,
                                                              Func<TResult, TResult> filterFunc,
-                                                             Func<HttpClient, string, Task<TResult>> httpFunction,
+                                                             Func<HttpClient, string, Assembly, Task<TResult>> httpFunction,
                                                              HttpMethod httpMethod,
                                                              Assembly callingAssembly,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
         {
-            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client, path, _) => httpFunction(client, path), httpMethod, callingAssembly, differenceFunc);
+            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client, path, assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly, differenceFunc);
         }
 
         private static Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
-                                                          string url,
-                                                          string payloadAsJson,
-                                                          string resultAsJson,
-                                                          Func<TResult, TResult> filterFunc,
-                                                          Func<HttpClient, string, string, Task<TResult>> httpFunction,
-                                                          HttpMethod httpMethod,
-                                                          Assembly callingAssembly) where TResult : class
+                                                             string url,
+                                                             string payloadAsJson,
+                                                             string resultAsJson,
+                                                             Func<TResult, TResult> filterFunc,
+                                                             Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
+                                                             HttpMethod httpMethod,
+                                                             Assembly callingAssembly) where TResult : class
         {
             return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, difference => difference);
         }
@@ -131,7 +128,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string payloadAsJson,
                                                                    string resultAsJson,
                                                                    Func<TResult, TResult> filterFunc,
-                                                                   Func<HttpClient, string, string, Task<TResult>> httpFunction,
+                                                                   Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                                    HttpMethod httpMethod,
                                                                    Assembly callingAssembly,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
@@ -149,14 +146,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                            string payloadAsJson,
                                                                            string resultAsJson,
                                                                            Func<TResult, TResult> filterFunc,
-                                                                           Func<HttpClient, string, string, Task<TResult>> httpFunction,
+                                                                           Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                                            HttpMethod httpMethod,
                                                                            Assembly callingAssembly,
                                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
         {
             var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
 
-            var currentResult = await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
+            var currentResult = await httpFunction(client, url, jsonPayload, callingAssembly).ConfigureAwait(false);
 
             var absoluteUrl = $"{BaseUrl}{url}";
             var httpCallInfo = $"{Environment.NewLine}Call: '{httpMethod} {absoluteUrl}' was not successful.";
@@ -176,7 +173,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          string payloadAsJson,
                                                                          string resultAsJson,
                                                                          Func<TResult, TResult> filterFunc,
-                                                                         Func<HttpClient, string, string, Task<TResult>> httpFunction,
+                                                                         Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                                          HttpMethod httpMethod,
                                                                          Assembly callingAssembly,
                                                                          Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
@@ -215,7 +212,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 throw new InvalidOperationException($"The type of the return value from your {nameof(CustomAssertMethod)} is: {returnValue.GetType().Name} which does not expect type: {typeof(TResult).Name}");
-
             }
 
             throw new InvalidOperationException("Unknown result of invoked generic method");
