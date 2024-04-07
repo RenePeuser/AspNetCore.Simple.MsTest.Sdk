@@ -1,5 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using Extensions.Pack;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -12,19 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private readonly Action<IServiceCollection, IConfiguration> _registerServices;
 
         private readonly (string name, string value)[] _environmentVariables;
-
-
-        public ApiTestBase() : this("Development", (_, _) => { })
-        {
-        }
-
-        public ApiTestBase(Action<IServiceCollection, IConfiguration> registerServices) : this("Development", registerServices)
-        {
-        }
-
-        public ApiTestBase(string environmentName) : this(environmentName, (_, _) => { })
-        {
-        }
+        private readonly Assembly _callingAssembly;
 
         public ApiTestBase(string environmentName,
                            Action<IServiceCollection, IConfiguration> registerServices,
@@ -33,6 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             EnvironmentName = environmentName;
             _registerServices = registerServices;
             _environmentVariables = environmentVariables;
+            _callingAssembly = Assembly.GetCallingAssembly();
         }
 
         public string EnvironmentName { get; }
@@ -44,18 +36,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 Environment.SetEnvironmentVariable(environmentVariable.name, environmentVariable.value);
             }
 
-            var testSettingsPath = Path.Combine(Environment.CurrentDirectory,
-                                                "Environments",
-                                                EnvironmentName,
-                                                "appsettings.test.json");
+            var testDirectory = new DirectoryInfo(Environment.CurrentDirectory);
+            var findAllTestSettings = testDirectory.EnumerateFiles("appsettings.*.json", SearchOption.AllDirectories).ToList();
+            var environmentSpecificSettings = findAllTestSettings.Where(file => file.FullName.Contains(EnvironmentName)).ToList();
+            var testSettings = findAllTestSettings.Where(file => file.Name.Contains("test", StringComparison.OrdinalIgnoreCase));
+            var settingsToRegister = environmentSpecificSettings.Concat(testSettings);
 
-            var testSettingsFileInfo = new FileInfo(testSettingsPath);
+
+            var embeddedAppSettings = _callingAssembly.GetManifestResourceNames().Where(item => item.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
+                                                                                        item.Contains("appsettings", StringComparison.OrdinalIgnoreCase)).ToList();
 
             IConfiguration configuration = null!;
 
             builder.ConfigureAppConfiguration((_, configurationBuilder) =>
             {
-                configurationBuilder.AddJsonFile(testSettingsPath, true);
+                foreach (var testSettingsFile in settingsToRegister)
+                {
+                    configurationBuilder.AddJsonFile(testSettingsFile.FullName, true);
+                }
+                
+                configurationBuilder.AddUserSecrets(_callingAssembly);
+                configurationBuilder.AddEnvironmentVariables();
 
                 configuration = configurationBuilder.Build();
             });
