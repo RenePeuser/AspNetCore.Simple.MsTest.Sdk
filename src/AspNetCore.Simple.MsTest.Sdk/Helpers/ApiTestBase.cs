@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Helpers
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public class ApiTestBase<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
     {

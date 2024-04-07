@@ -49,7 +49,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string resultAsJson,
                                                             Assembly callingAssembly) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly);
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
@@ -58,7 +58,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                             Assembly callingAssembly) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, differenceFunc);
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, differenceFunc);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
