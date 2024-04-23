@@ -33,22 +33,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly);
         }
 
-
-        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
-                                                           string url,
-                                                           string resultAsJson) where TResult : class
-        {
-            return client.AssertDeleteAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly());
-        }
-
-        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
-                                                                      string url,
-                                                                      string resultAsJson,
-                                                                      Assembly callingAssembly) where TResult : class
-        {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly);
-        }
-
         public static async Task AssertDeleteAsUnauthorizedAsync(this HttpClient httpClient, string url)
         {
             // Save original auth header

@@ -80,30 +80,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, differenceFunc);
         }
 
-
-        public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
-                                                                 string url,
-                                                                 string resultAsJson) where TResult : class
-        {
-            return client.AssertGetAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly());
-        }
-
-        public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
-                                                                   string url,
-                                                                   string resultAsJson,
-                                                                   Func<TResult, TResult> filterFunc) where TResult : class
-        {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, Assembly.GetCallingAssembly());
-        }
-
-        public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
-                                                                 string url,
-                                                                 string resultAsJson,
-                                                                 Assembly callingAssembly) where TResult : class
-        {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly);
-        }
-
         public static async Task AssertGetAsUnauthorizedAsync(this HttpClient httpClient, string url)
         {
             // Save original auth header
