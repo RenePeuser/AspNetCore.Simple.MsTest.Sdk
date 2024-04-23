@@ -10,7 +10,6 @@ using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ObjectsComparer;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {

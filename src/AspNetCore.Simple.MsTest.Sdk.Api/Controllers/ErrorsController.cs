@@ -1,4 +1,4 @@
-﻿using System;
+﻿using AspNetCore.Simple.Sdk.ErrorHandling;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +12,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
         [HttpPost("not-implemented")]
         public void ThrowNotImplementedException()
         {
-            throw new NotImplementedException("Implementation is missing");
+            throw new ProblemDetailsException("Implementation is missing",
+                                              "Here are error details",
+                                              ("PropertyA", "A"),
+                                              ("PropertyB", "B"));
+
         }
     }
 }

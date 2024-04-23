@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using Extensions.Pack;
-using ObjectsComparer;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {

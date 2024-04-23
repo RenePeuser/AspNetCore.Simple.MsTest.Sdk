@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Api.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ObjectsComparer;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
 {

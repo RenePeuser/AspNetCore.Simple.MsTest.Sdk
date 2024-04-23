@@ -1,0 +1,7 @@
+{
+  "title": "Implementation is missing",
+  "status": 500,
+  "detail": "Here are error details",
+  "propertyA": "A",
+  "propertyB": "B"
+}

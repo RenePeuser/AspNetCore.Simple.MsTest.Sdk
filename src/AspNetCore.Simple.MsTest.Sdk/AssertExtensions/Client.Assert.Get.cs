@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using ConsoleTables;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ObjectsComparer;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {

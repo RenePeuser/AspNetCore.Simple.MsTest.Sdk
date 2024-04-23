@@ -5,10 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Results\ErrorResponse.json" />
       <None Remove="Results\GetPersonResponse.json" />
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Include="Results\ErrorResponse.json" />
       <EmbeddedResource Include="Results\GetPersonResponse.json" />
     </ItemGroup>
 

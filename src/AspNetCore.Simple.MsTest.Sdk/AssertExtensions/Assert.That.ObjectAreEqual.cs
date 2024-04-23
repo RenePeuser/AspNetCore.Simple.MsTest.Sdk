@@ -9,13 +9,13 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ObjectsComparer;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
 #pragma warning disable IDE0060 // Remove unused parameter
     public static class AssertObjectExtensions
     {
+        internal static readonly JsonDiffer JsonDiffer = new();
         private static readonly JsonSerializerOptions JsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() } };
 
         public static void ObjectsAreEqual<T>(this Assert assert, Expression<Func<T?>> object1, Expression<Func<T?>> object2) where T : class
@@ -86,7 +86,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var obj1 = orderFunc(object1.Compile()());
             var obj2 = orderFunc(object2.Compile()());
 
-            var differences = new ObjectsComparer.Comparer<T>().CalculateDifferences(obj1!, obj2!).ToImmutableList();
+            var json1 = obj1.ToJson();
+            var json2 = obj2.ToJson();
+
+            var differences = JsonDiffer.FindDifferences(json1, json2);
             var optimizedDifferences = differenceFunc(differences).ToImmutableList();
 
             var resultTable = optimizedDifferences.ToResultTable(object1.NameOf(), object2.NameOf());
@@ -194,7 +197,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var orderedObject1 = orderFunc(object1);
             var orderedObject2 = orderFunc(obj2);
 
-            var differences = new ObjectsComparer.Comparer<T>(new ComparisonSettings()).CalculateDifferences(orderedObject1, orderedObject2).ToImmutableList();
+            var jsonDiffer = new JsonDiffer();
+            var object1AsJson = orderedObject1.ToJson();
+            var object2AsJson = orderedObject2.ToJson();
+
+            var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
+
+            // 1. Check if we are comparing the sam schema
+            var schemaNotMatching = differences.Any() && differences.All(item => item.Value1.IsNull() || item.Value2.IsNull());
+
+            Assert.IsFalse(schemaNotMatching, GetSchemeNotMatching(title, object1AsJson, object2AsJson));
 
             var optimizedDifferences = differenceFunc(differences).ToImmutableList();
 
@@ -257,6 +269,36 @@ namespace AspNetCore.Simple.MsTest.Sdk
             stringBuilder.AppendLine("Expected result:");
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(expectedResultAsJson);
+            stringBuilder.AppendLine();
+
+            return stringBuilder.ToString();
+        }
+
+        private static string GetSchemeNotMatching(string title,
+                                                   string json1,
+                                                   string json2)
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine();
+
+            if (title.IsNotNullOrWhiteSpace())
+            {
+                stringBuilder.AppendLine(title);
+                stringBuilder.AppendLine();
+            }
+
+            stringBuilder.AppendLine("--------------------------------------------------------");
+            stringBuilder.AppendLine("! The schemas of the objects to compare does not match !");
+            stringBuilder.AppendLine("--------------------------------------------------------");
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine("Current result:");
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(json2);
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine("Expected result:");
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(json1);
             stringBuilder.AppendLine();
 
             return stringBuilder.ToString();
