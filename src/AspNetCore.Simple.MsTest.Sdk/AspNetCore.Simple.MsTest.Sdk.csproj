@@ -10,7 +10,7 @@
         <PackageProjectUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
-        <PackageReleaseNotes>Upgrade to .Net 8</PackageReleaseNotes>
+        <PackageReleaseNotes>Remove ObjectComparer package to compare objects. Comparison is now done by json. Add new difference func to all error assert helpers.</PackageReleaseNotes>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <ApplicationIcon />
         <StartupObject />

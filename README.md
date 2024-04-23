@@ -105,6 +105,28 @@ private IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differ
 }
 ```
 
+### Ignore functionality on error response
+```csharp
+[TestMethod]
+public Task Should_Handle_Error_Response_With_Filter_Func()
+{
+    // 1. Call endpoint which will return an error response
+    return Client.AssertPostAsErrorAsync<ProblemDetails>("api/tests/v1/errors/not-implemented",
+                                                         "ErrorResponse.json",
+                                                         DifferenceFunc);
+
+    // 2. Intercept difference detection also for error response
+    static IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differences)
+    {
+        foreach (var difference in differences)
+        {
+            yield return difference;
+        }
+    }
+}
+```
+
+
 ### Fetch data from an API and do a post order to bring the items in the right order
 ```csharp
 [TestMethod]

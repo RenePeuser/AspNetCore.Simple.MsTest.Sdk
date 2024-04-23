@@ -18,10 +18,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         [TestMethod]
         public Task Should_Handle_Error_Response_With_Filter_Func()
         {
+            // 1. Call endpoint which will return an error response
             return Client.AssertPostAsErrorAsync<ProblemDetails>("api/tests/v1/errors/not-implemented",
                                                                  "ErrorResponse.json",
                                                                  DifferenceFunc);
 
+            // 2. Intercept difference detection also for error response
             static IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differences)
             {
                 foreach (var difference in differences)
