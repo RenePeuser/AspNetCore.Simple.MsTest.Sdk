@@ -3,12 +3,32 @@
     "Id": 1,
     "Name": "Son",
     "FirstName": "Goku",
-    "Age": 99
+    "Age": 99,
+    "Emails": [
+      {
+        "EmailAddress": "alf@gmx.de",
+        "Type": "GMX"
+      },
+      {
+        "EmailAddress": "abc@hotmail.de",
+        "Type": "Microsoft"
+      }
+    ]
   },
   {
     "Id": 2,
     "Name": "Vegeta",
     "FirstName": "Unknown",
-    "Age": 77
+    "Age": 77,
+    "Emails": [
+      {
+        "EmailAddress": "abc@gmx.de",
+        "Type": "GMX"
+      },
+      {
+        "EmailAddress": "maxmustermann@hotmail.de",
+        "Type": "Microsoft"
+      }
+    ]
   }
 ]

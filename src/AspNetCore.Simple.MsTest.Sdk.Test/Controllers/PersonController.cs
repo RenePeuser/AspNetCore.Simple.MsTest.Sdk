@@ -13,14 +13,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()
         {
-            return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons", /*lang=json,strict*/ "[{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99},{\"Id\":2,\"Name\":\"Vegeta\",\"FirstName\":\"Unknown\",\"Age\":77}]");
+            return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons", /*lang=json,strict*/ "[{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]},{\"Id\":2,\"Name\":\"Vegeta\",\"FirstName\":\"Unknown\",\"Age\":77,\"Emails\":[{\"EmailAddress\":\"abc@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"maxmustermann@hotmail.de\",\"Type\":\"Microsoft\"}]}]");
         }
 
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload_Ignore_Id()
         {
             return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons",
-                                                              /*lang=json,strict*/ "[{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99},{\"Id\":2,\"Name\":\"Vegeta\",\"FirstName\":\"Unknown\",\"Age\":77}]",
+                                                              "Results.GetPersonResponse.json",
                                                               differenceFunc: DifferenceFunc);
         }
 
@@ -28,7 +28,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         public Task Should_Return_Expected_Result_For_Given_Payload_With_Post_Sort()
         {
             return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons",
-                                                              /*lang=json,strict*/ "[{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99},{\"Id\":2,\"Name\":\"Vegeta\",\"FirstName\":\"Unknown\",\"Age\":77}]",
+                                                              "Results.GetPersonResponse.json",
                                                               FilterFunc);
         }
 

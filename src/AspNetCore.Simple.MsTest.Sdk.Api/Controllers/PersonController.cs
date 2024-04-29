@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Api.Models;
+using AspNetCore.Simple.Sdk.ErrorHandling;
+using Extensions.Pack;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,17 +15,30 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
     [Route("v{version:apiversion}/persons")]
     public class PersonController : ControllerBase
     {
+        private readonly List<Person> _persons =
+        [
+            new(1, "Son", "Goku", 99, ImmutableList.Create(new Email("alf@gmx.de", "GMX"), new Email("abc@hotmail.de", "Microsoft"))),
+            new(2, "Vegeta", "Unknown", 77, ImmutableList.Create(new Email("abc@gmx.de", "GMX"), new Email("maxmustermann@hotmail.de", "Microsoft")))
+        ];
+
         [HttpGet]
         public IEnumerable<Person> Get()
         {
-            return new List<Person> { new(1, "Son", "Goku", 99), new(2, "Vegeta", "Unknown", 77) };
+            return _persons;
         }
 
         [HttpGet("{id}")]
         public Task<Person> Get(long id)
         {
-            var result = new Person(id, "son", "goku", 55);
-            return Task.FromResult(result);
+            var person = _persons.FirstOrDefault(x => x.Id == id);
+            if (person.IsNull())
+            {
+                throw new ProblemDetailsException("Person for given Id does not exist",
+                                                  $"The person with the Id: {id} does not exist",
+                                                  ("Id", id));
+            }
+
+            return Task.FromResult(person);
         }
 
         [HttpPost]

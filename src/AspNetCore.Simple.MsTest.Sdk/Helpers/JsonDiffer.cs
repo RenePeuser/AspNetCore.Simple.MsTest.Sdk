@@ -104,7 +104,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private string AppendPath(string path, string addition)
         {
-            return string.IsNullOrEmpty(path) ? addition : $"{path}.{addition}";
+            if (path.IsNullOrEmpty())
+            {
+                return addition;
+            }
+
+            // If we have an array, we don't want to add a dot before the index
+            if (addition.First() == '[')
+            {
+                return $"{path}{addition}";
+            }
+
+
+            return $"{path}.{addition}";
         }
     }
 }
