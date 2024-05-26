@@ -106,7 +106,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(object1))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(object2))] string currentResultParameterName = "") where T : class
         {
-            assert.ObjectsAreEqual(object1, object2, orderFunc, string.Empty, difference => difference, expectedResultParameterName, currentResultParameterName);
+            assert.ObjectsAreEqual(object1, object2, orderFunc, title, difference => difference, expectedResultParameterName, currentResultParameterName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -492,6 +492,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (title.IsNotNullOrWhiteSpace())
             {
+                stringBuilder.AppendLine();
                 stringBuilder.AppendLine(title);
                 stringBuilder.AppendLine();
             }

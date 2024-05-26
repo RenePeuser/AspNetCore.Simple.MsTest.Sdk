@@ -7,7 +7,7 @@ Main reason was to be more focused on the Test-First approach.
 ## Getting started
 
 ### Prerequisites
-* [.Net 7](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+* [.Net 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
 ### Install the package
 
@@ -16,6 +16,47 @@ dotnet add package AspNetCore.Simple.MsTest.Sdk
 ```
 
 ## Samples
+
+### Simple object comparisons
+```csharp
+[TestMethod]
+public void Simple_Object_Comparison()
+{
+    var person1 = new Person("Son", "Goku", 29);
+    var person2 = new Person("Muten", "Roshi", 63);
+
+    Assert.That.ObjectsAreEqual(person1, person2, title: "Persons are not equal");
+}
+```
+
+```bash
+Assert.IsTrue failed. 
+
+Persons are not equal
+
+ ---------------------------------- 
+ | MemberPath | person1 | person2 |
+ ---------------------------------- 
+ | Name       | Son     | Muten   |
+ ---------------------------------- 
+ | FamilyName | Goku    | Roshi   |
+ ---------------------------------- 
+ | Age        | 29      | 63      |
+ ---------------------------------- 
+
+ Count: 3
+
+Current result:
+
+{"Name":"Muten","FamilyName":"Roshi","Age":63}
+
+Expected result:
+
+{"Name":"Son","FamilyName":"Goku","Age":29}
+```
+
+
+
 
 ### Basic concept
 ```csharp
