@@ -22,7 +22,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                                string url,
                                                                string resultAsJson,
-                                                               params (string Key, string Value)[] parameters) where TResult : class
+                                                               params (string Key, string Value)[] parameters) 
         {
             return client.AssertDeleteAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), parameters);
         }
@@ -31,7 +31,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       string url,
                                                       string resultAsJson,
                                                       Assembly callingAssembly,
-                                                      params (string Key, string Value)[] parameters) where TResult : class
+                                                      params (string Key, string Value)[] parameters) 
         {
             return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly, parameters);
         }

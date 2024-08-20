@@ -38,7 +38,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                 string expectedHeadersAsJson,
                                                 Assembly callingAssembly)
         {
-            var expectedHeaders = expectedHeadersAsJson.GetJsonString(callingAssembly);
+            var expectedHeaders = expectedHeadersAsJson.GetJsonString<object>(callingAssembly);
 
             var request = new HttpRequestMessage(HttpMethod.Options, url);
             var result = await client.SendAsync(request).ConfigureAwait(false);

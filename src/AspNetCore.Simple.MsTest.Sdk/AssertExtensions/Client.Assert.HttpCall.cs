@@ -38,11 +38,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  Assembly callingAssembly,
                                                  params (string Key, string Value)[] parameters)
         {
-            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
+            var jsonPayload = payloadAsJson.GetJsonString<object>(callingAssembly);
             parameters.ForEach(p => jsonPayload = jsonPayload.Replace(p.Key, p.Value));
 
             var absoluteUrl = $"{BaseUrl}{url}";
-            
+
             // Call as curl
             var curlBuilder = new CurlBuilder();
             var curl = curlBuilder.BuildFrom(httpMethod, absoluteUrl, payloadAsJson, client.DefaultRequestHeaders.Authorization, callingAssembly, ShowTokenInCurl);
@@ -54,8 +54,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            
-            
+
+
             var errorOutput = await GetOutputAsync(absoluteUrl, httpMethod, httpResponse, parameters).ConfigureAwait(false);
 
             Assert.IsTrue(httpResponse.IsSuccessStatusCode, errorOutput);
@@ -99,12 +99,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<HttpClient, string, Assembly, Task<TResult>> httpFunction,
                                                              HttpMethod httpMethod,
                                                              Assembly callingAssembly,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters)
         {
             return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client,
                                                                                         path,
                                                                                         _,
-                                                                                        assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly);
+                                                                                        assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly, parameters);
         }
 
         private static Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
@@ -116,9 +116,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              HttpMethod httpMethod,
                                                              Assembly callingAssembly,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters)
         {
-            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client, path, payloadAsJson, assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly, differenceFunc);
+            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client, path, payloadAsJson, assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly, differenceFunc, parameters);
         }
 
         private static Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
@@ -129,57 +129,57 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                              HttpMethod httpMethod,
                                                              Assembly callingAssembly,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters)
         {
-            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, difference => difference);
+            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, difference => difference, parameters);
         }
 
         private static async Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
-                                                                   string url,
-                                                                   string payloadAsJson,
-                                                                   string resultAsJson,
-                                                                   Func<TResult, TResult> filterFunc,
-                                                                   Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
-                                                                   HttpMethod httpMethod,
-                                                                   Assembly callingAssembly,
-                                                                   Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                   params (string Key, string Value)[] parameters) where TResult : class
+                                                                    string url,
+                                                                    string payloadAsJson,
+                                                                    string resultAsJson,
+                                                                    Func<TResult, TResult> filterFunc,
+                                                                    Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
+                                                                    HttpMethod httpMethod,
+                                                                    Assembly callingAssembly,
+                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    params (string Key, string Value)[] parameters)
         {
             if (CustomAssertMethod is not null)
             {
-                return await AssertCustomHttpCall(client, url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc).ConfigureAwait(false);
+                return await AssertCustomHttpCall(client, url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc, parameters).ConfigureAwait(false);
             }
 
-            return await AssertHttpCallInternal(client, url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc).ConfigureAwait(false);
+            return await AssertHttpCallInternal(client, url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc, parameters).ConfigureAwait(false);
         }
 
         private static async Task<TResult> AssertHttpCallInternal<TResult>(this HttpClient client,
-                                                                           string url,
-                                                                           string payloadAsJson,
-                                                                           string resultAsJson,
-                                                                           Func<TResult, TResult> filterFunc,
-                                                                           Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
-                                                                           HttpMethod httpMethod,
-                                                                           Assembly callingAssembly,
-                                                                           Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                           params (string Key, string Value)[] parameters) where TResult : class
+                                                                            string url,
+                                                                            string payloadAsJson,
+                                                                            string resultAsJson,
+                                                                            Func<TResult, TResult> filterFunc,
+                                                                            Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
+                                                                            HttpMethod httpMethod,
+                                                                            Assembly callingAssembly,
+                                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                            params (string Key, string Value)[] parameters)
         {
-
-
-            // var createdUser = Client.AssertPostAsAsync<UserDto>("api/users", new UserDto { Name = "Test" }, IgnoreDifference);
-            
-            // Update.json  = Id = {Id}
-            // var updateUser  = Client.AssertPutAsAsync<UserDto>("api/users", "Update.json", ({Id}, createdUser.Id));
-            var jsonPayload = payloadAsJson.GetJsonString(callingAssembly);
+            var jsonPayload = payloadAsJson.GetJsonString<TResult>(callingAssembly);
 
             // 1. Replaced json payload
-            parameters.ForEach(p => jsonPayload = jsonPayload.Replace(p.Key, p.Value));
-            
+            if (jsonPayload.IsNotNullOrWhiteSpace())
+            {
+                parameters.ForEach(p => jsonPayload = jsonPayload.Replace(p.Key, p.Value));
+            }
+
             var currentResult = await httpFunction(client, url, jsonPayload, callingAssembly).ConfigureAwait(false);
 
-            var currentResultAsJson = currentResult.ToJson();
-            parameters.ForEach(p => jsonPayload = jsonPayload.Replace(p.Key, p.Value));
-            currentResult = currentResultAsJson.FromJsonStringAs<TResult>();
+            if (currentResult.IsNotNull())
+            {
+                var currentResultAsJson = currentResult.ToJson();
+                parameters.ForEach(p => jsonPayload = jsonPayload.Replace(p.Key, p.Value));
+                currentResult = currentResultAsJson.FromJsonStringAs<TResult>();
+            }
 
             var absoluteUrl = $"{BaseUrl}{url}";
             var httpCallInfo = $"{Environment.NewLine}Call: '{httpMethod} {absoluteUrl}' was not successful.";
@@ -203,7 +203,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          HttpMethod httpMethod,
                                                                          Assembly callingAssembly,
                                                                          Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                         params (string Key, string Value)[] parameters) where TResult : class
+                                                                         params (string Key, string Value)[] parameters)
         {
             if (CustomAssertMethod is null)
             {
@@ -216,7 +216,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var genericMethod = CustomAssertMethod.MakeGenericMethod(typeof(TResult));
-            var tasReturnType = genericMethod.Invoke(null, new object[] { client, url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc });
+            var tasReturnType = genericMethod.Invoke(null, new object[] { client, url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc, parameters });
             if (tasReturnType is Task task)
             {
                 await task.ConfigureAwait(false);

@@ -13,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
                                                                    string resultAsJson,
-                                                                   params (string Key, string Value)[] parameters) where TResult : class
+                                                                   params (string Key, string Value)[] parameters) 
         {
             return client.AssertGetAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), parameters);
         }
@@ -22,7 +22,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string url,
                                                                    string resultAsJson,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                   params (string Key, string Value)[] parameters) where TResult : class
+                                                                   params (string Key, string Value)[] parameters) 
         {
             return client.AssertGetAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), differenceFunc, parameters);
         }
@@ -31,7 +31,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string url,
                                                                    string resultAsJson,
                                                                    Func<TResult, TResult> filterFunc,
-                                                                   params (string Key, string Value)[] parameters) where TResult : class
+                                                                   params (string Key, string Value)[] parameters) 
         {
             return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, Assembly.GetCallingAssembly(), parameters);
         }
@@ -41,7 +41,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string resultAsJson,
                                                                    Func<TResult, TResult> filterFunc,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                   params (string Key, string Value)[] parameters) where TResult : class
+                                                                   params (string Key, string Value)[] parameters) 
         {
             return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, Assembly.GetCallingAssembly(), differenceFunc, parameters);
         }
@@ -50,7 +50,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                  string url,
                                                                  string resultAsJson,
                                                                  Assembly callingAssembly,
-                                                                 params (string Key, string Value)[] parameters) where TResult : class
+                                                                 params (string Key, string Value)[] parameters) 
         {
             return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, parameters);
         }
@@ -60,7 +60,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string resultAsJson,
                                                                    Assembly callingAssembly,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                   params (string Key, string Value)[] parameters) where TResult : class
+                                                                   params (string Key, string Value)[] parameters) 
         {
             return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, differenceFunc, parameters);
         }

@@ -26,7 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string resultAsJson,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters) 
         {
             return client.AssertPatchAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), parameters);
         }
@@ -35,7 +35,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string url,
                                                              string resultAsJson,
                                                              Func<TResult, TResult> filterFunc,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters) 
         {
             return client.AssertPatchAsync(url, string.Empty, resultAsJson, filterFunc, Assembly.GetCallingAssembly(), parameters);
         }
@@ -44,7 +44,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string url,
                                                              string resultAsJson,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters) 
         {
             return client.AssertPatchAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), differenceFunc, parameters);
         }
@@ -53,7 +53,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string url,
                                                              string resultAsJson,
                                                              Assembly callingAssembly,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters) 
         {
             return AssertPatchAsync<TResult>(client, url, string.Empty, resultAsJson, callingAssembly, parameters);
         }
@@ -63,7 +63,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string resultAsJson,
                                                              Assembly callingAssembly,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters) 
         {
             return AssertPatchAsync<TResult>(client, url, string.Empty, resultAsJson, callingAssembly, differenceFunc, parameters);
         }
@@ -72,7 +72,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string url,
                                                               object payloadAsObject,
                                                               string resultAsJson, 
-                                                              params (string Key, string Value)[] parameters) where TResult : class
+                                                              params (string Key, string Value)[] parameters) 
         {
             return client.AssertPatchAsync<TResult>(url, payloadAsObject.ToJson(), resultAsJson, Assembly.GetCallingAssembly(), parameters);
         }
@@ -81,7 +81,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string url,
                                                               string payloadAsJson,
                                                               string resultAsJson,
-                                                              params (string Key, string Value)[] parameters) where TResult : class
+                                                              params (string Key, string Value)[] parameters) 
         {
             return client.AssertPatchAsync<TResult>(url, payloadAsJson, resultAsJson, Assembly.GetCallingAssembly(), parameters);
         }
@@ -91,7 +91,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               object payloadAsObject,
                                                               string resultAsJson,
                                                               Assembly callingAssembly,
-                                                              params (string Key, string Value)[] parameters) where TResult : class
+                                                              params (string Key, string Value)[] parameters) 
         {
             return AssertPatchAsync<TResult>(client, url, payloadAsObject.ToJson(), resultAsJson, result => result, callingAssembly, parameters);
         }
@@ -101,7 +101,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string payloadAsJson,
                                                              string resultAsJson,
                                                              Assembly callingAssembly,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters) 
         {
             return AssertPatchAsync<TResult>(client, url, payloadAsJson, resultAsJson, result => result, callingAssembly, parameters);
         }
@@ -112,7 +112,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string resultAsJson,
                                                               Assembly callingAssembly,
                                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                              params (string Key, string Value)[] parameters) where TResult : class
+                                                              params (string Key, string Value)[] parameters) 
         {
             return AssertPatchAsync<TResult>(client, url, payloadAsObject.ToJson(), resultAsJson, result => result, differenceFunc, callingAssembly, parameters);
         }
@@ -123,7 +123,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string resultAsJson,
                                                              Assembly callingAssembly,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters) 
         {
             return AssertPatchAsync<TResult>(client, url, payloadAsJson, resultAsJson, result => result, differenceFunc, callingAssembly, parameters);
         }
@@ -133,7 +133,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               object payloadAsObject,
                                                               string resultAsJson,
                                                               Func<TResult, TResult> filterFunc,
-                                                              params (string Key, string Value)[] parameters) where TResult : class
+                                                              params (string Key, string Value)[] parameters) 
         {
             return client.AssertPatchAsync(url, payloadAsObject.ToJson(), resultAsJson, filterFunc, Assembly.GetCallingAssembly(), parameters);
         }
@@ -143,7 +143,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string payloadAsJson,
                                                               string resultAsJson,
                                                               Func<TResult, TResult> filterFunc,
-                                                              params (string Key, string Value)[] parameters) where TResult : class
+                                                              params (string Key, string Value)[] parameters) 
         {
             return client.AssertPatchAsync(url, payloadAsJson, resultAsJson, filterFunc, Assembly.GetCallingAssembly(), parameters);
         }
@@ -153,7 +153,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               object payloadAsObject,
                                                               string resultAsJson,
                                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                              params (string Key, string Value)[] parameters) where TResult : class
+                                                              params (string Key, string Value)[] parameters) 
         {
             return client.AssertPatchAsync<TResult>(url, payloadAsObject.ToJson(), resultAsJson, item => item, differenceFunc, Assembly.GetCallingAssembly(), parameters);
         }
@@ -163,7 +163,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string payloadAsJson,
                                                               string resultAsJson,
                                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                              params (string Key, string Value)[] parameters) where TResult : class
+                                                              params (string Key, string Value)[] parameters) 
         {
             return client.AssertPatchAsync<TResult>(url, payloadAsJson, resultAsJson, item => item, differenceFunc, Assembly.GetCallingAssembly(), parameters);
         }
@@ -174,7 +174,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string resultAsJson,
                                                               Func<TResult, TResult> filterFunc,
                                                               Assembly callingAssembly,
-                                                              params (string Key, string Value)[] parameters) where TResult : class
+                                                              params (string Key, string Value)[] parameters) 
         {
             return client.AssertHttpCall(url, payloadAsObject.ToJson(), resultAsJson, filterFunc, HttpExtensions.PatchAsJsonStringAsync<TResult>, HttpMethod.Patch, callingAssembly, difference => difference, parameters);
         }
@@ -185,7 +185,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string resultAsJson,
                                                              Func<TResult, TResult> filterFunc,
                                                              Assembly callingAssembly,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters) 
         {
             return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, HttpExtensions.PatchAsJsonStringAsync<TResult>, HttpMethod.Patch, callingAssembly, difference => difference, parameters);
         }
@@ -197,7 +197,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               Func<TResult, TResult> filterFunc,
                                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               Assembly callingAssembly,
-                                                              params (string Key, string Value)[] parameters) where TResult : class
+                                                              params (string Key, string Value)[] parameters) 
         {
             return client.AssertHttpCall(url, payloadAsObject.ToJson(), resultAsJson, filterFunc, HttpExtensions.PatchAsJsonStringAsync<TResult>, HttpMethod.Patch, callingAssembly, differenceFunc, parameters);
         }
@@ -209,7 +209,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<TResult, TResult> filterFunc,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                              Assembly callingAssembly,
-                                                             params (string Key, string Value)[] parameters) where TResult : class
+                                                             params (string Key, string Value)[] parameters) 
         {
             return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, HttpExtensions.PatchAsJsonStringAsync<TResult>, HttpMethod.Patch, callingAssembly, differenceFunc, parameters);
         }
