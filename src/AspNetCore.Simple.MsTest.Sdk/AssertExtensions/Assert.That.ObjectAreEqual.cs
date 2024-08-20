@@ -382,6 +382,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var type = typeof(T);
             if (type.IsPrimitive || type == typeof(string))
             {
+                PrintCurl(callingAssembly, curl);
+                
                 var expectedResult = PrimitiveTypeConverter.ConvertTo<T>(jsonObject);
 
                 Assert.AreEqual(expectedResult, object2, GetOutputString(title, curl, object2, expectedResult));
