@@ -11,35 +11,39 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public static partial class HttpClientAssertExtensions
     {
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
-                                                           string url,
-                                                           string resultAsJson) where TResult : class
+                                                                      string url,
+                                                                      string resultAsJson,
+                                                                      params (string Key, string Value)[] parameters) where TResult : class
         {
-            return client.AssertDeleteAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly());
+            return client.AssertDeleteAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), parameters);
         }
 
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
                                                                       string url,
                                                                       string resultAsJson,
-                                                                      Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
+                                                                      Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                      params (string Key, string Value)[] parameters) where TResult : class
         {
-            return client.AssertDeleteAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), differenceFunc);
-        }
-
-        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
-                                                                      string url,
-                                                                      string resultAsJson,
-                                                                      Assembly callingAssembly) where TResult : class
-        {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly);
+            return client.AssertDeleteAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), differenceFunc, parameters);
         }
 
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
                                                                       string url,
                                                                       string resultAsJson,
                                                                       Assembly callingAssembly,
-                                                                      Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc) where TResult : class
+                                                                      params (string Key, string Value)[] parameters) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly, differenceFunc);
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly, parameters);
+        }
+
+        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
+                                                                      string url,
+                                                                      string resultAsJson,
+                                                                      Assembly callingAssembly,
+                                                                      Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                      params (string Key, string Value)[] parameters) where TResult : class
+        {
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly, differenceFunc, parameters);
         }
     }
 }

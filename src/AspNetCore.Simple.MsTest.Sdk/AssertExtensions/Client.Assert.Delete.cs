@@ -13,24 +13,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public static partial class HttpClientAssertExtensions
     {
         public static Task AssertDeleteAsync(this HttpClient client,
-                                             string url)
+                                             string url,
+                                             params (string Key, string Value)[] parameters)
         {
-            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.DeleteAsync(urlParam), HttpMethod.Delete, Assembly.GetCallingAssembly());
+            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.DeleteAsync(urlParam), HttpMethod.Delete, Assembly.GetCallingAssembly(), parameters);
         }
 
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                                string url,
-                                                               string resultAsJson) where TResult : class
+                                                               string resultAsJson,
+                                                               params (string Key, string Value)[] parameters) where TResult : class
         {
-            return client.AssertDeleteAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly());
+            return client.AssertDeleteAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), parameters);
         }
 
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                       string url,
                                                       string resultAsJson,
-                                                      Assembly callingAssembly) where TResult : class
+                                                      Assembly callingAssembly,
+                                                      params (string Key, string Value)[] parameters) where TResult : class
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly);
+            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly, parameters);
         }
 
         public static async Task AssertDeleteAsUnauthorizedAsync(this HttpClient httpClient, string url)
