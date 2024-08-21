@@ -382,8 +382,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var type = typeof(T);
             if (type.IsPrimitive || type == typeof(string))
             {
-                PrintCurl(callingAssembly, curl);
-                
                 var expectedResult = PrimitiveTypeConverter.ConvertTo<T>(jsonObject);
 
                 Assert.AreEqual(expectedResult, object2, GetOutputString(title, curl, object2, expectedResult));
@@ -462,8 +460,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  T currentResult,
                                                  T expectedResult)
         {
-            var expectedResultAsJson = expectedResult.ToJson();
-            var currentResultAsJson = currentResult.ToJson();
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
 
@@ -474,13 +470,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 stringBuilder.AppendLine();
             }
 
-            stringBuilder.AppendLine("Expected result:");
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine(expectedResultAsJson);
-            stringBuilder.AppendLine();
             stringBuilder.AppendLine("Current result:");
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(currentResultAsJson);
+            stringBuilder.AppendLine(currentResult.ToJson());
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine("Expected result:");
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(expectedResult.ToJson());
+            stringBuilder.AppendLine();
             
             if (curl.IsNotNullOrWhiteSpace())
             {
@@ -512,13 +509,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             stringBuilder.AppendLine(resultTable);
             stringBuilder.AppendLine();
+            stringBuilder.AppendLine("Current result:");
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(currentResultAsJson);
+            stringBuilder.AppendLine();
             stringBuilder.AppendLine("Expected result:");
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(expectedResultAsJson);
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine("Current result:");
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine(currentResultAsJson);
             
             if (curl.IsNotNullOrWhiteSpace())
             {

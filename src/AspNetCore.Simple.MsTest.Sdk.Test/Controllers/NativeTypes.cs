@@ -10,7 +10,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         public Task Should_Be_Able_To_Fetch_Native_String_As_Well()
         {
             return Client.AssertGetAsync<string>("api/tests/v1/native-types/string",
-                                                 "String only");
+                                                 "String only 1");
         }
 
         [TestMethod]
