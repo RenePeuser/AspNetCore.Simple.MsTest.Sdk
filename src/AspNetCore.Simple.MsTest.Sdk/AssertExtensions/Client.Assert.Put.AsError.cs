@@ -14,6 +14,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
                                                                    string expectedResult,
+                                                                   [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+        {
+            return client.AssertPutAsErrorAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
+                                                                   string url,
+                                                                   string expectedResult,
                                                                    (string Key, string Value)[] parameters,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {

@@ -16,6 +16,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public static partial class HttpClientAssertExtensions
     {
         public static async Task AssertGetAsync(this HttpClient client,
+                                                string url)
+        {
+            await client.AssertHttpCall(url, string.Empty, (client, url, _) => client.GetAsync(url), HttpMethod.Get, [], Assembly.GetCallingAssembly()).ConfigureAwait(false);
+        }
+
+        public static async Task AssertGetAsync(this HttpClient client,
                                                 string url,
                                                 (string Key, string Value)[] parameters)
         {
@@ -25,10 +31,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
                                                             string url,
                                                             string expectedResult,
+                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+        {
+            return client.AssertGetAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string expectedResult,
                                                             (string Key, string Value)[] parameters,
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertGetAsync<TResult>(url, expectedResult, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string expectedResult,
+                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+        {
+            return client.AssertGetAsync<TResult>(url, expectedResult, differenceFunc, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
@@ -45,9 +68,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string url,
                                                             string expectedResult,
                                                             Func<TResult, TResult> filterFunc,
+                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+        {
+            return client.AssertGetAsync(url, expectedResult, filterFunc, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string expectedResult,
+                                                            Func<TResult, TResult> filterFunc,
                                                             (string Key, string Value)[] parameters, [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertGetAsync(url, expectedResult, filterFunc, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
+        }
+
+
+        public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string expectedResult,
+                                                            Assembly callingAssembly,
+                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+        {
+            return client.AssertHttpCall(url, string.Empty, expectedResult, item => item, (httpClient, url, _, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, [], expectedResultParameterName);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
@@ -58,6 +100,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertHttpCall(url, string.Empty, expectedResult, item => item, (httpClient, url, _, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, parameters, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string expectedResult,
+                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                            Assembly callingAssembly,
+                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+        {
+            return client.AssertHttpCall(url, string.Empty, expectedResult, item => item, (httpClient, url, _, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, differenceFunc, [], expectedResultParameterName);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
@@ -75,11 +127,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string url,
                                                             string expectedResult,
                                                             Func<TResult, TResult> filterFunc,
+                                                            Assembly callingAssembly,
+                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+        {
+            return client.AssertHttpCall(url, string.Empty, expectedResult, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, [], expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string expectedResult,
+                                                            Func<TResult, TResult> filterFunc,
                                                             (string Key, string Value)[] parameters,
                                                             Assembly callingAssembly,
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertHttpCall(url, string.Empty, expectedResult, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, parameters, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string expectedResult,
+                                                            Func<TResult, TResult> filterFunc,
+                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                            Assembly callingAssembly,
+                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+        {
+            return client.AssertHttpCall(url, string.Empty, expectedResult, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, differenceFunc, [], expectedResultParameterName);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,

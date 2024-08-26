@@ -23,10 +23,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                                string url,
                                                                string expectedResult,
+                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+        {
+            return client.AssertDeleteAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
+                                                               string url,
+                                                               string expectedResult,
                                                                (string Key, string Value)[] parameters,
                                                                [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertDeleteAsync<TResult>(url, expectedResult, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
+                                                               string url,
+                                                               string expectedResult,
+                                                               Assembly callingAssembly,
+                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+        {
+            return client.AssertHttpCall(url, string.Empty, expectedResult, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly, [], expectedResultParameterName);
         }
 
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
