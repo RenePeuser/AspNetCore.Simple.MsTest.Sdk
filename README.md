@@ -27,6 +27,15 @@ public void Simple_Object_Comparison()
 
     Assert.That.ObjectsAreEqual(person1, person2, title: "Persons are not equal");
 }
+
+[TestMethod]
+public void Simple_Object_Comparison()
+{
+    var firstNumber = 1;
+    var secondNumber = 2;
+
+    Assert.That.ObjectsAreEqual(firstNumber,secondNumber, title: "Persons are not equal");
+}
 ```
 
 ```bash
@@ -224,7 +233,7 @@ public Task Should_Return_The_User_Which_Was_Added()
     // 2. Get the currently added user
     await Client.AssertGetAsync<GetUserByIdResponse>($"api/v1/users/{addedUserResponse.User.Id}"
                                                      "Users.V1.Results.AddedUser.json",
-                                                     ("{Id}", addedUserResponse.User.Id)); // New, will replace in the Users.V1.Results.AddedUser.json the {Id} with the value of addedUserResponse.User.Id
+                                                     [("{Id}", addedUserResponse.User.Id)]); // New, will replace in the Users.V1.Results.AddedUser.json the {Id} with the value of addedUserResponse.User.Id
 
     // 3. Delete the alrady added user -> Dependent on your test setup a test-tear down can also contain a cleanup step to remove all the created sources
     await Client.AssertDeleteAsync($"api/v1/users/{addedUserResponse.User.Id}"
