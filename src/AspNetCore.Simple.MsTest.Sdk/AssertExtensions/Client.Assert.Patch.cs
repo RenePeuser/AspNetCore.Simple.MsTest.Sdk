@@ -32,10 +32,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
                                                               string url,
-                                                              string expectedResult,
-                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                              string expectedResult)
         {
-            return client.AssertPatchAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
+            return client.AssertPatchAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), nameof(expectedResult));
         }
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
@@ -111,7 +110,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               Assembly callingAssembly,
                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return AssertPatchAsync<TResult>(client, url, string.Empty, expectedResult, differenceFunc, [], callingAssembly,expectedResultParameterName);
+            return AssertPatchAsync<TResult>(client, url, string.Empty, expectedResult, differenceFunc, [], callingAssembly, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
@@ -122,7 +121,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return AssertPatchAsync<TResult>(client, url, string.Empty, expectedResult, differenceFunc, parameters, callingAssembly,expectedResultParameterName);
+            return AssertPatchAsync<TResult>(client, url, string.Empty, expectedResult, differenceFunc, parameters, callingAssembly, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,

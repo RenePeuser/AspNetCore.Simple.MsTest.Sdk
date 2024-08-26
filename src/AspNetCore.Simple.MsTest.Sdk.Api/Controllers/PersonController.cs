@@ -22,13 +22,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
         ];
 
         [HttpGet]
-        public IEnumerable<Person> Get()
+        public IEnumerable<Person> GetAllPersons()
         {
             return _persons;
         }
 
         [HttpGet("{id}")]
-        public Task<Person> Get(long id)
+        public Task<Person> GetPersonByIdAsync(long id)
         {
             var person = _persons.FirstOrDefault(x => x.Id == id);
             if (person.IsNull())
@@ -41,8 +41,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
             return Task.FromResult(person);
         }
 
+        [HttpPut]
+        public Task<Person> UpdateAsync([FromBody] Person person)
+        {
+            return Task.FromResult(person);
+        }
+
+        [HttpPatch]
+        public Task<Person> PatchAsync()
+        {
+            return Task.FromResult(_persons.First());
+        }
+
         [HttpPost]
-        public Task<Person> Post([FromBody] Person person)
+        public Task<Person> AddAsync([FromBody] Person person)
         {
             return Task.FromResult(person);
         }

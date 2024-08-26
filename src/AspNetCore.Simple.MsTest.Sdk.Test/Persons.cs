@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Api.Models;
 using Extensions.Pack;
@@ -18,8 +19,62 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload_By_Embedded_File()
         {
-            return Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons", "Results.GetPersonResponse.json");
+            return Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons", 
+                                                              "Results.GetPersonResponse.json");
         }
+
+        [TestMethod]
+        public Task Should_Be_Able_To_Post_A_Person_Object()
+        {
+            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+                                                  new Person(1, "Son", "Goku", 42, ImmutableList<Email>.Empty),
+                                                  "Results.NewPerson.json");
+        }
+
+        [TestMethod]
+        public Task Should_Be_Able_To_Post_A_Person_By_Json()
+        {
+            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+                                                  "Payloads.SonGoku.json",
+                                                  "Results.SonGoku.json");
+        }
+
+        //[TestMethod]
+        //public Task Should_Be_Able_To_Post_A_Person_By_Json_1()
+        //{
+        //    return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+        //                                          "Payloads.SonGoku.json");
+        //}
+
+        [TestMethod]
+        public Task Should_Be_Able_To_Put_A_Person_By_Json()
+        {
+            return Client.AssertPatchAsync<Person>("api/tests/v1/persons",
+                                                  "Payloads.SonGoku.json",
+                                                  "Results.SonGoku.json");
+        }
+
+        //[TestMethod]
+        //public Task Should_Be_Able_To_Put_A_Person_By_Json_1()
+        //{
+        //    return Client.AssertPatchAsync<Person>("api/tests/v1/persons",
+        //                                           "Payloads.SonGoku.json");
+        //}
+
+        [TestMethod]
+        public Task Should_Be_Able_To_Put_A_Patch_By_Json()
+        {
+            return Client.AssertPutAsync<Person>("api/tests/v1/persons",
+                                                  "Payloads.SonGoku.json",
+                                                  "Results.SonGoku.json");
+        }
+
+        //[TestMethod]
+        //public Task Should_Be_Able_To_Put_A_Patch_By_Json_1()
+        //{
+        //    return Client.AssertPutAsync<Person?>("api/tests/v1/persons",
+        //                                         "{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]}");
+        //}
 
         [DataTestMethod]
         [DataRow("I am not a valid json")]

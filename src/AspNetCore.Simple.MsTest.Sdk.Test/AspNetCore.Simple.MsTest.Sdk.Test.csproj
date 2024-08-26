@@ -5,13 +5,21 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Payloads\NewPerson.json" />
+      <None Remove="Payloads\SonGoku.json" />
       <None Remove="Results\ErrorResponse.json" />
       <None Remove="Results\GetPersonResponse.json" />
+      <None Remove="Results\NewPerson.json" />
+      <None Remove="Results\SonGoku.json" />
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Include="Payloads\NewPerson.json" />
+      <EmbeddedResource Include="Payloads\SonGoku.json" />
+      <EmbeddedResource Include="Results\SonGoku.json" />
       <EmbeddedResource Include="Results\ErrorResponse.json" />
       <EmbeddedResource Include="Results\GetPersonResponse.json" />
+      <EmbeddedResource Include="Results\NewPerson.json" />
     </ItemGroup>
 
     <ItemGroup>

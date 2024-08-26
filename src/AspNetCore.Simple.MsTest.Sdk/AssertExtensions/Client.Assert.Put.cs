@@ -32,11 +32,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Task AssertPutAsync(this HttpClient client,
                                           string url,
-                                          string payload,
-                                          [CallerArgumentExpression(nameof(payload))] string payloadParameterName = "")
+                                          string payload)
         {
             var jsonBody = payload.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ? Assembly.GetCallingAssembly().GetFileContentFrom(payload) : payload;
-            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PutAsync(urlParam, new StringContent(jsonBody, Encoding.UTF8, MediaTypeNames.Application.Json)), HttpMethod.Put, [], Assembly.GetCallingAssembly(), payloadParameterName);
+            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PutAsync(urlParam, new StringContent(jsonBody, Encoding.UTF8, MediaTypeNames.Application.Json)), HttpMethod.Put, [], Assembly.GetCallingAssembly(), nameof(payload));
         }
 
         public static Task AssertPutAsync(this HttpClient client,
@@ -51,10 +50,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
                                                             string url,
-                                                            string expectedResult,
-                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                            string expectedResult)
         {
-            return client.AssertPutAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
+            return client.AssertPutAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), nameof(expectedResult));
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -110,7 +108,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             Assembly callingAssembly,
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return AssertPutAsync<TResult>(client, url, string.Empty, expectedResult, [], callingAssembly, string.Empty, expectedResultParameterName);
+            return AssertPutAsync<TResult>(client, url, expectedResult, [], callingAssembly, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -120,7 +118,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             Assembly callingAssembly,
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return AssertPutAsync<TResult>(client, url, string.Empty, expectedResult, parameters, callingAssembly, string.Empty, expectedResultParameterName);
+            return AssertPutAsync<TResult>(client, url, expectedResult, item => item, parameters, callingAssembly, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -174,7 +172,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return client.AssertPutAsync<TResult>(url, payloadAsJson, expectedResult, [], Assembly.GetCallingAssembly(), payloadAsJsonParameterName, expectedResultParameterName);
         }
-        
+
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
                                                             string url,
                                                             string payloadAsJson,

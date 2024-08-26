@@ -25,10 +25,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
-                                                             string expectedResult,
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             string expectedResult)
         {
-            return client.AssertPostAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
+            return client.AssertPostAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), nameof(expectedResult));
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -94,7 +93,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return AssertPostAsync<TResult>(client, url, string.Empty, expectedResult, parameters, callingAssembly, string.Empty, expectedResultParameterName);
+            return AssertPostAsync<TResult>(client, url, expectedResult, item => item, parameters, callingAssembly, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -104,9 +103,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return AssertPostAsync<TResult>(client, url, string.Empty, expectedResult, differenceFunc, [], callingAssembly, string.Empty, expectedResultParameterName);
+            return AssertPostAsync<TResult>(client, url, expectedResult, differenceFunc, [], callingAssembly, expectedResultParameterName);
         }
-        
+
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string expectedResult,
@@ -115,7 +114,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return AssertPostAsync<TResult>(client, url, string.Empty, expectedResult, differenceFunc, parameters, callingAssembly, string.Empty, expectedResultParameterName);
+            return AssertPostAsync<TResult>(client, url, string.Empty, expectedResult, differenceFunc, parameters, callingAssembly, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -290,7 +289,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return client.AssertPostAsync(url, payloadAsJson, expectedResult, filterFunc, [], Assembly.GetCallingAssembly(), payloadAsJsonParameterName, expectedResultParameterName);
         }
-        
+
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string payloadAsJson,
