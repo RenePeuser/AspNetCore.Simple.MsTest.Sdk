@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Extensions.Pack;
 
@@ -12,57 +13,63 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
-                                                                   string resultAsJson,
-                                                                   params (string Key, string Value)[] parameters) 
+                                                                   string expectedResult,
+                                                                   (string Key, string Value)[] parameters,
+                                                                   [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertGetAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), parameters);
+            return client.AssertGetAsErrorAsync<TResult>(url, expectedResult, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
-                                                                   string resultAsJson,
+                                                                   string expectedResult,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                   params (string Key, string Value)[] parameters) 
+                                                                   (string Key, string Value)[] parameters,
+                                                                   [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertGetAsErrorAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), differenceFunc, parameters);
+            return client.AssertGetAsErrorAsync<TResult>(url, expectedResult, differenceFunc, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
-                                                                   string resultAsJson,
+                                                                   string expectedResult,
                                                                    Func<TResult, TResult> filterFunc,
-                                                                   params (string Key, string Value)[] parameters) 
+                                                                   (string Key, string Value)[] parameters,
+                                                                   [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, Assembly.GetCallingAssembly(), parameters);
+            return client.AssertHttpCall(url, string.Empty, expectedResult, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, Assembly.GetCallingAssembly(), parameters, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
-                                                                   string resultAsJson,
+                                                                   string expectedResult,
                                                                    Func<TResult, TResult> filterFunc,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                   params (string Key, string Value)[] parameters) 
+                                                                   (string Key, string Value)[] parameters,
+                                                                   [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, Assembly.GetCallingAssembly(), differenceFunc, parameters);
+            return client.AssertHttpCall(url, string.Empty, expectedResult, filterFunc, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, Assembly.GetCallingAssembly(), differenceFunc, parameters, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                  string url,
-                                                                 string resultAsJson,
+                                                                 string expectedResult,
+                                                                 (string Key, string Value)[] parameters,
                                                                  Assembly callingAssembly,
-                                                                 params (string Key, string Value)[] parameters) 
+                                                                 [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, parameters);
+            return client.AssertHttpCall(url, string.Empty, expectedResult, item => item, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, parameters, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
-                                                                   string resultAsJson,
-                                                                   Assembly callingAssembly,
+                                                                   string expectedResult,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                   params (string Key, string Value)[] parameters) 
+                                                                   (string Key, string Value)[] parameters,
+                                                                   Assembly callingAssembly,
+                                                                   [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, differenceFunc, parameters);
+            return client.AssertHttpCall(url, string.Empty, expectedResult, item => item, (httpClient, url, _) => HttpExtensions.GetAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Get, callingAssembly, differenceFunc, parameters, expectedResultParameterName);
         }
     }
 }

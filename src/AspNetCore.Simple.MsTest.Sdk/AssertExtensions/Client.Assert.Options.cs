@@ -49,7 +49,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var headers = result.Headers.ToDictionary(item => item.Key, item => item.Value);
 
-            Assert.That.ObjectsAreEqual(() => expectedHeaders, () => headers);
+            Assert.That.ObjectsAreEqual(expectedHeaders, headers);
 
             return result;
         }

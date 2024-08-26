@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using ConsoleTables;
@@ -35,8 +36,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  string payloadAsJson,
                                                  Func<HttpClient, string, string, Task<HttpResponseMessage>> httpFunction,
                                                  HttpMethod httpMethod,
+                                                 (string Key, string Value)[] parameters,
                                                  Assembly callingAssembly,
-                                                 params (string Key, string Value)[] parameters)
+                                                 [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "")
         {
             var jsonPayload = payloadAsJson.GetJsonString<object>(callingAssembly);
             parameters.ForEach(p => jsonPayload = jsonPayload.Replace(p.Key, p.Value));
@@ -53,8 +55,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 return;
             }
-
-
 
             var errorOutput = await GetOutputAsync(absoluteUrl, httpMethod, httpResponse, parameters).ConfigureAwait(false);
 
@@ -73,7 +73,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 stringBuilder.AppendLine();
 
                 // Table for call infos
-                var callInfos = new { HttpMethod = httpMethod.Method, Url = absoluteUrl, HttpStatusCode = httpResponseMessage.StatusCode.Cast<int>(), HttpStatusName = httpResponseMessage.StatusCode }.ToIList();
+                var callInfos = new
+                {
+                    HttpMethod = httpMethod.Method,
+                    Url = absoluteUrl,
+                    HttpStatusCode = httpResponseMessage.StatusCode.Cast<int>(),
+                    HttpStatusName = httpResponseMessage.StatusCode
+                }.ToIList();
 
                 var table = ConsoleTable.From(callInfos).ToString();
                 stringBuilder.AppendLine(table);
@@ -94,75 +100,82 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
                                                              string url,
                                                              string payloadAsJson,
-                                                             string resultAsJson,
+                                                             string expectedResult,
                                                              Func<TResult, TResult> filterFunc,
                                                              Func<HttpClient, string, Assembly, Task<TResult>> httpFunction,
                                                              HttpMethod httpMethod,
                                                              Assembly callingAssembly,
-                                                             params (string Key, string Value)[] parameters)
+                                                             (string Key, string Value)[] parameters,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client,
-                                                                                        path,
-                                                                                        _,
-                                                                                        assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly, parameters);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, (client, path, _, assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly, parameters, payloadAsJsonParameterName, expectedResultParameterName);
         }
 
         private static Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
                                                              string url,
                                                              string payloadAsJson,
-                                                             string resultAsJson,
+                                                             string expectedResult,
                                                              Func<TResult, TResult> filterFunc,
                                                              Func<HttpClient, string, Assembly, Task<TResult>> httpFunction,
                                                              HttpMethod httpMethod,
                                                              Assembly callingAssembly,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             params (string Key, string Value)[] parameters)
+                                                             (string Key, string Value)[] parameters,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, (client, path, payloadAsJson, assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly, differenceFunc, parameters);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, (client, path, payloadAsJson, assembly) => httpFunction(client, path, assembly), httpMethod, callingAssembly, differenceFunc, parameters, payloadAsJsonParameterName, expectedResultParameterName);
         }
 
         private static Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
                                                              string url,
                                                              string payloadAsJson,
-                                                             string resultAsJson,
+                                                             string expectedResult,
                                                              Func<TResult, TResult> filterFunc,
                                                              Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                              HttpMethod httpMethod,
                                                              Assembly callingAssembly,
-                                                             params (string Key, string Value)[] parameters)
+                                                             (string Key, string Value)[] parameters,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, difference => difference, parameters);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, httpFunction, httpMethod, callingAssembly, difference => difference, parameters, payloadAsJsonParameterName, expectedResultParameterName);
         }
 
         private static async Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
                                                                     string url,
                                                                     string payloadAsJson,
-                                                                    string resultAsJson,
+                                                                    string expectedResult,
                                                                     Func<TResult, TResult> filterFunc,
                                                                     Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                                     HttpMethod httpMethod,
                                                                     Assembly callingAssembly,
                                                                     Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                    params (string Key, string Value)[] parameters)
+                                                                    (string Key, string Value)[] parameters,
+                                                                    [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
+                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             if (CustomAssertMethod is not null)
             {
-                return await AssertCustomHttpCall(client, url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc, parameters).ConfigureAwait(false);
+                return await AssertCustomHttpCall(client, url, payloadAsJson, expectedResult, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc, parameters, payloadAsJsonParameterName, expectedResultParameterName).ConfigureAwait(false);
             }
 
-            return await AssertHttpCallInternal(client, url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc, parameters).ConfigureAwait(false);
+            return await AssertHttpCallInternal(client, url, payloadAsJson, expectedResult, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc, parameters, payloadAsJsonParameterName, expectedResultParameterName).ConfigureAwait(false);
         }
 
         private static async Task<TResult> AssertHttpCallInternal<TResult>(this HttpClient client,
                                                                             string url,
                                                                             string payloadAsJson,
-                                                                            string resultAsJson,
+                                                                            string expectedResult,
                                                                             Func<TResult, TResult> filterFunc,
                                                                             Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                                             HttpMethod httpMethod,
                                                                             Assembly callingAssembly,
                                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                            params (string Key, string Value)[] parameters)
+                                                                            (string Key, string Value)[] parameters,
+                                                                            [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
+                                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             var jsonPayload = payloadAsJson.GetJsonString<TResult>(callingAssembly);
 
@@ -189,7 +202,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var curl = curlBuilder.BuildFrom(httpMethod, absoluteUrl, payloadAsJson, client.DefaultRequestHeaders.Authorization, callingAssembly, ShowTokenInCurl);
 
             // New we print out also executed curl :) 
-            Assert.That.ObjectsAreEqual(() => resultAsJson, () => currentResult, filterFunc, httpCallInfo, callingAssembly, differenceFunc, curl);
+            Assert.That.ObjectsAreEqual(expectedResult, currentResult, filterFunc, httpCallInfo, callingAssembly, differenceFunc, curl, expectedResultParameterName, payloadAsJsonParameterName);
 
             return currentResult;
         }
@@ -197,13 +210,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static async Task<TResult> AssertCustomHttpCall<TResult>(this HttpClient client,
                                                                          string url,
                                                                          string payloadAsJson,
-                                                                         string resultAsJson,
+                                                                         string expectedResult,
                                                                          Func<TResult, TResult> filterFunc,
                                                                          Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                                          HttpMethod httpMethod,
                                                                          Assembly callingAssembly,
                                                                          Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                         params (string Key, string Value)[] parameters)
+                                                                         (string Key, string Value)[] parameters,
+                                                                         [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
+                                                                         [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             if (CustomAssertMethod is null)
             {
@@ -216,7 +231,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var genericMethod = CustomAssertMethod.MakeGenericMethod(typeof(TResult));
-            var tasReturnType = genericMethod.Invoke(null, new object[] { client, url, payloadAsJson, resultAsJson, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc, parameters });
+            var tasReturnType = genericMethod.Invoke(null, new object[] { client, url, payloadAsJson, expectedResult, filterFunc, httpFunction, httpMethod, callingAssembly, differenceFunc, parameters, payloadAsJsonParameterName, expectedResultParameterName });
             if (tasReturnType is Task task)
             {
                 await task.ConfigureAwait(false);

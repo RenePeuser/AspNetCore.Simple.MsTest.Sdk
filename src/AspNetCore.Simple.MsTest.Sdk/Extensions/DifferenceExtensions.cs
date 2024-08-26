@@ -13,6 +13,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return string.Empty;
             }
 
+            if (differences.Count == 1 &&
+                differences[0].MemberPath.IsNullOrWhiteSpace())
+            {
+                var tableWithoutMemberPath = new ConsoleTable(objectName1, objectName2);
+                differences.ForEach(dif => tableWithoutMemberPath.AddRow(dif.Value1, dif.Value2));
+                return tableWithoutMemberPath.ToString();
+            }
+
             var table = new ConsoleTable(nameof(Difference.MemberPath), objectName1, objectName2);
             differences.ForEach(dif => table.AddRow(dif.MemberPath, dif.Value1, dif.Value2));
             return table.ToString();

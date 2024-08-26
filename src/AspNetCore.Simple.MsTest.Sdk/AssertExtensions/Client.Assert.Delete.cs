@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using ConsoleTables;
 using Extensions.Pack;
@@ -14,26 +15,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static Task AssertDeleteAsync(this HttpClient client,
                                              string url,
-                                             params (string Key, string Value)[] parameters)
+                                             (string Key, string Value)[] parameters)
         {
-            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.DeleteAsync(urlParam), HttpMethod.Delete, Assembly.GetCallingAssembly(), parameters);
+            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.DeleteAsync(urlParam), HttpMethod.Delete, parameters, Assembly.GetCallingAssembly());
         }
 
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                                string url,
-                                                               string resultAsJson,
-                                                               params (string Key, string Value)[] parameters) 
+                                                               string expectedResult,
+                                                               (string Key, string Value)[] parameters,
+                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertDeleteAsync<TResult>(url, resultAsJson, Assembly.GetCallingAssembly(), parameters);
+            return client.AssertDeleteAsync<TResult>(url, expectedResult, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
         }
 
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                       string url,
-                                                      string resultAsJson,
+                                                      string expectedResult,
+                                                      (string Key, string Value)[] parameters,
                                                       Assembly callingAssembly,
-                                                      params (string Key, string Value)[] parameters) 
+                                                      [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, string.Empty, resultAsJson, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly, parameters);
+            return client.AssertHttpCall(url, string.Empty, expectedResult, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsAsync<TResult>(httpClient, url), HttpMethod.Delete, callingAssembly, parameters, expectedResultParameterName);
         }
 
         public static async Task AssertDeleteAsUnauthorizedAsync(this HttpClient httpClient, string url)
