@@ -458,6 +458,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return httpClient.AssertPostAsUnauthorizedAsync(url, null, []);
         }
 
+        public static Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient,
+                                                               string url,
+                                                               object? body)
+        {
+            return httpClient.AssertPostAsUnauthorizedAsync(url, body, []);
+        }
+
         public static async Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient,
                                                                string url,
                                                                object? body,
