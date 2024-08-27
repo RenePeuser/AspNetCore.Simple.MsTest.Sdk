@@ -15,25 +15,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
-        public static async Task AssertGetAsync(this HttpClient client,
+        public static Task AssertGetAsync(this HttpClient client,
                                                 string url)
         {
-            await client.AssertHttpCall(url, string.Empty, (client, url, _) => client.GetAsync(url), HttpMethod.Get, [], Assembly.GetCallingAssembly()).ConfigureAwait(false);
+            return client.AssertHttpCall(url, string.Empty, (client, url, _) => client.GetAsync(url), HttpMethod.Get, [], Assembly.GetCallingAssembly());
         }
 
-        public static async Task AssertGetAsync(this HttpClient client,
+        public static Task AssertGetAsync(this HttpClient client,
                                                 string url,
                                                 (string Key, string Value)[] parameters)
         {
-            await client.AssertHttpCall(url, string.Empty, (client, url, _) => client.GetAsync(url), HttpMethod.Get, parameters, Assembly.GetCallingAssembly()).ConfigureAwait(false);
+            return client.AssertHttpCall(url, string.Empty, (client, url, _) => client.GetAsync(url), HttpMethod.Get, parameters, Assembly.GetCallingAssembly());
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
                                                             string url,
-                                                            string expectedResult,
-                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                            string expectedResult)
         {
-            return client.AssertGetAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
+            return client.AssertGetAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), nameof(expectedResult));
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,

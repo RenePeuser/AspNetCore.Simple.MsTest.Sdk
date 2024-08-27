@@ -13,10 +13,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
                                                                       string url,
-                                                                      string expectedResult,
-                                                                      [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                                      string expectedResult)
         {
-            return client.AssertDeleteAsErrorAsync<TResult>(url, expectedResult, Assembly.GetCallingAssembly(), expectedResultParameterName);
+            return client.AssertDeleteAsErrorAsync<TResult>(url, expectedResult, Assembly.GetCallingAssembly(), nameof(expectedResult));
         }
 
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
