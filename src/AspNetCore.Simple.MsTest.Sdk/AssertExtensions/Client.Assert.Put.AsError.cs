@@ -13,10 +13,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
+                                                                   string expectedResult)
+        {
+            return client.AssertPutAsErrorAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), nameof(expectedResult));
+        }
+        
+        public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
+                                                                   string url,
+                                                                   string payloadAsJson,
                                                                    string expectedResult,
+                                                                   [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertPutAsErrorAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult, item => item, HttpExtensions.PutAsErrorResultWithJsonStringAsync<TResult>, HttpMethod.Put, [], Assembly.GetCallingAssembly(), payloadAsJsonParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
