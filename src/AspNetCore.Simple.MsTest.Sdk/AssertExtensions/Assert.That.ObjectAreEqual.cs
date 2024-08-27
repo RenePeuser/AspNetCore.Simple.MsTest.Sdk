@@ -200,7 +200,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
-            assert.ObjectsAreEqual(expectedObjectAsJson, currentObject, orderFunc, title, callingAssembly, differenceFunc, string.Empty, expectedResultParameterName, currentResultParameterName);
+            assert.ObjectsAreEqual(expectedObjectAsJson, currentObject, orderFunc, title, callingAssembly, differenceFunc, string.Empty, [], expectedResultParameterName, currentResultParameterName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -211,6 +211,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               Assembly callingAssembly,
                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               string curl,
+                                              (string Key, string Value)[] parameters,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
