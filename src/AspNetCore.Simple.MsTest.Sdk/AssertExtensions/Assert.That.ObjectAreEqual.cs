@@ -102,8 +102,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
-            var json1 = expectedObject.ToJson();
-            var json2 = currentObject.ToJson();
+            
+            var orderedExpectedObject = comparisonFunc(expectedObject);
+            var orderedCurrentObject = comparisonFunc(currentObject);
+            
+            var json1 = orderedExpectedObject.ToJson();
+            var json2 = orderedCurrentObject.ToJson();
 
             var differences = JsonDiffer.FindDifferences(json1, json2);
             var optimizedDifferences = differenceFunc(differences).ToImmutableList();
