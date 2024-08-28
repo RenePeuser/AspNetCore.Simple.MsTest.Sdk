@@ -246,9 +246,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var orderedObject2 = orderFunc(currentObject);
 
                 var jsonDiffer = new JsonDiffer();
+                
+                
                 var object1AsJson = orderedObject1.ToJson();
                 var object2AsJson = orderedObject2.ToJson();
 
+                parameters.ForEach(p =>
+                                   {
+                                       if (object1AsJson.IsNotNullOrWhiteSpace())
+                                       {
+                                           object1AsJson = object1AsJson.Replace(p.Key, p.Value);
+                                       }
+
+                                       if (object2AsJson.IsNotNullOrWhiteSpace())
+                                       {
+                                           object2AsJson = object2AsJson.Replace(p.Key, p.Value);
+                                       }
+                                   });
+                
+                
                 var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 
                 // 1. Check if we are comparing the sam schema
@@ -258,9 +274,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var optimizedDifferences = differenceFunc(differences).ToImmutableList();
 
-                var expectedValueName = expectedObjectAsJson.EndsWith(".json", StringComparison.InvariantCulture) ? expectedObjectAsJson : expectedResultParameterName;
-
-                var resultTable = optimizedDifferences.ToResultTable(expectedValueName, currentResultParameterName);
+                var resultTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
                 PrintCurl(callingAssembly, curl);
 

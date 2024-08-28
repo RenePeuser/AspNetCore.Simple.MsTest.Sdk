@@ -19,7 +19,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload_By_Embedded_File()
         {
-            return Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons", 
+            return Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons",
                                                               "Results.GetPersonResponse.json");
         }
 
@@ -29,6 +29,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
                                                   new Person(1, "Son", "Goku", 42, ImmutableList<Email>.Empty),
                                                   "Results.NewPerson.json");
+        }
+
+        [TestMethod]
+        public Task Should_Be_Able_To_Post_A_Person_Parameterized()
+        {
+            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+                                                  "NewPersonParameter.json",
+                                                  "Results.NewPerson.json",
+                                                  [("{Name}", "Son"), ("{Age}", "1")]);
         }
 
         [TestMethod]
