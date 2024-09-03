@@ -208,7 +208,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var curl = curlBuilder.BuildFrom(httpMethod, absoluteUrl, payloadAsJson, client.DefaultRequestHeaders.Authorization, callingAssembly, ShowTokenInCurl);
 
             // New we print out also executed curl :) 
-            Assert.That.ObjectsAreEqual(expectedResult, currentResult, filterFunc, httpCallInfo, callingAssembly, differenceFunc, curl, [], expectedResultParameterName, payloadAsJsonParameterName);
+            Assert.That.ObjectsAreEqual(expectedResult, currentResult, filterFunc, httpCallInfo, callingAssembly, differenceFunc, curl, parameters, expectedResultParameterName, payloadAsJsonParameterName);
 
             return currentResult;
         }
