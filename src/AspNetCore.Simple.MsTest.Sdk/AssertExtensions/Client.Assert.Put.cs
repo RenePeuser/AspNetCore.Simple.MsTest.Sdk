@@ -52,7 +52,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string url,
                                                             string expectedResult)
         {
-            return client.AssertPutAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), nameof(expectedResult));
+            return client.AssertPutAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult));
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,

@@ -225,7 +225,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
             else
             {
-                T? expectedObject;
+                T? expectedObject = default;
 
                 try
                 {
@@ -233,13 +233,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
                 catch (Exception)
                 {
-                    throw new DeserializeException($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Json was:{Environment.NewLine}{Environment.NewLine}{jsonObject}");
+                    Assert.Fail(GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}", curl, currentObject.ToJson(), jsonObject));
                 }
 
-                if (expectedObject is null)
-                {
-                    throw new InvalidOperationException("Expected object is null. This is not allowed for comparison as source object");
-                }
+                Assert.IsNotNull(expectedObject, GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}", curl, default, jsonObject));
 
 
                 var orderedObject1 = orderFunc(expectedObject);
@@ -308,8 +305,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static string GetOutputString<T>(string title,
                                                  string curl,
-                                                 T currentResult,
-                                                 T expectedResult)
+                                                 T? currentResult,
+                                                 T? expectedResult)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();

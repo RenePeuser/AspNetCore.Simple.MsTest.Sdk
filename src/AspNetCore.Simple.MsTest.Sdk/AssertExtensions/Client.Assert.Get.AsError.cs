@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string url,
                                                                    string expectedResult)
         {
-            return client.AssertGetAsErrorAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), nameof(expectedResult));
+            return client.AssertGetAsErrorAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult));
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,

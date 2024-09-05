@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string url,
                                                                       string expectedResult)
         {
-            return client.AssertDeleteAsErrorAsync<TResult>(url, expectedResult, Assembly.GetCallingAssembly(), nameof(expectedResult));
+            return client.AssertDeleteAsErrorAsync<TResult>(url, expectedResult, Assembly.GetCallingAssembly(), expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult));
         }
 
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
