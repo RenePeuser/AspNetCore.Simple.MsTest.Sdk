@@ -36,12 +36,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  string payloadAsJson,
                                                  Func<HttpClient, string, string, Task<HttpResponseMessage>> httpFunction,
                                                  HttpMethod httpMethod,
-                                                 (string Key, string Value)[] parameters,
+                                                 (string Key, object? Value)[] parameters,
                                                  Assembly callingAssembly,
                                                  [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "")
         {
             var jsonPayload = payloadAsJson.GetJsonString<object>(callingAssembly);
-            parameters.ForEach(p => jsonPayload = jsonPayload.Replace(p.Key, p.Value));
+            jsonPayload = jsonPayload.ResolveParameters(parameters);
 
             var absoluteUrl = $"{BaseUrl}{url}";
 
@@ -64,7 +64,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             static async Task<string> GetOutputAsync(string absoluteUrl,
                                                      HttpMethod httpMethod,
                                                      HttpResponseMessage httpResponseMessage,
-                                                     (string Key, string Value)[] parameters,
+                                                     (string Key, object? Value)[] parameters,
                                                      string payloadAsjson,
                                                      string payloadAsJsonParameterName)
             {
@@ -94,7 +94,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-                parameters.ForEach(p => content = content.Replace(p.Key, p.Value));
+                content = content.ResolveParameters(parameters);
 
                 var formattedContent = JToken.Parse(content.IsNullOrEmpty() ? "{}" : content).ToString(Formatting.Indented);
                 stringBuilder.AppendLine(formattedContent);
@@ -110,7 +110,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<TResult, TResult> filterFunc,
                                                              Func<HttpClient, string, Assembly, Task<TResult>> httpFunction,
                                                              HttpMethod httpMethod,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
@@ -126,7 +126,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<HttpClient, string, Assembly, Task<TResult>> httpFunction,
                                                              HttpMethod httpMethod,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
@@ -141,7 +141,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<TResult, TResult> filterFunc,
                                                              Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                              HttpMethod httpMethod,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
@@ -157,7 +157,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                                     HttpMethod httpMethod,
                                                                     Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                    (string Key, string Value)[] parameters,
+                                                                    (string Key, object? Value)[] parameters,
                                                                     Assembly callingAssembly,
                                                                     [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                                     [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
@@ -178,25 +178,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                             Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                                             HttpMethod httpMethod,
                                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                            (string Key, string Value)[] parameters,
+                                                                            (string Key, object? Value)[] parameters,
                                                                             Assembly callingAssembly,
                                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             var jsonPayload = payloadAsJson.GetJsonString<TResult>(callingAssembly);
-
-            // 1. Replaced json payload
-            if (jsonPayload.IsNotNullOrWhiteSpace())
-            {
-                parameters.ForEach(p => jsonPayload = jsonPayload.Replace(p.Key, p.Value));
-            }
+            jsonPayload = jsonPayload.ResolveParameters(parameters);
 
             var currentResult = await httpFunction(client, url, jsonPayload, callingAssembly).ConfigureAwait(false);
 
             if (currentResult.IsNotNull())
             {
                 var currentResultAsJson = currentResult.ToJson();
-                parameters.ForEach(p => jsonPayload = jsonPayload.Replace(p.Key, p.Value));
+                currentResultAsJson = currentResultAsJson.ResolveParameters(parameters);
                 currentResult = currentResultAsJson.FromJsonStringAs<TResult>();
             }
 
@@ -221,7 +216,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          Func<HttpClient, string, string, Assembly, Task<TResult>> httpFunction,
                                                                          HttpMethod httpMethod,
                                                                          Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                         (string Key, string Value)[] parameters,
+                                                                         (string Key, object? Value)[] parameters,
                                                                          Assembly callingAssembly,
                                                                          [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                                          [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")

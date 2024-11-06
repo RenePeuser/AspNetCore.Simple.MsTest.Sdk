@@ -21,7 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Task AssertDeleteAsync(this HttpClient client,
                                              string url,
-                                             (string Key, string Value)[] parameters)
+                                             (string Key, object? Value)[] parameters)
         {
             return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.DeleteAsync(urlParam), HttpMethod.Delete, parameters, Assembly.GetCallingAssembly());
         }
@@ -36,7 +36,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                                string url,
                                                                string expectedResult,
-                                                               (string Key, string Value)[] parameters,
+                                                               (string Key, object? Value)[] parameters,
                                                                [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertDeleteAsync<TResult>(url, expectedResult, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
@@ -54,7 +54,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                       string url,
                                                       string expectedResult,
-                                                      (string Key, string Value)[] parameters,
+                                                      (string Key, object? Value)[] parameters,
                                                       Assembly callingAssembly,
                                                       [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {

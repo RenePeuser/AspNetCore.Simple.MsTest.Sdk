@@ -211,11 +211,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               Assembly callingAssembly,
                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               string curl,
-                                              (string Key, string Value)[] parameters,
+                                              (string Key, object? Value)[] parameters,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
             var jsonObject = expectedObjectAsJson.GetJsonString<T>(callingAssembly);
+            jsonObject = jsonObject.ResolveParameters(parameters);
+
             var type = typeof(T);
             if (type.IsPrimitive || type == typeof(string))
             {
@@ -244,24 +246,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var jsonDiffer = new JsonDiffer();
                 
-                
-                var object1AsJson = orderedObject1.ToJson();
-                var object2AsJson = orderedObject2.ToJson();
+                var object1AsJson = orderedObject1.ToJson().ResolveParameters(parameters);
+                var object2AsJson = orderedObject2.ToJson().ResolveParameters(parameters);
 
-                parameters.ForEach(p =>
-                                   {
-                                       if (object1AsJson.IsNotNullOrWhiteSpace())
-                                       {
-                                           object1AsJson = object1AsJson.Replace(p.Key, p.Value);
-                                       }
-
-                                       if (object2AsJson.IsNotNullOrWhiteSpace())
-                                       {
-                                           object2AsJson = object2AsJson.Replace(p.Key, p.Value);
-                                       }
-                                   });
-                
-                
                 var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 
                 // 1. Check if we are comparing the sam schema

@@ -23,7 +23,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Task AssertGetAsync(this HttpClient client,
                                                 string url,
-                                                (string Key, string Value)[] parameters)
+                                                (string Key, object? Value)[] parameters)
         {
             return client.AssertHttpCall(url, string.Empty, (client, url, _) => client.GetAsync(url), HttpMethod.Get, parameters, Assembly.GetCallingAssembly());
         }
@@ -38,7 +38,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
                                                             string url,
                                                             string expectedResult,
-                                                            (string Key, string Value)[] parameters,
+                                                            (string Key, object? Value)[] parameters,
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertGetAsync<TResult>(url, expectedResult, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
@@ -57,7 +57,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string url,
                                                             string expectedResult,
                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                            (string Key, string Value)[] parameters,
+                                                            (string Key, object? Value)[] parameters,
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertGetAsync<TResult>(url, expectedResult, differenceFunc, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
@@ -76,7 +76,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string url,
                                                             string expectedResult,
                                                             Func<TResult, TResult> filterFunc,
-                                                            (string Key, string Value)[] parameters, [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                            (string Key, object? Value)[] parameters, [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertGetAsync(url, expectedResult, filterFunc, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
         }
@@ -94,7 +94,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
                                                             string url,
                                                             string expectedResult,
-                                                            (string Key, string Value)[] parameters,
+                                                            (string Key, object? Value)[] parameters,
                                                             Assembly callingAssembly,
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
@@ -115,7 +115,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string url,
                                                             string expectedResult,
                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                            (string Key, string Value)[] parameters,
+                                                            (string Key, object? Value)[] parameters,
                                                             Assembly callingAssembly,
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
@@ -136,7 +136,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string url,
                                                             string expectedResult,
                                                             Func<TResult, TResult> filterFunc,
-                                                            (string Key, string Value)[] parameters,
+                                                            (string Key, object? Value)[] parameters,
                                                             Assembly callingAssembly,
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
@@ -159,7 +159,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string expectedResult,
                                                             Func<TResult, TResult> filterFunc,
                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                            (string Key, string Value)[] parameters,
+                                                            (string Key, object? Value)[] parameters,
                                                             Assembly callingAssembly,
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {

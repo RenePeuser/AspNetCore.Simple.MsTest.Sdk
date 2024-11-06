@@ -25,7 +25,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Task AssertPatchAsync(this HttpClient client,
                                             string url,
-                                            (string Key, string Value)[] parameters)
+                                            (string Key, object? Value)[] parameters)
         {
             return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PatchAsync(urlParam, null), HttpMethod.Patch, parameters, Assembly.GetCallingAssembly());
         }
@@ -40,7 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string expectedResult,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertPatchAsync<TResult>(url, expectedResult, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
@@ -59,7 +59,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string url,
                                                              string expectedResult,
                                                              Func<TResult, TResult> filterFunc,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertPatchAsync(url, string.Empty, expectedResult, filterFunc, parameters, Assembly.GetCallingAssembly(), string.Empty, expectedResultParameterName);
@@ -78,7 +78,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string url,
                                                              string expectedResult,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
             return client.AssertPatchAsync<TResult>(url, expectedResult, differenceFunc, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
@@ -96,7 +96,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string expectedResult,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
@@ -117,7 +117,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string url,
                                                              string expectedResult,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
@@ -138,7 +138,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string url,
                                                               object payloadAsObject,
                                                               string expectedResult,
-                                                              (string Key, string Value)[] parameters,
+                                                              (string Key, object? Value)[] parameters,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
@@ -159,7 +159,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string url,
                                                               string payloadAsJson,
                                                               string expectedResult,
-                                                              (string Key, string Value)[] parameters,
+                                                              (string Key, object? Value)[] parameters,
                                                               [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
@@ -181,7 +181,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string url,
                                                               object payloadAsObject,
                                                               string expectedResult,
-                                                              (string Key, string Value)[] parameters,
+                                                              (string Key, object? Value)[] parameters,
                                                               Assembly callingAssembly,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
@@ -204,7 +204,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string url,
                                                              string payloadAsJson,
                                                              string expectedResult,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
@@ -229,7 +229,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               object payloadAsObject,
                                                               string expectedResult,
                                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                              (string Key, string Value)[] parameters,
+                                                              (string Key, object? Value)[] parameters,
                                                               Assembly callingAssembly,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
@@ -254,7 +254,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string payloadAsJson,
                                                              string expectedResult,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
@@ -278,7 +278,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               object payloadAsObject,
                                                               string expectedResult,
                                                               Func<TResult, TResult> filterFunc,
-                                                              (string Key, string Value)[] parameters,
+                                                              (string Key, object? Value)[] parameters,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
@@ -301,7 +301,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string payloadAsJson,
                                                               string expectedResult,
                                                               Func<TResult, TResult> filterFunc,
-                                                              (string Key, string Value)[] parameters,
+                                                              (string Key, object? Value)[] parameters,
                                                               [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
@@ -324,7 +324,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               object payloadAsObject,
                                                               string expectedResult,
                                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                              (string Key, string Value)[] parameters,
+                                                              (string Key, object? Value)[] parameters,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
@@ -347,7 +347,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string payloadAsJson,
                                                               string expectedResult,
                                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                              (string Key, string Value)[] parameters,
+                                                              (string Key, object? Value)[] parameters,
                                                               [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
@@ -371,7 +371,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               object payloadAsObject,
                                                               string expectedResult,
                                                               Func<TResult, TResult> filterFunc,
-                                                              (string Key, string Value)[] parameters,
+                                                              (string Key, object? Value)[] parameters,
                                                               Assembly callingAssembly,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
@@ -396,7 +396,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string payloadAsJson,
                                                              string expectedResult,
                                                              Func<TResult, TResult> filterFunc,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
@@ -423,7 +423,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string expectedResult,
                                                               Func<TResult, TResult> filterFunc,
                                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                              (string Key, string Value)[] parameters,
+                                                              (string Key, object? Value)[] parameters,
                                                               Assembly callingAssembly,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
@@ -450,7 +450,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResult,
                                                              Func<TResult, TResult> filterFunc,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             (string Key, string Value)[] parameters,
+                                                             (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
