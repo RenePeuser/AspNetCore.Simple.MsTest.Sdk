@@ -31,7 +31,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               T? expectedObject,
                                               T? currentObject,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObject, currentObject, input => input, string.Empty, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
                                               string title,
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObject, currentObject, input => input, title, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              string title,
+                                              (string Key, object? Value)[] parameters,
                                               [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
@@ -51,6 +72,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               T? expectedObject,
                                               T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObject, currentObject, orderFunc, string.Empty, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObject, currentObject, item => item, string.Empty, differenceFunc, string.Empty, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              (string Key, object? Value)[] parameters,
                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
@@ -73,7 +116,31 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? expectedObject,
                                               T? currentObject,
                                               Func<T?, T?> orderFunc,
+                                              string title,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObject, currentObject, orderFunc, title, difference => difference, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> orderFunc,
                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObject, currentObject, orderFunc, string.Empty, differenceFunc, string.Empty, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              (string Key, object? Value)[] parameters,
                                               [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
@@ -95,6 +162,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               T? expectedObject,
                                               T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              string title,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObject, currentObject, orderFunc, title, differenceFunc, string.Empty, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
                                               Func<T?, T?> comparisonFunc,
                                               string title,
                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
@@ -102,12 +182,33 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
-            
+
+            assert.ObjectsAreEqual(expectedObject, currentObject, comparisonFunc, title, differenceFunc, curl, Array.Empty<(string Key, object? Value)>(), expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> comparisonFunc,
+                                              string title,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              string curl,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+
             var orderedExpectedObject = comparisonFunc(expectedObject);
             var orderedCurrentObject = comparisonFunc(currentObject);
-            
+
             var json1 = orderedExpectedObject.ToJson();
             var json2 = orderedCurrentObject.ToJson();
+
+            foreach (var valueTuple in parameters)
+            {
+                json1 = json1.Replace(valueTuple.Key, valueTuple.Value?.ToString());
+                json2 = json2.Replace(valueTuple.Key, valueTuple.Value?.ToString());
+            }
 
             var differences = JsonDiffer.FindDifferences(json1, json2);
             var optimizedDifferences = differenceFunc(differences).ToImmutableList();
@@ -115,7 +216,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var resultTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
             if (optimizedDifferences.Any())
             {
-                Assert.Fail(GetOutputString(resultTable, expectedObject!, currentObject!, title, string.Empty));
+                Assert.Fail(GetOutputString(resultTable, expectedObject!, currentObject!, title, curl));
             }
         }
 
@@ -130,12 +231,33 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
+                                              T currentObject,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObjectAsJson, currentObject, item => item, Assembly.GetCallingAssembly(), parameters, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              string expectedObjectAsJson,
                                               T currentResult,
                                               Assembly callingAssembly,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentResult))] string currentResultParameterName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson, currentResult, item => item, callingAssembly, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              string expectedObjectAsJson,
+                                              T currentResult,
+                                              Assembly callingAssembly,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentResult))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObjectAsJson, currentResult, item => item, callingAssembly, parameters, expectedResultParameterName, currentResultParameterName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -152,11 +274,34 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedObjectAsJson,
                                               T currentResult,
                                               string title,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentResult))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObjectAsJson, currentResult, item => item, title, Assembly.GetCallingAssembly(), difference => difference, parameters, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              string expectedObjectAsJson,
+                                              T currentResult,
+                                              string title,
                                               Assembly callingAssembly,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentResult))] string currentResultParameterName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson, currentResult, item => item, title, callingAssembly, difference => difference, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              string expectedObjectAsJson,
+                                              T currentResult,
+                                              string title,
+                                              Assembly callingAssembly,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentResult))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObjectAsJson, currentResult, item => item, title, callingAssembly, difference => difference, parameters, expectedResultParameterName, currentResultParameterName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -172,11 +317,33 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
                                               T currentObject,
+                                              Func<T, T> orderFunc,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObjectAsJson, currentObject, orderFunc, string.Empty, Assembly.GetCallingAssembly(), difference => difference, parameters, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              string expectedObjectAsJson,
+                                              T currentObject,
                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson, currentObject, item => item, string.Empty, Assembly.GetCallingAssembly(), differenceFunc, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              string expectedObjectAsJson,
+                                              T currentObject,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObjectAsJson, currentObject, item => item, string.Empty, Assembly.GetCallingAssembly(), differenceFunc, parameters, expectedResultParameterName, currentResultParameterName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -194,6 +361,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedObjectAsJson,
                                               T currentObject,
                                               Func<T, T> orderFunc,
+                                              Assembly callingAssembly,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObjectAsJson, currentObject, orderFunc, string.Empty, callingAssembly, difference => difference, parameters, expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              string expectedObjectAsJson,
+                                              T currentObject,
+                                              Func<T, T> orderFunc,
                                               string title,
                                               Assembly callingAssembly,
                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
@@ -201,6 +380,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson, currentObject, orderFunc, title, callingAssembly, differenceFunc, string.Empty, [], expectedResultParameterName, currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              string expectedObjectAsJson,
+                                              T currentObject,
+                                              Func<T, T> orderFunc,
+                                              string title,
+                                              Assembly callingAssembly,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              (string Key, object? Value)[] parameters,
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
+        {
+            assert.ObjectsAreEqual(expectedObjectAsJson, currentObject, orderFunc, title, callingAssembly, differenceFunc, string.Empty, parameters, expectedResultParameterName, currentResultParameterName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -251,7 +444,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var orderedObject2 = orderFunc(currentObject);
 
                 var jsonDiffer = new JsonDiffer();
-                
+
                 var object1AsJson = orderedObject1.ToJson().ResolveParameters(parameters);
                 var object2AsJson = orderedObject2.ToJson().ResolveParameters(parameters);
 

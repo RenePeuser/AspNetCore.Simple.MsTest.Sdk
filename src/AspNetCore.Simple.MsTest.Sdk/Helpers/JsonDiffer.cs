@@ -11,7 +11,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     public static class AddJsonSerializationExtensions
     {
-        public static void AdJsonDiffer(this IServiceCollection services)
+        public static void AddJsonDiffer(this IServiceCollection services)
         {
             services.AddSingletonIfNotExists<IJsonDiffer, JsonDiffer>();
         }
