@@ -218,6 +218,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var jsonObject = expectedObjectAsJson.GetJsonString<T>(callingAssembly);
             jsonObject = jsonObject.ResolveParameters(parameters);
 
+
+            // This is most the use case when calling an API and want to know what comes back
+            if (expectedObjectAsJson is "{}" or "[]")
+            {
+                Assert.Fail(GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}", curl, currentObject.ToJson(), jsonObject));
+            }
+            
             var type = typeof(T);
             if (type.IsPrimitive || type == typeof(string))
             {
@@ -239,7 +246,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 Assert.IsNotNull(expectedObject, GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}", curl, default, jsonObject));
-
 
                 var orderedObject1 = orderFunc(expectedObject);
                 var orderedObject2 = orderFunc(currentObject);
