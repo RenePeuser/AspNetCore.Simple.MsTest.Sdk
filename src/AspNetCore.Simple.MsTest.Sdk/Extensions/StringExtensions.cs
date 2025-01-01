@@ -1,7 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text.Json.Nodes;
-using ConsoleTables;
-using Extensions.Pack;
+﻿using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {

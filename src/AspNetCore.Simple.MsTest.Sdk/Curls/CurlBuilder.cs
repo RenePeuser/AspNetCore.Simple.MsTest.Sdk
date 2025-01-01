@@ -3,10 +3,29 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Reflection;
 using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public class CurlBuilder
+    public static class AddCurlBuilderExtension
+    {
+        public static void AddCurlBuilder(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<ICurlBuilder, CurlBuilder>();
+        }
+    }
+    
+    public interface ICurlBuilder
+    {
+        string BuildFrom(System.Net.Http.HttpMethod httpMethod,
+                         string url,
+                         string payloadAsJson,
+                         AuthenticationHeaderValue? authenticationHeaderValue,
+                         Assembly assembly,
+                         bool showTokenInCurl);
+    }
+
+    internal sealed class CurlBuilder : ICurlBuilder
     {
         public string BuildFrom(System.Net.Http.HttpMethod httpMethod,
                                 string url,

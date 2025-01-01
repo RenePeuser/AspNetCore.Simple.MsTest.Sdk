@@ -27,8 +27,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         [AssemblyCleanup]
         public static void AssemblyCleanup()
         {
-            CustomWebApplicationFactory?.Dispose();
-            Client?.Dispose();
+            CustomWebApplicationFactory.Dispose();
+            Client.Dispose();
         }
     }
 }

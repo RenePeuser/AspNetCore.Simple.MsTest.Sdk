@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using ConsoleTables;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,6 +27,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // Output function
         public static Action<string> LogAction { get; set; } = Console.WriteLine;
+
+        private static readonly CurlFormatter CurlFormatter = new();
+        private static readonly CurlPrinter CurlPrinter = new(CurlFormatter);
+        private static readonly HttpOutputFormatter HttpOutputFormatter = new();
 
         // Here you can control the visibility of the token in the curl outputs.
         public static bool ShowTokenInCurl { get; set; }
@@ -48,17 +53,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Call as curl
             var curlBuilder = new CurlBuilder();
             var curl = curlBuilder.BuildFrom(httpMethod, absoluteUrl, payloadAsJson, client.DefaultRequestHeaders.Authorization, callingAssembly, ShowTokenInCurl);
-            AssertObjectExtensions.PrintCurl(callingAssembly, curl);
 
             var httpResponse = await httpFunction(client, url, jsonPayload).ConfigureAwait(false);
             if (httpResponse.IsSuccessStatusCode)
             {
+                CurlPrinter.PrintCurl(callingAssembly, curl);
                 return;
             }
 
             var errorOutput = await GetOutputAsync(absoluteUrl, httpMethod, httpResponse, parameters, payloadAsJson, payloadAsJsonParameterName).ConfigureAwait(false);
 
             Assert.IsTrue(httpResponse.IsSuccessStatusCode, errorOutput);
+            
+            CurlPrinter.PrintCurl(callingAssembly, curl);
 
 
             static async Task<string> GetOutputAsync(string absoluteUrl,
@@ -196,15 +203,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var absoluteUrl = $"{BaseUrl}{url}";
-            var httpCallInfo = $"{Environment.NewLine}Call: '{httpMethod} {absoluteUrl}' was not successful.";
+            // var httpCallInfo = $"{Environment.NewLine}Call: '{httpMethod} {absoluteUrl}' was not successful.";
 
             // Call as curl
             var curlBuilder = new CurlBuilder();
             var curl = curlBuilder.BuildFrom(httpMethod, absoluteUrl, payloadAsJson, client.DefaultRequestHeaders.Authorization, callingAssembly, ShowTokenInCurl);
 
+
+            var httpCallInfo = HttpOutputFormatter.GetOutputString("Response does not match expected results.",
+                                                                   httpMethod, 
+                                                                   absoluteUrl);
+            
             // New we print out also executed curl :) 
             Assert.That.ObjectsAreEqual(expectedResult, currentResult, filterFunc, httpCallInfo, callingAssembly, differenceFunc, curl, parameters, expectedResultParameterName, payloadAsJsonParameterName);
-
+            
+//             CurlPrinter.PrintCurl(callingAssembly, curl);
+            
             return currentResult;
         }
 
@@ -232,7 +246,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var genericMethod = CustomAssertMethod.MakeGenericMethod(typeof(TResult));
-            var tasReturnType = genericMethod.Invoke(null, new object[] { client, url, payloadAsJson, expectedResult, filterFunc, httpFunction, httpMethod, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName });
+            var tasReturnType = genericMethod.Invoke(null, [client, url, payloadAsJson, expectedResult, filterFunc, httpFunction, httpMethod, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName]);
             if (tasReturnType is Task task)
             {
                 await task.ConfigureAwait(false);
