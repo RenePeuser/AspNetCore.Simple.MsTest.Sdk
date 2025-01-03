@@ -1,8 +1,6 @@
 # AspNetCore.Simple.MsTest.Sdk
 
-Target of this package is to write more efficient clean test against your ASP.Net Core API's.
-You will save tons of Assert and will be able to write even more faster and better readable test as before.
-Main reason was to be more focused on the Test-First approach.
+This package is designed to enable efficient and clean testing against your ASP.NET Core APIs. It dramatically reduces the amount of required asserts, allowing for faster creation of more readable tests. It supports a Test-First approach, helping developers focus on testing earlier in the development cycle.
 
 ## Getting started
 
@@ -14,6 +12,127 @@ Main reason was to be more focused on the Test-First approach.
 ```dotnetcli
 dotnet add package AspNetCore.Simple.MsTest.Sdk
 ```
+
+### Basic concept
+Our assert helpers are designed to streamline testing by doing the following:
+- Asserting expected call outcomes (e.g., `AssertPostAsync` for success and `AssertPostAsErrorAsync` for errors).
+- Comparing the entire response structure for equality, not just the status code.
+- Allowing for direct usage of JSON strings or files in tests.
+- Directly indicating the route being tested.
+- Enhancing productivity by comparing content headers, status codes, and more.
+
+```csharp
+await Client.AssertPostAsync<AddUserReponse>($"api/v1/users/",                                                                        
+                                             "Users.V1.Payloads.NewUser.json,
+                                             "Users.V1.Results.NewUser.json);
+```
+
+## Setup your test environment
+We provide you a simple `ApiTestBase<Startup>` you can use it directly in your test
+class. But we recommend that you setup a central base class for startup and tear down.
+Sample:
+
+```csharp
+using System;
+using System.Net.Http;
+using AspNetCore.Simple.MsTest.Sdk.Api;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace AspNetCore.Simple.MsTest.Sdk.Test
+{
+    [TestClass]
+    public abstract class ApiTestBase
+    {       
+        private static ApiTestBase<Startup> _apiTestBase = null!;
+
+        [AssemblyInitialize]
+        public static void AssemblyInitialize(TestContext _)
+        {
+            // 1. Super simple just use the provided API test base class and you are ready to go
+            _apiTestBase = new ApiTestBase<Startup>("Development", // The environment name
+                                                    (_, _) => { }, // The register services action
+                                                    []);           // Configure environment variables  
+
+            // 2. We need once the http client to communicate with the started api
+            Client = _apiTestBase.CreateClient();
+        }
+
+        protected static HttpClient Client { get; private set; } = null!;
+
+        [AssemblyCleanup]
+        public static void AssemblyCleanup()
+        {
+            _apiTestBase.Dispose();
+            Client.Dispose();
+        }
+    }
+}
+
+```
+
+## Setup a test class
+```csharp
+[TestClass]
+public class Persons : ApiTestBase
+{
+    [TestMethod]
+    public Task Should_Be_Able_To_Post_A_Person_By_Json()
+    {
+        return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+                                              "Payloads.SonGoku.json", // This json file must be an embedded file in your solution or native json string
+                                              "Results.SonGoku.json"); // This json file must be an embedded file in your solution or native json string
+    }
+}
+```
+
+Payload: "Payloads.SonGoku.json"
+```json
+{
+  "Id": 1,
+  "Name": "Son",
+  "FirstName": "Goku",
+  "Age": 99,
+  "Emails": [
+    {
+      "EmailAddress": "alf@gmx.de",
+      "Type": "GMX"
+    },
+    {
+      "EmailAddress": "abc@hotmail.de",
+      "Type": "Microsoft"
+    }
+  ]
+}
+```
+
+Response: "Results.SonGoku.json"
+```json
+{
+  "Version": "1.1",
+  "Content": {
+    "Headers": [
+      {
+        "Key": "Content-Type",
+        "Value": [ "application/json; charset=utf-8" ]
+      }
+    ],
+    "Value": {
+      "Id": 1,
+      "Name": "Son",
+      "FirstName": "Goku",
+      "Age": 99,
+      "Emails": []
+    }
+  },
+  "StatusCode": "OK",
+  "ReasonPhrase": "OK",
+  "Headers": [],
+  "TrailingHeaders": [],
+  "IsSuccessStatusCode": true
+}
+```
+
+
 
 ## Samples
 
@@ -62,25 +181,6 @@ Current result:
 Expected result:
 
 {"Name":"Son","FamilyName":"Goku","Age":29}
-```
-
-
-
-
-### Basic concept
-```csharp
-// Those assert helper are smart they do following things:
-// - Assser the expected call for Sucess -> AssertPostAsync -> Ok AssertPostAsErrorAsync -> NOK
-// - It compares the complete reponse structure for equality -> Not only IsSuccessStatusCode, Also deep object 
-// - You can provide json as string, or like here in the sample a json file which is embedded in the test assembly
-// - Why json -> it is that fomat which is used for communication, and you can directly use your payloads in curl, 
-//   postman or anywhere -> if you have c# code -> transform first into json, not nice to handle comparison
-// - With this syntax you see directly the route which will be called
-// - It is all made for maximize productivity
-
-await Client.AssertPostAsync<AddUserReponse>($"api/v1/users/",                                                                        
-                                             "Users.V1.Payloads.NewUser.json,
-                                             "Users.V1.Results.NewUser.json);
 ```
 
 ### Embedded json file or native json string
@@ -239,6 +339,61 @@ public Task Should_Return_The_User_Which_Was_Added()
     await Client.AssertDeleteAsync($"api/v1/users/{addedUserResponse.User.Id}"
                                    "Users.V1.Results.Deleteduser.json");
 }
+```
+
+
+### Header, Status codes and many more
+For each test we are evaluating the whole response which is based on a "Snapshot" from your api response.
+```
+ Assert.IsTrue failed. 
+    
+    Http call infos:
+    
+     ----------------------------------------------------------------------------- 
+     | HttpMethod | Url                                         | HttpStatusCode |
+     ----------------------------------------------------------------------------- 
+     | POST       | https://localhost:5001/api/tests/v1/persons | OK             |
+     ----------------------------------------------------------------------------- 
+    
+    
+    Detected differences: 3
+    
+    
+     ----------------------------------------------------------------------------------------------------- 
+     | MemberPath                  | "Results.NewPersonParameter.json" | CurrentResult                   |
+     ----------------------------------------------------------------------------------------------------- 
+     | Content.Headers[0].Value[0] | application/octet; charset=utf-8  | application/json; charset=utf-8 |
+     ----------------------------------------------------------------------------------------------------- 
+     | Content.Value.FirstName     | Goku Failed                       | Goku                            |
+     ----------------------------------------------------------------------------------------------------- 
+     | StatusCode                  | NotFound                          | OK                              |
+     ----------------------------------------------------------------------------------------------------- 
+    
+    Expected result:
+    
+    {"Version":"1.1","Content":{"Headers":[{"Key":"Content-Type","Value":["application/octet; charset=utf-8"]}],"Value":{"Id":1,"Name":"Son","FirstName":"Goku Failed","Age":42,"Emails":[]}},"StatusCode":"NotFound","ReasonPhrase":"OK","Headers":[],"TrailingHeaders":[],"IsSuccessStatusCode":true}
+    
+    Current result:
+    
+    {"Version":"1.1","Content":{"Headers":[{"Key":"Content-Type","Value":["application/json; charset=utf-8"]}],"Value":{"Id":1,"Name":"Son","FirstName":"Goku","Age":42,"Emails":[]}},"StatusCode":"OK","ReasonPhrase":"OK","Headers":[],"TrailingHeaders":[],"IsSuccessStatusCode":true}
+    
+    
+    --------------------------------------------------------------
+    Http call as curl
+    --------------------------------------------------------------
+    curl \
+    --location \
+    --request POST 'https://localhost:5001/api/tests/v1/persons' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+      "Id": 1,
+      "Name": "Son",
+      "FirstName": "Goku Failed",
+      "Age": 99,
+      "Emails": []
+    }'
+    --------------------------------------------------------------
+    
 ```
 
 ### Curl for each `Asserted` call

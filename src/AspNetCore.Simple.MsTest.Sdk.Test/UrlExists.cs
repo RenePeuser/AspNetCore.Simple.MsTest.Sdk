@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AspNetCore.Simple.MsTest.Sdk.Test
 {
     [TestClass]
-    public class UrlExists : MsTestBase
+    public class UrlExists : ApiTestBase
     {
         [TestMethod]
         public void Should_Return_True_If_Absolute_Url_Exists()

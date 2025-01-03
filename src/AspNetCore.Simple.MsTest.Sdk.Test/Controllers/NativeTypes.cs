@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
 {
     [TestClass]
-    public class NativeTypes : MsTestBase
+    public class NativeTypes : ApiTestBase
     {
         [TestMethod]
         public Task Should_Be_Able_To_Fetch_Native_String_As_Well()

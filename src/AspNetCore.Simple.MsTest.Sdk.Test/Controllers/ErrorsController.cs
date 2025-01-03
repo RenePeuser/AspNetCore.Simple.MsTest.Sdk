@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
 {
     [TestClass]
-    public class ErrorsController : MsTestBase
+    public class ErrorsController : ApiTestBase
     {
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()

@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AspNetCore.Simple.MsTest.Sdk.Test
 {
     [TestClass]
-    public class Persons : MsTestBase
+    public class Persons : ApiTestBase
     {
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()
