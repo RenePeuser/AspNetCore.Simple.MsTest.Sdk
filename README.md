@@ -7,7 +7,7 @@ Main reason was to be more focused on the Test-First approach.
 ## Getting started
 
 ### Prerequisites
-* [.Net 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+* [.Net 9](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 
 ### Install the package
 
