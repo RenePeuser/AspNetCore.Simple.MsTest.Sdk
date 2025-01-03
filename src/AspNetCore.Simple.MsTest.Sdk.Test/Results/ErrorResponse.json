@@ -1,7 +1,23 @@
 {
-  "title": "Implementation is missing",
-  "status": 500,
-  "detail": "Here are error details",
-  "propertyA": "A",
-  "propertyB": "B"
+  "Version": "1.1",
+  "Content": {
+    "Headers": [
+      {
+        "Key": "Content-Type",
+        "Value": [ "application/json; charset=utf-8" ]
+      }
+    ],
+    "Value": {
+      "title": "Implementation is missing",
+      "status": 500,
+      "detail": "Here are error details",
+      "propertyA": "A",
+      "propertyB": "B"
+    }
+  },
+  "StatusCode": "InternalServerError",
+  "ReasonPhrase": "Internal Server Error",
+  "Headers": [],
+  "TrailingHeaders": [],
+  "IsSuccessStatusCode": false
 }
