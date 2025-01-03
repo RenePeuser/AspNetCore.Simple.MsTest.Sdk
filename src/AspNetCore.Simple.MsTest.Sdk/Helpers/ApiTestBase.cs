@@ -9,28 +9,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public class ApiTestBase<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
+    public class ApiTestBase<TStartup>(string environmentName,
+                                       Action<IServiceCollection, IConfiguration> registerServices,
+                                       params (string name, string value)[] environmentVariables) : WebApplicationFactory<TStartup>
+        where TStartup : class
     {
-        private readonly Action<IServiceCollection, IConfiguration> _registerServices;
+        private readonly Assembly _callingAssembly = Assembly.GetCallingAssembly();
 
-        private readonly (string name, string value)[] _environmentVariables;
-        private readonly Assembly _callingAssembly;
-
-        public ApiTestBase(string environmentName,
-                           Action<IServiceCollection, IConfiguration> registerServices,
-                           params (string name, string value)[] environmentVariables)
-        {
-            EnvironmentName = environmentName;
-            _registerServices = registerServices;
-            _environmentVariables = environmentVariables;
-            _callingAssembly = Assembly.GetCallingAssembly();
-        }
-
-        public string EnvironmentName { get; }
+        public string EnvironmentName { get; } = environmentName;
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            foreach (var environmentVariable in _environmentVariables)
+            foreach (var environmentVariable in environmentVariables)
             {
                 Environment.SetEnvironmentVariable(environmentVariable.name, environmentVariable.value);
             }
@@ -63,7 +53,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             builder.ConfigureServices(services =>
             {
-                _registerServices(services, configuration);
+                registerServices(services, configuration);
             });
 
             builder.UseEnvironment(EnvironmentName);
@@ -71,7 +61,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         protected override void Dispose(bool disposing)
         {
-            foreach (var environmentVariable in _environmentVariables)
+            foreach (var environmentVariable in environmentVariables)
             {
                 Environment.SetEnvironmentVariable(environmentVariable.name, null);
             }

@@ -20,32 +20,38 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task AssertPostAsync(this HttpClient client,
                                            string url)
         {
-            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PostAsync(urlParam, null), HttpMethod.Post, [], Assembly.GetCallingAssembly());
+            return client.AssertHttpCall(url, string.Empty, HttpMethod.Post, [], Assembly.GetCallingAssembly());
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string expectedResult)
         {
-            return client.AssertPostAsync<TResult>(url, expectedResult, [], Assembly.GetCallingAssembly(), expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult));
+            return client.AssertPostAsync<TResult>(url, expectedResult, [],
+                                                   Assembly.GetCallingAssembly(), expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult));
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string expectedResult,
                                                              (string Key, object? Value)[] parameters,
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertPostAsync<TResult>(url, expectedResult, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
+            return client.AssertPostAsync<TResult>(url, expectedResult, parameters,
+                                                   Assembly.GetCallingAssembly(), expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string expectedResult,
                                                              Func<TResult, TResult> filterFunc,
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertPostAsync(url, string.Empty, expectedResult, filterFunc, [], Assembly.GetCallingAssembly(), string.Empty, expectedResultParameterName);
+            return client.AssertPostAsync(url, string.Empty, expectedResult,
+                                          filterFunc, [], Assembly.GetCallingAssembly(),
+                                          string.Empty, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -53,57 +59,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResult,
                                                              Func<TResult, TResult> filterFunc,
                                                              (string Key, object? Value)[] parameters,
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertPostAsync(url, string.Empty, expectedResult, filterFunc, parameters, Assembly.GetCallingAssembly(), string.Empty, expectedResultParameterName);
+            return client.AssertPostAsync(url, string.Empty, expectedResult,
+                                          filterFunc, parameters, Assembly.GetCallingAssembly(),
+                                          string.Empty, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string expectedResult,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertPostAsync<TResult>(url, expectedResult, differenceFunc, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string expectedResult,
-                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             (string Key, object? Value)[] parameters,
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return client.AssertPostAsync<TResult>(url, expectedResult, differenceFunc, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string expectedResult,
-                                                             Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return AssertPostAsync<TResult>(client, url, string.Empty, expectedResult, [], callingAssembly, string.Empty, expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string expectedResult,
-                                                             (string Key, object? Value)[] parameters,
-                                                             Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return AssertPostAsync<TResult>(client, url, expectedResult, item => item, parameters, callingAssembly, expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string expectedResult,
-                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return AssertPostAsync<TResult>(client, url, expectedResult, differenceFunc, [], callingAssembly, expectedResultParameterName);
+            return client.AssertPostAsync<TResult>(url, expectedResult, differenceFunc,
+                                                   [], Assembly.GetCallingAssembly(), expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -111,20 +83,77 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResult,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                              (string Key, object? Value)[] parameters,
-                                                             Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return AssertPostAsync<TResult>(client, url, string.Empty, expectedResult, differenceFunc, parameters, callingAssembly, expectedResultParameterName);
+            return client.AssertPostAsync<TResult>(url, expectedResult, differenceFunc,
+                                                   parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string expectedResult,
+                                                             Assembly callingAssembly,
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return AssertPostAsync<TResult>(client, url, string.Empty,
+                                            expectedResult, [], callingAssembly,
+                                            string.Empty, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string expectedResult,
+                                                             (string Key, object? Value)[] parameters,
+                                                             Assembly callingAssembly,
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return AssertPostAsync<TResult>(client, url, expectedResult,
+                                            item => item, parameters, callingAssembly,
+                                            expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string expectedResult,
+                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                             Assembly callingAssembly,
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return AssertPostAsync<TResult>(client, url, expectedResult,
+                                            differenceFunc, [], callingAssembly,
+                                            expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string expectedResult,
+                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                             (string Key, object? Value)[] parameters,
+                                                             Assembly callingAssembly,
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return AssertPostAsync<TResult>(client, url, string.Empty,
+                                            expectedResult, differenceFunc, parameters,
+                                            callingAssembly, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              object payloadAsObject,
                                                              string expectedResult,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertPostAsync<TResult>(url, payloadAsObject.ToJson(), expectedResult, [], Assembly.GetCallingAssembly(), payloadAsObjectParameterName, expectedResultParameterName);
+            return client.AssertPostAsync<TResult>(url, payloadAsObject.ToJson(), expectedResult,
+                                                   [], Assembly.GetCallingAssembly(), payloadAsObjectParameterName,
+                                                   expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -132,66 +161,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              object payloadAsObject,
                                                              string expectedResult,
                                                              (string Key, object? Value)[] parameters,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertPostAsync<TResult>(url, payloadAsObject.ToJson(), expectedResult, parameters, Assembly.GetCallingAssembly(), payloadAsObjectParameterName, expectedResultParameterName);
+            return client.AssertPostAsync<TResult>(url, payloadAsObject.ToJson(), expectedResult,
+                                                   parameters, Assembly.GetCallingAssembly(), payloadAsObjectParameterName,
+                                                   expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string payloadAsJson,
                                                              string expectedResult,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertPostAsync<TResult>(url, payloadAsJson, expectedResult, [], Assembly.GetCallingAssembly(), payloadAsJsonParameterName, expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string payloadAsJson,
-                                                             string expectedResult,
-                                                             (string Key, object? Value)[] parameters,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return client.AssertPostAsync<TResult>(url, payloadAsJson, expectedResult, parameters, Assembly.GetCallingAssembly(), payloadAsJsonParameterName, expectedResultParameterName);
-        }
-
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             object payloadAsObject,
-                                                             string expectedResult,
-                                                             Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return AssertPostAsync<TResult>(client, url, payloadAsObject.ToJson(), expectedResult, result => result, [], callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             object payloadAsObject,
-                                                             string expectedResult,
-                                                             (string Key, object? Value)[] parameters,
-                                                             Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return AssertPostAsync<TResult>(client, url, payloadAsObject.ToJson(), expectedResult, result => result, parameters, callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string payloadAsJson,
-                                                             string expectedResult,
-                                                             Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return AssertPostAsync<TResult>(client, url, payloadAsJson, expectedResult, result => result, [], callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+            return client.AssertPostAsync<TResult>(url, payloadAsJson, expectedResult,
+                                                   [], Assembly.GetCallingAssembly(), payloadAsJsonParameterName,
+                                                   expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -199,118 +190,93 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string payloadAsJson,
                                                              string expectedResult,
                                                              (string Key, object? Value)[] parameters,
-                                                             Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return AssertPostAsync<TResult>(client, url, payloadAsJson, expectedResult, result => result, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+            return client.AssertPostAsync<TResult>(url, payloadAsJson, expectedResult,
+                                                   parameters, Assembly.GetCallingAssembly(), payloadAsJsonParameterName,
+                                                   expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              object payloadAsObject,
                                                              string expectedResult,
-                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return AssertPostAsync<TResult>(client, url, payloadAsObject.ToJson(), expectedResult, result => result, differenceFunc, [], callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
+            return AssertPostAsync<TResult>(client, url, payloadAsObject.ToJson(),
+                                            expectedResult, result => result, [],
+                                            callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              object payloadAsObject,
                                                              string expectedResult,
-                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                              (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return AssertPostAsync<TResult>(client, url, payloadAsObject.ToJson(), expectedResult, result => result, differenceFunc, parameters, callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
+            return AssertPostAsync<TResult>(client, url, payloadAsObject.ToJson(),
+                                            expectedResult, result => result, parameters,
+                                            callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string payloadAsJson,
                                                              string expectedResult,
+                                                             Assembly callingAssembly,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return AssertPostAsync<TResult>(client, url, payloadAsJson,
+                                            expectedResult, result => result, [],
+                                            callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string payloadAsJson,
+                                                             string expectedResult,
+                                                             (string Key, object? Value)[] parameters,
+                                                             Assembly callingAssembly,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return AssertPostAsync<TResult>(client, url, payloadAsJson,
+                                            expectedResult, result => result, parameters,
+                                            callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             object payloadAsObject,
+                                                             string expectedResult,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return AssertPostAsync<TResult>(client, url, payloadAsJson, expectedResult, result => result, differenceFunc, [], callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string payloadAsJson,
-                                                             string expectedResult,
-                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             (string Key, object? Value)[] parameters,
-                                                             Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return AssertPostAsync<TResult>(client, url, payloadAsJson, expectedResult, result => result, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             object payloadAsObject,
-                                                             string expectedResult,
-                                                             Func<TResult, TResult> filterFunc,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return client.AssertPostAsync(url, payloadAsObject.ToJson(), expectedResult, filterFunc, [], Assembly.GetCallingAssembly(), payloadAsObjectParameterName, expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             object payloadAsObject,
-                                                             string expectedResult,
-                                                             Func<TResult, TResult> filterFunc,
-                                                             (string Key, object? Value)[] parameters,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return client.AssertPostAsync(url, payloadAsObject.ToJson(), expectedResult, filterFunc, parameters, Assembly.GetCallingAssembly(), payloadAsObjectParameterName, expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string payloadAsJson,
-                                                             string expectedResult,
-                                                             Func<TResult, TResult> filterFunc,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return client.AssertPostAsync(url, payloadAsJson, expectedResult, filterFunc, [], Assembly.GetCallingAssembly(), payloadAsJsonParameterName, expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             string payloadAsJson,
-                                                             string expectedResult,
-                                                             Func<TResult, TResult> filterFunc,
-                                                             (string Key, object? Value)[] parameters,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return client.AssertPostAsync(url, payloadAsJson, expectedResult, filterFunc, parameters, Assembly.GetCallingAssembly(), payloadAsJsonParameterName, expectedResultParameterName);
-        }
-
-        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
-                                                             string url,
-                                                             object payloadAsObject,
-                                                             string expectedResult,
-                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
-        {
-            return client.AssertPostAsync<TResult>(url, payloadAsObject.ToJson(), expectedResult, item => item, differenceFunc, [], Assembly.GetCallingAssembly(), payloadAsObjectParameterName, expectedResultParameterName);
+            return AssertPostAsync<TResult>(client, url, payloadAsObject.ToJson(),
+                                            expectedResult, result => result, differenceFunc,
+                                            [], callingAssembly, payloadAsObjectParameterName,
+                                            expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -319,10 +285,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResult,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                              (string Key, object? Value)[] parameters,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             Assembly callingAssembly,
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertPostAsync<TResult>(url, payloadAsObject.ToJson(), expectedResult, item => item, differenceFunc, parameters, Assembly.GetCallingAssembly(), payloadAsObjectParameterName, expectedResultParameterName);
+            return AssertPostAsync<TResult>(client, url, payloadAsObject.ToJson(),
+                                            expectedResult, result => result, differenceFunc,
+                                            parameters, callingAssembly, payloadAsObjectParameterName,
+                                            expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -330,10 +302,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string payloadAsJson,
                                                              string expectedResult,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             Assembly callingAssembly,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertPostAsync<TResult>(url, payloadAsJson, expectedResult, item => item, differenceFunc, [], Assembly.GetCallingAssembly(), payloadAsJsonParameterName, expectedResultParameterName);
+            return AssertPostAsync<TResult>(client, url, payloadAsJson,
+                                            expectedResult, result => result, differenceFunc,
+                                            [], callingAssembly, payloadAsJsonParameterName,
+                                            expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -342,10 +320,140 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResult,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                              (string Key, object? Value)[] parameters,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             Assembly callingAssembly,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertPostAsync<TResult>(url, payloadAsJson, expectedResult, item => item, differenceFunc, parameters, Assembly.GetCallingAssembly(), payloadAsJsonParameterName, expectedResultParameterName);
+            return AssertPostAsync<TResult>(client, url, payloadAsJson,
+                                            expectedResult, result => result, differenceFunc,
+                                            parameters, callingAssembly, payloadAsJsonParameterName,
+                                            expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             object payloadAsObject,
+                                                             string expectedResult,
+                                                             Func<TResult, TResult> filterFunc,
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return client.AssertPostAsync(url, payloadAsObject.ToJson(), expectedResult,
+                                          filterFunc, [], Assembly.GetCallingAssembly(),
+                                          payloadAsObjectParameterName, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             object payloadAsObject,
+                                                             string expectedResult,
+                                                             Func<TResult, TResult> filterFunc,
+                                                             (string Key, object? Value)[] parameters,
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return client.AssertPostAsync(url, payloadAsObject.ToJson(), expectedResult,
+                                          filterFunc, parameters, Assembly.GetCallingAssembly(),
+                                          payloadAsObjectParameterName, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string payloadAsJson,
+                                                             string expectedResult,
+                                                             Func<TResult, TResult> filterFunc,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return client.AssertPostAsync(url, payloadAsJson, expectedResult,
+                                          filterFunc, [], Assembly.GetCallingAssembly(),
+                                          payloadAsJsonParameterName, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string payloadAsJson,
+                                                             string expectedResult,
+                                                             Func<TResult, TResult> filterFunc,
+                                                             (string Key, object? Value)[] parameters,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return client.AssertPostAsync(url, payloadAsJson, expectedResult,
+                                          filterFunc, parameters, Assembly.GetCallingAssembly(),
+                                          payloadAsJsonParameterName, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             object payloadAsObject,
+                                                             string expectedResult,
+                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return client.AssertPostAsync<TResult>(url, payloadAsObject.ToJson(), expectedResult,
+                                                   item => item, differenceFunc, [],
+                                                   Assembly.GetCallingAssembly(), payloadAsObjectParameterName, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             object payloadAsObject,
+                                                             string expectedResult,
+                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                             (string Key, object? Value)[] parameters,
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return client.AssertPostAsync<TResult>(url, payloadAsObject.ToJson(), expectedResult,
+                                                   item => item, differenceFunc, parameters,
+                                                   Assembly.GetCallingAssembly(), payloadAsObjectParameterName, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string payloadAsJson,
+                                                             string expectedResult,
+                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return client.AssertPostAsync<TResult>(url, payloadAsJson, expectedResult,
+                                                   item => item, differenceFunc, [],
+                                                   Assembly.GetCallingAssembly(), payloadAsJsonParameterName, expectedResultParameterName);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string payloadAsJson,
+                                                             string expectedResult,
+                                                             Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                             (string Key, object? Value)[] parameters,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
+        {
+            return client.AssertPostAsync<TResult>(url, payloadAsJson, expectedResult,
+                                                   item => item, differenceFunc, parameters,
+                                                   Assembly.GetCallingAssembly(), payloadAsJsonParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -354,10 +462,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResult,
                                                              Func<TResult, TResult> filterFunc,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpExtensions.PostAsJsonStringAsync<TResult>, HttpMethod.Post, difference => difference, [], callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult,
+                                         filterFunc, HttpMethod.Post,
+                                         difference => difference, [], callingAssembly,
+                                         payloadAsObjectParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -367,10 +480,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<TResult, TResult> filterFunc,
                                                              (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpExtensions.PostAsJsonStringAsync<TResult>, HttpMethod.Post, difference => difference, parameters, callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult,
+                                         filterFunc, HttpMethod.Post,
+                                         difference => difference, parameters, callingAssembly,
+                                         payloadAsObjectParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -379,10 +497,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResult,
                                                              Func<TResult, TResult> filterFunc,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpExtensions.PostAsJsonStringAsync<TResult>, HttpMethod.Post, difference => difference, [], callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult,
+                                         filterFunc, HttpMethod.Post,
+                                         difference => difference, [], callingAssembly,
+                                         payloadAsJsonParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -392,10 +515,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<TResult, TResult> filterFunc,
                                                              (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpExtensions.PostAsJsonStringAsync<TResult>, HttpMethod.Post, difference => difference, parameters,callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult,
+                                         filterFunc, HttpMethod.Post,
+                                         difference => difference, parameters, callingAssembly,
+                                         payloadAsJsonParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -405,10 +533,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<TResult, TResult> filterFunc,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpExtensions.PostAsJsonStringAsync<TResult>, HttpMethod.Post, differenceFunc, [], callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult,
+                                         filterFunc, HttpMethod.Post,
+                                         differenceFunc, [], callingAssembly,
+                                         payloadAsObjectParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -419,10 +552,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                              (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpExtensions.PostAsJsonStringAsync<TResult>, HttpMethod.Post, differenceFunc, parameters, callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult,
+                                         filterFunc, HttpMethod.Post,
+                                         differenceFunc, parameters, callingAssembly,
+                                         payloadAsObjectParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -432,10 +570,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<TResult, TResult> filterFunc,
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpExtensions.PostAsJsonStringAsync<TResult>, HttpMethod.Post, differenceFunc, [], callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult,
+                                         filterFunc, HttpMethod.Post,
+                                         differenceFunc, [], callingAssembly,
+                                         payloadAsJsonParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -446,20 +589,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                              (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpExtensions.PostAsJsonStringAsync<TResult>, HttpMethod.Post, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult,
+                                         filterFunc, HttpMethod.Post,
+                                         differenceFunc, parameters, callingAssembly,
+                                         payloadAsJsonParameterName, expectedResultParameterName);
         }
 
-        public static Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient, string url)
+        public static Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient,
+                                                         string url)
         {
             return httpClient.AssertPostAsUnauthorizedAsync(url, null, []);
         }
 
         public static Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient,
-                                                               string url,
-                                                               object? body)
+                                                         string url,
+                                                         object? body)
         {
             return httpClient.AssertPostAsUnauthorizedAsync(url, body, []);
         }
@@ -474,6 +623,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Unauthorized token");
 
             var newBody = "";
+
             if (body.IsNotNull())
             {
                 newBody = body.ToJson().ResolveParameters(parameters);
@@ -497,5 +647,4 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode, errorOutput);
         }
     }
-
 }

@@ -1,0 +1,23 @@
+{
+  "Version": "1.1",
+  "Content": {
+    "Headers": [
+      {
+        "Key": "Content-Type",
+        "Value": [ "application/json; charset=utf-8" ]
+      }
+    ],
+    "Value": {
+      "Id": 1,
+      "Name": "$Name$",
+      "FirstName": "Goku",
+      "Age": $Age$,
+      "Emails": []
+    }
+  },
+  "StatusCode": "OK",
+  "ReasonPhrase": "OK",
+  "Headers": [],
+  "TrailingHeaders": [],
+  "IsSuccessStatusCode": true
+}

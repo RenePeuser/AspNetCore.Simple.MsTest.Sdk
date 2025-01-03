@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AspNetCore.Simple.MsTest.Sdk.Outputs;
@@ -238,10 +237,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string title,
                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               string curl,
-                                              [CallerArgumentExpression(nameof(expectedObject))]
-                                              string expectedResultParameterName = "",
-                                              [CallerArgumentExpression(nameof(currentObject))]
-                                              string currentResultParameterName = "")
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
             assert.ObjectsAreEqual(expectedObject, currentObject, comparisonFunc,
                                    title, differenceFunc, curl,
@@ -534,10 +531,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               string curl,
                                               (string Key, object? Value)[] parameters,
-                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))]
-                                              string expectedResultParameterName = "",
-                                              [CallerArgumentExpression(nameof(currentObject))]
-                                              string currentResultParameterName = "")
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
             var jsonObject = expectedObjectAsJson.GetJsonString<T>(callingAssembly);
             jsonObject = jsonObject.ResolveParameters(parameters);
@@ -610,7 +605,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var resultTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
-                var output = OutputFormatter.GetOutputString(title, $"Object differences detected: {optimizedDifferences.Count}", object1AsJson, object2AsJson, resultTable, curl);
+                var output = OutputFormatter.GetOutputString(title, $"Detected differences: {optimizedDifferences.Count}", object1AsJson, object2AsJson, resultTable, curl);
                 Assert.IsTrue(optimizedDifferences.IsEmpty(), output);
 
                 CurlPrinter.PrintCurl(callingAssembly, curl);

@@ -18,6 +18,8 @@
       <EmbeddedResource Include="Payloads\NewPersonParameter.json" />
       <EmbeddedResource Include="Payloads\NewPerson.json" />
       <EmbeddedResource Include="Payloads\SonGoku.json" />
+      <EmbeddedResource Include="Results\NewPersonParameter.json" />
+      <EmbeddedResource Include="Results\SonGokuNewResponse.json" />
       <EmbeddedResource Include="Results\SonGoku.json" />
       <EmbeddedResource Include="Results\ErrorResponse.json" />
       <EmbeddedResource Include="Results\GetPersonResponse.json" />

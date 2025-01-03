@@ -21,15 +21,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    internal sealed class TestCreatorMiddleware : IMiddleware
+    internal sealed class TestCreatorMiddleware(IRequestTestCreator requestTestCreator) : IMiddleware
     {
-        private readonly IRequestTestCreator _requestTestCreator;
-
-        public TestCreatorMiddleware(IRequestTestCreator requestTestCreator)
-        {
-            _requestTestCreator = requestTestCreator;
-        }
-
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             ResponseInfoUltra? response;
@@ -52,7 +45,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 response = await GetResponseInfoUltraAsync(context).ConfigureAwait(false);
                 if (response.IsNotNull())
                 {
-                    _requestTestCreator.CreateTestFor(request, response);
+                    requestTestCreator.CreateTestFor(request, response);
                 }
 
                 //Copy the contents of the new memory stream (which contains the response) to the original stream, which is then returned to the client.
@@ -64,7 +57,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 response = await GetResponseInfoUltraAsync(context).ConfigureAwait(false);
                 if (response.IsNotNull())
                 {
-                    _requestTestCreator.CreateTestFor(request, response);
+                    requestTestCreator.CreateTestFor(request, response);
                 }
 
                 throw;

@@ -2,10 +2,5 @@
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public class DeserializeException : Exception
-    {
-        public DeserializeException(string message) : base(message)
-        {
-        }
-    }
+    public class DeserializeException(string message) : Exception(message);
 }

@@ -45,7 +45,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     }
 
 
-    internal sealed class PostWithBodyTestCreator : ISpecificTestCreator
+    internal sealed class PostWithBodyTestCreator(ILogger<PostWithBodyTestCreator> logger,
+                                                  TestCreatorSettings testCreatorSettings) : ISpecificTestCreator
     {
         // ToDo: Optimize template creation => Strategy :)
 
@@ -84,15 +85,6 @@ public Task $testmethodname$()
                                                                  ""Payload"");
 }
 ";
-
-        private readonly ILogger<PostWithBodyTestCreator> _logger;
-        private readonly TestCreatorSettings _testCreatorSettings;
-
-        public PostWithBodyTestCreator(ILogger<PostWithBodyTestCreator> logger, TestCreatorSettings testCreatorSettings)
-        {
-            _logger = logger;
-            _testCreatorSettings = testCreatorSettings;
-        }
 
         public bool CanCreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfo)
         {
@@ -137,11 +129,11 @@ public Task $testmethodname$()
 
             var testOutput = testParts.Flatten($"{Environment.NewLine}");
             var outputWithSeparators = testOutput.Replace("$separator$", separator)
-                                                 .Replace("$testattribute$", _testCreatorSettings.TestMethodAttribute);
+                                                 .Replace("$testattribute$", testCreatorSettings.TestMethodAttribute);
 
             HttpClientAssertExtensions.LogAction(outputWithSeparators);
 
-            _logger.LogDebug(outputWithSeparators);
+            logger.LogDebug(outputWithSeparators);
 
             return outputWithSeparators;
 

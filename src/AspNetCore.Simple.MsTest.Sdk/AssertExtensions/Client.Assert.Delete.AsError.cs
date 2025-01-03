@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -52,7 +51,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       Assembly callingAssembly,
                                                                       [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, string.Empty, expectedResult, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Delete, [],callingAssembly, expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, [],callingAssembly, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
@@ -83,7 +82,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       Assembly callingAssembly,
                                                                       [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, (httpClient, url, _) => HttpExtensions.DeleteAsErrorResultAsync<TResult>(httpClient, url), HttpMethod.Delete, parameters, callingAssembly, expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, parameters, callingAssembly, expectedResultParameterName);
         }
     }
 }

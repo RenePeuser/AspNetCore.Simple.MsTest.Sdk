@@ -5,11 +5,6 @@ using Microsoft.Extensions.Configuration;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Api
 {
-    public class Startup : SimpleStartup
-    {
-        public Startup(IConfiguration configuration,
-                       IWebHostEnvironment webHostEnvironment) : base(configuration, webHostEnvironment, new PathString("/api/tests"))
-        {
-        }
-    }
+    public class Startup(IConfiguration configuration,
+                         IWebHostEnvironment webHostEnvironment) : SimpleStartup(configuration, webHostEnvironment, new PathString("/api/tests"));
 }

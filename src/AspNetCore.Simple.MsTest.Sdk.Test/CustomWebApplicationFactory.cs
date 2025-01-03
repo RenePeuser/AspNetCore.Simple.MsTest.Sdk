@@ -24,31 +24,22 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         }
     }
 
-    public class IntegrationTestWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
+    public class IntegrationTestWebApplicationFactory<TStartup>(IntegrationTestBase<TStartup> testBase,
+                                                                string environmentName,
+                                                                params (string name, string value)[] environmentVariables) : WebApplicationFactory<TStartup>
+        where TStartup : class
     {
-        private readonly IntegrationTestBase<TStartup> _testBase;
-
-        private readonly (string name, string value)[] _environmentVariables;
-
-        public IntegrationTestWebApplicationFactory(IntegrationTestBase<TStartup> testBase,
-                                                    string environmentName,
-                                                    params (string name, string value)[] environmentVariables)
-        {
-            _testBase = testBase;
-            EnvironmentName = environmentName;
-            _environmentVariables = environmentVariables;
-        }
-        public string EnvironmentName { get; }
+        public string EnvironmentName { get; } = environmentName;
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            foreach (var environmentVariable in _environmentVariables)
+            foreach (var environmentVariable in environmentVariables)
             {
                 Environment.SetEnvironmentVariable(environmentVariable.name, environmentVariable.value);
             }
 
-            builder.ConfigureAppConfiguration(_testBase.ConfigureAppConfiguration);
-            builder.ConfigureServices(_testBase.ConfigureServices);
+            builder.ConfigureAppConfiguration(testBase.ConfigureAppConfiguration);
+            builder.ConfigureServices(testBase.ConfigureServices);
             builder.UseEnvironment(EnvironmentName);
         }
     }

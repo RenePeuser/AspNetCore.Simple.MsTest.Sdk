@@ -17,18 +17,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         string CreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfoUltra);
     }
 
-    internal sealed class RequestTestCreator : IRequestTestCreator
+    internal sealed class RequestTestCreator(IEnumerable<ISpecificTestCreator> testCreators) : IRequestTestCreator
     {
-        private readonly IEnumerable<ISpecificTestCreator> _testCreators;
-
-        public RequestTestCreator(IEnumerable<ISpecificTestCreator> testCreators)
-        {
-            _testCreators = testCreators;
-        }
-
         public string CreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfoUltra)
         {
-            var testCreator = _testCreators.Where(creator => creator.CanCreateTestFor(requestInfo, responseInfoUltra)).ToList();
+            var testCreator = testCreators.Where(creator => creator.CanCreateTestFor(requestInfo, responseInfoUltra)).ToList();
             if (testCreator.Count == 1)
             {
                 return testCreator[0].CreateTestFor(requestInfo, responseInfoUltra);

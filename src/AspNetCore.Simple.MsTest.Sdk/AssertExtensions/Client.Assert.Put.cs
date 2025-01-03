@@ -20,14 +20,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task AssertPutAsync(this HttpClient client,
                                           string url)
         {
-            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PutAsync(urlParam, null), HttpMethod.Put, [], Assembly.GetCallingAssembly());
+            return client.AssertHttpCall(url, string.Empty, HttpMethod.Put, [], Assembly.GetCallingAssembly());
         }
 
         public static Task AssertPutAsync(this HttpClient client,
                                           string url,
                                           (string Key, object? Value)[] parameters)
         {
-            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PutAsync(urlParam, null), HttpMethod.Put, parameters, Assembly.GetCallingAssembly());
+            return client.AssertHttpCall(url, string.Empty, HttpMethod.Put, parameters, Assembly.GetCallingAssembly());
         }
 
         public static Task AssertPutAsync(this HttpClient client,
@@ -35,7 +35,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           string payload)
         {
             var jsonBody = payload.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ? Assembly.GetCallingAssembly().GetFileContentFrom(payload) : payload;
-            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PutAsync(urlParam, new StringContent(jsonBody, Encoding.UTF8, MediaTypeNames.Application.Json)), HttpMethod.Put, [], Assembly.GetCallingAssembly(), nameof(payload));
+            return client.AssertHttpCall(url, string.Empty, HttpMethod.Put, [], Assembly.GetCallingAssembly(), nameof(payload));
         }
 
         public static Task AssertPutAsync(this HttpClient client,
@@ -45,7 +45,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           [CallerArgumentExpression(nameof(payload))] string payloadParameterName = "")
         {
             var jsonBody = payload.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ? Assembly.GetCallingAssembly().GetFileContentFrom(payload) : payload;
-            return client.AssertHttpCall(url, string.Empty, (clientParam, urlParam, _) => clientParam.PutAsync(urlParam, new StringContent(jsonBody, Encoding.UTF8, MediaTypeNames.Application.Json)), HttpMethod.Put, parameters, Assembly.GetCallingAssembly(), payloadParameterName);
+            return client.AssertHttpCall(url, string.Empty, HttpMethod.Put, parameters, Assembly.GetCallingAssembly(), payloadParameterName);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -381,7 +381,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpExtensions.PutAsJsonStringAsync<TResult>, HttpMethod.Put, difference => difference, [],callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpMethod.Put, difference => difference, [],callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -394,7 +394,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpExtensions.PutAsJsonStringAsync<TResult>, HttpMethod.Put, difference => difference, parameters,callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpMethod.Put, difference => difference, parameters,callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -406,7 +406,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpExtensions.PutAsJsonStringAsync<TResult>, HttpMethod.Put, difference => difference, [],callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpMethod.Put, difference => difference, [],callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
         }
 
 
@@ -420,7 +420,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpExtensions.PutAsJsonStringAsync<TResult>, HttpMethod.Put, difference => difference, parameters,callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpMethod.Put, difference => difference, parameters,callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -433,7 +433,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpExtensions.PutAsJsonStringAsync<TResult>, HttpMethod.Put, differenceFunc, [], callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpMethod.Put, differenceFunc, [], callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -447,7 +447,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerArgumentExpression(nameof(payloadAsObject))] string payloadAsObjectParameterName = "",
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpExtensions.PutAsJsonStringAsync<TResult>, HttpMethod.Put, differenceFunc, parameters, callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsObject.ToJson(), expectedResult, filterFunc, HttpMethod.Put, differenceFunc, parameters, callingAssembly, payloadAsObjectParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -460,7 +460,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpExtensions.PutAsJsonStringAsync<TResult>, HttpMethod.Put, differenceFunc, [], callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpMethod.Put, differenceFunc, [], callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -474,7 +474,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
                                                              [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpExtensions.PutAsJsonStringAsync<TResult>, HttpMethod.Put, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, HttpMethod.Put, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
         }
 
         public static Task AssertPutAsUnauthorizedAsync(this HttpClient httpClient, string url)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using ConsoleTables;
@@ -9,19 +10,21 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
     {
         public string GetOutputString(string errorInfo,
                                       HttpMethod httpMethod,
-                                      string url)
+                                      string url,
+                                      HttpStatusCode httpStatusCode)
         {
             var consoleTable = new ConsoleTable() { Options = { EnableCount = false } };
 
             var enumerable = new List<string>()
                              {
                                  "HttpMethod",
-                                 "Url"
+                                 "Url",
+                                 "HttpStatusCode"
                              };
             
             consoleTable.AddColumn(enumerable);
 
-            consoleTable.AddRow(httpMethod.Method, url);
+            consoleTable.AddRow(httpMethod.Method, url, httpStatusCode);
 
             var stringBuilder = new StringBuilder();
             var consoleTableResult = consoleTable.ToString();
