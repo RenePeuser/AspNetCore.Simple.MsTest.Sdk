@@ -13,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         public Task Should_Return_Expected_Result_For_Given_Payload()
         {
             return Client.AssertPostAsErrorAsync<ProblemDetails>("api/tests/v1/errors/not-implemented",
-                                                                 "ErrorResponse.json");
+                                                          "ErrorResponse.json");
         }
 
         [TestMethod]

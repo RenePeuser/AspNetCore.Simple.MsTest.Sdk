@@ -52,7 +52,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    Func<TResult, TResult> filterFunc,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, filterFunc, HttpMethod.Get, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, filterFunc, HttpMethod.Get, [], Assembly.GetCallingAssembly(), string.Empty, expectedResultParameterName, false);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
@@ -62,7 +62,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    (string Key, object? Value)[] parameters,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, filterFunc, HttpMethod.Get, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, filterFunc, HttpMethod.Get, parameters, Assembly.GetCallingAssembly(), string.Empty, expectedResultParameterName, false);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
@@ -72,7 +72,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, filterFunc, HttpMethod.Get, differenceFunc, [], Assembly.GetCallingAssembly(), expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, filterFunc, HttpMethod.Get, differenceFunc, [], Assembly.GetCallingAssembly(), string.Empty, expectedResultParameterName, false);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
@@ -83,7 +83,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    (string Key, object? Value)[] parameters,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, filterFunc, HttpMethod.Get, differenceFunc, parameters, Assembly.GetCallingAssembly(), expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, filterFunc, HttpMethod.Get, differenceFunc, parameters, Assembly.GetCallingAssembly(), string.Empty, expectedResultParameterName, false);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
@@ -123,7 +123,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    Assembly callingAssembly,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Get, differenceFunc, parameters, callingAssembly, expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Get, differenceFunc, parameters, callingAssembly, string.Empty, expectedResultParameterName, false);
         }
     }
 }

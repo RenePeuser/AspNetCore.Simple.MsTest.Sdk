@@ -51,7 +51,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       Assembly callingAssembly,
                                                                       [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, [],callingAssembly, expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, [],callingAssembly, string.Empty, expectedResultParameterName, false);
         }
 
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
@@ -82,7 +82,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       Assembly callingAssembly,
                                                                       [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, parameters, callingAssembly, expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, parameters, callingAssembly, string.Empty, expectedResultParameterName);
         }
     }
 }

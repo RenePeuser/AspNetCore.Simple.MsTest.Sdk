@@ -3,20 +3,15 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Outputs;
-using ConsoleTables;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -58,69 +53,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  HttpMethod httpMethod,
                                                  (string Key, object? Value)[] parameters,
                                                  Assembly callingAssembly,
-                                                 [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "")
+                                                 [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
+                                                 bool isSuccessStatusCode = true)
         {
-            var jsonPayload = payloadAsJson.GetJsonString<object>(callingAssembly);
-            jsonPayload = jsonPayload.ResolveParameters(parameters);
 
-            var absoluteUrl = $"{BaseUrl}{url}";
-
-            var curl = CurlBuilder.BuildFrom(httpMethod, absoluteUrl, payloadAsJson, client.DefaultRequestHeaders.Authorization, callingAssembly, ShowTokenInCurl);
-
-            var httpResponse = await HttpCallHandler.CallAsync(client, httpMethod, url, jsonPayload, CancellationToken.None, payloadAsJsonParameterName).ConfigureAwait(false);
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                CurlPrinter.PrintCurl(callingAssembly, curl);
-                return;
-            }
-
-            var errorOutput = await GetOutputAsync(absoluteUrl, httpMethod, httpResponse, parameters, payloadAsJson, payloadAsJsonParameterName).ConfigureAwait(false);
-
-            Assert.IsTrue(httpResponse.IsSuccessStatusCode, errorOutput);
-
-            CurlPrinter.PrintCurl(callingAssembly, curl);
-
-
-            static async Task<string> GetOutputAsync(string absoluteUrl,
-                                                     HttpMethod httpMethod,
-                                                     HttpResponseMessage httpResponseMessage,
-                                                     (string Key, object? Value)[] parameters,
-                                                     string payloadAsjson,
-                                                     string payloadAsJsonParameterName)
-            {
-                var stringBuilder = new StringBuilder();
-                stringBuilder.AppendLine();
-                stringBuilder.AppendLine();
-                stringBuilder.AppendLine("Error occured when calling endpoint");
-                stringBuilder.AppendLine();
-
-                // Table for call infos
-                var callInfos = new
-                {
-                    HttpMethod = httpMethod.Method,
-                    Url = absoluteUrl,
-                    HttpStatusCode = httpResponseMessage.StatusCode.Cast<int>(),
-                    HttpStatusName = httpResponseMessage.StatusCode
-                }.ToIList();
-
-                var table = ConsoleTable.From(callInfos).ToString();
-                stringBuilder.AppendLine(table);
-                stringBuilder.AppendLine();
-                stringBuilder.AppendLine("Payload: " + payloadAsJsonParameterName);
-                stringBuilder.AppendLine();
-                stringBuilder.AppendLine(payloadAsjson);
-                stringBuilder.AppendLine();
-                stringBuilder.AppendLine("Error content:");
-
-                var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-                content = content.ResolveParameters(parameters);
-
-                var formattedContent = JToken.Parse(content.IsNullOrEmpty() ? "{}" : content).ToString(Formatting.Indented);
-                stringBuilder.AppendLine(formattedContent);
-
-                return stringBuilder.ToString();
-            }
+            await client.AssertHttpCall<object>(url, payloadAsJson, string.Empty, item => item, httpMethod, parameters, callingAssembly, payloadAsJsonParameterName, string.Empty, isSuccessStatusCode).ConfigureAwait(false);
         }
 
         private static Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
@@ -132,9 +69,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
                                                              [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                             bool isSuccessStatusCode = true)
         {
-            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, httpMethod, difference => difference, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName);
+            return client.AssertHttpCall(url, payloadAsJson, expectedResult, filterFunc, httpMethod, difference => difference, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName, isSuccessStatusCode);
         }
 
         private static async Task<TResult> AssertHttpCall<TResult>(this HttpClient client,
@@ -147,14 +85,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     (string Key, object? Value)[] parameters,
                                                                     Assembly callingAssembly,
                                                                     [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                    bool isSuccessStatusCode = true)
         {
             if (CustomAssertMethod is not null)
             {
-                return await AssertCustomHttpCall(client, url, payloadAsJson, expectedResult, filterFunc, httpMethod, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName).ConfigureAwait(false);
+                return await AssertCustomHttpCall(client, url, payloadAsJson, expectedResult, filterFunc, httpMethod, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName, isSuccessStatusCode).ConfigureAwait(false);
             }
 
-            return await AssertHttpCallInternal(client, url, payloadAsJson, expectedResult, filterFunc, httpMethod, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName).ConfigureAwait(false);
+            return await AssertHttpCallInternal(client, url, payloadAsJson, expectedResult, filterFunc, httpMethod, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName, isSuccessStatusCode).ConfigureAwait(false);
         }
 
         private static async Task<TResult> AssertHttpCallInternal<TResult>(this HttpClient client,
@@ -167,7 +106,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                             (string Key, object? Value)[] parameters,
                                                                             Assembly callingAssembly,
                                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                                            [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                            bool isSuccessStatusCode = true)
         {
             // 1. Setup json payload
             var jsonPayload = payloadAsJson.GetJsonString<TResult>(callingAssembly);
@@ -186,7 +126,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 6. Deserialized target type
             var currentResult = resolvedParametersJsonString.FromJsonStringAs<TResult>();
-            
+
             var filteredCurrentResult = filterFunc(currentResult);
 
             // 7. Build up absolute url for nice test results
@@ -234,6 +174,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 };
             }
 
+            // To keep legacy code compatible
+            expectedResultAsSimpleResponse = expectedResultAsSimpleResponse with { IsSuccessStatusCode = isSuccessStatusCode };
+
+
             // 13. Compare the expected results and more - just response
             Assert.That.ObjectsAreEqual<SimpleHttpResponseMessage>(expectedResultAsSimpleResponse.ToJson(), resolvedSimpleHttpResponse, item => item, httpCallInfo, callingAssembly, differenceFunc, curl, parameters, expectedResultParameterName, "CurrentResult");
 
@@ -248,7 +192,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             public string ReasonPhrase { get; init; } = "OK";
             public IImmutableList<KeyValuePair<string, IImmutableList<string>>> Headers { get; init; } = ImmutableList<KeyValuePair<string, IImmutableList<string>>>.Empty;
             public IImmutableList<KeyValuePair<string, IImmutableList<string>>> TrailingHeaders { get; init; } = ImmutableList<KeyValuePair<string, IImmutableList<string>>>.Empty;
-            public bool IsSuccessStatusCode { get; init; }
+            public bool IsSuccessStatusCode { get; init; } = true;
         }
 
         internal sealed record SimpleHttpContent
@@ -267,7 +211,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          (string Key, object? Value)[] parameters,
                                                                          Assembly callingAssembly,
                                                                          [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                                         [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
+                                                                         [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                         bool isSuccessStatusCode = true)
         {
             if (CustomAssertMethod is null)
             {
@@ -280,7 +225,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var genericMethod = CustomAssertMethod.MakeGenericMethod(typeof(TResult));
-            var tasReturnType = genericMethod.Invoke(null, [client, url, payloadAsJson, expectedResult, filterFunc, httpMethod, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName]);
+            var tasReturnType = genericMethod.Invoke(null, [client, url, payloadAsJson, expectedResult, filterFunc, httpMethod, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName, isSuccessStatusCode]);
             if (tasReturnType is Task task)
             {
                 await task.ConfigureAwait(false);
