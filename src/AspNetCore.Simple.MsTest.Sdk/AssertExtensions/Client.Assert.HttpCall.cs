@@ -31,6 +31,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly HttpCallHandler HttpCallHandler = new(new HttpRequestMessageBuilder(new JsonSerializer(SerializeOptions)));
 
+        private static readonly PrimitiveTypeConverter PrimitiveTypeConverter = new();
+
         // This is only for dev who know what they are doing
         // With this method info you are able to intercept the existing assert functionality
         // to use external once
@@ -120,6 +122,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                            string expectedResultParameterName = "",
                                                                            bool isSuccessStatusCode = true)
         {
+            // 0. Target type is primitive type
+            var targetType = typeof(TResult);
+            var targetIsPrimitiveType = targetType.IsPrimitive || targetType == typeof(string);
+
             // 1. Setup json payload
             var jsonPayload = payloadAsJson.GetJsonString<TResult>(callingAssembly);
 
@@ -137,7 +143,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var resolvedParametersJsonString = contentAsString.ResolveParameters(parameters);
 
             // 6. Deserialized target type
-            var currentResult = typeof(TResult).IsTypeOf<string>() ? (TResult)(object)resolvedParametersJsonString : resolvedParametersJsonString.FromJsonStringAs<TResult>();
+            var currentResult = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString) : resolvedParametersJsonString.FromJsonStringAs<TResult>();
 
             var filteredCurrentResult = filterFunc(currentResult);
 
@@ -174,7 +180,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var expectedResultAsJsonParamterized = expectedResultAsJson.ResolveParameters(parameters);
 
             // 14. Edge case string as primitive type -> just string response -> no json
-            var expectedType = typeof(TResult).IsTypeOf<string>() ? (TResult)(object)expectedResultAsJsonParamterized : expectedResultAsJsonParamterized.FromJsonStringAs<TResult>();
+            var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParamterized)  : expectedResultAsJsonParamterized.FromJsonStringAs<TResult>();
 
             // 15. Execute the filter function on the expected result
             var filteredExpectedType = filterFunc(expectedType);
