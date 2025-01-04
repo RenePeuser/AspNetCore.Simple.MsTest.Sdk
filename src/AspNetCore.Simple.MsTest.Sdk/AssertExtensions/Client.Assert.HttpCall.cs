@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -18,10 +17,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
-        private static readonly CurlFormatter CurlFormatter = new();
-
-        private static readonly CurlPrinter CurlPrinter = new(CurlFormatter);
-
         private static readonly HttpOutputFormatter HttpOutputFormatter = new();
 
         private static readonly CurlBuilder CurlBuilder = new();
@@ -57,7 +52,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  string payloadAsJsonParameterName = "",
                                                  bool isSuccessStatusCode = true)
         {
-            await client.AssertHttpCall<object>(url, payloadAsJson, string.Empty,
+            await client.AssertHttpCall<string>(url, payloadAsJson, string.Empty,
                                                 item => item, httpMethod, parameters,
                                                 callingAssembly, payloadAsJsonParameterName, string.Empty,
                                                 isSuccessStatusCode).ConfigureAwait(false);
@@ -92,8 +87,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                    (string Key, object? Value)[] parameters,
                                                                    Assembly callingAssembly,
-                                                                   [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "", 
-                                                                   [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "", 
+                                                                   [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
+                                                                   [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
                                                                    bool isSuccessStatusCode = true)
         {
             if (CustomAssertMethod is not null)
@@ -142,7 +137,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var resolvedParametersJsonString = contentAsString.ResolveParameters(parameters);
 
             // 6. Deserialized target type
-            var currentResult = resolvedParametersJsonString.FromJsonStringAs<TResult>();
+            var currentResult = typeof(TResult).IsTypeOf<string>() ? (TResult)(object)resolvedParametersJsonString : resolvedParametersJsonString.FromJsonStringAs<TResult>();
 
             var filteredCurrentResult = filterFunc(currentResult);
 
@@ -177,7 +172,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 13. Resolve parameters in expected result
             var expectedResultAsJsonParamterized = expectedResultAsJson.ResolveParameters(parameters);
-            
+
             // 14. Edge case string as primitive type -> just string response -> no json
             var expectedType = typeof(TResult).IsTypeOf<string>() ? (TResult)(object)expectedResultAsJsonParamterized : expectedResultAsJsonParamterized.FromJsonStringAs<TResult>();
 
@@ -207,10 +202,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             expectedResultAsSimpleResponse = expectedResultAsSimpleResponse with { IsSuccessStatusCode = isSuccessStatusCode };
 
             // 19. Compare the expected results and more - just response
-            Assert.That.ObjectsAreEqual<SimpleHttpResponseMessage>(expectedResultAsSimpleResponse.ToJson(), resolvedSimpleHttpResponse, item => item,
-                                                                   httpCallInfo, callingAssembly, differenceFunc,
-                                                                   curl, parameters, expectedResultParameterName,
-                                                                   "Current response");
+            Assert.That.ObjectsAreEqual(expectedResultAsSimpleResponse.ToJson(),
+                                        resolvedSimpleHttpResponse,
+                                        item => item,
+                                        httpCallInfo,
+                                        callingAssembly,
+                                        differenceFunc,
+                                        curl,
+                                        parameters,
+                                        expectedResultParameterName,
+                                        "Current response");
 
             // 20. Return the current result
             return currentResult;
