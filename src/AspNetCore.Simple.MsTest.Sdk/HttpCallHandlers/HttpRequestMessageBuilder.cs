@@ -4,18 +4,9 @@ using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
 using Extensions.Pack;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddHttpRequestMessageBuilderExtension
-    {
-        public static void AddHttpRequestMessageBuilder(this IServiceCollection services)
-        {
-            services.AddSingletonIfNotExists<HttpRequestMessageBuilder>();
-        }
-    }
-
     internal sealed class HttpRequestMessageBuilder(Serializer.Json.JsonSerializer jsonSerializer)
     {
         internal HttpRequestMessage BuildFrom(HttpMethod method,
