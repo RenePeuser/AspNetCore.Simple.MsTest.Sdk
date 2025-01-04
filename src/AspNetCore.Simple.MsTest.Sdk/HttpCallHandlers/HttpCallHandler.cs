@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                          [CallerArgumentExpression(nameof(payload))]
                                                          string payloadParameterName = "")
         {
-            var message = httpRequestMessageBuilder.BuildFrom(httpMethod, url, payload, payloadParameterName);
+            using var message = httpRequestMessageBuilder.BuildFrom(httpMethod, url, payload, payloadParameterName);
 
             var response = await httpClient.SendAsync(message, cancellationToken).ConfigureAwait(false);
 

@@ -116,7 +116,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             jsonPayload = jsonPayload.ResolveParameters(parameters);
 
             // 3. Call the endpoint
-            var httpResponseMessage = await HttpCallHandler.CallAsync(client, httpMethod, url, jsonPayload, CancellationToken.None, payloadAsJsonParameterName).ConfigureAwait(false);
+            using var httpResponseMessage = await HttpCallHandler.CallAsync(client, httpMethod, url, jsonPayload, CancellationToken.None, payloadAsJsonParameterName).ConfigureAwait(false);
 
             // 4. Get the response as json
             var contentAsString = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -134,6 +134,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 8. Build curl
             var curl = CurlBuilder.BuildFrom(httpMethod, absoluteUrl, payloadAsJson, client.DefaultRequestHeaders.Authorization, callingAssembly, ShowTokenInCurl);
+            var curl2 = CurlBuilder.BuildFrom(httpResponseMessage, payloadAsJson, client.DefaultRequestHeaders.Authorization, callingAssembly, ShowTokenInCurl);
 
             // 9. Format the output string for best readable and understandable test results
             var httpCallInfo = HttpOutputFormatter.GetOutputString("Http call infos:",

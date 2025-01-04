@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using Extensions.Pack;
@@ -14,11 +15,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddSingletonIfNotExists<ICurlBuilder, CurlBuilder>();
         }
     }
-    
+
     public interface ICurlBuilder
     {
-        string BuildFrom(System.Net.Http.HttpMethod httpMethod,
+        string BuildFrom(HttpMethod httpMethod,
                          string url,
+                         string payloadAsJson,
+                         AuthenticationHeaderValue? authenticationHeaderValue,
+                         Assembly assembly,
+                         bool showTokenInCurl);
+
+        string BuildFrom(HttpResponseMessage httpResponseMessage,
+                         string payloadAsJson,
+                         AuthenticationHeaderValue? authenticationHeaderValue,
+                         Assembly assembly,
+                         bool showTokenInCurl);
+
+        string BuildFrom(HttpRequestMessage httpRequestMessage,
                          string payloadAsJson,
                          AuthenticationHeaderValue? authenticationHeaderValue,
                          Assembly assembly,
@@ -27,7 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     internal sealed class CurlBuilder : ICurlBuilder
     {
-        public string BuildFrom(System.Net.Http.HttpMethod httpMethod,
+        public string BuildFrom(HttpMethod httpMethod,
                                 string url,
                                 string payloadAsJson,
                                 AuthenticationHeaderValue? authenticationHeaderValue,
@@ -60,6 +73,53 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     var json = payloadAsJson.GetJsonString<object>(assembly);
                     yield return "--header 'Content-Type: application/json'";
                     yield return $"--data-raw '{json}'";
+                }
+            }
+        }
+
+        public string BuildFrom(HttpResponseMessage httpResponseMessage,
+                                string payloadAsJson,
+                                AuthenticationHeaderValue? authenticationHeaderValue,
+                                Assembly assembly,
+                                bool showTokenInCurl)
+        {
+            return BuildFrom(httpResponseMessage?.RequestMessage, payloadAsJson, authenticationHeaderValue, assembly, showTokenInCurl);
+        }
+
+        public string BuildFrom(HttpRequestMessage? httpRequestMessage,
+                                string payloadAsJson,
+                                AuthenticationHeaderValue? authenticationHeaderValue,
+                                Assembly assembly,
+                                bool showTokenInCurl)
+        {
+            if (httpRequestMessage.IsNull())
+            {
+                return string.Empty;
+            }
+
+            var curl = BuildCurl(httpRequestMessage, payloadAsJson, authenticationHeaderValue, assembly, showTokenInCurl).Flatten(@$" \{Environment.NewLine}");
+            return curl;
+
+            static IEnumerable<string> BuildCurl(HttpRequestMessage httpRequestMessage,
+                                                 string payloadAsJson,
+                                                 AuthenticationHeaderValue? authenticationHeaderValue,
+                                                 Assembly assembly,
+                                                 bool showTokenInCurl)
+            {
+                // base curl call
+                yield return "curl";
+                yield return "--location";
+                yield return $"--request {httpRequestMessage.Method} '{httpRequestMessage.RequestUri}'";
+
+                if (authenticationHeaderValue.IsNotNull())
+                {
+                    var token = showTokenInCurl ? authenticationHeaderValue.Parameter : "Sorry i am secret :)";
+                    yield return $"--header 'Authorization: {authenticationHeaderValue.Scheme} {token}'";
+                }
+
+                foreach (var requestMessageHeader in httpRequestMessage.Headers)
+                {
+                    yield return $"--header '{requestMessageHeader.Key}: {requestMessageHeader.Value}";
                 }
             }
         }
