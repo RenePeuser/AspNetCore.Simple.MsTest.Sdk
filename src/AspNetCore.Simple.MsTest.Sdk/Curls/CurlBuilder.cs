@@ -121,6 +121,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     yield return $"--header '{requestMessageHeader.Key}: {requestMessageHeader.Value}";
                 }
+                
+                if (payloadAsJson.IsNotNullOrWhiteSpace())
+                {
+                    var json = payloadAsJson.GetJsonString<object>(assembly);
+                    yield return "--header 'Content-Type: application/json'";
+                    yield return $"--data-raw '{json}'";
+                }
             }
         }
     }
