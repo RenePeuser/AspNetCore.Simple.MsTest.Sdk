@@ -409,3 +409,26 @@ curl \
 --request GET 'https://localhost:5001/api/tests/v1/persons'
 -----------------------------------------------------------
 ```
+
+### Global ignore func
+We provide you a global ignore possibilty to ignore common values which contains random values
+In this sample here, we ignore the `x-amzn-trace-id` header if it is different for any assert in
+your test assembly.
+
+```csharp
+AssertObjectExtensions.DifferenceFunc = DifferenceFunc;
+
+static IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differences)
+{
+    foreach (var difference in differences)
+    {
+        // 1. Response headers for x-amzn-trace-id are different any call
+        if (difference.MemberPath.Contains("x-amzn-trace-id"))
+        {
+            continue;
+        }
+
+        yield return difference;
+    }
+}
+```
