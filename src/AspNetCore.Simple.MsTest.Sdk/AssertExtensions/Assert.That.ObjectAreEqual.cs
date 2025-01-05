@@ -21,6 +21,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static readonly CurlPrinter CurlPrinter = new(CurlFormatter);
         private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
 
+
+        public static Func<IImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
+
         private static readonly JsonSerializerOptions JsonSerializerOptions = new()
         {
             PropertyNameCaseInsensitive = true,
@@ -56,13 +59,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? expectedObject,
                                               T? currentObject,
                                               string title,
-                                              [CallerArgumentExpression(nameof(expectedObject))]
-                                              string expectedResultParameterName = "",
-                                              [CallerArgumentExpression(nameof(currentObject))]
-                                              string currentResultParameterName = "")
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "")
         {
-            assert.ObjectsAreEqual(expectedObject, currentObject, input => input,
-                                   title, expectedResultParameterName, currentResultParameterName);
+            assert.ObjectsAreEqual(expectedObject, currentObject, input => input, title, expectedResultParameterName, currentResultParameterName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -75,8 +75,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "")
         {
-            assert.ObjectsAreEqual(expectedObject, currentObject, input => input,
-                                   title, expectedResultParameterName, currentResultParameterName);
+            assert.ObjectsAreEqual(expectedObject, currentObject, input => input, title, expectedResultParameterName, currentResultParameterName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -271,7 +270,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var differences = JsonDiffer.FindDifferences(json1, json2);
-            var optimizedDifferences = differenceFunc(differences).ToImmutableList();
+            
+            
+            var commonDifferences = DifferenceFunc(differences).ToImmutableList();
+            var optimizedDifferences = differenceFunc(commonDifferences).ToImmutableList();
 
             var resultTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
@@ -556,7 +558,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var output = OutputFormatter.GetOutputString(title, jsonObject, currentObject.ToJson());
 
                 Assert.AreEqual(expectedResult, currentObject, output);
-                
+
                 CurlPrinter.PrintCurl(callingAssembly, curl);
             }
             else
@@ -569,7 +571,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
                 catch (Exception)
                 {
-                    var cantSerializeJsonErrorOutput = OutputFormatter.GetOutputString(title, 
+                    var cantSerializeJsonErrorOutput = OutputFormatter.GetOutputString(title,
                                                                                        $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}",
                                                                                        jsonObject,
                                                                                        currentObject.ToJson(),
@@ -601,7 +603,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var schemaNotMatchingError = OutputFormatter.GetOutputString(object1AsJson, object2AsJson, title, curl);
                 Assert.IsFalse(schemaNotMatching, schemaNotMatchingError);
 
-                var optimizedDifferences = differenceFunc(differences).ToImmutableList();
+                var commonDifferences = DifferenceFunc(differences).ToImmutableList();
+                var optimizedDifferences = differenceFunc(commonDifferences).ToImmutableList();
 
                 var resultTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
