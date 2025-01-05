@@ -400,6 +400,13 @@ For each test we are evaluating the whole response which is based on a "Snapshot
 How pratical can it be so share call scenarios with your consumers.
 For that reason you see in the test output the curl command for each 
 asserted call.
+
+This is like an aggreate function combined with possible context specific
+ignore functions. First this GlobalIgnore func will be executed pre filter
+the differences after this passed local ignore functions will be executed
+with the pre filtered differences.
+```csharp
+
 ```curl
 -----------------------------------------------------------
 Http call as curl
