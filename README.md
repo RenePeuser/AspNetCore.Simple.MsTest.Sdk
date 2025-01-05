@@ -385,6 +385,7 @@ For each test we are evaluating the whole response which is based on a "Snapshot
     --location \
     --request POST 'https://localhost:5001/api/tests/v1/persons' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer Sorry i am secret :)'
     --data-raw '{
       "Id": 1,
       "Name": "Son",
@@ -414,6 +415,7 @@ Http call as curl
 curl \
 --location \
 --request GET 'https://localhost:5001/api/tests/v1/persons'
+--header 'Authorization: Bearer Sorry i am secret :)'
 -----------------------------------------------------------
 ```
 
