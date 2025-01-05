@@ -102,7 +102,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                  Assembly callingAssembly,
                                                                  [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Get, parameters, callingAssembly, expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Get, parameters, callingAssembly, string.Empty, expectedResultParameterName, false);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
@@ -112,7 +112,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    Assembly callingAssembly,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Get, differenceFunc, [], callingAssembly, expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Get, differenceFunc, [], callingAssembly, string.Empty, expectedResultParameterName, false);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
