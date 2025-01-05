@@ -50,11 +50,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (token1.IsNull())
             {
+                differences[path] = (null, token2);
                 return;
             }
 
             if (token2.IsNull())
             {
+                differences[path] = (token1, null);
                 return;
             }
 
@@ -66,8 +68,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                         differences[path] = (token1, token2);
                         return;
                     }
+
                     var obj1 = (JObject)token1;
                     var obj2 = (JObject)token2;
+
                     foreach (var property in obj1)
                     {
                         var propertyPath = AppendPath(path, property.Key);
@@ -81,6 +85,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             CompareTokens(property.Value, token2Value, differences, propertyPath);
                         }
                     }
+
                     foreach (var property in obj2)
                     {
                         var propertyPath = AppendPath(path, property.Key);
@@ -97,11 +102,30 @@ namespace AspNetCore.Simple.MsTest.Sdk
                         differences[path] = (token1, token2);
                         return;
                     }
+
                     var array1 = (JArray)token1;
                     var array2 = (JArray)token2;
+
+                    // Check if array represents key-value pairs
+                    var isKeyValueArray = array1.Count > 0 && array1.First is JObject firstElement && firstElement.ContainsKey("Key");
+
                     for (var i = 0; i < array1.Count || i < array2.Count; i++)
                     {
-                        var indexPath = AppendPath(path, $"[{i}]");
+                        string indexPath;
+
+                        if (isKeyValueArray)
+                        {
+                            // Use the key instead of the index
+                            var key1 = i < array1.Count ? array1[i]["Key"]?.ToString() : null;
+                            var key2 = i < array2.Count ? array2[i]["Key"]?.ToString() : null;
+
+                            indexPath = AppendPath(path, $"""["{key1 ?? key2 ?? i.ToInvariantString()}"]""");
+                        }
+                        else
+                        {
+                            indexPath = AppendPath(path, $"[{i}]");
+                        }
+
                         if (i >= array1.Count)
                         {
                             differences[indexPath] = (null, array2[i]);
