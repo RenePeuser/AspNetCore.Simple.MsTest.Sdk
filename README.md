@@ -362,7 +362,7 @@ For each test we are evaluating the whole response which is based on a "Snapshot
      ----------------------------------------------------------------------------------------------------- 
      | MemberPath                  | "Results.NewPersonParameter.json" | CurrentResult                   |
      ----------------------------------------------------------------------------------------------------- 
-     | Content.Headers[0].Value[0] | application/octet; charset=utf-8  | application/json; charset=utf-8 |
+     | Content.Headers["x-amzn-trace-id"].Value[0] | application/octet; charset=utf-8  | application/json; charset=utf-8 |
      ----------------------------------------------------------------------------------------------------- 
      | Content.Value.FirstName     | Goku Failed                       | Goku                            |
      ----------------------------------------------------------------------------------------------------- 
