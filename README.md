@@ -108,7 +108,6 @@ Payload: "Payloads.SonGoku.json"
 Response: "Results.SonGoku.json"
 ```json
 {
-  "Version": "1.1",
   "Content": {
     "Headers": [
       {
@@ -124,8 +123,7 @@ Response: "Results.SonGoku.json"
       "Emails": []
     }
   },
-  "StatusCode": "OK",
-  "ReasonPhrase": "OK",
+  "StatusCode": "OK", 
   "Headers": [],
   "TrailingHeaders": [],
   "IsSuccessStatusCode": true
@@ -359,15 +357,15 @@ For each test we are evaluating the whole response which is based on a "Snapshot
     Detected differences: 3
     
     
-     ----------------------------------------------------------------------------------------------------- 
-     | MemberPath                  | "Results.NewPersonParameter.json" | CurrentResult                   |
-     ----------------------------------------------------------------------------------------------------- 
+     --------------------------------------------------------------------------------------------------------------------- 
+     | MemberPath                                  | "Results.NewPersonParameter.json" | CurrentResult                   |
+     --------------------------------------------------------------------------------------------------------------------- 
      | Content.Headers["x-amzn-trace-id"].Value[0] | application/octet; charset=utf-8  | application/json; charset=utf-8 |
-     ----------------------------------------------------------------------------------------------------- 
-     | Content.Value.FirstName     | Goku Failed                       | Goku                            |
-     ----------------------------------------------------------------------------------------------------- 
-     | StatusCode                  | NotFound                          | OK                              |
-     ----------------------------------------------------------------------------------------------------- 
+     --------------------------------------------------------------------------------------------------------------------- 
+     | Content.Value.FirstName                     | Goku Failed                       | Goku                            |
+     --------------------------------------------------------------------------------------------------------------------- 
+     | StatusCode                                  | NotFound                          | OK                              |
+     --------------------------------------------------------------------------------------------------------------------- 
     
     Expected result:
     

@@ -48,7 +48,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                Assembly callingAssembly,
                                                                [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, [], callingAssembly, expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, [], callingAssembly, string.Empty, expectedResultParameterName, true);
         }
 
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
@@ -58,7 +58,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       Assembly callingAssembly,
                                                       [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, parameters, callingAssembly, expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, parameters, callingAssembly, string.Empty, expectedResultParameterName, true);
         }
 
         public static async Task AssertDeleteAsUnauthorizedAsync(this HttpClient httpClient, string url)

@@ -82,7 +82,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       Assembly callingAssembly,
                                                                       [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "")
         {
-            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, parameters, callingAssembly, string.Empty, expectedResultParameterName);
+            return client.AssertHttpCall<TResult>(url, string.Empty, expectedResult, item => item, HttpMethod.Delete, parameters, callingAssembly, string.Empty, expectedResultParameterName, false);
         }
     }
 }
