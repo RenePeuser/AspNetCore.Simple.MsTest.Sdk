@@ -116,10 +116,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                            (string Key, object? Value)[] parameters,
                                                                            Assembly callingAssembly,
-                                                                           [CallerArgumentExpression(nameof(payloadAsJson))]
-                                                                           string payloadAsJsonParameterName = "",
-                                                                           [CallerArgumentExpression(nameof(expectedResult))]
-                                                                           string expectedResultParameterName = "",
+                                                                           [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
+                                                                           [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
                                                                            bool isSuccessStatusCode = true)
         {
             // 0. Target type is primitive type
@@ -127,7 +125,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var targetIsPrimitiveType = targetType.IsPrimitive || targetType == typeof(string);
 
             // 1. Setup json payload
-            var jsonPayload = payloadAsJson.GetJsonString<TResult>(callingAssembly);
+            var jsonPayload = payloadAsJson.GetJsonStringFrom<TResult>("Not evaluated already", callingAssembly, string.Empty);
 
             // 2. Resolve parameters if parameterized payload
             jsonPayload = jsonPayload.ResolveParameters(parameters);
@@ -174,13 +172,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
             };
 
             // 12. Normalize expected json string dependent on target type and edge cases like primitive types and so on.
-            var expectedResultAsJson = expectedResult.GetJsonString<TResult>(callingAssembly);
+            var expectedResultAsJson = expectedResult.GetJsonStringFrom<TResult>(contentAsString, callingAssembly, curl, expectedResultParameterName);
 
             // 13. Resolve parameters in expected result
             var expectedResultAsJsonParamterized = expectedResultAsJson.ResolveParameters(parameters);
 
             // 14. Edge case string as primitive type -> just string response -> no json
-            var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParamterized)  : expectedResultAsJsonParamterized.FromJsonStringAs<TResult>();
+            var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParamterized) : expectedResultAsJsonParamterized.FromJsonStringAs<TResult>();
 
             // 15. Execute the filter function on the expected result
             var filteredExpectedType = filterFunc(expectedType);

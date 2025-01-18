@@ -50,7 +50,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var curl = BuildCurl(httpMethod, url, payloadAsJson, authenticationHeaderValue, assembly, showTokenInCurl).Flatten(@$" \{Environment.NewLine}");
             return curl;
 
-            static IEnumerable<string> BuildCurl(System.Net.Http.HttpMethod httpMethod,
+            static IEnumerable<string> BuildCurl(HttpMethod httpMethod,
                                                  string url,
                                                  string payloadAsJson,
                                                  AuthenticationHeaderValue? authenticationHeaderValue,

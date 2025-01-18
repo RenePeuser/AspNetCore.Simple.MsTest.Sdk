@@ -16,6 +16,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    IImmutableDictionary<string, string> expectedHeaders)
         {
             IImmutableDictionary<string, IImmutableList<string>> expectedHeaderStructure = expectedHeaders.ToImmutableDictionary(item => item.Key, item => (IImmutableList<string>)ImmutableList.Create(item.Value));
+
             return client.AssertOptionsAsync(url, expectedHeaderStructure.ToJson());
         }
 
@@ -34,11 +35,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static async Task<HttpResponseMessage> AssertOptionsAsync(this HttpClient client,
-                                                string url,
-                                                string expectedHeadersAsJson,
-                                                Assembly callingAssembly)
+                                                                          string url,
+                                                                          string expectedHeadersAsJson,
+                                                                          Assembly callingAssembly)
         {
-            var expectedHeaders = expectedHeadersAsJson.GetJsonString<object>(callingAssembly);
+            var expectedHeaders = expectedHeadersAsJson.GetJsonStringFrom<object>(string.Empty, callingAssembly, string.Empty);
 
             var request = new HttpRequestMessage(HttpMethod.Options, url);
             var result = await client.SendAsync(request).ConfigureAwait(false);
