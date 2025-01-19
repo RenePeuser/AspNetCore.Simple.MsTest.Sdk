@@ -439,3 +439,21 @@ static IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differe
     }
 }
 ```
+
+### Test-Writer (POC-State)
+We provide you now a small dev tool to help you create your test response files.
+This helps you speed up writing and getting your test green.
+```csharp
+[TestClass]
+public class Persons : ApiTestBase
+{
+    [TestMethod]
+    public Task Should_Be_Able_To_Post_A_Person_By_Json()
+    {
+        return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+                                              "Payloads.SonGoku.json",
+                                              "Results.SonGoku.json",
+                                              writeResponse: true); // NEW: With this flag your json / string repsonse will be created with the given file name.
+    }
+}
+```
