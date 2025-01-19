@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using Extensions.Pack;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -43,7 +39,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
+            assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
                                    [],
                                    writeResponse,
@@ -61,13 +57,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
+            assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
                                    string.Empty,
                                    parameters,
                                    writeResponse,
-                                   expectedResultParameterName, 
-                                   currentResultParameterName, 
+                                   expectedResultParameterName,
+                                   currentResultParameterName,
                                    callerFilePath);
         }
 
@@ -80,13 +76,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
+            assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
                                    input => input,
                                    title,
                                    writeResponse,
-                                   expectedResultParameterName, 
-                                   currentResultParameterName, 
+                                   expectedResultParameterName,
+                                   currentResultParameterName,
                                    callerFilePath);
         }
 
@@ -100,13 +96,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
+            assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
-                                   input => input, 
-                                   title, 
+                                   input => input,
+                                   title,
                                    writeResponse,
                                    expectedResultParameterName,
-                                   currentResultParameterName, 
+                                   currentResultParameterName,
                                    callerFilePath);
         }
 
@@ -119,12 +115,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObject,
+                                   currentObject,
                                    orderFunc,
-                                   string.Empty, 
+                                   string.Empty,
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
                                    currentResultParameterName,
                                    callerFilePath);
         }
@@ -139,12 +135,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObject,
+                                   currentObject,
                                    orderFunc,
-                                   string.Empty, 
+                                   string.Empty,
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
                                    currentResultParameterName,
                                    callerFilePath);
         }
@@ -158,14 +154,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObject,
+                                   currentObject,
                                    item => item,
-                                   string.Empty, 
-                                   differenceFunc, 
+                                   string.Empty,
+                                   differenceFunc,
                                    string.Empty,
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
                                    currentResultParameterName,
                                    callerFilePath);
         }
@@ -180,33 +176,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObject,
+                                   currentObject,
                                    item => item,
-                                   string.Empty, 
-                                   differenceFunc, 
                                    string.Empty,
-                                   writeResponse,
-                                   expectedResultParameterName, 
-                                   currentResultParameterName,
-                                   callerFilePath);
-        }
-
-        public static void ObjectsAreEqual<T>(this Assert assert,
-                                              T? expectedObject,
-                                              T? currentObject,
-                                              Func<T?, T?> orderFunc,
-                                              string title,
-                                              bool writeResponse = false,
-                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
-                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
-        {
-            assert.ObjectsAreEqual(expectedObject, 
-                                   currentObject, 
-                                   orderFunc,
-                                   title, 
-                                   difference => difference, 
+                                   differenceFunc,
+                                   string.Empty,
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
@@ -218,17 +193,38 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? currentObject,
                                               Func<T?, T?> orderFunc,
                                               string title,
-                                              (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObject,
+                                   currentObject,
                                    orderFunc,
                                    title,
-                                   difference => difference, 
+                                   difference => difference,
+                                   writeResponse,
+                                   expectedResultParameterName,
+                                   currentResultParameterName,
+                                   callerFilePath);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              string title,
+                                              (string Key, object? Value)[] parameters,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "")
+        {
+            assert.ObjectsAreEqual(expectedObject,
+                                   currentObject,
+                                   orderFunc,
+                                   title,
+                                   difference => difference,
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
@@ -248,8 +244,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
                                    orderFunc,
-                                   string.Empty, 
-                                   differenceFunc, 
+                                   string.Empty,
+                                   differenceFunc,
                                    string.Empty,
                                    writeResponse,
                                    expectedResultParameterName,
@@ -268,14 +264,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObject,
+                                   currentObject,
                                    orderFunc,
                                    string.Empty,
-                                   differenceFunc, 
+                                   differenceFunc,
                                    string.Empty,
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
                                    currentResultParameterName,
                                    callerFilePath);
         }
@@ -291,14 +287,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObject,
+                                   currentObject,
                                    orderFunc,
                                    title,
                                    differenceFunc,
                                    string.Empty,
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
                                    currentResultParameterName,
                                    callerFilePath);
         }
@@ -315,14 +311,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObject, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObject,
+                                   currentObject,
                                    orderFunc,
-                                   title, 
-                                   differenceFunc, 
+                                   title,
+                                   differenceFunc,
                                    string.Empty,
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
                                    currentResultParameterName,
                                    callerFilePath);
         }
@@ -340,14 +336,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerFilePath] string callerFilePath = "")
         {
             assert.ObjectsAreEqual(expectedObject,
-                                   currentObject, 
+                                   currentObject,
                                    comparisonFunc,
                                    title,
                                    differenceFunc,
                                    curl,
-                                   [], 
+                                   [],
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
                                    currentResultParameterName,
                                    callerFilePath);
         }
@@ -360,6 +356,34 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               string curl,
                                               (string Key, object? Value)[] parameters,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "")
+        {
+            assert.ObjectsAreEqual(expectedObject,
+                                   currentObject,
+                                   comparisonFunc,
+                                   title,
+                                   differenceFunc,
+                                   curl,
+                                   parameters,
+                                   Assembly.GetCallingAssembly(),
+                                   writeResponse,
+                                   expectedResultParameterName,
+                                   currentResultParameterName,
+                                   callerFilePath);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> comparisonFunc,
+                                              string title,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              string curl,
+                                              (string Key, object? Value)[] parameters,
+                                              Assembly callingAssembly,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))] string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
@@ -370,7 +394,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var json1 = orderedExpectedObject.ToJson();
             var json2 = orderedCurrentObject.ToJson();
-            
+
             foreach (var valueTuple in parameters)
             {
                 json1 = json1.Replace(valueTuple.Key, valueTuple.Value?.ToString());
@@ -381,9 +405,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // We write the current result to the expected file
             if (writeResponse)
             {
-                CurrentResponseWriter.Write(json2, currentResultParameterName, callerFilePath);
+                CurrentResponseWriter.Write(json2, expectedResultParameterName, callerFilePath, callingAssembly);
             }
-            
+
             var differences = JsonDiffer.FindDifferences(json1, json2);
 
             var commonDifferences = DifferenceFunc(differences).ToImmutableList();
@@ -407,11 +431,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerFilePath] string callerFile = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
-                                   currentObject, 
+                                   currentObject,
                                    item => item,
                                    Assembly.GetCallingAssembly(),
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
                                    currentResultParameterName);
         }
 
@@ -424,11 +448,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObjectAsJson, 
+            assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
                                    item => item,
-                                   Assembly.GetCallingAssembly(), 
-                                   parameters, 
+                                   Assembly.GetCallingAssembly(),
+                                   parameters,
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName);
@@ -443,12 +467,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentResult))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObjectAsJson, 
-                                   currentResult, 
+            assert.ObjectsAreEqual(expectedObjectAsJson,
+                                   currentResult,
                                    item => item,
                                    callingAssembly,
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
                                    currentResultParameterName);
         }
 
@@ -463,10 +487,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerFilePath] string callerFilePath = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
-                                   currentResult, 
+                                   currentResult,
                                    item => item,
                                    callingAssembly,
-                                   parameters, 
+                                   parameters,
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName);
@@ -484,11 +508,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentResult,
                                    item => item,
-                                   title, 
-                                   Assembly.GetCallingAssembly(), 
+                                   title,
+                                   Assembly.GetCallingAssembly(),
                                    difference => difference,
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
                                    currentResultParameterName);
         }
 
@@ -503,58 +527,58 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerFilePath] string callerFilePath = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
-                                   currentResult, 
+                                   currentResult,
                                    item => item,
-                                   title, 
-                                   Assembly.GetCallingAssembly(), 
-                                   difference => difference,
-                                   parameters, 
-                                   writeResponse,
-                                   expectedResultParameterName,
-                                   currentResultParameterName);
-        }
-
-        public static void ObjectsAreEqual<T>(this Assert assert,
-                                              string expectedObjectAsJson,
-                                              T currentResult,
-                                              string title,
-                                              Assembly callingAssembly,
-                                              bool writeResponse = false,
-                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
-                                              [CallerArgumentExpression(nameof(currentResult))] string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
-        {
-            assert.ObjectsAreEqual(expectedObjectAsJson, 
-                                   currentResult, 
-                                   item => item,
-                                   title, 
-                                   callingAssembly, 
-                                   difference => difference,
-                                   writeResponse,
-                                   expectedResultParameterName, 
-                                   currentResultParameterName);
-        }
-
-        public static void ObjectsAreEqual<T>(this Assert assert,
-                                              string expectedObjectAsJson,
-                                              T currentResult,
-                                              string title,
-                                              Assembly callingAssembly,
-                                              (string Key, object? Value)[] parameters,
-                                              bool writeResponse = false,
-                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
-                                              [CallerArgumentExpression(nameof(currentResult))] string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
-        {
-            assert.ObjectsAreEqual(expectedObjectAsJson, 
-                                   currentResult, 
-                                   item => item,
-                                   title, 
-                                   callingAssembly, 
+                                   title,
+                                   Assembly.GetCallingAssembly(),
                                    difference => difference,
                                    parameters,
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
+                                   currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              string expectedObjectAsJson,
+                                              T currentResult,
+                                              string title,
+                                              Assembly callingAssembly,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentResult))] string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "")
+        {
+            assert.ObjectsAreEqual(expectedObjectAsJson,
+                                   currentResult,
+                                   item => item,
+                                   title,
+                                   callingAssembly,
+                                   difference => difference,
+                                   writeResponse,
+                                   expectedResultParameterName,
+                                   currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              string expectedObjectAsJson,
+                                              T currentResult,
+                                              string title,
+                                              Assembly callingAssembly,
+                                              (string Key, object? Value)[] parameters,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentResult))] string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "")
+        {
+            assert.ObjectsAreEqual(expectedObjectAsJson,
+                                   currentResult,
+                                   item => item,
+                                   title,
+                                   callingAssembly,
+                                   difference => difference,
+                                   parameters,
+                                   writeResponse,
+                                   expectedResultParameterName,
                                    currentResultParameterName);
         }
 
@@ -567,11 +591,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObjectAsJson, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObjectAsJson,
+                                   currentObject,
                                    orderFunc,
                                    string.Empty,
-                                   Assembly.GetCallingAssembly(), 
+                                   Assembly.GetCallingAssembly(),
                                    difference => difference,
                                    writeResponse,
                                    expectedResultParameterName,
@@ -589,12 +613,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerFilePath] string callerFilePath = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
-                                   currentObject, 
+                                   currentObject,
                                    orderFunc,
                                    string.Empty,
-                                   Assembly.GetCallingAssembly(), 
+                                   Assembly.GetCallingAssembly(),
                                    difference => difference,
-                                   parameters, 
+                                   parameters,
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName);
@@ -610,10 +634,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerFilePath] string callerFilePath = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
-                                   currentObject, 
+                                   currentObject,
                                    item => item,
-                                   string.Empty, 
-                                   Assembly.GetCallingAssembly(), 
+                                   string.Empty,
+                                   Assembly.GetCallingAssembly(),
                                    differenceFunc,
                                    writeResponse,
                                    expectedResultParameterName,
@@ -630,10 +654,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObjectAsJson, 
+            assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
                                    item => item,
-                                   string.Empty, 
+                                   string.Empty,
                                    Assembly.GetCallingAssembly(),
                                    differenceFunc,
                                    parameters,
@@ -652,14 +676,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObjectAsJson, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObjectAsJson,
+                                   currentObject,
                                    orderFunc,
-                                   string.Empty, 
-                                   callingAssembly, 
+                                   string.Empty,
+                                   callingAssembly,
                                    difference => difference,
                                    writeResponse,
-                                   expectedResultParameterName, 
+                                   expectedResultParameterName,
                                    currentResultParameterName);
         }
 
@@ -674,13 +698,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObjectAsJson, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObjectAsJson,
+                                   currentObject,
                                    orderFunc,
-                                   string.Empty, 
+                                   string.Empty,
                                    callingAssembly,
                                    difference => difference,
-                                   parameters, 
+                                   parameters,
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName);
@@ -724,13 +748,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObjectAsJson, 
-                                   currentObject, 
+            assert.ObjectsAreEqual(expectedObjectAsJson,
+                                   currentObject,
                                    orderFunc,
                                    title,
                                    callingAssembly,
                                    differenceFunc,
-                                   string.Empty, 
+                                   string.Empty,
                                    parameters,
                                    writeResponse,
                                    expectedResultParameterName,
@@ -759,7 +783,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // We write the current result to the expected file
             if (writeResponse)
             {
-                CurrentResponseWriter.Write(currentObjectAsJson, currentResultParameterName, callerFilePath);
+                CurrentResponseWriter.Write(currentObjectAsJson, expectedResultParameterName, callerFilePath, callingAssembly);
             }
 
             var jsonObject = expectedObjectAsJson.GetJsonStringFrom<T>(currentObjectAsJson, callingAssembly, curl, currentResultParameterName);

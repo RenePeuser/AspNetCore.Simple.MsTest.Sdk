@@ -214,7 +214,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
             };
 
             // 12. Normalize expected json string dependent on target type and edge cases like primitive types and so on.
-            var expectedResultAsJson = expectedResult.GetJsonStringFrom<TResult>(contentAsString, callingAssembly, curl, expectedResultParameterName);
+            string? expectedResultAsJson;
+            if (writResponse && callingAssembly.IsCompiledInDebug())
+            {
+                expectedResultAsJson = expectedResult.GetJsonStringOrDefaultFrom<TResult>(contentAsString, callingAssembly, curl, expectedResultParameterName);
+                if (expectedResultAsJson.IsNull())
+                {
+                    expectedResultAsJson = resolvedSimpleHttpResponse.ToJson();
+                }
+            }
+            else
+            {
+                expectedResultAsJson = expectedResult.GetJsonStringFrom<TResult>(contentAsString, callingAssembly, curl, expectedResultParameterName);
+            }
 
             // 13. Resolve parameters in expected result
             var expectedResultAsJsonParamterized = expectedResultAsJson.ResolveParameters(parameters);
@@ -291,7 +303,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var genericMethod = CustomAssertMethod.MakeGenericMethod(typeof(TResult));
-            var tasReturnType = genericMethod.Invoke(null, [client, url, payloadAsJson, expectedResult, filterFunc, httpMethod, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName, isSuccessStatusCode, writeResponse]);
+            var tasReturnType = genericMethod.Invoke(null, [client, url, payloadAsJson, expectedResult, filterFunc, httpMethod, differenceFunc, parameters, callingAssembly, payloadAsJsonParameterName, expectedResultParameterName, callerFilePath, isSuccessStatusCode, writeResponse]);
 
             if (tasReturnType is Task task)
             {

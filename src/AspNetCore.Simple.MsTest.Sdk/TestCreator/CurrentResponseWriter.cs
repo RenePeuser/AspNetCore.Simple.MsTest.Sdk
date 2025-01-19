@@ -1,34 +1,55 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    internal static class AddCurrentResponseWriterExtension
+    public static class AddCurrentResponseWriterExtension
     {
-        internal static void AddCurrentResponseWriter(this IServiceCollection services)
+        public static void AddCurrentResponseWriter(this IServiceCollection services)
         {
             services.AddSingletonIfNotExists<CurrentResponseWriter>();
         }
     }
 
-    internal sealed class CurrentResponseWriter(TestCreatorSettings testCreatorSettings)
+    public sealed class CurrentResponseWriter(TestCreatorSettings testCreatorSettings)
     {
-        internal void Write(string currentResponseAsString,
-                                     string currentResponseFileName,
-                                     string callerFilePath)
+        public void Write(string currentResponseAsString,
+                          string expectedResponseFileName,
+                          string callerFilePath,
+                          Assembly callingAssembly)
         {
-            // 1. Detect if we really have a file
-            var parts = currentResponseAsString.Split('.');
-            var fileInfo = new FileInfo(callerFilePath);
+            if (callingAssembly.IsCompiledInDebug().IsFalse())
+            {
+                Console.WriteLine("We are not writing into test results file only in DEBUG mode. Cause of safety reasons.");
+                return;
+            }
+            
+            // ToDo: We just support .json file at the moment
+            if (expectedResponseFileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
+            {
+                return;
+            }
 
+            // 1. Detect if we really have a file
+            var parts = expectedResponseFileName.Split('.');
+            var filename = $"{parts[^2]}.{parts[^1]}";
+
+            var fileInfo = new FileInfo(callerFilePath);
 
             // 2 To keep legacy code compatible we check for
             //   - Result, Results, Response
-            var responseFolderName = testCreatorSettings.LegacyFolderNames.Contains(fileInfo.DirectoryName) ?
-                                         fileInfo.DirectoryName :
+            var legacyFolder = fileInfo.Directory?.EnumerateDirectories().FirstOrDefault(d => testCreatorSettings.LegacyFolderNames.Contains(d.Name));
+
+
+            var responseFolderName = legacyFolder.IsNotNull() ?
+                                         legacyFolder.Name :
                                          testCreatorSettings.ResponseFolderName;
 
             // 3. Worst case if result is null
@@ -36,13 +57,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 4. Define response or results folder
             //    We keep existing once compatible
-            var targetResponseFile = new FileInfo(Path.Combine(fileInfo.DirectoryName!, responseFolderName, currentResponseFileName));
+            var targetResponseFile = new FileInfo(Path.Combine(fileInfo.DirectoryName!, responseFolderName, filename));
             if (targetResponseFile.Directory!.NotExists())
             {
                 targetResponseFile.Directory!.Create();
             }
+            
+            // Parse the JSON string
+            var parsedJson = JToken.Parse(currentResponseAsString); 
+            var formattedJson = parsedJson.ToString(Formatting.Indented);
 
-            File.WriteAllText(targetResponseFile.FullName, currentResponseAsString);
+            File.WriteAllText(targetResponseFile.FullName, formattedJson);
         }
     }
 }
