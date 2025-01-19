@@ -12,18 +12,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         private static readonly CurlFormatter CurlFormatter = new();
         private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
-        
-        public static string GetJsonStringFrom<T>(this string expectedObjectAsJson, 
+
+        public static string GetJsonStringFrom<T>(this string expectedObjectAsJson,
                                                   string currentObject,
                                                   Assembly callingAssembly,
                                                   string curl,
                                                   [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "")
         {
             // 1. Get target type
-            var targetType = typeof(T);
+            var targeTypeInfo = typeof(T);
 
             // 2. Check if target type is an enumerable
-            var isEnumerable = targetType.IsEnumerable();
+            var isDictionary = targeTypeInfo.GetInterfaces().Any(t => t.Name.Contains("IReadOnlyDictionary"));
+            var targetType = targeTypeInfo;
+            var mustBeAnArray = targetType.IsEnumerable() && isDictionary.IsFalse();
 
             // 3. If the given json value is null or empty then return it
             //    Default serialization will be handled by the caller
@@ -53,16 +55,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (httpResponseMessage.IsNotNull())
                 {
                     trimmedJsonValue = httpResponseMessage.Content?.Value.ToJson() ?? trimmedJsonValue;
-                }   
+                }
             }
-            
+
             // 7. If the json string is an array but the target type is not an enumerable then throw an exception
             if (trimmedJsonValue.StartWith("[") &&
                 trimmedJsonValue.EndWith("]") &&
-                isEnumerable.IsFalse())
+                mustBeAnArray.IsFalse())
             {
-                
-                var output = OutputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).FullName}",
+
+                var output = OutputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {targeTypeInfo.FullName}",
                                                              "Invalid source type object {} to target array type [] json conversion",
                                                              trimmedJsonValue,
                                                              currentObject,
@@ -73,7 +75,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 8. If the json string is an object but the target type is an enumerable then throw an exception
             if (trimmedJsonValue.StartWith("{") &&
                 trimmedJsonValue.EndWith("}") &&
-                isEnumerable)
+                mustBeAnArray)
             {
                 var output = OutputFormatter.GetOutputString($"Your passed json string: {expectedResultParameterName} is an object notation {{}}, but your target type: {targetType} is an array so you can't deserialize it. Please fix your json string",
                                                              "Invalid source type array [] to target type object {} json conversion",
@@ -91,7 +93,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // 10. If the target type is a primitive type or a string then return the json value
-            var type = typeof(T);
+            var type = targeTypeInfo;
             if (type.IsPrimitive || type == typeof(string))
             {
                 return expectedObjectAsJson;
@@ -99,9 +101,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             throw new InvalidJsonException($"Your given json string does not contains a valid json string. Json strings have to begin with '{{' and end with a '}}' or if you use an array notation then []{Environment.NewLine}Your invalid string is:{Environment.NewLine}{trimmedJsonValue}");
         }
-        
-        
-        public static string? GetJsonStringOrDefaultFrom<T>(this string expectedObjectAsJson, 
+
+
+        public static string? GetJsonStringOrDefaultFrom<T>(this string expectedObjectAsJson,
                                                             string currentObject,
                                                             Assembly callingAssembly,
                                                             string curl,
@@ -135,7 +137,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     return null;
                 }
-                
+
                 trimmedJsonValue = callingAssembly.GetFileContentFrom(trimmedJsonValue).Trim().TrimEnd(Environment.NewLine.ToCharArray());
             }
 
@@ -148,15 +150,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (httpResponseMessage.IsNotNull())
                 {
                     trimmedJsonValue = httpResponseMessage.Content?.Value.ToJson() ?? trimmedJsonValue;
-                }   
+                }
             }
-            
+
             // 7. If the json string is an array but the target type is not an enumerable then throw an exception
             if (trimmedJsonValue.StartWith("[") &&
                 trimmedJsonValue.EndWith("]") &&
                 isEnumerable.IsFalse())
             {
-                
+
                 var output = OutputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).FullName}",
                                                              "Invalid source type object {} to target array type [] json conversion",
                                                              trimmedJsonValue,
