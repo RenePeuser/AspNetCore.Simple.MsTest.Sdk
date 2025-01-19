@@ -13,51 +13,51 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
                                                                    string expectedResult,
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   bool writeResponse = false,
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertGetAsErrorAsync<TResult>(url, 
-                                                         expectedResult, 
+            return client.AssertGetAsErrorAsync<TResult>(url,
+                                                         expectedResult,
                                                          [],
                                                          Assembly.GetCallingAssembly(),
+                                                         writeResponse,
                                                          expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
-                                                         callerFilePath,
-                                                         writeResponse);
+                                                         callerFilePath);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
                                                                    string expectedResult,
                                                                    (string Key, object? Value)[] parameters,
+                                                                   bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertGetAsErrorAsync<TResult>(url, 
-                                                         expectedResult, 
+            return client.AssertGetAsErrorAsync<TResult>(url,
+                                                         expectedResult,
                                                          parameters,
                                                          Assembly.GetCallingAssembly(),
+                                                         writeResponse,
                                                          expectedResultParameterName,
-                                                         callerFilePath,
-                                                         writeResponse);
+                                                         callerFilePath);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
                                                                    string expectedResult,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                   bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertGetAsErrorAsync<TResult>(url,
                                                          expectedResult,
                                                          differenceFunc,
-                                                         [], 
-                                                         Assembly.GetCallingAssembly(), 
+                                                         [],
+                                                         Assembly.GetCallingAssembly(),
+                                                         writeResponse,
                                                          expectedResultParameterName,
-                                                         callerFilePath,
-                                                         writeResponse);
+                                                         callerFilePath);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
@@ -65,27 +65,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResult,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                    (string Key, object? Value)[] parameters,
+                                                                   bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertGetAsErrorAsync<TResult>(url, 
-                                                         expectedResult, 
+            return client.AssertGetAsErrorAsync<TResult>(url,
+                                                         expectedResult,
                                                          differenceFunc,
                                                          parameters,
                                                          Assembly.GetCallingAssembly(),
+                                                         writeResponse,
                                                          expectedResultParameterName,
-                                                         callerFilePath,
-                                                         writeResponse);
+                                                         callerFilePath);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
                                                                    string expectedResult,
                                                                    Func<TResult, TResult> filterFunc,
+                                                                   bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
                                                   string.Empty,
@@ -106,9 +106,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResult,
                                                                    Func<TResult, TResult> filterFunc,
                                                                    (string Key, object? Value)[] parameters,
+                                                                   bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
                                                   string.Empty,
@@ -118,7 +118,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   parameters,
                                                   Assembly.GetCallingAssembly(),
                                                   string.Empty,
-                                                  expectedResultParameterName, 
+                                                  expectedResultParameterName,
                                                   callerFilePath,
                                                   false,
                                                   writeResponse);
@@ -129,9 +129,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResult,
                                                                    Func<TResult, TResult> filterFunc,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                   bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
                                                   string.Empty,
@@ -154,18 +154,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    Func<TResult, TResult> filterFunc,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                    (string Key, object? Value)[] parameters,
+                                                                   bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
-                                                  string.Empty, 
+                                                  string.Empty,
                                                   expectedResult,
-                                                  filterFunc, 
+                                                  filterFunc,
                                                   HttpMethod.Get,
                                                   differenceFunc,
-                                                  parameters, 
-                                                  Assembly.GetCallingAssembly(), 
+                                                  parameters,
+                                                  Assembly.GetCallingAssembly(),
                                                   string.Empty,
                                                   expectedResultParameterName,
                                                   callerFilePath,
@@ -177,14 +177,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string url,
                                                                    string expectedResult,
                                                                    Assembly callingAssembly,
+                                                                   bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url, 
+            return client.AssertHttpCall<TResult>(url,
                                                   string.Empty,
                                                   expectedResult,
-                                                  item => item, 
+                                                  item => item,
                                                   HttpMethod.Get,
                                                   [],
                                                   callingAssembly,
@@ -200,17 +200,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResult,
                                                                    (string Key, object? Value)[] parameters,
                                                                    Assembly callingAssembly,
+                                                                   bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
                                                   string.Empty,
                                                   expectedResult,
-                                                  item => item, 
+                                                  item => item,
                                                   HttpMethod.Get,
                                                   parameters,
-                                                  callingAssembly, 
+                                                  callingAssembly,
                                                   string.Empty,
                                                   expectedResultParameterName,
                                                   callerFilePath,
@@ -223,18 +223,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResult,
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                    Assembly callingAssembly,
+                                                                   bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url, 
-                                                  string.Empty, 
+            return client.AssertHttpCall<TResult>(url,
+                                                  string.Empty,
                                                   expectedResult,
-                                                  item => item, 
+                                                  item => item,
                                                   HttpMethod.Get,
                                                   differenceFunc,
-                                                  [], 
-                                                  callingAssembly, 
+                                                  [],
+                                                  callingAssembly,
                                                   string.Empty,
                                                   expectedResultParameterName,
                                                   callerFilePath,
@@ -248,10 +248,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                    (string Key, object? Value)[] parameters,
                                                                    Assembly callingAssembly,
-                                                                   [CallerArgumentExpression(nameof(expectedResult))]
-                                                                   string expectedResultParameterName = "",
-                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                   bool writeResponse = false)
+                                                                   bool writeResponse = false,
+                                                                   [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                   [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
                                                   string.Empty,
