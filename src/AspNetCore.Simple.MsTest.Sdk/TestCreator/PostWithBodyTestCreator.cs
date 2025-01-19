@@ -2,6 +2,7 @@
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,6 +32,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public record TestCreatorSettings
     {
         public string TestMethodAttribute { get; init; } = "[TestMethod]";
+        public string ResponseFolderName { get; init; } = "Responses";
+        public string[] LegacyFolderNames { get; init; } = ["Result", "Response", "Results"];
     }
 
 
