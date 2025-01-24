@@ -167,7 +167,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var targetIsPrimitiveType = targetType.IsPrimitive || targetType == typeof(string);
 
             // 1. Setup json payload
-            var jsonPayload = payloadAsJson.GetJsonString<TResult>(callingAssembly);
+            var jsonPayload = payloadAsJson.GetJsonStringFrom(callingAssembly);
 
             // 2. Resolve parameters if parameterized payload
             jsonPayload = jsonPayload.ResolveParameters(parameters);

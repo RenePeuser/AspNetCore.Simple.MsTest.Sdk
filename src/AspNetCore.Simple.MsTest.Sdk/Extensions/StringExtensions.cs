@@ -13,6 +13,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static readonly CurlFormatter CurlFormatter = new();
         private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
 
+
+        public static string GetJsonStringFrom(this string expectedObjectAsJson,
+                                               Assembly callingAssembly)
+
+        {
+            var trimmedJsonValue = expectedObjectAsJson.Trim() // Trim whitespaces
+                                                       .TrimEnd(Environment.NewLine.ToCharArray()) // Trim line breaks at the end if exists
+                                                       .Trim('"'); // Trim " if exists cause not needed
+
+
+            // 5. If it is a json file then read the content of the file
+            if (trimmedJsonValue.EndWith(".json"))
+            {
+                trimmedJsonValue = callingAssembly.GetFileContentFrom(trimmedJsonValue).Trim().TrimEnd(Environment.NewLine.ToCharArray());
+            }
+
+            return trimmedJsonValue;
+        }
+
         public static string GetJsonStringFrom<T>(this string expectedObjectAsJson,
                                                   string currentObject,
                                                   Assembly callingAssembly,
