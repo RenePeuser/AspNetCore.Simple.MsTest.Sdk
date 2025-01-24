@@ -70,7 +70,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (payloadAsJson.IsNotNullOrWhiteSpace())
                 {
-                    var json = payloadAsJson.GetJsonString<object>(assembly);
+                    var json = payloadAsJson.GetJsonStringFrom(assembly);
                     yield return "--header 'Content-Type: application/json'";
                     yield return $"--data-raw '{json}'";
                 }
@@ -124,7 +124,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 
                 if (payloadAsJson.IsNotNullOrWhiteSpace())
                 {
-                    var json = payloadAsJson.GetJsonString<object>(assembly);
+                    var json = payloadAsJson.GetJsonStringFrom(assembly);
                     yield return "--header 'Content-Type: application/json'";
                     yield return $"--data-raw '{json}'";
                 }

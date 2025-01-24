@@ -22,8 +22,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        .TrimEnd(Environment.NewLine.ToCharArray()) // Trim line breaks at the end if exists
                                                        .Trim('"'); // Trim " if exists cause not needed
 
-
-            // 5. If it is a json file then read the content of the file
             if (trimmedJsonValue.EndWith(".json"))
             {
                 trimmedJsonValue = callingAssembly.GetFileContentFrom(trimmedJsonValue).Trim().TrimEnd(Environment.NewLine.ToCharArray());
