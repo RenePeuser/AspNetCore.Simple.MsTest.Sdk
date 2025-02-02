@@ -456,4 +456,11 @@ public class Persons : ApiTestBase
                                               writeResponse: true); // NEW: With this flag your json / string repsonse will be created with the given file name.
     }
 }
+
+```
+
+#### Test-Writer (POC-State) - Global Response flag
+Writes for all running tests -> be careful when using it !
+```csharp
+AssertObjectExtensions.WriteResponse = true;
 ```
