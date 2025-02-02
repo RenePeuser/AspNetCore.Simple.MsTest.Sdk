@@ -32,7 +32,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
             
             // ToDo: We just support .json file at the moment
-            if (expectedResponseFileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
+            if (expectedResponseFileName.Trim('"').EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
             {
                 return;
             }
@@ -40,6 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 1. Detect if we really have a file
             var parts = expectedResponseFileName.Split('.');
             var filename = $"{parts[^2]}.{parts[^1]}";
+            var trimmedFileName = filename.Trim('"');
 
             var fileInfo = new FileInfo(callerFilePath);
 
@@ -57,7 +58,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 4. Define response or results folder
             //    We keep existing once compatible
-            var targetResponseFile = new FileInfo(Path.Combine(fileInfo.DirectoryName!, responseFolderName, filename));
+            var targetResponseFile = new FileInfo(Path.Combine(fileInfo.DirectoryName!, responseFolderName, trimmedFileName));
             if (targetResponseFile.Directory!.NotExists())
             {
                 targetResponseFile.Directory!.Create();

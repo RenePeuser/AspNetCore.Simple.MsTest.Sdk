@@ -25,6 +25,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Func<IImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
+        public static bool WriteResponse { get; set; }
+
         private static readonly JsonSerializerOptions JsonSerializerOptions = new()
         {
             PropertyNameCaseInsensitive = true,
@@ -403,7 +405,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Brand new crazy function
             // We write the current result to the expected file
-            if (writeResponse)
+            if (writeResponse || WriteResponse)
             {
                 CurrentResponseWriter.Write(json2, expectedResultParameterName, callerFilePath, callingAssembly);
             }
@@ -781,7 +783,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Brand new crazy function
             // We write the current result to the expected file
-            if (writeResponse)
+            if (writeResponse || WriteResponse)
             {
                 CurrentResponseWriter.Write(currentObjectAsJson, expectedResultParameterName, callerFilePath, callingAssembly);
             }
