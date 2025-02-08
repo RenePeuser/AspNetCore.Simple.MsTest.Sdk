@@ -2,7 +2,7 @@
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,9 +17,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     internal static class AddTestCreatorSettingsExtension
     {
-        internal static void AddTestCreatorSettings(this IServiceCollection services, IConfiguration configuration)
+        internal static void AddTestCreatorSettings(this IServiceCollection services,
+                                                    IConfiguration configuration)
         {
             var settings = configuration.GetSection(nameof(TestCreatorSettings)).Get<TestCreatorSettings>();
+
             if (settings.IsNull())
             {
                 settings = new TestCreatorSettings();
@@ -32,14 +34,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public record TestCreatorSettings
     {
         public string TestMethodAttribute { get; init; } = "[TestMethod]";
-        public string ResponseFolderName { get; init; } = "Responses";
-        public string[] LegacyFolderNames { get; init; } = ["Result", "Response", "Results"];
-    }
 
+        public string ResponseFolderName { get; init; } = "Responses";
+        
+        public string RequestFolderName { get; init; } = "Requests";
+
+        public string[] LegacyResponseFolderNames { get; init; } = ["Result", "Response", "Results"];
+        
+        public string[] LegacyRequestFolderName { get; init; } = ["Payloads", "Payload", "Requests", "Request"];
+    }
 
     internal static class AddPostWithBodyTestCreatorExtension
     {
-        internal static void AddPostWithBodyTestCreator(this IServiceCollection services, IConfiguration configuration)
+        internal static void AddPostWithBodyTestCreator(this IServiceCollection services,
+                                                        IConfiguration configuration)
         {
             services.AddTestCreatorSettings(configuration);
 
@@ -47,10 +55,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-
     internal sealed class PostWithBodyTestCreator(ILogger<PostWithBodyTestCreator> logger,
                                                   TestCreatorSettings testCreatorSettings) : ISpecificTestCreator
     {
+        private readonly string NoPayloadTestTemplate = @"
+$testattribute$
+public Task $testmethodname$()
+{
+    return Client.Assert$httpMethod$$error$Async<$responseType$>(""$url$"",                                       
+                                                                 ""Response"");
+}
+";
+
         // ToDo: Optimize template creation => Strategy :)
 
         private readonly string TestTemplate = @"
@@ -59,15 +75,6 @@ public Task $testmethodname$()
 {
     return Client.Assert$httpMethod$$error$Async<$responseType$>(""$url$"",
                                                                  ""Payload"",
-                                                                 ""Response"");
-}
-";
-
-        private readonly string NoPayloadTestTemplate = @"
-$testattribute$
-public Task $testmethodname$()
-{
-    return Client.Assert$httpMethod$$error$Async<$responseType$>(""$url$"",                                       
                                                                  ""Response"");
 }
 ";
@@ -89,48 +96,21 @@ public Task $testmethodname$()
 }
 ";
 
-        public bool CanCreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfo)
+        public bool CanCreateTestFor(RequestInfo requestInfo,
+                                     ResponseInfoUltra responseInfo)
         {
             return true;
         }
 
-
-        private string GetTemplate(RequestInfo requestInfo, ResponseInfoUltra responseInfo)
-        {
-            if (responseInfo.StatusCode == 401)
-            {
-                if (responseInfo.Body.IsNotNullOrWhiteSpace())
-                {
-                    return UrlOnlyTemplate.Replace("<$responseType$>", string.Empty)
-                                          .Replace("$testmethodname$", "Should_Return_Unauthorized_If_Call_Is_Not_Authorized");
-                }
-
-                return UrlWithPayloadNoResponse.Replace("<$responseType$>", string.Empty)
-                                               .Replace("$testmethodname$", "Should_Return_Unauthorized_If_Call_Is_Not_Authorized");
-            }
-
-            var template = requestInfo.Body.IsNullOrWhiteSpace() ? NoPayloadTestTemplate : TestTemplate;
-
-            if (responseInfo.StatusCode is >= 200 and < 300)
-            {
-                template = template.Replace("$testmethodname$", "Should_Return_Ok_Result_When_Calling_Endpoint");
-            }
-            else
-            {
-                template = template.Replace("$testmethodname$", "Should_Return_Error_Result_When_Calling_Endpoint");
-            }
-
-            return template;
-        }
-
-        public string CreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfo)
+        public string CreateTestFor(RequestInfo requestInfo,
+                                    ResponseInfoUltra responseInfo)
         {
             var testParts = GeneratedTestParts().ToList();
             var maxCharsPerLine = testParts.SelectMany(line => line.Split(Environment.NewLine)).Max(line => line.Length);
             var separator = maxCharsPerLine.Times(() => "-").Flatten();
 
-
             var testOutput = testParts.Flatten($"{Environment.NewLine}");
+
             var outputWithSeparators = testOutput.Replace("$separator$", separator)
                                                  .Replace("$testattribute$", testCreatorSettings.TestMethodAttribute);
 
@@ -151,27 +131,25 @@ public Task $testmethodname$()
                     _ => "AsError"
                 };
 
-
                 var template = GetTemplate(requestInfo, responseInfo);
 
-                var httpMethodName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(requestInfo.HttpMethod.ToLowerInvariant());
-
+                var httpMethodName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(requestInfo.HttpMethod.ToLowerInvariant());
 
                 var test = string.Empty;
-                test = typeName.IsNotNullOrWhiteSpace()
-                    ? template.Replace("$url$", requestInfo.RelativePath)
-                              .Replace("$payload$", ToLiteral(requestInfo.Body))
-                              .Replace("$response$", ToLiteral(responseInfo.Body))
-                              .Replace("$responseType$", typeName)
-                              .Replace("$httpMethod$", httpMethodName)
-                              .Replace("$error$", errorPlaceHolder)
 
-                    : template.Replace("$url$", requestInfo.RelativePath)
-                              .Replace("$payload$", ToLiteral(requestInfo.Body))
-                              .Replace("$response$", ToLiteral(responseInfo.Body))
-                              .Replace("<$responseType$>", typeName)
-                              .Replace("$httpMethod$", httpMethodName)
-                              .Replace("$error$", errorPlaceHolder);
+                test = typeName.IsNotNullOrWhiteSpace()
+                           ? template.Replace("$url$", requestInfo.RelativePath)
+                                     .Replace("$payload$", ToLiteral(requestInfo.Body))
+                                     .Replace("$response$", ToLiteral(responseInfo.Body))
+                                     .Replace("$responseType$", typeName)
+                                     .Replace("$httpMethod$", httpMethodName)
+                                     .Replace("$error$", errorPlaceHolder)
+                           : template.Replace("$url$", requestInfo.RelativePath)
+                                     .Replace("$payload$", ToLiteral(requestInfo.Body))
+                                     .Replace("$response$", ToLiteral(responseInfo.Body))
+                                     .Replace("<$responseType$>", typeName)
+                                     .Replace("$httpMethod$", httpMethodName)
+                                     .Replace("$error$", errorPlaceHolder);
 
                 // Debug.WriteLine(test);
                 //                 _logger.LogInformation(test);
@@ -206,6 +184,7 @@ public Task $testmethodname$()
                 {
                     yield return "Response:";
                     yield return "$separator$";
+
                     // Check it xml or html is returned
                     if (responseInfo.Body.StartWith("{"))
                     {
@@ -215,9 +194,39 @@ public Task $testmethodname$()
                     {
                         yield return responseInfo.Body;
                     }
+
                     yield return "$separator$";
                 }
             }
+        }
+
+        private string GetTemplate(RequestInfo requestInfo,
+                                   ResponseInfoUltra responseInfo)
+        {
+            if (responseInfo.StatusCode == 401)
+            {
+                if (responseInfo.Body.IsNotNullOrWhiteSpace())
+                {
+                    return UrlOnlyTemplate.Replace("<$responseType$>", string.Empty)
+                                          .Replace("$testmethodname$", "Should_Return_Unauthorized_If_Call_Is_Not_Authorized");
+                }
+
+                return UrlWithPayloadNoResponse.Replace("<$responseType$>", string.Empty)
+                                               .Replace("$testmethodname$", "Should_Return_Unauthorized_If_Call_Is_Not_Authorized");
+            }
+
+            var template = requestInfo.Body.IsNullOrWhiteSpace() ? NoPayloadTestTemplate : TestTemplate;
+
+            if (responseInfo.StatusCode is >= 200 and < 300)
+            {
+                template = template.Replace("$testmethodname$", "Should_Return_Ok_Result_When_Calling_Endpoint");
+            }
+            else
+            {
+                template = template.Replace("$testmethodname$", "Should_Return_Error_Result_When_Calling_Endpoint");
+            }
+
+            return template;
         }
 
         private string GetTypeName(ResponseInfoUltra responseInfo)
@@ -258,6 +267,7 @@ public Task $testmethodname$()
             using var writer = new StringWriter();
             using var provider = CodeDomProvider.CreateProvider("CSharp");
             provider.GenerateCodeFromExpression(new CodePrimitiveExpression(input), writer, new CodeGeneratorOptions());
+
             return writer.ToString();
         }
     }

@@ -6,22 +6,22 @@ using ConsoleTables;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs
 {
-    internal sealed class HttpOutputFormatter()
+    internal sealed class HttpOutputFormatter
     {
         public string GetOutputString(string errorInfo,
                                       HttpMethod httpMethod,
                                       string url,
                                       HttpStatusCode httpStatusCode)
         {
-            var consoleTable = new ConsoleTable() { Options = { EnableCount = false } };
+            var consoleTable = new ConsoleTable { Options = { EnableCount = false } };
 
-            var enumerable = new List<string>()
+            var enumerable = new List<string>
                              {
                                  "HttpMethod",
                                  "Url",
                                  "HttpStatusCode"
                              };
-            
+
             consoleTable.AddColumn(enumerable);
 
             consoleTable.AddRow(httpMethod.Method, url, httpStatusCode);
@@ -29,12 +29,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
             var stringBuilder = new StringBuilder();
             var consoleTableResult = consoleTable.ToString();
 
-            
             stringBuilder.AppendLine(errorInfo);
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(consoleTableResult);
-            
-            var output =  stringBuilder.ToString();
+
+            var output = stringBuilder.ToString();
 
             return output;
         }

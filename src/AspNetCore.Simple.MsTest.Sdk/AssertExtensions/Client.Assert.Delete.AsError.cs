@@ -29,7 +29,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string expectedResult,
                                                                       (string Key, object? Value)[] parameters,
                                                                       bool writeResponse = false,
-                                                                      [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertDeleteAsErrorAsync<TResult>(url,
@@ -46,7 +47,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string expectedResult,
                                                                       Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                       bool writeResponse = false,
-                                                                      [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertDeleteAsErrorAsync<TResult>(url,
@@ -64,7 +66,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                       (string Key, object? Value)[] parameters,
                                                                       bool writeResponse = false,
-                                                                      [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertDeleteAsErrorAsync<TResult>(url,
@@ -82,7 +85,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string expectedResult,
                                                                       Assembly callingAssembly,
                                                                       bool writeResponse = false,
-                                                                      [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
@@ -105,7 +109,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       (string Key, object? Value)[] parameters,
                                                                       Assembly callingAssembly,
                                                                       bool writeResponse = false,
-                                                                      [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertDeleteAsErrorAsync<TResult>(url,
@@ -124,7 +129,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                       Assembly callingAssembly,
                                                                       bool writeResponse = false,
-                                                                      [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertDeleteAsErrorAsync<TResult>(url,
@@ -144,7 +150,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       (string Key, object? Value)[] parameters,
                                                                       Assembly callingAssembly,
                                                                       bool writeResponse = false,
-                                                                      [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,

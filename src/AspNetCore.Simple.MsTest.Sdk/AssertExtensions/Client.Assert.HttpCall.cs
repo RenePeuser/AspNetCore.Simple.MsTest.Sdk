@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -31,6 +32,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly HttpCallHandler HttpCallHandler = new(new HttpRequestMessageBuilder(new JsonSerializer(SerializeOptions)));
 
+        private static readonly EmbeddedFileLocalizer embeddedFileLocalizer = new(new TestCreatorSettings());
+
         private static readonly PrimitiveTypeConverter PrimitiveTypeConverter = new();
 
         // This is only for dev who know what they are doing
@@ -44,20 +47,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // Here you can control the visibility of the token in the curl outputs.
         public static bool ShowTokenInCurl { get; set; }
 
+        // Quickfix to hold the whole api compatible
+        internal static readonly string IgnoreResponseComparison = "IgnoreResponse";
+
         private static async Task AssertHttpCall(this HttpClient client,
                                                  string url,
                                                  string payloadAsJson,
                                                  HttpMethod httpMethod,
                                                  (string Key, object? Value)[] parameters,
                                                  Assembly callingAssembly,
-                                                 [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
+                                                 [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                 string payloadAsJsonParameterName = "",
                                                  [CallerFilePath] string callerFilePath = "",
                                                  bool isSuccessStatusCode = true,
                                                  bool writResponse = false)
         {
             await client.AssertHttpCall<string>(url,
                                                 payloadAsJson,
-                                                string.Empty,
+                                                IgnoreResponseComparison,
                                                 item => item,
                                                 httpMethod,
                                                 parameters,
@@ -77,8 +84,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              HttpMethod httpMethod,
                                                              (string Key, object? Value)[] parameters,
                                                              Assembly callingAssembly,
-                                                             [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                             [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
                                                              bool isSuccessStatusCode = true,
                                                              bool writResponse = false)
@@ -107,8 +116,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                    (string Key, object? Value)[] parameters,
                                                                    Assembly callingAssembly,
-                                                                   [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                                   [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                   [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                                   string payloadAsJsonParameterName = "",
+                                                                   [CallerArgumentExpression(nameof(expectedResult))]
+                                                                   string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    bool isSuccessStatusCode = true,
                                                                    bool writResponse = false)
@@ -162,6 +173,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                            bool isSuccessStatusCode = true,
                                                                            bool writResponse = false)
         {
+            // localize expected response and payload
+            // So the caller does not have to pass the unique file name of the embedded resource
+            // - Api.V1.Users.GetAllUsersTest.Responses.GetAllUsersResponse.json
+            // - GetAllUsersResponse.json
+            payloadAsJson = embeddedFileLocalizer.LocalizeRequest(payloadAsJson, callerFilePath, callingAssembly);
+            expectedResult = embeddedFileLocalizer.LocalizeResponse(expectedResult, callerFilePath, callingAssembly);
+
             // 0. Target type is primitive type
             var targetType = typeof(TResult);
             var targetIsPrimitiveType = targetType.IsPrimitive || targetType == typeof(string);
@@ -215,9 +233,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 12. Normalize expected json string dependent on target type and edge cases like primitive types and so on.
             string? expectedResultAsJson;
+
             if (writResponse && callingAssembly.IsCompiledInDebug())
             {
-                expectedResultAsJson = expectedResult.GetJsonStringOrDefaultFrom<TResult>(contentAsString, callingAssembly, curl, expectedResultParameterName);
+                expectedResultAsJson = expectedResult.GetJsonStringOrDefaultFrom<TResult>(contentAsString, callingAssembly, curl,
+                                                                                          expectedResultParameterName);
+
                 if (expectedResultAsJson.IsNull())
                 {
                     expectedResultAsJson = resolvedSimpleHttpResponse.ToJson();
@@ -225,7 +246,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
             else
             {
-                expectedResultAsJson = expectedResult.GetJsonStringFrom<TResult>(contentAsString, callingAssembly, curl, expectedResultParameterName);
+                expectedResultAsJson = expectedResult.GetJsonStringFrom<TResult>(contentAsString, callingAssembly, curl,
+                                                                                 expectedResultParameterName);
             }
 
             // 13. Resolve parameters in expected result
@@ -249,7 +271,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     Content = new SimpleHttpContent
                     {
                         Headers = httpResponseMessage.Content.Headers.ToJson().FromJsonStringAs<IImmutableList<KeyValuePair<string, IImmutableList<string>>>>(),
-                        Value = filteredExpectedType
+                        Value = expectedResult == IgnoreResponseComparison ? filteredCurrentResult : filteredExpectedType
                     }
                 };
             }
@@ -286,8 +308,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                          (string Key, object? Value)[] parameters,
                                                                          Assembly callingAssembly,
-                                                                         [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                                         [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                         [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                                         string payloadAsJsonParameterName = "",
+                                                                         [CallerArgumentExpression(nameof(expectedResult))]
+                                                                         string expectedResultParameterName = "",
                                                                          [CallerFilePath] string callerFilePath = "",
                                                                          bool isSuccessStatusCode = true,
                                                                          bool writeResponse = false)

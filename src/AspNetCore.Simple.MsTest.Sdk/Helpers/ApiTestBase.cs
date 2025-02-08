@@ -31,30 +31,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var testSettings = findAllTestSettings.Where(file => file.Name.Contains("test", StringComparison.OrdinalIgnoreCase));
             var settingsToRegister = environmentSpecificSettings.Concat(testSettings);
 
-
             var embeddedAppSettings = _callingAssembly.GetManifestResourceNames().Where(item => item.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
-                                                                                        item.Contains("appsettings", StringComparison.OrdinalIgnoreCase)).ToList();
+                                                                                                item.Contains("appsettings", StringComparison.OrdinalIgnoreCase)).ToList();
 
             IConfiguration configuration = null!;
 
-            builder.ConfigureAppConfiguration((_, configurationBuilder) =>
-            {
-                foreach (var testSettingsFile in settingsToRegister)
-                {
-                    configurationBuilder.AddJsonFile(testSettingsFile.FullName, true);
-                }
-                
-                configurationBuilder.AddUserSecrets(_callingAssembly);
-                configurationBuilder.AddEnvironmentVariables();
+            builder.ConfigureAppConfiguration((_,
+                                               configurationBuilder) =>
+                                              {
+                                                  foreach (var testSettingsFile in settingsToRegister)
+                                                  {
+                                                      configurationBuilder.AddJsonFile(testSettingsFile.FullName, true);
+                                                  }
 
-                configuration = configurationBuilder.Build();
-            });
+                                                  configurationBuilder.AddUserSecrets(_callingAssembly);
+                                                  configurationBuilder.AddEnvironmentVariables();
 
+                                                  configuration = configurationBuilder.Build();
+                                              });
 
             builder.ConfigureServices(services =>
-            {
-                registerServices(services, configuration);
-            });
+                                      {
+                                          registerServices(services, configuration);
+                                      });
 
             builder.UseEnvironment(EnvironmentName);
         }

@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Api.Models;
-using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Test
@@ -27,7 +26,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         public Task Should_Be_Able_To_Post_A_Person_Object()
         {
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
-                                                  new Person(1, "Son", "Goku", 42, ImmutableList<Email>.Empty),
+                                                  new Person(1, "Son", "Goku",
+                                                             42, ImmutableList<Email>.Empty),
                                                   "Results.NewPerson.json");
         }
 
@@ -47,22 +47,21 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                                   "Payloads.SonGoku.json",
                                                   "Results.SonGoku.json");
         }
-        
-        
+
         [TestMethod]
         public Task Should_Be_Able_To_Put_A_Person_By_Json()
         {
             return Client.AssertPatchAsync<Person>("api/tests/v1/persons",
-                                                  "Payloads.SonGoku.json",
-                                                  "Results.SonGoku.json");
+                                                   "Payloads.SonGoku.json",
+                                                   "Results.SonGoku.json");
         }
 
         [TestMethod]
         public Task Should_Be_Able_To_Put_A_Patch_By_Json()
         {
             return Client.AssertPutAsync<Person>("api/tests/v1/persons",
-                                                  "Payloads.SonGoku.json",
-                                                  "Results.SonGokuNewResponse.json");
+                                                 "Payloads.SonGoku.json",
+                                                 "Results.SonGokuNewResponse.json");
         }
 
         [DataTestMethod]
@@ -76,26 +75,34 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
             var exception = await Assert.ThrowsExceptionAsync<InvalidJsonException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons", invalidJson)).ConfigureAwait(false);
             Assert.IsTrue(exception.Message.Contains(invalidJson));
         }
-        
+
         //[TestMethod]
         //public Task Should_Be_Able_To_Put_A_Patch_By_Json_1()
         //{
         //    return Client.AssertPutAsync<Person?>("api/tests/v1/persons",
         //                                         "{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]}");
         //}
-        
+
         //[TestMethod]
         //public Task Should_Be_Able_To_Put_A_Person_By_Json_1()
         //{
         //    return Client.AssertPatchAsync<Person>("api/tests/v1/persons",
         //                                           "Payloads.SonGoku.json");
         //}
-        
+
         //[TestMethod]
         //public Task Should_Be_Able_To_Post_A_Person_By_Json_1()
         //{
         //    return Client.AssertPostAsync<Person>("api/tests/v1/persons",
         //                                          "Payloads.SonGoku.json");
         //}
+
+        [TestMethod]
+        public Task Should_Be_Able_Return_Validation_Infos_Of_Invalid_Payload()
+        {
+           return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+                                                  "Payloads.InvalidSonGoku.json",
+                                                  "{}");
+        }
     }
 }

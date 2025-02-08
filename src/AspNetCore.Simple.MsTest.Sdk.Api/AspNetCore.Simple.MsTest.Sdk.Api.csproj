@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <AssemblyName>AspNetCore.Simple.MsTest.Sdk.Api</AssemblyName>
-        <RootNamespace>AspNetCore.Simple.MsTest.Sdk.Api</RootNamespace>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
+        <Nullable>enable</Nullable>
+        <WarningsAsErrors>Nullable</WarningsAsErrors>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

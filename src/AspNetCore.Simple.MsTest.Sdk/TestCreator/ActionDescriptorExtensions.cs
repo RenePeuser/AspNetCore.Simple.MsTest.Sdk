@@ -9,6 +9,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         internal static Type GetReturnType(this ActionDescriptor actionDescriptor)
         {
             var methodInfo = (MethodInfo)actionDescriptor.GetType().GetProperty("MethodInfo")!.GetValue(actionDescriptor)!;
+
             return methodInfo.ReturnType;
         }
     }

@@ -23,10 +23,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     internal sealed class TestCreatorMiddleware(IRequestTestCreator requestTestCreator) : IMiddleware
     {
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        public async Task InvokeAsync(HttpContext context,
+                                      RequestDelegate next)
         {
             ResponseInfoUltra? response;
             var request = await GetRequestInfoUltraAsync(context.Request).ConfigureAwait(false);
+
             try
             {
                 //First, get the incoming request
@@ -43,6 +45,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 //Format the response from the server
                 response = await GetResponseInfoUltraAsync(context).ConfigureAwait(false);
+
                 if (response.IsNotNull())
                 {
                     requestTestCreator.CreateTestFor(request, response);
@@ -55,6 +58,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 //Format the response from the server
                 response = await GetResponseInfoUltraAsync(context).ConfigureAwait(false);
+
                 if (response.IsNotNull())
                 {
                     requestTestCreator.CreateTestFor(request, response);
@@ -91,7 +95,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var absoluteUrl = $"{request.Scheme}://{request.Host}{request.Path.Value}";
 
-            return new RequestInfo(request.Method, request.Path.Value!, absoluteUrl, bodyAsText);
+            return new RequestInfo(request.Method, request.Path.Value!, absoluteUrl,
+                                   bodyAsText);
         }
 
         private async Task<ResponseInfoUltra?> GetResponseInfoUltraAsync(HttpContext response)
@@ -124,9 +129,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 returnTypes = ImmutableList.Create(new ResponseType(200, returnType), new ResponseType(400, typeof(ProblemDetails)));
             }
 
-            return new ResponseInfoUltra(returnTypes, bodyAsText, response.Response.StatusCode, response.Response);
+            return new ResponseInfoUltra(returnTypes, bodyAsText, response.Response.StatusCode,
+                                         response.Response);
         }
     }
 
-    internal sealed record ResponseType(int StatusCode, Type Type);
+    internal sealed record ResponseType(int StatusCode,
+                                        Type Type);
 }

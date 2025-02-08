@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -28,9 +27,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (callingAssembly.IsCompiledInDebug().IsFalse())
             {
                 Console.WriteLine("We are not writing into test results file only in DEBUG mode. Cause of safety reasons.");
+
                 return;
             }
-            
+
             // ToDo: We just support .json file at the moment
             if (expectedResponseFileName.Trim('"').EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
             {
@@ -46,12 +46,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 2 To keep legacy code compatible we check for
             //   - Result, Results, Response
-            var legacyFolder = fileInfo.Directory?.EnumerateDirectories().FirstOrDefault(d => testCreatorSettings.LegacyFolderNames.Contains(d.Name));
+            var legacyFolder = fileInfo.Directory?.EnumerateDirectories().FirstOrDefault(d => testCreatorSettings.LegacyResponseFolderNames.Contains(d.Name));
 
-
-            var responseFolderName = legacyFolder.IsNotNull() ?
-                                         legacyFolder.Name :
-                                         testCreatorSettings.ResponseFolderName;
+            var responseFolderName = legacyFolder.IsNotNull() ? legacyFolder.Name : testCreatorSettings.ResponseFolderName;
 
             // 3. Worst case if result is null
             responseFolderName ??= testCreatorSettings.ResponseFolderName;
@@ -59,13 +56,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 4. Define response or results folder
             //    We keep existing once compatible
             var targetResponseFile = new FileInfo(Path.Combine(fileInfo.DirectoryName!, responseFolderName, trimmedFileName));
+
             if (targetResponseFile.Directory!.NotExists())
             {
                 targetResponseFile.Directory!.Create();
             }
-            
+
             // Parse the JSON string
-            var parsedJson = JToken.Parse(currentResponseAsString); 
+            var parsedJson = JToken.Parse(currentResponseAsString);
             var formattedJson = parsedJson.ToString(Formatting.Indented);
 
             File.WriteAllText(targetResponseFile.FullName, formattedJson);

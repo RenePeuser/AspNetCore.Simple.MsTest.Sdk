@@ -14,12 +14,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     internal interface ICurlPrinter
     {
-        void PrintCurl(Assembly callingAssembly, string curl);
+        void PrintCurl(Assembly callingAssembly,
+                       string curl);
     }
 
     internal sealed class CurlPrinter(ICurlFormatter curlFormatter) : ICurlPrinter
     {
-        public void PrintCurl(Assembly callingAssembly, string curl)
+        public void PrintCurl(Assembly callingAssembly,
+                              string curl)
         {
             if (callingAssembly.IsCompiledInDebug().IsFalse())
             {

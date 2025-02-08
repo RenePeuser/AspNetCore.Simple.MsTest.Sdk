@@ -47,7 +47,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                 Assembly assembly,
                                 bool showTokenInCurl)
         {
-            var curl = BuildCurl(httpMethod, url, payloadAsJson, authenticationHeaderValue, assembly, showTokenInCurl).Flatten(@$" \{Environment.NewLine}");
+            var curl = BuildCurl(httpMethod, url, payloadAsJson,
+                                 authenticationHeaderValue, assembly, showTokenInCurl).Flatten(@$" \{Environment.NewLine}");
+
             return curl;
 
             static IEnumerable<string> BuildCurl(HttpMethod httpMethod,
@@ -65,12 +67,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (authenticationHeaderValue.IsNotNull())
                 {
                     var token = showTokenInCurl ? authenticationHeaderValue.Parameter : "Sorry i am secret :)";
+
                     yield return $"--header 'Authorization: {authenticationHeaderValue.Scheme} {token}'";
                 }
 
                 if (payloadAsJson.IsNotNullOrWhiteSpace())
                 {
                     var json = payloadAsJson.GetJsonStringFrom(assembly);
+
                     yield return "--header 'Content-Type: application/json'";
                     yield return $"--data-raw '{json}'";
                 }
@@ -83,7 +87,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                 Assembly assembly,
                                 bool showTokenInCurl)
         {
-            return BuildFrom(httpResponseMessage?.RequestMessage, payloadAsJson, authenticationHeaderValue, assembly, showTokenInCurl);
+            return BuildFrom(httpResponseMessage?.RequestMessage, payloadAsJson, authenticationHeaderValue,
+                             assembly, showTokenInCurl);
         }
 
         public string BuildFrom(HttpRequestMessage? httpRequestMessage,
@@ -97,7 +102,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return string.Empty;
             }
 
-            var curl = BuildCurl(httpRequestMessage, payloadAsJson, authenticationHeaderValue, assembly, showTokenInCurl).Flatten(@$" \{Environment.NewLine}");
+            var curl = BuildCurl(httpRequestMessage, payloadAsJson, authenticationHeaderValue,
+                                 assembly, showTokenInCurl).Flatten(@$" \{Environment.NewLine}");
+
             return curl;
 
             static IEnumerable<string> BuildCurl(HttpRequestMessage httpRequestMessage,
@@ -114,6 +121,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (authenticationHeaderValue.IsNotNull())
                 {
                     var token = showTokenInCurl ? authenticationHeaderValue.Parameter : "Sorry i am secret :)";
+
                     yield return $"--header 'Authorization: {authenticationHeaderValue.Scheme} {token}'";
                 }
 
@@ -121,10 +129,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     yield return $"--header '{requestMessageHeader.Key}: {requestMessageHeader.Value}";
                 }
-                
+
                 if (payloadAsJson.IsNotNullOrWhiteSpace())
                 {
                     var json = payloadAsJson.GetJsonStringFrom(assembly);
+
                     yield return "--header 'Content-Type: application/json'";
                     yield return $"--data-raw '{json}'";
                 }

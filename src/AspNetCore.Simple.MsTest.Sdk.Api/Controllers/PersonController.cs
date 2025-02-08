@@ -17,8 +17,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
     {
         private readonly List<Person> _persons =
         [
-            new(1, "Son", "Goku", 99, ImmutableList.Create(new Email("alf@gmx.de", "GMX"), new Email("abc@hotmail.de", "Microsoft"))),
-            new(2, "Vegeta", "Unknown", 77, ImmutableList.Create(new Email("abc@gmx.de", "GMX"), new Email("maxmustermann@hotmail.de", "Microsoft")))
+            new(1, "Son", "Goku",
+                99, ImmutableList.Create(new Email("alf@gmx.de", "GMX"), new Email("abc@hotmail.de", "Microsoft"))),
+            new(2, "Vegeta", "Unknown",
+                77, ImmutableList.Create(new Email("abc@gmx.de", "GMX"), new Email("maxmustermann@hotmail.de", "Microsoft")))
         ];
 
         [HttpGet]
@@ -31,6 +33,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
         public Task<Person> GetPersonByIdAsync(long id)
         {
             var person = _persons.FirstOrDefault(x => x.Id == id);
+
             if (person.IsNull())
             {
                 throw new ProblemDetailsException("Person for given Id does not exist",

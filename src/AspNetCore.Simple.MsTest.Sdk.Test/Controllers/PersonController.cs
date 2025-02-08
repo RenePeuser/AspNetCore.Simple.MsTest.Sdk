@@ -21,7 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         {
             return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons",
                                                               "Results.GetPersonResponse.json",
-                                                              differenceFunc: DifferenceFunc);
+                                                              DifferenceFunc);
         }
 
         [TestMethod]

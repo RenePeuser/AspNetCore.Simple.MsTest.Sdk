@@ -7,7 +7,9 @@ using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public sealed record Difference(string MemberPath, string? Value1, string? Value2);
+    public sealed record Difference(string MemberPath,
+                                    string? Value1,
+                                    string? Value2);
 
     public static class AddJsonSerializationExtensions
     {
@@ -19,13 +21,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     public interface IJsonDiffer
     {
-        IImmutableList<Difference> FindDifferences(string json1, string json2);
-        Dictionary<string, (JToken?, JToken?)> FindDifferencesNative(string json1, string json2);
+        IImmutableList<Difference> FindDifferences(string json1,
+                                                   string json2);
+
+        Dictionary<string, (JToken?, JToken?)> FindDifferencesNative(string json1,
+                                                                     string json2);
     }
 
     internal sealed class JsonDiffer : IJsonDiffer
     {
-        public IImmutableList<Difference> FindDifferences(string json1, string json2)
+        public IImmutableList<Difference> FindDifferences(string json1,
+                                                          string json2)
         {
             var differences = FindDifferencesNative(json1, json2);
 
@@ -34,14 +40,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return simpleDifferences.ToImmutableList();
         }
 
-        public Dictionary<string, (JToken?, JToken?)> FindDifferencesNative(string json1, string json2)
+        public Dictionary<string, (JToken?, JToken?)> FindDifferencesNative(string json1,
+                                                                            string json2)
         {
             var differences = new Dictionary<string, (JToken?, JToken?)>();
-            CompareTokens(JToken.Parse(json1), JToken.Parse(json2), differences, "");
+
+            CompareTokens(JToken.Parse(json1), JToken.Parse(json2), differences,
+                          "");
+
             return differences;
         }
 
-        private void CompareTokens(JToken? token1, JToken? token2, Dictionary<string, (JToken?, JToken?)> differences, string path)
+        private void CompareTokens(JToken? token1,
+                                   JToken? token2,
+                                   Dictionary<string, (JToken?, JToken?)> differences,
+                                   string path)
         {
             if (JToken.DeepEquals(token1, token2))
             {
@@ -51,12 +64,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (token1.IsNull())
             {
                 differences[path] = (null, token2);
+
                 return;
             }
 
             if (token2.IsNull())
             {
                 differences[path] = (token1, null);
+
                 return;
             }
 
@@ -66,6 +81,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     if (token2.Type != JTokenType.Object)
                     {
                         differences[path] = (token1, token2);
+
                         return;
                     }
 
@@ -76,30 +92,35 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     {
                         var propertyPath = AppendPath(path, property.Key);
                         var token2Value = obj2.GetValueOrDefault(property.Key);
+
                         if (token2Value == null)
                         {
                             differences[propertyPath] = (property.Value, null);
                         }
                         else
                         {
-                            CompareTokens(property.Value, token2Value, differences, propertyPath);
+                            CompareTokens(property.Value, token2Value, differences,
+                                          propertyPath);
                         }
                     }
 
                     foreach (var property in obj2)
                     {
                         var propertyPath = AppendPath(path, property.Key);
+
                         if (obj1[property.Key] == null)
                         {
                             differences[propertyPath] = (null, property.Value);
                         }
                     }
+
                     break;
 
                 case JTokenType.Array:
                     if (token2.Type != JTokenType.Array)
                     {
                         differences[path] = (token1, token2);
+
                         return;
                     }
 
@@ -136,18 +157,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                         }
                         else
                         {
-                            CompareTokens(array1[i], array2[i], differences, indexPath);
+                            CompareTokens(array1[i], array2[i], differences,
+                                          indexPath);
                         }
                     }
+
                     break;
 
                 default:
                     differences[path] = (token1, token2);
+
                     break;
             }
         }
 
-        private string AppendPath(string path, string addition)
+        private string AppendPath(string path,
+                                  string addition)
         {
             if (path.IsNullOrEmpty())
             {
@@ -159,7 +184,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 return $"{path}{addition}";
             }
-
 
             return $"{path}.{addition}";
         }

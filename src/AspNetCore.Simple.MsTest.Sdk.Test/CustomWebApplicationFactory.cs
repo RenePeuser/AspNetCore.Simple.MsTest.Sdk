@@ -15,12 +15,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         {
             var testAppsettingsJson = Path.Combine(Environment.CurrentDirectory, "appsettings.test.json");
 
-            builder.ConfigureAppConfiguration((_, configurationBuilder) => configurationBuilder.AddJsonFile(testAppsettingsJson, optional: true));
+            builder.ConfigureAppConfiguration((_,
+                                               configurationBuilder) => configurationBuilder.AddJsonFile(testAppsettingsJson, true));
 
             builder.ConfigureServices(services =>
-            {
-                // if we need to switch between services we have to do it here
-            });
+                                      {
+                                          // if we need to switch between services we have to do it here
+                                      });
         }
     }
 
@@ -71,7 +72,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
             Client.Dispose();
         }
 
-        public virtual void ConfigureAppConfiguration(WebHostBuilderContext webHostBuilderContext, IConfigurationBuilder configurationBuilder)
+        public virtual void ConfigureAppConfiguration(WebHostBuilderContext webHostBuilderContext,
+                                                      IConfigurationBuilder configurationBuilder)
         {
             // Gives the possibility to do test environment specific configurations
         }

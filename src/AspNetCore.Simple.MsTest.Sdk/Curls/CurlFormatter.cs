@@ -40,7 +40,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var curlOutput = stringBuilder.ToString();
 
             return curlOutput;
-
         }
     }
 }

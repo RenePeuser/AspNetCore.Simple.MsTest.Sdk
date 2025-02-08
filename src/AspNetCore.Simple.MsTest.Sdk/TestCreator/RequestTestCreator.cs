@@ -14,14 +14,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     internal interface IRequestTestCreator
     {
-        string CreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfoUltra);
+        string CreateTestFor(RequestInfo requestInfo,
+                             ResponseInfoUltra responseInfoUltra);
     }
 
     internal sealed class RequestTestCreator(IEnumerable<ISpecificTestCreator> testCreators) : IRequestTestCreator
     {
-        public string CreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfoUltra)
+        public string CreateTestFor(RequestInfo requestInfo,
+                                    ResponseInfoUltra responseInfoUltra)
         {
             var testCreator = testCreators.Where(creator => creator.CanCreateTestFor(requestInfo, responseInfoUltra)).ToList();
+
             if (testCreator.Count == 1)
             {
                 return testCreator[0].CreateTestFor(requestInfo, responseInfoUltra);

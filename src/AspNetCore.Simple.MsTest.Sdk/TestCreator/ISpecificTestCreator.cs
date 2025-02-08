@@ -2,8 +2,10 @@
 {
     internal interface ISpecificTestCreator
     {
-        bool CanCreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfo);
+        bool CanCreateTestFor(RequestInfo requestInfo,
+                              ResponseInfoUltra responseInfo);
 
-        string CreateTestFor(RequestInfo requestInfo, ResponseInfoUltra responseInfo);
+        string CreateTestFor(RequestInfo requestInfo,
+                             ResponseInfoUltra responseInfo);
     }
 }

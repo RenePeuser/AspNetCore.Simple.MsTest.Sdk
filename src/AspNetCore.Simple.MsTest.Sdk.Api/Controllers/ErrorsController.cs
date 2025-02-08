@@ -16,7 +16,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
                                               "Here are error details",
                                               ("PropertyA", "A"),
                                               ("PropertyB", "B"));
-
         }
     }
 }

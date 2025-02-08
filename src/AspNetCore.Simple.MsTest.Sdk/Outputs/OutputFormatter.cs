@@ -9,24 +9,27 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
                                         string? expectedResultAsJson,
                                         string? currentResultAsJson)
         {
-            return GetOutputString(title, string.Empty, expectedResultAsJson, currentResultAsJson);
+            return GetOutputString(title, string.Empty, expectedResultAsJson,
+                                   currentResultAsJson);
         }
-        
+
         internal string GetOutputString(string title,
                                         string errorInfo,
                                         string? expectedResultAsJson,
                                         string? currentResultAsJson)
         {
-            return GetOutputString(title, errorInfo, expectedResultAsJson, currentResultAsJson, string.Empty);
+            return GetOutputString(title, errorInfo, expectedResultAsJson,
+                                   currentResultAsJson, string.Empty);
         }
-        
+
         internal string GetOutputString(string title,
                                         string errorInfo,
                                         string? expectedResultAsJson,
                                         string? currentResultAsJson,
                                         string curl)
         {
-            return GetOutputString(title, errorInfo, expectedResultAsJson, currentResultAsJson, string.Empty, curl);
+            return GetOutputString(title, errorInfo, expectedResultAsJson,
+                                   currentResultAsJson, string.Empty, curl);
         }
 
         internal string GetOutputString(string title,
@@ -44,7 +47,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
             {
                 stringBuilder.AppendLine(title);
             }
-            
+
             if (errorInfo.IsNotNullOrWhiteSpace())
             {
                 stringBuilder.AppendLine(errorInfo);
@@ -74,7 +77,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
                 stringBuilder.AppendLine();
             }
 
-            var output =  stringBuilder.ToString();
+            var output = stringBuilder.ToString();
+
             return output;
         }
     }

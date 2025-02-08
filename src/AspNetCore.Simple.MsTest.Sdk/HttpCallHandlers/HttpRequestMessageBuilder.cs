@@ -3,11 +3,12 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
+using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    internal sealed class HttpRequestMessageBuilder(Serializer.Json.JsonSerializer jsonSerializer)
+    internal sealed class HttpRequestMessageBuilder(JsonSerializer jsonSerializer)
     {
         internal HttpRequestMessage BuildFrom(HttpMethod method,
                                               string uri,
@@ -16,7 +17,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var content = payload.IsNotNull() ? GetContent() : null;
 
-            return new HttpRequestMessage(method, uri) { Version = HttpVersion.Version11, VersionPolicy = HttpVersionPolicy.RequestVersionOrLower, Content = content };
+            return new HttpRequestMessage(method, uri)
+                   {
+                       Version = HttpVersion.Version11,
+                       VersionPolicy = HttpVersionPolicy.RequestVersionOrLower,
+                       Content = content
+                   };
 
             HttpContent GetContent()
             {

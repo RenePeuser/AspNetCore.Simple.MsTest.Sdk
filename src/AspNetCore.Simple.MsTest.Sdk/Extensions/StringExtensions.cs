@@ -1,6 +1,6 @@
-﻿using System.Reflection;
-using System;
+﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using Extensions.Pack;
@@ -11,8 +11,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public static class StringExtensions
     {
         private static readonly CurlFormatter CurlFormatter = new();
-        private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
 
+        private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
 
         public static string GetJsonStringFrom(this string expectedObjectAsJson,
                                                Assembly callingAssembly)
@@ -56,7 +56,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        .TrimEnd(Environment.NewLine.ToCharArray()) // Trim line breaks at the end if exists
                                                        .Trim('"'); // Trim " if exists cause not needed
 
-
             // 5. If it is a json file then read the content of the file
             if (trimmedJsonValue.EndWith(".json"))
             {
@@ -69,6 +68,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (targetType.NotEqualsTo(typeof(SimpleHttpResponseMessage)))
             {
                 var httpResponseMessage = trimmedJsonValue.FromJsonStringOrDefault<SimpleHttpResponseMessage>();
+
                 if (httpResponseMessage.IsNotNull())
                 {
                     trimmedJsonValue = httpResponseMessage.Content?.Value.ToJson() ?? trimmedJsonValue;
@@ -80,12 +80,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 trimmedJsonValue.EndWith("]") &&
                 mustBeAnArray.IsFalse())
             {
-
                 var output = OutputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {targeTypeInfo.FullName}",
                                                              "Invalid source type object {} to target array type [] json conversion",
                                                              trimmedJsonValue,
                                                              currentObject,
                                                              curl);
+
                 Assert.Fail(output);
             }
 
@@ -99,6 +99,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              trimmedJsonValue,
                                                              currentObject,
                                                              curl);
+
                 Assert.Fail(output);
             }
 
@@ -111,6 +112,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 10. If the target type is a primitive type or a string then return the json value
             var type = targeTypeInfo;
+
             if (type.IsPrimitive || type == typeof(string))
             {
                 return expectedObjectAsJson;
@@ -119,12 +121,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidJsonException($"Your given json string does not contains a valid json string. Json strings have to begin with '{{' and end with a '}}' or if you use an array notation then []{Environment.NewLine}Your invalid string is:{Environment.NewLine}{trimmedJsonValue}");
         }
 
-
         public static string? GetJsonStringOrDefaultFrom<T>(this string expectedObjectAsJson,
                                                             string currentObject,
                                                             Assembly callingAssembly,
                                                             string curl,
-                                                            [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "")
+                                                            [CallerArgumentExpression(nameof(expectedObjectAsJson))]
+                                                            string expectedResultParameterName = "")
         {
             // 1. Get target type
             var targetType = typeof(T);
@@ -144,12 +146,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        .TrimEnd(Environment.NewLine.ToCharArray()) // Trim line breaks at the end if exists
                                                        .Trim('"'); // Trim " if exists cause not needed
 
-
             // 5. If it is a json file then read the content of the file
             if (trimmedJsonValue.EndWith(".json"))
             {
                 var fileNames = callingAssembly.GetManifestResourceNames();
                 var foundFile = fileNames.FirstOrDefault(name => name.Contains(trimmedJsonValue));
+
                 if (foundFile.IsNull())
                 {
                     return null;
@@ -164,6 +166,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (targetType.NotEqualsTo(typeof(SimpleHttpResponseMessage)))
             {
                 var httpResponseMessage = trimmedJsonValue.FromJsonStringOrDefault<SimpleHttpResponseMessage>();
+
                 if (httpResponseMessage.IsNotNull())
                 {
                     trimmedJsonValue = httpResponseMessage.Content?.Value.ToJson() ?? trimmedJsonValue;
@@ -175,12 +178,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 trimmedJsonValue.EndWith("]") &&
                 isEnumerable.IsFalse())
             {
-
                 var output = OutputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).FullName}",
                                                              "Invalid source type object {} to target array type [] json conversion",
                                                              trimmedJsonValue,
                                                              currentObject,
                                                              curl);
+
                 Assert.Fail(output);
             }
 
@@ -194,6 +197,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              trimmedJsonValue,
                                                              currentObject,
                                                              curl);
+
                 Assert.Fail(output);
             }
 
@@ -206,6 +210,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 10. If the target type is a primitive type or a string then return the json value
             var type = typeof(T);
+
             if (type.IsPrimitive || type == typeof(string))
             {
                 return expectedObjectAsJson;
@@ -214,8 +219,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidJsonException($"Your given json string does not contains a valid json string. Json strings have to begin with '{{' and end with a '}}' or if you use an array notation then []{Environment.NewLine}Your invalid string is:{Environment.NewLine}{trimmedJsonValue}");
         }
 
-
-        public static string ResolveParameters(this string value, (string Key, object? Value)[] parameters)
+        public static string ResolveParameters(this string value,
+                                               (string Key, object? Value)[] parameters)
         {
             if (value.IsNullOrWhiteSpace())
             {

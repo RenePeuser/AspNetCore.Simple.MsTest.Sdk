@@ -66,7 +66,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string expectedResult,
                                                                (string Key, object? Value)[] parameters,
                                                                bool writeResponse = false,
-                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                               [CallerArgumentExpression(nameof(expectedResult))]
+                                                               string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertDeleteAsync<TResult>(url,
@@ -83,7 +84,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string expectedResult,
                                                                Assembly callingAssembly,
                                                                bool writeResponse = false,
-                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                               [CallerArgumentExpression(nameof(expectedResult))]
+                                                               string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
@@ -106,7 +108,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                (string Key, object? Value)[] parameters,
                                                                Assembly callingAssembly,
                                                                bool writeResponse = false,
-                                                               [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                               [CallerArgumentExpression(nameof(expectedResult))]
+                                                               string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
@@ -136,11 +139,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-            {
-                Request = $"DELETE {url}",
-                Expected = HttpStatusCode.Unauthorized,
-                Current = result.StatusCode
-            }.ToIList();
+                                {
+                                    Request = $"DELETE {url}",
+                                    Expected = HttpStatusCode.Unauthorized,
+                                    Current = result.StatusCode
+                                }.ToIList();
 
             var table = ConsoleTable.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";

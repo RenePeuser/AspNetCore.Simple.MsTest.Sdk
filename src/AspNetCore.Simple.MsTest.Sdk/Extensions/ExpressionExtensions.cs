@@ -13,17 +13,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             string? name = null;
+
             if (lambdaExpression.Body is MemberExpression memberExpression)
             {
                 name = memberExpression.Member.Name;
             }
 
-
             if (lambdaExpression.Body is UnaryExpression { Operand: MemberExpression member })
             {
                 name = member.Member.Name;
             }
-
 
             if (lambdaExpression.Body is MethodCallExpression methodCallExpression)
             {
