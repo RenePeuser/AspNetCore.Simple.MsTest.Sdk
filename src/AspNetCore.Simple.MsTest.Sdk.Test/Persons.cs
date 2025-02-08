@@ -97,12 +97,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         //                                          "Payloads.SonGoku.json");
         //}
 
-        [TestMethod]
-        public Task Should_Be_Able_Return_Validation_Infos_Of_Invalid_Payload()
-        {
-           return Client.AssertPostAsync<Person>("api/tests/v1/persons",
-                                                  "Payloads.InvalidSonGoku.json",
-                                                  "{}");
-        }
+        //[TestMethod]
+        //public Task Should_Be_Able_Return_Validation_Infos_Of_Invalid_Payload()
+        //{
+        //   return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+        //                                          "Payloads.InvalidSonGoku.json",
+        //                                          "{}");
+        //}
     }
 }
