@@ -8,7 +8,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

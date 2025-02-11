@@ -5,7 +5,7 @@ using System.Reflection;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Helpers
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static class AddEmbeddedFileLocalizerExtension
     {
