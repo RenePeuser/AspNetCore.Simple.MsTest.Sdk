@@ -9,13 +9,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 {
     public static class AddEmbeddedFileLocalizerExtension
     {
-        internal static void AddEmbeddedFileLocalizer(this IServiceCollection services)
+        public static void AddEmbeddedFileLocalizer(this IServiceCollection services)
         {
             services.AddSingletonIfNotExists<EmbeddedFileLocalizer>();
         }
     }
 
-    internal sealed class EmbeddedFileLocalizer(TestCreatorSettings testCreatorSettings)
+    public sealed class EmbeddedFileLocalizer(TestCreatorSettings testCreatorSettings)
     {
         public string LocalizeRequest(string embeddedFile,
                                       string callerFilePath,
