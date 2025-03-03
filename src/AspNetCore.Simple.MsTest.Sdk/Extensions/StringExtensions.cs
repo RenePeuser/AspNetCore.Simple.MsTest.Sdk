@@ -71,7 +71,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (httpResponseMessage.IsNotNull())
                 {
-                    trimmedJsonValue = httpResponseMessage.Content?.Value.ToJson() ?? trimmedJsonValue;
+                    var jsonContent = httpResponseMessage.Content?.Value.ToJson();
+                    trimmedJsonValue = (jsonContent.IsNull() || jsonContent.Trim('"').IsNullOrWhiteSpace()) ? trimmedJsonValue : jsonContent;
                 }
             }
 

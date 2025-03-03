@@ -200,7 +200,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var resolvedParametersJsonString = contentAsString.ResolveParameters(parameters);
 
             // 6. Deserialized target type
-            var currentResult = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString) : resolvedParametersJsonString.FromJsonStringAs<TResult>();
+            var currentResult = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString) : resolvedParametersJsonString.IsNullOrWhiteSpace() ? "{}".FromJsonStringAs<TResult>() :  resolvedParametersJsonString.FromJsonStringAs<TResult>();
 
             var filteredCurrentResult = filterFunc(currentResult);
 
@@ -226,7 +226,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 Content = new SimpleHttpContent
                 {
                     Headers = httpResponseMessage.Content.Headers.ToJson().FromJsonStringAs<IImmutableList<KeyValuePair<string, IImmutableList<string>>>>(),
-                    Value = filteredCurrentResult
+                    Value = httpResponseMessage.IsSuccessStatusCode && isSuccessStatusCode ? filteredCurrentResult : resolvedParametersJsonString
                 }
             };
 
