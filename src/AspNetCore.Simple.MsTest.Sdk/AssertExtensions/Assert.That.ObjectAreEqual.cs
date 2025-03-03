@@ -910,9 +910,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var jsonDiffer = new JsonDiffer();
 
-                var object1AsJson = orderedObject1.ToJson().ResolveParameters(parameters);
-                var object2AsJson = orderedObject2.ToJson().ResolveParameters(parameters);
+                var object1AsJson = orderedObject1.ToJson()
+                                                  .ResolveParameters(parameters);
 
+                var object2AsJson = orderedObject2.ToJson()
+                                                  .ResolveParameters(parameters);
+
+                
                 var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 
                 // 1. Check if we are comparing the same schema

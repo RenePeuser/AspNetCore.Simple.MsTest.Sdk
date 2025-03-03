@@ -226,7 +226,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 Content = new SimpleHttpContent
                 {
                     Headers = httpResponseMessage.Content.Headers.ToJson().FromJsonStringAs<IImmutableList<KeyValuePair<string, IImmutableList<string>>>>(),
-                    Value = httpResponseMessage.IsSuccessStatusCode && isSuccessStatusCode ? filteredCurrentResult : resolvedParametersJsonString
+                    Value = httpResponseMessage.IsSuccessStatusCode == isSuccessStatusCode ? filteredCurrentResult : resolvedParametersJsonString.Trim('"')
                 }
             };
 
