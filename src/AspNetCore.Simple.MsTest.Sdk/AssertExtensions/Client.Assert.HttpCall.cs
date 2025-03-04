@@ -200,7 +200,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var resolvedParametersJsonString = contentAsString.ResolveParameters(parameters);
 
             // 6. Deserialized target type
-            var currentResult = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString) : resolvedParametersJsonString.IsNullOrWhiteSpace() ? "{}".FromJsonStringAs<TResult>() :  resolvedParametersJsonString.FromJsonStringAs<TResult>();
+            var currentResult = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString) : resolvedParametersJsonString.IsNullOrWhiteSpace() ? "{}".FromJsonStringAs<TResult>() : resolvedParametersJsonString.FromJsonStringAs<TResult>();
 
             var filteredCurrentResult = filterFunc(currentResult);
 
@@ -253,10 +253,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var expectedResultAsJsonParamterized = expectedResultAsJson.ResolveParameters(parameters);
 
             // 14. Edge case string as primitive type -> just string response -> no json
-            var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParamterized) : expectedResultAsJsonParamterized.FromJsonStringAs<TResult>();
+            var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParamterized) : expectedResultAsJsonParamterized.FromJsonStringOrDefault<TResult>();
 
             // 15. Execute the filter function on the expected result
-            var filteredExpectedType = filterFunc(expectedType);
+            var filteredExpectedType = expectedType.IsNotNull() ? filterFunc(expectedType) : expectedType;
 
             // 16. Create the container structure for the comparison
             var expectedResultAsSimpleResponse = expectedResultAsJsonParamterized.FromJsonStringOrDefault<SimpleHttpResponseMessage>();
