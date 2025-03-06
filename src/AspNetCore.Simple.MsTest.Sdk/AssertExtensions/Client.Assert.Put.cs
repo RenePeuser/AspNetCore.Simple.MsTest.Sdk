@@ -57,7 +57,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall(url,
-                                         string.Empty,
+                                         payload,
                                          HttpMethod.Put,
                                          [],
                                          Assembly.GetCallingAssembly(),
@@ -77,7 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall(url,
-                                         string.Empty,
+                                         payload,
                                          HttpMethod.Put,
                                          parameters,
                                          Assembly.GetCallingAssembly(),
@@ -1056,11 +1056,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-                                {
-                                    Request = $"PUT {url}",
-                                    Expected = HttpStatusCode.Unauthorized,
-                                    Current = result.StatusCode
-                                }.ToIList();
+            {
+                Request = $"PUT {url}",
+                Expected = HttpStatusCode.Unauthorized,
+                Current = result.StatusCode
+            }.ToIList();
 
             var table = ConsoleTable.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";

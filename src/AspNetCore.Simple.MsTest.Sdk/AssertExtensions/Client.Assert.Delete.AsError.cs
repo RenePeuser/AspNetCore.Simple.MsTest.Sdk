@@ -159,6 +159,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   expectedResult,
                                                   item => item,
                                                   HttpMethod.Delete,
+                                                  differenceFunc,
                                                   parameters,
                                                   callingAssembly,
                                                   string.Empty,
