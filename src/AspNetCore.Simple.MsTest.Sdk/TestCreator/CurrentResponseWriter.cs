@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public sealed class CurrentResponseWriter(TestCreatorSettings testCreatorSettings)
+    public sealed class CurrentResponseWriter(EmbeddedFileLocalizer embeddedFileLocalizer)
     {
         public void Write(string currentResponseAsString,
                           string expectedResponseFileName,
@@ -37,36 +37,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            // 1. Detect if we really have a file
-            var parts = expectedResponseFileName.Split('.');
-            var filename = $"{parts[^2]}.{parts[^1]}";
-            var trimmedFileName = filename.Trim('"');
+            var localizedFile = embeddedFileLocalizer.LocalizeResponseFile(expectedResponseFileName, callerFilePath,
+                                                                           callingAssembly);
 
-            var fileInfo = new FileInfo(callerFilePath);
-
-            // 2 To keep legacy code compatible we check for
-            //   - Result, Results, Response
-            var legacyFolder = fileInfo.Directory?.EnumerateDirectories().FirstOrDefault(d => testCreatorSettings.LegacyResponseFolderNames.Contains(d.Name));
-
-            var responseFolderName = legacyFolder.IsNotNull() ? legacyFolder.Name : testCreatorSettings.ResponseFolderName;
-
-            // 3. Worst case if result is null
-            responseFolderName ??= testCreatorSettings.ResponseFolderName;
-
-            // 4. Define response or results folder
-            //    We keep existing once compatible
-            var targetResponseFile = new FileInfo(Path.Combine(fileInfo.DirectoryName!, responseFolderName, trimmedFileName));
-
-            if (targetResponseFile.Directory!.NotExists())
+            if (localizedFile.EmbeddedFile.IsNull())
             {
-                targetResponseFile.Directory!.Create();
+                return;
             }
-
+            
             // Parse the JSON string
             var parsedJson = JToken.Parse(currentResponseAsString);
             var formattedJson = parsedJson.ToString(Formatting.Indented);
 
-            File.WriteAllText(targetResponseFile.FullName, formattedJson);
+            File.WriteAllText(localizedFile.EmbeddedFile.FullName, formattedJson);
         }
     }
 }

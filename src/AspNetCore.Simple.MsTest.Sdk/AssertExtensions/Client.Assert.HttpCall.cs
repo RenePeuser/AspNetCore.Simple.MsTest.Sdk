@@ -123,6 +123,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    bool isSuccessStatusCode = true,
                                                                    bool writResponse = false)
         {
+            // Special case if expected and current jsons are parameters passed by we need to set the
+            // correct parameter names
+            payloadAsJson = embeddedFileLocalizer.LocalizeRequest(payloadAsJson, callerFilePath, callingAssembly);
+            expectedResult = embeddedFileLocalizer.LocalizeResponse(expectedResult, callerFilePath, callingAssembly);
+
+            if (payloadAsJson.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
+                payloadAsJsonParameterName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
+            {
+                payloadAsJsonParameterName = payloadAsJson;
+            }
+            
+            if (expectedResult.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
+                expectedResultParameterName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
+            {
+                expectedResultParameterName = expectedResult;
+            }
+            
             if (CustomAssertMethod is not null)
             {
                 return await AssertCustomHttpCall(client,

@@ -25,8 +25,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
 
-        private static readonly CurrentResponseWriter CurrentResponseWriter = new(new TestCreatorSettings());
-
+        private static readonly CurrentResponseWriter CurrentResponseWriter = new(new EmbeddedFileLocalizer(new TestCreatorSettings()));
+        
         private static readonly JsonSerializerOptions JsonSerializerOptions = new()
                                                                               {
                                                                                   PropertyNameCaseInsensitive = true,
@@ -846,10 +846,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string curl,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
-                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))]
-                                              string expectedResultParameterName = "",
-                                              [CallerArgumentExpression(nameof(currentObject))]
-                                              string currentResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
             // This is most the use case when calling an API and want to know what comes back
