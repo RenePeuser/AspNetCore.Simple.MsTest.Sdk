@@ -124,7 +124,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return new EmbeddedFileInfo(match, targetResponseFile);
             }
 
-            return new EmbeddedFileInfo(embedddFile, targetResponseFile);
+            return new EmbeddedFileInfo(relativePath, targetResponseFile);
 
         }
     }
