@@ -5,26 +5,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="Payloads\NewPerson.json" />
-        <None Remove="Payloads\NewPersonParameter.json" />
-        <None Remove="Payloads\SonGoku.json" />
-        <None Remove="Results\ErrorResponse.json" />
-        <None Remove="Results\GetPersonResponse.json" />
-        <None Remove="Results\NewPerson.json" />
-        <None Remove="Results\SonGoku.json" />
+        <None Remove="Controllers\Requests\NewPerson.json" />
+        <None Remove="Controllers\Requests\NewPersonParameter.json" />
+        <None Remove="Controllers\Requests\SonGoku.json" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Payloads\NewPersonParameter.json" />
-        <EmbeddedResource Include="Payloads\NewPerson.json" />
-        <EmbeddedResource Include="Payloads\InvalidSonGoku.json" />
-        <EmbeddedResource Include="Payloads\SonGoku.json" />
-        <EmbeddedResource Include="Results\NewPersonParameter.json" />
-        <EmbeddedResource Include="Results\SonGokuNewResponse.json" />
-        <EmbeddedResource Include="Results\SonGoku.json" />
-        <EmbeddedResource Include="Results\ErrorResponse.json" />
-        <EmbeddedResource Include="Results\GetPersonResponse.json" />
-        <EmbeddedResource Include="Results\NewPerson.json" />
+        <EmbeddedResource Include="Controllers\Requests\NewPersonParameter.json" />
+        <EmbeddedResource Include="Controllers\Requests\NewPerson.json" />
+        <EmbeddedResource Include="Controllers\Requests\InvalidSonGoku.json" />
+        <EmbeddedResource Include="Controllers\Requests\SonGoku.json" />
+        <EmbeddedResource Include="Controllers\Responses\NewPersonParameter.json" />
+        <EmbeddedResource Include="Controllers\Responses\SonGokuNewResponse.json" />
+        <EmbeddedResource Include="Controllers\Responses\SonGoku.json" />
+        <EmbeddedResource Include="Controllers\Responses\ErrorResponse.json" />
+        <EmbeddedResource Include="Controllers\Responses\GetPersonResponse.json" />
+        <EmbeddedResource Include="Controllers\Responses\NewPerson.json" />
     </ItemGroup>
 
     <ItemGroup>

@@ -75,7 +75,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return new EmbeddedFileInfo(embedddFile, null);
             }
 
-            // 3. Detect if we really have a file
+            // 3. Get assembly infos
+            var assemblyName = callingAssembly.GetName().Name;
+            var embeddedFileNames = callingAssembly.GetManifestResourceNames();
+            
+            // 4. Detect if we really have a file
             var parts = embedddFile.Split('.');
             var filename = $"{parts[^2]}.{parts[^1]}";
             var trimmedFileName = filename.Trim('"');
@@ -107,8 +111,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // 5. Identify the unique embedded file
-            var assemblyName = callingAssembly.GetName().Name;
-            var embeddedFileNames = callingAssembly.GetManifestResourceNames();
             var splittedPath = targetResponseFile.FullName.Split(assemblyName);
 
             if (splittedPath.Length < 2)

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Api.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Test
+namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
 {
     [TestClass]
     public class Persons : ApiTestBase
@@ -28,15 +28,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
                                                   new Person(1, "Son", "Goku",
                                                              42, ImmutableList<Email>.Empty),
-                                                  "Results.NewPerson.json");
+                                                  "NewPerson.json");
         }
 
         [TestMethod]
         public Task Should_Be_Able_To_Post_A_Person_Parameterized()
         {
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
-                                                  "Payloads.NewPersonParameter.json",
-                                                  "Results.NewPersonParameter.json",
+                                                  "NewPersonParameter.json",
+                                                  "NewPersonParameter.json",
                                                   [("$Name$", "Son"), ("$Age$", 42)]);
         }
 
@@ -52,16 +52,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         public Task Should_Be_Able_To_Put_A_Person_By_Json()
         {
             return Client.AssertPatchAsync<Person>("api/tests/v1/persons",
-                                                   "Payloads.SonGoku.json",
-                                                   "Results.SonGoku.json");
+                                                   "SonGoku.json",
+                                                   "SonGoku.json");
         }
 
         [TestMethod]
         public Task Should_Be_Able_To_Put_A_Patch_By_Json()
         {
             return Client.AssertPutAsync<Person>("api/tests/v1/persons",
-                                                 "Payloads.SonGoku.json",
-                                                 "Results.SonGokuNewResponse.json");
+                                                 "SonGoku.json",
+                                                 "SonGokuNewResponse.json");
         }
 
         [DataTestMethod]
