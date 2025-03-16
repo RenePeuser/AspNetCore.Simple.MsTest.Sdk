@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -68,13 +69,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return new EmbeddedFileInfo(embedddFile, null);
             }
 
+            // 3. If embedded file is raw json return
+            if (embedddFile.StartsWith('{') ||
+                embedddFile.StartsWith('['))
+            {
+                return new EmbeddedFileInfo(embedddFile, null);
+            }
+            
             // 2. We only can localize files, if we have no file we return origin
             var fileExtensions = Path.GetExtension(embedddFile);
             if (fileExtensions.IsNullOrWhiteSpace())
             {
                 return new EmbeddedFileInfo(embedddFile, null);
             }
-
+            
             // 3. Get assembly infos
             var assemblyName = callingAssembly.GetName().Name;
             var embeddedFileNames = callingAssembly.GetManifestResourceNames();

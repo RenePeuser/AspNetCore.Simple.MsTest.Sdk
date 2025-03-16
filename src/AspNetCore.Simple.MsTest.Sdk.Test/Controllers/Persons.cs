@@ -76,33 +76,37 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
             Assert.IsTrue(exception.Message.Contains(invalidJson));
         }
 
-        //[TestMethod]
-        //public Task Should_Be_Able_To_Put_A_Patch_By_Json_1()
-        //{
-        //    return Client.AssertPutAsync<Person?>("api/tests/v1/persons",
-        //                                         "{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]}");
-        //}
+        [TestMethod]
+        public Task Should_Be_Able_To_Put_A_Patch_By_Json_1()
+        {
+            return Client.AssertPutAsync<Person?>("api/tests/v1/persons",
+                                                 /*lang=json,strict*/
+                                                 "{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]}",
+                                                 /*lang=json,strict*/
+                                                 "{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]}");
+        }
 
-        //[TestMethod]
-        //public Task Should_Be_Able_To_Put_A_Person_By_Json_1()
-        //{
-        //    return Client.AssertPatchAsync<Person>("api/tests/v1/persons",
-        //                                           "Payloads.SonGoku.json");
-        //}
+        [TestMethod]
+        public Task Should_Be_Able_To_Put_A_Person_By_Json_1()
+        {
+            return Client.AssertPatchAsync<Person>("api/tests/v1/persons",
+                                                   "Controllers.Requests.SonGoku.json");
+        }
 
-        //[TestMethod]
-        //public Task Should_Be_Able_To_Post_A_Person_By_Json_1()
-        //{
-        //    return Client.AssertPostAsync<Person>("api/tests/v1/persons",
-        //                                          "Payloads.SonGoku.json");
-        //}
+        [TestMethod]
+        public Task Should_Be_Able_To_Post_A_Person_By_Json_1()
+        {
+            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+                                                  "Requests.SonGoku.json",
+                                                  "Requests.SonGoku.json");
+        }
 
-        //[TestMethod]
-        //public Task Should_Be_Able_Return_Validation_Infos_Of_Invalid_Payload()
-        //{
-        //   return Client.AssertPostAsync<Person>("api/tests/v1/persons",
-        //                                          "Payloads.InvalidSonGoku.json",
-        //                                          "{}");
-        //}
+        [TestMethod]
+        public Task Should_Be_Able_Return_Validation_Infos_Of_Invalid_Payload()
+        {
+            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+                                                   "Payloads.InvalidSonGoku.json",
+                                                   "{}");
+        }
     }
 }
