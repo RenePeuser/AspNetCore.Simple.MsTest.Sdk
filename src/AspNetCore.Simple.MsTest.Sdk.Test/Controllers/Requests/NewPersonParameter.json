@@ -1,7 +1,7 @@
 {
-  "Id": 1,
-  "Name": "$Name$",
-  "FirstName": "Goku",
-  "Age": $Age$,
-  "Emails": []
+  "id": 1,
+  "name": "$Name$",
+  "firstName": "Goku",
+  "age": $Age$,
+  "emails": []
 }

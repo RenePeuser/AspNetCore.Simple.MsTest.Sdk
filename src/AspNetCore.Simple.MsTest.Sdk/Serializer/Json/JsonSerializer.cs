@@ -16,6 +16,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
                                    {
                                        PropertyNameCaseInsensitive = true,
                                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                       DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
                                        NumberHandling = JsonNumberHandling.AllowReadingFromString,
                                        Converters = { new JsonStringEnumConverter() }
                                    };

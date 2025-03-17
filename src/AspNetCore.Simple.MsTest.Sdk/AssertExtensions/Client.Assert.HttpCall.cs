@@ -282,14 +282,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var filteredCurrentResult = filterFunc(currentResult);
 
             // 12. Simplify the response message
-            var simpleHttpResponse = httpResponseMessage.ToJson(JsonSerializerOptions).FromJsonStringAs<SimpleHttpResponseMessage>();
+            var simpleHttpResponse = httpResponseMessage.ToJson(JsonSerializerOptions).FromJsonStringAs<SimpleHttpResponseMessage>(JsonSerializerOptions);
 
             // 13. Setup simple http response message which is the new container class for the comparison
             var resolvedSimpleHttpResponse = simpleHttpResponse with
             {
                 Content = new SimpleHttpContent
                 {
-                    Headers = httpResponseMessage.Content.Headers.ToJson(JsonSerializerOptions).FromJsonStringAs<IImmutableList<KeyValuePair<string, IImmutableList<string>>>>(),
+                    Headers = httpResponseMessage.Content.Headers.ToJson(JsonSerializerOptions).FromJsonStringAs<IImmutableList<KeyValuePair<string, IImmutableList<string>>>>(JsonSerializerOptions),
                     Value = httpResponseMessage.IsSuccessStatusCode == isSuccessStatusCode ? filteredCurrentResult : resolvedParametersJsonString.Trim('"')
                 }
             };
@@ -317,13 +317,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var expectedResultAsJsonParamterized = expectedResultAsJson.ResolveParameters(parameters);
 
             // 16. Edge case string as primitive type -> just string response -> no json
-            var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParamterized) : expectedResultAsJsonParamterized.FromJsonStringOrDefault<TResult>();
+            var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParamterized) : expectedResultAsJsonParamterized.FromJsonStringOrDefault<TResult>(JsonSerializerOptions);
 
             // 17. Execute the filter function on the expected result
             var filteredExpectedType = expectedType.IsNotNull() ? filterFunc(expectedType) : expectedType;
 
             // 18. Create the container structure for the comparison
-            var expectedResultAsSimpleResponse = expectedResultAsJsonParamterized.FromJsonStringOrDefault<SimpleHttpResponseMessage>();
+            var expectedResultAsSimpleResponse = expectedResultAsJsonParamterized.FromJsonStringOrDefault<SimpleHttpResponseMessage>(JsonSerializerOptions);
 
             // 19. To keep the whole code compatible with existence once we have to some tricks here
             //     Because already existing test code just have the type response, no status code checks and more
@@ -333,7 +333,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     Content = new SimpleHttpContent
                     {
-                        Headers = httpResponseMessage.Content.Headers.ToJson(JsonSerializerOptions).FromJsonStringAs<IImmutableList<KeyValuePair<string, IImmutableList<string>>>>(),
+                        Headers = httpResponseMessage.Content.Headers.ToJson(JsonSerializerOptions).FromJsonStringAs<IImmutableList<KeyValuePair<string, IImmutableList<string>>>>(JsonSerializerOptions),
                         Value = expectedResult == IgnoreResponseComparison ? filteredCurrentResult : filteredExpectedType
                     }
                 };
@@ -345,7 +345,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             expectedResultAsSimpleResponse = expectedResultAsSimpleResponse with { IsSuccessStatusCode = isSuccessStatusCode };
 
             // 21. Compare the expected results and more - just response
-            Assert.That.ObjectsAreEqual(expectedResultAsSimpleResponse.ToJson(JsonSerializerOptions),
+            var expectedObjectAsJson = expectedResultAsSimpleResponse.ToJson(JsonSerializerOptions);
+
+            Assert.That.ObjectsAreEqual(expectedObjectAsJson,
                                         resolvedSimpleHttpResponse,
                                         item => item,
                                         httpCallInfo,
