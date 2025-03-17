@@ -224,10 +224,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 5. Resolve parameters in response json
             var resolvedParametersJsonString = contentAsString.ResolveParameters(parameters);
             
-            // 7. Build up absolute url for nice test results
+            // 6. Build up absolute url for nice test results
             var absoluteUrl = httpResponseMessage.RequestMessage?.RequestUri?.AbsoluteUri ?? string.Empty;
 
-            // 9. Format the output string for best readable and understandable test results
+            // 7. Format the output string for best readable and understandable test results
             var httpCallInfo = HttpOutputFormatter.GetOutputString("Http call infos:",
                                                                    httpMethod,
                                                                    absoluteUrl,
@@ -241,7 +241,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              callingAssembly, 
                                              ShowTokenInCurl);
 
-            // 4. We have a use cases:
+            // 9. We have a use cases:
             // - User wants OK response, but we get an error response
             // - User wants NOT OK response, but we get an OK response
             // In this use case writeResponse:true must be ignored
@@ -256,15 +256,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 Assert.Fail(schemaNotMatchingError);
             }
 
-            // 6. Deserialized target type
+            // 10. Deserialized target type
             var currentResult = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString) : resolvedParametersJsonString.IsNullOrWhiteSpace() ? "{}".FromJsonStringAs<TResult>() : resolvedParametersJsonString.FromJsonStringAs<TResult>();
 
+            // 11. Execute filter func
             var filteredCurrentResult = filterFunc(currentResult);
 
-            // 10. Simplify the response message
+            // 12. Simplify the response message
             var simpleHttpResponse = httpResponseMessage.ToJson().FromJsonStringAs<SimpleHttpResponseMessage>();
 
-            // 11. Setup simple http response message which is the new container class for the comparison
+            // 13. Setup simple http response message which is the new container class for the comparison
             var resolvedSimpleHttpResponse = simpleHttpResponse with
                                              {
                                                  Content = new SimpleHttpContent
@@ -274,7 +275,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            }
                                              };
 
-            // 12. Normalize expected json string dependent on target type and edge cases like primitive types and so on.
+            // 14. Normalize expected json string dependent on target type and edge cases like primitive types and so on.
             string? expectedResultAsJson;
 
             if (writResponse && callingAssembly.IsCompiledInDebug())
@@ -293,19 +294,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                  expectedResultParameterName);
             }
 
-            // 13. Resolve parameters in expected result
+            // 15. Resolve parameters in expected result
             var expectedResultAsJsonParamterized = expectedResultAsJson.ResolveParameters(parameters);
 
-            // 14. Edge case string as primitive type -> just string response -> no json
+            // 16. Edge case string as primitive type -> just string response -> no json
             var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParamterized) : expectedResultAsJsonParamterized.FromJsonStringOrDefault<TResult>();
 
-            // 15. Execute the filter function on the expected result
+            // 17. Execute the filter function on the expected result
             var filteredExpectedType = expectedType.IsNotNull() ? filterFunc(expectedType) : expectedType;
 
-            // 16. Create the container structure for the comparison
+            // 18. Create the container structure for the comparison
             var expectedResultAsSimpleResponse = expectedResultAsJsonParamterized.FromJsonStringOrDefault<SimpleHttpResponseMessage>();
 
-            // 17. To keep the whole code compatible with existence once we have to some tricks here
+            // 19. To keep the whole code compatible with existence once we have to some tricks here
             //     Because already existing test code just have the type response, no status code checks and more
             if (expectedResultAsSimpleResponse.IsNull() || expectedResultAsSimpleResponse.Content.IsNull())
             {
@@ -319,12 +320,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  };
             }
 
-            // 18. This is our fallback for the AssertPostAsync and AssertPostAsErrorAsync
+            // 20. This is our fallback for the AssertPostAsync and AssertPostAsErrorAsync
             //     Dependent on the flag we know if the response should fail or not -> so 
             //     is our code 100% compatible with the existing code
             expectedResultAsSimpleResponse = expectedResultAsSimpleResponse with { IsSuccessStatusCode = isSuccessStatusCode };
 
-            // 19. Compare the expected results and more - just response
+            // 21. Compare the expected results and more - just response
             Assert.That.ObjectsAreEqual(expectedResultAsSimpleResponse.ToJson(),
                                         resolvedSimpleHttpResponse,
                                         item => item,
@@ -338,7 +339,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         "Current response",
                                         callerFilePath);
 
-            // 20. Return the current result
+            // 22. Return the current result
             return currentResult;
         }
 
