@@ -17,14 +17,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             IImmutableDictionary<string, IImmutableList<string>> expectedHeaderStructure = expectedHeaders.ToImmutableDictionary(item => item.Key, item => (IImmutableList<string>)ImmutableList.Create(item.Value));
 
-            return client.AssertOptionsAsync(url, expectedHeaderStructure.ToJson());
+            return client.AssertOptionsAsync(url, expectedHeaderStructure.ToJson(JsonSerializerOptions));
         }
 
         public static Task<HttpResponseMessage> AssertOptionsAsync(this HttpClient client,
                                                                    string url,
                                                                    IImmutableDictionary<string, IImmutableList<string>> expectedHeaders)
         {
-            return client.AssertOptionsAsync(url, expectedHeaders.ToJson());
+            return client.AssertOptionsAsync(url, expectedHeaders.ToJson(JsonSerializerOptions));
         }
 
         public static Task<HttpResponseMessage> AssertOptionsAsync(this HttpClient client,

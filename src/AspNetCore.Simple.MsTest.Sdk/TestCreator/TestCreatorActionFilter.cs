@@ -35,7 +35,7 @@
 //                };
 //            }
 
-//            context.HttpContext.Response.Headers.Add("returntypes", returnTypes.ToJson());
+//            context.HttpContext.Response.Headers.Add("returntypes", returnTypes.ToJson(JsonSerializerOptions));
 //            context.HttpContext.Response.Headers.Add("csproj", $"{context.Controller.GetType().Assembly.GetName().Name}.csproj");
 //            context.HttpContext.Response.Headers.Add("controller-name", context.Controller.GetType().FullName);
 //            context.HttpContext.Response.Headers.Add("assembly-location", context.Controller.GetType().Assembly.Location);

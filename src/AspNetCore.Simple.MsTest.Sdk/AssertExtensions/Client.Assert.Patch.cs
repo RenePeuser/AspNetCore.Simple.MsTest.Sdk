@@ -266,7 +266,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPatchAsync<TResult>(url,
-                                                    payloadAsObject.ToJson(),
+                                                    payloadAsObject.ToJson(JsonSerializerOptions),
                                                     expectedResult,
                                                     [],
                                                     Assembly.GetCallingAssembly(),
@@ -289,7 +289,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPatchAsync<TResult>(url,
-                                                    payloadAsObject.ToJson(),
+                                                    payloadAsObject.ToJson(JsonSerializerOptions),
                                                     expectedResult,
                                                     parameters,
                                                     Assembly.GetCallingAssembly(),
@@ -358,7 +358,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPatchAsync<TResult>(client,
                                              url,
-                                             payloadAsObject.ToJson(),
+                                             payloadAsObject.ToJson(JsonSerializerOptions),
                                              expectedResult,
                                              result => result,
                                              [],
@@ -384,7 +384,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPatchAsync<TResult>(client,
                                              url,
-                                             payloadAsObject.ToJson(),
+                                             payloadAsObject.ToJson(JsonSerializerOptions),
                                              expectedResult,
                                              result => result,
                                              parameters,
@@ -461,7 +461,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPatchAsync<TResult>(client,
                                              url,
-                                             payloadAsObject.ToJson(),
+                                             payloadAsObject.ToJson(JsonSerializerOptions),
                                              expectedResult,
                                              result => result,
                                              differenceFunc,
@@ -489,7 +489,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPatchAsync<TResult>(client,
                                              url,
-                                             payloadAsObject.ToJson(),
+                                             payloadAsObject.ToJson(JsonSerializerOptions),
                                              expectedResult,
                                              result => result,
                                              differenceFunc,
@@ -569,7 +569,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPatchAsync(url,
-                                           payloadAsObject.ToJson(),
+                                           payloadAsObject.ToJson(JsonSerializerOptions),
                                            expectedResult,
                                            filterFunc,
                                            [],
@@ -594,7 +594,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPatchAsync(url,
-                                           payloadAsObject.ToJson(),
+                                           payloadAsObject.ToJson(JsonSerializerOptions),
                                            expectedResult,
                                            filterFunc,
                                            parameters,
@@ -667,7 +667,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPatchAsync<TResult>(url,
-                                                    payloadAsObject.ToJson(),
+                                                    payloadAsObject.ToJson(JsonSerializerOptions),
                                                     expectedResult,
                                                     item => item,
                                                     differenceFunc,
@@ -693,7 +693,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPatchAsync<TResult>(url,
-                                                    payloadAsObject.ToJson(),
+                                                    payloadAsObject.ToJson(JsonSerializerOptions),
                                                     expectedResult,
                                                     item => item,
                                                     differenceFunc,
@@ -770,7 +770,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall(url,
-                                         payloadAsObject.ToJson(),
+                                         payloadAsObject.ToJson(JsonSerializerOptions),
                                          expectedResult,
                                          filterFunc,
                                          HttpMethod.Patch,
@@ -799,7 +799,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall(url,
-                                         payloadAsObject.ToJson(),
+                                         payloadAsObject.ToJson(JsonSerializerOptions),
                                          expectedResult,
                                          filterFunc,
                                          HttpMethod.Patch,
@@ -883,7 +883,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall(url,
-                                         payloadAsObject.ToJson(),
+                                         payloadAsObject.ToJson(JsonSerializerOptions),
                                          expectedResult,
                                          filterFunc,
                                          HttpMethod.Patch,
@@ -913,7 +913,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall(url,
-                                         payloadAsObject.ToJson(),
+                                         payloadAsObject.ToJson(JsonSerializerOptions),
                                          expectedResult,
                                          filterFunc,
                                          HttpMethod.Patch,
@@ -1000,7 +1000,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Unauthorized token");
 
-            var result = await httpClient.PatchAsync(url, body.IsNull() ? null : new StringContent(body.ToJson(), Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
+            var result = await httpClient.PatchAsync(url, body.IsNull() ? null : new StringContent(body.ToJson(JsonSerializerOptions), Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
 
             // Reset back to original
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;

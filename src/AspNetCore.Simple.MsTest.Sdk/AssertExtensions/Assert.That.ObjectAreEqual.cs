@@ -26,12 +26,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
 
         private static readonly CurrentResponseWriter CurrentResponseWriter = new(new EmbeddedFileLocalizer(new TestCreatorSettings()));
-        
-        private static readonly JsonSerializerOptions JsonSerializerOptions = new()
-                                                                              {
-                                                                                  PropertyNameCaseInsensitive = true,
-                                                                                  Converters = { new JsonStringEnumConverter() }
-                                                                              };
+
+        // You have the possible to set and pass the api settings specific json options
+        public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+            Converters = { new JsonStringEnumConverter() }
+        };
 
         public static Func<IImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
@@ -432,8 +436,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var orderedExpectedObject = comparisonFunc(expectedObject);
             var orderedCurrentObject = comparisonFunc(currentObject);
 
-            var json1 = orderedExpectedObject.ToJson();
-            var json2 = orderedCurrentObject.ToJson();
+            var json1 = orderedExpectedObject.ToJson(JsonSerializerOptions);
+            var json2 = orderedCurrentObject.ToJson(JsonSerializerOptions);
 
             foreach (var valueTuple in parameters)
             {
@@ -851,7 +855,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerFilePath] string callerFilePath = "")
         {
             // This is most the use case when calling an API and want to know what comes back
-            var currentObjectAsJson = currentObject.ToJson();
+            var currentObjectAsJson = currentObject.ToJson(JsonSerializerOptions);
 
             // Brand new crazy function
             // We write the current result to the expected file
@@ -897,7 +901,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 var serializeResultIsNullOutput = OutputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}",
-                                                                                  jsonObject.ToJson(),
+                                                                                  jsonObject.ToJson(JsonSerializerOptions),
                                                                                   null,
                                                                                   CurlFormatter.GetCurlAsFormattedString(curl));
 
@@ -908,13 +912,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var jsonDiffer = new JsonDiffer();
 
-                var object1AsJson = orderedObject1.ToJson()
+                var object1AsJson = orderedObject1.ToJson(JsonSerializerOptions)
                                                   .ResolveParameters(parameters);
 
-                var object2AsJson = orderedObject2.ToJson()
+                var object2AsJson = orderedObject2.ToJson(JsonSerializerOptions)
                                                   .ResolveParameters(parameters);
 
-                
+
                 var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 
                 // 1. Check if we are comparing the same schema
@@ -925,9 +929,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (contentValueDifferences.IsNotNull())
                 {
                     var contentDifferences = jsonDiffer.FindDifferences(contentValueDifferences.Value1 ?? string.Empty, contentValueDifferences.Value2 ?? string.Empty);
-                    schemaNotMatching = contentDifferences.Any(item => item.MismatchType == MismatchType.MissingInFirst || item.MismatchType == MismatchType.MissingInSecond);
+                    schemaNotMatching = contentDifferences.Any(item => item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond);
                 }
-                
+
                 var schemaMismatchTable = differences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
                 var schemaNotMatchingError = OutputFormatter.GetOutputString(title, "Schema mismatch: Expected result and current result does not match", object1AsJson,

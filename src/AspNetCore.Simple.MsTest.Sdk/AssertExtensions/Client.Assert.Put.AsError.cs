@@ -146,7 +146,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPutAsErrorAsync<TResult>(url,
-                                                         payloadAsObject.ToJson(),
+                                                         payloadAsObject.ToJson(JsonSerializerOptions),
                                                          expectedResult,
                                                          parameters,
                                                          Assembly.GetCallingAssembly(),
@@ -170,7 +170,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPutAsErrorAsync<TResult>(url,
-                                                         payloadAsObject.ToJson(),
+                                                         payloadAsObject.ToJson(JsonSerializerOptions),
                                                          expectedResult,
                                                          differenceFunc,
                                                          parameters,
@@ -243,7 +243,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
-                                                  payloadAsObject.ToJson(),
+                                                  payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   item => item,
                                                   HttpMethod.Put,
@@ -271,7 +271,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
-                                                  payloadAsObject.ToJson(),
+                                                  payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   item => item,
                                                   HttpMethod.Put,

@@ -181,7 +181,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPatchAsErrorAsync<TResult>(url,
-                                                           payloadAsObject.ToJson(),
+                                                           payloadAsObject.ToJson(JsonSerializerOptions),
                                                            expectedResult,
                                                            [],
                                                            Assembly.GetCallingAssembly(),
@@ -204,7 +204,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPatchAsErrorAsync<TResult>(url,
-                                                           payloadAsObject.ToJson(),
+                                                           payloadAsObject.ToJson(JsonSerializerOptions),
                                                            expectedResult,
                                                            parameters,
                                                            Assembly.GetCallingAssembly(),
@@ -227,7 +227,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPatchAsErrorAsync<TResult>(url,
-                                                           payloadAsObject.ToJson(),
+                                                           payloadAsObject.ToJson(JsonSerializerOptions),
                                                            expectedResult,
                                                            differenceFunc,
                                                            [],
@@ -252,7 +252,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPatchAsErrorAsync<TResult>(url,
-                                                           payloadAsObject.ToJson(),
+                                                           payloadAsObject.ToJson(JsonSerializerOptions),
                                                            expectedResult,
                                                            differenceFunc,
                                                            parameters,
@@ -370,7 +370,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
-                                                  payloadAsObject.ToJson(),
+                                                  payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   item => item,
                                                   HttpMethod.Patch,
@@ -397,7 +397,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
-                                                  payloadAsObject.ToJson(),
+                                                  payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   item => item,
                                                   HttpMethod.Patch,
@@ -424,7 +424,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
-                                                  payloadAsObject.ToJson(),
+                                                  payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   item => item,
                                                   HttpMethod.Patch,
@@ -453,7 +453,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall<TResult>(url,
-                                                  payloadAsObject.ToJson(),
+                                                  payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   item => item,
                                                   HttpMethod.Patch,

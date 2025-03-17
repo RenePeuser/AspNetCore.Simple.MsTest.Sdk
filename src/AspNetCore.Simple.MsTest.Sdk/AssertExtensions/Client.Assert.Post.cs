@@ -246,7 +246,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPostAsync<TResult>(url,
-                                                   payloadAsObject.ToJson(),
+                                                   payloadAsObject.ToJson(JsonSerializerOptions),
                                                    expectedResult,
                                                    [],
                                                    Assembly.GetCallingAssembly(),
@@ -269,7 +269,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPostAsync<TResult>(url,
-                                                   payloadAsObject.ToJson(),
+                                                   payloadAsObject.ToJson(JsonSerializerOptions),
                                                    expectedResult,
                                                    parameters,
                                                    Assembly.GetCallingAssembly(),
@@ -338,7 +338,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPostAsync<TResult>(client,
                                             url,
-                                            payloadAsObject.ToJson(),
+                                            payloadAsObject.ToJson(JsonSerializerOptions),
                                             expectedResult,
                                             result => result,
                                             [],
@@ -364,7 +364,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPostAsync<TResult>(client,
                                             url,
-                                            payloadAsObject.ToJson(),
+                                            payloadAsObject.ToJson(JsonSerializerOptions),
                                             expectedResult,
                                             result => result,
                                             parameters,
@@ -441,7 +441,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPostAsync<TResult>(client,
                                             url,
-                                            payloadAsObject.ToJson(),
+                                            payloadAsObject.ToJson(JsonSerializerOptions),
                                             expectedResult,
                                             result => result,
                                             differenceFunc,
@@ -469,7 +469,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPostAsync<TResult>(client,
                                             url,
-                                            payloadAsObject.ToJson(),
+                                            payloadAsObject.ToJson(JsonSerializerOptions),
                                             expectedResult,
                                             result => result,
                                             differenceFunc,
@@ -549,7 +549,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPostAsync(url,
-                                          payloadAsObject.ToJson(),
+                                          payloadAsObject.ToJson(JsonSerializerOptions),
                                           expectedResult,
                                           filterFunc,
                                           [],
@@ -574,7 +574,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPostAsync(url,
-                                          payloadAsObject.ToJson(),
+                                          payloadAsObject.ToJson(JsonSerializerOptions),
                                           expectedResult,
                                           filterFunc,
                                           parameters,
@@ -647,7 +647,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPostAsync<TResult>(url,
-                                                   payloadAsObject.ToJson(),
+                                                   payloadAsObject.ToJson(JsonSerializerOptions),
                                                    expectedResult,
                                                    item => item,
                                                    differenceFunc,
@@ -673,7 +673,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertPostAsync<TResult>(url,
-                                                   payloadAsObject.ToJson(),
+                                                   payloadAsObject.ToJson(JsonSerializerOptions),
                                                    expectedResult,
                                                    item => item,
                                                    differenceFunc,
@@ -750,7 +750,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall(url,
-                                         payloadAsObject.ToJson(),
+                                         payloadAsObject.ToJson(JsonSerializerOptions),
                                          expectedResult,
                                          filterFunc,
                                          HttpMethod.Post,
@@ -779,7 +779,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall(url,
-                                         payloadAsObject.ToJson(),
+                                         payloadAsObject.ToJson(JsonSerializerOptions),
                                          expectedResult,
                                          filterFunc,
                                          HttpMethod.Post,
@@ -865,7 +865,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall(url,
-                                         payloadAsObject.ToJson(),
+                                         payloadAsObject.ToJson(JsonSerializerOptions),
                                          expectedResult,
                                          filterFunc,
                                          HttpMethod.Post,
@@ -895,7 +895,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCall(url,
-                                         payloadAsObject.ToJson(),
+                                         payloadAsObject.ToJson(JsonSerializerOptions),
                                          expectedResult,
                                          filterFunc,
                                          HttpMethod.Post,
@@ -994,7 +994,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (body.IsNotNull())
             {
-                newBody = body.ToJson().ResolveParameters(parameters);
+                newBody = body.ToJson(JsonSerializerOptions).ResolveParameters(parameters);
             }
 
             var result = await httpClient.PostAsync(url, body.IsNull() ? null : new StringContent(newBody, Encoding.UTF8, MediaTypeNames.Application.Json)).ConfigureAwait(false);
@@ -1003,11 +1003,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-                                {
-                                    Request = $"POST {url}",
-                                    Expected = HttpStatusCode.Unauthorized,
-                                    Current = result.StatusCode
-                                }.ToIList();
+            {
+                Request = $"POST {url}",
+                Expected = HttpStatusCode.Unauthorized,
+                Current = result.StatusCode
+            }.ToIList();
 
             var table = ConsoleTable.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";

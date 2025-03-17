@@ -51,4 +51,8 @@
         <PackageReference Include="System.CodeDom" Version="9.0.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Extensions.Pack\src\Extensions.Pack\Extensions.Pack.csproj" />
+    </ItemGroup>
+
 </Project>
