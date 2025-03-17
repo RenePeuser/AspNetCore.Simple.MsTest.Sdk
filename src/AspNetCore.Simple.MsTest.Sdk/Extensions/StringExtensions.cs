@@ -71,7 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (httpResponseMessage.IsNotNull())
                 {
-                    var jsonContent = httpResponseMessage.Content?.Value.ToJson();
+                    var jsonContent = httpResponseMessage.Content?.Value?.ToString();
                     trimmedJsonValue = (jsonContent.IsNull() || jsonContent.Trim('"').IsNullOrWhiteSpace()) ? trimmedJsonValue : jsonContent;
                 }
             }
@@ -170,7 +170,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (httpResponseMessage.IsNotNull())
                 {
-                    trimmedJsonValue = httpResponseMessage.Content?.Value.ToJson() ?? trimmedJsonValue;
+                    trimmedJsonValue = httpResponseMessage.Content?.Value?.ToString() ?? trimmedJsonValue;
                 }
             }
 
