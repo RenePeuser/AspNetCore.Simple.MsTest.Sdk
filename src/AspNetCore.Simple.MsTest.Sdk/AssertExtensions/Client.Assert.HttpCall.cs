@@ -158,6 +158,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 expectedResultParameterName = expectedResult;
             }
 
+            // NEW query params and more :)
+            foreach (var valueTuple in parameters)
+            {
+                url = url.Replace(valueTuple.Key, valueTuple.Value?.ToString());
+            }
+            
             if (CustomAssertMethod is not null)
             {
                 return await AssertCustomHttpCall(client,
@@ -264,9 +270,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // otherwise we would write the wrong response
             if (httpResponseMessage.IsSuccessStatusCode != isSuccessStatusCode)
             {
-                var errorInfo = isSuccessStatusCode ? "You expect an OK result but the response was NOT OK. Please check implementation or your expected response" : "You expect an NOT OK (Error) result but the response was OK. Please check implementation or your expected response";
+                var errorInfo = isSuccessStatusCode ? 
+                                    $"You expect an OK result but the response was {httpResponseMessage.StatusCode}. Please check implementation or your expected response" : 
+                                    $"You expect an ERROR result but the response was {httpResponseMessage.StatusCode}. Please check implementation or your expected response";
 
-                var simpleExpectedResult = expectedResult.GetJsonStringFrom<TResult>(contentAsString, callingAssembly, curl,
+                var simpleExpectedResult = expectedResult.GetJsonStringOrDefaultFrom<TResult>(contentAsString, callingAssembly, curl,
                                                                                      expectedResultParameterName);
 
                 var schemaNotMatchingError = OutputFormatter.GetOutputString(httpCallInfo, errorInfo, simpleExpectedResult,

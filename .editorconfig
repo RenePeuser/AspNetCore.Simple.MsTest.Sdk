@@ -160,6 +160,7 @@ dotnet_diagnostic.IDE0042.severity = suggestion
 csharp_style_prefer_top_level_statements = true:silent
 csharp_style_prefer_primary_constructors = true:suggestion
 dotnet_diagnostic.IDE0005.severity = silent
+dotnet_diagnostic.IDE0027.severity = silent
 dotnet_diagnostic.IDE0055.severity = suggestion
 dotnet_diagnostic.IDE0290.severity = suggestion
 dotnet_diagnostic.IDE0300.severity = suggestion

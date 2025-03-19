@@ -453,7 +453,7 @@ public class Persons : ApiTestBase
         return Client.AssertPostAsync<Person>("api/tests/v1/persons",
                                               "Payloads.SonGoku.json",
                                               "Results.SonGoku.json",
-                                              writeResponse: true); // NEW: With this flag your json / string repsonse will be created with the given file name.
+                                              writeResponse: false); // NEW: With this flag your json / string repsonse will be created with the given file name.
     }
 }
 
