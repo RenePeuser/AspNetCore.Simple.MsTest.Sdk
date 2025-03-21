@@ -305,7 +305,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 14. Normalize expected json string dependent on target type and edge cases like primitive types and so on.
             string? expectedResultAsJson;
 
-            if (writResponse && callingAssembly.IsCompiledInDebug())
+            if ((writResponse || AssertObjectExtensions.WriteResponse) && callingAssembly.IsCompiledInDebug())
             {
                 expectedResultAsJson = expectedResult.GetJsonStringOrDefaultFrom<TResult>(contentAsString, callingAssembly, curl,
                                                                                           expectedResultParameterName);
