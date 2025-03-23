@@ -75,29 +75,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 return new EmbeddedFileInfo(embedddFile, null);
             }
-            
+
             // 2. We only can localize files, if we have no file we return origin
             var fileExtensions = Path.GetExtension(embedddFile);
             if (fileExtensions.IsNullOrWhiteSpace())
             {
                 return new EmbeddedFileInfo(embedddFile, null);
             }
-            
+
             // 3. Get assembly infos
             var assemblyName = callingAssembly.GetName().Name;
             var embeddedFileNames = callingAssembly.GetManifestResourceNames();
-            
+
             // 4. Detect if we really have a file
             var parts = embedddFile.Split('.');
-            
+
             // 4. Detect if we already have an absolute path
             var matchingFiles = embeddedFileNames.Where(file => file.Contains(embedddFile, StringComparison.OrdinalIgnoreCase)).ToList();
-            if (matchingFiles.Count == 1 && 
-                parts.Length > 3)
-            {
-                return new EmbeddedFileInfo(matchingFiles[0], null);
-            }
-            
+
             var filename = $"{parts[^2]}.{parts[^1]}";
             var trimmedFileName = filename.Trim('"');
 
@@ -105,6 +100,35 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 2 To keep legacy code compatible we check for
             //   - Result, Results, Response
+
+            // NewPersonParameter.json
+            // Requests.NewPersonParameter.json
+            // Responses.NewPersonParameter.json
+            // AnyFolder.P.NewPersonParameter.json
+            if (matchingFiles.Count == 1 &&
+                parts.Length > 2)
+            {
+                var embeddedFileName = matchingFiles[0];
+                
+                // Go back to test folder which ends with .Test or Tests
+                var projectFolder = FindProjectFolder(fileInfo.Directory, callingAssembly);
+                if (projectFolder.IsNotNull())
+                {
+                    var relativePath2 = embeddedFileName.Replace(trimmedFileName, string.Empty)
+                                                        .Replace(projectFolder.Name, string.Empty)
+                                                        .Replace('.', Path.DirectorySeparatorChar)
+                                                        .Trim(Path.DirectorySeparatorChar);
+
+                    var filePath = Path.Combine(projectFolder.FullName, relativePath2.TrimStart('\''), filename);
+                    var fileInfo2 = new FileInfo(filePath);
+                    if (fileInfo2.Exists)
+                    {
+                        return new EmbeddedFileInfo(embeddedFileName, fileInfo2);
+                    }
+                }
+
+                return new EmbeddedFileInfo(embeddedFileName, null);
+            }
 
             var legacyFolder = fileInfo.Directory?.EnumerateDirectories().FirstOrDefault(d => folderNames.Contains(d.Name));
 
@@ -146,5 +170,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return new EmbeddedFileInfo(relativePath, targetResponseFile);
 
         }
+
+        private DirectoryInfo? FindProjectFolder(DirectoryInfo? directoryInfo,
+                                                 Assembly assembly)
+        {
+            if (directoryInfo.IsNull())
+            {
+                return directoryInfo;
+            }
+
+            if (directoryInfo.Name == assembly.GetName().Name)
+            {
+                return directoryInfo;
+            }
+
+            return FindProjectFolder(directoryInfo.Parent, assembly);
+        }
+        
     }
 }
