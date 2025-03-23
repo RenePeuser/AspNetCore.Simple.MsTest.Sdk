@@ -39,6 +39,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
                                                   "NewPersonParameter.json",
                                                   [("$Name$", "Son"), ("$Age$", 42)]);
         }
+        
+        [TestMethod]
+        public Task Should_Be_Able_To_Post_A_Person_Parameterized_With_Absolute_Embedded_Filepath()
+        {
+            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+                                                  "AnyFolder.P.NewPersonParameter.json",
+                                                  "AnyFolder.R.NewPersonParameter.json",
+                                                  [("$Name$", "Son"), ("$Age$", 42)]);
+        }
 
         [TestMethod]
         public Task Should_Be_Able_To_Post_A_Person_By_Json()

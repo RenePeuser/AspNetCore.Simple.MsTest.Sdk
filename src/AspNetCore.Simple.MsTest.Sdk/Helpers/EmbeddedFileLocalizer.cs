@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -88,6 +89,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             
             // 4. Detect if we really have a file
             var parts = embedddFile.Split('.');
+            
+            // 4. Detect if we already have an absolute path
+            var matchingFiles = embeddedFileNames.Where(file => file.Contains(embedddFile, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (matchingFiles.Count == 1 && 
+                parts.Length > 3)
+            {
+                return new EmbeddedFileInfo(matchingFiles[0], null);
+            }
+            
             var filename = $"{parts[^2]}.{parts[^1]}";
             var trimmedFileName = filename.Trim('"');
 

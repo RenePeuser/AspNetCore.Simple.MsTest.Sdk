@@ -20,7 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         public Task Should_Return_Expected_Result_For_Given_Payload_Ignore_Id()
         {
             return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons",
-                                                              "Results.GetPersonResponse.json",
+                                                              "GetPersonResponse.json",
                                                               DifferenceFunc);
         }
 
@@ -28,7 +28,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         public Task Should_Return_Expected_Result_For_Given_Payload_With_Post_Sort()
         {
             return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons",
-                                                              "Results.GetPersonResponse.json",
+                                                              "GetPersonResponse.json",
                                                               FilterFunc);
         }
 

@@ -11,6 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="AnyFolder\P\NewPersonParameter.json" />
+        <EmbeddedResource Include="AnyFolder\R\NewPersonParameter.json" />
         <EmbeddedResource Include="Controllers\Requests\NewPersonParameter.json" />
         <EmbeddedResource Include="Controllers\Requests\NewPerson.json" />
         <EmbeddedResource Include="Controllers\Requests\InvalidSonGoku.json" />
