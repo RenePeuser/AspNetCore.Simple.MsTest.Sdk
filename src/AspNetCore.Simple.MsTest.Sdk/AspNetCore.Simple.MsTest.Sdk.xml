@@ -131,7 +131,7 @@
             A descriptive name that combines the test method's name with the test data details, aiding in test identification.
             </returns>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.StaticLocatorAttribute">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute">
             <summary>
             Attribute that locates use case request JSON files as test data for a given test method.
             </summary>
@@ -156,7 +156,7 @@
             The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
             filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
             separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-            provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.StaticLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
+            provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
             and the test data details.
             </para>
             
@@ -183,15 +183,15 @@
             </para>
             </example>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticLocatorAttribute.#ctor(System.String,System.Object[])">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.#ctor(System.String,System.Object[])">
             <summary>
-            Initializes a new instance of the <see cref="T:AspNetCore.Simple.MsTest.Sdk.StaticLocatorAttribute"/> class with an explicit request folder
+            Initializes a new instance of the <see cref="T:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute"/> class with an explicit request folder
             and additional parameters.
             </summary>
             <param name="requestFolder">The explicit request folder path where JSON resources are located.</param>
             <param name="parameters">Additional parameters to be appended to each test case data.</param>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticLocatorAttribute.GetData(System.Reflection.MethodInfo)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetData(System.Reflection.MethodInfo)">
             <summary>
             Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
             Each test data object contains the JSON resource identifier and any additional parameters.
@@ -202,7 +202,7 @@
             followed by any extra parameters.
             </returns>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
             <summary>
             Generates a display name for each test case data variation.
             </summary>
