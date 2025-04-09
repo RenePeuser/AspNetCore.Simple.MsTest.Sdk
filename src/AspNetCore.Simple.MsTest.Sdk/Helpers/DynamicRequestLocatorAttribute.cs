@@ -59,37 +59,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </para>
     /// </example>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class RequestLocatorAttribute : Attribute, ITestDataSource
+    public class DynamicRequestLocatorAttribute : Attribute, ITestDataSource
     {
-        private readonly string _requestFolder;
         private readonly object[] _parameters;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RequestLocatorAttribute"/> class with no explicit request folder
-        /// or additional parameters.
-        /// </summary>
-        public RequestLocatorAttribute() : this(string.Empty)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RequestLocatorAttribute"/> class using additional parameters.
-        /// The request folder will be determined automatically from the test class's namespace.
-        /// </summary>
-        /// <param name="parameters">Additional parameters to be appended to each test case data.</param>
-        public RequestLocatorAttribute(params object[] parameters) : this(string.Empty, parameters)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RequestLocatorAttribute"/> class with an explicit request folder
+        /// Initializes a new instance of the <see cref="DynamicRequestLocatorAttribute"/> class with an explicit request folder
         /// and additional parameters.
         /// </summary>
-        /// <param name="requestFolder">The explicit request folder path where JSON resources are located.</param>
         /// <param name="parameters">Additional parameters to be appended to each test case data.</param>
-        public RequestLocatorAttribute(string requestFolder, params object[] parameters)
+        public DynamicRequestLocatorAttribute(params object[] parameters)
         {
-            _requestFolder = requestFolder;
             _parameters = parameters;
         }
 
@@ -105,35 +85,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public IEnumerable<object[]> GetData(MethodInfo methodInfo)
         {
             // Use the specified _requestFolder or compute it from the declaring type.
-            var currentPath = _requestFolder;
             var declaringType = methodInfo.DeclaringType;
-
             if (declaringType == null)
             {
                 yield break;
             }
 
-            // Automatically determine folder path if no explicit _requestFolder is provided.
-            if (string.IsNullOrWhiteSpace(currentPath))
+            if (string.IsNullOrWhiteSpace(declaringType.FullName))
             {
-                if (string.IsNullOrWhiteSpace(declaringType.FullName))
-                {
-                    yield break;
-                }
-
-                // Remove the class name portion from the full namespace and append ".Requests".
-                var folderPath = declaringType.FullName.Replace($".{declaringType.Name}", string.Empty);
-                currentPath = $"{folderPath}.Requests";
+                yield break;
             }
+
+            // Remove the class name portion from the full namespace and append ".Requests".
+            var folderPath = declaringType.FullName.Replace($".{declaringType.Name}", string.Empty);
+            var currentPath = $"{folderPath}.Requests";
 
             // Fetch all manifest resource names from the assembly.
             var manifestResourceNames = declaringType.Assembly.GetManifestResourceNames();
 
             // Filter to only include JSON files that contain the computed or provided path.
-            var useCases = manifestResourceNames
-                .Where(file => file.Contains(currentPath) && file.EndWith(".json"))
-                .Select(item => item.Split('.').TakeLast(2).Aggregate((a, b) => $"{a}.{b}"))
-                .ToImmutableList();
+            var useCases = manifestResourceNames.Where(file => file.Contains(currentPath) && file.EndWith(".json"))
+                                                .Select(item => item.Split('.').TakeLast(2).Aggregate((a, b) => $"{a}.{b}"))
+                                                .ToImmutableList();
 
             // Yield each identified use case as a separate test input.
             foreach (var useCase in useCases)
@@ -142,10 +115,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 yield return parameters;
             }
 
+            yield break;
+
             // Local function to combine the JSON resource with the extra parameters.
-            static IEnumerable<object> GetParams(string request, object[] parameters)
+            static IEnumerable<object> GetParams(string request,
+                                                 object[] parameters)
             {
                 yield return request;
+
                 foreach (var param in parameters)
                 {
                     yield return param;
@@ -161,7 +138,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <returns>
         /// A descriptive name that combines the test method's name with the test data details, aiding in test identification.
         /// </returns>
-        public string GetDisplayName(MethodInfo methodInfo, object?[]? data)
+        public string GetDisplayName(MethodInfo methodInfo,
+                                     object?[]? data)
         {
             if (data is null)
             {
@@ -170,6 +148,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Flatten the data items into a comma-separated string and combine with the method name.
             var dataDisplay = string.Join(", ", data.Select(item => item?.ToString() ?? "null"));
+
             return $"{methodInfo.Name} ({dataDisplay})";
         }
     }

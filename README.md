@@ -446,9 +446,9 @@ To simplify multiple use cases you can simplify your tests with this little tric
 ```csharp
 [TestMethod]
 // NEW dynamic request locator -> dynamic location. A "Requests" folder will be searched in your scope
-[RequestLocator]
+[DynamicRequestLocator]
 // NEW static request locator -> static location
-[RequestLocator("Api.Users.V1.Create.Status_200_Ok.Requests")]
+[StaticRequestLocator("Api.Users.V1.Create.Status_200_Ok.Requests")]
 public async Task Should_Be_Able_To_Create_A_User(string useCase)
 {
     // 1. Create a new user
