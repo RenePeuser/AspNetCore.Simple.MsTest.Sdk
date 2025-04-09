@@ -290,10 +290,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var filteredCurrentResult = filterFunc(currentResult);
 
             // 12. Simplify the response message
-            var simpleHttpResponse = httpResponseMessage.ToJson(JsonSerializerOptions).FromJsonStringAs<SimpleHttpResponseMessage>(JsonSerializerOptions);
+            var currentSimpleHttResponseMessage = httpResponseMessage.ToJson(JsonSerializerOptions).FromJsonStringAs<SimpleHttpResponseMessage>(JsonSerializerOptions);
 
             // 13. Setup simple http response message which is the new container class for the comparison
-            var resolvedSimpleHttpResponse = simpleHttpResponse with
+            var currentResolvedSimpleHttpResponse = currentSimpleHttResponseMessage with
             {
                 Content = new SimpleHttpContent
                 {
@@ -312,11 +312,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (expectedResultAsJson.IsNull())
                 {
-                    expectedResultAsJson = resolvedSimpleHttpResponse.ToJson(JsonSerializerOptions);
+                    expectedResultAsJson = currentResolvedSimpleHttpResponse.ToJson(JsonSerializerOptions);
                 }
             }
             else
             {
+                
+                // try first new vrsion
                 expectedResultAsJson = expectedResult.GetJsonStringFrom<TResult>(contentAsString, callingAssembly, curl,
                                                                                  expectedResultParameterName);
             }
@@ -337,7 +339,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             //     Because already existing test code just have the type response, no status code checks and more
             if (expectedResultAsSimpleResponse.IsNull() || expectedResultAsSimpleResponse.Content.IsNull())
             {
-                expectedResultAsSimpleResponse = simpleHttpResponse with
+                expectedResultAsSimpleResponse = currentSimpleHttResponseMessage with
                 {
                     Content = new SimpleHttpContent
                     {
@@ -356,7 +358,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var expectedObjectAsJson = expectedResultAsSimpleResponse.ToJson(JsonSerializerOptions);
 
             Assert.That.ObjectsAreEqual(expectedObjectAsJson,
-                                        resolvedSimpleHttpResponse,
+                                        currentResolvedSimpleHttpResponse,
                                         item => item,
                                         httpCallInfo,
                                         callingAssembly,
