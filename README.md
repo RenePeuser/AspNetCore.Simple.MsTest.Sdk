@@ -452,7 +452,7 @@ To simplify multiple use cases you can simplify your tests with this little tric
 public async Task Should_Be_Able_To_Create_A_User(string useCase)
 {
     // 1. Create a new user
-    var createUserResponse = await Client.AssertPostAsync<CreateUserResponse>($"api/console/v1/aws-s3-buckets/",
+    var createUserResponse = await Client.AssertPostAsync<CreateUserResponse>("api/v1/users",
 																			  useCase,
 																			  useCase,
 																			  IgnoreIdAndDate,
@@ -462,7 +462,7 @@ public async Task Should_Be_Able_To_Create_A_User(string useCase)
 																			  ]).ConfigureAwait(false);
 
     // 2. Get the currently created user
-    await Client.AssertGetAsync<GetUserByIdResponse>($"api/console/v1/aws-s3-buckets/{createUserResponse.User.Id}",
+    await Client.AssertGetAsync<GetUserByIdResponse>("api/v1/users/{createUserResponse.User.Id}",
 													 useCase,
 													 IgnoreLastUpdatedDate,
 													 [
