@@ -440,6 +440,39 @@ static IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differe
 }
 ```
 
+### Request locator
+To simplify multiple use cases you can simplify your tests with this little trick :)
+
+```csharp
+[TestMethod]
+// NEW dynamic request locator -> dynamic location. A "Requests" folder will be searched in your scope
+[RequestLocator]
+// NEW static request locator -> static location
+[RequestLocator("Api.Users.V1.Create.Status_200_Ok.Requests")]
+public async Task Should_Be_Able_To_Create_A_User(string useCase)
+{
+    // 1. Create a new user
+    var createUserResponse = await Client.AssertPostAsync<CreateUserResponse>($"api/console/v1/aws-s3-buckets/",
+																			  useCase,
+																			  useCase,
+																			  IgnoreIdAndDate,
+																			  [
+																			   ("$UniqueUserName$", UniqueUserName),
+																			   ("$Id$", Guid.Empty)
+																			  ]).ConfigureAwait(false);
+
+    // 2. Get the currently created user
+    await Client.AssertGetAsync<GetUserByIdResponse>($"api/console/v1/aws-s3-buckets/{createUserResponse.User.Id}",
+													 useCase,
+													 IgnoreLastUpdatedDate,
+													 [
+													  ("$UniqueUserName$", UniqueUserName),
+													  ("$Id$", createUserResponse.User.Id)
+													 ]).ConfigureAwait(false);
+}
+```
+
+
 ### Test-Writer (POC-State)
 We provide you now a small dev tool to help you create your test response files.
 This helps you speed up writing and getting your test green.
