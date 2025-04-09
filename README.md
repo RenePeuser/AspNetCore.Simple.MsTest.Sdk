@@ -443,6 +443,20 @@ static IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differe
 ### Request locator
 To simplify multiple use cases you can simplify your tests with this little trick :)
 
+Instead of:
+```
+[TestMethod]
+[DataRow("UseCase_01.json")]
+[DataRow("UseCase_02.json")]
+[DataRow("UseCase_03.json")]
+[DataRow("UseCase_04.json")]
+public async Task Should_Be_Able_To_Create_A_User(string useCase)
+{
+}
+```
+
+Just use:
+
 ```csharp
 [TestMethod]
 // NEW dynamic request locator -> dynamic location. A "Requests" folder will be searched in your scope
