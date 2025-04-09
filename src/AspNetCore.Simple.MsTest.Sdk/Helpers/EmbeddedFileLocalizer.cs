@@ -22,12 +22,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public sealed class EmbeddedFileLocalizer(TestCreatorSettings testCreatorSettings)
     {
         public string LocalizeRequest(string embeddedFile,
-                                                string callerFilePath,
-                                                Assembly callingAssembly)
+                                      string callerFilePath,
+                                      Assembly callingAssembly)
         {
             var allowedRequestFolders = testCreatorSettings.LegacyRequestFolderName.Concat(testCreatorSettings.RequestFolderName).ToImmutableHashSet();
 
-            return GetLocalizedFile(embeddedFile, callerFilePath, allowedRequestFolders, callingAssembly).EmbeddedFileName;
+            return GetLocalizedFile(embeddedFile, callerFilePath, allowedRequestFolders,
+                                    callingAssembly).EmbeddedFileName;
         }
 
         public string LocalizeResponse(string embedddFile,
@@ -36,27 +37,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var allowedRequestFolders = testCreatorSettings.LegacyResponseFolderNames.Concat(testCreatorSettings.ResponseFolderName).ToImmutableHashSet();
 
-            return GetLocalizedFile(embedddFile, callerFilePath, allowedRequestFolders, callingAssembly).EmbeddedFileName;
+            return GetLocalizedFile(embedddFile, callerFilePath, allowedRequestFolders,
+                                    callingAssembly).EmbeddedFileName;
         }
 
         public EmbeddedFileInfo LocalizeRequestFile(string embeddedFile,
-                                                string callerFilePath,
-                                                Assembly callingAssembly)
+                                                    string callerFilePath,
+                                                    Assembly callingAssembly)
         {
             var allowedRequestFolders = testCreatorSettings.LegacyRequestFolderName.Concat(testCreatorSettings.RequestFolderName).ToImmutableHashSet();
 
-            return GetLocalizedFile(embeddedFile, callerFilePath, allowedRequestFolders, callingAssembly);
+            return GetLocalizedFile(embeddedFile, callerFilePath, allowedRequestFolders,
+                                    callingAssembly);
         }
 
         public EmbeddedFileInfo LocalizeResponseFile(string embedddFile,
-                                                 string callerFilePath,
-                                                 Assembly callingAssembly)
+                                                     string callerFilePath,
+                                                     Assembly callingAssembly)
         {
             var allowedRequestFolders = testCreatorSettings.LegacyResponseFolderNames.Concat(testCreatorSettings.ResponseFolderName).ToImmutableHashSet();
 
-            return GetLocalizedFile(embedddFile, callerFilePath, allowedRequestFolders, callingAssembly);
+            return GetLocalizedFile(embedddFile, callerFilePath, allowedRequestFolders,
+                                    callingAssembly);
         }
-
 
         private EmbeddedFileInfo GetLocalizedFile(string embedddFile,
                                                   string callerFilePath,
@@ -78,6 +81,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 2. We only can localize files, if we have no file we return origin
             var fileExtensions = Path.GetExtension(embedddFile);
+
             if (fileExtensions.IsNullOrWhiteSpace())
             {
                 return new EmbeddedFileInfo(embedddFile, null);
@@ -109,9 +113,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 parts.Length > 2)
             {
                 var embeddedFileName = matchingFiles[0];
-                
+
                 // Go back to test folder which ends with .Test or Tests
                 var projectFolder = FindProjectFolder(fileInfo.Directory, callingAssembly);
+
                 if (projectFolder.IsNotNull())
                 {
                     var relativePath2 = embeddedFileName.Replace(trimmedFileName, string.Empty)
@@ -121,6 +126,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                     var filePath = Path.Combine(projectFolder.FullName, relativePath2.TrimStart('\''), filename);
                     var fileInfo2 = new FileInfo(filePath);
+
                     if (fileInfo2.Exists)
                     {
                         return new EmbeddedFileInfo(embeddedFileName, fileInfo2);
@@ -136,6 +142,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 3. Worst case if result is null
             responseFolderName ??= testCreatorSettings.ResponseFolderName;
+
             if (embedddFile.Contains(responseFolderName))
             {
                 var test = embedddFile.Replace(trimmedFileName, string.Empty);
@@ -146,6 +153,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 4. Define response or results folder
             //    We keep existing once compatible
             var targetResponseFile = new FileInfo(Path.Combine(fileInfo.DirectoryName!, responseFolderName, trimmedFileName));
+
             if (targetResponseFile.Directory!.NotExists())
             {
                 targetResponseFile.Directory!.Create();
@@ -168,7 +176,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             return new EmbeddedFileInfo(relativePath, targetResponseFile);
-
         }
 
         private DirectoryInfo? FindProjectFolder(DirectoryInfo? directoryInfo,
@@ -186,6 +193,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             return FindProjectFolder(directoryInfo.Parent, assembly);
         }
-        
     }
 }
