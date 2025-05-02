@@ -96,8 +96,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 yield break;
             }
 
-            // Remove the class name portion from the full namespace and append ".Requests".
-            var folderPath = declaringType.FullName.Replace($".{declaringType.Name}", string.Empty);
+
+            // This handles generic test class use cases
+            var fullName = declaringType.FullName.Split('[').First();
+            
+            var folderPath = fullName.Replace($".{declaringType.Name}", string.Empty);
             var currentPath = $"{folderPath}.Requests";
 
             // Fetch all manifest resource names from the assembly.
