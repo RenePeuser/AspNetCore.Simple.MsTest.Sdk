@@ -928,14 +928,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var contentValueDifferences = differences.FirstOrDefault(d => d.MemberPath.Equals("Content.Value", StringComparison.OrdinalIgnoreCase));
                 if (contentValueDifferences.IsNotNull())
                 {
-                    var contentDifferences = jsonDiffer.FindDifferences(contentValueDifferences.Value1 ?? string.Empty, contentValueDifferences.Value2 ?? string.Empty);
-                    schemaNotMatching = contentDifferences.Any(item => item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond);
+                    differences = jsonDiffer.FindDifferences(contentValueDifferences.Value1 ?? string.Empty, contentValueDifferences.Value2 ?? string.Empty);
+                    schemaNotMatching = differences.Any(item => item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond);
                 }
 
-                var schemaMismatchTable = differences.ToResultTable(expectedResultParameterName, currentResultParameterName);
+                var differenceOutputTable = differences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
                 var schemaNotMatchingError = OutputFormatter.GetOutputString(title, "Schema mismatch: Expected result and current result does not match", object1AsJson,
-                                                                             object2AsJson, schemaMismatchTable, curl);
+                                                                             object2AsJson, differenceOutputTable, curl);
 
                 Assert.IsFalse(schemaNotMatching, schemaNotMatchingError);
 

@@ -163,7 +163,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 url = url.Replace(valueTuple.Key, valueTuple.Value?.ToString());
             }
-            
+
             if (CustomAssertMethod is not null)
             {
                 return await AssertCustomHttpCall(client,
@@ -270,8 +270,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // otherwise we would write the wrong response
             if (httpResponseMessage.IsSuccessStatusCode != isSuccessStatusCode)
             {
-                var errorInfo = isSuccessStatusCode ? 
-                                    $"You expect an OK result but the response was {httpResponseMessage.StatusCode}. Please check implementation or your expected response" : 
+                var errorInfo = isSuccessStatusCode ?
+                                    $"You expect an OK result but the response was {httpResponseMessage.StatusCode}. Please check implementation or your expected response" :
                                     $"You expect an ERROR result but the response was {httpResponseMessage.StatusCode}. Please check implementation or your expected response";
 
                 var simpleExpectedResult = expectedResult.GetJsonStringOrDefaultFrom<TResult>(contentAsString, callingAssembly, curl,
@@ -317,7 +317,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
             else
             {
-                
+
                 // try first new vrsion
                 expectedResultAsJson = expectedResult.GetJsonStringFrom<TResult>(contentAsString, callingAssembly, curl,
                                                                                  expectedResultParameterName);
@@ -353,6 +353,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
             //     Dependent on the flag we know if the response should fail or not -> so 
             //     is our code 100% compatible with the existing code
             expectedResultAsSimpleResponse = expectedResultAsSimpleResponse with { IsSuccessStatusCode = isSuccessStatusCode };
+
+            // NEW quick workaround
+            if (expectedResultAsSimpleResponse.Content.Value.IsNull() &&
+                expectedResultAsJsonParamterized.IsNotNullOrWhiteSpace())
+            {
+                expectedResultAsSimpleResponse = expectedResultAsSimpleResponse with { Content = expectedResultAsSimpleResponse.Content with { Value = expectedResultAsJsonParamterized } };
+            }
 
             // 21. Compare the expected results and more - just response
             var expectedObjectAsJson = expectedResultAsSimpleResponse.ToJson(JsonSerializerOptions);

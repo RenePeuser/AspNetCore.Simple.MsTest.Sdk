@@ -25,9 +25,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var table = new ConsoleTable(nameof(Difference.MemberPath), objectName1, objectName2) { Options = { EnableCount = false } };
-            differences.ForEach(dif => table.AddRow(dif.MemberPath, dif.Value1, dif.Value2));
+            differences.ForEach(dif =>
+                                {
+                                    switch (dif.MismatchType)
+                                    {
+                                        case MismatchType.ValueDifference:
+                                            table.AddRow(dif.MemberPath, dif.Value1, dif.Value2);
+                                            break;
+                                        case MismatchType.MissingInFirst:
+                                            table.AddRow(dif.MemberPath, "Property missing", dif.Value2);
+                                            break;
+                                        case MismatchType.MissingInSecond:
+                                            table.AddRow(dif.MemberPath, dif.Value1, "Property missing");
+                                            break;
+                                    }
+                                });
 
-            return table.ToString();
+            var stringTable = table.ToString();
+            return stringTable;
         }
     }
 }
