@@ -373,9 +373,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
             //     Otherwise, we lost unexpected properties
             if (expectedResultAsJsonParamterized.IsNotNullOrWhiteSpace() &&
                 expectedResultAsJsonParamterized.DoesNotContain(IgnoreResponseComparison) &&
-                contentAsString.StartsWith('{') || contentAsString.StartsWith('['))
+                (contentAsString.StartsWith('{') || contentAsString.StartsWith('[')))
             {
-                var currentResponse = currentResolvedSimpleHttpResponse.ToJson(JsonSerializerOptions);
+                var currentResponse = currentSimpleHttResponseMessage with
+                {
+                    Content = currentSimpleHttResponseMessage.Content.IsNull()
+                                                        ? new SimpleHttpContent()
+                                                        {
+                                                            Value = currentSimpleHttResponseMessage,
+                                                            Headers = ImmutableList<KeyValuePair<string, IImmutableList<string>>>.Empty
+                                                        }
+                                                        : currentSimpleHttResponseMessage.Content with
+                                                        {
+                                                            Value = JsonDocument.Parse(contentAsString).RootElement,
+                                                        }
+                };
+
+
+
                 var expected = currentSimpleHttResponseMessage with
                 {
                     Content = currentSimpleHttResponseMessage.Content.IsNull()
@@ -391,11 +406,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 };
 
                 var expectedJson = expected.ToJson(JsonSerializerOptions);
-                var differences = JsonDiffer.FindDifferences(currentResponse, expectedJson);
+                var currentResponseJson = currentResponse.ToJson(JsonSerializerOptions);
+                
+                var differences = JsonDiffer.FindDifferences(expectedJson, currentResponseJson);
                 if (differences.Any(d => d.MismatchType.NotEqualsTo(MismatchType.ValueDifference)))
                 {
                     var differenceOutputTable = differences.ToResultTable(expectedResultParameterName, "Current");
-                    var schemaNotMatchingError = OutputFormatter.GetOutputString(httpCallInfo, "Schema mismatch: Expected result and current result does not match", expectedJson, currentResponse, differenceOutputTable, curl);
+                    var schemaNotMatchingError = OutputFormatter.GetOutputString(httpCallInfo, "Schema mismatch: Expected result and current result does not match", expectedJson, currentResponseJson, differenceOutputTable, curl);
 
                     Assert.Fail(schemaNotMatchingError);
                 }
