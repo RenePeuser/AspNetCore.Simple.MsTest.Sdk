@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -10,7 +11,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using Extensions.Pack;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using JsonSerializer = AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -26,6 +29,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static readonly EmbeddedFileLocalizer embeddedFileLocalizer = new(new TestCreatorSettings());
 
         private static readonly PrimitiveTypeConverter PrimitiveTypeConverter = new();
+
+        private static readonly JsonDiffer JsonDiffer = new JsonDiffer();
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions
@@ -326,6 +331,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 15. Resolve parameters in expected result
             var expectedResultAsJsonParamterized = expectedResultAsJson.ResolveParameters(parameters);
 
+            
+            // 16. Before we convert the json into the target type we have to do a schema check !!
+            //     Otherwise, we lost unexpected properties
+            if (resolvedParametersJsonString.IsNotNullOrWhiteSpace())
+            {
+                var differences = JsonDiffer.FindDifferences(expectedResultAsJsonParamterized, resolvedParametersJsonString);
+                if (differences.Any(d => d.MismatchType.NotEqualsTo(MismatchType.ValueDifference)))
+                {
+                    var differenceOutputTable = differences.ToResultTable(expectedResultParameterName, "Current");
+
+                    var doc = JsonDocument.Parse(expectedResultAsJsonParamterized);
+                    string minified = System.Text.Json.JsonSerializer.Serialize(doc.RootElement);
+                    
+                    var schemaNotMatchingError = OutputFormatter.GetOutputString(httpCallInfo, "Schema mismatch: Expected result and current result does not match", resolvedParametersJsonString,
+                                                                                 minified, differenceOutputTable, curl);
+
+                    Assert.Fail(schemaNotMatchingError);
+                }
+            }
+            
             // 16. Edge case string as primitive type -> just string response -> no json
             var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParamterized) : expectedResultAsJsonParamterized.FromJsonStringOrDefault<TResult>(JsonSerializerOptions);
 

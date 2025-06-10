@@ -922,8 +922,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 
                 // 1. Check if we are comparing the same schema
-                var schemaNotMatching = differences.Any() &&
-                                        differences.All(item => item.Value1.IsNull() || item.Value2.IsNull());
+                var schemaNotMatching = differences.Any(item => item.MismatchType.NotEqualsTo(MismatchType.ValueDifference));
 
                 var contentValueDifferences = differences.FirstOrDefault(d => d.MemberPath.Equals("Content.Value", StringComparison.OrdinalIgnoreCase));
                 if (contentValueDifferences.IsNotNull())
