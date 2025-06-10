@@ -331,26 +331,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 15. Resolve parameters in expected result
             var expectedResultAsJsonParamterized = expectedResultAsJson.ResolveParameters(parameters);
 
-            
-            // 16. Before we convert the json into the target type we have to do a schema check !!
-            //     Otherwise, we lost unexpected properties
-            if (resolvedParametersJsonString.IsNotNullOrWhiteSpace())
-            {
-                var differences = JsonDiffer.FindDifferences(expectedResultAsJsonParamterized, resolvedParametersJsonString);
-                if (differences.Any(d => d.MismatchType.NotEqualsTo(MismatchType.ValueDifference)))
-                {
-                    var differenceOutputTable = differences.ToResultTable(expectedResultParameterName, "Current");
-
-                    var doc = JsonDocument.Parse(expectedResultAsJsonParamterized);
-                    string minified = System.Text.Json.JsonSerializer.Serialize(doc.RootElement);
-                    
-                    var schemaNotMatchingError = OutputFormatter.GetOutputString(httpCallInfo, "Schema mismatch: Expected result and current result does not match", resolvedParametersJsonString,
-                                                                                 minified, differenceOutputTable, curl);
-
-                    Assert.Fail(schemaNotMatchingError);
-                }
-            }
-            
             // 16. Edge case string as primitive type -> just string response -> no json
             var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParamterized) : expectedResultAsJsonParamterized.FromJsonStringOrDefault<TResult>(JsonSerializerOptions);
 
@@ -389,18 +369,50 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 21. Compare the expected results and more - just response
             var expectedObjectAsJson = expectedResultAsSimpleResponse.ToJson(JsonSerializerOptions);
 
+            // 22. Before we convert the json into the target type we have to do a schema check !!
+            //     Otherwise, we lost unexpected properties
+            if (expectedResultAsJsonParamterized.IsNotNullOrWhiteSpace() &&
+                expectedResultAsJsonParamterized.DoesNotContain(IgnoreResponseComparison) &&
+                contentAsString.StartsWith('{') || contentAsString.StartsWith('['))
+            {
+                var currentResponse = currentResolvedSimpleHttpResponse.ToJson(JsonSerializerOptions);
+                var expected = currentSimpleHttResponseMessage with
+                {
+                    Content = currentSimpleHttResponseMessage.Content.IsNull()
+                                                 ? new SimpleHttpContent()
+                                                 {
+                                                     Value = currentSimpleHttResponseMessage,
+                                                     Headers = ImmutableList<KeyValuePair<string, IImmutableList<string>>>.Empty
+                                                 }
+                                                 : currentSimpleHttResponseMessage.Content with
+                                                 {
+                                                     Value = JsonDocument.Parse(expectedResultAsJsonParamterized).RootElement,
+                                                 }
+                };
+
+                var expectedJson = expected.ToJson(JsonSerializerOptions);
+                var differences = JsonDiffer.FindDifferences(currentResponse, expectedJson);
+                if (differences.Any(d => d.MismatchType.NotEqualsTo(MismatchType.ValueDifference)))
+                {
+                    var differenceOutputTable = differences.ToResultTable(expectedResultParameterName, "Current");
+                    var schemaNotMatchingError = OutputFormatter.GetOutputString(httpCallInfo, "Schema mismatch: Expected result and current result does not match", expectedJson, currentResponse, differenceOutputTable, curl);
+
+                    Assert.Fail(schemaNotMatchingError);
+                }
+            }
+
             Assert.That.ObjectsAreEqual(expectedObjectAsJson,
                                         currentResolvedSimpleHttpResponse,
                                         item => item,
-                                        httpCallInfo,
-                                        callingAssembly,
-                                        differenceFunc,
-                                        curl,
-                                        parameters,
-                                        writResponse,
-                                        expectedResultParameterName,
-                                        "Current response",
-                                        callerFilePath);
+                                                httpCallInfo,
+                                                callingAssembly,
+                                                differenceFunc,
+                                                curl,
+                                                parameters,
+                                                writResponse,
+                                                expectedResultParameterName,
+                                                "Current response",
+                                                callerFilePath);
 
             // 22. Return the current result
             return currentResult;

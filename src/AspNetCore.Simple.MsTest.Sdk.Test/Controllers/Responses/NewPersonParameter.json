@@ -1,23 +1,21 @@
 {
-  "Version": "1.1",
-  "Content": {
-    "Headers": [
+  "content": {
+    "headers": [
       {
-        "Key": "Content-Type",
-        "Value": [ "application/json; charset=utf-8" ]
+        "key": "Content-Type",
+        "value": [ "application/json; charset=utf-8" ]
       }
     ],
-    "Value": {
+    "value": {
       "id": 1,
-      "name": "$Name$",
+      "name": "Son",
       "firstName": "Goku",
-      "age": $Age$,
+      "age": 42,
       "emails": []
     }
   },
-  "StatusCode": "OK",
-  "ReasonPhrase": "OK",
-  "Headers": [],
-  "TrailingHeaders": [],
-  "IsSuccessStatusCode": true
+  "statusCode": "OK",
+  "headers": [],
+  "trailingHeaders": [],
+  "isSuccessStatusCode": true
 }

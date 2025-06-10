@@ -1,32 +1,30 @@
 {
-  "Version": "1.1",
-  "Content": {
-    "Headers": [
+  "content": {
+    "headers": [
       {
-        "Key": "Content-Type",
-        "Value": [ "application/json; charset=utf-8" ]
+        "key": "Content-Type",
+        "value": [ "application/json; charset=utf-8" ]
       }
     ],
-    "Value": {
-      "Id": 1,
-      "Name": "Son",
-      "FirstName": "Goku",
-      "Age": 99,
-      "Emails": [
+    "value": {
+      "id": 1,
+      "name": "Son",
+      "firstName": "Goku",
+      "age": 99,
+      "emails": [
         {
-          "EmailAddress": "alf@gmx.de",
-          "Type": "GMX"
+          "emailAddress": "alf@gmx.de",
+          "type": "GMX"
         },
         {
-          "EmailAddress": "abc@hotmail.de",
-          "Type": "Microsoft"
+          "emailAddress": "abc@hotmail.de",
+          "type": "Microsoft"
         }
       ]
     }
   },
-  "StatusCode": "OK",
-  "ReasonPhrase": "OK",
-  "Headers": [],
-  "TrailingHeaders": [],
-  "IsSuccessStatusCode": true
+  "statusCode": "OK",
+  "headers": [],
+  "trailingHeaders": [],
+  "isSuccessStatusCode": true
 }

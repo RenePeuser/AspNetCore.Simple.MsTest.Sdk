@@ -13,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()
         {
-            return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons", /*lang=json,strict*/ "[{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]},{\"Id\":2,\"Name\":\"Vegeta\",\"FirstName\":\"Unknown\",\"Age\":77,\"Emails\":[{\"EmailAddress\":\"abc@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"maxmustermann@hotmail.de\",\"Type\":\"Microsoft\"}]}]");
+            return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons", /*lang=json,strict*/ "{\"content\":{\"headers\":[{\"key\":\"Content-Type\",\"value\":[\"application/json; charset=utf-8\"]}],\"value\":[{\"id\":1,\"name\":\"Son\",\"firstName\":\"Goku\",\"age\":99,\"emails\":[{\"emailAddress\":\"alf@gmx.de\",\"type\":\"GMX\"},{\"emailAddress\":\"abc@hotmail.de\",\"type\":\"Microsoft\"}]},{\"id\":2,\"name\":\"Vegeta\",\"firstName\":\"Unknown\",\"age\":77,\"emails\":[{\"emailAddress\":\"abc@gmx.de\",\"type\":\"GMX\"},{\"emailAddress\":\"maxmustermann@hotmail.de\",\"type\":\"Microsoft\"}]}]},\"statusCode\":\"OK\",\"headers\":[],\"trailingHeaders\":[],\"isSuccessStatusCode\":true}");
         }
 
         [TestMethod]

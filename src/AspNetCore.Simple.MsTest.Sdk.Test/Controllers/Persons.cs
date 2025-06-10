@@ -12,7 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload()
         {
-            return Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons", /*lang=json,strict*/ "[{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]},{\"Id\":2,\"Name\":\"Vegeta\",\"FirstName\":\"Unknown\",\"Age\":77,\"Emails\":[{\"EmailAddress\":\"abc@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"maxmustermann@hotmail.de\",\"Type\":\"Microsoft\"}]}]");
+            return Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons", /*lang=json,strict*/ "{\"content\":{\"headers\":[{\"key\":\"Content-Type\",\"value\":[\"application/json; charset=utf-8\"]}],\"value\":[{\"id\":1,\"name\":\"Son\",\"firstName\":\"Goku\",\"age\":99,\"emails\":[{\"emailAddress\":\"alf@gmx.de\",\"type\":\"GMX\"},{\"emailAddress\":\"abc@hotmail.de\",\"type\":\"Microsoft\"}]},{\"id\":2,\"name\":\"Vegeta\",\"firstName\":\"Unknown\",\"age\":77,\"emails\":[{\"emailAddress\":\"abc@gmx.de\",\"type\":\"GMX\"},{\"emailAddress\":\"maxmustermann@hotmail.de\",\"type\":\"Microsoft\"}]}]},\"statusCode\":\"OK\",\"headers\":[],\"trailingHeaders\":[],\"isSuccessStatusCode\":true}");
         }
 
         [TestMethod]
@@ -26,8 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         public Task Should_Be_Able_To_Post_A_Person_Object()
         {
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
-                                                  new Person(1, "Son", "Goku",
-                                                             42, ImmutableList<Email>.Empty),
+                                                  new Person(1, "Son", "Goku", 42, ImmutableList<Email>.Empty),
                                                   "NewPerson.json");
         }
 
@@ -39,7 +38,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
                                                   "NewPersonParameter.json",
                                                   [("$Name$", "Son"), ("$Age$", 42)]);
         }
-        
+
         [TestMethod]
         public Task Should_Be_Able_To_Post_A_Person_Parameterized_With_Absolute_Embedded_Filepath()
         {
@@ -92,14 +91,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
                                                  /*lang=json,strict*/
                                                  "{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]}",
                                                  /*lang=json,strict*/
-                                                 "{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]}");
+                                                 "{\"id\":1,\"name\":\"Son\",\"firstName\":\"Goku\",\"age\":99,\"emails\":[{\"emailAddress\":\"alf@gmx.de\",\"type\":\"GMX\"},{\"emailAddress\":\"abc@hotmail.de\",\"type\":\"Microsoft\"}]}");
         }
 
         [TestMethod]
         public Task Should_Be_Able_To_Put_A_Person_By_Json_1()
         {
             return Client.AssertPatchAsync<Person>("api/tests/v1/persons",
-                                                   "Controllers.Requests.SonGoku.json");
+                                                   "Controllers.Requests.SonGoku.json",
+                                                   "Controllers.Responses.SonGoku.json");
         }
 
         [TestMethod]
@@ -107,7 +107,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         {
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
                                                   "Requests.SonGoku.json",
-                                                  "Requests.SonGoku.json");
+                                                  "Responses.SonGoku.json");
         }
 
         [TestMethod]
@@ -115,7 +115,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         {
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
                                                    "Payloads.InvalidSonGoku.json",
-                                                   "{}");
+                                                   "Responses.InvalidSonGoku.json");
         }
     }
 }

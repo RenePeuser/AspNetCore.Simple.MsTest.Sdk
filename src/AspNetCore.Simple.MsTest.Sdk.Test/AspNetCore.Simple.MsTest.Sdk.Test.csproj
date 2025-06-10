@@ -18,6 +18,7 @@
         <EmbeddedResource Include="Controllers\Requests\InvalidSonGoku.json" />
         <EmbeddedResource Include="Controllers\Requests\SonGoku.json" />
         <EmbeddedResource Include="Controllers\Responses\NewPersonParameter.json" />
+        <EmbeddedResource Include="Controllers\Responses\InvalidSonGoku.json" />
         <EmbeddedResource Include="Controllers\Responses\SonGokuNewResponse.json" />
         <EmbeddedResource Include="Controllers\Responses\SonGoku.json" />
         <EmbeddedResource Include="Controllers\Responses\ErrorResponse.json" />

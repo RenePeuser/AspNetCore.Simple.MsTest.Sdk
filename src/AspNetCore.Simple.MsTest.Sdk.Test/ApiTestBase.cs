@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk.Api;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -29,6 +30,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                                      _) =>
                                                     {
                                                     }); // Configure environment variables  
+
 
             Client = _apiTestBase.CreateClient();
         }

@@ -1,16 +1,30 @@
 {
-  "Id": 1,
-  "Name": "Son",
-  "FirstName": "Goku",
-  "Age": 99,
-  "Emails": [
-    {
-      "EmailAddress": "alf@gmx.de",
-      "Type": "GMX"
-    },
-    {
-      "EmailAddress": "abc@hotmail.de",
-      "Type": "Microsoft"
+  "content": {
+    "headers": [
+      {
+        "key": "Content-Type",
+        "value": [ "application/json; charset=utf-8" ]
+      }
+    ],
+    "value": {
+      "id": 1,
+      "name": "Son",
+      "firstName": "Goku",
+      "age": 99,
+      "emails": [
+        {
+          "emailAddress": "alf@gmx.de",
+          "type": "GMX"
+        },
+        {
+          "emailAddress": "abc@hotmail.de",
+          "type": "Microsoft"
+        }
+      ]
     }
-  ]
+  },
+  "statusCode": "OK",
+  "headers": [],
+  "trailingHeaders": [],
+  "isSuccessStatusCode": true
 }
