@@ -40,6 +40,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Func<IImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
         public static bool WriteResponse { get; set; }
+        
+        public static bool ResponseFileFullPath { get; set; }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               T? expectedObject,
