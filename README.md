@@ -486,7 +486,6 @@ public async Task Should_Be_Able_To_Create_A_User(string useCase)
 }
 ```
 
-
 ### Test-Writer (POC-State)
 We provide you now a small dev tool to help you create your test response files.
 This helps you speed up writing and getting your test green.
@@ -510,4 +509,39 @@ public class Persons : ApiTestBase
 Writes for all running tests -> be careful when using it !
 ```csharp
 AssertObjectExtensions.WriteResponse = true;
+```
+
+### New difference table schema
+
+* We have new schema difference independent of deserialized object comparison
+* We have new column `MismatchType` which indicates the type of mismatch
+* We reduced the full embedded file path to file name only which can be reactivated over the flag
+  ```csharp 
+  AssertObjectExtensions.ResponseFileFullPath = true;
+  ```
+
+```
+Http call infos:
+
+ ---------------------------------------------------------------------------- 
+ | HttpMethod | Url                                        | HttpStatusCode |
+ ---------------------------------------------------------------------------- 
+ | POST       | http://localhost/api/console/v1/relations/ | OK             |
+ ---------------------------------------------------------------------------- 
+
+
+Schema mismatch: Expected result and current result does not match
+
+
+ ----------------------------------------------------------------------------------------------------------------------------------------- 
+ | MemberPath                            | UseCase_01.json                      | Current                              | MismatchType    |
+ ----------------------------------------------------------------------------------------------------------------------------------------- 
+ | content.value.relation.id             | fa9065d1-230b-46e2-b580-8c1562ac8f48 | 2c518368-95b0-4b99-88a4-0990ae3b3996 | ValueDifference |
+ ----------------------------------------------------------------------------------------------------------------------------------------- 
+ | content.value.relation.lastModifiedAt | 06/10/2025 08:26:54                  | 06/10/2025 17:19:50                  | ValueDifference |
+ ----------------------------------------------------------------------------------------------------------------------------------------- 
+ | content.value.relation.Def            | I am not implemented                 | Property missing                     | MissingInSecond |
+ ----------------------------------------------------------------------------------------------------------------------------------------- 
+ | content.value.relation.abc            | Property missing                     |                                      | MissingInFirst  |
+ ----------------------------------------------------------------------------------------------------------------------------------------- 
 ```
