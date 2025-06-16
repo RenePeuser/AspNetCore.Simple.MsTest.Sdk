@@ -30,6 +30,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly JsonDiffer JsonDiffer = new JsonDiffer();
 
+        private static readonly CurrentResponseWriter CurrentResponseWriter = new CurrentResponseWriter(new EmbeddedFileLocalizer(new TestCreatorSettings()));
+
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions
         {
@@ -405,12 +407,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var expectedJson = expected.ToJson(JsonSerializerOptions);
                 var currentResponseJson = currentResponse.ToJson(JsonSerializerOptions);
-                
+
                 var differences = JsonDiffer.FindDifferences(expectedJson, currentResponseJson);
                 if (differences.Any(d => d.MismatchType.NotEqualsTo(MismatchType.ValueDifference)))
                 {
                     var differenceOutputTable = differences.ToResultTable(expectedResultParameterName, "Current");
                     var schemaNotMatchingError = OutputFormatter.GetOutputString(httpCallInfo, "Schema mismatch: Expected result and current result does not match", expectedJson, currentResponseJson, differenceOutputTable, curl);
+
+
+                    if ((writResponse || AssertObjectExtensions.WriteResponse) && callingAssembly.IsCompiledInDebug())
+                    {
+                        CurrentResponseWriter.Write(currentResponseJson, expectedResultParameterName, callerFilePath,
+                                                    callingAssembly);
+                    }
 
                     Assert.Fail(schemaNotMatchingError);
                 }
