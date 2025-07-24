@@ -250,6 +250,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (keyValue.Value.IsNull())
                 {
+                    // We have to take care about "$MyParam$" <- So also the " have to gone with
+                    replacedString = replacedString.Replace($"\"{keyValue.Key}\"", "null");
+
+                    // And if someone use it correctly already $MyParam$ <- we have to replace it also
                     replacedString = replacedString.Replace(keyValue.Key, "null");
                     continue;
                 }
