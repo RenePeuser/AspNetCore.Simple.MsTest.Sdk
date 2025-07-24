@@ -242,14 +242,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // {
                 //   "Id": $projectId$,
                 // }
-                if (keyValue.Value.IsNotNull() && keyValue.Value.GetType().IsPrimitive)
+                // -------------------------------------------------
+                // Json sample
+                // {
+                //   "ReferenceId": null,  < If value is null this must be thec
+                // }
+
+                if (keyValue.Value.IsNull())
+                {
+                    replacedString = replacedString.Replace(keyValue.Key, "null");
+                    continue;
+                }
+
+                if (keyValue.Value.IsNotNull() &&
+                    keyValue.Value.GetType().IsPrimitive)
                 {
                     replacedString = replacedString.Replace($"{keyValue.Key}", keyValue.Value.ToString());
+                    continue;
                 }
-                else
-                {
-                    replacedString = replacedString.Replace(keyValue.Key, keyValue.Value?.ToString());
-                }
+
+                replacedString = replacedString.Replace(keyValue.Key, keyValue.Value?.ToString());
+
             }
 
             return replacedString;
