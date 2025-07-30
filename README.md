@@ -1,4 +1,4 @@
-# AspNetCore.Simple.MsTest.Sdk
+﻿# AspNetCore.Simple.MsTest.Sdk
 
 This package is designed to enable efficient and clean testing against your ASP.NET Core APIs. It dramatically reduces the amount of required asserts, allowing for faster creation of more readable tests. It supports a Test-First approach, helping developers focus on testing earlier in the development cycle.
 
@@ -483,6 +483,55 @@ public async Task Should_Be_Able_To_Create_A_User(string useCase)
 													  ("$UniqueUserName$", UniqueUserName),
 													  ("$Id$", createUserResponse.User.Id)
 													 ]).ConfigureAwait(false);
+}
+```
+
+
+### Enum test cases
+Need to test against multiple values of an enum? Here's a nice way to reduce clutter and keep your test matrix clean 💡
+
+Instead of this:
+
+```csharp
+[DataTestMethod]
+[DataRow(MyEnum.Feature)]
+[DataRow(MyEnum.Component)]
+[DataRow(MyEnum.System)]
+[DataRow(MyEnum.Feature)]
+[DataRow(MyEnum.Component)]
+[DataRow(MyEnum.System)]
+public async Task Should_Be_Able_To_Create_A_CapabilityType_If_Status_Is_Correct(MyEnum useCase)
+{
+    // Your test logic here
+}
+```
+
+Just use:
+
+```csharp
+[DataTestMethod]
+// Generates one test case for each enum value in CapabilityTypeEnum with status "Active"
+// You can even add multiple sets
+[EnumTestCase<CapabilityTypeEnum>()]
+public async Task Should_Be_Able_To_Create_A_CapabilityType_If_Status_Is_Correct(MyEnum useCase)
+{
+    // Your test logic here
+}
+```
+
+
+Enrich custom data as well:
+
+```csharp
+[DataTestMethod]
+// Generates one test case for each enum value in CapabilityTypeEnum with status "Active"
+// You can even add multiple sets
+[EnumTestCase<CapabilityTypeEnum>("MyValue", 4)]
+public async Task Should_Be_Able_To_Create_A_CapabilityType_If_Status_Is_Correct(MyEnum useCase,
+                                                                                 string customValue,
+                                                                                 int value)
+{
+    // Your test logic here
 }
 ```
 

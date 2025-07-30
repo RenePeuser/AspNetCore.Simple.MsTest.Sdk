@@ -59,11 +59,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </para>
     /// </example>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class EnumTestCaseAttribute<T> : Attribute, ITestDataSource where T : Enum
+    public class DynamicRequestLocatorAttribute : Attribute, ITestDataSource
     {
         private readonly object[] _parameters;
 
-        public EnumTestCaseAttribute(params object[] parameters)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DynamicRequestLocatorAttribute"/> class with an explicit request folder
+        /// and additional parameters.
+        /// </summary>
+        /// <param name="parameters">Additional parameters to be appended to each test case data.</param>
+        public DynamicRequestLocatorAttribute(params object[] parameters)
         {
             _parameters = parameters;
         }
@@ -79,13 +84,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </returns>
         public IEnumerable<object[]> GetData(MethodInfo methodInfo)
         {
-            if (typeof(T).IsEnum.IsFalse())
+            // Use the specified _requestFolder or compute it from the declaring type.
+            var declaringType = methodInfo.DeclaringType;
+            if (declaringType == null)
             {
                 yield break;
             }
 
+            if (string.IsNullOrWhiteSpace(declaringType.FullName))
+            {
+                yield break;
+            }
+
+
+            // This handles generic test class use cases
+            var fullName = declaringType.FullName.Split('[').First();
+            
+            var folderPath = fullName.Replace($".{declaringType.Name}", string.Empty);
+            var currentPath = $"{folderPath}.Requests";
+
+            // Fetch all manifest resource names from the assembly.
+            var manifestResourceNames = declaringType.Assembly.GetManifestResourceNames();
+
             // Filter to only include JSON files that contain the computed or provided path.
-            var useCases = Enum.GetValues(typeof(T)).ToListOfType<T>();
+            var useCases = manifestResourceNames.Where(file => file.Contains(currentPath) && file.EndWith(".json"))
+                                                .Select(item => item.Split('.').TakeLast(2).Aggregate((a, b) => $"{a}.{b}"))
+                                                .ToImmutableList();
 
             // Yield each identified use case as a separate test input.
             foreach (var useCase in useCases)
@@ -97,10 +121,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             yield break;
 
             // Local function to combine the JSON resource with the extra parameters.
-            static IEnumerable<object> GetParams(object useCase,
+            static IEnumerable<object> GetParams(string request,
                                                  object[] parameters)
             {
-                yield return useCase;
+                yield return request;
 
                 foreach (var param in parameters)
                 {
