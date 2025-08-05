@@ -425,7 +425,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
             }
 
-            Assert.That.ObjectsAreEqual(expectedObjectAsJson,
+            Assert.Instance.ObjectsAreEqual(expectedObjectAsJson,
                                         currentResolvedSimpleHttpResponse,
                                         item => item,
                                                 httpCallInfo,
