@@ -47,7 +47,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.8" />
         <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="9.0.8" />
         <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0" PrivateAssets="All" />
-        <PackageReference Include="MSTest.TestFramework" Version="3.10.0" />
+        <PackageReference Include="MSTest.TestFramework" Version="3.10.2" />
         <PackageReference Include="ConsoleTables" Version="2.7.0" />
         <PackageReference Include="System.CodeDom" Version="9.0.8" />
     </ItemGroup>
