@@ -6,7 +6,7 @@
         <PackageLicenseFile>License.txt</PackageLicenseFile>
         <Authors>Rene Peuser</Authors>
         <Company>Rene Peuser Softwaresolutions</Company>
-        <Description>A simple sdk to write easy and fast tests for your web api's</Description>
+        <Descriptiotn>A simple sdk to write easy and fast tests for your web api's</Descriptiotn>
         <Copyright>Copyright 2021 (c) Rene Peuser. All rights reserved.</Copyright>
         <PackageProjectUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
@@ -48,7 +48,7 @@
         <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="9.0.8" />
         <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0" PrivateAssets="All" />
         <PackageReference Include="MSTest.TestFramework" Version="3.10.2" />
-        <PackageReference Include="ConsoleTables" Version="2.7.0" />
+        <PackageReference Include="ConsoleTables" Version="2.6.2" />
         <PackageReference Include="System.CodeDom" Version="9.0.8" />
     </ItemGroup>
 
