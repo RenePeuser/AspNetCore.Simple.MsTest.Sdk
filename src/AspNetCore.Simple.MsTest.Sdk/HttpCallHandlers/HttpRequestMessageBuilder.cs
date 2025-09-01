@@ -35,7 +35,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     InMemoryFileAsStream inMemoryFileAsStream => inMemoryFileAsStream.ToMultipartFormDataContent(payloadParameterName),
                     byte[] byteArray => new ByteArrayContent(byteArray),
                     Stream streamContent => new StreamContent(streamContent),
-                    _ => new StringContent(jsonSerializer.Serialize(payload), Encoding.UTF8, MediaTypeNames.Application.Json)
+                    _ => new StringContent(jsonSerializer.Serialize(payload), Encoding.UTF8, Application.Json)
                 };
             }
         }
@@ -47,7 +47,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return "application/merge-patch+json";
             }
 
-            return MediaTypeNames.Application.Json;
+            return Application.Json;
         }
     }
 }
