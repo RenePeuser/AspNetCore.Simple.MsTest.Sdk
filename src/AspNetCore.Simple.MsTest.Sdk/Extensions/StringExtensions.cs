@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -258,11 +259,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     continue;
                 }
 
+                var type = keyValue.Value.GetType();
+
                 if (keyValue.Value.IsNotNull() &&
-                    keyValue.Value.GetType().IsPrimitive)
+                    type.IsPrimitive)
                 {
-                    replacedString = replacedString.Replace($"{keyValue.Key}", keyValue.Value.ToString());
-                    continue;
+                    var primitiveTypeValue = keyValue.Value.ToString();
+                    if (primitiveTypeValue.IsNull())
+                    {
+                        continue;
+                    }
+                    
+                    if (type == typeof(bool))
+                    {
+                        primitiveTypeValue = primitiveTypeValue.ToLowerInvariant();
+                    }
+                    
+                    replacedString = replacedString.Replace($"\"{keyValue.Key}\"", primitiveTypeValue);
                 }
 
                 replacedString = replacedString.Replace(keyValue.Key, keyValue.Value?.ToString());
