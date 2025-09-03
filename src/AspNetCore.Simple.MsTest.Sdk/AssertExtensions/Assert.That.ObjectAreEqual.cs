@@ -40,7 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Func<IImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
         public static bool WriteResponse { get; set; }
-        
+
         public static bool ResponseFileFullPath { get; set; }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -713,6 +713,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              string expectedObjectAsJson,
+                                              T currentObject,
+                                              Func<T, T> orderFunc,
+                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              (string Key, object? Value)[] parameters,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "")
+        {
+            assert.ObjectsAreEqual(expectedObjectAsJson,
+                                   currentObject,
+                                   orderFunc,
+                                   string.Empty,
+                                   Assembly.GetCallingAssembly(),
+                                   differenceFunc,
+                                   parameters,
+                                   writeResponse,
+                                   expectedResultParameterName,
+                                   currentResultParameterName,
+                                   callerFilePath);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
