@@ -31,13 +31,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                     callingAssembly).EmbeddedFileName;
         }
 
-        public string LocalizeResponse(string embedddFile,
+        public string LocalizeResponse(string embeddedFile,
                                        string callerFilePath,
                                        Assembly callingAssembly)
         {
             var allowedRequestFolders = testCreatorSettings.LegacyResponseFolderNames.Concat(testCreatorSettings.ResponseFolderName).ToImmutableHashSet();
 
-            return GetLocalizedFile(embedddFile, callerFilePath, allowedRequestFolders,
+            return GetLocalizedFile(embeddedFile, callerFilePath, allowedRequestFolders,
                                     callingAssembly).EmbeddedFileName;
         }
 

@@ -409,9 +409,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var currentResponseJson = currentResponse.ToJson(JsonSerializerOptions);
 
                 var differences = JsonDiffer.FindDifferences(expectedJson, currentResponseJson);
-                if (differences.Any(d => d.MismatchType.NotEqualsTo(MismatchType.ValueDifference)))
+                var schemaMismatchDifferences = differences.Where(d => d.MismatchType.NotEqualsTo(MismatchType.ValueDifference)).ToImmutableList();
+                if (schemaMismatchDifferences.Any())
                 {
-                    var differenceOutputTable = differences.ToResultTable(expectedResultParameterName, "Current");
+                    var differenceOutputTable = schemaMismatchDifferences.ToResultTable(expectedResultParameterName, "Current");
                     var schemaNotMatchingError = OutputFormatter.GetOutputString(httpCallInfo, "Schema mismatch: Expected result and current result does not match", expectedJson, currentResponseJson, differenceOutputTable, curl);
 
 

@@ -950,13 +950,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 
                 // 1. Check if we are comparing the same schema
-                var schemaNotMatching = differences.Any(item => item.MismatchType.NotEqualsTo(MismatchType.ValueDifference));
+                var hasSchemaMismatch = differences.Any(item => item.MismatchType.NotEqualsTo(MismatchType.ValueDifference));
 
                 var contentValueDifferences = differences.FirstOrDefault(d => d.MemberPath.Equals("Content.Value", StringComparison.OrdinalIgnoreCase));
                 if (contentValueDifferences.IsNotNull())
                 {
                     differences = jsonDiffer.FindDifferences(contentValueDifferences.Value1 ?? string.Empty, contentValueDifferences.Value2 ?? string.Empty);
-                    schemaNotMatching = differences.Any(item => item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond);
+                    hasSchemaMismatch = differences.Any(item => item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond);
                 }
 
                 var differenceOutputTable = differences.ToResultTable(expectedResultParameterName, currentResultParameterName);
@@ -964,7 +964,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var schemaNotMatchingError = OutputFormatter.GetOutputString(title, "Schema mismatch: Expected result and current result does not match", object1AsJson,
                                                                              object2AsJson, differenceOutputTable, curl);
 
-                Assert.IsFalse(schemaNotMatching, schemaNotMatchingError);
+                Assert.IsFalse(hasSchemaMismatch, schemaNotMatchingError);
 
                 var commonDifferences = DifferenceFunc(differences).ToImmutableList();
                 var optimizedDifferences = differenceFunc(commonDifferences).ToImmutableList();
