@@ -213,7 +213,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
-                                   callerFilePath);
+                                   callerFilePath); 
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -451,8 +451,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // We write the current result to the expected file
             if (writeResponse || WriteResponse)
             {
-                CurrentResponseWriter.Write(json2, expectedResultParameterName, callerFilePath,
-                                            callingAssembly);
+                CurrentResponseWriter.Write(json2, expectedResultParameterName, callerFilePath, callingAssembly);
             }
 
             var differences = JsonDiffer.FindDifferences(json1, json2);
@@ -464,8 +463,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (optimizedDifferences.Any())
             {
-                var output = OutputFormatter.GetOutputString(resultTable, json1, json2,
-                                                             title, curl);
+                var output = OutputFormatter.GetOutputString($"Differences detected between your current:{currentResultParameterName} and expected result: {expectedResultParameterName}", resultTable, json1, json2, title ?? $"Differences detected between your current:{currentResultParameterName} and expected result: {expectedResultParameterName}", curl);
 
                 Assert.Fail(output);
             }

@@ -10,16 +10,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
     // Introduce an enum to categorize the type of mismatch.
     public enum MismatchType
     {
-        ValueDifference,   // Both values exist but are not equal.
-        MissingInFirst,    // The value is missing in the first JSON.
-        MissingInSecond    // The value is missing in the second JSON.
+        ValueDifference, // Both values exist but are not equal.
+
+        MissingInFirst, // The value is missing in the first JSON.
+
+        MissingInSecond // The value is missing in the second JSON.
     }
 
     // Update the Difference record to include the mismatch type.
-    public sealed record Difference(string MemberPath,
-                                       string? Value1,
-                                       string? Value2,
-                                       MismatchType MismatchType);
+    public sealed record Difference()
+    {
+        public required string MemberPath { get; init; }
+
+        public required string? Value1 { get; init; }
+
+        public required string? Value2 { get; init; }
+
+        public required MismatchType MismatchType { get; init; }
+    }
 
     public static class AddJsonSerializationExtensions
     {
@@ -36,7 +44,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // Updated native differences method to include mismatch type.
         Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(string json1,
-                                                                                    string json2);
+                                                                                   string json2);
     }
 
     internal sealed class JsonDiffer : IJsonDiffer
@@ -47,21 +55,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var differences = FindDifferencesNative(json1, json2);
 
             var simpleDifferences = differences.Select(item =>
-                new Difference(
-                    item.Key,
-                    item.Value.Item1?.ToString(),
-                    item.Value.Item2?.ToString(),
-                    item.Value.Item3));
+                                                           new Difference()
+                                                           {
+                                                               MemberPath = item.Key,
+                                                               Value1 = item.Value.Item1?.ToString(),
+                                                               Value2 = item.Value.Item2?.ToString(),
+                                                               MismatchType = item.Value.Item3
+                                                           });
 
             return simpleDifferences.ToImmutableList();
         }
 
         public Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(string json1,
-                                                                                            string json2)
+                                                                                          string json2)
         {
             var differences = new Dictionary<string, (JToken?, JToken?, MismatchType)>();
 
-            CompareTokens(JToken.Parse(json1), JToken.Parse(json2), differences, "");
+            CompareTokens(JToken.Parse(json1), JToken.Parse(json2), differences,
+                          "");
 
             return differences;
         }
@@ -80,12 +91,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (token1 == null || token1.IsNull())
             {
                 differences[path] = (null, token2, MismatchType.MissingInFirst);
+
                 return;
             }
 
             if (token2 == null || token2.IsNull())
             {
                 differences[path] = (token1, null, MismatchType.MissingInSecond);
+
                 return;
             }
 
@@ -95,6 +108,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     if (token2.Type != JTokenType.Object)
                     {
                         differences[path] = (token1, token2, MismatchType.ValueDifference);
+
                         return;
                     }
 
@@ -113,7 +127,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                         }
                         else
                         {
-                            CompareTokens(property.Value, token2Value, differences, propertyPath);
+                            CompareTokens(property.Value, token2Value, differences,
+                                          propertyPath);
                         }
                     }
 
@@ -134,6 +149,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     if (token2.Type != JTokenType.Array)
                     {
                         differences[path] = (token1, token2, MismatchType.ValueDifference);
+
                         return;
                     }
 
@@ -171,7 +187,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                         }
                         else
                         {
-                            CompareTokens(array1[i], array2[i], differences, indexPath);
+                            CompareTokens(array1[i], array2[i], differences,
+                                          indexPath);
                         }
                     }
 
@@ -180,6 +197,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 default:
                     // For primitive types, record the difference as a value difference.
                     differences[path] = (token1, token2, MismatchType.ValueDifference);
+
                     break;
             }
         }

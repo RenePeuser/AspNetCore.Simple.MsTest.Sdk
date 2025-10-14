@@ -46,6 +46,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
             if (title.IsNotNullOrWhiteSpace())
             {
                 stringBuilder.AppendLine(title);
+                stringBuilder.AppendLine();
             }
 
             if (errorInfo.IsNotNullOrWhiteSpace())
