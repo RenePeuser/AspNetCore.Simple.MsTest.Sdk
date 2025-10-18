@@ -31,7 +31,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                                     {
                                                     }); // Configure environment variables  
 
-
             Client = _apiTestBase.CreateClient();
         }
 
