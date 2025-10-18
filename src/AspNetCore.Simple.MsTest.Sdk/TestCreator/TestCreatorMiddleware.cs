@@ -106,7 +106,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (response.Response.Body.CanRead)
             {
                 response.Response.Body.Seek(0, SeekOrigin.Begin);
-                bodyAsText = await new StreamReader(response.Response.Body).ReadToEndAsync().ConfigureAwait(false);
+                using var streamReader = new StreamReader(response.Response.Body);
+                bodyAsText = await streamReader.ReadToEndAsync().ConfigureAwait(false);
                 response.Response.Body.Seek(0, SeekOrigin.Begin);
             }
 

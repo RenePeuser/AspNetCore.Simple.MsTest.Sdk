@@ -4,6 +4,7 @@
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>Nullable</WarningsAsErrors>
+        <NoWarn>CA1515;CA1024</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -13,5 +14,4 @@
     <ItemGroup>
         <PackageReference Include="AspNetCore.Simple.Sdk" Version="6.0.2" />
     </ItemGroup>
-
 </Project>

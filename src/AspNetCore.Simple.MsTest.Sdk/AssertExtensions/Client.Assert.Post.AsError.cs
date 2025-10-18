@@ -47,7 +47,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertPostAsErrorAsync<TResult>(this HttpClient client,
                                                                     string url,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     bool writeResponse = false,
                                                                     [CallerArgumentExpression(nameof(expectedResult))]
                                                                     string expectedResultParameterName = "",
@@ -66,7 +66,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertPostAsErrorAsync<TResult>(this HttpClient client,
                                                                     string url,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     (string Key, object? Value)[] parameters,
                                                                     bool writeResponse = false,
                                                                     [CallerArgumentExpression(nameof(expectedResult))]
@@ -127,7 +127,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertPostAsErrorAsync<TResult>(this HttpClient client,
                                                                     string url,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     Assembly callingAssembly,
                                                                     bool writeResponse = false,
                                                                     [CallerArgumentExpression(nameof(expectedResult))]
@@ -149,7 +149,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertPostAsErrorAsync<TResult>(this HttpClient client,
                                                                     string url,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     (string Key, object? Value)[] parameters,
                                                                     Assembly callingAssembly,
                                                                     bool writeResponse = false,
@@ -218,7 +218,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     string url,
                                                                     object payloadAsObject,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     bool writeResponse = false,
                                                                     [CallerArgumentExpression(nameof(payloadAsObject))]
                                                                     string payloadAsObjectParameterName = "",
@@ -242,7 +242,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     string url,
                                                                     object payloadAsObject,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     (string Key, object? Value)[] parameters,
                                                                     bool writeResponse = false,
                                                                     [CallerArgumentExpression(nameof(payloadAsObject))]
@@ -312,7 +312,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     string url,
                                                                     string payloadAsJson,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     bool writeResponse = false,
                                                                     [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                     string payloadAsJsonParameterName = "",
@@ -336,7 +336,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     string url,
                                                                     string payloadAsJson,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     (string Key, object? Value)[] parameters,
                                                                     bool writeResponse = false,
                                                                     [CallerArgumentExpression(nameof(payloadAsJson))]
@@ -414,7 +414,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     string url,
                                                                     object payloadAsObject,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     Assembly callingAssembly,
                                                                     bool writeResponse = false,
                                                                     [CallerArgumentExpression(nameof(payloadAsObject))]
@@ -442,7 +442,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     string url,
                                                                     object payloadAsObject,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     (string Key, object? Value)[] parameters,
                                                                     Assembly callingAssembly,
                                                                     bool writeResponse = false,
@@ -524,7 +524,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     string url,
                                                                     string payloadAsJson,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     Assembly callingAssembly,
                                                                     bool writeResponse = false,
                                                                     [CallerArgumentExpression(nameof(payloadAsJson))]
@@ -552,7 +552,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     string url,
                                                                     string payloadAsJson,
                                                                     string expectedResult,
-                                                                    Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                     (string Key, object? Value)[] parameters,
                                                                     Assembly callingAssembly,
                                                                     bool writeResponse = false,

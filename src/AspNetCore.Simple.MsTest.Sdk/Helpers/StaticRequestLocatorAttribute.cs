@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Argument.Check;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -59,22 +60,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </para>
     /// </example>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class StaticRequestLocatorAttribute : Attribute, ITestDataSource
+    public sealed class StaticRequestLocatorAttribute(string requestFolder,
+                                                      params object[] parameters) : Attribute, ITestDataSource
     {
-        private readonly string _requestFolder;
-        private readonly object[] _parameters;
+        public string RequestFolder { get; } = requestFolder;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="StaticRequestLocatorAttribute"/> class with an explicit request folder
-        /// and additional parameters.
-        /// </summary>
-        /// <param name="requestFolder">The explicit request folder path where JSON resources are located.</param>
-        /// <param name="parameters">Additional parameters to be appended to each test case data.</param>
-        public StaticRequestLocatorAttribute(string requestFolder, params object[] parameters)
-        {
-            _requestFolder = requestFolder;
-            _parameters = parameters;
-        }
+        public object[] Parameters { get; } = parameters;
 
         /// <summary>
         /// Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
@@ -88,7 +79,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public IEnumerable<object[]> GetData(MethodInfo methodInfo)
         {
             // Use the specified _requestFolder or compute it from the declaring type.
-            var currentPath = _requestFolder;
+            var currentPath = RequestFolder;
             var declaringType = methodInfo.DeclaringType;
 
             if (declaringType == null)
@@ -114,23 +105,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Filter to only include JSON files that contain the computed or provided path.
             var useCases = manifestResourceNames
-                .Where(file => file.Contains(currentPath) && file.EndWith(".json"))
-                .Select(item => item.Split('.').TakeLast(2).Aggregate((a, b) => $"{a}.{b}"))
-                .ToImmutableList();
+                           .Where(file => file.Contains(currentPath) && file.EndWith(".json"))
+                           .Select(item => item.Split('.').TakeLast(2).Aggregate((a,
+                                                                                  b) => $"{a}.{b}"))
+                           .ToImmutableList();
 
             // Yield each identified use case as a separate test input.
             foreach (var useCase in useCases)
             {
-                var parameters = GetParams(useCase, _parameters).ToArray();
+                var parameters = GetParams(useCase, Parameters).ToArray();
+
                 yield return parameters;
             }
 
             yield break;
 
             // Local function to combine the JSON resource with the extra parameters.
-            static IEnumerable<object> GetParams(string request, object[] parameters)
+            static IEnumerable<object> GetParams(string request,
+                                                 object[] parameters)
             {
                 yield return request;
+
                 foreach (var param in parameters)
                 {
                     yield return param;
@@ -146,7 +141,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <returns>
         /// A descriptive name that combines the test method's name with the test data details, aiding in test identification.
         /// </returns>
-        public string GetDisplayName(MethodInfo methodInfo, object?[]? data)
+        public string GetDisplayName(MethodInfo methodInfo,
+                                     object?[]? data)
         {
             if (data is null)
             {
@@ -155,6 +151,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Flatten the data items into a comma-separated string and combine with the method name.
             var dataDisplay = string.Join(", ", data.Select(item => item?.ToString() ?? "null"));
+
             return $"{methodInfo.Name} ({dataDisplay})";
         }
     }

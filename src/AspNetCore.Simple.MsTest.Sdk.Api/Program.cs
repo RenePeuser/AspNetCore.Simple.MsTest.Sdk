@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-
-namespace AspNetCore.Simple.MsTest.Sdk.Api
+﻿namespace AspNetCore.Simple.MsTest.Sdk.Api
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {

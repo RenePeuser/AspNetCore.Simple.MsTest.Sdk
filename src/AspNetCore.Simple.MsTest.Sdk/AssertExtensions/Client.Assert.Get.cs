@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Argument.Check;
 using ConsoleTables;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -84,7 +85,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
                                                             string url,
                                                             string expectedResult,
-                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                            Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                             bool writeResponse = false,
                                                             [CallerArgumentExpression(nameof(expectedResult))]
                                                             string expectedResultParameterName = "",
@@ -103,7 +104,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
                                                             string url,
                                                             string expectedResult,
-                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                            Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                             (string Key, object? Value)[] parameters,
                                                             bool writeResponse = false,
                                                             [CallerArgumentExpression(nameof(expectedResult))]
@@ -209,7 +210,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
                                                             string url,
                                                             string expectedResult,
-                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                            Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                             Assembly callingAssembly,
                                                             bool writeResponse = false,
                                                             [CallerArgumentExpression(nameof(expectedResult))]
@@ -234,7 +235,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
                                                             string url,
                                                             string expectedResult,
-                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                            Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                             (string Key, object? Value)[] parameters,
                                                             Assembly callingAssembly,
                                                             bool writeResponse = false,
@@ -309,7 +310,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string url,
                                                             string expectedResult,
                                                             Func<TResult, TResult> filterFunc,
-                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                            Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                             Assembly callingAssembly,
                                                             bool writeResponse = false,
                                                             [CallerArgumentExpression(nameof(expectedResult))]
@@ -335,7 +336,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string url,
                                                             string expectedResult,
                                                             Func<TResult, TResult> filterFunc,
-                                                            Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                            Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                             (string Key, object? Value)[] parameters,
                                                             Assembly callingAssembly,
                                                             bool writeResponse = false,
@@ -361,6 +362,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static async Task AssertGetAsUnauthorizedAsync(this HttpClient httpClient,
                                                               string url)
         {
+            Throw.IfNull(httpClient);
+            Throw.IfNullOrWhiteSpace(url);
+
             // Save original auth header
             var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Unauthorized token");
@@ -371,11 +375,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-                                {
-                                    Request = $"GET {url}",
-                                    Expected = HttpStatusCode.Unauthorized,
-                                    Current = result.StatusCode
-                                }.ToIList();
+            {
+                Request = $"GET {url}",
+                Expected = HttpStatusCode.Unauthorized,
+                Current = result.StatusCode
+            }.ToIList();
 
             var table = ConsoleTable.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";

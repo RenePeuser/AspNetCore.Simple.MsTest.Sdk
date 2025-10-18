@@ -277,7 +277,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     replacedString = replacedString.Replace($"\"{keyValue.Key}\"", primitiveTypeValue);
                 }
 
-                replacedString = replacedString.Replace(keyValue.Key, keyValue.Value?.ToString());
+                replacedString = replacedString.Replace(keyValue.Key, keyValue.Value.ToString());
 
             }
 

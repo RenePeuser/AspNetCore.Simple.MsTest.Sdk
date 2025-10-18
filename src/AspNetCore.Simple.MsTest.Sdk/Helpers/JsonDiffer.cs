@@ -39,7 +39,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     public interface IJsonDiffer
     {
-        IImmutableList<Difference> FindDifferences(string json1,
+        ImmutableList<Difference> FindDifferences(string json1,
                                                    string json2);
 
         // Updated native differences method to include mismatch type.
@@ -49,7 +49,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     internal sealed class JsonDiffer : IJsonDiffer
     {
-        public IImmutableList<Difference> FindDifferences(string json1,
+        public ImmutableList<Difference> FindDifferences(string json1,
                                                           string json2)
         {
             var differences = FindDifferencesNative(json1, json2);

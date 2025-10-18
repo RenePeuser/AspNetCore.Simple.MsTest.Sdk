@@ -81,7 +81,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         public async Task Should_Throw_Exception_If_Json_Is_Invalid(string invalidJson)
         {
             var exception = await Assert.ThrowsExactlyAsync<InvalidJsonException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons", invalidJson)).ConfigureAwait(false);
-            Assert.IsTrue(exception.Message.Contains(invalidJson));
+            Assert.Contains(invalidJson, exception.Message);
         }
 
         [TestMethod]

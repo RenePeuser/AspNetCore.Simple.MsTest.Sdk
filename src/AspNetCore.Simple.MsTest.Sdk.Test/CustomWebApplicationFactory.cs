@@ -94,7 +94,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
             GC.SuppressFinalize(this);
         }
 
+#pragma warning disable CA1063
         private void Dispose(bool disposing)
+#pragma warning restore CA1063
         {
             if (_disposed)
             {

@@ -17,7 +17,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Dispose(false);
         }
 
+#pragma warning disable CA1063
         private void Dispose(bool disposing)
+#pragma warning restore CA1063
         {
             if (_isDisposed)
             {

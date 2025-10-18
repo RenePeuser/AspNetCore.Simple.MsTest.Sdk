@@ -13,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
     [AllowAnonymous]
     [ApiVersion("1.0")]
     [Route("v{version:apiversion}/persons")]
-    public class PersonController : ControllerBase
+    public sealed class PersonController : ControllerBase
     {
         private readonly List<Person> _persons =
         [

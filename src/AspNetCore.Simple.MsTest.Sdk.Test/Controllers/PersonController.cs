@@ -42,7 +42,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         }
 
         // Difference func can be used to ignore some properties inside the object comparison
-        private IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differences)
+        private IEnumerable<Difference> DifferenceFunc(ImmutableList<Difference> differences)
         {
             foreach (var difference in differences)
             {

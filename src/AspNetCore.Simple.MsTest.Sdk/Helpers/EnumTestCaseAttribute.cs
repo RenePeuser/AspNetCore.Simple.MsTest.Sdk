@@ -59,19 +59,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </para>
     /// </example>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class DynamicRequestLocatorAttribute : Attribute, ITestDataSource
+    public sealed class DynamicRequestLocatorAttribute(params object[] parameters) : Attribute, ITestDataSource
     {
-        private readonly object[] _parameters;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicRequestLocatorAttribute"/> class with an explicit request folder
-        /// and additional parameters.
-        /// </summary>
-        /// <param name="parameters">Additional parameters to be appended to each test case data.</param>
-        public DynamicRequestLocatorAttribute(params object[] parameters)
-        {
-            _parameters = parameters;
-        }
+        public object[] Parameters { get; } = parameters;
 
         /// <summary>
         /// Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
@@ -99,7 +89,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // This handles generic test class use cases
             var fullName = declaringType.FullName.Split('[').First();
-            
+
             var folderPath = fullName.Replace($".{declaringType.Name}", string.Empty);
             var currentPath = $"{folderPath}.Requests";
 
@@ -114,7 +104,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Yield each identified use case as a separate test input.
             foreach (var useCase in useCases)
             {
-                var parameters = GetParams(useCase, _parameters).ToArray();
+                var parameters = GetParams(useCase, Parameters).ToArray();
                 yield return parameters;
             }
 

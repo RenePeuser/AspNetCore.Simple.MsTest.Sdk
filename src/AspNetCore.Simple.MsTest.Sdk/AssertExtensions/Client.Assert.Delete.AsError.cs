@@ -45,7 +45,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
                                                                       string url,
                                                                       string expectedResult,
-                                                                      Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                      Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                       bool writeResponse = false,
                                                                       [CallerArgumentExpression(nameof(expectedResult))]
                                                                       string expectedResultParameterName = "",
@@ -63,7 +63,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
                                                                       string url,
                                                                       string expectedResult,
-                                                                      Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                      Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                       (string Key, object? Value)[] parameters,
                                                                       bool writeResponse = false,
                                                                       [CallerArgumentExpression(nameof(expectedResult))]
@@ -126,7 +126,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
                                                                       string url,
                                                                       string expectedResult,
-                                                                      Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                      Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                       Assembly callingAssembly,
                                                                       bool writeResponse = false,
                                                                       [CallerArgumentExpression(nameof(expectedResult))]
@@ -146,7 +146,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
                                                                       string url,
                                                                       string expectedResult,
-                                                                      Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                      Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                       (string Key, object? Value)[] parameters,
                                                                       Assembly callingAssembly,
                                                                       bool writeResponse = false,

@@ -10,7 +10,7 @@ internal static class DifferenceExtensions
 {
     private static readonly TestCreatorSettings TestCreatorSettings = new();
 
-    internal static string ToResultTable(this IImmutableList<Difference> differences,
+    internal static string ToResultTable(this ImmutableList<Difference> differences,
                                          string objectName1,
                                          string objectName2)
     {
@@ -48,7 +48,9 @@ internal static class DifferenceExtensions
 
         var fullTable = new ConsoleTable(nameof(Difference.MemberPath), objectName1, objectName2,
                                          "MismatchType")
-        { Options = { EnableCount = false } };
+        {
+            Options = { EnableCount = false }
+        };
 
         foreach (var dif in flattened)
         {
@@ -80,7 +82,9 @@ internal static class DifferenceExtensions
         foreach (var diff in diffs)
         {
             foreach (var fd in Flatten(diff))
+            {
                 yield return fd;
+            }
         }
     }
 
@@ -139,7 +143,9 @@ internal static class DifferenceExtensions
             using var doc = JsonDocument.Parse(json);
             FlattenJson(doc.RootElement, result, "");
         }
+#pragma warning disable CA1031
         catch
+#pragma warning restore CA1031
         {
             // Ignore parsing errors, treat as primitive
         }
@@ -209,6 +215,6 @@ internal static class DifferenceExtensions
             return MismatchType.MissingInSecond;
         }
 
-        return v1?.ToString() != v2?.ToString() ? MismatchType.ValueDifference : MismatchType.ValueDifference;
+        return MismatchType.ValueDifference;
     }
 }

@@ -37,7 +37,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Converters = { new JsonStringEnumConverter() }
         };
 
-        public static Func<IImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
+        public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
         public static bool WriteResponse { get; set; }
 
@@ -172,7 +172,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               T? expectedObject,
                                               T? currentObject,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -196,7 +196,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? expectedObject,
                                               T? currentObject,
                                               (string Key, object? Value)[] parameters,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -213,7 +213,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
-                                   callerFilePath); 
+                                   callerFilePath);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -267,7 +267,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? expectedObject,
                                               T? currentObject,
                                               Func<T?, T?> orderFunc,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -291,7 +291,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? expectedObject,
                                               T? currentObject,
                                               Func<T?, T?> orderFunc,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
@@ -317,7 +317,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? currentObject,
                                               Func<T?, T?> orderFunc,
                                               string title,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -342,7 +342,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? currentObject,
                                               Func<T?, T?> orderFunc,
                                               string title,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
@@ -368,7 +368,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? currentObject,
                                               Func<T?, T?> comparisonFunc,
                                               string title,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               string curl,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
@@ -395,7 +395,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? currentObject,
                                               Func<T?, T?> comparisonFunc,
                                               string title,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               string curl,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
@@ -424,7 +424,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? currentObject,
                                               Func<T?, T?> comparisonFunc,
                                               string title,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               string curl,
                                               (string Key, object? Value)[] parameters,
                                               Assembly callingAssembly,
@@ -694,7 +694,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
                                               T currentObject,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))]
                                               string expectedResultParameterName = "",
@@ -717,7 +717,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedObjectAsJson,
                                               T currentObject,
                                               Func<T, T> orderFunc,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))]
@@ -742,7 +742,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
                                               T currentObject,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))]
@@ -817,7 +817,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               Func<T, T> orderFunc,
                                               string title,
                                               Assembly callingAssembly,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))]
                                               string expectedResultParameterName = "",
@@ -844,7 +844,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               Func<T, T> orderFunc,
                                               string title,
                                               Assembly callingAssembly,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))]
@@ -872,7 +872,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               Func<T, T> orderFunc,
                                               string title,
                                               Assembly callingAssembly,
-                                              Func<IImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               string curl,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
@@ -915,7 +915,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     expectedObject = JsonSerializer.Deserialize<T>(jsonObject, JsonSerializerOptions);
                 }
+#pragma warning disable CA1031
                 catch (Exception)
+#pragma warning restore CA1031
                 {
                     var cantSerializeJsonErrorOutput = OutputFormatter.GetOutputString(title,
                                                                                        $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}",

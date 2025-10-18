@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Extensions.Pack;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -58,14 +54,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </para>
     /// </example>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class EnumTestCaseAttribute<T> : Attribute, ITestDataSource where T : Enum
+    public sealed class EnumTestCaseAttribute<T>(params object[] parameters) : Attribute, ITestDataSource where T : Enum
     {
-        private readonly object[] _parameters;
-
-        public EnumTestCaseAttribute(params object[] parameters)
-        {
-            _parameters = parameters;
-        }
+        public object[] Parameters { get; } = parameters;
 
         /// <summary>
         /// Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
@@ -89,7 +80,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Yield each identified use case as a separate test input.
             foreach (var useCase in useCases)
             {
-                var parameters = GetParams(useCase, _parameters).ToArray();
+                var parameters = GetParams(useCase, Parameters).ToArray();
                 yield return parameters;
             }
 

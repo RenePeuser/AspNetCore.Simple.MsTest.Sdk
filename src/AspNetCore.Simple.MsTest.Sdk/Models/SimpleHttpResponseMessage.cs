@@ -10,9 +10,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public HttpStatusCode StatusCode { get; init; } = HttpStatusCode.OK;
 
-        public IImmutableList<KeyValuePair<string, IImmutableList<string>>> Headers { get; init; } = ImmutableList<KeyValuePair<string, IImmutableList<string>>>.Empty;
+        public ImmutableList<KeyValuePair<string, ImmutableList<string>>> Headers { get; init; } = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty;
 
-        public IImmutableList<KeyValuePair<string, IImmutableList<string>>> TrailingHeaders { get; init; } = ImmutableList<KeyValuePair<string, IImmutableList<string>>>.Empty;
+        public ImmutableList<KeyValuePair<string, ImmutableList<string>>> TrailingHeaders { get; init; } = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty;
 
         public bool IsSuccessStatusCode { get; init; } = true;
     }

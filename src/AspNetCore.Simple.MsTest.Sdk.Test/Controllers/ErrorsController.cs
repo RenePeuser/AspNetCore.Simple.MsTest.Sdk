@@ -25,7 +25,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
                                                                  DifferenceFunc);
 
             // 2. Intercept difference detection also for error response
-            static IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differences)
+            static IEnumerable<Difference> DifferenceFunc(ImmutableList<Difference> differences)
             {
                 foreach (var difference in differences)
                 {
