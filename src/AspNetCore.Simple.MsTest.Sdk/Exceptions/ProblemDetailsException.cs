@@ -6,7 +6,9 @@ using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
+#pragma warning disable CA1064
     internal sealed class ProblemDetailsException : Exception
+#pragma warning restore CA1064
     {
         public ProblemDetailsException(string title,
                                        params (string key, string value)[] extensions) : this(HttpStatusCode.InternalServerError, title, string.Empty,
