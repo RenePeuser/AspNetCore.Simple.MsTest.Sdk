@@ -451,7 +451,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // We write the current result to the expected file
             if (writeResponse || WriteResponse)
             {
-                CurrentResponseWriter.Write(json2, expectedResultParameterName, callerFilePath, callingAssembly);
+                CurrentResponseWriter.Write(json2, expectedResultParameterName, callerFilePath, callingAssembly, parameters);
             }
 
             var differences = JsonDiffer.FindDifferences(json1, json2);
@@ -888,7 +888,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (writeResponse || WriteResponse)
             {
                 CurrentResponseWriter.Write(currentObjectAsJson, expectedResultParameterName, callerFilePath,
-                                            callingAssembly);
+                                            callingAssembly, parameters);
             }
 
             var jsonObject = expectedObjectAsJson.GetJsonStringFrom<T>(currentObjectAsJson, callingAssembly, curl,

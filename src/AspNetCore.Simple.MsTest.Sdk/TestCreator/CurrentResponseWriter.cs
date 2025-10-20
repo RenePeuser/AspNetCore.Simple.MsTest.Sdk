@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
+﻿using System.Reflection;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -21,7 +19,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public void Write(string currentResponseAsString,
                           string expectedResponseFileName,
                           string callerFilePath,
-                          Assembly callingAssembly)
+                          Assembly callingAssembly,
+                          (string key, object? Value)[] parameters)
         {
             if (callingAssembly.IsCompiledInDebug().IsFalse())
             {
@@ -43,12 +42,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 return;
             }
-            
+
             // Parse the JSON string
             var parsedJson = JToken.Parse(currentResponseAsString);
             var formattedJson = parsedJson.ToString(Formatting.Indented);
 
-            File.WriteAllText(localizedFile.EmbeddedFile.FullName, formattedJson);
+            // NEW try to place the parameters inside
+            var formattedJsonWithParameters = formattedJson;
+
+            foreach (var valueTuple in parameters)
+            {
+                formattedJsonWithParameters = formattedJsonWithParameters.Replace(valueTuple.Value?.ToString() ?? string.Empty, valueTuple.key);
+            }
+
+            File.WriteAllText(localizedFile.EmbeddedFile.FullName, formattedJsonWithParameters);
         }
     }
 }
