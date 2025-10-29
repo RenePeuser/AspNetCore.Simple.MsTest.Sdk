@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk;
 using ConsoleTables;
@@ -91,7 +89,7 @@ internal static class DifferenceExtensions
     private static IEnumerable<Difference> Flatten(Difference diff,
                                                    string prefix = "")
     {
-        string path = string.IsNullOrEmpty(prefix) ? diff.MemberPath : $"{prefix}.{diff.MemberPath}";
+        var path = string.IsNullOrEmpty(prefix) ? diff.MemberPath : $"{prefix}.{diff.MemberPath}";
 
         if (IsJson(diff.Value1) || IsJson(diff.Value2))
         {
@@ -169,7 +167,7 @@ internal static class DifferenceExtensions
                 break;
 
             case JsonValueKind.Array:
-                int index = 0;
+                var index = 0;
 
                 foreach (var item in element.EnumerateArray())
                 {

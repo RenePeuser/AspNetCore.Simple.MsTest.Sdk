@@ -3,6 +3,8 @@ using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk.Api;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+[assembly: Parallelize(Scope = ExecutionScope.ClassLevel)]
+
 namespace AspNetCore.Simple.MsTest.Sdk.Test
 {
     /// <summary>
