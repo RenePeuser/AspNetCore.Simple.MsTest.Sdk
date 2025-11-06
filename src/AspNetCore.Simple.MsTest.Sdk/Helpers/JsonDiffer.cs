@@ -88,14 +88,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // Handle cases where one token is missing.
-            if (token1 == null || token1.IsNull())
+            if (token1.IsNull() || token1.IsNull())
             {
                 differences[path] = (null, token2, MismatchType.MissingInFirst);
 
                 return;
             }
 
-            if (token2 == null || token2.IsNull())
+            if (token2.IsNull() || token2.IsNull())
             {
                 differences[path] = (token1, null, MismatchType.MissingInSecond);
 
@@ -105,7 +105,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             switch (token1.Type)
             {
                 case JTokenType.Object:
-                    if (token2.Type != JTokenType.Object)
+                    if (token2.Type.NotEqualsTo(JTokenType.Object))
                     {
                         differences[path] = (token1, token2, MismatchType.ValueDifference);
 
@@ -121,7 +121,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                         var propertyPath = AppendPath(path, property.Key);
                         var token2Value = obj2.GetValueOrDefault(property.Key);
 
-                        if (token2Value == null)
+                        if (token2Value.IsNull())
                         {
                             differences[propertyPath] = (property.Value, null, MismatchType.MissingInSecond);
                         }
@@ -137,7 +137,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     {
                         var propertyPath = AppendPath(path, property.Key);
 
-                        if (obj1[property.Key] == null)
+                        if (obj1[property.Key].IsNull())
                         {
                             differences[propertyPath] = (null, property.Value, MismatchType.MissingInFirst);
                         }
@@ -146,7 +146,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     break;
 
                 case JTokenType.Array:
-                    if (token2.Type != JTokenType.Array)
+                    if (token2.Type.NotEqualsTo(JTokenType.Array))
                     {
                         differences[path] = (token1, token2, MismatchType.ValueDifference);
 
@@ -205,13 +205,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private string AppendPath(string path,
                                   string addition)
         {
-            if (string.IsNullOrEmpty(path))
+            if (path.IsNullOrEmpty())
             {
                 return addition;
             }
 
             // If the addition represents an array index, don't add a dot.
-            if (addition.First() == '[')
+            if (addition.First().EqualsTo('['))
             {
                 return $"{path}{addition}";
             }

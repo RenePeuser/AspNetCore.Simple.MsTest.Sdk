@@ -109,7 +109,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Requests.NewPersonParameter.json
             // Responses.NewPersonParameter.json
             // AnyFolder.P.NewPersonParameter.json
-            if (matchingFiles.Count == 1 &&
+            if (matchingFiles.Count.EqualsTo(1) &&
                 parts.Length > 2)
             {
                 var embeddedFileName = matchingFiles[0];
@@ -186,7 +186,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return directoryInfo;
             }
 
-            if (directoryInfo.Name == assembly.GetName().Name)
+            if (directoryInfo.Name.EqualsTo(assembly.GetName().Name))
             {
                 return directoryInfo;
             }

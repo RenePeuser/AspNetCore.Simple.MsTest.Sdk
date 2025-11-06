@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -77,7 +78,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 reader.Read();
 
-                if (reader.TokenType == JsonTokenType.Null)
+                if (reader.TokenType.EqualsTo(JsonTokenType.Null))
                 {
                     // Nothing to do here.
                 }

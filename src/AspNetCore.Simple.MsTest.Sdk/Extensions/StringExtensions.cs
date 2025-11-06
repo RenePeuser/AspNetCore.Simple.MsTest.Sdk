@@ -114,7 +114,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 10. If the target type is a primitive type or a string then return the json value
             var type = targeTypeInfo;
 
-            if (type.IsPrimitive || type == typeof(string))
+            if (type.IsPrimitive || type.EqualsTo(typeof(string)))
             {
                 return expectedObjectAsJson;
             }
@@ -212,7 +212,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 10. If the target type is a primitive type or a string then return the json value
             var type = typeof(T);
 
-            if (type.IsPrimitive || type == typeof(string))
+            if (type.IsPrimitive || type.EqualsTo(typeof(string)))
             {
                 return expectedObjectAsJson;
             }
@@ -269,7 +269,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                         continue;
                     }
                     
-                    if (type == typeof(bool))
+                    if (type.EqualsTo(typeof(bool)))
                     {
                         primitiveTypeValue = primitiveTypeValue.ToLowerInvariant();
                     }

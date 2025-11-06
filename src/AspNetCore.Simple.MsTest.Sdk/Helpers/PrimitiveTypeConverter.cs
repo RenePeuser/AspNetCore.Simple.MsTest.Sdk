@@ -28,7 +28,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // TableCreated and more
             var targetType = typeof(T);
 
-            if (targetType == typeof(bool))
+            if (targetType.EqualsTo(typeof(bool)))
             {
                 if (bool.TryParse(source, out var boolResult))
                 {
@@ -41,7 +41,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
             }
 
-            if (targetType == typeof(string))
+            if (targetType.EqualsTo(typeof(string)))
             {
                 return (T)(object)source.Trim('\"');
             }

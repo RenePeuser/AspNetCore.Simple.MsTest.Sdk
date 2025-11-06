@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -29,7 +30,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 name = methodCallExpression.Method.Name;
             }
 
-            if (name == null)
+            if (name.IsNull())
             {
                 throw new ArgumentException("Unknown expression type for extracting name.", nameof(expression));
             }

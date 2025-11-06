@@ -203,7 +203,7 @@ public Task $testmethodname$()
         private string GetTemplate(RequestInfo requestInfo,
                                    ResponseInfoUltra responseInfo)
         {
-            if (responseInfo.StatusCode == 401)
+            if (responseInfo.StatusCode.EqualsTo(401))
             {
                 if (responseInfo.Body.IsNotNullOrWhiteSpace())
                 {
@@ -235,13 +235,13 @@ public Task $testmethodname$()
             {
                 >= 200 and < 300 => responseInfo.ResponseType.First(rt => rt.StatusCode is >= 200 and < 300).Type,
                 401 => null,
-                _ => responseInfo.ResponseType.LastOrDefault(rt => rt.StatusCode == responseInfo.StatusCode, responseInfo.ResponseType.MaxBy(rt => rt.StatusCode)!).Type
+                _ => responseInfo.ResponseType.LastOrDefault(rt => rt.StatusCode.EqualsTo(responseInfo.StatusCode), responseInfo.ResponseType.MaxBy(rt => rt.StatusCode)!).Type
             };
 
             // If null check if we found explicit code declaration
             if (type.IsNull())
             {
-                type = responseInfo.ResponseType.FirstOrDefault(rt => rt.StatusCode == responseInfo.StatusCode)?.Type;
+                type = responseInfo.ResponseType.FirstOrDefault(rt => rt.StatusCode.EqualsTo(responseInfo.StatusCode))?.Type;
             }
 
             if (type.IsNull())

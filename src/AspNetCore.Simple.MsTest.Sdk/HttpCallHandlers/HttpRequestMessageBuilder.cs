@@ -40,7 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
         private string GetContentType(HttpMethod httpMethod)
         {
-            if (httpMethod == HttpMethod.Patch)
+            if (httpMethod.EqualsTo(HttpMethod.Patch))
             {
                 // JSON Merge Patch (RFC 7386) is used by default cause of simplicity
                 return "application/merge-patch+json";

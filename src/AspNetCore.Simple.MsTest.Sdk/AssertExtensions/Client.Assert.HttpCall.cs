@@ -222,7 +222,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 0. Target type is primitive type
             var targetType = typeof(TResult);
-            var targetIsPrimitiveType = targetType.IsPrimitive || targetType == typeof(string);
+            var targetIsPrimitiveType = targetType.IsPrimitive || targetType.EqualsTo(typeof(string));
 
             // 1. Setup json payload
             var jsonPayload = payloadAsJson.GetJsonStringFrom(callingAssembly);
@@ -266,7 +266,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // - User wants NOT OK response, but we get an OK response
             // In this use case writeResponse:true must be ignored
             // otherwise we would write the wrong response
-            if (httpResponseMessage.IsSuccessStatusCode != isSuccessStatusCode)
+            if (httpResponseMessage.IsSuccessStatusCode.NotEqualsTo(isSuccessStatusCode))
             {
                 var errorInfo = isSuccessStatusCode ? $"You expect an OK result but the response was {httpResponseMessage.StatusCode}. Please check implementation or your expected response" : $"You expect an ERROR result but the response was {httpResponseMessage.StatusCode}. Please check implementation or your expected response";
 
@@ -294,7 +294,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 Content = new SimpleHttpContent
                 {
                     Headers = httpResponseMessage.Content.Headers.ToJson(JsonSerializerOptions).FromJsonStringAs<ImmutableList<KeyValuePair<string, ImmutableList<string>>>>(JsonSerializerOptions),
-                    Value = httpResponseMessage.IsSuccessStatusCode == isSuccessStatusCode ? filteredCurrentResult : resolvedParametersJsonString.Trim('"')
+                    Value = httpResponseMessage.IsSuccessStatusCode.EqualsTo(isSuccessStatusCode) ? filteredCurrentResult : resolvedParametersJsonString.Trim('"')
                 }
             };
 
@@ -339,7 +339,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     Content = new SimpleHttpContent
                     {
                         Headers = httpResponseMessage.Content.Headers.ToJson(JsonSerializerOptions).FromJsonStringAs<ImmutableList<KeyValuePair<string, ImmutableList<string>>>>(JsonSerializerOptions),
-                        Value = expectedResult == IgnoreResponseComparison ? filteredCurrentResult : filteredExpectedType
+                        Value = expectedResult.EqualsTo(IgnoreResponseComparison) ? filteredCurrentResult : filteredExpectedType
                     }
                 };
             }

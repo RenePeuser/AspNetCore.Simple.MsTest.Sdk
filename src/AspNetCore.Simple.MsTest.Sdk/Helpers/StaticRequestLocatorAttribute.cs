@@ -82,15 +82,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var currentPath = RequestFolder;
             var declaringType = methodInfo.DeclaringType;
 
-            if (declaringType == null)
+            if (declaringType.IsNull())
             {
                 yield break;
             }
 
             // Automatically determine folder path if no explicit _requestFolder is provided.
-            if (string.IsNullOrWhiteSpace(currentPath))
+            if (currentPath.IsNullOrWhiteSpace())
             {
-                if (string.IsNullOrWhiteSpace(declaringType.FullName))
+                if (declaringType.FullName.IsNullOrWhiteSpace())
                 {
                     yield break;
                 }

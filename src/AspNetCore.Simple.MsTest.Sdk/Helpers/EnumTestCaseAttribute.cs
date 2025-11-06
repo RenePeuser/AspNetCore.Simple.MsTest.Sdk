@@ -76,12 +76,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             // Use the specified _requestFolder or compute it from the declaring type.
             var declaringType = methodInfo.DeclaringType;
-            if (declaringType == null)
+            if (declaringType.IsNull())
             {
                 yield break;
             }
 
-            if (string.IsNullOrWhiteSpace(declaringType.FullName))
+            if (declaringType.FullName.IsNullOrWhiteSpace())
             {
                 yield break;
             }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -25,7 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var testCreator = testCreators.Where(creator => creator.CanCreateTestFor(requestInfo, responseInfoUltra)).ToList();
 
-            if (testCreator.Count == 1)
+            if (testCreator.Count.EqualsTo(1))
             {
                 return testCreator[0].CreateTestFor(requestInfo, responseInfoUltra);
             }

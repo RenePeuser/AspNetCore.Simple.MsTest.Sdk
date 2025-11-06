@@ -34,7 +34,7 @@ internal static class DifferenceExtensions
             objectName1 = objectName1.Split($".{matched}.").Last();
         }
 
-        if (differences.Count == 1 && string.IsNullOrWhiteSpace(differences[0].MemberPath))
+        if (differences.Count.EqualsTo(1) && differences[0].MemberPath.IsNullOrWhiteSpace())
         {
             var table = new ConsoleTable(objectName1, objectName2, "MismatchType") { Options = { EnableCount = false } };
             differences.ForEach(dif => table.AddRow(dif.Value1, dif.Value2, dif.MismatchType));
@@ -89,7 +89,7 @@ internal static class DifferenceExtensions
     private static IEnumerable<Difference> Flatten(Difference diff,
                                                    string prefix = "")
     {
-        var path = string.IsNullOrEmpty(prefix) ? diff.MemberPath : $"{prefix}.{diff.MemberPath}";
+        var path = prefix.IsNullOrEmpty() ? diff.MemberPath : $"{prefix}.{diff.MemberPath}";
 
         if (IsJson(diff.Value1) || IsJson(diff.Value2))
         {
@@ -131,7 +131,7 @@ internal static class DifferenceExtensions
     {
         var result = new Dictionary<string, string?>();
 
-        if (value is not string json || string.IsNullOrWhiteSpace(json))
+        if (value is not string json || json.IsNullOrWhiteSpace())
         {
             return result;
         }
@@ -160,7 +160,7 @@ internal static class DifferenceExtensions
             case JsonValueKind.Object:
                 foreach (var prop in element.EnumerateObject())
                 {
-                    var propName = string.IsNullOrEmpty(prefix) ? prop.Name : $"{prefix}.{prop.Name}";
+                    var propName = prefix.IsNullOrEmpty() ? prop.Name : $"{prefix}.{prop.Name}";
                     FlattenJson(prop.Value, dict, propName);
                 }
 
@@ -203,12 +203,12 @@ internal static class DifferenceExtensions
     private static MismatchType ResolveMismatchType(object? v1,
                                                     object? v2)
     {
-        if (v1 == null)
+        if (v1.IsNull())
         {
             return MismatchType.MissingInFirst;
         }
 
-        if (v2 == null)
+        if (v2.IsNull())
         {
             return MismatchType.MissingInSecond;
         }

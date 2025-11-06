@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string url,
                                                                    IImmutableDictionary<string, string> expectedHeaders)
         {
-            IImmutableDictionary<string, ImmutableList<string>> expectedHeaderStructure = expectedHeaders.ToImmutableDictionary(item => item.Key, item => ImmutableList.Create(item.Value));
+            IImmutableDictionary<string, ImmutableList<string>> expectedHeaderStructure = expectedHeaders.ToImmutableDictionary(item => item.Key, item => item.Value.AsImmutableList());
 
             return client.AssertOptionsAsync(url, expectedHeaderStructure.ToJson(JsonSerializerOptions));
         }
