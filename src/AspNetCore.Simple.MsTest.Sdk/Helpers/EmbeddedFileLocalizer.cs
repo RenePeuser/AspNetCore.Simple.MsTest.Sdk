@@ -79,6 +79,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return new EmbeddedFileInfo(embedddFile, null);
             }
 
+            if (embedddFile.EndsWith(".json").IsFalse())
+            {
+                return new EmbeddedFileInfo(embedddFile, null);
+            }
+
             // 2. We only can localize files, if we have no file we return origin
             var fileExtensions = Path.GetExtension(embedddFile);
 
