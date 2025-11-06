@@ -79,15 +79,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return new EmbeddedFileInfo(embedddFile, null);
             }
 
-            if (embedddFile.EndsWith(".json").IsFalse())
+            // 2. We only can localize files, if we have no file we return origin
+            var fileExtensions = Path.GetExtension(embedddFile);
+            if (fileExtensions.IsNullOrWhiteSpace())
             {
                 return new EmbeddedFileInfo(embedddFile, null);
             }
 
-            // 2. We only can localize files, if we have no file we return origin
-            var fileExtensions = Path.GetExtension(embedddFile);
-
-            if (fileExtensions.IsNullOrWhiteSpace())
+            // In case we have a native string separated by .
+            if (fileExtensions.DoesNotContain(".json"))
             {
                 return new EmbeddedFileInfo(embedddFile, null);
             }
