@@ -52,7 +52,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             foreach (var valueTuple in parameters)
             {
-                formattedJsonWithParameters = formattedJsonWithParameters.Replace(valueTuple.Value?.ToString() ?? string.Empty, valueTuple.key);
+                var oldValue = valueTuple.Value?.ToString();
+                // We cant replace null or empty -> Replace do argument checks
+                if (oldValue.IsNullOrEmpty())
+                {
+                    continue;
+                }
+
+                formattedJsonWithParameters = formattedJsonWithParameters.Replace(oldValue, valueTuple.key);
             }
 
             File.WriteAllText(localizedFile.EmbeddedFile.FullName, formattedJsonWithParameters);
