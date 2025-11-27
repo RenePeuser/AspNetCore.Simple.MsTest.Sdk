@@ -903,6 +903,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
+
+            // Special case if expected and current jsons are parameters passed by we need to set the
+            // correct parameter names
+            expectedObjectAsJson = EmbeddedFileLocalizer.LocalizeResponse(expectedObjectAsJson, callerFilePath, callingAssembly);
+
+            if (expectedObjectAsJson.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
+                expectedResultParameterName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
+            {
+                expectedResultParameterName = expectedObjectAsJson;
+            }
+
             // localize expected response and payload
             // So the caller does not have to pass the unique file name of the embedded resource
             // - Api.V1.Users.GetAllUsersTest.Responses.GetAllUsersResponse.json
@@ -919,12 +930,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 CurrentResponseWriter.Write(currentObjectAsJson,
                                             expectedResultParameterName,
                                             callerFilePath,
-                                            callingAssembly, 
+                                            callingAssembly,
                                             parameters);
             }
 
-            var jsonObject = localizedExpectedResponse.GetJsonStringFrom<T>(currentObjectAsJson, 
-                                                                       callingAssembly, 
+            var jsonObject = localizedExpectedResponse.GetJsonStringFrom<T>(currentObjectAsJson,
+                                                                       callingAssembly,
                                                                        curl,
                                                                        currentResultParameterName);
 
