@@ -308,7 +308,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
 
 
-            if (WriteResponseService.ShouldWriteResponse(writResponse) && callingAssembly.IsCompiledInDebug())
+            if (WriteResponseService.ShouldWriteResponse(writResponse, callingAssembly))
             {
                 expectedResultAsJson = expectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(contentAsString, callingAssembly, curl,
                                                                                               expectedResultParameterName);
@@ -423,7 +423,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                  "Schema mismatch: Expected result and current result does not match", expectedJson,
                                                                                  currentResponseJson, differenceOutputTable, curl);
 
-                    if (WriteResponseService.ShouldWriteResponse(writResponse) && callingAssembly.IsCompiledInDebug())
+                    if (WriteResponseService.ShouldWriteResponse(writResponse, callingAssembly))
                     {
                         CurrentResponseWriter.Write(currentResponseJson ?? "{}",
                                                     expectedResultFile,

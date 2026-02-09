@@ -937,7 +937,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Brand new crazy function
             // We write the current result to the expected file
-            if (WriteResponseService.ShouldWriteResponse(writeResponse))
+            if (WriteResponseService.ShouldWriteResponse(writeResponse, callingAssembly))
             {
                 CurrentResponseWriter.Write(currentObjectAsJson,
                                             expectedResponseFile,
@@ -1013,7 +1013,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var schemaNotMatchingError = OutputFormatter.GetOutputString(title, "Schema mismatch: Expected result and current result does not match", object1AsJson,
                                                                              object2AsJson, differenceOutputTable, curl);
 
-                if (WriteResponseService.ShouldWriteResponse(writeResponse))
+                if (WriteResponseService.ShouldWriteResponse(writeResponse, callingAssembly))
                 {
                     CurrentResponseWriter.Write(object2AsJson ?? "{}",
                                                 localizedExpectedResponseFile,
