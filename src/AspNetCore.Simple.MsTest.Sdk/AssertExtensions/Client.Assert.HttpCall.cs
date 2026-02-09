@@ -23,7 +23,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly JsonDiffer JsonDiffer = new JsonDiffer();
 
-        private static readonly CurrentResponseWriter CurrentResponseWriter = new CurrentResponseWriter(JsonDiffer);
+        private static readonly ResponseWriter ResponseWriter = new ResponseWriter([
+                                                                                       new DifferenceResponseWriter(JsonDiffer, new JsonPathWriter()),
+                                                                                       new OverwriteAllResponseWriter()
+                                                                                   ]);
 
         private static readonly WriteResponseService WriteResponseService = new();
 
@@ -275,7 +278,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                     : $"You expect an ERROR result but the response was {httpResponseMessage.StatusCode}. Please check implementation or your expected response";
 
                 var simpleExpectedResult = expectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(contentAsString, callingAssembly, curl,
-                                                                                                  expectedResultParameterName);
+                                                                                                          expectedResultParameterName);
 
                 var schemaNotMatchingError = OutputFormatter.GetOutputString(httpCallInfo, errorInfo, simpleExpectedResult,
                                                                              contentAsString, string.Empty, curl);
@@ -306,12 +309,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 14. Normalize expected json string dependent on target type and edge cases like primitive types and so on.
             string? expectedResultAsJson;
 
+            var shouldWriteResponse = WriteResponseService.ShouldWriteResponse(writResponse, callingAssembly);
 
-
-            if (WriteResponseService.ShouldWriteResponse(writResponse, callingAssembly))
+            if (shouldWriteResponse)
             {
                 expectedResultAsJson = expectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(contentAsString, callingAssembly, curl,
-                                                                                              expectedResultParameterName);
+                                                                                                      expectedResultParameterName);
 
                 if (expectedResultAsJson.IsNull())
                 {
@@ -322,7 +325,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 // try first new vrsion
                 expectedResultAsJson = expectedResultFile.Content.GetJsonStringFrom<TResult>(contentAsString, callingAssembly, curl,
-                                                                                     expectedResultParameterName);
+                                                                                             expectedResultParameterName);
             }
 
             // 15. Resolve parameters in expected result
@@ -423,13 +426,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                  "Schema mismatch: Expected result and current result does not match", expectedJson,
                                                                                  currentResponseJson, differenceOutputTable, curl);
 
-                    if (WriteResponseService.ShouldWriteResponse(writResponse, callingAssembly))
+                    if (shouldWriteResponse)
                     {
-                        CurrentResponseWriter.Write(currentResponseJson ?? "{}",
-                                                    expectedResultFile,
-                                                    parameters,
-                                                    differenceFunc,
-                                                    callingAssembly);
+                        var writeResponseRequest = new WriteResponseRequest()
+                        {
+                            CallingAssembly = callingAssembly,
+                            DifferenceFunc = differenceFunc,
+                            CurrentResponseAsString = currentResponseJson,
+                            ExpectedResult = expectedResultFile,
+                            Parameters = parameters,
+                            Mode = ResponseWriteMode.DifferencesOnly
+                        };
+
+                        ResponseWriter.Write(writeResponseRequest);
                     }
 
                     Assert.Fail(schemaNotMatchingError);

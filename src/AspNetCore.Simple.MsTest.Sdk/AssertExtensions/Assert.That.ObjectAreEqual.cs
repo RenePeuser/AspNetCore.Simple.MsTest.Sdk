@@ -23,7 +23,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings());
 
-        private static readonly CurrentResponseWriter CurrentResponseWriter = new CurrentResponseWriter(JsonDiffer);
+        private static readonly ResponseWriter ResponseWriter = new ResponseWriter([
+                                                                                       new DifferenceResponseWriter(JsonDiffer, new JsonPathWriter()),
+                                                                                       new OverwriteAllResponseWriter()
+                                                                                   ]);
 
         private static readonly WriteResponseService WriteResponseService = new WriteResponseService();
 
@@ -937,13 +940,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Brand new crazy function
             // We write the current result to the expected file
-            if (WriteResponseService.ShouldWriteResponse(writeResponse, callingAssembly))
+            var shouldWriteResponse = WriteResponseService.ShouldWriteResponse(writeResponse, callingAssembly);
+
+            if (shouldWriteResponse)
             {
-                CurrentResponseWriter.Write(currentObjectAsJson,
-                                            expectedResponseFile,
-                                            parameters,
-                                            differenceFunc,
-                                            callingAssembly);
+                var writeResponseRequest = new WriteResponseRequest()
+                {
+                    CallingAssembly = callingAssembly,
+                    DifferenceFunc = differenceFunc,
+                    CurrentResponseAsString = currentObjectAsJson,
+                    ExpectedResult = expectedResponseFile,
+                    Parameters = parameters,
+                    Mode = ResponseWriteMode.DifferencesOnly
+                };
+
+                ResponseWriter.Write(writeResponseRequest);
             }
 
             var type = typeof(T);
@@ -1006,7 +1017,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     hasSchemaMismatch = differences.Any(item => item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond);
                 }
 
-
                 var commonDifferences = DifferenceFunc(differences).ToImmutableList();
                 var optimizedDifferences = differenceFunc(commonDifferences).ToImmutableList();
 
@@ -1015,13 +1025,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var schemaNotMatchingError = OutputFormatter.GetOutputString(title, "Schema mismatch: Expected result and current result does not match", object1AsJson,
                                                                              object2AsJson, differenceOutputTable, curl);
 
-                if (WriteResponseService.ShouldWriteResponse(writeResponse, callingAssembly))
+                if (shouldWriteResponse)
                 {
-                    CurrentResponseWriter.Write(object2AsJson ?? "{}",
-                                                localizedExpectedResponseFile,
-                                                parameters,
-                                                differenceFunc,
-                                                callingAssembly);
+                    var writeResponseRequest = new WriteResponseRequest()
+                    {
+                        CallingAssembly = callingAssembly,
+                        DifferenceFunc = differenceFunc,
+                        CurrentResponseAsString = object2AsJson,
+                        ExpectedResult = localizedExpectedResponseFile,
+                        Parameters = parameters,
+                        Mode = ResponseWriteMode.DifferencesOnly
+                    };
+
+                    ResponseWriter.Write(writeResponseRequest);
                 }
 
                 Assert.IsFalse(hasSchemaMismatch, schemaNotMatchingError);
