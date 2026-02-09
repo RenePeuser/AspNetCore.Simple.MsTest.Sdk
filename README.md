@@ -535,7 +535,7 @@ public async Task Should_Be_Able_To_Create_A_CapabilityType_If_Status_Is_Correct
 }
 ```
 
-### Test-Writer (POC-State)
+### Test-Response-Writer
 We provide you now a small dev tool to help you create your test response files.
 This helps you speed up writing and getting your test green.
 ```csharp
@@ -554,10 +554,16 @@ public class Persons : ApiTestBase
 
 ```
 
-#### Test-Writer (POC-State) - Global Response flag
+#### Test-Writer - Global Response flag
 Writes for all running tests -> be careful when using it !
 ```csharp
 AssertObjectExtensions.WriteResponse = true;
+```
+
+#### Test-Writer - Environment variable
+Writes for all running tests -> be careful when using it !
+```csharp
+AspNetCoreSimpleMsTestSdk__WriteResponse
 ```
 
 ### New difference table schema
