@@ -42,7 +42,7 @@ internal static class DifferenceExtensions
             return table.ToString();
         }
 
-        var flattened = FlattenDifferences(differences);
+        var flattened = FlattenDifferences(differences).ToImmutableList();
 
         var fullTable = new ConsoleTable(nameof(Difference.MemberPath), objectName1, objectName2,
                                          "MismatchType")
@@ -96,7 +96,12 @@ internal static class DifferenceExtensions
             var obj1 = TryParseJson(diff.Value1);
             var obj2 = TryParseJson(diff.Value2);
 
-            var allKeys = obj1.Keys.Union(obj2.Keys).Distinct();
+            var allKeys = obj1.Keys.Union(obj2.Keys).Distinct().ToImmutableList();
+
+            if (allKeys.IsEmpty())
+            {
+                yield return diff;
+            }
 
             foreach (var key in allKeys)
             {
