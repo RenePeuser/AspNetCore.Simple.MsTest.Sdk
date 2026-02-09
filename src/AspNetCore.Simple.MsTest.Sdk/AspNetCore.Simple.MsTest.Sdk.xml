@@ -427,20 +427,24 @@
             </returns>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.CurrentResponseWriter">
-            <summary>
-            Snapshot writer in AUTHORITATIVE mode:
-            - MissingInFirst  -> ADD property
-            - MissingInSecond -> REMOVE property
-            - ValueDifference -> IGNORED (filtered via differenceFunc)
-            </summary>
+             <summary>
+             AUTHORITATIVE snapshot writer (DEBUG only)
+            
+             Rules:
+             - MissingInFirst  -> ADD from current
+             - MissingInSecond -> REMOVE from expected
+             - ValueDifference -> UPDATE from current (if allowed by differenceFunc)
+             </summary>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.CurrentResponseWriter.#ctor(AspNetCore.Simple.MsTest.Sdk.IJsonDiffer)">
-            <summary>
-            Snapshot writer in AUTHORITATIVE mode:
-            - MissingInFirst  -> ADD property
-            - MissingInSecond -> REMOVE property
-            - ValueDifference -> IGNORED (filtered via differenceFunc)
-            </summary>
+             <summary>
+             AUTHORITATIVE snapshot writer (DEBUG only)
+            
+             Rules:
+             - MissingInFirst  -> ADD from current
+             - MissingInSecond -> REMOVE from expected
+             - ValueDifference -> UPDATE from current (if allowed by differenceFunc)
+             </summary>
         </member>
     </members>
 </doc>

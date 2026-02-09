@@ -13,7 +13,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void AddCurrentResponseWriter(this IServiceCollection services)
         {
             services.AddJsonDiffer();
-
             services.AddSingletonIfNotExists<ICurrentResponseWriter, CurrentResponseWriter>();
         }
     }
@@ -39,10 +38,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
     }
 
     /// <summary>
-    /// Snapshot writer in AUTHORITATIVE mode:
-    /// - MissingInFirst  -> ADD property
-    /// - MissingInSecond -> REMOVE property
-    /// - ValueDifference -> IGNORED (filtered via differenceFunc)
+    /// AUTHORITATIVE snapshot writer (DEBUG only)
+    ///
+    /// Rules:
+    /// - MissingInFirst  -> ADD from current
+    /// - MissingInSecond -> REMOVE from expected
+    /// - ValueDifference -> UPDATE from current (if allowed by differenceFunc)
     /// </summary>
     public sealed class CurrentResponseWriter(IJsonDiffer jsonDiffer) : ICurrentResponseWriter
     {
@@ -67,7 +68,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Throw.IfNull(differenceFunc);
             Throw.IfNull(callingAssembly);
 
-            // Safety gate
             if (callingAssembly.IsCompiledInDebug().IsFalse())
             {
                 Console.WriteLine("Snapshot writing disabled outside DEBUG mode.");
@@ -79,11 +79,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            // Parse current
             var currentJson = JToken.Parse(currentResponseAsString);
             var formattedCurrent = currentJson.ToString(Formatting.Indented);
 
-            // Parameter replacement (IDs, placeholders, etc.)
+            // Replace runtime parameters (IDs, placeholders, etc.)
             foreach (var (key, value) in parameters)
             {
                 var oldValue = value?.ToString();
@@ -103,19 +102,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 Assert.IsNotNull(expectedResult.EmbeddedFile,
                                  "Expected response file must be localized to be overwritten.");
 
-                File.WriteAllText(expectedResult.EmbeddedFile.FullName,
-                                  mergedExpected);
+                File.WriteAllText(expectedResult.EmbeddedFile.FullName, mergedExpected);
             }
         }
 
         // ============================================================
-        // Snapshot rewrite logic (authoritative)
+        // Snapshot rewrite logic
         // ============================================================
 
         private bool RewriteExpectedSnapshot(EmbeddedFileInfo existingResponseJson,
-                                                    string currentResponse,
-                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                    out string mergedExpectedJson)
+                                             string currentResponse,
+                                             Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                             out string mergedExpectedJson)
         {
             mergedExpectedJson = string.Empty;
 
@@ -123,7 +121,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var current = JToken.Parse(currentResponse);
 
             var diffs = jsonDiffer.FindDifferences(expected, current);
-
             var relevantDiffs = differenceFunc(diffs).ToList();
 
             if (!relevantDiffs.Any())
@@ -142,27 +139,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 switch (diff.MismatchType)
                 {
                     case MismatchType.MissingInFirst:
+                    {
+                        var source = current.SelectToken(diff.MemberPath);
+                        if (source != null)
                         {
-                            // ADD
-                            var source = current.SelectToken(diff.MemberPath);
-                            if (source != null)
-                            {
-                                AddOrUpdateTokenAtPath(expected, diff.MemberPath, source);
-                            }
-
-                            break;
+                            AddOrUpdateTokenAtPath(expected, diff.MemberPath, source);
                         }
+
+                        break;
+                    }
 
                     case MismatchType.MissingInSecond:
-                        {
-                            // REMOVE
-                            RemoveTokenAtPath(expected, diff.MemberPath);
-                            break;
-                        }
+                    {
+                        RemoveTokenAtPath(expected, diff.MemberPath);
+                        break;
+                    }
 
                     case MismatchType.ValueDifference:
-                        // intentionally ignored (IDs, timestamps, etc.)
+                    {
+                        var source = current.SelectToken(diff.MemberPath);
+                        if (source != null)
+                        {
+                            AddOrUpdateTokenAtPath(expected, diff.MemberPath, source);
+                        }
+
                         break;
+                    }
                 }
             }
 
@@ -171,11 +173,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // ============================================================
-        // JSON path mutation helpers
+        // JSON mutation helpers (ROBUST)
         // ============================================================
 
-        private static void AddOrUpdateTokenAtPath(JToken root, string path, JToken value)
+        private static void AddOrUpdateTokenAtPath(JToken? root, string path, JToken value)
         {
+            if (root == null || path.IsNullOrWhiteSpace())
+            {
+                return;
+            }
+
+            // 1️⃣ Direct replace if token exists (CRITICAL for arrays)
+            var existing = root.SelectToken(path);
+            if (existing != null)
+            {
+                existing.Replace(value.DeepClone());
+                return;
+            }
+
+            // 2️⃣ Create missing path
             var segments = ParsePath(path);
             var current = root;
 
@@ -183,89 +199,101 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 var seg = segments[i];
 
-                if (seg.IsArray)
+                if (!seg.IsArray)
                 {
-                    if (current[seg.Name] is not JArray arr)
+                    if (current is not JObject obj)
                     {
-                        arr = new JArray();
-                        ((JObject)current)[seg.Name] = arr;
+                        return;
                     }
 
-                    EnsureArraySize(arr, seg.Index);
+                    if (obj[seg.Name] == null || obj[seg.Name]!.Type == JTokenType.Null)
+                    {
+                        obj[seg.Name] = new JObject();
+                    }
 
-                    if (arr[seg.Index].IsNull() || arr[seg.Index] is JValue)
-                    {
-                        var obj = new JObject();
-                        arr[seg.Index] = obj;
-                        current = obj;
-                    }
-                    else
-                    {
-                        current = arr[seg.Index]!;
-                    }
+                    current = obj[seg.Name]!;
+                    continue;
                 }
-                else
-                {
-                    if (current[seg.Name] == null)
-                    {
-                        var obj = new JObject();
-                        ((JObject)current)[seg.Name] = obj;
-                        current = obj;
-                    }
-                    else
-                    {
-                        current = current[seg.Name]!;
-                    }
-                }
-            }
 
-            var leaf = segments[^1];
-
-            if (leaf.IsArray)
-            {
-                var arr = current[leaf.Name] as JArray ?? new JArray();
-                ((JObject)current)[leaf.Name] = arr;
-
-                EnsureArraySize(arr, leaf.Index);
-                arr[leaf.Index] = value.DeepClone();
-            }
-            else
-            {
-                ((JObject)current)[leaf.Name] = value.DeepClone();
-            }
-        }
-
-        private static void RemoveTokenAtPath(JToken root, string path)
-        {
-            var lastDot = path.LastIndexOf('.');
-            var parentPath = lastDot >= 0 ? path[..lastDot] : string.Empty;
-            var leaf = lastDot >= 0 ? path[(lastDot + 1)..] : path;
-
-            var parent = parentPath.IsNullOrEmpty()
-                             ? root
-                             : root.SelectToken(parentPath);
-
-            if (parent == null)
-            {
-                return;
-            }
-
-            if (leaf.StartsWith('[') && leaf.EndsWith(']'))
-            {
-                if (parent is not JArray arr)
+                // Array segment
+                if (current is not JObject parentObj)
                 {
                     return;
                 }
 
-                if (int.TryParse(leaf.Trim('[', ']'), out var index) &&
-                    index >= 0 && index < arr.Count)
+                if (parentObj[seg.Name] is not JArray arr)
                 {
-                    arr.RemoveAt(index);
+                    arr = new JArray();
+                    parentObj[seg.Name] = arr;
+                }
+
+                EnsureArraySize(arr, seg.Index);
+
+                if (arr[seg.Index] == null || arr[seg.Index]!.Type == JTokenType.Null)
+                {
+                    arr[seg.Index] = new JObject();
+                }
+
+                current = arr[seg.Index]!;
+            }
+
+            var leaf = segments[^1];
+
+            if (!leaf.IsArray)
+            {
+                if (current is JObject obj)
+                {
+                    obj[leaf.Name] = value.DeepClone();
                 }
 
                 return;
             }
 
+            if (current is not JObject leafParent)
+            {
+                return;
+            }
+
+            if (leafParent[leaf.Name] is not JArray leafArr)
+            {
+                leafArr = new JArray();
+                leafParent[leaf.Name] = leafArr;
+            }
+
+            EnsureArraySize(leafArr, leaf.Index);
+            leafArr[leaf.Index] = value.DeepClone();
+        }
+
+        private static void RemoveTokenAtPath(JToken? root, string path)
+        {
+            if (root == null || path.IsNullOrWhiteSpace())
+            {
+                return;
+            }
+
+            var token = root.SelectToken(path);
+            if (token == null)
+            {
+                return;
+            }
+
+            if (token.Parent is JProperty prop)
+            {
+                prop.Remove();
+                return;
+            }
+
+            if (token.Parent is JArray)
+            {
+                token.Remove();
+                return;
+            }
+
+            var lastDot = path.LastIndexOf('.');
+            var parentPath = lastDot >= 0 ? path[..lastDot] : string.Empty;
+            var leaf = lastDot >= 0 ? path[(lastDot + 1)..] : path;
+
+            var parent = parentPath.IsNullOrWhiteSpace() ? root : root.SelectToken(parentPath);
             if (parent is JObject obj)
             {
                 obj.Remove(leaf);
