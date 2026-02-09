@@ -426,5 +426,21 @@
             A descriptive name that combines the test method's name with the test data details, aiding in test identification.
             </returns>
         </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.CurrentResponseWriter">
+            <summary>
+            Snapshot writer in AUTHORITATIVE mode:
+            - MissingInFirst  -> ADD property
+            - MissingInSecond -> REMOVE property
+            - ValueDifference -> IGNORED (filtered via differenceFunc)
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.CurrentResponseWriter.#ctor(AspNetCore.Simple.MsTest.Sdk.IJsonDiffer)">
+            <summary>
+            Snapshot writer in AUTHORITATIVE mode:
+            - MissingInFirst  -> ADD property
+            - MissingInSecond -> REMOVE property
+            - ValueDifference -> IGNORED (filtered via differenceFunc)
+            </summary>
+        </member>
     </members>
 </doc>

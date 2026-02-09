@@ -1,31 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    // Introduce an enum to categorize the type of mismatch.
     public enum MismatchType
     {
-        ValueDifference, // Both values exist but are not equal.
-
-        MissingInFirst, // The value is missing in the first JSON.
-
-        MissingInSecond // The value is missing in the second JSON.
+        ValueDifference,
+        MissingInFirst,
+        MissingInSecond
     }
 
-    // Update the Difference record to include the mismatch type.
-    public sealed record Difference()
+    public sealed record Difference
     {
         public required string MemberPath { get; init; }
-
         public required string? Value1 { get; init; }
-
         public required string? Value2 { get; init; }
-
         public required MismatchType MismatchType { get; init; }
     }
 
@@ -39,184 +30,166 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     public interface IJsonDiffer
     {
-        ImmutableList<Difference> FindDifferences(string json1,
-                                                   string json2);
+        ImmutableList<Difference> FindDifferences(string json1, string json2);
 
-        // Updated native differences method to include mismatch type.
-        Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(string json1,
-                                                                                   string json2);
+        Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(string json1, string json2);
+
+        ImmutableList<Difference> FindDifferences(JToken json1, JToken json2);
+
+        Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(JToken json1, JToken json2);
     }
 
     internal sealed class JsonDiffer : IJsonDiffer
     {
-        public ImmutableList<Difference> FindDifferences(string json1,
-                                                          string json2)
+        public ImmutableList<Difference> FindDifferences(string json1, string json2)
         {
-            var differences = FindDifferencesNative(json1, json2);
+            var left = json1.IsNullOrWhiteSpace() ? JToken.Parse("{}") : JToken.Parse(json1);
+            var right = json2.IsNullOrWhiteSpace() ? JToken.Parse("{}") : JToken.Parse(json2);
 
-            var simpleDifferences = differences.Select(item =>
-                                                           new Difference()
-                                                           {
-                                                               MemberPath = item.Key,
-                                                               Value1 = item.Value.Item1?.ToString(),
-                                                               Value2 = item.Value.Item2?.ToString(),
-                                                               MismatchType = item.Value.Item3
-                                                           });
-
-            return simpleDifferences.ToImmutableList();
+            return FindDifferences(left, right);
         }
 
-        public Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(string json1,
-                                                                                          string json2)
+        public ImmutableList<Difference> FindDifferences(JToken json1, JToken json2)
         {
-            var differences = new Dictionary<string, (JToken?, JToken?, MismatchType)>();
+            var native = FindDifferencesNative(json1, json2);
 
-            CompareTokens(JToken.Parse(json1), JToken.Parse(json2), differences,
-                          "");
-
-            return differences;
+            return native
+                   .Select(d => new Difference
+                   {
+                       MemberPath = d.Key,
+                       Value1 = d.Value.Item1?.ToString(),
+                       Value2 = d.Value.Item2?.ToString(),
+                       MismatchType = d.Value.Item3
+                   })
+                   .OrderBy(d => d.MemberPath)
+                   .ToImmutableList();
         }
 
-        private void CompareTokens(JToken? token1,
-                                   JToken? token2,
-                                   Dictionary<string, (JToken?, JToken?, MismatchType)> differences,
+        public Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(string json1, string json2)
+        {
+            var left = json1.IsNullOrWhiteSpace() ? JToken.Parse("{}") : JToken.Parse(json1);
+            var right = json2.IsNullOrWhiteSpace() ? JToken.Parse("{}") : JToken.Parse(json2);
+
+            return FindDifferencesNative(left, right);
+        }
+
+        public Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(JToken json1, JToken json2)
+        {
+            var diffs = new Dictionary<string, (JToken?, JToken?, MismatchType)>();
+            CompareTokens(json1, json2, diffs, string.Empty);
+            return diffs;
+        }
+
+        // ============================
+        // Core comparison logic
+        // ============================
+
+        private void CompareTokens(JToken? left,
+                                   JToken? right,
+                                   Dictionary<string, (JToken?, JToken?, MismatchType)> diffs,
                                    string path)
         {
-            if (JToken.DeepEquals(token1, token2))
+            if (left == null && right == null)
             {
                 return;
             }
 
-            // Handle cases where one token is missing.
-            if (token1.IsNull() || token1.IsNull())
+            if (left == null)
             {
-                differences[path] = (null, token2, MismatchType.MissingInFirst);
+                AddDiff(diffs, path, null, right, MismatchType.MissingInFirst);
+                return;
+            }
+
+            if (right == null)
+            {
+                AddDiff(diffs, path, left, null, MismatchType.MissingInSecond);
+                return;
+            }
+
+            if (left.Type != right.Type)
+            {
+                AddDiff(diffs, path, left, right, MismatchType.ValueDifference);
+                return;
+            }
+
+            if (JToken.DeepEquals(left, right))
+            {
+                return;
+            }
+
+            if (left is JObject obj1 && right is JObject obj2)
+            {
+                foreach (var prop in obj1.Properties())
+                {
+                    var childPath = AppendPath(path, prop.Name);
+
+                    if (!obj2.TryGetValue(prop.Name, out var rightValue))
+                    {
+                        AddDiff(diffs, childPath, prop.Value, null, MismatchType.MissingInSecond);
+                    }
+                    else
+                    {
+                        CompareTokens(prop.Value, rightValue, diffs, childPath);
+                    }
+                }
+
+                foreach (var prop in obj2.Properties())
+                {
+                    if (!obj1.ContainsKey(prop.Name))
+                    {
+                        var childPath = AppendPath(path, prop.Name);
+                        AddDiff(diffs, childPath, null, prop.Value, MismatchType.MissingInFirst);
+                    }
+                }
 
                 return;
             }
 
-            if (token2.IsNull() || token2.IsNull())
+            if (left is JArray arr1 && right is JArray arr2)
             {
-                differences[path] = (token1, null, MismatchType.MissingInSecond);
+                var max = Math.Max(arr1.Count, arr2.Count);
+
+                for (var i = 0; i < max; i++)
+                {
+                    var p = AppendPath(path, $"[{i}]");
+
+                    var l = i < arr1.Count ? arr1[i] : null;
+                    var r = i < arr2.Count ? arr2[i] : null;
+
+                    CompareTokens(l, r, diffs, p);
+                }
 
                 return;
             }
 
-            switch (token1.Type)
-            {
-                case JTokenType.Object:
-                    if (token2.Type.NotEqualsTo(JTokenType.Object))
-                    {
-                        differences[path] = (token1, token2, MismatchType.ValueDifference);
-
-                        return;
-                    }
-
-                    var obj1 = (JObject)token1;
-                    var obj2 = (JObject)token2;
-
-                    // Compare all properties from the first object.
-                    foreach (var property in obj1)
-                    {
-                        var propertyPath = AppendPath(path, property.Key);
-                        var token2Value = obj2.GetValueOrDefault(property.Key);
-
-                        if (token2Value.IsNull())
-                        {
-                            differences[propertyPath] = (property.Value, null, MismatchType.MissingInSecond);
-                        }
-                        else
-                        {
-                            CompareTokens(property.Value, token2Value, differences,
-                                          propertyPath);
-                        }
-                    }
-
-                    // Look for properties that are in the second object but not in the first.
-                    foreach (var property in obj2)
-                    {
-                        var propertyPath = AppendPath(path, property.Key);
-
-                        if (obj1[property.Key].IsNull())
-                        {
-                            differences[propertyPath] = (null, property.Value, MismatchType.MissingInFirst);
-                        }
-                    }
-
-                    break;
-
-                case JTokenType.Array:
-                    if (token2.Type.NotEqualsTo(JTokenType.Array))
-                    {
-                        differences[path] = (token1, token2, MismatchType.ValueDifference);
-
-                        return;
-                    }
-
-                    var array1 = (JArray)token1;
-                    var array2 = (JArray)token2;
-
-                    // Check if the array represents key-value pairs.
-                    var isKeyValueArray = array1.Count > 0 &&
-                                          array1.First is JObject firstElement &&
-                                          firstElement.ContainsKey("Key");
-
-                    for (var i = 0; i < array1.Count || i < array2.Count; i++)
-                    {
-                        string indexPath;
-
-                        if (isKeyValueArray)
-                        {
-                            // Use the key value if available.
-                            var key1 = i < array1.Count ? array1[i]["Key"]?.ToString() : null;
-                            var key2 = i < array2.Count ? array2[i]["Key"]?.ToString() : null;
-                            indexPath = AppendPath(path, $"""["{key1 ?? key2 ?? i.ToInvariantString()}"]""");
-                        }
-                        else
-                        {
-                            indexPath = AppendPath(path, $"[{i}]");
-                        }
-
-                        if (i >= array1.Count)
-                        {
-                            differences[indexPath] = (null, array2[i], MismatchType.MissingInFirst);
-                        }
-                        else if (i >= array2.Count)
-                        {
-                            differences[indexPath] = (array1[i], null, MismatchType.MissingInSecond);
-                        }
-                        else
-                        {
-                            CompareTokens(array1[i], array2[i], differences,
-                                          indexPath);
-                        }
-                    }
-
-                    break;
-
-                default:
-                    // For primitive types, record the difference as a value difference.
-                    differences[path] = (token1, token2, MismatchType.ValueDifference);
-
-                    break;
-            }
+            AddDiff(diffs, path, left, right, MismatchType.ValueDifference);
         }
 
-        private string AppendPath(string path,
-                                  string addition)
+        // ============================
+        // Helpers
+        // ============================
+
+        private static void AddDiff(Dictionary<string, (JToken?, JToken?, MismatchType)> diffs,
+                                    string path,
+                                    JToken? left,
+                                    JToken? right,
+                                    MismatchType type)
         {
-            if (path.IsNullOrEmpty())
+            if (path.IsNullOrWhiteSpace())
             {
-                return addition;
+                return;
             }
 
-            // If the addition represents an array index, don't add a dot.
-            if (addition.First().EqualsTo('['))
-            {
-                return $"{path}{addition}";
-            }
+            diffs[path] = (left, right, type);
+        }
 
-            return $"{path}.{addition}";
+        private static string AppendPath(string path, string addition)
+        {
+            return string.IsNullOrEmpty(path)
+                       ? addition
+                       : addition.StartsWith('[')
+                           ? $"{path}{addition}"
+                           : $"{path}.{addition}";
         }
     }
 }

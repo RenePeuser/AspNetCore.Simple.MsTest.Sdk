@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using Extensions.Pack;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -25,9 +21,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
 
-        private static readonly CurrentResponseWriter CurrentResponseWriter = new(new EmbeddedFileLocalizer(new TestCreatorSettings()));
-
         private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings());
+
+        private static readonly CurrentResponseWriter CurrentResponseWriter = new CurrentResponseWriter(JsonDiffer);
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
@@ -36,11 +32,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
             NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters = { new JsonStringEnumConverter() }
+            Converters =
+            {
+                new JsonStringEnumConverter()
+            }
         };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
+        // GlobalWriteResponse
+        // NEW Env variable WriteResponse = true -> For Ai Usage
         public static bool WriteResponse { get; set; }
 
         public static bool ResponseFileFullPath { get; set; }
@@ -455,13 +456,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 json2 = json2.Replace(valueTuple.Key, valueTuple.Value?.ToString());
             }
 
-            // Brand new crazy function
-            // We write the current result to the expected file
-            if (writeResponse || WriteResponse)
-            {
-                CurrentResponseWriter.Write(json2, expectedResultParameterName, callerFilePath, callingAssembly, parameters);
-            }
-
             var differences = JsonDiffer.FindDifferences(json1, json2);
 
             var commonDifferences = DifferenceFunc(differences).ToImmutableList();
@@ -471,7 +465,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (optimizedDifferences.Any())
             {
-                var output = OutputFormatter.GetOutputString($"Differences detected between your current:{currentResultParameterName} and expected result: {expectedResultParameterName}", resultTable, json1, json2, title ?? $"Differences detected between your current:{currentResultParameterName} and expected result: {expectedResultParameterName}", curl);
+                var output = OutputFormatter.GetOutputString($"Differences detected between your current:{currentResultParameterName} and expected result: {expectedResultParameterName}", resultTable, json1, json2,
+                                                             title ?? $"Differences detected between your current:{currentResultParameterName} and expected result: {expectedResultParameterName}", curl);
 
                 Assert.Fail(output);
             }
@@ -899,14 +894,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string curl,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
-                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "",
-                                              [CallerArgumentExpression(nameof(currentObject))] string currentResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(expectedObjectAsJson))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-
             // Special case if expected and current jsons are parameters passed by we need to set the
             // correct parameter names
-            expectedObjectAsJson = EmbeddedFileLocalizer.LocalizeResponse(expectedObjectAsJson, callerFilePath, callingAssembly);
+            var expectedResponseFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedObjectAsJson, callerFilePath, callingAssembly);
 
             if (expectedObjectAsJson.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
                 expectedResultParameterName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
@@ -918,28 +914,35 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // So the caller does not have to pass the unique file name of the embedded resource
             // - Api.V1.Users.GetAllUsersTest.Responses.GetAllUsersResponse.json
             // - GetAllUsersResponse.json
-            var localizedExpectedResponse = EmbeddedFileLocalizer.LocalizeResponse(expectedObjectAsJson, callerFilePath, callingAssembly);
+            var localizedExpectedResponseFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedResultParameterName, callerFilePath, callingAssembly);
+            if (localizedExpectedResponseFile.EmbeddedFile.IsNull())
+            {
+                localizedExpectedResponseFile = localizedExpectedResponseFile with
+                {
+                    Content = expectedObjectAsJson
+                };
+            }
 
             // This is most the use case when calling an API and want to know what comes back
             var currentObjectAsJson = currentObject.ToJson(JsonSerializerOptions);
+
+            var jsonObject = localizedExpectedResponseFile.Content.GetJsonStringFrom<T>(currentObjectAsJson,
+                                                                                        callingAssembly,
+                                                                                        curl,
+                                                                                        currentResultParameterName);
+
+            jsonObject = jsonObject.ResolveParameters(parameters);
 
             // Brand new crazy function
             // We write the current result to the expected file
             if (writeResponse || WriteResponse)
             {
                 CurrentResponseWriter.Write(currentObjectAsJson,
-                                            expectedResultParameterName,
-                                            callerFilePath,
-                                            callingAssembly,
-                                            parameters);
+                                            expectedResponseFile,
+                                            parameters,
+                                            differenceFunc,
+                                            callingAssembly);
             }
-
-            var jsonObject = localizedExpectedResponse.GetJsonStringFrom<T>(currentObjectAsJson,
-                                                                       callingAssembly,
-                                                                       curl,
-                                                                       currentResultParameterName);
-
-            jsonObject = jsonObject.ResolveParameters(parameters);
 
             var type = typeof(T);
 
@@ -961,11 +964,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     expectedObject = JsonSerializer.Deserialize<T>(jsonObject, JsonSerializerOptions);
                 }
 #pragma warning disable CA1031
-                catch (Exception)
+                catch (Exception e)
 #pragma warning restore CA1031
                 {
                     var cantSerializeJsonErrorOutput = OutputFormatter.GetOutputString(title,
-                                                                                       $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}",
+                                                                                       $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Exception: {e.Message}",
                                                                                        jsonObject,
                                                                                        currentObjectAsJson,
                                                                                        CurlFormatter.GetCurlAsFormattedString(curl));
@@ -991,7 +994,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var object2AsJson = orderedObject2.ToJson(JsonSerializerOptions)
                                                   .ResolveParameters(parameters);
 
-
                 var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 
                 // 1. Check if we are comparing the same schema
@@ -1008,6 +1010,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var schemaNotMatchingError = OutputFormatter.GetOutputString(title, "Schema mismatch: Expected result and current result does not match", object1AsJson,
                                                                              object2AsJson, differenceOutputTable, curl);
+
+                if (writeResponse || WriteResponse)
+                {
+                    CurrentResponseWriter.Write(object2AsJson ?? "{}",
+                                                localizedExpectedResponseFile,
+                                                parameters,
+                                                differenceFunc,
+                                                callingAssembly);
+                }
 
                 Assert.IsFalse(hasSchemaMismatch, schemaNotMatchingError);
 

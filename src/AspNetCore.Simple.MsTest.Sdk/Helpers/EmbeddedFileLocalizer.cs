@@ -1,25 +1,46 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Reflection;
 using Extensions.Pack;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static class AddEmbeddedFileLocalizerExtension
     {
-        public static void AddEmbeddedFileLocalizer(this IServiceCollection services)
+        public static void AddEmbeddedFileLocalizer(this IServiceCollection services,
+                                                    IConfiguration configuration)
         {
-            services.AddSingletonIfNotExists<EmbeddedFileLocalizer>();
+            services.AddTestCreatorSettings(configuration);
+
+            services.AddSingletonIfNotExists<IEmbeddedFileLocalizer, EmbeddedFileLocalizer>();
         }
     }
 
     public record EmbeddedFileInfo(string EmbeddedFileName,
+                                   string Content,
                                    FileInfo? EmbeddedFile);
 
-    public sealed class EmbeddedFileLocalizer(TestCreatorSettings testCreatorSettings)
+    public interface IEmbeddedFileLocalizer
+    {
+        string LocalizeRequest(string embeddedFile,
+                               string callerFilePath,
+                               Assembly callingAssembly);
+
+        string LocalizeResponse(string embeddedFile,
+                                string callerFilePath,
+                                Assembly callingAssembly);
+
+        EmbeddedFileInfo LocalizeRequestFile(string embeddedFile,
+                                             string callerFilePath,
+                                             Assembly callingAssembly);
+
+        EmbeddedFileInfo LocalizeResponseFile(string embedddFile,
+                                              string callerFilePath,
+                                              Assembly callingAssembly);
+    }
+
+    internal sealed class EmbeddedFileLocalizer(TestCreatorSettings testCreatorSettings) : IEmbeddedFileLocalizer
     {
         public string LocalizeRequest(string embeddedFile,
                                       string callerFilePath,
@@ -45,16 +66,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     string callerFilePath,
                                                     Assembly callingAssembly)
         {
+            if (embeddedFile.EndsWith(".json").IsFalse())
+            {
+                return new EmbeddedFileInfo(string.Empty, embeddedFile, null);
+            }
+
             var allowedRequestFolders = testCreatorSettings.LegacyRequestFolderName.Concat(testCreatorSettings.RequestFolderName).ToImmutableHashSet();
 
-            return GetLocalizedFile(embeddedFile, callerFilePath, allowedRequestFolders,
-                                    callingAssembly);
+            var localizeRequestFile = GetLocalizedFile(embeddedFile, callerFilePath, allowedRequestFolders,
+                                                       callingAssembly);
+
+            return localizeRequestFile;
         }
 
         public EmbeddedFileInfo LocalizeResponseFile(string embedddFile,
                                                      string callerFilePath,
                                                      Assembly callingAssembly)
         {
+            if (embedddFile.EndsWith(".json").IsFalse())
+            {
+                return new EmbeddedFileInfo(string.Empty, embedddFile, null);
+            }
+
             var allowedRequestFolders = testCreatorSettings.LegacyResponseFolderNames.Concat(testCreatorSettings.ResponseFolderName).ToImmutableHashSet();
 
             return GetLocalizedFile(embedddFile, callerFilePath, allowedRequestFolders,
@@ -69,27 +102,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 1. If file is null, empty or white space we skipp it
             if (embedddFile.IsNullOrWhiteSpace())
             {
-                return new EmbeddedFileInfo(embedddFile, null);
+                return new EmbeddedFileInfo(embedddFile, string.Empty, null);
             }
 
             // 3. If embedded file is raw json return
             if (embedddFile.StartsWith('{') ||
                 embedddFile.StartsWith('['))
             {
-                return new EmbeddedFileInfo(embedddFile, null);
+                return new EmbeddedFileInfo(embedddFile, string.Empty, null);
             }
 
             // 2. We only can localize files, if we have no file we return origin
             var fileExtensions = Path.GetExtension(embedddFile);
             if (fileExtensions.IsNullOrWhiteSpace())
             {
-                return new EmbeddedFileInfo(embedddFile, null);
+                return new EmbeddedFileInfo(embedddFile, string.Empty, null);
             }
 
             // In case we have a native string separated by .
             if (fileExtensions.DoesNotContain(".json"))
             {
-                return new EmbeddedFileInfo(embedddFile, null);
+                return new EmbeddedFileInfo(embedddFile, string.Empty, null);
             }
 
             // 3. Get assembly infos
@@ -134,11 +167,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                     if (fileInfo2.Exists)
                     {
-                        return new EmbeddedFileInfo(embeddedFileName, fileInfo2);
+                        var fileContentEmbedded = callingAssembly.GetFileContentFrom(embedddFile);
+                        return new EmbeddedFileInfo(embeddedFileName, fileContentEmbedded, fileInfo2);
                     }
                 }
 
-                return new EmbeddedFileInfo(embeddedFileName, null);
+                return new EmbeddedFileInfo(embeddedFileName, string.Empty, null);
             }
 
             var legacyFolder = fileInfo.Directory?.EnumerateDirectories().FirstOrDefault(d => folderNames.Contains(d.Name));
@@ -169,7 +203,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (splittedPath.Length < 2)
             {
-                return new EmbeddedFileInfo(embedddFile, targetResponseFile);
+                var fileContentEmbedded = callingAssembly.GetFileContentFrom(embedddFile);
+                return new EmbeddedFileInfo(embedddFile, fileContentEmbedded, targetResponseFile);
             }
 
             var relativePath = splittedPath.Last().Replace(Path.DirectorySeparatorChar.ToString(), ".").Trim('.');
@@ -177,10 +212,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (match.IsNotNull())
             {
-                return new EmbeddedFileInfo(match, targetResponseFile);
+                var fileContentFrom = callingAssembly.GetFileContentFrom(match);
+                return new EmbeddedFileInfo(match, fileContentFrom, targetResponseFile);
             }
 
-            return new EmbeddedFileInfo(relativePath, targetResponseFile);
+            var fileContentFromRelative = callingAssembly.GetFileContentFrom(relativePath);
+            return new EmbeddedFileInfo(relativePath, fileContentFromRelative, targetResponseFile);
         }
 
         private DirectoryInfo? FindProjectFolder(DirectoryInfo? directoryInfo,
