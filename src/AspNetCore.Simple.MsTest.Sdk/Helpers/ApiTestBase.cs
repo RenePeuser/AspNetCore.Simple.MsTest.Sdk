@@ -11,7 +11,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public class ApiTestBase<TStartup>(string environmentName,
                                        Action<IServiceCollection, IConfiguration> registerServices,
-                                       params (string name, string value)[] environmentVariables) : WebApplicationFactory<TStartup>
+                                       params (string name, object? value)[] environmentVariables) : WebApplicationFactory<TStartup>
         where TStartup : class
     {
         private readonly Assembly _callingAssembly = Assembly.GetCallingAssembly();
@@ -22,7 +22,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             foreach (var environmentVariable in environmentVariables)
             {
-                Environment.SetEnvironmentVariable(environmentVariable.name, environmentVariable.value);
+                Environment.SetEnvironmentVariable(environmentVariable.name, environmentVariable.value?.ToString());
             }
 
             var testDirectory = new DirectoryInfo(Environment.CurrentDirectory);

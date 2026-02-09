@@ -25,6 +25,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly CurrentResponseWriter CurrentResponseWriter = new CurrentResponseWriter(JsonDiffer);
 
+        private static readonly WriteResponseService WriteResponseService = new();
+
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions
         {
@@ -304,7 +306,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 14. Normalize expected json string dependent on target type and edge cases like primitive types and so on.
             string? expectedResultAsJson;
 
-            if ((writResponse || AssertObjectExtensions.WriteResponse) && callingAssembly.IsCompiledInDebug())
+
+
+            if (WriteResponseService.ShouldWriteResponse(writResponse) && callingAssembly.IsCompiledInDebug())
             {
                 expectedResultAsJson = expectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(contentAsString, callingAssembly, curl,
                                                                                               expectedResultParameterName);
@@ -419,7 +423,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                  "Schema mismatch: Expected result and current result does not match", expectedJson,
                                                                                  currentResponseJson, differenceOutputTable, curl);
 
-                    if ((writResponse || AssertObjectExtensions.WriteResponse) && callingAssembly.IsCompiledInDebug())
+                    if (WriteResponseService.ShouldWriteResponse(writResponse) && callingAssembly.IsCompiledInDebug())
                     {
                         CurrentResponseWriter.Write(currentResponseJson ?? "{}",
                                                     expectedResultFile,

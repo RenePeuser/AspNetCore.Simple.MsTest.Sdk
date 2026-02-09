@@ -25,6 +25,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly CurrentResponseWriter CurrentResponseWriter = new CurrentResponseWriter(JsonDiffer);
 
+        private static readonly WriteResponseService WriteResponseService = new WriteResponseService();
+
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
         {
@@ -935,7 +937,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Brand new crazy function
             // We write the current result to the expected file
-            if (writeResponse || WriteResponse)
+            if (WriteResponseService.ShouldWriteResponse(writeResponse))
             {
                 CurrentResponseWriter.Write(currentObjectAsJson,
                                             expectedResponseFile,
@@ -1011,7 +1013,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var schemaNotMatchingError = OutputFormatter.GetOutputString(title, "Schema mismatch: Expected result and current result does not match", object1AsJson,
                                                                              object2AsJson, differenceOutputTable, curl);
 
-                if (writeResponse || WriteResponse)
+                if (WriteResponseService.ShouldWriteResponse(writeResponse))
                 {
                     CurrentResponseWriter.Write(object2AsJson ?? "{}",
                                                 localizedExpectedResponseFile,
