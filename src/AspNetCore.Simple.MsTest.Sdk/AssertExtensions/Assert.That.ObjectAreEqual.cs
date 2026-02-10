@@ -905,10 +905,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            // Special case if expected and current jsons are parameters passed by we need to set the
-            // correct parameter names
-            var expectedResponseFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedObjectAsJson, callerFilePath, callingAssembly);
-
             if (expectedObjectAsJson.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
                 expectedResultParameterName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
             {
@@ -949,7 +945,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     CallingAssembly = callingAssembly,
                     DifferenceFunc = differenceFunc,
                     CurrentResponseAsString = currentObjectAsJson,
-                    ExpectedResult = expectedResponseFile,
+                    ExpectedResult = localizedExpectedResponseFile,
                     Parameters = parameters,
                     Mode = ResponseWriteMode.DifferencesOnly
                 };

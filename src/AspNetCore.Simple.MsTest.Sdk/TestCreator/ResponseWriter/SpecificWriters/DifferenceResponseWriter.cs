@@ -21,7 +21,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public bool CanHandle(WriteResponseRequest context)
         {
-            return context.Mode == ResponseWriteMode.DifferencesOnly;
+            var canHandle = context.Mode == ResponseWriteMode.DifferencesOnly &&
+                            // A response file have to be exists
+                            context.ExpectedResult.EmbeddedFile.IsNotNull() &&
+                            context.ExpectedResult.EmbeddedFile.Exists;
+
+            return canHandle;
         }
 
         public void Write(WriteResponseRequest context)

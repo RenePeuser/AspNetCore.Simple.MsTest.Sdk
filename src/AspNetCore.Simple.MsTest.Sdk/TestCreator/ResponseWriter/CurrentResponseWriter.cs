@@ -5,9 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddCurrentResponseWriterExtension
+    public static class AddResponseWriterExtension
     {
-        public static void AddCurrentResponseWriter(this IServiceCollection services)
+        public static void AddResponseWriter(this IServiceCollection services)
         {
             services.AddDifferenceResponseWriter();
             services.AddOverwriteAllResponseWriter();
