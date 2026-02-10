@@ -223,7 +223,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // - Api.V1.Users.GetAllUsersTest.Responses.GetAllUsersResponse.json
             // - GetAllUsersResponse.json
             var payloadAsJsonFile = EmbeddedFileLocalizer.LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
-            var expectedResultFile = EmbeddedFileLocalizer.LocalizeRequestFile(expectedResult, callerFilePath, callingAssembly);
+            var expectedResultFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedResult, callerFilePath, callingAssembly);
 
             // 0. Target type is primitive type
             var targetType = typeof(TResult);

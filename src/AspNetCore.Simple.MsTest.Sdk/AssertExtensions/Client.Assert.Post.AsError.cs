@@ -297,11 +297,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     string expectedResultParameterName = "",
                                                                     [CallerFilePath] string callerFilePath = "")
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPostAsErrorAsync<TResult>(url,
                                                           payloadAsJson,
                                                           expectedResult,
                                                           parameters,
-                                                          Assembly.GetCallingAssembly(),
+                                                          callingAssembly,
                                                           writeResponse,
                                                           payloadAsJsonParameterName,
                                                           expectedResultParameterName,

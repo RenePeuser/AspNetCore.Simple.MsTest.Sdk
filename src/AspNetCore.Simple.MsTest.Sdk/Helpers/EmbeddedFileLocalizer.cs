@@ -216,8 +216,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return new EmbeddedFileInfo(match, fileContentFrom, targetResponseFile);
             }
 
-            var fileContentFromRelative = callingAssembly.GetFileContentFrom(relativePath);
-            return new EmbeddedFileInfo(relativePath, fileContentFromRelative, targetResponseFile);
+            return new EmbeddedFileInfo(relativePath, string.Empty, targetResponseFile);
         }
 
         private DirectoryInfo? FindProjectFolder(DirectoryInfo? directoryInfo,
