@@ -34,6 +34,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                          writeResponse);
         }
 
+        public static Task AssertPostAsync(this HttpClient client,
+                                           string url,
+                                           string payloadAsJson,
+                                           bool writeResponse = false,
+                                           [CallerFilePath] string callerFilePath = "")
+        {
+            return client.AssertHttpCall(url,
+                                         payloadAsJson,
+                                         HttpMethod.Post,
+                                         [],
+                                         Assembly.GetCallingAssembly(),
+                                         string.Empty,
+                                         callerFilePath,
+                                         true,
+                                         writeResponse);
+        }
+
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string expectedResult,
