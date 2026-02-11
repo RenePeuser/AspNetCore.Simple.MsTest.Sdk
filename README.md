@@ -360,6 +360,7 @@ private IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differ
         yield return difference;
     }
 }
+```
 
 ------------------------------------------------------------------------
 
