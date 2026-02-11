@@ -155,20 +155,9 @@ public void Simple_Object_Comparison()
 
     Assert.That.ObjectsAreEqual(person1, person2, title: "Persons are not equal");
 }
-
-[TestMethod]
-public void Simple_Object_Comparison()
-{
-    var firstNumber = 1;
-    var secondNumber = 2;
-
-    Assert.That.ObjectsAreEqual(firstNumber,secondNumber, title: "Persons are not equal");
-}
 ```
 
 ```bash
-Assert.IsTrue failed. 
-
 Persons are not equal
 
  ---------------------------------- 
@@ -265,6 +254,14 @@ public class Persons : ApiTestBase
                                               "SonGoku.json",  // This json file must be an embedded file in your solution or native json string
                                               "SonGoku.json"); // This json file must be an embedded file in your solution or native json string
     }
+}
+
+// Possible but not recommended:
+// You can use also raw json strings instead of files, but this is not recommended for large payloads
+[TestMethod]
+public Task Should_Return_No_Users_If_No_One_Was_Added()
+{
+    return Client.AssertGetAsync<GetAllUsersResponse>("v1/users", """{ "Users": [] }""");
 }
 ```
 
