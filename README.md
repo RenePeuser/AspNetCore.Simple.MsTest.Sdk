@@ -334,6 +334,35 @@ await Client.AssertGetAsync<GetUserByIdResponse>($"api/v1/users/{user.Id}",
 
 ------------------------------------------------------------------------
 
+
+# Scope ignore
+```csharp
+[TestMethod]
+public Task Should_Return_Expected_Result_For_Given_Payload_But_Ignore_Id()
+{
+    await Client.AssertPostAsync<AddUserReponse>($"api/v1/users/",                                                                        
+                                                 "Users.V1.Payloads.NewUser.json",
+                                                 "Users.V1.Results.NewUser.json",
+                                                 differenceFunc: DifferenceFunc);
+}
+
+// Difference func can be used to intercept the object comparison in the background
+private IEnumerable<Difference> DifferenceFunc(IImmutableList<Difference> differences)
+{
+    foreach (var difference in differences)
+    {
+        // Here we ignore the Id property. Real world scenario generated id by database as an example
+        if (difference.MemberPath == nameof(User.Id))
+        {
+            continue;
+        }
+
+        yield return difference;
+    }
+}
+
+------------------------------------------------------------------------
+
 # 🌍 Global Ignore
 
 ``` csharp

@@ -63,7 +63,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // 6. If we have our new response format we only allowed to check or compare the Content.Value property
-            //    We need this all to keep all compatible with the older version which does not have full response 
+            //    We need this all to keep all compatible with the older version which does not have full response
             //    assertion.
             if (targetType.NotEqualsTo(typeof(SimpleHttpResponseMessage)))
             {
@@ -162,7 +162,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // 6. If we have our new response format we only allowed to check or compare the Content.Value property
-            //    We need this all to keep all compatible with the older version which does not have full response 
+            //    We need this all to keep all compatible with the older version which does not have full response
             //    assertion.
             if (targetType.NotEqualsTo(typeof(SimpleHttpResponseMessage)))
             {
@@ -230,7 +230,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var replacedString = value;
 
-            foreach (var keyValue in parameters)
+            // Important to replace the parameters after ordering, because the order can change the
+            // position of the parameters in the json and if we replace before, we can end up with
+            // wrong replacements
+            var sortedParameters = parameters.OrderByDescending(p => p.Key.Length);
+
+            foreach (var keyValue in sortedParameters)
             {
                 // We have to take care of int, bool, long and so on
                 // Json sample
@@ -268,12 +273,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     {
                         continue;
                     }
-                    
+
                     if (type.EqualsTo(typeof(bool)))
                     {
                         primitiveTypeValue = primitiveTypeValue.ToLowerInvariant();
                     }
-                    
+
                     replacedString = replacedString.Replace($"\"{keyValue.Key}\"", primitiveTypeValue);
                 }
 

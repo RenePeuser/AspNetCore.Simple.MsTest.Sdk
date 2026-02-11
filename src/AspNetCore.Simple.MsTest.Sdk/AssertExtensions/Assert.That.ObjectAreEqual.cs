@@ -455,7 +455,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var json1 = orderedExpectedObject.ToJson(JsonSerializerOptions);
             var json2 = orderedCurrentObject.ToJson(JsonSerializerOptions);
 
-            foreach (var valueTuple in parameters)
+            // Important to replace the parameters after ordering, because the order can change the
+            // position of the parameters in the json and if we replace before, we can end up with
+            // wrong replacements
+            var sortedParameters = parameters.OrderByDescending(p => p.Key.Length);
+
+            foreach (var valueTuple in sortedParameters)
             {
                 json1 = json1.Replace(valueTuple.Key, valueTuple.Value?.ToString());
                 json2 = json2.Replace(valueTuple.Key, valueTuple.Value?.ToString());

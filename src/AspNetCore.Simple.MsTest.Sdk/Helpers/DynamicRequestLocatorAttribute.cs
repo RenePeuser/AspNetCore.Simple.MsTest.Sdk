@@ -10,19 +10,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// This attribute implements the <see cref="ITestDataSource"/> interface for use with parameterized tests.
     /// Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
     /// folder path and to allow additional parameters to be injected into each test case.
-    /// 
+    ///
     /// <para>
     /// If no request folder is provided in the attribute constructor, the attribute automatically determines the
     /// request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
     /// </para>
-    /// 
+    ///
     /// <para>
     /// For example, if a test class is declared in the namespace:
     /// <c>Api.User.V1.Create.Status_200_Ok</c>,
     /// then by default, the attribute will look for JSON resources in the folder:
     /// <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
     /// </para>
-    /// 
+    ///
     /// <para>
     /// The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
     /// filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
@@ -30,7 +30,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// provided via the attribute. The <see cref="GetDisplayName"/> method returns a descriptive name that combines the test method's name
     /// and the test data details.
     /// </para>
-    /// 
+    ///
     /// <para>
     /// The attribute can be applied with or without an explicit request folder and additional parameters.
     /// </para>
@@ -43,7 +43,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </code>
     /// In this scenario, the attribute automatically calculates the request folder from the test class's namespace
     /// and supplies just the JSON identifier for each test case.
-    /// 
+    ///
     /// <para>
     /// Applying the attribute with an explicit folder and additional parameters:
     /// <code>

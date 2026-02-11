@@ -36,11 +36,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public string TestMethodAttribute { get; init; } = "[TestMethod]";
 
         public string ResponseFolderName { get; init; } = "Responses";
-        
+
         public string RequestFolderName { get; init; } = "Requests";
 
         public string[] LegacyResponseFolderNames { get; init; } = ["Result", "Response", "Results", "Output"];
-        
+
         public string[] LegacyRequestFolderName { get; init; } = ["Payloads", "Payload", "Requests", "Request"];
     }
 
@@ -62,7 +62,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 $testattribute$
 public Task $testmethodname$()
 {
-    return Client.Assert$httpMethod$$error$Async<$responseType$>(""$url$"",                                       
+    return Client.Assert$httpMethod$$error$Async<$responseType$>(""$url$"",
                                                                  ""Response"");
 }
 ";

@@ -161,8 +161,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 expectedResultParameterName = expectedResult;
             }
 
-            // NEW query params and more :)
-            foreach (var valueTuple in parameters)
+            // Important to replace the parameters after ordering, because the order can change the
+            // position of the parameters in the json and if we replace before, we can end up with
+            // wrong replacements
+            var sortedParameters = parameters.OrderByDescending(p => p.Key.Length);
+
+            foreach (var valueTuple in sortedParameters)
             {
                 url = url.Replace(valueTuple.Key, valueTuple.Value?.ToString());
             }
