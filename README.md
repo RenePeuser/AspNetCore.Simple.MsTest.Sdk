@@ -49,18 +49,7 @@ Implicit test coverage                     | Explicit full-response validation
 ```
 ------------------------------------------------------------------------
 
-# 🧠 Core Concept
-
-Instead of manually asserting:
-
--   Status codes
--   Headers
--   Content
--   Nested objects
--   Collections
-
-You assert the **entire HTTP response snapshot**.
-
+# 🧠 How to write tests
 ``` csharp
 await Client.AssertPostAsync<AddUserResponse>("api/v1/users",
                                               "NewUser.json",
@@ -112,11 +101,11 @@ await Client.AssertPostAsync<AddUserResponse>("api/v1/users",
   "IsSuccessStatusCode": true
 }
 ```
+### Outcome
 ✔ Full response comparison\
 ✔ Automatic difference table\
 ✔ Curl output on failure\
 ✔ Snapshot-based testing
-
 ```   
     Http call infos:
     
