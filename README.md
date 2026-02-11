@@ -6,14 +6,19 @@
 This package enables efficient and structured testing of your ASP.NET
 Core APIs using full-response snapshot comparison.
 
-It dramatically reduces required asserts and promotes:
+------------------------------------------------------------------------
 
--   ✅ Test-First development
--   ✅ Full response validation (headers, status, body)
--   ✅ JSON snapshot comparison
--   ✅ Clean, readable tests
--   ✅ Powerful difference analysis
+# 📦 Installation
 
+## Prerequisites
+
+-   .NET 9
+
+## Install
+
+``` bash
+dotnet add package AspNetCore.Simple.MsTest.Sdk
+```
 ------------------------------------------------------------------------
 
 # 🎯 Why This SDK?
@@ -42,20 +47,6 @@ Manual ignore handling                     | Global and local ignore strategies
 Duplicated comparison logic                | Centralized comparison engine
 Implicit test coverage                     | Explicit full-response validation
 ```
-------------------------------------------------------------------------
-
-# 📦 Installation
-
-## Prerequisites
-
--   .NET 9
-
-## Install
-
-``` bash
-dotnet add package AspNetCore.Simple.MsTest.Sdk
-```
-
 ------------------------------------------------------------------------
 
 # 🧠 Core Concept
