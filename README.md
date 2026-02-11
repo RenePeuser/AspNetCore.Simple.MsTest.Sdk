@@ -47,11 +47,56 @@ await Client.AssertPostAsync<AddUserResponse>("api/v1/users",
                                               "NewUser.json",
                                               "NewUser.json");
 ```
+
+### Payload: "NewUser.json"
+```json
+{
+  "Id": 1,
+  "Name": "Son",
+  "FirstName": "Goku",
+  "Age": 99,
+  "Emails": [
+    {
+      "EmailAddress": "alf@gmx.de",
+      "Type": "GMX"
+    },
+    {
+      "EmailAddress": "abc@hotmail.de",
+      "Type": "Microsoft"
+    }
+  ]
+}
+```
+
+### Response: "NewUser.json"
+
+```json
+{
+  "Content": {
+    "Headers": [
+      {
+        "Key": "Content-Type",
+        "Value": [ "application/json; charset=utf-8" ]
+      }
+    ],
+    "Value": {
+      "Id": 1,
+      "Name": "Son",
+      "FirstName": "Goku",
+      "Age": 99,
+      "Emails": []
+    }
+  },
+  "StatusCode": "OK", 
+  "Headers": [],
+  "TrailingHeaders": [],
+  "IsSuccessStatusCode": true
+}
+```
 ✔ Full response comparison\
 ✔ Automatic difference table\
 ✔ Curl output on failure\
-✔ Snapshot-based testing\
-
+✔ Snapshot-based testing
 
 ```   
     Http call infos:
