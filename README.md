@@ -18,14 +18,29 @@ It dramatically reduces required asserts and promotes:
 
 # 🎯 Why This SDK?
 ```
-
-  Traditional Testing      This SDK
-  ------------------------ -----------------------
-  Many asserts             One snapshot
-  Manual header checks     Automatic
-  Manual JSON comparison   Deep diff engine
-  Hard to debug            Structured diff table
-  No reproduction          Auto-generated curl
+Traditional Testing                        | This SDK
+-------------------------------------------|-----------------------------------------
+Many asserts                               | One snapshot
+Manual header checks                       | Automatic
+Manual JSON comparison                     | Deep diff engine
+Hard to debug                              | Structured diff table
+No reproduction                            | Auto-generated curl
+Boilerplate code                           | Minimal setup
+Developer focus on asserts                 | Productivity focus on behavior
+New properties not tested automatically    | Full response snapshot coverage
+High maintenance effort                    | Snapshot-driven maintenance
+Error-prone manual comparisons             | Deterministic recursive comparison
+Unstructured test failures                 | Structured schema mismatch output
+Difficult refactoring                      | Refactoring-safe snapshot validation
+Inconsistent test styles                   | Standardized test architecture
+Hidden breaking API changes                | Immediate snapshot mismatch detection
+Manual diff analysis                       | Explicit MemberPath-based diff
+Low scalability for large APIs             | Designed for large API landscapes
+Poor test readability                      | Behavior-driven snapshot clarity
+Manual reproduction of failing calls       | Built-in curl reproduction
+Manual ignore handling                     | Global and local ignore strategies
+Duplicated comparison logic                | Centralized comparison engine
+Implicit test coverage                     | Explicit full-response validation
 ```
 ------------------------------------------------------------------------
 
@@ -161,15 +176,6 @@ await Client.AssertPostAsync<AddUserResponse>("api/v1/users",
     --------------------------------------------------------------
     
 ```
-------------------------------------------------------------------------
-
-# 🧠 Design Philosophy
-
--   Snapshot-first testing
--   Deterministic results
--   Minimal boilerplate
--   Developer productivity focus
-
 ------------------------------------------------------------------------
 
 # 📁 JSON File Convention (IMPORTANT)
