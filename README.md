@@ -16,6 +16,19 @@ It dramatically reduces required asserts and promotes:
 
 ------------------------------------------------------------------------
 
+# 🎯 Why This SDK?
+```
+
+  Traditional Testing      This SDK
+  ------------------------ -----------------------
+  Many asserts             One snapshot
+  Manual header checks     Automatic
+  Manual JSON comparison   Deep diff engine
+  Hard to debug            Structured diff table
+  No reproduction          Auto-generated curl
+```
+------------------------------------------------------------------------
+
 # 📦 Installation
 
 ## Prerequisites
@@ -148,22 +161,6 @@ await Client.AssertPostAsync<AddUserResponse>("api/v1/users",
     --------------------------------------------------------------
     
 ```
-
-
-------------------------------------------------------------------------
-
-# 🎯 Why This SDK?
-```
-
-  Traditional Testing      This SDK
-  ------------------------ -----------------------
-  Many asserts             One snapshot
-  Manual header checks     Automatic
-  Manual JSON comparison   Deep diff engine
-  Hard to debug            Structured diff table
-  No reproduction          Auto-generated curl
-```
-
 ------------------------------------------------------------------------
 
 # 🧠 Design Philosophy
