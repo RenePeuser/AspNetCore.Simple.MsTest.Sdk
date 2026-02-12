@@ -3,12 +3,14 @@
     "headers": [
       {
         "key": "Content-Type",
-        "value": [ "application/json; charset=utf-8" ]
+        "value": [
+          "application/json; charset=utf-8"
+        ]
       }
     ],
     "value": {
       "id": 1,
-      "name": "Son",
+      "name": "$Name$",
       "firstName": "Goku",
       "age": 42,
       "emails": []
