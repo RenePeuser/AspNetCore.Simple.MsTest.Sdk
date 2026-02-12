@@ -23,12 +23,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public bool CanHandle(WriteResponseRequest context)
         {
-            var canHandle = context.Mode == ResponseWriteMode.DifferencesOnly &&
-                            // A response file have to be exists
-                            context.ExpectedResult.EmbeddedFile.IsNotNull() &&
-                            context.ExpectedResult.EmbeddedFile.Exists;
-
-            return canHandle;
+            return context.Mode == ResponseWriteMode.DifferencesOnly &&
+                   context.ExpectedResult.EmbeddedFile.IsNotNull() &&
+                   context.ExpectedResult.EmbeddedFile.Exists;
         }
 
         public void Write(WriteResponseRequest context)
@@ -43,33 +40,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            // Parse + normalize current
-            var currentJson = JToken.Parse(context.CurrentResponseAsString);
-            var formattedCurrent = currentJson.ToString(Formatting.Indented);
+            // Parse current JSON
+            var currentRoot = JToken.Parse(context.CurrentResponseAsString);
 
-            var sortedParameters = context.Parameters.Select(p => new
-            {
-                Key = p.key,
-                Value = p.Value?.ToString()
-            }).OrderByDescending(p => p.Value?.Length).ToList();
+            // SMART 2-STAGE REPLACEMENT
+            ApplySmartReplacements(currentRoot, context.Parameters);
 
-            foreach (var parameter in sortedParameters)
-            {
-                var oldValue = parameter.Value;
-                if (!oldValue.IsNullOrEmpty())
-                {
-                    formattedCurrent = Regex.Replace(formattedCurrent,
-                                                     $@"\b{Regex.Escape(oldValue)}\b",
-                                                     parameter.Key);
-                }
-            }
+            var formattedCurrent = currentRoot.ToString(Formatting.Indented);
 
             var expected = JToken.Parse(context.ExpectedResult.Content);
             var current = JToken.Parse(formattedCurrent);
 
             var diffs = jsonDiffer.FindDifferences(expected, current);
             var scopedDifferences = context.DifferenceFunc(diffs).ToImmutableList();
-            // ToDo Static must go soon
+
             var allToIgnore = AssertObjectExtensions.DifferenceFunc(scopedDifferences).ToImmutableList();
 
             if (!allToIgnore.Any())
@@ -106,7 +90,126 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
             }
 
-            File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName, expected.ToString(Formatting.Indented));
+            File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName,
+                              expected.ToString(Formatting.Indented));
+        }
+
+        // -------------------------------------------------------------
+        // SMART 2-STAGE ENGINE
+        // -------------------------------------------------------------
+
+        private static void ApplySmartReplacements(JToken root,
+                                                   params (string key, object? Value)[] parameters)
+        {
+            if (parameters == null || parameters.Length == 0)
+            {
+                return;
+            }
+
+            foreach (var (key, value) in parameters)
+            {
+                if (key.IsNullOrWhiteSpace())
+                {
+                    continue;
+                }
+
+                var propertyName = NormalizePlaceholderToProperty(key);
+
+                // Stage 1: Try property-based replacement
+                var replaced = ReplaceByProperty(root, propertyName, key, value);
+
+                // Stage 2: Fallback to full-text (only inside string values)
+                if (!replaced)
+                {
+                    ReplaceFullText(root, key, value);
+                }
+            }
+        }
+
+        private static string NormalizePlaceholderToProperty(string placeholder)
+        {
+            return placeholder.Trim('$');
+        }
+
+        // -------------------------------------------------------------
+        // PROPERTY-BASED REPLACEMENT (PRIMARY MODE)
+        // -------------------------------------------------------------
+
+        private static bool ReplaceByProperty(JToken token,
+                                              string propertyName,
+                                              string placeholder,
+                                              object? originalValue)
+        {
+            var replaced = false;
+
+            if (token is JProperty prop &&
+                string.Equals(prop.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                // Handle NULL
+                if (originalValue == null &&
+                    prop.Value.Type == JTokenType.Null)
+                {
+                    prop.Value = placeholder;
+                    return true;
+                }
+
+                // Handle string match
+                if (prop.Value.Type == JTokenType.String &&
+                    (string?)prop.Value == originalValue?.ToString())
+                {
+                    prop.Value = placeholder;
+                    return true;
+                }
+            }
+
+            if (token is JContainer container)
+            {
+                foreach (var child in container.Children())
+                {
+                    replaced |= ReplaceByProperty(child, propertyName, placeholder, originalValue);
+                }
+            }
+
+            return replaced;
+        }
+
+        // -------------------------------------------------------------
+        // FULLTEXT FALLBACK (WORD-BOUNDARY, STRING VALUES ONLY)
+        // -------------------------------------------------------------
+
+        private static void ReplaceFullText(JToken token,
+                                            string placeholder,
+                                            object? originalValue)
+        {
+            if (originalValue == null)
+            {
+                return;
+            }
+
+            if (token is JValue value && value.Type == JTokenType.String)
+            {
+                var s = (string?)value.Value;
+                if (s.IsNullOrWhiteSpace())
+                {
+                    return;
+                }
+
+                var escaped = Regex.Escape(originalValue.ToString()!);
+                var pattern = $@"\b{escaped}\b";
+
+                value.Value = Regex.Replace(s,
+                                            pattern,
+                                            placeholder,
+                                            RegexOptions.CultureInvariant);
+            }
+
+            if (token is JContainer container)
+            {
+                foreach (var child in container.Children())
+                {
+                    ReplaceFullText(child, placeholder, originalValue);
+                }
+            }
         }
     }
 }
