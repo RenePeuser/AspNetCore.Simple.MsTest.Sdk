@@ -1,4 +1,6 @@
-﻿using Extensions.Pack;
+﻿using System.Collections.Immutable;
+using System.Text.RegularExpressions;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -45,12 +47,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var currentJson = JToken.Parse(context.CurrentResponseAsString);
             var formattedCurrent = currentJson.ToString(Formatting.Indented);
 
-            foreach (var (key, value) in context.Parameters)
+            var sortedParameters = context.Parameters.Select(p => new
             {
-                var oldValue = value?.ToString();
+                Key = p.key,
+                Value = p.Value?.ToString()
+            }).OrderByDescending(p => p.Value?.Length).ToList();
+
+            foreach (var parameter in sortedParameters)
+            {
+                var oldValue = parameter.Value;
                 if (!oldValue.IsNullOrEmpty())
                 {
-                    formattedCurrent = formattedCurrent.Replace(oldValue, key);
+                    formattedCurrent = Regex.Replace(formattedCurrent,
+                                                     $@"\b{Regex.Escape(oldValue)}\b",
+                                                     parameter.Key);
                 }
             }
 
@@ -58,14 +68,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var current = JToken.Parse(formattedCurrent);
 
             var diffs = jsonDiffer.FindDifferences(expected, current);
-            var relevantDiffs = context.DifferenceFunc(diffs).ToList();
+            var scopedDifferences = context.DifferenceFunc(diffs).ToImmutableList();
+            // ToDo Static must go soon
+            var allToIgnore = AssertObjectExtensions.DifferenceFunc(scopedDifferences).ToImmutableList();
 
-            if (!relevantDiffs.Any())
+            if (!allToIgnore.Any())
             {
                 return;
             }
 
-            foreach (var diff in relevantDiffs)
+            foreach (var diff in allToIgnore)
             {
                 if (diff.MemberPath.IsNullOrWhiteSpace())
                 {

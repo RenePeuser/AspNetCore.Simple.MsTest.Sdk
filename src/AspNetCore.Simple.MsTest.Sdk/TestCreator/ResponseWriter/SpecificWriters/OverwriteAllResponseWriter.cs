@@ -1,4 +1,5 @@
-﻿using Extensions.Pack;
+﻿using System.Text.RegularExpressions;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -40,12 +41,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var currentJson = JToken.Parse(context.CurrentResponseAsString);
             var formattedCurrent = currentJson.ToString(Formatting.Indented);
 
-            foreach (var (key, value) in context.Parameters)
+            var sortedParameters = context.Parameters.Select(p => new
             {
-                var oldValue = value?.ToString();
+                Key = p.key,
+                Value = p.Value?.ToString()
+            }).OrderByDescending(p => p.Value?.Length).ToList();
+
+            foreach (var parameter in sortedParameters)
+            {
+                var oldValue = parameter.Value;
                 if (!oldValue.IsNullOrEmpty())
                 {
-                    formattedCurrent = formattedCurrent.Replace(oldValue, key);
+                    formattedCurrent = Regex.Replace(formattedCurrent,
+                                                     $@"\b{Regex.Escape(oldValue)}\b",
+                                                     parameter.Key);
                 }
             }
 

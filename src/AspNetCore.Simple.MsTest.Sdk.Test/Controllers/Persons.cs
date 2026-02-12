@@ -45,7 +45,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
                                                   "AnyFolder.P.NewPersonParameter.json",
                                                   "AnyFolder.R.NewPersonParameter.json",
-                                                  [("$Name$", "Son"), ("$Age$", 42)]);
+                                                  [("$Name$", "Son"), ("$Age$", 42)], writeResponse: true);
         }
 
         [TestMethod]
