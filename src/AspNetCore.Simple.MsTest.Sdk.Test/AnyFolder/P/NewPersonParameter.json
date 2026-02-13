@@ -2,6 +2,6 @@
   "id": 1,
   "name": "$Name$",
   "firstName": "Goku",
-  "age": $Age$,
+  "age": "$Age$",
   "emails": []
 }

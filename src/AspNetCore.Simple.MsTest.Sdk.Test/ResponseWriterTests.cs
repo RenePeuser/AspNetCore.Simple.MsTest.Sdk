@@ -323,5 +323,47 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                 File.Delete(tempFile);
             }
         }
+
+        [TestMethod]
+        public void OverwriteAllResponseWriterShouldReplaceNonStringPropertyValues()
+        {
+            var currentJson = /*lang=json,strict*/ """
+                                                   {
+                                                       "id": 1,
+                                                       "name": "Goku",
+                                                       "age": 42,
+                                                       "active": true
+                                                   }
+                                                   """;
+
+            var tempFile = Path.GetTempFileName();
+            try
+            {
+                File.WriteAllText(tempFile, "{}");
+
+                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
+                var writer = new OverwriteAllResponseWriter();
+
+                writer.Write(new WriteResponseRequest
+                {
+                    CallingAssembly = typeof(ResponseWriterTests).Assembly,
+                    CurrentResponseAsString = currentJson,
+                    ExpectedResult = expectedInfo,
+                    Parameters = [("$Age$", 42), ("$Active$", true)],
+                    DifferenceFunc = diffs => diffs,
+                    Mode = ResponseWriteMode.OverwriteAll
+                });
+
+                var updated = JToken.Parse(File.ReadAllText(tempFile));
+
+                Assert.AreEqual("$Age$", updated["age"]?.ToString());
+                Assert.AreEqual("$Active$", updated["active"]?.ToString());
+                Assert.AreEqual("1", updated["id"]?.ToString());
+            }
+            finally
+            {
+                File.Delete(tempFile);
+            }
+        }
     }
 }

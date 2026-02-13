@@ -90,8 +90,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     return true;
                 }
 
-                if (prop.Value.Type == JTokenType.String &&
-                    (string?)prop.Value == originalValue?.ToString())
+                if (originalValue != null && JToken.DeepEquals(prop.Value, JToken.FromObject(originalValue)))
                 {
                     prop.Value = placeholder;
                     return true;
