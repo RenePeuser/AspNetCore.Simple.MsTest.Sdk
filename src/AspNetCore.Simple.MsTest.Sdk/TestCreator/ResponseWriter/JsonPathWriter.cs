@@ -14,63 +14,78 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     internal sealed class JsonPathWriter
     {
+        // =============================================================
+        // ADD OR UPDATE
+        // =============================================================
+
         internal void AddOrUpdate(JToken root, string path, JToken value)
         {
-            var existing = root.SelectToken(path);
-            if (existing != null)
+            if (root == null || path.IsNullOrWhiteSpace())
             {
-                existing.Replace(value.DeepClone());
                 return;
             }
 
-            // create parents (simplified, robust)
-            var segments = path.Split('.');
-            var current = root;
+            var parentPath = GetParentPath(path);
+            var lastSegment = GetLastSegment(path);
 
-            for (var i = 0; i < segments.Length - 1; i++)
+            var parent = string.IsNullOrEmpty(parentPath)
+                             ? root
+                             : root.SelectToken(parentPath);
+
+            if (parent == null)
             {
-                var seg = segments[i];
-
-                if (seg.Contains('['))
-                {
-                    var name = seg[..seg.IndexOf('[')];
-                    var index = int.Parse(seg[(seg.IndexOf('[') + 1)..seg.IndexOf(']')]);
-
-                    if (current[name] is not JArray arr)
-                    {
-                        arr = new JArray();
-                        ((JObject)current)[name] = arr;
-                    }
-
-                    while (arr.Count <= index)
-                        arr.Add(JValue.CreateNull());
-
-                    if (arr[index] == null || arr[index]!.Type == JTokenType.Null)
-                    {
-                        arr[index] = new JObject();
-                    }
-
-                    current = arr[index]!;
-                }
-                else
-                {
-                    if (current[seg] == null)
-                    {
-                        ((JObject)current)[seg] = new JObject();
-                    }
-
-                    current = current[seg]!;
-                }
+                return;
             }
 
-            ((JObject)current)[segments[^1]] = value.DeepClone();
+            if (lastSegment.IsArray)
+            {
+                if (parent is not JArray array)
+                {
+                    return;
+                }
+
+                while (array.Count <= lastSegment.Index)
+                {
+                    array.Add(JValue.CreateNull());
+                }
+
+                array[lastSegment.Index] = value.DeepClone();
+            }
+            else
+            {
+                if (parent is not JObject obj)
+                {
+                    return;
+                }
+
+                obj[lastSegment.PropertyName!] = value.DeepClone();
+            }
         }
+
+        // =============================================================
+        // REMOVE
+        // =============================================================
 
         internal void Remove(JToken root, string path)
         {
+            if (root == null || path.IsNullOrWhiteSpace())
+            {
+                return;
+            }
+
             var token = root.SelectToken(path);
             if (token == null)
             {
+                var lastDot = path.LastIndexOf('.');
+                var parentPath = lastDot >= 0 ? path[..lastDot] : string.Empty;
+                var segment = lastDot >= 0 ? path[(lastDot + 1)..] : path;
+
+                var parent = parentPath.IsNullOrEmpty() ? root : root.SelectToken(parentPath);
+                if (parent is JObject obj && obj.Property(segment) is not null)
+                {
+                    obj.Property(segment)!.Remove();
+                }
+
                 return;
             }
 
@@ -82,6 +97,50 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 token.Remove();
             }
+        }
+
+        // =============================================================
+        // PATH HELPERS
+        // =============================================================
+
+        private static string GetParentPath(string path)
+        {
+            var lastDot = path.LastIndexOf('.');
+            var bracketIndex = path.IndexOf('[', lastDot < 0 ? 0 : lastDot);
+
+            if (bracketIndex > 0)
+            {
+                return path[..bracketIndex];
+            }
+
+            return lastDot < 0 ? string.Empty : path[..lastDot];
+        }
+
+        private static PathSegment GetLastSegment(string path)
+        {
+            var lastDot = path.LastIndexOf('.');
+            var segment = lastDot < 0 ? path : path[(lastDot + 1)..];
+
+            if (segment.Contains('['))
+            {
+                var start = segment.IndexOf('[');
+                var end = segment.IndexOf(']', start);
+
+                var index = int.Parse(segment[(start + 1)..end]);
+
+                return PathSegment.Array(index);
+            }
+
+            return PathSegment.Property(segment);
+        }
+
+        private sealed record PathSegment(bool IsArray,
+                                          string? PropertyName,
+                                          int Index)
+        {
+            public static PathSegment Property(string name) => new(false, name, -1);
+
+            public static PathSegment Array(int index) => new(true, null, index);
         }
     }
 }

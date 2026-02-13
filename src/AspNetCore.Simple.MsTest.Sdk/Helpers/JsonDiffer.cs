@@ -8,15 +8,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public enum MismatchType
     {
         ValueDifference,
-        MissingInFirst,
-        MissingInSecond
+        MissingInFirst, // left fehlt
+        MissingInSecond // right fehlt
     }
 
     public sealed record Difference
     {
         public required string MemberPath { get; init; }
-        public required string? Value1 { get; init; }
-        public required string? Value2 { get; init; }
+        public required string? Value1 { get; init; } // left
+        public required string? Value2 { get; init; } // right
         public required MismatchType MismatchType { get; init; }
     }
 
@@ -30,30 +30,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     public interface IJsonDiffer
     {
-        ImmutableList<Difference> FindDifferences(string json1, string json2);
-
-        Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(string json1, string json2);
-
-        ImmutableList<Difference> FindDifferences(JToken json1, JToken json2);
-
-        Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(JToken json1, JToken json2);
+        ImmutableList<Difference> FindDifferences(JToken left, JToken right);
     }
 
     internal sealed class JsonDiffer : IJsonDiffer
     {
-        public ImmutableList<Difference> FindDifferences(string json1, string json2)
+        public ImmutableList<Difference> FindDifferences(JToken left, JToken right)
         {
-            var left = json1.IsNullOrWhiteSpace() ? JToken.Parse("{}") : JToken.Parse(json1);
-            var right = json2.IsNullOrWhiteSpace() ? JToken.Parse("{}") : JToken.Parse(json2);
+            var diffs = new Dictionary<string, (JToken?, JToken?, MismatchType)>();
+            CompareTokens(left, right, diffs, string.Empty);
 
-            return FindDifferences(left, right);
-        }
-
-        public ImmutableList<Difference> FindDifferences(JToken json1, JToken json2)
-        {
-            var native = FindDifferencesNative(json1, json2);
-
-            return native
+            return diffs
                    .Select(d => new Difference
                    {
                        MemberPath = d.Key,
@@ -64,25 +51,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                    .OrderBy(d => d.MemberPath)
                    .ToImmutableList();
         }
-
-        public Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(string json1, string json2)
-        {
-            var left = json1.IsNullOrWhiteSpace() ? JToken.Parse("{}") : JToken.Parse(json1);
-            var right = json2.IsNullOrWhiteSpace() ? JToken.Parse("{}") : JToken.Parse(json2);
-
-            return FindDifferencesNative(left, right);
-        }
-
-        public Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(JToken json1, JToken json2)
-        {
-            var diffs = new Dictionary<string, (JToken?, JToken?, MismatchType)>();
-            CompareTokens(json1, json2, diffs, string.Empty);
-            return diffs;
-        }
-
-        // ============================
-        // Core comparison logic
-        // ============================
 
         private void CompareTokens(JToken? left,
                                    JToken? right,
@@ -117,13 +85,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            if (left is JObject obj1 && right is JObject obj2)
+            if (left is JObject objLeft && right is JObject objRight)
             {
-                foreach (var prop in obj1.Properties())
+                foreach (var prop in objLeft.Properties())
                 {
                     var childPath = AppendPath(path, prop.Name);
 
-                    if (!obj2.TryGetValue(prop.Name, out var rightValue))
+                    if (!objRight.TryGetValue(prop.Name, out var rightValue))
                     {
                         AddDiff(diffs, childPath, prop.Value, null, MismatchType.MissingInSecond);
                     }
@@ -133,9 +101,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     }
                 }
 
-                foreach (var prop in obj2.Properties())
+                foreach (var prop in objRight.Properties())
                 {
-                    if (!obj1.ContainsKey(prop.Name))
+                    if (!objLeft.ContainsKey(prop.Name))
                     {
                         var childPath = AppendPath(path, prop.Name);
                         AddDiff(diffs, childPath, null, prop.Value, MismatchType.MissingInFirst);
@@ -145,18 +113,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            if (left is JArray arr1 && right is JArray arr2)
+            if (left is JArray arrLeft && right is JArray arrRight)
             {
-                var max = Math.Max(arr1.Count, arr2.Count);
+                var max = Math.Max(arrLeft.Count, arrRight.Count);
 
                 for (var i = 0; i < max; i++)
                 {
-                    var p = AppendPath(path, $"[{i}]");
+                    var childPath = AppendPath(path, $"[{i}]");
 
-                    var l = i < arr1.Count ? arr1[i] : null;
-                    var r = i < arr2.Count ? arr2[i] : null;
+                    var l = i < arrLeft.Count ? arrLeft[i] : null;
+                    var r = i < arrRight.Count ? arrRight[i] : null;
 
-                    CompareTokens(l, r, diffs, p);
+                    CompareTokens(l, r, diffs, childPath);
                 }
 
                 return;
@@ -165,22 +133,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             AddDiff(diffs, path, left, right, MismatchType.ValueDifference);
         }
 
-        // ============================
-        // Helpers
-        // ============================
-
         private static void AddDiff(Dictionary<string, (JToken?, JToken?, MismatchType)> diffs,
                                     string path,
                                     JToken? left,
                                     JToken? right,
                                     MismatchType type)
         {
-            if (path.IsNullOrWhiteSpace())
+            if (!path.IsNullOrWhiteSpace())
             {
-                return;
+                diffs[path] = (left, right, type);
             }
-
-            diffs[path] = (left, right, type);
         }
 
         private static string AppendPath(string path, string addition)

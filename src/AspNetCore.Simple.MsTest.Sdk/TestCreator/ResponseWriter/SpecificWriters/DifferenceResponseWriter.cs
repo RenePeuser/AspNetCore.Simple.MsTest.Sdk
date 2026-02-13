@@ -13,7 +13,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             services.AddJsonDiffer();
             services.AddJsonPathWriter();
-
             services.AddSingletonIfNotExists<ISpecificResponseWriter, DifferenceResponseWriter>();
         }
     }
@@ -40,48 +39,45 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            // ---------------------------------------------------------
-            // 1️⃣ Parse Current JSON
-            // ---------------------------------------------------------
-
             var currentRoot = JToken.Parse(context.CurrentResponseAsString);
 
-            // Optional: Remove volatile fields globally
-            RemoveVolatileFields(currentRoot);
+            var contextParameters = context.Parameters.OrderByDescending(p => p.Value?.ToString()?.Length).ToArray();
+            ApplySmartReplacements(currentRoot, contextParameters);
 
-            // ---------------------------------------------------------
-            // 2️⃣ Apply Smart Placeholder Replacement
-            // ---------------------------------------------------------
+            var currentRootAsJson = currentRoot.ToString(Formatting.Indented);
 
-            ApplySmartReplacements(currentRoot, context.Parameters);
+            // Fallback :/ we have full text replace ments which does not full fill word matching
+            foreach (var parameter in contextParameters)
+            {
+                var oldValue = parameter.Value?.ToString();
+                if (oldValue.IsNotNull())
+                {
+                    currentRootAsJson = currentRootAsJson.Replace(oldValue, parameter.key);
+                }
+            }
 
-            var formattedCurrent = currentRoot.ToString(Formatting.Indented);
+            currentRoot = JToken.Parse(currentRootAsJson);
 
-            var expected = JToken.Parse(context.ExpectedResult.Content);
-            var current = JToken.Parse(formattedCurrent);
+            var expectedRoot = JToken.Parse(context.ExpectedResult.Content);
 
-            // ---------------------------------------------------------
-            // 3️⃣ Diff
-            // ---------------------------------------------------------
-
-            var diffs = jsonDiffer.FindDifferences(expected, current);
-            var scopedDifferences = context.DifferenceFunc(diffs).ToImmutableList();
-            var allToApply = AssertObjectExtensions
-                             .DifferenceFunc(scopedDifferences)
-                             .ToImmutableList();
-
-            if (!allToApply.Any())
+            var diffs = jsonDiffer.FindDifferences(expectedRoot, currentRoot);
+            if (!diffs.Any())
             {
                 return;
             }
 
-            // ---------------------------------------------------------
-            // 4️⃣ Apply Differences
-            // ---------------------------------------------------------
+            var scoped = context.DifferenceFunc(diffs).ToImmutableList();
+            var finalDiffs = AssertObjectExtensions.DifferenceFunc(scoped).ToImmutableList();
+            var ignoredPaths = diffs.Except(finalDiffs)
+                                     .Select(diff => diff.MemberPath)
+                                     .Where(path => path.IsNullOrWhiteSpace().IsFalse())
+                                     .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var diff in allToApply)
+            var resultRoot = currentRoot.DeepClone();
+
+            foreach (var diff in diffs)
             {
-                if (diff.MemberPath.IsNullOrWhiteSpace())
+                if (diff.MemberPath.IsNullOrWhiteSpace() || IsIgnoredPath(diff.MemberPath, ignoredPaths).IsFalse())
                 {
                     continue;
                 }
@@ -89,37 +85,54 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 switch (diff.MismatchType)
                 {
                     case MismatchType.MissingInFirst:
-                    case MismatchType.ValueDifference:
                     {
-                        var source = current.SelectToken(diff.MemberPath);
-                        if (source != null)
-                        {
-                            jsonPathWriter.AddOrUpdate(expected, diff.MemberPath, source);
-                        }
-
+                        jsonPathWriter.Remove(resultRoot, diff.MemberPath);
                         break;
                     }
 
                     case MismatchType.MissingInSecond:
+                    case MismatchType.ValueDifference:
                     {
-                        jsonPathWriter.Remove(expected, diff.MemberPath);
+                        var source = expectedRoot.SelectToken(diff.MemberPath);
+                        if (source != null)
+                        {
+                            jsonPathWriter.AddOrUpdate(resultRoot, diff.MemberPath, source);
+                        }
+
                         break;
                     }
                 }
             }
 
-            // ---------------------------------------------------------
-            // 5️⃣ Write back
-            // ---------------------------------------------------------
+            var output = resultRoot.ToString(Formatting.Indented);
 
             File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName,
-                              expected.ToString(Formatting.Indented));
+                              output);
         }
 
-        // =============================================================
-        // SMART 2-STAGE REPLACEMENT
-        // =============================================================
+        private static bool IsIgnoredPath(string memberPath, ImmutableHashSet<string> ignoredPaths)
+        {
+            foreach (var ignoredPath in ignoredPaths)
+            {
+                if (memberPath.Equals(ignoredPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
 
+                if (memberPath.StartsWith(ignoredPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    var nextIndex = ignoredPath.Length;
+                    if (memberPath.Length > nextIndex && (memberPath[nextIndex] == '.' || memberPath[nextIndex] == '['))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        // Smart Replace bleibt wie zuvor
         private static void ApplySmartReplacements(JToken root,
                                                    params (string key, object? Value)[] parameters)
         {
@@ -135,47 +148,38 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     continue;
                 }
 
-                var propertyName = NormalizePlaceholderToProperty(key);
+                var propertyName = key.Trim('$');
 
-                // 1️⃣ Immer zuerst Property-basiert ersetzen
                 ReplaceByProperty(root, propertyName, key, value);
 
-                // 2️⃣ Zusätzlich FullText in String-Werten ersetzen
-                ReplaceFullText(root, key, value);
+                if (value != null)
+                {
+                    ReplaceFullText(root, key, value);
+                }
             }
         }
 
-        private static string NormalizePlaceholderToProperty(string placeholder)
-        {
-            return placeholder.Trim('$');
-        }
-
-        // =============================================================
-        // PROPERTY MODE (PRIMARY)
-        // =============================================================
-
-        private static void ReplaceByProperty(JToken token,
+        private static bool ReplaceByProperty(JToken token,
                                               string propertyName,
                                               string placeholder,
                                               object? originalValue)
         {
+            var replaced = false;
+
             if (token is JProperty prop &&
                 string.Equals(prop.Name, propertyName, StringComparison.OrdinalIgnoreCase))
             {
-                // Null-Fall
-                if (originalValue == null &&
-                    prop.Value.Type == JTokenType.Null)
+                if (originalValue == null && prop.Value.Type == JTokenType.Null)
                 {
                     prop.Value = placeholder;
-                    return;
+                    return true;
                 }
 
-                // String-Fall
                 if (prop.Value.Type == JTokenType.String &&
                     (string?)prop.Value == originalValue?.ToString())
                 {
                     prop.Value = placeholder;
-                    return;
+                    return true;
                 }
             }
 
@@ -183,14 +187,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 foreach (var child in container.Children())
                 {
-                    ReplaceByProperty(child, propertyName, placeholder, originalValue);
+                    replaced |= ReplaceByProperty(child, propertyName, placeholder, originalValue);
                 }
             }
-        }
 
-        // =============================================================
-        // FULLTEXT FALLBACK (STRING VALUES ONLY)
-        // =============================================================
+            return replaced;
+        }
 
         private static void ReplaceFullText(JToken token,
                                             string placeholder,
@@ -212,10 +214,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var escaped = Regex.Escape(originalValue.ToString()!);
                 var pattern = $@"\b{escaped}\b";
 
-                value.Value = Regex.Replace(s,
+                var updated = Regex.Replace(s,
                                             pattern,
                                             placeholder,
                                             RegexOptions.CultureInvariant);
+                value.Value = updated.Replace(originalValue.ToString()!,
+                                              placeholder,
+                                              StringComparison.Ordinal);
             }
 
             if (token is JContainer container)
@@ -227,31 +232,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        // =============================================================
-        // VOLATILE FIELD CLEANUP (OPTIONAL BUT RECOMMENDED)
-        // =============================================================
-
-        private static void RemoveVolatileFields(JToken token)
-        {
-            RemoveProperties(token, "CreatedAt", "LastModifiedAt");
-        }
-
-        private static void RemoveProperties(JToken token, params string[] names)
-        {
-            if (token is JProperty prop &&
-                names.Any(n => prop.Name.Equals(n, StringComparison.OrdinalIgnoreCase)))
-            {
-                prop.Remove();
-                return;
-            }
-
-            if (token is JContainer container)
-            {
-                foreach (var child in container.Children().ToList())
-                {
-                    RemoveProperties(child, names);
-                }
-            }
-        }
     }
 }

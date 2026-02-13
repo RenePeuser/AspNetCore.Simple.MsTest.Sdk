@@ -24,7 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings());
 
         private static readonly ResponseWriter ResponseWriter = new ResponseWriter([
-                                                                                       new DifferenceResponseWriter(JsonDiffer, new JsonPathWriter()),
+                                                                                       new DifferenceResponseWriter(JsonDiffer,new JsonPathWriter()),
                                                                                        new OverwriteAllResponseWriter()
                                                                                    ]);
 

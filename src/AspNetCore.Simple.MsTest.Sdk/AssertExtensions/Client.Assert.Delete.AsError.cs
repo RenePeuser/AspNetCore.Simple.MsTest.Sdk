@@ -89,7 +89,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   string.Empty,
                                                   expectedResult,
                                                   item => item,
@@ -154,7 +154,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   string.Empty,
                                                   expectedResult,
                                                   item => item,

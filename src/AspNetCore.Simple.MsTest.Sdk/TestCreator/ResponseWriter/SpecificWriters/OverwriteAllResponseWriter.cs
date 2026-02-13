@@ -39,15 +39,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             ApplySmartReplacements(root, context.Parameters);
 
-            var formattedCurrent = root.ToString(Formatting.Indented);
-
             File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName,
-                              formattedCurrent);
+                              root.ToString(Formatting.Indented));
         }
 
-        // -------------------------------------------------------------
-        // SMART 2-STAGE REPLACEMENT (identisch wie DifferenceWriter)
-        // -------------------------------------------------------------
+        // =============================================================
+        // IDENTISCH zur DifferenceWriter-Logik
+        // =============================================================
+
         private static void ApplySmartReplacements(JToken root,
                                                    params (string key, object? Value)[] parameters)
         {
@@ -63,25 +62,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     continue;
                 }
 
-                var propertyName = NormalizePlaceholderToProperty(key);
+                var propertyName = key.Trim('$');
 
-                var replaced = ReplaceByProperty(root, propertyName, key, value);
+                ReplaceByProperty(root, propertyName, key, value);
 
-                if (!replaced)
+                if (value != null)
                 {
                     ReplaceFullText(root, key, value);
                 }
             }
         }
-
-        private static string NormalizePlaceholderToProperty(string placeholder)
-        {
-            return placeholder.Trim('$');
-        }
-
-        // -------------------------------------------------------------
-        // PROPERTY MODE (PRIORITÄT)
-        // -------------------------------------------------------------
 
         private static bool ReplaceByProperty(JToken token,
                                               string propertyName,
@@ -119,10 +109,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return replaced;
         }
 
-        // -------------------------------------------------------------
-        // FULLTEXT FALLBACK (STRING VALUES ONLY)
-        // -------------------------------------------------------------
-
         private static void ReplaceFullText(JToken token,
                                             string placeholder,
                                             object? originalValue)
@@ -143,10 +129,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var escaped = Regex.Escape(originalValue.ToString()!);
                 var pattern = $@"\b{escaped}\b";
 
-                value.Value = Regex.Replace(s,
+                var updated = Regex.Replace(s,
                                             pattern,
                                             placeholder,
                                             RegexOptions.CultureInvariant);
+                value.Value = updated.Replace(originalValue.ToString()!,
+                                              placeholder,
+                                              StringComparison.Ordinal);
             }
 
             if (token is JContainer container)
@@ -157,5 +146,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
             }
         }
+
     }
 }

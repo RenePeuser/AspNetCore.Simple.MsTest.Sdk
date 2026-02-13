@@ -37,7 +37,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   payloadAsJson,
                                                   expectedResult,
                                                   item => item,
@@ -242,7 +242,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   item => item,
@@ -270,7 +270,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   item => item,
@@ -298,7 +298,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   payloadAsJson,
                                                   expectedResult,
                                                   item => item,
@@ -326,7 +326,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   payloadAsJson,
                                                   expectedResult,
                                                   item => item,

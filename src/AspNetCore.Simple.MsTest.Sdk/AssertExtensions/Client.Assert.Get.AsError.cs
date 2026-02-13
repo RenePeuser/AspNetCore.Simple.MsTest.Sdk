@@ -91,18 +91,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
-                                                  string.Empty,
-                                                  expectedResult,
-                                                  filterFunc,
-                                                  HttpMethod.Get,
-                                                  [],
-                                                  Assembly.GetCallingAssembly(),
-                                                  string.Empty,
-                                                  expectedResultParameterName,
-                                                  callerFilePath,
-                                                  false,
-                                                  writeResponse);
+            return client.AssertHttpCallAsync<TResult>(url,
+                                                       string.Empty,
+                                                       expectedResult,
+                                                       filterFunc,
+                                                       HttpMethod.Get,
+                                                       [],
+                                                       Assembly.GetCallingAssembly(),
+                                                       string.Empty,
+                                                       expectedResultParameterName,
+                                                       callerFilePath,
+                                                       false,
+                                                       writeResponse);
         }
 
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
@@ -115,7 +115,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   string.Empty,
                                                   expectedResult,
                                                   filterFunc,
@@ -139,7 +139,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   string.Empty,
                                                   expectedResult,
                                                   filterFunc,
@@ -165,7 +165,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   string.Empty,
                                                   expectedResult,
                                                   filterFunc,
@@ -189,7 +189,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   string.Empty,
                                                   expectedResult,
                                                   item => item,
@@ -213,7 +213,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   string.Empty,
                                                   expectedResult,
                                                   item => item,
@@ -237,7 +237,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   string.Empty,
                                                   expectedResult,
                                                   item => item,
@@ -263,7 +263,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCall<TResult>(url,
+            return client.AssertHttpCallAsync<TResult>(url,
                                                   string.Empty,
                                                   expectedResult,
                                                   item => item,
