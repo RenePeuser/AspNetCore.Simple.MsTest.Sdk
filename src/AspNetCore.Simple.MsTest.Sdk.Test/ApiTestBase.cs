@@ -1,7 +1,4 @@
-﻿using System.Net.Http;
-using System.Text.Json;
-using AspNetCore.Simple.MsTest.Sdk.Api;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using AspNetCore.Simple.MsTest.Sdk.Api;
 
 [assembly: Parallelize(Scope = ExecutionScope.ClassLevel)]
 
