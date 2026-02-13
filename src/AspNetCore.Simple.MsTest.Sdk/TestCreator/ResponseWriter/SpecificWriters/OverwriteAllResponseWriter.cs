@@ -64,7 +64,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var propertyName = key.Trim('$');
 
-                ReplaceByProperty(root, propertyName, key, value);
+                ReplaceByProperty(root, propertyName, key,
+                                  value);
 
                 if (value != null)
                 {
@@ -87,12 +88,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     prop.Value.Type == JTokenType.Null)
                 {
                     prop.Value = placeholder;
+
                     return true;
                 }
 
                 if (originalValue != null && JToken.DeepEquals(prop.Value, JToken.FromObject(originalValue)))
                 {
                     prop.Value = placeholder;
+
                     return true;
                 }
             }
@@ -101,7 +104,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 foreach (var child in container.Children())
                 {
-                    replaced |= ReplaceByProperty(child, propertyName, placeholder, originalValue);
+                    replaced |= ReplaceByProperty(child, propertyName, placeholder,
+                                                  originalValue);
                 }
             }
 
@@ -120,6 +124,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (token is JValue value && value.Type == JTokenType.String)
             {
                 var s = (string?)value.Value;
+
                 if (s.IsNullOrWhiteSpace())
                 {
                     return;
@@ -132,6 +137,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             pattern,
                                             placeholder,
                                             RegexOptions.CultureInvariant);
+
                 value.Value = updated.Replace(originalValue.ToString()!,
                                               placeholder,
                                               StringComparison.Ordinal);
@@ -145,6 +151,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
             }
         }
-
     }
 }

@@ -18,7 +18,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // ADD OR UPDATE
         // =============================================================
 
-        internal void AddOrUpdate(JToken root, string path, JToken value)
+        internal void AddOrUpdate(JToken root,
+                                  string path,
+                                  JToken value)
         {
             if (root == null || path.IsNullOrWhiteSpace())
             {
@@ -66,7 +68,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // REMOVE
         // =============================================================
 
-        internal void Remove(JToken root, string path)
+        internal void Remove(JToken root,
+                             string path)
         {
             if (root == null || path.IsNullOrWhiteSpace())
             {
@@ -74,6 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var token = root.SelectToken(path);
+
             if (token == null)
             {
                 var lastDot = path.LastIndexOf('.');
@@ -81,6 +85,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var segment = lastDot >= 0 ? path[(lastDot + 1)..] : path;
 
                 var parent = parentPath.IsNullOrEmpty() ? root : root.SelectToken(parentPath);
+
                 if (parent is JObject obj && obj.Property(segment) is not null)
                 {
                     obj.Property(segment)!.Remove();

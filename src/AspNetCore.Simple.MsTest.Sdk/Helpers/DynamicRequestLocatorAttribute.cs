@@ -81,6 +81,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             foreach (var useCase in useCases)
             {
                 var parameters = GetParams(useCase, Parameters).ToArray();
+
                 yield return parameters;
             }
 

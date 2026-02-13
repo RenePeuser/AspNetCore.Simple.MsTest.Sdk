@@ -372,17 +372,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync<TResult>(url,
-                                                  payloadAsObject.ToJson(JsonSerializerOptions),
-                                                  expectedResult,
-                                                  item => item,
-                                                  HttpMethod.Post,
-                                                  [],
-                                                  callingAssembly,
-                                                  payloadAsObjectParameterName,
-                                                  expectedResultParameterName,
-                                                  callerFilePath,
-                                                  false,
-                                                  writeResponse);
+                                                       payloadAsObject.ToJson(JsonSerializerOptions),
+                                                       expectedResult,
+                                                       item => item,
+                                                       HttpMethod.Post,
+                                                       [],
+                                                       callingAssembly,
+                                                       payloadAsObjectParameterName,
+                                                       expectedResultParameterName,
+                                                       callerFilePath,
+                                                       false,
+                                                       writeResponse);
         }
 
         public static Task<TResult> AssertPostAsErrorAsync<TResult>(this HttpClient client,
@@ -399,17 +399,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync<TResult>(url,
-                                                  payloadAsObject.ToJson(JsonSerializerOptions),
-                                                  expectedResult,
-                                                  item => item,
-                                                  HttpMethod.Post,
-                                                  parameters,
-                                                  callingAssembly,
-                                                  payloadAsObjectParameterName,
-                                                  expectedResultParameterName,
-                                                  callerFilePath,
-                                                  false,
-                                                  writeResponse);
+                                                       payloadAsObject.ToJson(JsonSerializerOptions),
+                                                       expectedResult,
+                                                       item => item,
+                                                       HttpMethod.Post,
+                                                       parameters,
+                                                       callingAssembly,
+                                                       payloadAsObjectParameterName,
+                                                       expectedResultParameterName,
+                                                       callerFilePath,
+                                                       false,
+                                                       writeResponse);
         }
 
         public static Task<TResult> AssertPostAsErrorAsync<TResult>(this HttpClient client,
@@ -426,18 +426,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync<TResult>(url,
-                                                  payloadAsObject.ToJson(JsonSerializerOptions),
-                                                  expectedResult,
-                                                  item => item,
-                                                  HttpMethod.Post,
-                                                  differenceFunc,
-                                                  [],
-                                                  callingAssembly,
-                                                  payloadAsObjectParameterName,
-                                                  expectedResultParameterName,
-                                                  callerFilePath,
-                                                  false,
-                                                  writeResponse);
+                                                       payloadAsObject.ToJson(JsonSerializerOptions),
+                                                       expectedResult,
+                                                       item => item,
+                                                       HttpMethod.Post,
+                                                       differenceFunc,
+                                                       [],
+                                                       callingAssembly,
+                                                       payloadAsObjectParameterName,
+                                                       expectedResultParameterName,
+                                                       callerFilePath,
+                                                       false,
+                                                       writeResponse);
         }
 
         public static Task<TResult> AssertPostAsErrorAsync<TResult>(this HttpClient client,
@@ -455,18 +455,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync<TResult>(url,
-                                                  payloadAsObject.ToJson(JsonSerializerOptions),
-                                                  expectedResult,
-                                                  item => item,
-                                                  HttpMethod.Post,
-                                                  differenceFunc,
-                                                  parameters,
-                                                  callingAssembly,
-                                                  payloadAsObjectParameterName,
-                                                  expectedResultParameterName,
-                                                  callerFilePath,
-                                                  false,
-                                                  writeResponse);
+                                                       payloadAsObject.ToJson(JsonSerializerOptions),
+                                                       expectedResult,
+                                                       item => item,
+                                                       HttpMethod.Post,
+                                                       differenceFunc,
+                                                       parameters,
+                                                       callingAssembly,
+                                                       payloadAsObjectParameterName,
+                                                       expectedResultParameterName,
+                                                       callerFilePath,
+                                                       false,
+                                                       writeResponse);
         }
 
         public static Task<TResult> AssertPostAsErrorAsync<TResult>(this HttpClient client,
@@ -482,17 +482,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync<TResult>(url,
-                                                  payloadAsJson,
-                                                  expectedResult,
-                                                  item => item,
-                                                  HttpMethod.Post,
-                                                  [],
-                                                  callingAssembly,
-                                                  payloadAsJsonParameterName,
-                                                  expectedResultParameterName,
-                                                  callerFilePath,
-                                                  false,
-                                                  writeResponse);
+                                                       payloadAsJson,
+                                                       expectedResult,
+                                                       item => item,
+                                                       HttpMethod.Post,
+                                                       [],
+                                                       callingAssembly,
+                                                       payloadAsJsonParameterName,
+                                                       expectedResultParameterName,
+                                                       callerFilePath,
+                                                       false,
+                                                       writeResponse);
         }
 
         public static Task<TResult> AssertPostAsErrorAsync<TResult>(this HttpClient client,
@@ -509,17 +509,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync<TResult>(url,
-                                                  payloadAsJson,
-                                                  expectedResult,
-                                                  item => item,
-                                                  HttpMethod.Post,
-                                                  parameters,
-                                                  callingAssembly,
-                                                  payloadAsJsonParameterName,
-                                                  expectedResultParameterName,
-                                                  callerFilePath,
-                                                  false,
-                                                  writeResponse);
+                                                       payloadAsJson,
+                                                       expectedResult,
+                                                       item => item,
+                                                       HttpMethod.Post,
+                                                       parameters,
+                                                       callingAssembly,
+                                                       payloadAsJsonParameterName,
+                                                       expectedResultParameterName,
+                                                       callerFilePath,
+                                                       false,
+                                                       writeResponse);
         }
 
         public static Task<TResult> AssertPostAsErrorAsync<TResult>(this HttpClient client,
@@ -536,18 +536,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync<TResult>(url,
-                                                  payloadAsJson,
-                                                  expectedResult,
-                                                  item => item,
-                                                  HttpMethod.Post,
-                                                  differenceFunc,
-                                                  [],
-                                                  callingAssembly,
-                                                  payloadAsJsonParameterName,
-                                                  expectedResultParameterName,
-                                                  callerFilePath,
-                                                  false,
-                                                  writeResponse);
+                                                       payloadAsJson,
+                                                       expectedResult,
+                                                       item => item,
+                                                       HttpMethod.Post,
+                                                       differenceFunc,
+                                                       [],
+                                                       callingAssembly,
+                                                       payloadAsJsonParameterName,
+                                                       expectedResultParameterName,
+                                                       callerFilePath,
+                                                       false,
+                                                       writeResponse);
         }
 
         public static Task<TResult> AssertPostAsErrorAsync<TResult>(this HttpClient client,
@@ -565,18 +565,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync<TResult>(url,
-                                                  payloadAsJson,
-                                                  expectedResult,
-                                                  item => item,
-                                                  HttpMethod.Post,
-                                                  differenceFunc,
-                                                  parameters,
-                                                  callingAssembly,
-                                                  payloadAsJsonParameterName,
-                                                  expectedResultParameterName,
-                                                  callerFilePath,
-                                                  false,
-                                                  writeResponse);
+                                                       payloadAsJson,
+                                                       expectedResult,
+                                                       item => item,
+                                                       HttpMethod.Post,
+                                                       differenceFunc,
+                                                       parameters,
+                                                       callingAssembly,
+                                                       payloadAsJsonParameterName,
+                                                       expectedResultParameterName,
+                                                       callerFilePath,
+                                                       false,
+                                                       writeResponse);
         }
     }
 }

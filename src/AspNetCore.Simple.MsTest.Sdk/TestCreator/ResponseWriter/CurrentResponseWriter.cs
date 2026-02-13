@@ -19,16 +19,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public enum ResponseWriteMode
     {
         DifferencesOnly,
+
         OverwriteAll
     }
 
     public sealed record WriteResponseRequest
     {
         public required string CurrentResponseAsString { get; init; }
+
         public required EmbeddedFileInfo ExpectedResult { get; init; }
+
         public required (string key, object? Value)[] Parameters { get; init; }
+
         public required Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; init; }
+
         public required Assembly CallingAssembly { get; init; }
+
         public required ResponseWriteMode Mode { get; init; } = ResponseWriteMode.DifferencesOnly;
     }
 
@@ -49,6 +55,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public void Write(WriteResponseRequest writeResponseRequest)
         {
             var writersCanHandle = specificResponseWriters.Where(w => w.CanHandle(writeResponseRequest)).ToImmutableList();
+
             if (writersCanHandle.IsEmpty())
             {
                 throw new InvalidOperationException($"No ISpecificResponseWriter found for mode '{writeResponseRequest.Mode}'.");

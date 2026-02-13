@@ -76,6 +76,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             // Use the specified _requestFolder or compute it from the declaring type.
             var declaringType = methodInfo.DeclaringType;
+
             if (declaringType.IsNull())
             {
                 yield break;
@@ -85,7 +86,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 yield break;
             }
-
 
             // This handles generic test class use cases
             var fullName = declaringType.FullName.Split('[').First();
@@ -98,13 +98,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Filter to only include JSON files that contain the computed or provided path.
             var useCases = manifestResourceNames.Where(file => file.Contains(currentPath) && file.EndWith(".json"))
-                                                .Select(item => item.Split('.').TakeLast(2).Aggregate((a, b) => $"{a}.{b}"))
+                                                .Select(item => item.Split('.').TakeLast(2).Aggregate((a,
+                                                                                                       b) => $"{a}.{b}"))
                                                 .ToImmutableList();
 
             // Yield each identified use case as a separate test input.
             foreach (var useCase in useCases)
             {
                 var parameters = GetParams(useCase, Parameters).ToArray();
+
                 yield return parameters;
             }
 

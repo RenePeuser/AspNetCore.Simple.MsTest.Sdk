@@ -24,7 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings());
 
         private static readonly ResponseWriter ResponseWriter = new ResponseWriter([
-                                                                                       new DifferenceResponseWriter(JsonDiffer,new JsonPathWriter()),
+                                                                                       new DifferenceResponseWriter(JsonDiffer, new JsonPathWriter()),
                                                                                        new OverwriteAllResponseWriter()
                                                                                    ]);
 
@@ -32,16 +32,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters =
-            {
-                new JsonStringEnumConverter()
-            }
-        };
+                                                                                  {
+                                                                                      PropertyNameCaseInsensitive = true,
+                                                                                      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                                                                      DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                                                                                      NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                                                                                      Converters = { new JsonStringEnumConverter() }
+                                                                                  };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
@@ -475,7 +472,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (optimizedDifferences.Any())
             {
-                var output = OutputFormatter.GetOutputString($"Differences detected between your current:{currentResultParameterName} and expected result: {expectedResultParameterName}", resultTable, json1, json2,
+                var output = OutputFormatter.GetOutputString($"Differences detected between your current:{currentResultParameterName} and expected result: {expectedResultParameterName}", resultTable, json1,
+                                                             json2,
                                                              title ?? $"Differences detected between your current:{currentResultParameterName} and expected result: {expectedResultParameterName}", curl);
 
                 Assert.Fail(output);
@@ -921,12 +919,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // - Api.V1.Users.GetAllUsersTest.Responses.GetAllUsersResponse.json
             // - GetAllUsersResponse.json
             var localizedExpectedResponseFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedResultParameterName, callerFilePath, callingAssembly);
+
             if (localizedExpectedResponseFile.EmbeddedFile.IsNull())
             {
-                localizedExpectedResponseFile = localizedExpectedResponseFile with
-                {
-                    Content = expectedObjectAsJson
-                };
+                localizedExpectedResponseFile = localizedExpectedResponseFile with { Content = expectedObjectAsJson };
             }
 
             // This is most the use case when calling an API and want to know what comes back
@@ -946,14 +942,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (shouldWriteResponse)
             {
                 var writeResponseRequest = new WriteResponseRequest()
-                {
-                    CallingAssembly = callingAssembly,
-                    DifferenceFunc = differenceFunc,
-                    CurrentResponseAsString = currentObjectAsJson,
-                    ExpectedResult = localizedExpectedResponseFile,
-                    Parameters = parameters,
-                    Mode = ResponseWriteMode.DifferencesOnly
-                };
+                                           {
+                                               CallingAssembly = callingAssembly,
+                                               DifferenceFunc = differenceFunc,
+                                               CurrentResponseAsString = currentObjectAsJson,
+                                               ExpectedResult = localizedExpectedResponseFile,
+                                               Parameters = parameters,
+                                               Mode = ResponseWriteMode.DifferencesOnly
+                                           };
 
                 ResponseWriter.Write(writeResponseRequest);
             }
@@ -1012,6 +1008,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var hasSchemaMismatch = differences.Any(item => item.MismatchType.NotEqualsTo(MismatchType.ValueDifference));
 
                 var contentValueDifferences = differences.FirstOrDefault(d => d.MemberPath.Equals("Content.Value", StringComparison.OrdinalIgnoreCase));
+
                 if (contentValueDifferences.IsNotNull())
                 {
                     differences = JsonDiffer.FindDifferences(contentValueDifferences.Value1 ?? string.Empty, contentValueDifferences.Value2 ?? string.Empty);
@@ -1029,14 +1026,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (shouldWriteResponse)
                 {
                     var writeResponseRequest = new WriteResponseRequest()
-                    {
-                        CallingAssembly = callingAssembly,
-                        DifferenceFunc = differenceFunc,
-                        CurrentResponseAsString = object2AsJson,
-                        ExpectedResult = localizedExpectedResponseFile,
-                        Parameters = parameters,
-                        Mode = ResponseWriteMode.DifferencesOnly
-                    };
+                                               {
+                                                   CallingAssembly = callingAssembly,
+                                                   DifferenceFunc = differenceFunc,
+                                                   CurrentResponseAsString = object2AsJson,
+                                                   ExpectedResult = localizedExpectedResponseFile,
+                                                   Parameters = parameters,
+                                                   Mode = ResponseWriteMode.DifferencesOnly
+                                               };
 
                     ResponseWriter.Write(writeResponseRequest);
                 }

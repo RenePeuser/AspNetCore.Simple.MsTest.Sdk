@@ -18,11 +18,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var content = payload.IsNotNull() ? GetContent() : null;
 
             var httpRequestMessage = new HttpRequestMessage(method, uri)
-            {
-                Version = HttpVersion.Version11,
-                VersionPolicy = HttpVersionPolicy.RequestVersionOrLower,
-                Content = content
-            };
+                                     {
+                                         Version = HttpVersion.Version11,
+                                         VersionPolicy = HttpVersionPolicy.RequestVersionOrLower,
+                                         Content = content
+                                     };
 
             return httpRequestMessage;
 
@@ -38,6 +38,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 };
             }
         }
+
         private string GetContentType(HttpMethod httpMethod)
         {
             if (httpMethod.EqualsTo(HttpMethod.Patch))

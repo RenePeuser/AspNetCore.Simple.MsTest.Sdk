@@ -34,7 +34,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   string currentObject,
                                                   Assembly callingAssembly,
                                                   string curl,
-                                                  [CallerArgumentExpression(nameof(expectedObjectAsJson))] string expectedResultParameterName = "")
+                                                  [CallerArgumentExpression(nameof(expectedObjectAsJson))]
+                                                  string expectedResultParameterName = "")
         {
             // 1. Get target type
             var targeTypeInfo = typeof(T);
@@ -260,6 +261,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                     // And if someone use it correctly already $MyParam$ <- we have to replace it also
                     replacedString = replacedString.Replace(keyValue.Key, "null");
+
                     continue;
                 }
 
@@ -269,6 +271,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     type.IsPrimitive)
                 {
                     var primitiveTypeValue = keyValue.Value.ToString();
+
                     if (primitiveTypeValue.IsNull())
                     {
                         continue;
@@ -283,7 +286,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 replacedString = replacedString.Replace(keyValue.Key, keyValue.Value.ToString());
-
             }
 
             return replacedString;

@@ -40,6 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var envVariable = Environment.GetEnvironmentVariable("AspNetCoreSimpleMsTestSdk__WriteResponse")?.ToBool();
+
             if (envVariable.IsNull())
             {
                 return false;

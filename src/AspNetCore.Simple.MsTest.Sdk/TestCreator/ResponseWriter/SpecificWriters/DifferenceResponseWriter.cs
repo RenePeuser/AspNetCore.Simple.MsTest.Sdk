@@ -50,6 +50,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             foreach (var parameter in contextParameters)
             {
                 var oldValue = parameter.Value?.ToString();
+
                 if (oldValue.IsNotNull())
                 {
                     currentRootAsJson = currentRootAsJson.Replace(oldValue, parameter.key);
@@ -61,6 +62,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var expectedRoot = JToken.Parse(context.ExpectedResult.Content);
 
             var diffs = jsonDiffer.FindDifferences(expectedRoot, currentRoot);
+
             if (!diffs.Any())
             {
                 return;
@@ -68,10 +70,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var scoped = context.DifferenceFunc(diffs).ToImmutableList();
             var finalDiffs = AssertObjectExtensions.DifferenceFunc(scoped).ToImmutableList();
+
             var ignoredPaths = diffs.Except(finalDiffs)
-                                     .Select(diff => diff.MemberPath)
-                                     .Where(path => path.IsNullOrWhiteSpace().IsFalse())
-                                     .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+                                    .Select(diff => diff.MemberPath)
+                                    .Where(path => path.IsNullOrWhiteSpace().IsFalse())
+                                    .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
             var resultRoot = currentRoot.DeepClone();
 
@@ -87,6 +90,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     case MismatchType.MissingInFirst:
                     {
                         jsonPathWriter.Remove(resultRoot, diff.MemberPath);
+
                         break;
                     }
 
@@ -94,6 +98,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     case MismatchType.ValueDifference:
                     {
                         var source = expectedRoot.SelectToken(diff.MemberPath);
+
                         if (source != null)
                         {
                             jsonPathWriter.AddOrUpdate(resultRoot, diff.MemberPath, source);
@@ -110,7 +115,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               output);
         }
 
-        private static bool IsIgnoredPath(string memberPath, ImmutableHashSet<string> ignoredPaths)
+        private static bool IsIgnoredPath(string memberPath,
+                                          ImmutableHashSet<string> ignoredPaths)
         {
             foreach (var ignoredPath in ignoredPaths)
             {
@@ -122,6 +128,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (memberPath.StartsWith(ignoredPath, StringComparison.OrdinalIgnoreCase))
                 {
                     var nextIndex = ignoredPath.Length;
+
                     if (memberPath.Length > nextIndex && (memberPath[nextIndex] == '.' || memberPath[nextIndex] == '['))
                     {
                         return true;
@@ -150,7 +157,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var propertyName = key.Trim('$');
 
-                ReplaceByProperty(root, propertyName, key, value);
+                ReplaceByProperty(root, propertyName, key,
+                                  value);
 
                 if (value != null)
                 {
@@ -172,12 +180,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (originalValue == null && prop.Value.Type == JTokenType.Null)
                 {
                     prop.Value = placeholder;
+
                     return true;
                 }
 
                 if (originalValue != null && JToken.DeepEquals(prop.Value, JToken.FromObject(originalValue)))
                 {
                     prop.Value = placeholder;
+
                     return true;
                 }
             }
@@ -186,7 +196,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 foreach (var child in container.Children())
                 {
-                    replaced |= ReplaceByProperty(child, propertyName, placeholder, originalValue);
+                    replaced |= ReplaceByProperty(child, propertyName, placeholder,
+                                                  originalValue);
                 }
             }
 
@@ -205,6 +216,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (token is JValue value && value.Type == JTokenType.String)
             {
                 var s = (string?)value.Value;
+
                 if (s.IsNullOrWhiteSpace())
                 {
                     return;
@@ -217,6 +229,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             pattern,
                                             placeholder,
                                             RegexOptions.CultureInvariant);
+
                 value.Value = updated.Replace(originalValue.ToString()!,
                                               placeholder,
                                               StringComparison.Ordinal);
@@ -230,6 +243,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
             }
         }
-
     }
 }

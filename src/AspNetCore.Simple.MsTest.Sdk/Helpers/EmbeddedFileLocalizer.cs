@@ -114,6 +114,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 2. We only can localize files, if we have no file we return origin
             var fileExtensions = Path.GetExtension(embedddFile);
+
             if (fileExtensions.IsNullOrWhiteSpace())
             {
                 return new EmbeddedFileInfo(embedddFile, string.Empty, null);
@@ -168,6 +169,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     if (fileInfo2.Exists)
                     {
                         var fileContentEmbedded = callingAssembly.GetFileContentFrom(embedddFile);
+
                         return new EmbeddedFileInfo(embeddedFileName, fileContentEmbedded, fileInfo2);
                     }
                 }
@@ -204,6 +206,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (splittedPath.Length < 2)
             {
                 var fileContentEmbedded = callingAssembly.GetFileContentFrom(embedddFile);
+
                 return new EmbeddedFileInfo(embedddFile, fileContentEmbedded, targetResponseFile);
             }
 
@@ -213,6 +216,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (match.IsNotNull())
             {
                 var fileContentFrom = callingAssembly.GetFileContentFrom(match);
+
                 return new EmbeddedFileInfo(match, fileContentFrom, targetResponseFile);
             }
 

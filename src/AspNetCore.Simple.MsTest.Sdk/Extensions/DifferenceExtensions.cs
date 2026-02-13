@@ -45,10 +45,7 @@ internal static class DifferenceExtensions
         var flattened = FlattenDifferences(differences).ToImmutableList();
 
         var fullTable = new ConsoleTable(nameof(Difference.MemberPath), objectName1, objectName2,
-                                         "MismatchType")
-        {
-            Options = { EnableCount = false }
-        };
+                                         "MismatchType") { Options = { EnableCount = false } };
 
         foreach (var dif in flattened)
         {
@@ -106,12 +103,12 @@ internal static class DifferenceExtensions
             foreach (var key in allKeys)
             {
                 yield return new Difference
-                {
-                    MemberPath = $"{path}.{key}",
-                    Value1 = obj1.TryGetValue(key, out var v1) ? v1 : "Property missing",
-                    Value2 = obj2.TryGetValue(key, out var v2) ? v2 : "Property missing",
-                    MismatchType = ResolveMismatchType(v1, v2)
-                };
+                             {
+                                 MemberPath = $"{path}.{key}",
+                                 Value1 = obj1.TryGetValue(key, out var v1) ? v1 : "Property missing",
+                                 Value2 = obj2.TryGetValue(key, out var v2) ? v2 : "Property missing",
+                                 MismatchType = ResolveMismatchType(v1, v2)
+                             };
             }
         }
         else

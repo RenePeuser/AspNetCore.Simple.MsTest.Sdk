@@ -8,15 +8,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public enum MismatchType
     {
         ValueDifference,
+
         MissingInFirst, // left fehlt
+
         MissingInSecond // right fehlt
     }
 
     public sealed record Difference
     {
         public required string MemberPath { get; init; }
+
         public required string? Value1 { get; init; } // left
+
         public required string? Value2 { get; init; } // right
+
         public required MismatchType MismatchType { get; init; }
     }
 
@@ -30,24 +35,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     public interface IJsonDiffer
     {
-        ImmutableList<Difference> FindDifferences(JToken left, JToken right);
+        ImmutableList<Difference> FindDifferences(JToken left,
+                                                  JToken right);
     }
 
     internal sealed class JsonDiffer : IJsonDiffer
     {
-        public ImmutableList<Difference> FindDifferences(JToken left, JToken right)
+        public ImmutableList<Difference> FindDifferences(JToken left,
+                                                         JToken right)
         {
             var diffs = new Dictionary<string, (JToken?, JToken?, MismatchType)>();
-            CompareTokens(left, right, diffs, string.Empty);
+
+            CompareTokens(left, right, diffs,
+                          string.Empty);
 
             return diffs
                    .Select(d => new Difference
-                   {
-                       MemberPath = d.Key,
-                       Value1 = d.Value.Item1?.ToString(),
-                       Value2 = d.Value.Item2?.ToString(),
-                       MismatchType = d.Value.Item3
-                   })
+                                {
+                                    MemberPath = d.Key,
+                                    Value1 = d.Value.Item1?.ToString(),
+                                    Value2 = d.Value.Item2?.ToString(),
+                                    MismatchType = d.Value.Item3
+                                })
                    .OrderBy(d => d.MemberPath)
                    .ToImmutableList();
         }
@@ -64,19 +73,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (left == null)
             {
-                AddDiff(diffs, path, null, right, MismatchType.MissingInFirst);
+                AddDiff(diffs, path, null,
+                        right, MismatchType.MissingInFirst);
+
                 return;
             }
 
             if (right == null)
             {
-                AddDiff(diffs, path, left, null, MismatchType.MissingInSecond);
+                AddDiff(diffs, path, left,
+                        null, MismatchType.MissingInSecond);
+
                 return;
             }
 
             if (left.Type != right.Type)
             {
-                AddDiff(diffs, path, left, right, MismatchType.ValueDifference);
+                AddDiff(diffs, path, left,
+                        right, MismatchType.ValueDifference);
+
                 return;
             }
 
@@ -93,11 +108,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                     if (!objRight.TryGetValue(prop.Name, out var rightValue))
                     {
-                        AddDiff(diffs, childPath, prop.Value, null, MismatchType.MissingInSecond);
+                        AddDiff(diffs, childPath, prop.Value,
+                                null, MismatchType.MissingInSecond);
                     }
                     else
                     {
-                        CompareTokens(prop.Value, rightValue, diffs, childPath);
+                        CompareTokens(prop.Value, rightValue, diffs,
+                                      childPath);
                     }
                 }
 
@@ -106,7 +123,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     if (!objLeft.ContainsKey(prop.Name))
                     {
                         var childPath = AppendPath(path, prop.Name);
-                        AddDiff(diffs, childPath, null, prop.Value, MismatchType.MissingInFirst);
+
+                        AddDiff(diffs, childPath, null,
+                                prop.Value, MismatchType.MissingInFirst);
                     }
                 }
 
@@ -124,13 +143,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     var l = i < arrLeft.Count ? arrLeft[i] : null;
                     var r = i < arrRight.Count ? arrRight[i] : null;
 
-                    CompareTokens(l, r, diffs, childPath);
+                    CompareTokens(l, r, diffs,
+                                  childPath);
                 }
 
                 return;
             }
 
-            AddDiff(diffs, path, left, right, MismatchType.ValueDifference);
+            AddDiff(diffs, path, left,
+                    right, MismatchType.ValueDifference);
         }
 
         private static void AddDiff(Dictionary<string, (JToken?, JToken?, MismatchType)> diffs,
@@ -145,7 +166,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private static string AppendPath(string path, string addition)
+        private static string AppendPath(string path,
+                                         string addition)
         {
             return string.IsNullOrEmpty(path)
                        ? addition

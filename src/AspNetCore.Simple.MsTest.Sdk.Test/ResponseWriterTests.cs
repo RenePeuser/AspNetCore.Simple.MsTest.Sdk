@@ -14,6 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         public void JsonPathWriterAddOrUpdateShouldUpdatePropertiesAndArrayItems()
         {
             var writer = new JsonPathWriter();
+
             var root = JToken.Parse("""
                                     {
                                         "name": "old",
@@ -42,6 +43,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         public void JsonPathWriterRemoveShouldRemovePropertiesAndArrayItems()
         {
             var writer = new JsonPathWriter();
+
             var root = JToken.Parse("""
                                     {
                                         "name": "value",
@@ -102,6 +104,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                                    """;
 
             var tempFile = Path.GetTempFileName();
+
             try
             {
                 File.WriteAllText(tempFile, expectedJson);
@@ -115,14 +118,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                     AssertObjectExtensions.DifferenceFunc = differences => differences;
 
                     writer.Write(new WriteResponseRequest
-                    {
-                        CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                        CurrentResponseAsString = currentJson,
-                        ExpectedResult = expectedInfo,
-                        Parameters = Array.Empty<(string key, object? Value)>(),
-                        DifferenceFunc = diffs => diffs.Where(d => !string.Equals(d.MemberPath, "id", StringComparison.OrdinalIgnoreCase)),
-                        Mode = ResponseWriteMode.DifferencesOnly
-                    });
+                                 {
+                                     CallingAssembly = typeof(ResponseWriterTests).Assembly,
+                                     CurrentResponseAsString = currentJson,
+                                     ExpectedResult = expectedInfo,
+                                     Parameters = Array.Empty<(string key, object? Value)>(),
+                                     DifferenceFunc = diffs => diffs.Where(d => !string.Equals(d.MemberPath, "id", StringComparison.OrdinalIgnoreCase)),
+                                     Mode = ResponseWriteMode.DifferencesOnly
+                                 });
                 }
                 finally
                 {
@@ -130,6 +133,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                 }
 
                 var updated = JToken.Parse(File.ReadAllText(tempFile));
+
                 var expectedUpdated = JToken.Parse("""
                                                    {
                                                        "id": 1,
@@ -190,6 +194,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                                    """;
 
             var tempFile = Path.GetTempFileName();
+
             try
             {
                 File.WriteAllText(tempFile, expectedJson);
@@ -203,14 +208,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                     AssertObjectExtensions.DifferenceFunc = differences => differences;
 
                     writer.Write(new WriteResponseRequest
-                    {
-                        CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                        CurrentResponseAsString = currentJson,
-                        ExpectedResult = expectedInfo,
-                        Parameters = Array.Empty<(string key, object? Value)>(),
-                        DifferenceFunc = diffs => diffs.Where(d => !d.MemberPath.StartsWith("items[1]", StringComparison.OrdinalIgnoreCase)),
-                        Mode = ResponseWriteMode.DifferencesOnly
-                    });
+                                 {
+                                     CallingAssembly = typeof(ResponseWriterTests).Assembly,
+                                     CurrentResponseAsString = currentJson,
+                                     ExpectedResult = expectedInfo,
+                                     Parameters = Array.Empty<(string key, object? Value)>(),
+                                     DifferenceFunc = diffs => diffs.Where(d => !d.MemberPath.StartsWith("items[1]", StringComparison.OrdinalIgnoreCase)),
+                                     Mode = ResponseWriteMode.DifferencesOnly
+                                 });
                 }
                 finally
                 {
@@ -218,6 +223,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                 }
 
                 var updated = JToken.Parse(File.ReadAllText(tempFile));
+
                 var expectedUpdated = JToken.Parse("""
                                                    {
                                                        "items": [
@@ -257,6 +263,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                                    """;
 
             var tempFile = Path.GetTempFileName();
+
             try
             {
                 File.WriteAllText(tempFile, "{}");
@@ -265,14 +272,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                 var writer = new OverwriteAllResponseWriter();
 
                 writer.Write(new WriteResponseRequest
-                {
-                    CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                    CurrentResponseAsString = currentJson,
-                    ExpectedResult = expectedInfo,
-                    Parameters = [("$userId", "123")],
-                    DifferenceFunc = diffs => diffs,
-                    Mode = ResponseWriteMode.OverwriteAll
-                });
+                             {
+                                 CallingAssembly = typeof(ResponseWriterTests).Assembly,
+                                 CurrentResponseAsString = currentJson,
+                                 ExpectedResult = expectedInfo,
+                                 Parameters = [("$userId", "123")],
+                                 DifferenceFunc = diffs => diffs,
+                                 Mode = ResponseWriteMode.OverwriteAll
+                             });
 
                 var updated = JToken.Parse(File.ReadAllText(tempFile));
 
@@ -296,6 +303,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                                    """;
 
             var tempFile = Path.GetTempFileName();
+
             try
             {
                 File.WriteAllText(tempFile, "{}");
@@ -304,14 +312,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                 var writer = new OverwriteAllResponseWriter();
 
                 writer.Write(new WriteResponseRequest
-                {
-                    CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                    CurrentResponseAsString = currentJson,
-                    ExpectedResult = expectedInfo,
-                    Parameters = [("$mayvar$", "rps-lenovo-p16")],
-                    DifferenceFunc = diffs => diffs,
-                    Mode = ResponseWriteMode.OverwriteAll
-                });
+                             {
+                                 CallingAssembly = typeof(ResponseWriterTests).Assembly,
+                                 CurrentResponseAsString = currentJson,
+                                 ExpectedResult = expectedInfo,
+                                 Parameters = [("$mayvar$", "rps-lenovo-p16")],
+                                 DifferenceFunc = diffs => diffs,
+                                 Mode = ResponseWriteMode.OverwriteAll
+                             });
 
                 var updated = JToken.Parse(File.ReadAllText(tempFile));
 
@@ -337,6 +345,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                                    """;
 
             var tempFile = Path.GetTempFileName();
+
             try
             {
                 File.WriteAllText(tempFile, "{}");
@@ -345,14 +354,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                 var writer = new OverwriteAllResponseWriter();
 
                 writer.Write(new WriteResponseRequest
-                {
-                    CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                    CurrentResponseAsString = currentJson,
-                    ExpectedResult = expectedInfo,
-                    Parameters = [("$Age$", 42), ("$Active$", true)],
-                    DifferenceFunc = diffs => diffs,
-                    Mode = ResponseWriteMode.OverwriteAll
-                });
+                             {
+                                 CallingAssembly = typeof(ResponseWriterTests).Assembly,
+                                 CurrentResponseAsString = currentJson,
+                                 ExpectedResult = expectedInfo,
+                                 Parameters = [("$Age$", 42), ("$Active$", true)],
+                                 DifferenceFunc = diffs => diffs,
+                                 Mode = ResponseWriteMode.OverwriteAll
+                             });
 
                 var updated = JToken.Parse(File.ReadAllText(tempFile));
 

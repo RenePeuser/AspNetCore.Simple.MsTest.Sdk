@@ -19,14 +19,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync(url,
-                                         string.Empty,
-                                         HttpMethod.Delete,
-                                         [],
-                                         Assembly.GetCallingAssembly(),
-                                         string.Empty,
-                                         callerFilePath,
-                                         true,
-                                         writeResponse);
+                                              string.Empty,
+                                              HttpMethod.Delete,
+                                              [],
+                                              Assembly.GetCallingAssembly(),
+                                              string.Empty,
+                                              callerFilePath,
+                                              true,
+                                              writeResponse);
         }
 
         public static Task AssertDeleteAsync(this HttpClient client,
@@ -36,14 +36,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync(url,
-                                         string.Empty,
-                                         HttpMethod.Delete,
-                                         parameters,
-                                         Assembly.GetCallingAssembly(),
-                                         string.Empty,
-                                         callerFilePath,
-                                         true,
-                                         writeResponse);
+                                              string.Empty,
+                                              HttpMethod.Delete,
+                                              parameters,
+                                              Assembly.GetCallingAssembly(),
+                                              string.Empty,
+                                              callerFilePath,
+                                              true,
+                                              writeResponse);
         }
 
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
@@ -89,17 +89,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync<TResult>(url,
-                                                  string.Empty,
-                                                  expectedResult,
-                                                  item => item,
-                                                  HttpMethod.Delete,
-                                                  [],
-                                                  callingAssembly,
-                                                  string.Empty,
-                                                  expectedResultParameterName,
-                                                  callerFilePath,
-                                                  true,
-                                                  writeResponse);
+                                                       string.Empty,
+                                                       expectedResult,
+                                                       item => item,
+                                                       HttpMethod.Delete,
+                                                       [],
+                                                       callingAssembly,
+                                                       string.Empty,
+                                                       expectedResultParameterName,
+                                                       callerFilePath,
+                                                       true,
+                                                       writeResponse);
         }
 
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
@@ -113,17 +113,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync<TResult>(url,
-                                                  string.Empty,
-                                                  expectedResult,
-                                                  item => item,
-                                                  HttpMethod.Delete,
-                                                  parameters,
-                                                  callingAssembly,
-                                                  string.Empty,
-                                                  expectedResultParameterName,
-                                                  callerFilePath,
-                                                  true,
-                                                  writeResponse);
+                                                       string.Empty,
+                                                       expectedResult,
+                                                       item => item,
+                                                       HttpMethod.Delete,
+                                                       parameters,
+                                                       callingAssembly,
+                                                       string.Empty,
+                                                       expectedResultParameterName,
+                                                       callerFilePath,
+                                                       true,
+                                                       writeResponse);
         }
 
         public static async Task AssertDeleteAsUnauthorizedAsync(this HttpClient httpClient,
@@ -139,11 +139,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-            {
-                Request = $"DELETE {url}",
-                Expected = HttpStatusCode.Unauthorized,
-                Current = result.StatusCode
-            }.ToIList();
+                                {
+                                    Request = $"DELETE {url}",
+                                    Expected = HttpStatusCode.Unauthorized,
+                                    Current = result.StatusCode
+                                }.ToIList();
 
             var table = ConsoleTable.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
