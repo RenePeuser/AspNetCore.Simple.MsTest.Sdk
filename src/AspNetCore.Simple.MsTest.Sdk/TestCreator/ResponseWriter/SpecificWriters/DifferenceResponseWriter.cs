@@ -99,16 +99,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     continue;
                 }
 
-                if (value == null)
-                {
-                    continue;
-                }
-
                 var propertyName = key.Trim('$');
 
+                // 🔥 Property-Replacement IMMER versuchen – auch bei null
                 ReplaceByProperty(root, propertyName, key, value);
 
-                if (value.ToString()?.Length >= 3)
+                // FullText nur wenn value != null
+                if (value != null && value.ToString()?.Length >= 3)
                 {
                     ReplaceFullText(root, key, value);
                 }
