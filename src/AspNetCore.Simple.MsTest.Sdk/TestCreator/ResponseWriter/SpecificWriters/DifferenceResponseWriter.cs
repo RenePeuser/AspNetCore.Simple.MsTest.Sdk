@@ -46,17 +46,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var currentRootAsJson = currentRoot.ToString(Formatting.Indented);
 
-            // Fallback :/ we have full text replace ments which does not full fill word matching
-            foreach (var parameter in contextParameters)
-            {
-                var oldValue = parameter.Value?.ToString();
-
-                if (oldValue.IsNotNull())
-                {
-                    currentRootAsJson = currentRootAsJson.Replace(oldValue, parameter.key);
-                }
-            }
-
             currentRoot = JToken.Parse(currentRootAsJson);
 
             var expectedRoot = JToken.Parse(context.ExpectedResult.Content);
@@ -78,34 +67,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var resultRoot = currentRoot.DeepClone();
 
-            foreach (var diff in diffs)
+            // For ignored paths we keep the expected snapshot state to avoid noise.
+            foreach (var ignoredPath in ignoredPaths)
             {
-                if (diff.MemberPath.IsNullOrWhiteSpace() || IsIgnoredPath(diff.MemberPath, ignoredPaths).IsFalse())
+                var source = expectedRoot.SelectToken(ignoredPath);
+                if (source != null)
                 {
-                    continue;
-                }
-
-                switch (diff.MismatchType)
-                {
-                    case MismatchType.MissingInFirst:
-                    {
-                        jsonPathWriter.Remove(resultRoot, diff.MemberPath);
-
-                        break;
-                    }
-
-                    case MismatchType.MissingInSecond:
-                    case MismatchType.ValueDifference:
-                    {
-                        var source = expectedRoot.SelectToken(diff.MemberPath);
-
-                        if (source != null)
-                        {
-                            jsonPathWriter.AddOrUpdate(resultRoot, diff.MemberPath, source);
-                        }
-
-                        break;
-                    }
+                    jsonPathWriter.AddOrUpdate(resultRoot, ignoredPath, source);
                 }
             }
 
@@ -113,30 +81,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName,
                               output);
-        }
-
-        private static bool IsIgnoredPath(string memberPath,
-                                          ImmutableHashSet<string> ignoredPaths)
-        {
-            foreach (var ignoredPath in ignoredPaths)
-            {
-                if (memberPath.Equals(ignoredPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                if (memberPath.StartsWith(ignoredPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    var nextIndex = ignoredPath.Length;
-
-                    if (memberPath.Length > nextIndex && (memberPath[nextIndex] == '.' || memberPath[nextIndex] == '['))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         }
 
         // Smart Replace bleibt wie zuvor
@@ -155,12 +99,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     continue;
                 }
 
+                if (value == null)
+                {
+                    continue;
+                }
+
                 var propertyName = key.Trim('$');
 
-                ReplaceByProperty(root, propertyName, key,
-                                  value);
+                ReplaceByProperty(root, propertyName, key, value);
 
-                if (value != null)
+                if (value.ToString()?.Length >= 3)
                 {
                     ReplaceFullText(root, key, value);
                 }
@@ -213,26 +161,34 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
+            var originalText = originalValue.ToString();
+            if (originalText.IsNullOrWhiteSpace() || originalText.Length < 3)
+            {
+                return;
+            }
+
             if (token is JValue value && value.Type == JTokenType.String)
             {
                 var s = (string?)value.Value;
 
-                if (s.IsNullOrWhiteSpace())
+                if (s.IsNullOrWhiteSpace() || s.Contains('$'))
                 {
                     return;
                 }
 
-                var escaped = Regex.Escape(originalValue.ToString()!);
+                var escaped = Regex.Escape(originalText);
                 var pattern = $@"\b{escaped}\b";
 
-                var updated = Regex.Replace(s,
-                                            pattern,
-                                            placeholder,
-                                            RegexOptions.CultureInvariant);
+                var updated = ReplaceOutsidePlaceholders(s,
+                                                         text => Regex.Replace(text,
+                                                                               pattern,
+                                                                               placeholder,
+                                                                               RegexOptions.CultureInvariant));
 
-                value.Value = updated.Replace(originalValue.ToString()!,
-                                              placeholder,
-                                              StringComparison.Ordinal);
+                value.Value = ReplaceOutsidePlaceholders(updated,
+                                                         text => text.Replace(originalText,
+                                                                              placeholder,
+                                                                              StringComparison.Ordinal));
             }
 
             if (token is JContainer container)
@@ -242,6 +198,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     ReplaceFullText(child, placeholder, originalValue);
                 }
             }
+        }
+
+        private static string ReplaceOutsidePlaceholders(string input, Func<string, string> replacer)
+        {
+            if (input.Contains('$').IsFalse())
+            {
+                return replacer(input);
+            }
+
+            var parts = input.Split('$');
+            for (var i = 0; i < parts.Length; i += 2)
+            {
+                parts[i] = replacer(parts[i]);
+            }
+
+            return string.Join("$", parts);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -37,6 +38,45 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
             Assert.AreEqual(2, root["items"]?.Count());
             Assert.AreEqual("2", root["items"]?[1]?["value"]?.ToString());
             Assert.AreEqual("Content-Type", root["content"]?["headers"]?[0]?["key"]?.ToString());
+        }
+
+        [TestMethod]
+        public void OverwriteAllResponseWriterShouldNotCorruptExistingPlaceholders()
+        {
+            var currentJson = /*lang=json,strict*/ """
+                                                   {
+                                                       "are": "$Are$",
+                                                       "status": "$Status$"
+                                                   }
+                                                   """;
+
+            var tempFile = Path.GetTempFileName();
+            try
+            {
+                File.WriteAllText(tempFile, "{}");
+
+                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
+                var overwriteWriter = new OverwriteAllResponseWriter();
+
+                overwriteWriter.Write(new WriteResponseRequest
+                {
+                    CallingAssembly = typeof(ResponseWriterTests).Assembly,
+                    CurrentResponseAsString = currentJson,
+                    ExpectedResult = expectedInfo,
+                    Parameters = [("$Are$", "X")],
+                    DifferenceFunc = diffs => diffs,
+                    Mode = ResponseWriteMode.OverwriteAll
+                });
+
+                var updated = JToken.Parse(File.ReadAllText(tempFile));
+
+                Assert.AreEqual("$Are$", updated["are"]?.ToString());
+                Assert.AreEqual("$Status$", updated["status"]?.ToString());
+            }
+            finally
+            {
+                File.Delete(tempFile);
+            }
         }
 
         [TestMethod]
@@ -160,7 +200,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         public void DifferenceResponseWriterShouldRestoreIgnoredArrayEntriesFromExpected()
         {
             var expectedJson = /*lang=json,strict*/ """
-                                                    {
+                                                   {
                                                         "items": [
                                                             {
                                                                 "id": 1,
@@ -172,7 +212,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                                             }
                                                         ]
                                                     }
-                                                    """;
+                                                   """;
 
             var currentJson = /*lang=json,strict*/ """
                                                    {
@@ -368,6 +408,54 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                 Assert.AreEqual("$Age$", updated["age"]?.ToString());
                 Assert.AreEqual("$Active$", updated["active"]?.ToString());
                 Assert.AreEqual("1", updated["id"]?.ToString());
+            }
+            finally
+            {
+                File.Delete(tempFile);
+            }
+        }
+
+        [TestMethod]
+        public void OverwriteAllResponseWriterShouldNotReplaceShortValuesInsideOtherStrings()
+        {
+            var currentJson = /*lang=json,strict*/ """
+                                                   {
+                                                       "status": "A",
+                                                       "role": "Admin",
+                                                       "are": "$Are$",
+                                                       "template": "$Status$re$",
+                                                       "createdAt": "2025-09-01T06:45:29.187544Z"
+                                                   }
+                                                   """;
+
+            var tempFile = Path.GetTempFileName();
+            try
+            {
+                File.WriteAllText(tempFile, "{}");
+
+                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
+                var writer = new OverwriteAllResponseWriter();
+
+                writer.Write(new WriteResponseRequest
+                {
+                    CallingAssembly = typeof(ResponseWriterTests).Assembly,
+                    CurrentResponseAsString = currentJson,
+                    ExpectedResult = expectedInfo,
+                    Parameters = [("$Status$", "A")],
+                    DifferenceFunc = diffs => diffs,
+                    Mode = ResponseWriteMode.OverwriteAll
+                });
+
+                var updated = JToken.Parse(File.ReadAllText(tempFile));
+
+                Assert.AreEqual("$Status$", updated["status"]?.ToString());
+                Assert.AreEqual("Admin", updated["role"]?.ToString());
+                Assert.AreEqual("$Are$", updated["are"]?.ToString());
+                Assert.AreEqual("$Status$re$", updated["template"]?.ToString());
+
+                var createdAt = updated["createdAt"]?.ToObject<DateTime>();
+                var expectedCreatedAt = DateTime.Parse("2025-09-01T06:45:29.187544Z", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+                Assert.AreEqual(expectedCreatedAt, createdAt);
             }
             finally
             {

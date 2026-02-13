@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <doc>
     <assembly>
         <name>AspNetCore.Simple.MsTest.Sdk</name>
@@ -46,404 +45,385 @@
                 </para>
             </summary>
             <remarks>
-                The round-tripping behavior for <see cref="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Extensions" />
-                is determined by the implementation of the Input \ Output
+                The round-tripping behavior for <see cref="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Extensions" /> is determined by the implementation of the Input \ Output
                 formatters.
                 In particular, complex types or collection types may not round-trip to the original type when using the built-in
                 JSON or XML formatters.
             </remarks>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1">
-            <summary>
-                Attribute that locates use case request JSON files as test data for a given test method.
-            </summary>
-            <remarks>
-                This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-                folder path and to allow additional parameters to be injected into each test case.
-                <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-                </para>
-
-                <para>
-                    For example, if a test class is declared in the namespace:
-                    <c>Api.User.V1.Create.Status_200_Ok</c>,
-                    then by default, the attribute will look for JSON resources in the folder:
-                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-                </para>
-
-                <para>
-                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-                    provided via the attribute. The
-                    <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
-                    method returns a descriptive name that combines the test method's name
-                    and the test data details.
-                </para>
-
-                <para>
-                    The attribute can be applied with or without an explicit request folder and additional parameters.
-                </para>
-            </remarks>
-            <example>
-                Applying the attribute without a path or additional parameters:
-                <code>
-                    [RequestLocator]
-                    public void TestSomeUseCase(...) { }
-                </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-                and supplies just the JSON identifier for each test case.
-                <para>
-                    Applying the attribute with an explicit folder and additional parameters:
-                    <code>
-                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-                        public void TestSomeUseCase(...) { }
-                    </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-                </para>
-            </example>
+             <summary>
+             Attribute that locates use case request JSON files as test data for a given test method.
+             </summary>
+             <remarks>
+             This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
+             Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+             folder path and to allow additional parameters to be injected into each test case.
+            
+             <para>
+             If no request folder is provided in the attribute constructor, the attribute automatically determines the
+             request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+             </para>
+            
+             <para>
+             For example, if a test class is declared in the namespace:
+             <c>Api.User.V1.Create.Status_200_Ok</c>,
+             then by default, the attribute will look for JSON resources in the folder:
+             <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+             </para>
+            
+             <para>
+             The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+             filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+             separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+             provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
+             and the test data details.
+             </para>
+            
+             <para>
+             The attribute can be applied with or without an explicit request folder and additional parameters.
+             </para>
+             </remarks>
+             <example>
+             Applying the attribute without a path or additional parameters:
+             <code>
+             [RequestLocator]
+             public void TestSomeUseCase(...) { }
+             </code>
+             In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+             and supplies just the JSON identifier for each test case.
+            
+             <para>
+             Applying the attribute with an explicit folder and additional parameters:
+             <code>
+             [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+             public void TestSomeUseCase(...) { }
+             </code>
+             Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+             </para>
+             </example>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.#ctor(System.Object[])">
-            <summary>
-                Attribute that locates use case request JSON files as test data for a given test method.
-            </summary>
-            <remarks>
-                This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-                folder path and to allow additional parameters to be injected into each test case.
-                <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-                </para>
-
-                <para>
-                    For example, if a test class is declared in the namespace:
-                    <c>Api.User.V1.Create.Status_200_Ok</c>,
-                    then by default, the attribute will look for JSON resources in the folder:
-                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-                </para>
-
-                <para>
-                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-                    provided via the attribute. The
-                    <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
-                    method returns a descriptive name that combines the test method's name
-                    and the test data details.
-                </para>
-
-                <para>
-                    The attribute can be applied with or without an explicit request folder and additional parameters.
-                </para>
-            </remarks>
-            <example>
-                Applying the attribute without a path or additional parameters:
-                <code>
-                    [RequestLocator]
-                    public void TestSomeUseCase(...) { }
-                </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-                and supplies just the JSON identifier for each test case.
-                <para>
-                    Applying the attribute with an explicit folder and additional parameters:
-                    <code>
-                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-                        public void TestSomeUseCase(...) { }
-                    </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-                </para>
-            </example>
+             <summary>
+             Attribute that locates use case request JSON files as test data for a given test method.
+             </summary>
+             <remarks>
+             This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
+             Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+             folder path and to allow additional parameters to be injected into each test case.
+            
+             <para>
+             If no request folder is provided in the attribute constructor, the attribute automatically determines the
+             request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+             </para>
+            
+             <para>
+             For example, if a test class is declared in the namespace:
+             <c>Api.User.V1.Create.Status_200_Ok</c>,
+             then by default, the attribute will look for JSON resources in the folder:
+             <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+             </para>
+            
+             <para>
+             The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+             filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+             separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+             provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
+             and the test data details.
+             </para>
+            
+             <para>
+             The attribute can be applied with or without an explicit request folder and additional parameters.
+             </para>
+             </remarks>
+             <example>
+             Applying the attribute without a path or additional parameters:
+             <code>
+             [RequestLocator]
+             public void TestSomeUseCase(...) { }
+             </code>
+             In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+             and supplies just the JSON identifier for each test case.
+            
+             <para>
+             Applying the attribute with an explicit folder and additional parameters:
+             <code>
+             [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+             public void TestSomeUseCase(...) { }
+             </code>
+             Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+             </para>
+             </example>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetData(System.Reflection.MethodInfo)">
             <summary>
-                Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
-                Each test data object contains the JSON resource identifier and any additional parameters.
+            Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
+            Each test data object contains the JSON resource identifier and any additional parameters.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <returns>
-                An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
-                followed by any extra parameters.
+            An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
+            followed by any extra parameters.
             </returns>
         </member>
-        <member
-            name="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
             <summary>
-                Generates a display name for each test case data variation.
+            Generates a display name for each test case data variation.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <param name="data">An array of objects representing the test case data.</param>
             <returns>
-                A descriptive name that combines the test method's name with the test data details, aiding in test identification.
+            A descriptive name that combines the test method's name with the test data details, aiding in test identification.
             </returns>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute">
             <summary>
-                Attribute that locates use case request JSON files as test data for a given test method.
+            Attribute that locates use case request JSON files as test data for a given test method.
             </summary>
             <remarks>
-                This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-                folder path and to allow additional parameters to be injected into each test case.
-                <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-                </para>
-
-                <para>
-                    For example, if a test class is declared in the namespace:
-                    <c>Api.User.V1.Create.Status_200_Ok</c>,
-                    then by default, the attribute will look for JSON resources in the folder:
-                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-                </para>
-
-                <para>
-                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-                    provided via the attribute. The
-                    <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
-                    method returns a descriptive name that combines the test method's name
-                    and the test data details.
-                </para>
-
-                <para>
-                    The attribute can be applied with or without an explicit request folder and additional parameters.
-                </para>
+            This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
+            Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+            folder path and to allow additional parameters to be injected into each test case.
+            
+            <para>
+            If no request folder is provided in the attribute constructor, the attribute automatically determines the
+            request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+            </para>
+            
+            <para>
+            For example, if a test class is declared in the namespace:
+            <c>Api.User.V1.Create.Status_200_Ok</c>,
+            then by default, the attribute will look for JSON resources in the folder:
+            <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+            </para>
+            
+            <para>
+            The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+            filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+            separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+            provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
+            and the test data details.
+            </para>
+            
+            <para>
+            The attribute can be applied with or without an explicit request folder and additional parameters.
+            </para>
             </remarks>
             <example>
-                Applying the attribute without a path or additional parameters:
-                <code>
-                    [RequestLocator]
-                    public void TestSomeUseCase(...) { }
-                </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-                and supplies just the JSON identifier for each test case.
-                <para>
-                    Applying the attribute with an explicit folder and additional parameters:
-                    <code>
-                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-                        public void TestSomeUseCase(...) { }
-                    </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-                </para>
+            Applying the attribute without a path or additional parameters:
+            <code>
+            [RequestLocator]
+            public void TestSomeUseCase(...) { }
+            </code>
+            In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+            and supplies just the JSON identifier for each test case.
+            
+            <para>
+            Applying the attribute with an explicit folder and additional parameters:
+            <code>
+            [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+            public void TestSomeUseCase(...) { }
+            </code>
+            Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+            </para>
             </example>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.#ctor(System.Object[])">
             <summary>
-                Attribute that locates use case request JSON files as test data for a given test method.
+            Attribute that locates use case request JSON files as test data for a given test method.
             </summary>
             <remarks>
-                This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-                folder path and to allow additional parameters to be injected into each test case.
-                <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-                </para>
-
-                <para>
-                    For example, if a test class is declared in the namespace:
-                    <c>Api.User.V1.Create.Status_200_Ok</c>,
-                    then by default, the attribute will look for JSON resources in the folder:
-                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-                </para>
-
-                <para>
-                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-                    provided via the attribute. The
-                    <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
-                    method returns a descriptive name that combines the test method's name
-                    and the test data details.
-                </para>
-
-                <para>
-                    The attribute can be applied with or without an explicit request folder and additional parameters.
-                </para>
+            This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
+            Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+            folder path and to allow additional parameters to be injected into each test case.
+            
+            <para>
+            If no request folder is provided in the attribute constructor, the attribute automatically determines the
+            request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+            </para>
+            
+            <para>
+            For example, if a test class is declared in the namespace:
+            <c>Api.User.V1.Create.Status_200_Ok</c>,
+            then by default, the attribute will look for JSON resources in the folder:
+            <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+            </para>
+            
+            <para>
+            The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+            filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+            separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+            provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
+            and the test data details.
+            </para>
+            
+            <para>
+            The attribute can be applied with or without an explicit request folder and additional parameters.
+            </para>
             </remarks>
             <example>
-                Applying the attribute without a path or additional parameters:
-                <code>
-                    [RequestLocator]
-                    public void TestSomeUseCase(...) { }
-                </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-                and supplies just the JSON identifier for each test case.
-                <para>
-                    Applying the attribute with an explicit folder and additional parameters:
-                    <code>
-                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-                        public void TestSomeUseCase(...) { }
-                    </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-                </para>
+            Applying the attribute without a path or additional parameters:
+            <code>
+            [RequestLocator]
+            public void TestSomeUseCase(...) { }
+            </code>
+            In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+            and supplies just the JSON identifier for each test case.
+            
+            <para>
+            Applying the attribute with an explicit folder and additional parameters:
+            <code>
+            [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+            public void TestSomeUseCase(...) { }
+            </code>
+            Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+            </para>
             </example>
         </member>
-        <member
-            name="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetData(System.Reflection.MethodInfo)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetData(System.Reflection.MethodInfo)">
             <summary>
-                Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
-                Each test data object contains the JSON resource identifier and any additional parameters.
+            Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
+            Each test data object contains the JSON resource identifier and any additional parameters.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <returns>
-                An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
-                followed by any extra parameters.
+            An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
+            followed by any extra parameters.
             </returns>
         </member>
-        <member
-            name="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
             <summary>
-                Generates a display name for each test case data variation.
+            Generates a display name for each test case data variation.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <param name="data">An array of objects representing the test case data.</param>
             <returns>
-                A descriptive name that combines the test method's name with the test data details, aiding in test identification.
+            A descriptive name that combines the test method's name with the test data details, aiding in test identification.
             </returns>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute">
-            <summary>
-                Attribute that locates use case request JSON files as test data for a given test method.
-            </summary>
-            <remarks>
-                This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-                folder path and to allow additional parameters to be injected into each test case.
-                <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-                </para>
-
-                <para>
-                    For example, if a test class is declared in the namespace:
-                    <c>Api.User.V1.Create.Status_200_Ok</c>,
-                    then by default, the attribute will look for JSON resources in the folder:
-                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-                </para>
-
-                <para>
-                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-                    provided via the attribute. The
-                    <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
-                    method returns a descriptive name that combines the test method's name
-                    and the test data details.
-                </para>
-
-                <para>
-                    The attribute can be applied with or without an explicit request folder and additional parameters.
-                </para>
-            </remarks>
-            <example>
-                Applying the attribute without a path or additional parameters:
-                <code>
-                    [RequestLocator]
-                    public void TestSomeUseCase(...) { }
-                </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-                and supplies just the JSON identifier for each test case.
-                <para>
-                    Applying the attribute with an explicit folder and additional parameters:
-                    <code>
-                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-                        public void TestSomeUseCase(...) { }
-                    </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-                </para>
-            </example>
+             <summary>
+             Attribute that locates use case request JSON files as test data for a given test method.
+             </summary>
+             <remarks>
+             This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
+             Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+             folder path and to allow additional parameters to be injected into each test case.
+            
+             <para>
+             If no request folder is provided in the attribute constructor, the attribute automatically determines the
+             request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+             </para>
+            
+             <para>
+             For example, if a test class is declared in the namespace:
+             <c>Api.User.V1.Create.Status_200_Ok</c>,
+             then by default, the attribute will look for JSON resources in the folder:
+             <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+             </para>
+            
+             <para>
+             The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+             filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+             separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+             provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
+             and the test data details.
+             </para>
+            
+             <para>
+             The attribute can be applied with or without an explicit request folder and additional parameters.
+             </para>
+             </remarks>
+             <example>
+             Applying the attribute without a path or additional parameters:
+             <code>
+             [RequestLocator]
+             public void TestSomeUseCase(...) { }
+             </code>
+             In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+             and supplies just the JSON identifier for each test case.
+            
+             <para>
+             Applying the attribute with an explicit folder and additional parameters:
+             <code>
+             [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+             public void TestSomeUseCase(...) { }
+             </code>
+             Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+             </para>
+             </example>
         </member>
-        <member
-            name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.#ctor(System.String,System.Object[])">
-            <summary>
-                Attribute that locates use case request JSON files as test data for a given test method.
-            </summary>
-            <remarks>
-                This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-                folder path and to allow additional parameters to be injected into each test case.
-                <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-                </para>
-
-                <para>
-                    For example, if a test class is declared in the namespace:
-                    <c>Api.User.V1.Create.Status_200_Ok</c>,
-                    then by default, the attribute will look for JSON resources in the folder:
-                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-                </para>
-
-                <para>
-                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-                    provided via the attribute. The
-                    <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
-                    method returns a descriptive name that combines the test method's name
-                    and the test data details.
-                </para>
-
-                <para>
-                    The attribute can be applied with or without an explicit request folder and additional parameters.
-                </para>
-            </remarks>
-            <example>
-                Applying the attribute without a path or additional parameters:
-                <code>
-                    [RequestLocator]
-                    public void TestSomeUseCase(...) { }
-                </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-                and supplies just the JSON identifier for each test case.
-                <para>
-                    Applying the attribute with an explicit folder and additional parameters:
-                    <code>
-                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-                        public void TestSomeUseCase(...) { }
-                    </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-                </para>
-            </example>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.#ctor(System.String,System.Object[])">
+             <summary>
+             Attribute that locates use case request JSON files as test data for a given test method.
+             </summary>
+             <remarks>
+             This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
+             Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+             folder path and to allow additional parameters to be injected into each test case.
+            
+             <para>
+             If no request folder is provided in the attribute constructor, the attribute automatically determines the
+             request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+             </para>
+            
+             <para>
+             For example, if a test class is declared in the namespace:
+             <c>Api.User.V1.Create.Status_200_Ok</c>,
+             then by default, the attribute will look for JSON resources in the folder:
+             <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+             </para>
+            
+             <para>
+             The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+             filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+             separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+             provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
+             and the test data details.
+             </para>
+            
+             <para>
+             The attribute can be applied with or without an explicit request folder and additional parameters.
+             </para>
+             </remarks>
+             <example>
+             Applying the attribute without a path or additional parameters:
+             <code>
+             [RequestLocator]
+             public void TestSomeUseCase(...) { }
+             </code>
+             In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+             and supplies just the JSON identifier for each test case.
+            
+             <para>
+             Applying the attribute with an explicit folder and additional parameters:
+             <code>
+             [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+             public void TestSomeUseCase(...) { }
+             </code>
+             Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+             </para>
+             </example>
         </member>
-        <member
-            name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetData(System.Reflection.MethodInfo)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetData(System.Reflection.MethodInfo)">
             <summary>
-                Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
-                Each test data object contains the JSON resource identifier and any additional parameters.
+            Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
+            Each test data object contains the JSON resource identifier and any additional parameters.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <returns>
-                An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
-                followed by any extra parameters.
+            An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
+            followed by any extra parameters.
             </returns>
         </member>
-        <member
-            name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
             <summary>
-                Generates a display name for each test case data variation.
+            Generates a display name for each test case data variation.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <param name="data">An array of objects representing the test case data.</param>
             <returns>
-                A descriptive name that combines the test method's name with the test data details, aiding in test identification.
+            A descriptive name that combines the test method's name with the test data details, aiding in test identification.
             </returns>
         </member>
     </members>

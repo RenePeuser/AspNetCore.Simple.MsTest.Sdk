@@ -62,12 +62,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     continue;
                 }
 
+                if (value == null)
+                {
+                    continue;
+                }
+
                 var propertyName = key.Trim('$');
 
                 ReplaceByProperty(root, propertyName, key,
                                   value);
 
-                if (value != null)
+                if (value.ToString()?.Length >= 3)
                 {
                     ReplaceFullText(root, key, value);
                 }
@@ -121,26 +126,34 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
+            var originalText = originalValue.ToString();
+            if (originalText.IsNullOrWhiteSpace() || originalText.Length < 3)
+            {
+                return;
+            }
+
             if (token is JValue value && value.Type == JTokenType.String)
             {
                 var s = (string?)value.Value;
 
-                if (s.IsNullOrWhiteSpace())
+                if (s.IsNullOrWhiteSpace() || s.Contains('$'))
                 {
                     return;
                 }
 
-                var escaped = Regex.Escape(originalValue.ToString()!);
+                var escaped = Regex.Escape(originalText);
                 var pattern = $@"\b{escaped}\b";
 
-                var updated = Regex.Replace(s,
-                                            pattern,
-                                            placeholder,
-                                            RegexOptions.CultureInvariant);
+                var updated = ReplaceOutsidePlaceholders(s,
+                                                         text => Regex.Replace(text,
+                                                                               pattern,
+                                                                               placeholder,
+                                                                               RegexOptions.CultureInvariant));
 
-                value.Value = updated.Replace(originalValue.ToString()!,
-                                              placeholder,
-                                              StringComparison.Ordinal);
+                value.Value = ReplaceOutsidePlaceholders(updated,
+                                                         text => text.Replace(originalText,
+                                                                              placeholder,
+                                                                              StringComparison.Ordinal));
             }
 
             if (token is JContainer container)
@@ -150,6 +163,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     ReplaceFullText(child, placeholder, originalValue);
                 }
             }
+        }
+
+        private static string ReplaceOutsidePlaceholders(string input, Func<string, string> replacer)
+        {
+            if (input.Contains('$').IsFalse())
+            {
+                return replacer(input);
+            }
+
+            var parts = input.Split('$');
+            for (var i = 0; i < parts.Length; i += 2)
+            {
+                parts[i] = replacer(parts[i]);
+            }
+
+            return string.Join("$", parts);
         }
     }
 }
