@@ -109,10 +109,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     ReplaceFullText(root, key, value);
                 }
-                else
-                {
-                    Console.WriteLine(value);
-                }
             }
         }
 
