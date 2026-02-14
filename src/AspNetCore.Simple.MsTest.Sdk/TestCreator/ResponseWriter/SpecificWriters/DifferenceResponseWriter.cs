@@ -109,6 +109,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     ReplaceFullText(root, key, value);
                 }
+                else
+                {
+                    Console.WriteLine(value);
+                }
             }
         }
 
@@ -168,7 +172,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 var s = (string?)value.Value;
 
-                if (s.IsNullOrWhiteSpace() || s.Contains('$'))
+                if (s.IsNullOrWhiteSpace() || s.Contains(placeholder))
                 {
                     return;
                 }
