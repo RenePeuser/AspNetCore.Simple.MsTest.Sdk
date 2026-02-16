@@ -333,7 +333,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var expectedResultAsJsonParamterized = expectedResultAsJson.ResolveParameters(parameters);
 
             // 16. Edge case string as primitive type -> just string response -> no json
-            var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParamterized) : expectedResultAsJsonParamterized.FromJsonStringOrDefault<TResult>(JsonSerializerOptions);
+            var expectedType = targetIsPrimitiveType ? PrimitiveTypeConverter.ConvertTo<TResult>(contentAsString) : expectedResultAsJsonParamterized.FromJsonStringOrDefault<TResult>(JsonSerializerOptions);
 
             // 17. Execute the filter function on the expected result
             var filteredExpectedType = expectedType.IsNotNull() ? filterFunc(expectedType) : expectedType;

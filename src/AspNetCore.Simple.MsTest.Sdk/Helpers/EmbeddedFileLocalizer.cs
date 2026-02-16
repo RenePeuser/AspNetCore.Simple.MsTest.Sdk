@@ -88,23 +88,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             if (string.IsNullOrWhiteSpace(input))
             {
-                return new(input, string.Empty, null);
+                return new(input, input, null);
             }
 
-            if (IsRawJson(input))
+            var isRawJson = IsRawJson(input);
+            if (isRawJson)
             {
-                return new(input, string.Empty, null);
+                return new(input, input, null);
             }
 
-            if (!IsJsonFile(input))
+            var isNoJsonFile = !IsJsonFile(input);
+            if (isNoJsonFile)
             {
-                return new(input, string.Empty, null);
+                return new(input, input, null);
             }
 
             var embeddedResource = ResolveEmbeddedResource(input, assembly);
             if (embeddedResource is null)
             {
-                return new(input, string.Empty, null);
+                return new(input, input, null);
             }
 
             var physicalFile = ResolvePhysicalFile(embeddedResource,
@@ -114,7 +116,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var content = assembly.GetFileContentFrom(embeddedResource);
 
-            return new EmbeddedFileInfo(embeddedResource, content, physicalFile);
+            var embeddedFileInfo = new EmbeddedFileInfo(embeddedResource, content, physicalFile);
+
+            return embeddedFileInfo;
         }
 
         // ==============================
