@@ -99,17 +99,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             if (string.IsNullOrWhiteSpace(input))
             {
-                return new(input, string.Empty, null);
+                return new(input, input, null);
             }
 
             if (IsRawJson(input))
             {
-                return new(input, string.Empty, null);
+                return new(input, input, null);
             }
 
             if (!IsJsonFile(input))
             {
-                return new(input, string.Empty, null);
+                return new(input, input, null);
             }
 
             var allowedSet = allowedFolders
