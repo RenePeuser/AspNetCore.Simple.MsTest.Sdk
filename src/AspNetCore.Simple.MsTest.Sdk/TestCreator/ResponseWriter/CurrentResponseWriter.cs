@@ -58,7 +58,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (writersCanHandle.IsEmpty())
             {
-                throw new InvalidOperationException($"No ISpecificResponseWriter found for mode '{writeResponseRequest.Mode}'.");
+                return;
             }
 
             if (writersCanHandle.Count > 1)

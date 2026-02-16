@@ -22,9 +22,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public bool CanHandle(WriteResponseRequest context)
         {
-            return context.Mode == ResponseWriteMode.DifferencesOnly &&
-                   context.ExpectedResult.EmbeddedFile.IsNotNull() &&
-                   context.ExpectedResult.EmbeddedFile.Exists;
+            var canHandle = context.ExpectedResult.EmbeddedFileName.EndsWith(".json") &&
+                            context.Mode == ResponseWriteMode.DifferencesOnly &&
+                            context.ExpectedResult.EmbeddedFile.IsNotNull() &&
+                            context.ExpectedResult.EmbeddedFile.Exists;
+
+            return canHandle;
         }
 
         public void Write(WriteResponseRequest context)

@@ -18,9 +18,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public bool CanHandle(WriteResponseRequest context)
         {
-            return context.Mode == ResponseWriteMode.OverwriteAll ||
-                   context.ExpectedResult.EmbeddedFile.IsNull() ||
-                   context.ExpectedResult.EmbeddedFile.NotExists();
+            var canHandle = context.ExpectedResult.EmbeddedFileName.EndsWith(".json") &&
+                            context.Mode == ResponseWriteMode.OverwriteAll &&
+                            (context.ExpectedResult.EmbeddedFile.IsNull() ||
+                             context.ExpectedResult.EmbeddedFile.NotExists());
+
+            return canHandle;
         }
 
         public void Write(WriteResponseRequest context)
@@ -38,9 +41,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var root = JToken.Parse(context.CurrentResponseAsString);
 
             ApplySmartReplacements(root, context.Parameters);
-
-
-
 
             File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName,
                               root.ToString(Formatting.Indented));
