@@ -12,14 +12,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     IConfiguration configuration)
         {
             services.AddTestCreatorSettings(configuration);
-
             services.AddSingletonIfNotExists<IEmbeddedFileLocalizer, EmbeddedFileLocalizer>();
         }
     }
 
-    public record EmbeddedFileInfo(string EmbeddedFileName,
-                                   string Content,
-                                   FileInfo? EmbeddedFile);
+    public sealed record EmbeddedFileInfo(string EmbeddedFileName,
+                                          string Content,
+                                          FileInfo? EmbeddedFile);
 
     public interface IEmbeddedFileLocalizer
     {
@@ -35,208 +34,204 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              string callerFilePath,
                                              Assembly callingAssembly);
 
-        EmbeddedFileInfo LocalizeResponseFile(string embedddFile,
+        EmbeddedFileInfo LocalizeResponseFile(string embeddedFile,
                                               string callerFilePath,
                                               Assembly callingAssembly);
     }
 
-    internal sealed class EmbeddedFileLocalizer(TestCreatorSettings testCreatorSettings) : IEmbeddedFileLocalizer
+    internal sealed class EmbeddedFileLocalizer(TestCreatorSettings settings) : IEmbeddedFileLocalizer
     {
         public string LocalizeRequest(string embeddedFile,
                                       string callerFilePath,
                                       Assembly callingAssembly)
         {
-            var allowedRequestFolders = testCreatorSettings.LegacyRequestFolderName.Concat(testCreatorSettings.RequestFolderName).ToImmutableHashSet();
+            var allowedFolders = settings.LegacyRequestFolderName.Concat(settings.RequestFolderName);
 
-            return GetLocalizedFile(embeddedFile, callerFilePath, allowedRequestFolders,
-                                    callingAssembly).EmbeddedFileName;
+            var localizedRequest = Localize(embeddedFile, callerFilePath, callingAssembly, allowedFolders).EmbeddedFileName;
+            return localizedRequest;
         }
 
         public string LocalizeResponse(string embeddedFile,
                                        string callerFilePath,
                                        Assembly callingAssembly)
         {
-            var allowedRequestFolders = testCreatorSettings.LegacyResponseFolderNames.Concat(testCreatorSettings.ResponseFolderName).ToImmutableHashSet();
+            var allowedFolders = settings.LegacyResponseFolderNames.Concat(settings.ResponseFolderName);
 
-            return GetLocalizedFile(embeddedFile, callerFilePath, allowedRequestFolders,
-                                    callingAssembly).EmbeddedFileName;
+            var localizedResponse = Localize(embeddedFile, callerFilePath, callingAssembly, allowedFolders).EmbeddedFileName;
+            return localizedResponse;
         }
 
         public EmbeddedFileInfo LocalizeRequestFile(string embeddedFile,
                                                     string callerFilePath,
                                                     Assembly callingAssembly)
         {
-            if (embeddedFile.EndsWith(".json").IsFalse())
-            {
-                return new EmbeddedFileInfo(string.Empty, embeddedFile, null);
-            }
-
-            var allowedRequestFolders = testCreatorSettings.LegacyRequestFolderName.Concat(testCreatorSettings.RequestFolderName).ToImmutableHashSet();
-
-            var localizeRequestFile = GetLocalizedFile(embeddedFile, callerFilePath, allowedRequestFolders,
-                                                       callingAssembly);
-
-            return localizeRequestFile;
+            return Localize(embeddedFile, callerFilePath, callingAssembly,
+                            settings.LegacyRequestFolderName.Concat(settings.RequestFolderName));
         }
 
-        public EmbeddedFileInfo LocalizeResponseFile(string embedddFile,
+        public EmbeddedFileInfo LocalizeResponseFile(string embeddedFile,
                                                      string callerFilePath,
                                                      Assembly callingAssembly)
         {
-            if (embedddFile.EndsWith(".json").IsFalse())
-            {
-                return new EmbeddedFileInfo(string.Empty, embedddFile, null);
-            }
-
-            var allowedRequestFolders = testCreatorSettings.LegacyResponseFolderNames.Concat(testCreatorSettings.ResponseFolderName).ToImmutableHashSet();
-
-            return GetLocalizedFile(embedddFile, callerFilePath, allowedRequestFolders,
-                                    callingAssembly);
+            return Localize(embeddedFile, callerFilePath, callingAssembly,
+                            settings.LegacyResponseFolderNames.Concat(settings.ResponseFolderName));
         }
 
-        private EmbeddedFileInfo GetLocalizedFile(string embedddFile,
-                                                  string callerFilePath,
-                                                  ImmutableHashSet<string> folderNames,
-                                                  Assembly callingAssembly)
+        // ==============================
+        // Core Pipeline
+        // ==============================
+
+        private EmbeddedFileInfo Localize(string input,
+                                          string callerFilePath,
+                                          Assembly assembly,
+                                          IEnumerable<string> allowedFolders)
         {
-            // 1. If file is null, empty or white space we skipp it
-            if (embedddFile.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(input))
             {
-                return new EmbeddedFileInfo(embedddFile, string.Empty, null);
+                return new(input, string.Empty, null);
             }
 
-            // 3. If embedded file is raw json return
-            if (embedddFile.StartsWith('{') ||
-                embedddFile.StartsWith('['))
+            if (IsRawJson(input))
             {
-                return new EmbeddedFileInfo(embedddFile, string.Empty, null);
+                return new(input, string.Empty, null);
             }
 
-            // 2. We only can localize files, if we have no file we return origin
-            var fileExtensions = Path.GetExtension(embedddFile);
-
-            if (fileExtensions.IsNullOrWhiteSpace())
+            if (!IsJsonFile(input))
             {
-                return new EmbeddedFileInfo(embedddFile, string.Empty, null);
+                return new(input, string.Empty, null);
             }
 
-            // In case we have a native string separated by .
-            if (fileExtensions.DoesNotContain(".json"))
+            var embeddedResource = ResolveEmbeddedResource(input, assembly);
+            if (embeddedResource is null)
             {
-                return new EmbeddedFileInfo(embedddFile, string.Empty, null);
+                return new(input, string.Empty, null);
             }
 
-            // 3. Get assembly infos
-            var assemblyName = callingAssembly.GetName().Name;
-            var embeddedFileNames = callingAssembly.GetManifestResourceNames();
+            var physicalFile = ResolvePhysicalFile(embeddedResource,
+                                                   callerFilePath,
+                                                   assembly,
+                                                   allowedFolders.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase));
 
-            // 4. Detect if we really have a file
-            var parts = embedddFile.Split('.');
+            var content = assembly.GetFileContentFrom(embeddedResource);
 
-            // 4. Detect if we already have an absolute path
-            var matchingFiles = embeddedFileNames.Where(file => file.Contains(embedddFile, StringComparison.OrdinalIgnoreCase)).ToList();
-
-            var filename = $"{parts[^2]}.{parts[^1]}";
-            var trimmedFileName = filename.Trim('"');
-
-            var fileInfo = new FileInfo(callerFilePath);
-
-            // 2 To keep legacy code compatible we check for
-            //   - Result, Results, Response
-
-            // NewPersonParameter.json
-            // Requests.NewPersonParameter.json
-            // Responses.NewPersonParameter.json
-            // AnyFolder.P.NewPersonParameter.json
-            if (matchingFiles.Count.EqualsTo(1) &&
-                parts.Length > 2)
-            {
-                var embeddedFileName = matchingFiles[0];
-
-                // Go back to test folder which ends with .Test or Tests
-                var projectFolder = FindProjectFolder(fileInfo.Directory, callingAssembly);
-
-                if (projectFolder.IsNotNull())
-                {
-                    var relativePath2 = embeddedFileName.Replace(trimmedFileName, string.Empty)
-                                                        .Replace(projectFolder.Name, string.Empty)
-                                                        .Replace('.', Path.DirectorySeparatorChar)
-                                                        .Trim(Path.DirectorySeparatorChar);
-
-                    var filePath = Path.Combine(projectFolder.FullName, relativePath2.TrimStart('\''), filename);
-                    var fileInfo2 = new FileInfo(filePath);
-
-                    if (fileInfo2.Exists)
-                    {
-                        var fileContentEmbedded = callingAssembly.GetFileContentFrom(embedddFile);
-
-                        return new EmbeddedFileInfo(embeddedFileName, fileContentEmbedded, fileInfo2);
-                    }
-                }
-
-                return new EmbeddedFileInfo(embeddedFileName, string.Empty, null);
-            }
-
-            var legacyFolder = fileInfo.Directory?.EnumerateDirectories().FirstOrDefault(d => folderNames.Contains(d.Name));
-
-            var responseFolderName = legacyFolder.IsNotNull() ? legacyFolder.Name : testCreatorSettings.ResponseFolderName;
-
-            // 3. Worst case if result is null
-            responseFolderName ??= testCreatorSettings.ResponseFolderName;
-
-            if (embedddFile.Contains(responseFolderName))
-            {
-                var test = embedddFile.Replace(trimmedFileName, string.Empty);
-                var split = test.Split(responseFolderName).LastOrDefault()?.TrimStart('.').Replace('.', Path.DirectorySeparatorChar);
-                trimmedFileName = $"{split}{trimmedFileName}";
-            }
-
-            // 4. Define response or results folder
-            //    We keep existing once compatible
-            var targetResponseFile = new FileInfo(Path.Combine(fileInfo.DirectoryName!, responseFolderName, trimmedFileName));
-
-            if (targetResponseFile.Directory!.NotExists())
-            {
-                targetResponseFile.Directory!.Create();
-            }
-
-            // 5. Identify the unique embedded file
-            var splittedPath = targetResponseFile.FullName.Split(assemblyName);
-
-            if (splittedPath.Length < 2)
-            {
-                var fileContentEmbedded = callingAssembly.GetFileContentFrom(embedddFile);
-
-                return new EmbeddedFileInfo(embedddFile, fileContentEmbedded, targetResponseFile);
-            }
-
-            var relativePath = splittedPath.Last().Replace(Path.DirectorySeparatorChar.ToString(), ".").Trim('.');
-            var match = embeddedFileNames.FirstOrDefault(e => e.Contains(relativePath));
-
-            if (match.IsNotNull())
-            {
-                var fileContentFrom = callingAssembly.GetFileContentFrom(match);
-
-                return new EmbeddedFileInfo(match, fileContentFrom, targetResponseFile);
-            }
-
-            return new EmbeddedFileInfo(relativePath, string.Empty, targetResponseFile);
+            return new EmbeddedFileInfo(embeddedResource, content, physicalFile);
         }
 
-        private DirectoryInfo? FindProjectFolder(DirectoryInfo? directoryInfo,
-                                                 Assembly assembly)
+        // ==============================
+        // Validation Helpers
+        // ==============================
+
+        private static bool IsRawJson(string input)
         {
-            if (directoryInfo.IsNull())
+            return input.TrimStart().StartsWith('{') ||
+                   input.TrimStart().StartsWith('[');
+        }
+
+        private static bool IsJsonFile(string input)
+        {
+            return Path.GetExtension(input)
+                       .Equals(".json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // ==============================
+        // Embedded Resource Resolution
+        // ==============================
+
+        private static string? ResolveEmbeddedResource(string fileName,
+                                                       Assembly assembly)
+        {
+            var resources = assembly.GetManifestResourceNames();
+
+            return resources.FirstOrDefault(r =>
+                                                r.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // ==============================
+        // Physical File Resolution
+        // ==============================
+
+        private FileInfo? ResolvePhysicalFile(string resourceName,
+                                              string callerFilePath,
+                                              Assembly assembly,
+                                              ImmutableHashSet<string> allowedFolders)
+        {
+            var projectFolder = FindProjectFolder(new FileInfo(callerFilePath).Directory,
+                                                  assembly);
+
+            if (projectFolder is null)
             {
-                return directoryInfo;
+                return null;
             }
 
-            if (directoryInfo.Name.EqualsTo(assembly.GetName().Name))
+            var (relativeFolder, fileName) =
+                ParseResourcePath(resourceName, assembly);
+
+            if (relativeFolder is null)
             {
-                return directoryInfo;
+                return null;
             }
 
-            return FindProjectFolder(directoryInfo.Parent, assembly);
+            var fullPath = Path.Combine(projectFolder.FullName,
+                                        relativeFolder,
+                                        fileName);
+
+            var fileInfo = new FileInfo(fullPath);
+
+            if (!fileInfo.Directory!.Exists)
+            {
+                fileInfo.Directory.Create();
+            }
+
+            return fileInfo;
+        }
+
+        // ==============================
+        // Resource Path Parsing
+        // ==============================
+
+        private static (string? folder, string fileName) ParseResourcePath(string resourceName, Assembly assembly)
+        {
+            var prefix = assembly.GetName().Name + ".";
+
+            if (!resourceName.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                return (null, resourceName);
+            }
+
+            var relative = resourceName[prefix.Length..];
+            var parts = relative.Split('.');
+
+            if (parts.Length < 2)
+            {
+                return (null, resourceName);
+            }
+
+            var fileName = $"{parts[^2]}.{parts[^1]}";
+            var folders = parts[..^2];
+
+            var folderPath = Path.Combine(folders);
+
+            return (folderPath, fileName);
+        }
+
+        // ==============================
+        // Project Folder Detection
+        // ==============================
+
+        private static DirectoryInfo? FindProjectFolder(DirectoryInfo? dir,
+                                                        Assembly assembly)
+        {
+            if (dir is null)
+            {
+                return null;
+            }
+
+            if (dir.Name.Equals(assembly.GetName().Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return dir;
+            }
+
+            return FindProjectFolder(dir.Parent, assembly);
         }
     }
 }

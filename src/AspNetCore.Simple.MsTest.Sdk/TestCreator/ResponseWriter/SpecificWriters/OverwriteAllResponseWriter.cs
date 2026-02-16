@@ -39,6 +39,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             ApplySmartReplacements(root, context.Parameters);
 
+
+
+
             File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName,
                               root.ToString(Formatting.Indented));
         }

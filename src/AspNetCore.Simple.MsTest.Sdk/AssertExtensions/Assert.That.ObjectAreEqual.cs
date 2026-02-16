@@ -32,13 +32,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
-                                                                                  {
-                                                                                      PropertyNameCaseInsensitive = true,
-                                                                                      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                                                                                      DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                                                                                      NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                                                                                      Converters = { new JsonStringEnumConverter() }
-                                                                                  };
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+            Converters = { new JsonStringEnumConverter() }
+        };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
@@ -922,7 +922,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (localizedExpectedResponseFile.EmbeddedFile.IsNull())
             {
-                localizedExpectedResponseFile = localizedExpectedResponseFile with { Content = expectedObjectAsJson };
+                localizedExpectedResponseFile = localizedExpectedResponseFile with
+                {
+                    Content = expectedObjectAsJson
+                };
             }
 
             // This is most the use case when calling an API and want to know what comes back
@@ -942,14 +945,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (shouldWriteResponse)
             {
                 var writeResponseRequest = new WriteResponseRequest()
-                                           {
-                                               CallingAssembly = callingAssembly,
-                                               DifferenceFunc = differenceFunc,
-                                               CurrentResponseAsString = currentObjectAsJson,
-                                               ExpectedResult = localizedExpectedResponseFile,
-                                               Parameters = parameters,
-                                               Mode = ResponseWriteMode.DifferencesOnly
-                                           };
+                {
+                    CallingAssembly = callingAssembly,
+                    DifferenceFunc = differenceFunc,
+                    CurrentResponseAsString = currentObjectAsJson,
+                    ExpectedResult = localizedExpectedResponseFile,
+                    Parameters = parameters,
+                    Mode = ResponseWriteMode.DifferencesOnly
+                };
 
                 ResponseWriter.Write(writeResponseRequest);
             }
@@ -1026,14 +1029,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (shouldWriteResponse)
                 {
                     var writeResponseRequest = new WriteResponseRequest()
-                                               {
-                                                   CallingAssembly = callingAssembly,
-                                                   DifferenceFunc = differenceFunc,
-                                                   CurrentResponseAsString = object2AsJson,
-                                                   ExpectedResult = localizedExpectedResponseFile,
-                                                   Parameters = parameters,
-                                                   Mode = ResponseWriteMode.DifferencesOnly
-                                               };
+                    {
+                        CallingAssembly = callingAssembly,
+                        DifferenceFunc = differenceFunc,
+                        CurrentResponseAsString = object2AsJson,
+                        ExpectedResult = localizedExpectedResponseFile,
+                        Parameters = parameters,
+                        Mode = ResponseWriteMode.DifferencesOnly
+                    };
 
                     ResponseWriter.Write(writeResponseRequest);
                 }
