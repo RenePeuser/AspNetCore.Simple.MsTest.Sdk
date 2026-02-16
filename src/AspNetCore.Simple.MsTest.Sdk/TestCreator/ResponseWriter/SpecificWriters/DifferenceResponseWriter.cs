@@ -50,7 +50,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var expectedRoot = JToken.Parse(context.ExpectedResult.Content);
 
-            var diffs = jsonDiffer.FindDifferences(expectedRoot, currentRoot);
+            var diffs = jsonDiffer.FindDifferences(expectedRoot.ToString(), currentRoot.ToString());
 
             if (!diffs.Any())
             {
