@@ -140,12 +140,67 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       ImmutableHashSet<string> allowedFolders)
         {
             var resources = assembly.GetManifestResourceNames();
+
             if (resources.Length == 0)
             {
                 throw new InvalidOperationException($"Assembly '{assembly.GetName().Name}' contains no embedded resources.");
             }
 
-            var fileName = Path.GetFileName(input.Trim('"'));
+            var trimmed = input.Trim().Trim('"');
+            var fileName = Path.GetFileName(trimmed);
+
+            // ------------------------------------------------------------
+            // 🔥 NEW FEATURE: Absolute dotted resource path support
+            // ------------------------------------------------------------
+            // If user passes something like:
+            // "AnyFolder.P.NewPersonParameter.json"
+            // we treat it as full suffix and DO NOT use context or folder scope
+            // ------------------------------------------------------------
+
+            var isAbsoluteDottedPath = trimmed.Contains('.') &&
+                                       trimmed.Count(c => c == '.') >= 2 &&
+                                       !trimmed.StartsWith('{') &&
+                                       !trimmed.StartsWith('[');
+
+            if (isAbsoluteDottedPath)
+            {
+                var absoluteMatches = resources
+                                      .Where(r => r.EndsWith(trimmed, StringComparison.OrdinalIgnoreCase))
+                                      .ToList();
+
+                if (absoluteMatches.Count == 0)
+                {
+                    throw new InvalidOperationException($"""
+                                                         Absolute embedded resource not found.
+
+                                                         Requested:
+                                                         {trimmed}
+
+                                                         Available Resources:
+                                                         {string.Join(Environment.NewLine, resources)}
+                                                         """);
+                }
+
+                if (absoluteMatches.Count > 1)
+                {
+                    throw new InvalidOperationException($"""
+                                                         Absolute embedded resource ambiguous. Exactly ONE expected.
+
+                                                         Requested:
+                                                         {trimmed}
+
+                                                         Matches:
+                                                         {string.Join(Environment.NewLine, absoluteMatches)}
+                                                         """);
+                }
+
+                return absoluteMatches[0];
+            }
+
+            // ------------------------------------------------------------
+            // 🔒 Normal Strict Context-aware resolution
+            // ------------------------------------------------------------
+
             var contextPrefix = BuildContextPrefix(callerFilePath, assembly);
 
             var matches = resources
@@ -191,10 +246,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static bool EndsWithFileName(string resourceName,
                                              string fileName)
         {
-            return resourceName.EndsWith("." + fileName,
-                                         StringComparison.OrdinalIgnoreCase)
-                   || resourceName.EndsWith(fileName,
-                                            StringComparison.OrdinalIgnoreCase);
+            // Must match exact last segment
+            var lastDotIndex = resourceName.LastIndexOf('.');
+
+            if (lastDotIndex < 0)
+            {
+                return false;
+            }
+
+            var secondLastDotIndex = resourceName.LastIndexOf('.', lastDotIndex - 1);
+
+            if (secondLastDotIndex < 0)
+            {
+                return false;
+            }
+
+            var actualFileName = resourceName[(secondLastDotIndex + 1)..];
+
+            return actualFileName.Equals(fileName,
+                                         StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool ContainsFolderSegment(string resourceName,
@@ -333,6 +403,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static bool IsRawJson(string input)
         {
             var trimmed = input.TrimStart();
+
             return trimmed.StartsWith('{') || trimmed.StartsWith('[');
         }
 
