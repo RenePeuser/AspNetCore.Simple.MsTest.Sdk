@@ -89,7 +89,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // ============================================================
-        // Core Pipeline
+        // Core Pipeline (Strict)
         // ============================================================
 
         private EmbeddedFileInfo Localize(string input,
@@ -99,31 +99,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             if (string.IsNullOrWhiteSpace(input))
             {
-                return new(input, input, null);
+                return new(input, string.Empty, null);
             }
 
-            var isRawJson = IsRawJson(input);
-            if (isRawJson)
+            if (IsRawJson(input))
             {
-                return new(input, input, null);
+                return new(input, string.Empty, null);
             }
 
-            var isNoJsonFile = !IsJsonFile(input);
-            if (isNoJsonFile)
+            if (!IsJsonFile(input))
             {
-                return new(input, input, null);
+                return new(input, string.Empty, null);
             }
 
             var allowedSet = allowedFolders
                              .Where(f => !string.IsNullOrWhiteSpace(f))
                              .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
-            var embeddedResource = ResolveEmbeddedResource(input, assembly, allowedSet);
-
-            if (embeddedResource is null)
-            {
-                return new(input, string.Empty, null);
-            }
+            var embeddedResource = ResolveEmbeddedResource(input,
+                                                           callerFilePath,
+                                                           assembly,
+                                                           allowedSet);
 
             var physicalFile = ResolvePhysicalFile(embeddedResource,
                                                    callerFilePath,
@@ -135,57 +131,61 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // ============================================================
-        // Validation
+        // Strict Embedded Resource Resolution
         // ============================================================
 
-        private static bool IsRawJson(string input)
-        {
-            var trimmed = input.TrimStart();
-            return trimmed.StartsWith('{') || trimmed.StartsWith('[');
-        }
-
-        private static bool IsJsonFile(string input)
-        {
-            return Path.GetExtension(input)
-                       .Equals(".json", StringComparison.OrdinalIgnoreCase);
-        }
-
-        // ============================================================
-        // Embedded Resource Resolution (Scoped!)
-        // ============================================================
-
-        private static string? ResolveEmbeddedResource(string input,
-                                                       Assembly assembly,
-                                                       ImmutableHashSet<string> allowedFolders)
+        private static string ResolveEmbeddedResource(string input,
+                                                      string callerFilePath,
+                                                      Assembly assembly,
+                                                      ImmutableHashSet<string> allowedFolders)
         {
             var resources = assembly.GetManifestResourceNames();
             if (resources.Length == 0)
             {
-                return null;
+                throw new InvalidOperationException($"Assembly '{assembly.GetName().Name}' contains no embedded resources.");
             }
 
-            var trimmed = input.Trim().Trim('"');
-            var fileName = Path.GetFileName(trimmed);
+            var fileName = Path.GetFileName(input.Trim('"'));
+            var contextPrefix = BuildContextPrefix(callerFilePath, assembly);
 
-            var scopedMatches = resources
-                                .Where(r => EndsWithFileName(r, fileName))
-                                .Where(r => ContainsFolderSegment(r, allowedFolders))
-                                .ToList();
+            var matches = resources
+                          .Where(r => r.StartsWith(contextPrefix, StringComparison.OrdinalIgnoreCase))
+                          .Where(r => ContainsFolderSegment(r, allowedFolders))
+                          .Where(r => EndsWithFileName(r, fileName))
+                          .ToList();
 
-            if (scopedMatches.Count > 0)
+            if (matches.Count == 0)
             {
-                return scopedMatches
-                       .OrderBy(r => r.Length)
-                       .ThenBy(r => r, StringComparer.OrdinalIgnoreCase)
-                       .First();
+                throw new InvalidOperationException($"""
+                                                     No embedded resource match found.
+
+                                                     Input File: {input}
+                                                     File Name: {fileName}
+                                                     Context Prefix: {contextPrefix}
+                                                     Allowed Folders: {string.Join(", ", allowedFolders)}
+
+                                                     Caller File:
+                                                     {callerFilePath}
+
+                                                     Available Resources:
+                                                     {string.Join(Environment.NewLine, resources)}
+                                                     """);
             }
 
-            // Fallback without folder scope (deterministic)
-            return resources
-                   .Where(r => EndsWithFileName(r, fileName))
-                   .OrderBy(r => r.Length)
-                   .ThenBy(r => r, StringComparer.OrdinalIgnoreCase)
-                   .FirstOrDefault();
+            if (matches.Count > 1)
+            {
+                throw new InvalidOperationException($"""
+                                                     Multiple embedded resource matches found. Exactly ONE expected.
+
+                                                     Input File: {input}
+                                                     Context Prefix: {contextPrefix}
+
+                                                     Matches:
+                                                     {string.Join(Environment.NewLine, matches)}
+                                                     """);
+            }
+
+            return matches[0];
         }
 
         private static bool EndsWithFileName(string resourceName,
@@ -210,6 +210,31 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             return false;
+        }
+
+        // ============================================================
+        // Context Prefix Builder
+        // ============================================================
+
+        private static string BuildContextPrefix(string callerFilePath,
+                                                 Assembly assembly)
+        {
+            var projectFolder = FindProjectFolder(new FileInfo(callerFilePath).Directory,
+                                                  assembly);
+
+            if (projectFolder is null)
+            {
+                return assembly.GetName().Name + ".";
+            }
+
+            var relativePath = Path.GetRelativePath(projectFolder.FullName,
+                                                    Path.GetDirectoryName(callerFilePath)!);
+
+            var namespacePath = relativePath
+                                .Replace(Path.DirectorySeparatorChar, '.')
+                                .Trim('.');
+
+            return assembly.GetName().Name + "." + namespacePath;
         }
 
         // ============================================================
@@ -299,6 +324,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             return FindProjectFolder(dir.Parent, assembly);
+        }
+
+        // ============================================================
+        // Validation Helpers
+        // ============================================================
+
+        private static bool IsRawJson(string input)
+        {
+            var trimmed = input.TrimStart();
+            return trimmed.StartsWith('{') || trimmed.StartsWith('[');
+        }
+
+        private static bool IsJsonFile(string input)
+        {
+            return Path.GetExtension(input).Equals(".json", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
