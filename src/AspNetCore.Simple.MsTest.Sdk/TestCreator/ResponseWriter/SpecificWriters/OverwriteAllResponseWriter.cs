@@ -19,9 +19,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public bool CanHandle(WriteResponseRequest context)
         {
             var canHandle = context.ExpectedResult.EmbeddedFileName.EndsWith(".json") &&
-                            context.Mode == ResponseWriteMode.OverwriteAll &&
-                            (context.ExpectedResult.EmbeddedFile.IsNull() ||
-                             context.ExpectedResult.EmbeddedFile.NotExists());
+                            context.ExpectedResult.EmbeddedFile.IsNotNull() &&
+                            (context.Mode == ResponseWriteMode.OverwriteAll || context.ExpectedResult.EmbeddedFile.NotExists());
 
             return canHandle;
         }

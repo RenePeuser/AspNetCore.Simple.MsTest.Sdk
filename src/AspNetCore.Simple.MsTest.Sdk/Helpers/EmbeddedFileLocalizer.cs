@@ -53,8 +53,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return Localize(embeddedFile,
                             callerFilePath,
                             callingAssembly,
-                            settings.LegacyRequestFolderName.Concat(settings.RequestFolderName))
-                .EmbeddedFileName;
+                            settings.LegacyRequestFolderName.Concat(settings.RequestFolderName),
+                            settings.RequestFolderName).EmbeddedFileName;
         }
 
         public string LocalizeResponse(string embeddedFile,
@@ -64,7 +64,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return Localize(embeddedFile,
                             callerFilePath,
                             callingAssembly,
-                            settings.LegacyResponseFolderNames.Concat(settings.ResponseFolderName))
+                            settings.LegacyResponseFolderNames.Concat(settings.ResponseFolderName),
+                            settings.ResponseFolderName)
                 .EmbeddedFileName;
         }
 
@@ -75,7 +76,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return Localize(embeddedFile,
                             callerFilePath,
                             callingAssembly,
-                            settings.LegacyRequestFolderName.Concat(settings.RequestFolderName));
+                            settings.LegacyRequestFolderName.Concat(settings.RequestFolderName),
+                            settings.RequestFolderName);
         }
 
         public EmbeddedFileInfo LocalizeResponseFile(string embeddedFile,
@@ -85,7 +87,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return Localize(embeddedFile,
                             callerFilePath,
                             callingAssembly,
-                            settings.LegacyResponseFolderNames.Concat(settings.ResponseFolderName));
+                            settings.LegacyResponseFolderNames.Concat(settings.ResponseFolderName),
+                            settings.ResponseFolderName);
         }
 
         // ============================================================
@@ -95,7 +98,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private EmbeddedFileInfo Localize(string input,
                                           string callerFilePath,
                                           Assembly assembly,
-                                          IEnumerable<string> allowedFolders)
+                                          IEnumerable<string> allowedFolders,
+                                          string defaultFolder)
         {
             if (string.IsNullOrWhiteSpace(input))
             {
@@ -119,25 +123,42 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var embeddedResource = ResolveEmbeddedResource(input,
                                                            callerFilePath,
                                                            assembly,
-                                                           allowedSet);
+                                                           allowedSet,
+                                                           defaultFolder);
 
-            var physicalFile = ResolvePhysicalFile(embeddedResource,
+            if (embeddedResource.Exist)
+            {
+                return new EmbeddedFileInfo(embeddedResource.EmbeddedFile, input, null);
+            }
+
+            var physicalFile = ResolvePhysicalFile(embeddedResource.EmbeddedFile,
                                                    callerFilePath,
                                                    assembly);
 
-            var content = assembly.GetFileContentFrom(embeddedResource);
+            if (physicalFile.IsNull())
+            {
+                return new EmbeddedFileInfo(embeddedResource.EmbeddedFile, input, null);
+            }
 
-            return new EmbeddedFileInfo(embeddedResource, content, physicalFile);
+            if (physicalFile.NotExists())
+            {
+                return new EmbeddedFileInfo(embeddedResource.EmbeddedFile, input, physicalFile);
+            }
+
+            var content = assembly.GetFileContentFrom(embeddedResource.EmbeddedFile);
+
+            return new EmbeddedFileInfo(embeddedResource.EmbeddedFile, content, physicalFile);
         }
 
         // ============================================================
         // Strict Embedded Resource Resolution
         // ============================================================
 
-        private static string ResolveEmbeddedResource(string input,
-                                                      string callerFilePath,
-                                                      Assembly assembly,
-                                                      ImmutableHashSet<string> allowedFolders)
+        private (string EmbeddedFile, bool Exist) ResolveEmbeddedResource(string input,
+                                                                          string callerFilePath,
+                                                                          Assembly assembly,
+                                                                          ImmutableHashSet<string> allowedFolders,
+                                                                          string defaultFolder)
         {
             var resources = assembly.GetManifestResourceNames();
 
@@ -162,6 +183,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                        !trimmed.StartsWith('{') &&
                                        !trimmed.StartsWith('[');
 
+
+            var contextPrefix = BuildContextPrefix(callerFilePath, assembly);
+
             if (isAbsoluteDottedPath)
             {
                 var absoluteMatches = resources
@@ -170,15 +194,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (absoluteMatches.Count == 0)
                 {
-                    throw new InvalidOperationException($"""
-                                                         Absolute embedded resource not found.
+                    return (trimmed, false);
 
-                                                         Requested:
-                                                         {trimmed}
+                    //    throw new InvalidOperationException($"""
+                    //                                         Absolute embedded resource not found.
 
-                                                         Available Resources:
-                                                         {string.Join(Environment.NewLine, resources)}
-                                                         """);
+                    //                                         Requested:
+                    //                                         {trimmed}
+
+                    //                                         Available Resources:
+                    //                                         {string.Join(Environment.NewLine, resources)}
+                    //                                         """);
+
                 }
 
                 if (absoluteMatches.Count > 1)
@@ -194,14 +221,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                          """);
                 }
 
-                return absoluteMatches[0];
+                return (absoluteMatches[0], true);
             }
 
             // ------------------------------------------------------------
             // 🔒 Normal Strict Context-aware resolution
             // ------------------------------------------------------------
-
-            var contextPrefix = BuildContextPrefix(callerFilePath, assembly);
 
             var matches = resources
                           .Where(r => r.StartsWith(contextPrefix, StringComparison.OrdinalIgnoreCase))
@@ -211,20 +236,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (matches.Count == 0)
             {
-                throw new InvalidOperationException($"""
-                                                     No embedded resource match found.
+                var expectedResource = $"{contextPrefix}.{defaultFolder}.{fileName}";
 
-                                                     Input File: {input}
-                                                     File Name: {fileName}
-                                                     Context Prefix: {contextPrefix}
-                                                     Allowed Folders: {string.Join(", ", allowedFolders)}
+                return (expectedResource, false);
 
-                                                     Caller File:
-                                                     {callerFilePath}
+                //throw new InvalidOperationException($"""
+                //                                     No embedded resource match found.
 
-                                                     Available Resources:
-                                                     {string.Join(Environment.NewLine, resources)}
-                                                     """);
+                //                                     Input File: {input}
+                //                                     File Name: {fileName}
+                //                                     Context Prefix: {contextPrefix}
+                //                                     Allowed Folders: {string.Join(", ", allowedFolders)}
+
+                //                                     Caller File:
+                //                                     {callerFilePath}
+
+                //                                     Available Resources:
+                //                                     {string.Join(Environment.NewLine, resources)}
+                //                                     """);
             }
 
             if (matches.Count > 1)
@@ -240,7 +269,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      """);
             }
 
-            return matches[0];
+            return (matches[0], true);
         }
 
         private static bool EndsWithFileName(string resourceName,
