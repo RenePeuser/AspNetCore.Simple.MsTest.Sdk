@@ -126,11 +126,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            allowedSet,
                                                            defaultFolder);
 
-            if (embeddedResource.Exist)
-            {
-                return new EmbeddedFileInfo(embeddedResource.EmbeddedFile, input, null);
-            }
-
             var physicalFile = ResolvePhysicalFile(embeddedResource.EmbeddedFile,
                                                    callerFilePath,
                                                    assembly);
