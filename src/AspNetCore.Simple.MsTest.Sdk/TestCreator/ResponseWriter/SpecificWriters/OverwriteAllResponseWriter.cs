@@ -45,14 +45,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               root.ToString(Formatting.Indented));
         }
 
-        // =============================================================
-        // IDENTISCH zur DifferenceWriter-Logik
-        // =============================================================
-
+        // Smart Replace bleibt wie zuvor
         private static void ApplySmartReplacements(JToken root,
                                                    params (string key, object? Value)[] parameters)
         {
-            if (parameters.IsNull() || parameters.Length == 0)
+            if (parameters == null || parameters.Length == 0)
             {
                 return;
             }
@@ -64,17 +61,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     continue;
                 }
 
-                if (value == null)
-                {
-                    continue;
-                }
-
                 var propertyName = key.Trim('$');
 
-                ReplaceByProperty(root, propertyName, key,
-                                  value);
+                // 🔥 Property-Replacement IMMER versuchen – auch bei null
+                ReplaceByProperty(root, propertyName, key, value);
 
-                if (value.ToString()?.Length >= 3)
+                // FullText nur wenn value != null
+                if (value != null && value.ToString()?.Length >= 3)
                 {
                     ReplaceFullText(root, key, value);
                 }
@@ -91,8 +84,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (token is JProperty prop &&
                 string.Equals(prop.Name, propertyName, StringComparison.OrdinalIgnoreCase))
             {
-                if (originalValue == null &&
-                    prop.Value.Type == JTokenType.Null)
+                if (originalValue == null && prop.Value.Type == JTokenType.Null)
                 {
                     prop.Value = placeholder;
 
@@ -138,7 +130,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 var s = (string?)value.Value;
 
-                if (s.IsNullOrWhiteSpace() || s.Contains('$'))
+                if (s.IsNullOrWhiteSpace() || s.Contains(placeholder))
                 {
                     return;
                 }
