@@ -1,5 +1,10 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Reflection;
 using Extensions.Pack;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -10,19 +15,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// This attribute implements the <see cref="ITestDataSource"/> interface for use with parameterized tests.
     /// Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
     /// folder path and to allow additional parameters to be injected into each test case.
-    ///
+    /// 
     /// <para>
     /// If no request folder is provided in the attribute constructor, the attribute automatically determines the
     /// request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
     /// </para>
-    ///
+    /// 
     /// <para>
     /// For example, if a test class is declared in the namespace:
     /// <c>Api.User.V1.Create.Status_200_Ok</c>,
     /// then by default, the attribute will look for JSON resources in the folder:
     /// <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
     /// </para>
-    ///
+    /// 
     /// <para>
     /// The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
     /// filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
@@ -30,7 +35,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// provided via the attribute. The <see cref="GetDisplayName"/> method returns a descriptive name that combines the test method's name
     /// and the test data details.
     /// </para>
-    ///
+    /// 
     /// <para>
     /// The attribute can be applied with or without an explicit request folder and additional parameters.
     /// </para>
@@ -43,7 +48,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </code>
     /// In this scenario, the attribute automatically calculates the request folder from the test class's namespace
     /// and supplies just the JSON identifier for each test case.
-    ///
+    /// 
     /// <para>
     /// Applying the attribute with an explicit folder and additional parameters:
     /// <code>
@@ -54,7 +59,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </para>
     /// </example>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public sealed class EnumTestCaseAttribute<T>(params object[] parameters) : Attribute, ITestDataSource where T : Enum
+    public sealed class DynamicRequestLocatorAttribute(params object[] parameters) : Attribute, ITestDataSource
     {
         public object[] Parameters { get; } = parameters;
 
@@ -69,13 +74,33 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </returns>
         public IEnumerable<object[]> GetData(MethodInfo methodInfo)
         {
-            if (typeof(T).IsEnum.IsFalse())
+            // Use the specified _requestFolder or compute it from the declaring type.
+            var declaringType = methodInfo.DeclaringType;
+
+            if (declaringType.IsNull())
             {
                 yield break;
             }
 
+            if (declaringType.FullName.IsNullOrWhiteSpace())
+            {
+                yield break;
+            }
+
+            // This handles generic test class use cases
+            var fullName = declaringType.FullName.Split('[').First();
+
+            var folderPath = fullName.Replace($".{declaringType.Name}", string.Empty);
+            var currentPath = $"{folderPath}.Requests";
+
+            // Fetch all manifest resource names from the assembly.
+            var manifestResourceNames = declaringType.Assembly.GetManifestResourceNames();
+
             // Filter to only include JSON files that contain the computed or provided path.
-            var useCases = Enum.GetValues(typeof(T)).ToListOfType<T>();
+            var useCases = manifestResourceNames.Where(file => file.Contains(currentPath) && file.EndWith(".json"))
+                                                .Select(item => item.Split('.').TakeLast(2).Aggregate((a,
+                                                                                                       b) => $"{a}.{b}"))
+                                                .ToImmutableList();
 
             // Yield each identified use case as a separate test input.
             foreach (var useCase in useCases)
@@ -88,10 +113,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             yield break;
 
             // Local function to combine the JSON resource with the extra parameters.
-            static IEnumerable<object> GetParams(object useCase,
+            static IEnumerable<object> GetParams(string request,
                                                  object[] parameters)
             {
-                yield return useCase;
+                yield return request;
 
                 foreach (var param in parameters)
                 {

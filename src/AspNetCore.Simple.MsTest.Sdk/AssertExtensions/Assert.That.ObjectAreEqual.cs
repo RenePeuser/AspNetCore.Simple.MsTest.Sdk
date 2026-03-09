@@ -21,8 +21,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
 
-        private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings());
-
         private static readonly ResponseWriter ResponseWriter = new ResponseWriter([
                                                                                        new DifferenceResponseWriter(JsonDiffer, new JsonPathWriter()),
                                                                                        new OverwriteAllResponseWriter()
@@ -37,10 +35,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
             NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters = { new JsonStringEnumConverter() }
+            Converters =
+            {
+                new JsonStringEnumConverter()
+            }
         };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
+
+        private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions);
 
         // GlobalWriteResponse
         // NEW Env variable WriteResponse = true -> For Ai Usage

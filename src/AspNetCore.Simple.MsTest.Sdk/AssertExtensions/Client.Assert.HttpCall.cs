@@ -17,8 +17,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly OutputFormatter OutputFormatter = new(new CurlFormatter());
 
-        private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new(new TestCreatorSettings());
-
         private static readonly PrimitiveTypeConverter PrimitiveTypeConverter = new();
 
         private static readonly JsonDiffer JsonDiffer = new JsonDiffer();
@@ -66,6 +64,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                           NumberHandling = JsonNumberHandling.AllowReadingFromString,
                                                                           Converters = { new JsonStringEnumConverter() }
                                                                       };
+
+        private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new(new TestCreatorSettings(), JsonSerializerOptions);
 
         private static async Task AssertHttpCallAsync(this HttpClient client,
                                                       string url,
