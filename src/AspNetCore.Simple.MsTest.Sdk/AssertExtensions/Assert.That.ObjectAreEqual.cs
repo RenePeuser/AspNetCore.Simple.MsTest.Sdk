@@ -923,7 +923,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // - GetAllUsersResponse.json
             var localizedExpectedResponseFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedResultParameterName, callerFilePath, callingAssembly);
 
-            if (localizedExpectedResponseFile.EmbeddedFile.IsNull())
+            if (localizedExpectedResponseFile.EmbeddedFile.IsNull() ||
+                localizedExpectedResponseFile.EmbeddedFile.Exists.IsFalse())
             {
                 localizedExpectedResponseFile = localizedExpectedResponseFile with
                 {
