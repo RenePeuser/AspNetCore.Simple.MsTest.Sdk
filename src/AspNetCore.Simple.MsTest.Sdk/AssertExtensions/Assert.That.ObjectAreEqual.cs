@@ -1012,14 +1012,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var differences = JsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 
                 // 1. Check if we are comparing the same schema
-                var hasSchemaMismatch = differences.Any(item => item.MismatchType.NotEqualsTo(MismatchType.ValueDifference));
+                var hasSchemaMismatch = differences.Any(item => item.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &&
+                                                                item.MemberPath.EndsWith(']').IsFalse());
 
                 var contentValueDifferences = differences.FirstOrDefault(d => d.MemberPath.Equals("Content.Value", StringComparison.OrdinalIgnoreCase));
 
                 if (contentValueDifferences.IsNotNull())
                 {
                     differences = JsonDiffer.FindDifferences(contentValueDifferences.Value1 ?? string.Empty, contentValueDifferences.Value2 ?? string.Empty);
-                    hasSchemaMismatch = differences.Any(item => item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond);
+                    hasSchemaMismatch = differences.Any(item => (item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond) &&
+                                                                item.MemberPath.EndsWith(']').IsFalse());
                 }
 
                 var commonDifferences = DifferenceFunc(differences).ToImmutableList();

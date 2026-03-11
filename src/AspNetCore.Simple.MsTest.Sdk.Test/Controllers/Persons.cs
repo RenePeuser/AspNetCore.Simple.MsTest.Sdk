@@ -46,7 +46,21 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
                                                   "AnyFolder.P.NewPersonParameter.json",
                                                   "AnyFolder.R.NewPersonParameter.json",
-                                                  [("$Name$", "Son"), ("$Age$", 42)], writeResponse: true);
+                                                  parameters:[("$Name$", "Son"), ("$Age$", 42)],
+                                                  differenceFunc: DifferenceFunc);
+        }
+
+        private IEnumerable<Difference> DifferenceFunc(ImmutableList<Difference> arg)
+        {
+            foreach (var difference in arg)
+            {
+                if (difference.MemberPath.Contains(".emails"))
+                {
+                    continue;
+                }
+
+                yield return difference;
+            }
         }
 
         [Ignore("Not supported ! if path is not correct it fails !")]

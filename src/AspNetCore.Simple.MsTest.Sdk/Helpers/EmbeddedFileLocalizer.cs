@@ -5,7 +5,6 @@ using System.Text.Json;
 using Extensions.Pack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Console;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -15,6 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     IConfiguration configuration)
         {
             services.AddTestCreatorSettings(configuration);
+
             services.AddSingletonIfNotExists<IEmbeddedFileLocalizer, EmbeddedFileLocalizer>();
         }
     }
