@@ -236,12 +236,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // wrong replacements
             var sortedParameters = parameters.OrderByDescending(p => p.Key.Length);
 
-             foreach (var keyValue in sortedParameters)
+            foreach (var keyValue in sortedParameters)
             {
-                 if (keyValue.Key.IsNullOrWhiteSpace())
-                 {
-                     continue;
-                 }
+                if (keyValue.Key.IsNullOrWhiteSpace())
+                {
+                    continue;
+                }
 
                 // We have to take care of int, bool, long and so on
                 // Json sample
@@ -256,7 +256,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // -------------------------------------------------
                 // Json sample
                 // {
-                //   "ReferenceId": null,  < If value is null this must be thec
+                //   "ReferenceId": null,  < If value is null this must be 
                 // }
 
                 if (keyValue.Value.IsNull())
@@ -287,11 +287,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                         primitiveTypeValue = primitiveTypeValue.ToLowerInvariant();
                     }
 
-                     replacedString = replacedString.Replace($"\"{keyValue.Key}\"", primitiveTypeValue, StringComparison.Ordinal);
+                    replacedString = replacedString.Replace($"\"{keyValue.Key}\"", primitiveTypeValue, StringComparison.Ordinal);
                 }
 
-                 // Only replace full placeholder tokens to prevent corrupting other placeholders/words.
-                 replacedString = replacedString.Replace(keyValue.Key, keyValue.Value.ToString(), StringComparison.Ordinal);
+                // Only replace full placeholder tokens to prevent corrupting other placeholders/words.
+                replacedString = replacedString.Replace(keyValue.Key, keyValue.Value.ToString(), StringComparison.Ordinal);
             }
 
             return replacedString;

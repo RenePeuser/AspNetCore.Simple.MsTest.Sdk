@@ -40,7 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (context.ExpectedResult.EmbeddedFileName.IsNullOrWhiteSpace())
             {
                 return;
-            }
+            }    
 
             var currentRoot = JToken.Parse(context.CurrentResponseAsString);
 
@@ -48,6 +48,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             ApplySmartReplacements(currentRoot, contextParameters);
 
             var currentRootAsJson = currentRoot.ToString(Formatting.Indented);
+
+            // New we can have also indexer properties. Values[0] -> Values[$Index$]
+            foreach (var parameter in contextParameters)
+            {
+                currentRootAsJson = currentRootAsJson.Replace($"[{parameter.Value}]", $"[{parameter.key}]");
+            }
 
             currentRoot = JToken.Parse(currentRootAsJson);
 
@@ -90,7 +96,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static void ApplySmartReplacements(JToken root,
                                                    params (string key, object? Value)[] parameters)
         {
-            if (parameters == null || parameters.Length == 0)
+            if (parameters.IsNullOrEmpty())
             {
                 return;
             }
