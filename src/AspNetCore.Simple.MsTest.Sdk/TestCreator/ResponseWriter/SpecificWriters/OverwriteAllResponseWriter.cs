@@ -6,9 +6,9 @@ using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    internal static class AddOverwriteAllResponseWriterExtension
+    public static class AddOverwriteAllResponseWriterExtension
     {
-        internal static void AddOverwriteAllResponseWriter(this IServiceCollection services)
+        public static void AddOverwriteAllResponseWriter(this IServiceCollection services)
         {
             services.AddSingletonIfNotExists<ISpecificResponseWriter, OverwriteAllResponseWriter>();
         }

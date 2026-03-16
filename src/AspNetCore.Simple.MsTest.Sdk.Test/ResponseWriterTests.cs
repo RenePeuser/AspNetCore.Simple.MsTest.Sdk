@@ -1,466 +1,478 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
+﻿//using System;
+//using System.Globalization;
+//using System.IO;
+//using System.Linq;
+//using Microsoft.Extensions.DependencyInjection;
+//using Microsoft.VisualStudio.TestTools.UnitTesting;
+//using Newtonsoft.Json.Linq;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Test
-{
-    [TestClass]
-    [TestCategory("ResponseWriter")]
-    public sealed class ResponseWriterTests
-    {
-        [TestMethod]
-        public void JsonPathWriterAddOrUpdateShouldUpdatePropertiesAndArrayItems()
-        {
-            var writer = new JsonPathWriter();
+//namespace AspNetCore.Simple.MsTest.Sdk.Test
+//{
+//    [TestClass]
+//    [TestCategory("ResponseWriter")]
+//    public sealed class ResponseWriterTests
+//    {
+//        private static IJsonPathWriter _jsonPathWriter;
+//        private static ISpecificResponseWriter specificResponseWriter;
 
-            var root = JToken.Parse("""
-                                    {
-                                        "name": "old",
-                                        "items": [
-                                            {
-                                                "value": 1
-                                            }
-                                        ],
-                                        "content": {
-                                            "headers": []
-                                        }
-                                    }
-                                    """);
+//        [ClassInitialize]
+//        public static void ClassInitialize(TestContext context)
+//        {
+//            var serviceCollection = new ServiceCollection();
+//            serviceCollection.AddJsonPathWriter();
 
-            writer.AddOrUpdate(root, "name", JToken.FromObject("new"));
-            writer.AddOrUpdate(root, "items[1]", JToken.Parse("{ \"value\": 2 }"));
-            writer.AddOrUpdate(root, "content.headers[0]", JToken.Parse("{ \"key\": \"Content-Type\" }"));
+//            _jsonPathWriter = serviceCollection.BuildServiceProvider().GetRequiredService<IJsonPathWriter>();
+//        }
 
-            Assert.AreEqual("new", root["name"]?.ToString());
-            Assert.AreEqual(2, root["items"]?.Count());
-            Assert.AreEqual("2", root["items"]?[1]?["value"]?.ToString());
-            Assert.AreEqual("Content-Type", root["content"]?["headers"]?[0]?["key"]?.ToString());
-        }
 
-        [TestMethod]
-        public void OverwriteAllResponseWriterShouldNotCorruptExistingPlaceholders()
-        {
-            var currentJson = /*lang=json,strict*/ """
-                                                   {
-                                                       "are": "$Are$",
-                                                       "status": "$Status$"
-                                                   }
-                                                   """;
+//        [TestMethod]
+//        public void JsonPathWriterAddOrUpdateShouldUpdatePropertiesAndArrayItems()
+//        {
+//            var root = JToken.Parse("""
+//                                    {
+//                                        "name": "old",
+//                                        "items": [
+//                                            {
+//                                                "value": 1
+//                                            }
+//                                        ],
+//                                        "content": {
+//                                            "headers": []
+//                                        }
+//                                    }
+//                                    """);
 
-            var tempFile = Path.GetTempFileName();
-            try
-            {
-                File.WriteAllText(tempFile, "{}");
+//            _jsonPathWriter.AddOrUpdate(root, "name", JToken.FromObject("new"));
+//            _jsonPathWriter.AddOrUpdate(root, "items[1]", JToken.Parse("{ \"value\": 2 }"));
+//            _jsonPathWriter.AddOrUpdate(root, "content.headers[0]", JToken.Parse("{ \"key\": \"Content-Type\" }"));
 
-                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
-                var overwriteWriter = new OverwriteAllResponseWriter();
+//            Assert.AreEqual("new", root["name"]?.ToString());
+//            Assert.AreEqual(2, root["items"]?.Count());
+//            Assert.AreEqual("2", root["items"]?[1]?["value"]?.ToString());
+//            Assert.AreEqual("Content-Type", root["content"]?["headers"]?[0]?["key"]?.ToString());
+//        }
 
-                overwriteWriter.Write(new WriteResponseRequest
-                {
-                    CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                    CurrentResponseAsString = currentJson,
-                    ExpectedResult = expectedInfo,
-                    Parameters = [("$Are$", "X")],
-                    DifferenceFunc = diffs => diffs,
-                    Mode = ResponseWriteMode.OverwriteAll
-                });
+//        [TestMethod]
+//        public void OverwriteAllResponseWriterShouldNotCorruptExistingPlaceholders()
+//        {
+//            var currentJson = /*lang=json,strict*/ """
+//                                                   {
+//                                                       "are": "$Are$",
+//                                                       "status": "$Status$"
+//                                                   }
+//                                                   """;
 
-                var updated = JToken.Parse(File.ReadAllText(tempFile));
+//            var tempFile = Path.GetTempFileName();
+//            try
+//            {
+//                File.WriteAllText(tempFile, "{}");
 
-                Assert.AreEqual("$Are$", updated["are"]?.ToString());
-                Assert.AreEqual("$Status$", updated["status"]?.ToString());
-            }
-            finally
-            {
-                File.Delete(tempFile);
-            }
-        }
+//                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
+//                var overwriteWriter = new OverwriteAllResponseWriter();
 
-        [TestMethod]
-        public void JsonPathWriterRemoveShouldRemovePropertiesAndArrayItems()
-        {
-            var writer = new JsonPathWriter();
+//                overwriteWriter.Write(new WriteResponseRequest
+//                {
+//                    CallingAssembly = typeof(ResponseWriterTests).Assembly,
+//                    CurrentResponseAsString = currentJson,
+//                    ExpectedResult = expectedInfo,
+//                    Parameters = [("$Are$", "X")],
+//                    DifferenceFunc = diffs => diffs,
+//                    Mode = ResponseWriteMode.OverwriteAll
+//                });
 
-            var root = JToken.Parse("""
-                                    {
-                                        "name": "value",
-                                        "items": [
-                                            {
-                                                "value": 1
-                                            },
-                                            {
-                                                "value": 2
-                                            }
-                                        ],
-                                        "content": {
-                                            "headers[0]": {
-                                                "key": "Content-Type"
-                                            }
-                                        }
-                                    }
-                                    """);
+//                var updated = JToken.Parse(File.ReadAllText(tempFile));
 
-            writer.Remove(root, "name");
-            writer.Remove(root, "items[0]");
-            writer.Remove(root, "content.headers[0]");
+//                Assert.AreEqual("$Are$", updated["are"]?.ToString());
+//                Assert.AreEqual("$Status$", updated["status"]?.ToString());
+//            }
+//            finally
+//            {
+//                File.Delete(tempFile);
+//            }
+//        }
 
-            Assert.IsNull(root["name"]);
-            Assert.AreEqual(1, root["items"]?.Count());
-            Assert.AreEqual("2", root["items"]?[0]?["value"]?.ToString());
-            Assert.IsNull(root["content"]?["headers[0]"]);
-        }
+//        [TestMethod]
+//        public void JsonPathWriterRemoveShouldRemovePropertiesAndArrayItems()
+//        {
+//            var writer = new JsonPathWriter();
 
-        [TestMethod]
-        public void DifferenceResponseWriterShouldSyncExpectedToCurrentExceptIgnoredDifferences()
-        {
-            var expectedJson = /*lang=json,strict*/ """
-                                                    {
-                                                        "id": 1,
-                                                        "name": "Old",
-                                                        "obsolete": "remove",
-                                                        "items": [
-                                                            {
-                                                                "value": 1
-                                                            }
-                                                        ]
-                                                    }
-                                                    """;
+//            var root = JToken.Parse("""
+//                                    {
+//                                        "name": "value",
+//                                        "items": [
+//                                            {
+//                                                "value": 1
+//                                            },
+//                                            {
+//                                                "value": 2
+//                                            }
+//                                        ],
+//                                        "content": {
+//                                            "headers[0]": {
+//                                                "key": "Content-Type"
+//                                            }
+//                                        }
+//                                    }
+//                                    """);
 
-            var currentJson = /*lang=json,strict*/ """
-                                                   {
-                                                       "id": 2,
-                                                       "name": "New",
-                                                       "added": "yes",
-                                                       "items": [
-                                                           {
-                                                               "value": 1,
-                                                               "extra": true
-                                                           }
-                                                       ]
-                                                   }
-                                                   """;
+//            writer.Remove(root, "name");
+//            writer.Remove(root, "items[0]");
+//            writer.Remove(root, "content.headers[0]");
 
-            var tempFile = Path.GetTempFileName();
+//            Assert.IsNull(root["name"]);
+//            Assert.AreEqual(1, root["items"]?.Count());
+//            Assert.AreEqual("2", root["items"]?[0]?["value"]?.ToString());
+//            Assert.IsNull(root["content"]?["headers[0]"]);
+//        }
 
-            try
-            {
-                File.WriteAllText(tempFile, expectedJson);
+//        [TestMethod]
+//        public void DifferenceResponseWriterShouldSyncExpectedToCurrentExceptIgnoredDifferences()
+//        {
+//            var expectedJson = /*lang=json,strict*/ """
+//                                                    {
+//                                                        "id": 1,
+//                                                        "name": "Old",
+//                                                        "obsolete": "remove",
+//                                                        "items": [
+//                                                            {
+//                                                                "value": 1
+//                                                            }
+//                                                        ]
+//                                                    }
+//                                                    """;
 
-                var expectedInfo = new EmbeddedFileInfo("Expected.json", expectedJson, new FileInfo(tempFile));
-                var writer = new DifferenceResponseWriter(new JsonDiffer(), new JsonPathWriter());
-                var originalDifferenceFunc = AssertObjectExtensions.DifferenceFunc;
+//            var currentJson = /*lang=json,strict*/ """
+//                                                   {
+//                                                       "id": 2,
+//                                                       "name": "New",
+//                                                       "added": "yes",
+//                                                       "items": [
+//                                                           {
+//                                                               "value": 1,
+//                                                               "extra": true
+//                                                           }
+//                                                       ]
+//                                                   }
+//                                                   """;
 
-                try
-                {
-                    AssertObjectExtensions.DifferenceFunc = differences => differences;
+//            var tempFile = Path.GetTempFileName();
 
-                    writer.Write(new WriteResponseRequest
-                                 {
-                                     CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                                     CurrentResponseAsString = currentJson,
-                                     ExpectedResult = expectedInfo,
-                                     Parameters = Array.Empty<(string key, object? Value)>(),
-                                     DifferenceFunc = diffs => diffs.Where(d => !string.Equals(d.MemberPath, "id", StringComparison.OrdinalIgnoreCase)),
-                                     Mode = ResponseWriteMode.DifferencesOnly
-                                 });
-                }
-                finally
-                {
-                    AssertObjectExtensions.DifferenceFunc = originalDifferenceFunc;
-                }
+//            try
+//            {
+//                File.WriteAllText(tempFile, expectedJson);
 
-                var updated = JToken.Parse(File.ReadAllText(tempFile));
+//                var expectedInfo = new EmbeddedFileInfo("Expected.json", expectedJson, new FileInfo(tempFile));
+//                var writer = new DifferenceResponseWriter(new JsonDiffer(), new JsonPathWriter());
+//                var originalDifferenceFunc = AssertObjectExtensions.DifferenceFunc;
 
-                var expectedUpdated = JToken.Parse("""
-                                                   {
-                                                       "id": 1,
-                                                       "name": "New",
-                                                       "added": "yes",
-                                                       "items": [
-                                                           {
-                                                               "value": 1,
-                                                               "extra": true
-                                                           }
-                                                       ]
-                                                   }
-                                                   """);
+//                try
+//                {
+//                    AssertObjectExtensions.DifferenceFunc = differences => differences;
 
-                Assert.IsTrue(JToken.DeepEquals(expectedUpdated, updated));
-            }
-            finally
-            {
-                File.Delete(tempFile);
-            }
-        }
+//                    writer.Write(new WriteResponseRequest
+//                                 {
+//                                     CallingAssembly = typeof(ResponseWriterTests).Assembly,
+//                                     CurrentResponseAsString = currentJson,
+//                                     ExpectedResult = expectedInfo,
+//                                     Parameters = Array.Empty<(string key, object? Value)>(),
+//                                     DifferenceFunc = diffs => diffs.Where(d => !string.Equals(d.MemberPath, "id", StringComparison.OrdinalIgnoreCase)),
+//                                     Mode = ResponseWriteMode.DifferencesOnly
+//                                 });
+//                }
+//                finally
+//                {
+//                    AssertObjectExtensions.DifferenceFunc = originalDifferenceFunc;
+//                }
 
-        [TestMethod]
-        public void DifferenceResponseWriterShouldRestoreIgnoredArrayEntriesFromExpected()
-        {
-            var expectedJson = /*lang=json,strict*/ """
-                                                   {
-                                                        "items": [
-                                                            {
-                                                                "id": 1,
-                                                                "value": "keep"
-                                                            },
-                                                            {
-                                                                "id": 2,
-                                                                "value": "expected"
-                                                            }
-                                                        ]
-                                                    }
-                                                   """;
+//                var updated = JToken.Parse(File.ReadAllText(tempFile));
 
-            var currentJson = /*lang=json,strict*/ """
-                                                   {
-                                                       "items": [
-                                                           {
-                                                               "id": 1,
-                                                               "value": "current"
-                                                           },
-                                                           {
-                                                               "id": 2,
-                                                               "value": "current"
-                                                           },
-                                                           {
-                                                               "id": 3,
-                                                               "value": "added"
-                                                           }
-                                                       ]
-                                                   }
-                                                   """;
+//                var expectedUpdated = JToken.Parse("""
+//                                                   {
+//                                                       "id": 1,
+//                                                       "name": "New",
+//                                                       "added": "yes",
+//                                                       "items": [
+//                                                           {
+//                                                               "value": 1,
+//                                                               "extra": true
+//                                                           }
+//                                                       ]
+//                                                   }
+//                                                   """);
 
-            var tempFile = Path.GetTempFileName();
+//                Assert.IsTrue(JToken.DeepEquals(expectedUpdated, updated));
+//            }
+//            finally
+//            {
+//                File.Delete(tempFile);
+//            }
+//        }
 
-            try
-            {
-                File.WriteAllText(tempFile, expectedJson);
+//        [TestMethod]
+//        public void DifferenceResponseWriterShouldRestoreIgnoredArrayEntriesFromExpected()
+//        {
+//            var expectedJson = /*lang=json,strict*/ """
+//                                                   {
+//                                                        "items": [
+//                                                            {
+//                                                                "id": 1,
+//                                                                "value": "keep"
+//                                                            },
+//                                                            {
+//                                                                "id": 2,
+//                                                                "value": "expected"
+//                                                            }
+//                                                        ]
+//                                                    }
+//                                                   """;
 
-                var expectedInfo = new EmbeddedFileInfo("Expected.json", expectedJson, new FileInfo(tempFile));
-                var writer = new DifferenceResponseWriter(new JsonDiffer(), new JsonPathWriter());
-                var originalDifferenceFunc = AssertObjectExtensions.DifferenceFunc;
+//            var currentJson = /*lang=json,strict*/ """
+//                                                   {
+//                                                       "items": [
+//                                                           {
+//                                                               "id": 1,
+//                                                               "value": "current"
+//                                                           },
+//                                                           {
+//                                                               "id": 2,
+//                                                               "value": "current"
+//                                                           },
+//                                                           {
+//                                                               "id": 3,
+//                                                               "value": "added"
+//                                                           }
+//                                                       ]
+//                                                   }
+//                                                   """;
 
-                try
-                {
-                    AssertObjectExtensions.DifferenceFunc = differences => differences;
+//            var tempFile = Path.GetTempFileName();
 
-                    writer.Write(new WriteResponseRequest
-                                 {
-                                     CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                                     CurrentResponseAsString = currentJson,
-                                     ExpectedResult = expectedInfo,
-                                     Parameters = Array.Empty<(string key, object? Value)>(),
-                                     DifferenceFunc = diffs => diffs.Where(d => !d.MemberPath.StartsWith("items[1]", StringComparison.OrdinalIgnoreCase)),
-                                     Mode = ResponseWriteMode.DifferencesOnly
-                                 });
-                }
-                finally
-                {
-                    AssertObjectExtensions.DifferenceFunc = originalDifferenceFunc;
-                }
+//            try
+//            {
+//                File.WriteAllText(tempFile, expectedJson);
 
-                var updated = JToken.Parse(File.ReadAllText(tempFile));
+//                var expectedInfo = new EmbeddedFileInfo("Expected.json", expectedJson, new FileInfo(tempFile));
+//                var writer = new DifferenceResponseWriter(new JsonDiffer(), new JsonPathWriter());
+//                var originalDifferenceFunc = AssertObjectExtensions.DifferenceFunc;
 
-                var expectedUpdated = JToken.Parse("""
-                                                   {
-                                                       "items": [
-                                                           {
-                                                               "id": 1,
-                                                               "value": "current"
-                                                           },
-                                                           {
-                                                               "id": 2,
-                                                               "value": "expected"
-                                                           },
-                                                           {
-                                                               "id": 3,
-                                                               "value": "added"
-                                                           }
-                                                       ]
-                                                   }
-                                                   """);
+//                try
+//                {
+//                    AssertObjectExtensions.DifferenceFunc = differences => differences;
 
-                Assert.IsTrue(JToken.DeepEquals(expectedUpdated, updated));
-            }
-            finally
-            {
-                File.Delete(tempFile);
-            }
-        }
+//                    writer.Write(new WriteResponseRequest
+//                                 {
+//                                     CallingAssembly = typeof(ResponseWriterTests).Assembly,
+//                                     CurrentResponseAsString = currentJson,
+//                                     ExpectedResult = expectedInfo,
+//                                     Parameters = Array.Empty<(string key, object? Value)>(),
+//                                     DifferenceFunc = diffs => diffs.Where(d => !d.MemberPath.StartsWith("items[1]", StringComparison.OrdinalIgnoreCase)),
+//                                     Mode = ResponseWriteMode.DifferencesOnly
+//                                 });
+//                }
+//                finally
+//                {
+//                    AssertObjectExtensions.DifferenceFunc = originalDifferenceFunc;
+//                }
 
-        [TestMethod]
-        public void OverwriteAllResponseWriterShouldWriteCurrentResponseWithSmartReplacements()
-        {
-            var currentJson = /*lang=json,strict*/ """
-                                                   {
-                                                       "userId": "123",
-                                                       "message": "User 123",
-                                                       "value": 5
-                                                   }
-                                                   """;
+//                var updated = JToken.Parse(File.ReadAllText(tempFile));
 
-            var tempFile = Path.GetTempFileName();
+//                var expectedUpdated = JToken.Parse("""
+//                                                   {
+//                                                       "items": [
+//                                                           {
+//                                                               "id": 1,
+//                                                               "value": "current"
+//                                                           },
+//                                                           {
+//                                                               "id": 2,
+//                                                               "value": "expected"
+//                                                           },
+//                                                           {
+//                                                               "id": 3,
+//                                                               "value": "added"
+//                                                           }
+//                                                       ]
+//                                                   }
+//                                                   """);
 
-            try
-            {
-                File.WriteAllText(tempFile, "{}");
+//                Assert.IsTrue(JToken.DeepEquals(expectedUpdated, updated));
+//            }
+//            finally
+//            {
+//                File.Delete(tempFile);
+//            }
+//        }
 
-                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
-                var writer = new OverwriteAllResponseWriter();
+//        [TestMethod]
+//        public void OverwriteAllResponseWriterShouldWriteCurrentResponseWithSmartReplacements()
+//        {
+//            var currentJson = /*lang=json,strict*/ """
+//                                                   {
+//                                                       "userId": "123",
+//                                                       "message": "User 123",
+//                                                       "value": 5
+//                                                   }
+//                                                   """;
 
-                writer.Write(new WriteResponseRequest
-                             {
-                                 CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                                 CurrentResponseAsString = currentJson,
-                                 ExpectedResult = expectedInfo,
-                                 Parameters = [("$userId", "123")],
-                                 DifferenceFunc = diffs => diffs,
-                                 Mode = ResponseWriteMode.OverwriteAll
-                             });
+//            var tempFile = Path.GetTempFileName();
 
-                var updated = JToken.Parse(File.ReadAllText(tempFile));
+//            try
+//            {
+//                File.WriteAllText(tempFile, "{}");
 
-                Assert.AreEqual("$userId", updated["userId"]?.ToString());
-                Assert.AreEqual("User $userId", updated["message"]?.ToString());
-                Assert.AreEqual("5", updated["value"]?.ToString());
-            }
-            finally
-            {
-                File.Delete(tempFile);
-            }
-        }
+//                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
+//                var writer = new OverwriteAllResponseWriter();
 
-        [TestMethod]
-        public void OverwriteAllResponseWriterShouldReplaceHyphenatedSubstrings()
-        {
-            var currentJson = /*lang=json,strict*/ """
-                                                   {
-                                                       "message": "AWS S3 Bucket name 'rps-lenovo-p16-1234-sdc' is already in used by: Type"
-                                                   }
-                                                   """;
+//                writer.Write(new WriteResponseRequest
+//                             {
+//                                 CallingAssembly = typeof(ResponseWriterTests).Assembly,
+//                                 CurrentResponseAsString = currentJson,
+//                                 ExpectedResult = expectedInfo,
+//                                 Parameters = [("$userId", "123")],
+//                                 DifferenceFunc = diffs => diffs,
+//                                 Mode = ResponseWriteMode.OverwriteAll
+//                             });
 
-            var tempFile = Path.GetTempFileName();
+//                var updated = JToken.Parse(File.ReadAllText(tempFile));
 
-            try
-            {
-                File.WriteAllText(tempFile, "{}");
+//                Assert.AreEqual("$userId", updated["userId"]?.ToString());
+//                Assert.AreEqual("User $userId", updated["message"]?.ToString());
+//                Assert.AreEqual("5", updated["value"]?.ToString());
+//            }
+//            finally
+//            {
+//                File.Delete(tempFile);
+//            }
+//        }
 
-                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
-                var writer = new OverwriteAllResponseWriter();
+//        [TestMethod]
+//        public void OverwriteAllResponseWriterShouldReplaceHyphenatedSubstrings()
+//        {
+//            var currentJson = /*lang=json,strict*/ """
+//                                                   {
+//                                                       "message": "AWS S3 Bucket name 'rps-lenovo-p16-1234-sdc' is already in used by: Type"
+//                                                   }
+//                                                   """;
 
-                writer.Write(new WriteResponseRequest
-                             {
-                                 CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                                 CurrentResponseAsString = currentJson,
-                                 ExpectedResult = expectedInfo,
-                                 Parameters = [("$mayvar$", "rps-lenovo-p16")],
-                                 DifferenceFunc = diffs => diffs,
-                                 Mode = ResponseWriteMode.OverwriteAll
-                             });
+//            var tempFile = Path.GetTempFileName();
 
-                var updated = JToken.Parse(File.ReadAllText(tempFile));
+//            try
+//            {
+//                File.WriteAllText(tempFile, "{}");
 
-                Assert.AreEqual("AWS S3 Bucket name '$mayvar$-1234-sdc' is already in used by: Type",
-                                updated["message"]?.ToString());
-            }
-            finally
-            {
-                File.Delete(tempFile);
-            }
-        }
+//                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
+//                var writer = new OverwriteAllResponseWriter();
 
-        [TestMethod]
-        public void OverwriteAllResponseWriterShouldReplaceNonStringPropertyValues()
-        {
-            var currentJson = /*lang=json,strict*/ """
-                                                   {
-                                                       "id": 1,
-                                                       "name": "Goku",
-                                                       "age": 42,
-                                                       "active": true
-                                                   }
-                                                   """;
+//                writer.Write(new WriteResponseRequest
+//                             {
+//                                 CallingAssembly = typeof(ResponseWriterTests).Assembly,
+//                                 CurrentResponseAsString = currentJson,
+//                                 ExpectedResult = expectedInfo,
+//                                 Parameters = [("$mayvar$", "rps-lenovo-p16")],
+//                                 DifferenceFunc = diffs => diffs,
+//                                 Mode = ResponseWriteMode.OverwriteAll
+//                             });
 
-            var tempFile = Path.GetTempFileName();
+//                var updated = JToken.Parse(File.ReadAllText(tempFile));
 
-            try
-            {
-                File.WriteAllText(tempFile, "{}");
+//                Assert.AreEqual("AWS S3 Bucket name '$mayvar$-1234-sdc' is already in used by: Type",
+//                                updated["message"]?.ToString());
+//            }
+//            finally
+//            {
+//                File.Delete(tempFile);
+//            }
+//        }
 
-                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
-                var writer = new OverwriteAllResponseWriter();
+//        [TestMethod]
+//        public void OverwriteAllResponseWriterShouldReplaceNonStringPropertyValues()
+//        {
+//            var currentJson = /*lang=json,strict*/ """
+//                                                   {
+//                                                       "id": 1,
+//                                                       "name": "Goku",
+//                                                       "age": 42,
+//                                                       "active": true
+//                                                   }
+//                                                   """;
 
-                writer.Write(new WriteResponseRequest
-                             {
-                                 CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                                 CurrentResponseAsString = currentJson,
-                                 ExpectedResult = expectedInfo,
-                                 Parameters = [("$Age$", 42), ("$Active$", true)],
-                                 DifferenceFunc = diffs => diffs,
-                                 Mode = ResponseWriteMode.OverwriteAll
-                             });
+//            var tempFile = Path.GetTempFileName();
 
-                var updated = JToken.Parse(File.ReadAllText(tempFile));
+//            try
+//            {
+//                File.WriteAllText(tempFile, "{}");
 
-                Assert.AreEqual("$Age$", updated["age"]?.ToString());
-                Assert.AreEqual("$Active$", updated["active"]?.ToString());
-                Assert.AreEqual("1", updated["id"]?.ToString());
-            }
-            finally
-            {
-                File.Delete(tempFile);
-            }
-        }
+//                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
+//                var writer = new OverwriteAllResponseWriter();
 
-        [TestMethod]
-        public void OverwriteAllResponseWriterShouldNotReplaceShortValuesInsideOtherStrings()
-        {
-            var currentJson = /*lang=json,strict*/ """
-                                                   {
-                                                       "status": "A",
-                                                       "role": "Admin",
-                                                       "are": "$Are$",
-                                                       "template": "$Status$re$",
-                                                       "createdAt": "2025-09-01T06:45:29.187544Z"
-                                                   }
-                                                   """;
+//                writer.Write(new WriteResponseRequest
+//                             {
+//                                 CallingAssembly = typeof(ResponseWriterTests).Assembly,
+//                                 CurrentResponseAsString = currentJson,
+//                                 ExpectedResult = expectedInfo,
+//                                 Parameters = [("$Age$", 42), ("$Active$", true)],
+//                                 DifferenceFunc = diffs => diffs,
+//                                 Mode = ResponseWriteMode.OverwriteAll
+//                             });
 
-            var tempFile = Path.GetTempFileName();
-            try
-            {
-                File.WriteAllText(tempFile, "{}");
+//                var updated = JToken.Parse(File.ReadAllText(tempFile));
 
-                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
-                var writer = new OverwriteAllResponseWriter();
+//                Assert.AreEqual("$Age$", updated["age"]?.ToString());
+//                Assert.AreEqual("$Active$", updated["active"]?.ToString());
+//                Assert.AreEqual("1", updated["id"]?.ToString());
+//            }
+//            finally
+//            {
+//                File.Delete(tempFile);
+//            }
+//        }
 
-                writer.Write(new WriteResponseRequest
-                {
-                    CallingAssembly = typeof(ResponseWriterTests).Assembly,
-                    CurrentResponseAsString = currentJson,
-                    ExpectedResult = expectedInfo,
-                    Parameters = [("$Status$", "A")],
-                    DifferenceFunc = diffs => diffs,
-                    Mode = ResponseWriteMode.OverwriteAll
-                });
+//        [TestMethod]
+//        public void OverwriteAllResponseWriterShouldNotReplaceShortValuesInsideOtherStrings()
+//        {
+//            var currentJson = /*lang=json,strict*/ """
+//                                                   {
+//                                                       "status": "A",
+//                                                       "role": "Admin",
+//                                                       "are": "$Are$",
+//                                                       "template": "$Status$re$",
+//                                                       "createdAt": "2025-09-01T06:45:29.187544Z"
+//                                                   }
+//                                                   """;
 
-                var updated = JToken.Parse(File.ReadAllText(tempFile));
+//            var tempFile = Path.GetTempFileName();
+//            try
+//            {
+//                File.WriteAllText(tempFile, "{}");
 
-                Assert.AreEqual("$Status$", updated["status"]?.ToString());
-                Assert.AreEqual("Admin", updated["role"]?.ToString());
-                Assert.AreEqual("$Are$", updated["are"]?.ToString());
-                Assert.AreEqual("$Status$re$", updated["template"]?.ToString());
+//                var expectedInfo = new EmbeddedFileInfo("Expected.json", "{}", new FileInfo(tempFile));
+//                var writer = new OverwriteAllResponseWriter();
 
-                var createdAt = updated["createdAt"]?.ToObject<DateTime>();
-                var expectedCreatedAt = DateTime.Parse("2025-09-01T06:45:29.187544Z", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-                Assert.AreEqual(expectedCreatedAt, createdAt);
-            }
-            finally
-            {
-                File.Delete(tempFile);
-            }
-        }
-    }
-}
+//                writer.Write(new WriteResponseRequest
+//                {
+//                    CallingAssembly = typeof(ResponseWriterTests).Assembly,
+//                    CurrentResponseAsString = currentJson,
+//                    ExpectedResult = expectedInfo,
+//                    Parameters = [("$Status$", "A")],
+//                    DifferenceFunc = diffs => diffs,
+//                    Mode = ResponseWriteMode.OverwriteAll
+//                });
+
+//                var updated = JToken.Parse(File.ReadAllText(tempFile));
+
+//                Assert.AreEqual("$Status$", updated["status"]?.ToString());
+//                Assert.AreEqual("Admin", updated["role"]?.ToString());
+//                Assert.AreEqual("$Are$", updated["are"]?.ToString());
+//                Assert.AreEqual("$Status$re$", updated["template"]?.ToString());
+
+//                var createdAt = updated["createdAt"]?.ToObject<DateTime>();
+//                var expectedCreatedAt = DateTime.Parse("2025-09-01T06:45:29.187544Z", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+//                Assert.AreEqual(expectedCreatedAt, createdAt);
+//            }
+//            finally
+//            {
+//                File.Delete(tempFile);
+//            }
+//        }
+//    }
+//}

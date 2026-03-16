@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -8,6 +9,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
     [TestCategory("JsonDiffer")]
     public sealed class JsonDifferTests
     {
+        private static IJsonDiffer _jsonDiffer = null!;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddJsonDiffer();
+            _jsonDiffer = serviceCollection.BuildServiceProvider().GetRequiredService<IJsonDiffer>();
+        }
+
         [TestMethod]
         public void FindDifferencesShouldDetectValueDifferences()
         {
@@ -25,8 +36,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                      }
                                      """);
 
-            var differ = new JsonDiffer();
-            var diffs = differ.FindDifferences(left, right);
+            var diffs = _jsonDiffer.FindDifferences(left, right);
 
             Assert.HasCount(1, diffs);
             Assert.AreEqual("name", diffs[0].MemberPath);
@@ -46,12 +56,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
             var right = JToken.Parse("""
                                      {
                                          "name": "value",
-                                         "onlyRight": 1
+                                         "onlyRight": 1 
                                      }
                                      """);
 
-            var differ = new JsonDiffer();
-            var diffs = differ.FindDifferences(left, right);
+            var diffs = _jsonDiffer.FindDifferences(left, right);
 
             Assert.HasCount(2, diffs);
             Assert.IsTrue(diffs.Any(d => d.MemberPath == "onlyLeft" && d.MismatchType == MismatchType.MissingInSecond));
@@ -84,15 +93,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                      }
                                      """);
 
-            var differ = new JsonDiffer();
-            var diffs = differ.FindDifferences(left, right);
+            var diffs = _jsonDiffer.FindDifferences(left, right);
 
             Assert.IsTrue(diffs.Any(d => d.MemberPath == "items[0].value" && d.MismatchType == MismatchType.ValueDifference));
             Assert.IsTrue(diffs.Any(d => d.MemberPath == "items[1]" && d.MismatchType == MismatchType.MissingInFirst));
         }
 
         [TestMethod]
-        public void Find_Differences_Huge_Structure()
+        public void FindDifferencesShouldHandleComplexNestedStructures()
         {
             var left = JToken.Parse("""
                                     {
@@ -202,8 +210,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
                                      }
                                      """);
 
-            var differ = new JsonDiffer();
-            var diffs = differ.FindDifferences(left, right);
+            var diffs = _jsonDiffer.FindDifferences(left, right);
 
             Assert.HasCount(5, diffs);
         }

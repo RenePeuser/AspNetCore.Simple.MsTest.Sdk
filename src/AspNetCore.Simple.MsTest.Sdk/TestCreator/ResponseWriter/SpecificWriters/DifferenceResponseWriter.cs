@@ -18,7 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     }
 
     internal sealed class DifferenceResponseWriter(IJsonDiffer jsonDiffer,
-                                                   JsonPathWriter jsonPathWriter) : ISpecificResponseWriter
+                                                   IJsonPathWriter jsonPathWriter) : ISpecificResponseWriter
     {
         public bool CanHandle(WriteResponseRequest context)
         {

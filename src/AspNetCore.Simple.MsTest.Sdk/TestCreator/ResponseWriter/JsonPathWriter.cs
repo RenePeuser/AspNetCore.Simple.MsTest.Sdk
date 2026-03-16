@@ -4,23 +4,30 @@ using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    internal static class AddJsonPathWriterExtension
+    public static class AddJsonPathWriterExtension
     {
-        internal static void AddJsonPathWriter(this IServiceCollection services)
+        public static void AddJsonPathWriter(this IServiceCollection services)
         {
-            services.AddSingletonIfNotExists<JsonPathWriter>();
+            services.AddSingletonIfNotExists<IJsonPathWriter, JsonPathWriter>();
         }
     }
 
-    internal sealed class JsonPathWriter
+    public interface IJsonPathWriter
+    {
+        void AddOrUpdate(JToken root,
+                         string path,
+                         JToken value);
+    }
+
+    internal sealed class JsonPathWriter : IJsonPathWriter
     {
         // =============================================================
         // ADD OR UPDATE
         // =============================================================
 
-        internal void AddOrUpdate(JToken root,
-                                  string path,
-                                  JToken value)
+        public void AddOrUpdate(JToken root,
+                                string path,
+                                JToken value)
         {
             if (root == null || path.IsNullOrWhiteSpace())
             {
