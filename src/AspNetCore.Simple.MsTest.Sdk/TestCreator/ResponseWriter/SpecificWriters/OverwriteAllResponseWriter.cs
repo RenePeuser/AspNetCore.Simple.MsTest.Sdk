@@ -57,7 +57,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static void ApplySmartReplacements(JToken root,
                                                    params (string key, object? Value)[] parameters)
         {
-            if (parameters == null || parameters.Length == 0)
+            if (parameters.IsNullOrEmpty())
             {
                 return;
             }
