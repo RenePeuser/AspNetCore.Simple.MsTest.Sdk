@@ -4,34 +4,21 @@ using System.Runtime.CompilerServices;
 namespace AspNetCore.Simple.MsTest.Sdk
 {
 #pragma warning disable CA1019 // Define accessors for attribute arguments
-    public sealed class SnapshotTestMethodAttribute : TestMethodAttribute
+#pragma warning disable MSTEST0057 // TestMethodAttribute derived class should propagate source information
+    public sealed class SnapshotTestMethodAttribute(int maxRetries,
+#pragma warning restore MSTEST0057 // TestMethodAttribute derived class should propagate source information
+                                                    [CallerFilePath] string callerFilePath = "",
+                                                    [CallerLineNumber] int callerLineNumber = -1) : TestMethodAttribute(callerFilePath, callerLineNumber)
     {
-        private readonly int _maxRetries;
-        private readonly Assembly _callingAssembly;
 
-        public SnapshotTestMethodAttribute(int maxRetries,
-                                           [CallerFilePath] string callerFilePath = "",
-                                           [CallerLineNumber] int callerLineNumber = -1)
-            : this(maxRetries, Assembly.GetExecutingAssembly(), callerFilePath, callerLineNumber)
-        {
-        }
-
-        private SnapshotTestMethodAttribute(int maxRetries,
-                                            Assembly callingAssembly,
-                                            [CallerFilePath] string callerFilePath = "",
-                                            [CallerLineNumber] int callerLineNumber = -1)
-            : base(callerFilePath, callerLineNumber)
-        {
-            _maxRetries = maxRetries;
-            _callingAssembly = callingAssembly;
-        }
-
-        private readonly WriteResponseService _writeResponseService = new WriteResponseService();
+        private static readonly WriteResponseService WriteResponseService = new WriteResponseService();
 
         public override async Task<TestResult[]> ExecuteAsync(ITestMethod testMethod)
         {
-            var retries = _writeResponseService.ShouldWriteResponse(false, _callingAssembly)
-                              ? _maxRetries
+            var callingAssembly = testMethod.MethodInfo.DeclaringType!.Assembly;
+
+            var retries = WriteResponseService.ShouldWriteResponse(false, callingAssembly)
+                              ? maxRetries
                               : 1;
 
             TestResult[]? lastResult = null;
