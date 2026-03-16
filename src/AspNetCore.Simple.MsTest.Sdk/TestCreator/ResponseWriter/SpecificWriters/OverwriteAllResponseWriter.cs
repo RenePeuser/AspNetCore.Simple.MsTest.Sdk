@@ -41,8 +41,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             ApplySmartReplacements(root, context.Parameters);
 
+            var readOnlySpan = root.ToString(Formatting.Indented);
+
+            // New we can have also indexer properties. Values[0] -> Values[$Index$]
+            foreach (var parameter in context.Parameters)
+            {
+                readOnlySpan = GlobalRegex.IndexReplacement().Replace(readOnlySpan, $"[{parameter.key}]");
+            }
+
             File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName,
-                              root.ToString(Formatting.Indented));
+                              readOnlySpan);
         }
 
         // Smart Replace bleibt wie zuvor

@@ -52,7 +52,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // New we can have also indexer properties. Values[0] -> Values[$Index$]
             foreach (var parameter in contextParameters)
             {
-                currentRootAsJson = currentRootAsJson.Replace($"[{parameter.Value}]", $"[{parameter.key}]");
+                currentRootAsJson = GlobalRegex.IndexReplacement().Replace(currentRootAsJson, $"[{parameter.key}]");
             }
 
             currentRoot = JToken.Parse(currentRootAsJson);
