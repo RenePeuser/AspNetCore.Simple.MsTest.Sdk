@@ -2,7 +2,7 @@
     <PropertyGroup>
         <!-- TargetFramework: Specifies the .NET target framework for all projects.
             'net9.0' targets .NET 9.0, ensuring all projects use the same runtime and API surface.-->
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
 
         <!-- LangVersion: Sets the C# language version to the latest major version available.
              This allows usage of the newest C# language features. -->
