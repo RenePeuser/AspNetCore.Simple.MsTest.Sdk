@@ -10,7 +10,7 @@
         <PackageProjectUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
-        <PackageReleaseNotes>Fix bugs with error output if call went wrong, like not found, method not allowed etc.</PackageReleaseNotes>
+        <PackageReleaseNotes>Upgrade to .Net 10.</PackageReleaseNotes>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <ApplicationIcon />
         <StartupObject />
