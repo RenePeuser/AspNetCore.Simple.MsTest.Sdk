@@ -10,7 +10,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     [CallerFilePath] string callerFilePath = "",
                                                     [CallerLineNumber] int callerLineNumber = -1) : TestMethodAttribute(callerFilePath, callerLineNumber)
     {
-
         private static readonly WriteResponseService WriteResponseService = new WriteResponseService();
 
         public override async Task<TestResult[]> ExecuteAsync(ITestMethod testMethod)

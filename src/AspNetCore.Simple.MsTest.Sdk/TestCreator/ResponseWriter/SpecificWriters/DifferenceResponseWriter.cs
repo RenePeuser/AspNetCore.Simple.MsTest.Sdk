@@ -40,7 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (context.ExpectedResult.EmbeddedFileName.IsNullOrWhiteSpace())
             {
                 return;
-            }    
+            }
 
             var currentRoot = JToken.Parse(context.CurrentResponseAsString);
 
@@ -80,6 +80,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             foreach (var ignoredPath in ignoredPaths)
             {
                 var source = expectedRoot.SelectToken(ignoredPath);
+
                 if (source != null)
                 {
                     jsonPathWriter.AddOrUpdate(resultRoot, ignoredPath, source);
@@ -111,7 +112,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var propertyName = key.Trim('$');
 
                 // 🔥 Property-Replacement IMMER versuchen – auch bei null
-                ReplaceByProperty(root, propertyName, key, value);
+                ReplaceByProperty(root, propertyName, key,
+                                  value);
 
                 // FullText nur wenn value != null
                 if (value != null && value.ToString()?.Length >= 3)
@@ -168,6 +170,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var originalText = originalValue.ToString();
+
             if (originalText.IsNullOrWhiteSpace() || originalText.Length < 3)
             {
                 return;
@@ -206,7 +209,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private static string ReplaceOutsidePlaceholders(string input, Func<string, string> replacer)
+        private static string ReplaceOutsidePlaceholders(string input,
+                                                         Func<string, string> replacer)
         {
             if (input.Contains('$').IsFalse())
             {
@@ -214,6 +218,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var parts = input.Split('$');
+
             for (var i = 0; i < parts.Length; i += 2)
             {
                 parts[i] = replacer(parts[i]);

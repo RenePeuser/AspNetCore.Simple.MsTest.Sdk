@@ -91,7 +91,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
         internal object Deserialize<T>(string json,
                                        Type returnType)
         {
-            object? deserializeResult = default(T);
+            object? deserializeResult = default;
             var errorMessage = string.Empty;
 
             try

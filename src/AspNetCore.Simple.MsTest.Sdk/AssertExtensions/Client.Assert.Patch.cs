@@ -764,19 +764,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string expectedResultParameterName = "",
                                                               [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync(url,
-                                              payloadAsObject.ToJson(JsonSerializerOptions),
-                                              expectedResult,
-                                              filterFunc,
-                                              HttpMethod.Patch,
-                                              difference => difference,
-                                              [],
-                                              callingAssembly,
-                                              payloadAsObjectParameterName,
-                                              expectedResultParameterName,
-                                              callerFilePath,
-                                              true,
-                                              writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, payloadAsObject.ToJson(JsonSerializerOptions),
+                                                                                   expectedResult, filterFunc, HttpMethod.Patch,
+                                                                                   difference => difference, [], callingAssembly,
+                                                                                   payloadAsObjectParameterName, expectedResultParameterName, callerFilePath,
+                                                                                   true, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
@@ -793,19 +787,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string expectedResultParameterName = "",
                                                               [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync(url,
-                                              payloadAsObject.ToJson(JsonSerializerOptions),
-                                              expectedResult,
-                                              filterFunc,
-                                              HttpMethod.Patch,
-                                              difference => difference,
-                                              parameters,
-                                              callingAssembly,
-                                              payloadAsObjectParameterName,
-                                              expectedResultParameterName,
-                                              callerFilePath,
-                                              true,
-                                              writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, payloadAsObject.ToJson(JsonSerializerOptions),
+                                                                                   expectedResult, filterFunc, HttpMethod.Patch,
+                                                                                   difference => difference, parameters, callingAssembly,
+                                                                                   payloadAsObjectParameterName, expectedResultParameterName, callerFilePath,
+                                                                                   true, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
@@ -820,19 +808,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerArgumentExpression(nameof(expectedResult))]
                                                               string expectedResultParameterName = "", [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync(url,
-                                              payloadAsJson,
-                                              expectedResult,
-                                              filterFunc,
-                                              HttpMethod.Patch,
-                                              difference => difference,
-                                              [],
-                                              callingAssembly,
-                                              payloadAsJsonParameterName,
-                                              expectedResultParameterName,
-                                              callerFilePath,
-                                              true,
-                                              writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, payloadAsJson,
+                                                                                   expectedResult, filterFunc, HttpMethod.Patch,
+                                                                                   difference => difference, [], callingAssembly,
+                                                                                   payloadAsJsonParameterName, expectedResultParameterName, callerFilePath,
+                                                                                   true, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
@@ -849,18 +831,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string expectedResultParameterName = "",
                                                               [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync(url,
-                                              payloadAsJson,
-                                              expectedResult,
-                                              filterFunc,
-                                              HttpMethod.Patch,
-                                              parameters,
-                                              callingAssembly,
-                                              payloadAsJsonParameterName,
-                                              expectedResultParameterName,
-                                              callerFilePath,
-                                              true,
-                                              writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, payloadAsJson,
+                                                                                   expectedResult, filterFunc, HttpMethod.Patch,
+                                                                                   difference => difference, parameters, callingAssembly,
+                                                                                   payloadAsJsonParameterName, expectedResultParameterName, callerFilePath,
+                                                                                   true, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
@@ -877,19 +854,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string expectedResultParameterName = "",
                                                               [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync(url,
-                                              payloadAsObject.ToJson(JsonSerializerOptions),
-                                              expectedResult,
-                                              filterFunc,
-                                              HttpMethod.Patch,
-                                              differenceFunc,
-                                              [],
-                                              callingAssembly,
-                                              payloadAsObjectParameterName,
-                                              expectedResultParameterName,
-                                              callerFilePath,
-                                              true,
-                                              writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, payloadAsObject.ToJson(JsonSerializerOptions),
+                                                                                   expectedResult, filterFunc, HttpMethod.Patch,
+                                                                                   differenceFunc, [], callingAssembly,
+                                                                                   payloadAsObjectParameterName, expectedResultParameterName, callerFilePath,
+                                                                                   true, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
@@ -907,19 +878,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string expectedResultParameterName = "",
                                                               [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync(url,
-                                              payloadAsObject.ToJson(JsonSerializerOptions),
-                                              expectedResult,
-                                              filterFunc,
-                                              HttpMethod.Patch,
-                                              differenceFunc,
-                                              parameters,
-                                              callingAssembly,
-                                              payloadAsObjectParameterName,
-                                              expectedResultParameterName,
-                                              callerFilePath,
-                                              true,
-                                              writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, payloadAsObject.ToJson(JsonSerializerOptions),
+                                                                                   expectedResult, filterFunc, HttpMethod.Patch,
+                                                                                   differenceFunc, parameters, callingAssembly,
+                                                                                   payloadAsObjectParameterName, expectedResultParameterName, callerFilePath,
+                                                                                   true, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
@@ -936,19 +901,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string expectedResultParameterName = "",
                                                               [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync(url,
-                                              payloadAsJson,
-                                              expectedResult,
-                                              filterFunc,
-                                              HttpMethod.Patch,
-                                              differenceFunc,
-                                              [],
-                                              callingAssembly,
-                                              payloadAsJsonParameterName,
-                                              expectedResultParameterName,
-                                              callerFilePath,
-                                              true,
-                                              writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, payloadAsJson,
+                                                                                   expectedResult, filterFunc, HttpMethod.Patch,
+                                                                                   differenceFunc, [], callingAssembly,
+                                                                                   payloadAsJsonParameterName, expectedResultParameterName, callerFilePath,
+                                                                                   true, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
@@ -966,19 +925,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string expectedResultParameterName = "",
                                                               [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync(url,
-                                              payloadAsJson,
-                                              expectedResult,
-                                              filterFunc,
-                                              HttpMethod.Patch,
-                                              differenceFunc,
-                                              parameters,
-                                              callingAssembly,
-                                              payloadAsJsonParameterName,
-                                              expectedResultParameterName,
-                                              callerFilePath,
-                                              true,
-                                              writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, payloadAsJson,
+                                                                                   expectedResult, filterFunc, HttpMethod.Patch,
+                                                                                   differenceFunc, parameters, callingAssembly,
+                                                                                   payloadAsJsonParameterName, expectedResultParameterName, callerFilePath,
+                                                                                   true, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
 
         public static Task AssertPatchAsUnauthorizedAsync(this HttpClient httpClient,
@@ -1013,6 +966,30 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode, errorOutput);
+        }
+
+        // ============================================================
+        // Complete Context API (Level 3) - Everything in Context!
+        // ============================================================
+
+        /// <summary>
+        /// Level 3: Complete Context API - All parameters in context (cleanest API).
+        /// </summary>
+        public static Task AssertPatchAsync(HttpAssertContext context)
+        {
+            var internalContext = HttpAssertContextInternalFactory.FromContext(context, HttpMethod.Patch);
+
+            return AssertHttpCallAsync(internalContext);
+        }
+
+        /// <summary>
+        /// Level 3: Complete Context API - All parameters in context (cleanest API).
+        /// </summary>
+        public static Task<TResult> AssertPatchAsync<TResult>(HttpAssertContext<TResult> context)
+        {
+            var internalContext = HttpAssertContextInternalFactory.FromContext(context, HttpMethod.Patch);
+
+            return AssertHttpCallAsync(internalContext);
         }
     }
 }

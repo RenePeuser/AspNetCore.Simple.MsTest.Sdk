@@ -95,14 +95,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // Handle cases where one token is missing.
-            if (token1.IsNull() || token1.IsNull())
+            if (token1.IsNull())
             {
                 differences[path] = (null, token2, MismatchType.MissingInFirst);
 
                 return;
             }
 
-            if (token2.IsNull() || token2.IsNull())
+            if (token2.IsNull())
             {
                 differences[path] = (token1, null, MismatchType.MissingInSecond);
 

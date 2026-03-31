@@ -89,18 +89,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync<TResult>(url,
-                                                       string.Empty,
-                                                       expectedResult,
-                                                       item => item,
-                                                       HttpMethod.Delete,
-                                                       [],
-                                                       callingAssembly,
-                                                       string.Empty,
-                                                       expectedResultParameterName,
-                                                       callerFilePath,
-                                                       false,
-                                                       writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+                                                                                   expectedResult, item => item, HttpMethod.Delete,
+                                                                                   difference => difference, [], callingAssembly,
+                                                                                   string.Empty, expectedResultParameterName, callerFilePath,
+                                                                                   false, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
 
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
@@ -154,19 +149,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync<TResult>(url,
-                                                       string.Empty,
-                                                       expectedResult,
-                                                       item => item,
-                                                       HttpMethod.Delete,
-                                                       differenceFunc,
-                                                       parameters,
-                                                       callingAssembly,
-                                                       string.Empty,
-                                                       expectedResultParameterName,
-                                                       callerFilePath,
-                                                       false,
-                                                       writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+                                                                                   expectedResult, item => item, HttpMethod.Delete,
+                                                                                   differenceFunc, parameters, callingAssembly,
+                                                                                   string.Empty, expectedResultParameterName, callerFilePath,
+                                                                                   false, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
     }
 }

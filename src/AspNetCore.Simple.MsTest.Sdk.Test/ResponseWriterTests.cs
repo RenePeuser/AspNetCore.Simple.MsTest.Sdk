@@ -24,7 +24,6 @@
 //            _jsonPathWriter = serviceCollection.BuildServiceProvider().GetRequiredService<IJsonPathWriter>();
 //        }
 
-
 //        [TestMethod]
 //        public void JsonPathWriterAddOrUpdateShouldUpdatePropertiesAndArrayItems()
 //        {
@@ -476,3 +475,5 @@
 //        }
 //    }
 //}
+
+

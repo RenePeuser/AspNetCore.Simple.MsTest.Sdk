@@ -74,6 +74,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                     [CallerFilePath] string callerFilePath = "") where T : class
         {
             var request = LocalizeRequest<T>(embeddedFile, callerFilePath, Assembly.GetCallingAssembly());
+
             return request;
         }
 
@@ -83,6 +84,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var localizeRequestFile = LocalizeRequestFile(embeddedFile, callerFilePath, callingAssembly);
             var request = localizeRequestFile.Content.FromJsonStringAs<T>(jsonSerializerOptions);
+
             return request;
         }
 
@@ -90,6 +92,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      [CallerFilePath] string callerFilePath = "") where T : class
         {
             var response = LocalizeResponse<T>(embeddedFile, callerFilePath, Assembly.GetCallingAssembly());
+
             return response;
         }
 
@@ -99,6 +102,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var localizeResponseFile = LocalizeResponseFile(embeddedFile, callerFilePath, Assembly.GetCallingAssembly());
             var response = localizeResponseFile.Content.FromJsonStringAs<T>(jsonSerializerOptions);
+
             return response;
         }
 
@@ -141,6 +145,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var contextPrefix = BuildContextPrefix(callerFilePath, callingAssembly);
             var testCases = callingAssembly.GetManifestResourceNames().Where(r => r.Contains(contextPrefix)).ToImmutableList();
+
             return testCases;
         }
 
@@ -150,6 +155,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var contextPrefix = BuildContextPrefix(callerFilePath, callingAssembly);
             var testCases = callingAssembly.GetManifestResourceNames().Where(r => r.Contains(contextPrefix)).ToImmutableList();
             var fileInfos = testCases.Select(t => LocalizeRequestFile(t, callerFilePath, callingAssembly)).ToImmutableList();
+
             return fileInfos;
         }
 
@@ -211,13 +217,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // NEW: When you are in snapshot mode, you are writing the json which are at that moment
             //      are not in the assembly
             var embeddedResourceExist = assembly.GetManifestResourceNames().Contains(embeddedResource.EmbeddedFile);
+
             if (embeddedResourceExist.IsFalse())
             {
                 var contentFromFile = File.ReadAllText(physicalFile.FullName);
+
                 return new EmbeddedFileInfo(embeddedResource.EmbeddedFile, contentFromFile, physicalFile);
             }
 
             var content = assembly.GetFileContentOrDefaultFrom(embeddedResource.EmbeddedFile);
+
             return new EmbeddedFileInfo(embeddedResource.EmbeddedFile, content, physicalFile);
         }
 

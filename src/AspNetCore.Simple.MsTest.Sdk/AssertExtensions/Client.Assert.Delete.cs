@@ -88,18 +88,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync<TResult>(url,
-                                                       string.Empty,
-                                                       expectedResult,
-                                                       item => item,
-                                                       HttpMethod.Delete,
-                                                       [],
-                                                       callingAssembly,
-                                                       string.Empty,
-                                                       expectedResultParameterName,
-                                                       callerFilePath,
-                                                       true,
-                                                       writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+                                                                                   expectedResult, item => item, HttpMethod.Delete,
+                                                                                   difference => difference, [], callingAssembly,
+                                                                                   string.Empty, expectedResultParameterName, callerFilePath,
+                                                                                   true, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
 
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
@@ -112,18 +107,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "")
         {
-            return client.AssertHttpCallAsync<TResult>(url,
-                                                       string.Empty,
-                                                       expectedResult,
-                                                       item => item,
-                                                       HttpMethod.Delete,
-                                                       parameters,
-                                                       callingAssembly,
-                                                       string.Empty,
-                                                       expectedResultParameterName,
-                                                       callerFilePath,
-                                                       true,
-                                                       writeResponse);
+            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+                                                                                   expectedResult, item => item, HttpMethod.Delete,
+                                                                                   difference => difference, parameters, callingAssembly,
+                                                                                   string.Empty, expectedResultParameterName, callerFilePath,
+                                                                                   true, writeResponse);
+
+            return AssertHttpCallAsync(context);
         }
 
         public static async Task AssertDeleteAsUnauthorizedAsync(this HttpClient httpClient,
@@ -149,6 +139,30 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode, errorOutput);
+        }
+
+        // ============================================================
+        // Complete Context API (Level 3) - Everything in Context!
+        // ============================================================
+
+        /// <summary>
+        /// Level 3: Complete Context API - All parameters in context (cleanest API).
+        /// </summary>
+        public static Task AssertDeleteAsync(HttpAssertContext context)
+        {
+            var internalContext = HttpAssertContextInternalFactory.FromContext(context, HttpMethod.Delete);
+
+            return AssertHttpCallAsync(internalContext);
+        }
+
+        /// <summary>
+        /// Level 3: Complete Context API - All parameters in context (cleanest API).
+        /// </summary>
+        public static Task<TResult> AssertDeleteAsync<TResult>(HttpAssertContext<TResult> context)
+        {
+            var internalContext = HttpAssertContextInternalFactory.FromContext(context, HttpMethod.Delete);
+
+            return AssertHttpCallAsync(internalContext);
         }
     }
 }

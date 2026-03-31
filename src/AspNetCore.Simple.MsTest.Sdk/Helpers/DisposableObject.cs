@@ -12,14 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             GC.SuppressFinalize(this);
         }
 
-        ~DisposableObject()
-        {
-            Dispose(false);
-        }
-
-#pragma warning disable CA1063
-        private void Dispose(bool disposing)
-#pragma warning restore CA1063
+        protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
             {

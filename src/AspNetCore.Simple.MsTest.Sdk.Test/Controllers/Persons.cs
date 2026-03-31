@@ -46,7 +46,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
                                                   "AnyFolder.P.NewPersonParameter.json",
                                                   "AnyFolder.R.NewPersonParameter.json",
-                                                  parameters:[("$Name$", "Son"), ("$Age$", 42)],
+                                                  parameters: [("$Name$", "Son"), ("$Age$", 42)],
                                                   differenceFunc: DifferenceFunc);
         }
 

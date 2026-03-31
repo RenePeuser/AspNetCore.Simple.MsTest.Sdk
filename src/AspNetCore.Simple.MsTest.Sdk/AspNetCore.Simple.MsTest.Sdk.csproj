@@ -17,7 +17,7 @@
         <PackageId>AspNetCore.Simple.MsTest.Sdk</PackageId>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
         <NoWarn>CA1515;CA1707;CA1054;CA1062;MSTEST0016;CA2234;IDE0032</NoWarn>
-		<IsPackable>true</IsPackable>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
 
     <!--Property group settings for source link !-->

@@ -30,16 +30,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters =
-            {
-                new JsonStringEnumConverter()
-            }
-        };
+                                                                                  {
+                                                                                      PropertyNameCaseInsensitive = true,
+                                                                                      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                                                                      DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                                                                                      NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                                                                                      Converters = { new JsonStringEnumConverter() }
+                                                                                  };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
@@ -669,7 +666,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
                                               T currentObject,
-                                              Func<T, T> orderFunc,
+                                              Func<T?, T?> orderFunc,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))]
                                               string expectedResultParameterName = "",
@@ -692,7 +689,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
                                               T currentObject,
-                                              Func<T, T> orderFunc,
+                                              Func<T?, T?> orderFunc,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))]
@@ -740,7 +737,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
                                               T currentObject,
-                                              Func<T, T> orderFunc,
+                                              Func<T?, T?> orderFunc,
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
@@ -791,7 +788,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
                                               T currentObject,
-                                              Func<T, T> orderFunc,
+                                              Func<T?, T?> orderFunc,
                                               Assembly callingAssembly,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObjectAsJson))]
@@ -815,7 +812,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
                                               T currentObject,
-                                              Func<T, T> orderFunc,
+                                              Func<T?, T?> orderFunc,
                                               Assembly callingAssembly,
                                               (string Key, object? Value)[] parameters,
                                               bool writeResponse = false,
@@ -841,7 +838,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
                                               T currentObject,
-                                              Func<T, T> orderFunc,
+                                              Func<T?, T?> orderFunc,
                                               string title,
                                               Assembly callingAssembly,
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
@@ -869,7 +866,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
                                               T currentObject,
-                                              Func<T, T> orderFunc,
+                                              Func<T?, T?> orderFunc,
                                               string title,
                                               Assembly callingAssembly,
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
@@ -898,7 +895,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               string expectedObjectAsJson,
                                               T currentObject,
-                                              Func<T, T> orderFunc,
+                                              Func<T?, T?> orderFunc,
                                               string title,
                                               Assembly callingAssembly,
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
@@ -911,6 +908,48 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
+            // Convert parameters to context and call context-based implementation
+            var context = new ObjectAssertContext<T>
+                          {
+                              ExpectedObjectAsJson = expectedObjectAsJson,
+                              CurrentObject = currentObject,
+                              OrderFunc = orderFunc,
+                              Title = title,
+                              CallingAssembly = callingAssembly,
+                              DifferenceFunc = differenceFunc,
+                              Curl = curl,
+                              Parameters = parameters,
+                              WriteResponse = writeResponse,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              CurrentResultParameterName = currentResultParameterName,
+                              CallerFilePath = callerFilePath
+                          };
+
+            ObjectsAreEqual(assert, context);
+        }
+
+        // ============================================================
+        // Context-based implementation (internal)
+        // ============================================================
+
+        public static void ObjectsAreEqual<T>(this Assert _,
+                                              ObjectAssertContext<T> context)
+        {
+            // Extract values from context
+            var expectedObjectAsJson = context.ExpectedObjectAsJson;
+            var currentObject = context.CurrentObject;
+
+            var expectedResultParameterName = context.ExpectedResultParameterName;
+            var currentResultParameterName = context.CurrentResultParameterName;
+            var callerFilePath = context.CallerFilePath;
+            var callingAssembly = context.CallingAssembly;
+            var orderFunc = context.OrderFunc;
+            var differenceFunc = context.DifferenceFunc;
+            var title = context.Title ?? string.Empty;
+            var curl = context.Curl ?? string.Empty;
+            var parameters = context.Parameters;
+            var writeResponse = context.WriteResponse;
+
             if (expectedObjectAsJson.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
                 expectedResultParameterName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
             {
@@ -926,10 +965,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (localizedExpectedResponseFile.EmbeddedFile.IsNull() ||
                 localizedExpectedResponseFile.EmbeddedFile.Exists.IsFalse())
             {
-                localizedExpectedResponseFile = localizedExpectedResponseFile with
-                {
-                    Content = expectedObjectAsJson
-                };
+                localizedExpectedResponseFile = localizedExpectedResponseFile with { Content = expectedObjectAsJson };
             }
 
             // This is most the use case when calling an API and want to know what comes back
@@ -949,14 +985,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (shouldWriteResponse)
             {
                 var writeResponseRequest = new WriteResponseRequest()
-                {
-                    CallingAssembly = callingAssembly,
-                    DifferenceFunc = differenceFunc,
-                    CurrentResponseAsString = currentObjectAsJson,
-                    ExpectedResult = localizedExpectedResponseFile,
-                    Parameters = parameters,
-                    Mode = ResponseWriteMode.DifferencesOnly
-                };
+                                           {
+                                               CallingAssembly = callingAssembly,
+                                               DifferenceFunc = differenceFunc,
+                                               CurrentResponseAsString = currentObjectAsJson,
+                                               ExpectedResult = localizedExpectedResponseFile,
+                                               Parameters = parameters,
+                                               Mode = ResponseWriteMode.DifferencesOnly
+                                           };
 
                 ResponseWriter.Write(writeResponseRequest);
             }
@@ -1020,6 +1056,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (contentValueDifferences.IsNotNull())
                 {
                     differences = JsonDiffer.FindDifferences(contentValueDifferences.Value1 ?? string.Empty, contentValueDifferences.Value2 ?? string.Empty);
+
                     hasSchemaMismatch = differences.Any(item => (item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond) &&
                                                                 item.MemberPath.EndsWith(']').IsFalse());
                 }
@@ -1035,14 +1072,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (shouldWriteResponse)
                 {
                     var writeResponseRequest = new WriteResponseRequest()
-                    {
-                        CallingAssembly = callingAssembly,
-                        DifferenceFunc = differenceFunc,
-                        CurrentResponseAsString = object2AsJson,
-                        ExpectedResult = localizedExpectedResponseFile,
-                        Parameters = parameters,
-                        Mode = ResponseWriteMode.DifferencesOnly
-                    };
+                                               {
+                                                   CallingAssembly = callingAssembly,
+                                                   DifferenceFunc = differenceFunc,
+                                                   CurrentResponseAsString = object2AsJson,
+                                                   ExpectedResult = localizedExpectedResponseFile,
+                                                   Parameters = parameters,
+                                                   Mode = ResponseWriteMode.DifferencesOnly
+                                               };
 
                     ResponseWriter.Write(writeResponseRequest);
                 }
