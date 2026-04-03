@@ -23,7 +23,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            bool writeResponse = false,
                                            [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.CreateFrom(client,
+            var context = HttpAssertContextFactory.CreateFrom(client,
                                                                       url,
                                                                       string.Empty,
                                                                       HttpMethod.Post,
@@ -43,7 +43,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            bool writeResponse = false,
                                            [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.CreateFrom(client,
+            var context = HttpAssertContextFactory.CreateFrom(client,
                                                                       url,
                                                                       payloadAsJson,
                                                                       HttpMethod.Post,
@@ -773,7 +773,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client,
                                                                                    url,
                                                                                    payloadAsObject.ToJson(JsonSerializerOptions),
                                                                                    expectedResult,
@@ -805,7 +805,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client,
                                                                                    url,
                                                                                    payloadAsObject.ToJson(JsonSerializerOptions),
                                                                                    expectedResult,
@@ -836,7 +836,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client,
                                                                                    url,
                                                                                    payloadAsJson,
                                                                                    expectedResult,
@@ -868,7 +868,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client,
                                                                                    url,
                                                                                    payloadAsJson,
                                                                                    expectedResult,
@@ -900,7 +900,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client,
                                                                                    url,
                                                                                    payloadAsObject.ToJson(JsonSerializerOptions),
                                                                                    expectedResult,
@@ -933,7 +933,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client,
                                                                                    url,
                                                                                    payloadAsObject.ToJson(JsonSerializerOptions),
                                                                                    expectedResult,
@@ -965,7 +965,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client,
                                                                                    url,
                                                                                    payloadAsJson,
                                                                                    expectedResult,
@@ -998,7 +998,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client,
                                                                                    url,
                                                                                    payloadAsJson,
                                                                                    expectedResult,
@@ -1075,9 +1075,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <summary>
         /// Level 3: Complete Context API - All parameters in context (cleanest API).
         /// </summary>
-        public static Task AssertPostAsync(HttpAssertContext context)
+        public static Task AssertPostAsync(HttpAssertContext<string> context)
         {
-            var internalContext = HttpAssertContextInternalFactory.FromContext(context, HttpMethod.Post);
+            var internalContext = HttpAssertContextFactory.FromContext(context, HttpMethod.Post);
 
             return AssertHttpCallAsync(internalContext);
         }
@@ -1087,7 +1087,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         public static Task<TResult> AssertPostAsync<TResult>(HttpAssertContext<TResult> context)
         {
-            var internalContext = HttpAssertContextInternalFactory.FromContext(context, HttpMethod.Post);
+            var internalContext = HttpAssertContextFactory.FromContext(context, HttpMethod.Post);
 
             return AssertHttpCallAsync(internalContext);
         }

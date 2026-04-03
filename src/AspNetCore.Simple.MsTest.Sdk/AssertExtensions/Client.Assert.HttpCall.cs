@@ -126,15 +126,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       writResponse);
         }
 
-        // Context-based non-generic overload
-#pragma warning disable CA1859
-        internal static Task AssertHttpCallAsync(HttpAssertContextInternal context)
-#pragma warning restore CA1859
+        // Context-based string overload (no expected result comparison)
+        internal static Task AssertHttpCallAsync(HttpAssertContext<string> context)
         {
-            var genericContext = HttpAssertContextInternalFactory.ToGeneric<string>(context,
-                                                                                    IgnoreResponseComparison);
-
-            return AssertHttpCallAsync(genericContext);
+            return AssertHttpCallAsync<string>(context);
         }
 
         private static Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
@@ -185,26 +180,31 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   bool isSuccessStatusCode = true,
                                                                   bool writResponse = false)
         {
-            // Convert to internal context and call the context-based method
-            var context = HttpAssertContextInternalFactory.FromParameters(client,
-                                                                          url,
-                                                                          payloadAsJson,
-                                                                          expectedResult,
-                                                                          filterFunc,
-                                                                          httpMethod,
-                                                                          differenceFunc,
-                                                                          parameters,
-                                                                          callingAssembly,
-                                                                          payloadAsJsonParameterName,
-                                                                          expectedResultParameterName,
-                                                                          callerFilePath,
-                                                                          isSuccessStatusCode,
-                                                                          writResponse);
+            // Create public context directly - no need for internal context
+            var context = new HttpAssertContext<TResult>
+            {
+                Client = client,
+                Url = url,
+                PayloadAsJson = payloadAsJson,
+                ExpectedObjectAsJson = expectedResult,
+                CurrentObject = default,
+                HttpMethod = httpMethod,
+                OrderFunc = filterFunc,
+                DifferenceFunc = differenceFunc,
+                Parameters = parameters,
+                CallingAssembly = callingAssembly,
+                WriteResponse = writResponse,
+                IsSuccessStatusCode = isSuccessStatusCode,
+                CallerFilePath = callerFilePath,
+                PayloadParameterName = payloadAsJsonParameterName,
+                ExpectedResultParameterName = expectedResultParameterName,
+                CurrentResultParameterName = "Current response"
+            };
 
             return AssertHttpCallAsync(context);
         }
 
-        internal static Task<TResult> AssertHttpCallAsync<TResult>(HttpAssertContextInternal<TResult> context)
+        internal static Task<TResult> AssertHttpCallAsync<TResult>(HttpAssertContext<TResult> context)
         {
             // URL parameter replacement - replace placeholders in URL with actual values
             // This is the only preprocessing needed here, all other logic is handled by AssertableHttpClient
@@ -216,31 +216,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 url = url.Replace(valueTuple.Key, valueTuple.Value?.ToString());
             }
 
-            // Update context with resolved URL and ShowTokenInCurl from static field
-            var updatedContext = new HttpAssertContextInternal<TResult>
-                                 {
-                                     Client = context.Client,
-                                     Url = url,
-                                     PayloadAsJson = context.PayloadAsJson,
-                                     ExpectedResult = context.ExpectedResult,
-                                     OrderFunc = context.OrderFunc,
-                                     HttpMethod = context.HttpMethod,
-                                     DifferenceFunc = context.DifferenceFunc,
-                                     Parameters = context.Parameters,
-                                     CallingAssembly = context.CallingAssembly,
-                                     PayloadParameterName = context.PayloadParameterName,
-                                     ExpectedResultParameterName = context.ExpectedResultParameterName,
-                                     CallerFilePath = context.CallerFilePath,
-                                     IsSuccessStatusCode = context.IsSuccessStatusCode,
-                                     WriteResponse = context.WriteResponse,
-                                     ShowTokenInCurl = ShowTokenInCurl,
-                                     CurrentObject = context.CurrentObject
+            // Update context with resolved URL and ShowTokenInCurl from static field using record 'with' expression
+            var updatedContext = context with
+            {
+                Url = url,
+                ShowTokenInCurl = ShowTokenInCurl
             };
 
             // Delegate to the configured IAssertableHttpClient (default or custom implementation)
             // This allows for type-safe interception of HTTP assertions while maintaining backward compatibility
-            var publicContext = HttpAssertContextInternalFactory.ToPublicContext(updatedContext);
-            return CustomAssertableHttpClient.AssertAsync(publicContext);
+            return CustomAssertableHttpClient.AssertAsync(updatedContext);
         }
     }
 }

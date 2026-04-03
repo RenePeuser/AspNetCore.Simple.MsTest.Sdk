@@ -50,14 +50,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public interface IAssertableHttpClient
     {
         /// <summary>
-        /// Performs an HTTP request and asserts the response without deserializing to a specific type.
-        /// The HTTP method is determined by the context's HttpMethod property.
-        /// </summary>
-        /// <param name="context">The assertion context containing all request parameters including the HTTP method.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        Task AssertAsync(HttpAssertContext context);
-
-        /// <summary>
         /// Performs an HTTP request and asserts the response against an expected result.
         /// The HTTP method is determined by the context's HttpMethod property.
         /// </summary>
@@ -88,40 +80,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
         /// <inheritdoc />
-        public Task AssertAsync(HttpAssertContext context)
-        {
-            var internalContext = HttpAssertContextInternalFactory.FromContext(context);
-
-            return AssertHttpCallAsync(internalContext);
-        }
-
-        /// <inheritdoc />
         public Task<TResult> AssertAsync<TResult>(HttpAssertContext<TResult> context)
         {
-            var internalContext = HttpAssertContextInternalFactory.FromContext(context);
-
-            return AssertHttpCallAsync(internalContext);
-        }
-
-        // Non-generic overload
-#pragma warning disable CA1859
-        private Task AssertHttpCallAsync(HttpAssertContextInternal context)
-#pragma warning restore CA1859
-        {
-            var genericContext = HttpAssertContextInternalFactory.ToGeneric<string>(context, IgnoreResponseComparison);
-
-            return AssertHttpCallAsync(genericContext);
+            return AssertHttpCallAsync(context);
         }
 
         // Master assert method - contains the core logic
-        private async Task<TResult> AssertHttpCallAsync<TResult>(HttpAssertContextInternal<TResult> context)
+        private async Task<TResult> AssertHttpCallAsync<TResult>(HttpAssertContext<TResult> context)
         {
             // localize expected response and payload
-            var payloadAsJsonFile = embeddedFileLocalizer.LocalizeRequestFile(context.PayloadAsJson,
+            var payloadAsJsonFile = embeddedFileLocalizer.LocalizeRequestFile(context.PayloadAsJson ?? string.Empty,
                                                                               context.CallerFilePath,
                                                                               context.CallingAssembly);
 
-            var expectedResultFile = embeddedFileLocalizer.LocalizeResponseFile(context.ExpectedResult,
+            var expectedResultFile = embeddedFileLocalizer.LocalizeResponseFile(context.ExpectedObjectAsJson,
                                                                                 context.CallerFilePath,
                                                                                 context.CallingAssembly);
 

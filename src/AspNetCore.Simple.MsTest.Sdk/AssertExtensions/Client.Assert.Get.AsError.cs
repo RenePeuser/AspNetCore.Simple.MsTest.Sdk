@@ -91,7 +91,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
                                                                                    expectedResult, filterFunc, HttpMethod.Get,
                                                                                    difference => difference, [], Assembly.GetCallingAssembly(),
                                                                                    string.Empty, expectedResultParameterName, callerFilePath,
@@ -110,7 +110,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
                                                                                    expectedResult, filterFunc, HttpMethod.Get,
                                                                                    difference => difference, parameters, Assembly.GetCallingAssembly(),
                                                                                    string.Empty, expectedResultParameterName, callerFilePath,
@@ -129,7 +129,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
                                                                                    expectedResult, filterFunc, HttpMethod.Get,
                                                                                    differenceFunc, [], Assembly.GetCallingAssembly(),
                                                                                    string.Empty, expectedResultParameterName, callerFilePath,
@@ -149,7 +149,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
                                                                                    expectedResult, filterFunc, HttpMethod.Get,
                                                                                    differenceFunc, parameters, Assembly.GetCallingAssembly(),
                                                                                    string.Empty, expectedResultParameterName, callerFilePath,
@@ -167,7 +167,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
                                                                                    expectedResult, item => item, HttpMethod.Get,
                                                                                    difference => difference, [], callingAssembly,
                                                                                    string.Empty, expectedResultParameterName, callerFilePath,
@@ -186,7 +186,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
                                                                                    expectedResult, item => item, HttpMethod.Get,
                                                                                    difference => difference, parameters, callingAssembly,
                                                                                    string.Empty, expectedResultParameterName, callerFilePath,
@@ -205,7 +205,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
                                                                                    expectedResult, item => item, HttpMethod.Get,
                                                                                    differenceFunc, [], callingAssembly,
                                                                                    string.Empty, expectedResultParameterName, callerFilePath,
@@ -225,7 +225,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResultParameterName = "",
                                                                    [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
                                                                                    expectedResult, item => item, HttpMethod.Get,
                                                                                    differenceFunc, parameters, callingAssembly,
                                                                                    string.Empty, expectedResultParameterName, callerFilePath,

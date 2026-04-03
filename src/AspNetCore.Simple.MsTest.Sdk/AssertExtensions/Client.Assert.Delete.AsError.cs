@@ -89,7 +89,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
                                                                                    expectedResult, item => item, HttpMethod.Delete,
                                                                                    difference => difference, [], callingAssembly,
                                                                                    string.Empty, expectedResultParameterName, callerFilePath,
@@ -149,7 +149,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextInternalFactory.FromParameters<TResult>(client, url, string.Empty,
+            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
                                                                                    expectedResult, item => item, HttpMethod.Delete,
                                                                                    differenceFunc, parameters, callingAssembly,
                                                                                    string.Empty, expectedResultParameterName, callerFilePath,

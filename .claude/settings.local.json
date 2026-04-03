@@ -6,7 +6,16 @@
       "Bash(mv:*)",
       "Read(//tmp/**)",
       "Bash(grep -v \"///\")",
-      "Bash(grep -l \"Func<TResult, TResult>\" *.cs)"
+      "Bash(grep -l \"Func<TResult, TResult>\" *.cs)",
+      "Bash(find . -name \"*.cs\" -type f -exec sed -i 's/HttpAssertContextInternalFactory/HttpAssertContextFactory/g' {} \\\\;)",
+      "Bash(rm:*)",
+      "Bash(grep -v \"//\")",
+      "Bash(sed:*)",
+      "Bash(sed -i 's/public static Task AssertPatchAsync\\(HttpAssertContext context\\)/public static Task AssertPatchAsync\\(HttpAssertContext<string> context\\)/g' Client.Assert.Patch.cs)",
+      "Bash(sed -i 's/public static Task AssertPostAsync\\(HttpAssertContext context\\)/public static Task AssertPostAsync\\(HttpAssertContext<string> context\\)/g' Client.Assert.Post.cs)",
+      "Bash(sed -i 's/public static Task AssertPutAsync\\(HttpAssertContext context\\)/public static Task AssertPutAsync\\(HttpAssertContext<string> context\\)/g' Client.Assert.Put.cs)",
+      "Bash(sed -i 's/internal static Task AssertHttpCallAsync\\(HttpAssertContext context\\)/internal static Task AssertHttpCallAsync\\(HttpAssertContext<string> context\\)/g' Client.Assert.HttpCall.cs)",
+      "Bash(grep -n \"FromContext\\(context, HttpMethod\" *.cs)"
     ]
   }
 }

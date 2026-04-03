@@ -17,14 +17,6 @@
             The HTTP method (GET, POST, PUT, PATCH, DELETE) is determined by the context.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient.AssertAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext)">
-            <summary>
-            Performs an HTTP request and asserts the response without deserializing to a specific type.
-            The HTTP method is determined by the context's HttpMethod property.
-            </summary>
-            <param name="context">The assertion context containing all request parameters including the HTTP method.</param>
-            <returns>A task representing the asynchronous operation.</returns>
-        </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <summary>
             Performs an HTTP request and asserts the response against an expected result.
@@ -48,9 +40,6 @@
             All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext)">
-            <inheritdoc />
-        </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <inheritdoc />
         </member>
@@ -65,7 +54,7 @@
             The HttpClient is passed via the context when calling AssertAsync, not in the constructor.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertDeleteAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertDeleteAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
             <summary>
             Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
@@ -75,7 +64,7 @@
             Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertGetAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertGetAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
              <summary>
              Level 3: Complete Context API - All parameters in context (cleanest API).
              </summary>
@@ -120,7 +109,7 @@
             Defaults to the standard AssertableHttpClient implementation.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPatchAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPatchAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
             <summary>
             Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
@@ -130,7 +119,7 @@
             Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPostAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPostAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
             <summary>
             Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
@@ -140,7 +129,7 @@
             Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPutAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPutAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
             <summary>
             Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
@@ -215,134 +204,27 @@
             Curl command for reproducing the HTTP call.
             </summary>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextFactory">
             <summary>
-            Context object for HTTP assertion methods without a result type.
+            Factory methods for creating HttpAssertContext instances.
+            Provides convenient creation methods for different scenarios.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.Client">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextFactory.FromContext``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0},System.Net.Http.HttpMethod)">
             <summary>
-            The HttpClient instance to use for making the request.
+            Creates a context with explicit HttpMethod override.
+            Used by method-specific extensions (GET, POST, etc.) that set the HTTP method.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.Url">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextFactory.FromParameters``1(System.Net.Http.HttpClient,System.String,System.String,System.String,System.Func{``0,``0},System.Net.Http.HttpMethod,System.Func{System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference},System.Collections.Generic.IEnumerable{AspNetCore.Simple.MsTest.Sdk.Difference}},System.ValueTuple{System.String,System.Object}[],System.Reflection.Assembly,System.String,System.String,System.String,System.Boolean,System.Boolean)">
             <summary>
-            The URL to call. Can contain placeholders like {userId} that will be replaced using Parameters.
+            Creates a context from individual parameters (for backward compatibility with old extension signatures).
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.HttpMethod">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextFactory.CreateFrom(System.Net.Http.HttpClient,System.String,System.String,System.Net.Http.HttpMethod,System.ValueTuple{System.String,System.Object}[],System.Reflection.Assembly,System.String,System.String,System.Boolean,System.Boolean)">
             <summary>
-            The HTTP method to use for the request (GET, POST, PUT, PATCH, DELETE, etc.).
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.PayloadAsJson">
-            <summary>
-            The payload as JSON string or file name.
-            Can be a JSON string, a file name like "request.json", or an embedded resource path.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.Parameters">
-            <summary>
-            Parameters to replace in the URL and payload.
-            Format: (Key, Value) tuples where Key is the placeholder and Value is the replacement.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.CallingAssembly">
-            <summary>
-            The calling assembly. If not provided, will be automatically determined.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.WriteResponse">
-            <summary>
-            Whether to write the response to disk.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.IsSuccessStatusCode">
-            <summary>
-            Whether the HTTP call is expected to succeed (2xx status code).
-            Set to false when testing error scenarios.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.CallerFilePath">
-            <summary>
-            The file path of the calling test method. Usually auto-filled by CallerFilePath.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.PayloadParameterName">
-            <summary>
-            The parameter name of the payload argument. Usually auto-filled by CallerArgumentExpression.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.ShowTokenInCurl">
-            <summary>
-            Controls the visibility of the token in curl outputs.
-            Set to true to show the token in generated curl commands.
-            </summary>
-        </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternal`1">
-            <summary>
-            Internal context object used by the master AssertHttpCallAsync method.
-            Contains all parameters needed for HTTP assertion logic.
-            This is a pure data object - no logic or factory methods.
-            </summary>
-            <typeparam name="TResult">The expected result type</typeparam>
-        </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternal">
-            <summary>
-            Internal context object for non-generic HTTP assertions.
-            This is a pure data object - no logic or factory methods.
-            </summary>
-        </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternalFactory">
-            <summary>
-            Factory methods for creating HttpAssertContextInternal instances.
-            Separates object creation logic from data objects.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternalFactory.ToGeneric``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternal,System.String)">
-            <summary>
-            Converts a non-generic HttpAssertContextInternal to a generic one.
-            Used for internal conversions where we need to add a result type.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternalFactory.ToPublicContext``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternal{``0})">
-            <summary>
-            Converts an internal generic context to a public context.
-            Used for backward compatibility with existing static extensions that use HttpAssertContextInternal.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternalFactory.FromContext``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
-            <summary>
-            Creates an internal context from the public context.
-            All required values should be in the context (Clean API - Level 3).
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternalFactory.FromContext``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0},System.Net.Http.HttpMethod)">
-            <summary>
-            Creates an internal context from the public context with explicit HttpMethod override.
-            For backward compatibility with existing extension methods.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternalFactory.FromParameters``1(System.Net.Http.HttpClient,System.String,System.String,System.String,System.Func{``0,``0},System.Net.Http.HttpMethod,System.Func{System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference},System.Collections.Generic.IEnumerable{AspNetCore.Simple.MsTest.Sdk.Difference}},System.ValueTuple{System.String,System.Object}[],System.Reflection.Assembly,System.String,System.String,System.String,System.Boolean,System.Boolean)">
-            <summary>
-            Creates an internal context from individual parameters (for backward compatibility).
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternalFactory.FromContext(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext)">
-            <summary>
-            Creates an internal non-generic context from the public context.
-            All required values should be in the context (Clean API - Level 3).
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternalFactory.FromContext(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext,System.Net.Http.HttpMethod)">
-            <summary>
-            Creates an internal non-generic context from the public context with explicit HttpMethod override.
-            For backward compatibility with existing extension methods.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternalFactory.CreateFrom(System.Net.Http.HttpClient,System.String,System.String,System.Net.Http.HttpMethod,System.ValueTuple{System.String,System.Object}[],System.Reflection.Assembly,System.String,System.String,System.Boolean,System.Boolean)">
-            <summary>
-            Creates an internal non-generic context from individual parameters (for backward compatibility).
+            Creates a string context from individual parameters.
+            Used for HTTP calls without response comparison (just execution).
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1">
