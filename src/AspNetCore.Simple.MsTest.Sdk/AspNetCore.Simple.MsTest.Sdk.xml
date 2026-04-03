@@ -113,6 +113,13 @@
              </code>
              </example>
         </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.CustomAssertableHttpClient">
+            <summary>
+            Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.
+            Allows developers to plug in their own assertion logic while maintaining type safety.
+            Defaults to the standard AssertableHttpClient implementation.
+            </summary>
+        </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPatchAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext)">
             <summary>
             Level 3: Complete Context API - All parameters in context (cleanest API).
