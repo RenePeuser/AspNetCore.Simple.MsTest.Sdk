@@ -324,7 +324,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
             }
 
-            
+
             var objectAssertContext = new ObjectAssertContext<SimpleHttpResponseMessage>
             {
                 ExpectedObjectAsJson = expectedObjectAsJson,
