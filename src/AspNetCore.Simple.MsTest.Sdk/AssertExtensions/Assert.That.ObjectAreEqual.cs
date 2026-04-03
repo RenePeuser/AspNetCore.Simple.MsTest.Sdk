@@ -462,38 +462,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            var orderedExpectedObject = comparisonFunc(expectedObject);
-            var orderedCurrentObject = comparisonFunc(currentObject);
+            // Delegate to AssertService by serializing expectedObject to JSON
+            // This eliminates code duplication and uses the central assertion logic
+            var expectedObjectAsJson = expectedObject.ToJson(JsonSerializerOptions);
 
-            var json1 = orderedExpectedObject.ToJson(JsonSerializerOptions);
-            var json2 = orderedCurrentObject.ToJson(JsonSerializerOptions);
-
-            // Important to replace the parameters after ordering, because the order can change the
-            // position of the parameters in the json and if we replace before, we can end up with
-            // wrong replacements
-            var sortedParameters = parameters.OrderByDescending(p => p.Key.Length);
-
-            foreach (var valueTuple in sortedParameters)
+            var context = new ObjectAssertContext<T>
             {
-                json1 = json1.Replace(valueTuple.Key, valueTuple.Value?.ToString());
-                json2 = json2.Replace(valueTuple.Key, valueTuple.Value?.ToString());
-            }
+                ExpectedObjectAsJson = expectedObjectAsJson,
+                CurrentObject = currentObject,
+                OrderFunc = comparisonFunc,
+                DifferenceFunc = differenceFunc,
+                Parameters = parameters,
+                CallingAssembly = callingAssembly,
+                WriteResponse = writeResponse,
+                Title = title,
+                Curl = curl,
+                CallerFilePath = callerFilePath,
+                ExpectedResultParameterName = expectedResultParameterName,
+                CurrentResultParameterName = currentResultParameterName
+            };
 
-            var differences = JsonDiffer.FindDifferences(json1, json2);
-
-            var commonDifferences = DifferenceFunc(differences).ToImmutableList();
-            var optimizedDifferences = differenceFunc(commonDifferences).ToImmutableList();
-
-            var resultTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
-
-            if (optimizedDifferences.Any())
-            {
-                var output = OutputFormatter.GetOutputString($"Differences detected between your current:{currentResultParameterName} and expected result: {expectedResultParameterName}", resultTable, json1,
-                                                             json2,
-                                                             title ?? $"Differences detected between your current:{currentResultParameterName} and expected result: {expectedResultParameterName}", curl);
-
-                Assert.Fail(output);
-            }
+            AssertService.ObjectsAreEqual(context);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
