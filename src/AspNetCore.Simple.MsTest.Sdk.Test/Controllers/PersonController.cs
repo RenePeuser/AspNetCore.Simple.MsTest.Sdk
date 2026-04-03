@@ -36,9 +36,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
         // Sample: You get unsorted results from API so each call will provide
         //         the users in different order. You can sort them before comparison
         //         Because if order is not matching the Assert will fail
-        private IEnumerable<Person> FilterFunc(IEnumerable<Person> arg)
+        private IEnumerable<Person>? FilterFunc(IEnumerable<Person>? arg)
         {
-            return arg.OrderBy(x => x.Id).ToImmutableList();
+            return arg?.OrderBy(x => x.Id).ToImmutableList();
         }
 
         // Difference func can be used to ignore some properties inside the object comparison

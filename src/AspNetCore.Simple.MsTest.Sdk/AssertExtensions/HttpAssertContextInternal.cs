@@ -26,7 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public required TResult? CurrentObject { get; init; }
 
-        public Func<TResult, TResult> OrderFunc { get; init; } = item => item;
+        public Func<TResult?, TResult?> OrderFunc { get; init; } = item => item;
 
         public Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; init; } = difference => difference;
 

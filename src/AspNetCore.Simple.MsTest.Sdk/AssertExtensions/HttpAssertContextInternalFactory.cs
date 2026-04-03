@@ -51,22 +51,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return new HttpAssertContext<TResult>
             {
+                // HTTP-specific properties
                 Client = internalContext.Client,
                 Url = internalContext.Url,
                 PayloadAsJson = internalContext.PayloadAsJson,
-                ExpectedObjectAsJson = internalContext.ExpectedResult,
                 HttpMethod = internalContext.HttpMethod,
+                IsSuccessStatusCode = internalContext.IsSuccessStatusCode,
+                PayloadParameterName = internalContext.PayloadParameterName,
+                ShowTokenInCurl = internalContext.ShowTokenInCurl,
+
+                // Base ObjectAssertContext properties
+                ExpectedObjectAsJson = internalContext.ExpectedResult,
+                CurrentObject = internalContext.CurrentObject,
                 OrderFunc = internalContext.OrderFunc,
                 DifferenceFunc = internalContext.DifferenceFunc,
                 Parameters = internalContext.Parameters,
                 CallingAssembly = internalContext.CallingAssembly,
                 WriteResponse = internalContext.WriteResponse,
-                IsSuccessStatusCode = internalContext.IsSuccessStatusCode,
                 CallerFilePath = internalContext.CallerFilePath,
-                PayloadParameterName = internalContext.PayloadParameterName,
                 ExpectedResultParameterName = internalContext.ExpectedResultParameterName,
-                ShowTokenInCurl = internalContext.ShowTokenInCurl,
-                CurrentObject = internalContext.CurrentObject
+                CurrentResultParameterName = "Current response"
             };
         }
 
@@ -115,6 +119,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 PayloadAsJson = publicContext.PayloadAsJson ?? string.Empty,
                 ExpectedResult = publicContext.ExpectedObjectAsJson ?? string.Empty,
                 HttpMethod = httpMethod,
+                CurrentObject = publicContext.CurrentObject,
                 OrderFunc = publicContext.OrderFunc,
                 DifferenceFunc = publicContext.DifferenceFunc,
                 Parameters = publicContext.Parameters,
@@ -136,7 +141,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                  string url,
                                                                                  string payloadAsJson,
                                                                                  string expectedResult,
-                                                                                 Func<TResult, TResult> orderFunc,
+                                                                                 Func<TResult?, TResult?> orderFunc,
                                                                                  HttpMethod httpMethod,
                                                                                  Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                                  (string Key, object? Value)[] parameters,

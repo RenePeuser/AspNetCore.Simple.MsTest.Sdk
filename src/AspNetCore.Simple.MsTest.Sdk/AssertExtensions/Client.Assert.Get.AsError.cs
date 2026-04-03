@@ -85,7 +85,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
                                                                    string expectedResult,
-                                                                   Func<TResult, TResult> filterFunc,
+                                                                   Func<TResult?, TResult?> filterFunc,
                                                                    bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
@@ -103,7 +103,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
                                                                    string expectedResult,
-                                                                   Func<TResult, TResult> filterFunc,
+                                                                   Func<TResult?, TResult?> filterFunc,
                                                                    (string Key, object? Value)[] parameters,
                                                                    bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
@@ -122,7 +122,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
                                                                    string expectedResult,
-                                                                   Func<TResult, TResult> filterFunc,
+                                                                   Func<TResult?, TResult?> filterFunc,
                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                    bool writeResponse = false,
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
@@ -141,7 +141,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
                                                                    string expectedResult,
-                                                                   Func<TResult, TResult> filterFunc,
+                                                                   Func<TResult?, TResult?> filterFunc,
                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                    (string Key, object? Value)[] parameters,
                                                                    bool writeResponse = false,

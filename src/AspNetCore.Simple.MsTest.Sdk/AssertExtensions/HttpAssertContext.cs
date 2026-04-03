@@ -34,29 +34,51 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// The payload as JSON string or file name.
         /// Can be a JSON string, a file name like "request.json", or an embedded resource path.
         /// </summary>
-        public required string? PayloadAsJson { get; init; }
+        public string? PayloadAsJson { get; init; }
+
+        /// <summary>
+        /// Alias for ExpectedObjectAsJson from base class for backward compatibility.
+        /// The expected result as JSON string or file name.
+        /// </summary>
+        public string? ExpectedResult
+        {
+            get => ExpectedObjectAsJson;
+            init => ExpectedObjectAsJson = value ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Alias for OrderFunc from base class for backward compatibility.
+        /// Optional filter function to transform the result before comparison.
+        /// Useful for filtering out dynamic properties like timestamps or IDs.
+        /// Note: Function must handle nullable inputs/outputs.
+        /// </summary>
+        public Func<TResult?, TResult?> FilterFunc
+        {
+            get => OrderFunc;
+            init => OrderFunc = value;
+        }
 
         /// <summary>
         /// Whether the HTTP call is expected to succeed (2xx status code).
         /// Set to false when testing error scenarios.
         /// </summary>
-        public required bool IsSuccessStatusCode { get; init; } = true;
+        public bool IsSuccessStatusCode { get; init; } = true;
 
         /// <summary>
         /// The parameter name of the payload argument. Usually auto-filled by CallerArgumentExpression.
         /// </summary>
-        public required string PayloadParameterName { get; init; }
+        public string PayloadParameterName { get; init; } = string.Empty;
 
         /// <summary>
         /// Controls the visibility of the token in curl outputs.
         /// Set to true to show the token in generated curl commands.
         /// </summary>
-        public required bool ShowTokenInCurl { get; init; }
+        public bool ShowTokenInCurl { get; init; }
 
         /// <summary>
         /// Curl command for reproducing the HTTP call.
         /// </summary>
-        public required string? Curl { get; init; }
+        public string? Curl { get; init; }
     }
 
     /// <summary>

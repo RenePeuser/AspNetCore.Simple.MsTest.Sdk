@@ -4,7 +4,9 @@
       "Bash(dotnet build:*)",
       "Bash(dotnet test:*)",
       "Bash(mv:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(grep -v \"///\")",
+      "Bash(grep -l \"Func<TResult, TResult>\" *.cs)"
     ]
   }
 }
