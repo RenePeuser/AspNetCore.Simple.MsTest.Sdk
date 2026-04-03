@@ -2,9 +2,23 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
+    public static class AddHttpCallHandlerExtension
+    {
+        public static void AddHttpCallHandler(this IServiceCollection services)
+        {
+            // Register dependency
+            services.AddHttpRequestMessageBuilder();
+
+            // Register service itself
+            services.AddSingletonIfNotExists<HttpCallHandler, HttpCallHandler>();
+        }
+    }
+
     internal sealed class HttpCallHandler(HttpRequestMessageBuilder httpRequestMessageBuilder)
     {
         internal async Task<HttpResponseMessage> CallAsync(HttpClient httpClient,

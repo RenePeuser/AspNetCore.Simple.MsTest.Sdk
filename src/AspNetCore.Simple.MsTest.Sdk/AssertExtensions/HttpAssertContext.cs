@@ -90,6 +90,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// The parameter name of the expected result argument. Usually auto-filled by CallerArgumentExpression.
         /// </summary>
         public required string ExpectedResultParameterName { get; init; }
+
+        /// <summary>
+        /// Controls the visibility of the token in curl outputs.
+        /// Set to true to show the token in generated curl commands.
+        /// </summary>
+        public bool ShowTokenInCurl { get; init; }
     }
 
     /// <summary>
@@ -151,5 +157,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// The parameter name of the payload argument. Usually auto-filled by CallerArgumentExpression.
         /// </summary>
         public required string PayloadParameterName { get; init; }
+
+        /// <summary>
+        /// Controls the visibility of the token in curl outputs.
+        /// Set to true to show the token in generated curl commands.
+        /// </summary>
+        public bool ShowTokenInCurl { get; init; }
     }
 }

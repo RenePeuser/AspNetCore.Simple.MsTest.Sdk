@@ -41,6 +41,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required string PayloadParameterName { get; init; } = string.Empty;
 
         public required string ExpectedResultParameterName { get; init; } = string.Empty;
+
+        public bool ShowTokenInCurl { get; init; }
     }
 
     /// <summary>
@@ -68,5 +70,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required string CallerFilePath { get; init; } = string.Empty;
 
         public required string PayloadParameterName { get; init; } = string.Empty;
+
+        public bool ShowTokenInCurl { get; init; }
     }
 }

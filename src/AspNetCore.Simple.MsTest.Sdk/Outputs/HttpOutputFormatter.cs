@@ -3,9 +3,19 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using ConsoleTables;
+using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs
 {
+    public static class AddHttpOutputFormatterExtension
+    {
+        public static void AddHttpOutputFormatter(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<HttpOutputFormatter, HttpOutputFormatter>();
+        }
+    }
+
     internal sealed class HttpOutputFormatter
     {
         public string GetOutputString(string errorInfo,

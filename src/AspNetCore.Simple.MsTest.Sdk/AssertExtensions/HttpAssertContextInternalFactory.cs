@@ -67,7 +67,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
                 CallerFilePath = publicContext.CallerFilePath,
                 PayloadParameterName = publicContext.PayloadParameterName,
-                ExpectedResultParameterName = publicContext.ExpectedResultParameterName
+                ExpectedResultParameterName = publicContext.ExpectedResultParameterName,
+                ShowTokenInCurl = publicContext.ShowTokenInCurl
             };
         }
 
@@ -157,7 +158,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 WriteResponse = publicContext.WriteResponse,
                 IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
                 CallerFilePath = publicContext.CallerFilePath,
-                PayloadParameterName = publicContext.PayloadParameterName
+                PayloadParameterName = publicContext.PayloadParameterName,
+                ShowTokenInCurl = publicContext.ShowTokenInCurl
             };
 
             return httpAssertContextInternal;

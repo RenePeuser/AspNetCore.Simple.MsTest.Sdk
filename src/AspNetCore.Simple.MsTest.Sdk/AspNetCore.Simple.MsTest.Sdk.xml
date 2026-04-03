@@ -4,6 +4,12 @@
         <name>AspNetCore.Simple.MsTest.Sdk</name>
     </assembly>
     <members>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertableHttpClientExtension.AddAssertableHttpClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers all assertable HTTP client services and their dependencies in the DI container.
+            Feature-based registration following the dependency tree pattern.
+            </summary>
+        </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient">
             <summary>
             Represents an HTTP client with assertion capabilities for API testing.
@@ -30,16 +36,17 @@
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient">
             <summary>
-            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient"/> that wraps an HttpClient
-            and delegates to the existing extension methods for backward compatibility.
-            This allows for dependency injection while maintaining the existing assertion logic.
+            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient"/> that contains the core assertion logic.
+            This class encapsulates all dependencies needed for HTTP assertions.
+            All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.#ctor(System.Net.Http.HttpClient)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.#ctor(AspNetCore.Simple.MsTest.Sdk.Outputs.HttpOutputFormatter,AspNetCore.Simple.MsTest.Sdk.CurlBuilder,AspNetCore.Simple.MsTest.Sdk.Outputs.OutputFormatter,AspNetCore.Simple.MsTest.Sdk.PrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.JsonDiffer,AspNetCore.Simple.MsTest.Sdk.ResponseWriter,AspNetCore.Simple.MsTest.Sdk.WriteResponseService,AspNetCore.Simple.MsTest.Sdk.EmbeddedFileLocalizer,AspNetCore.Simple.MsTest.Sdk.HttpCallHandler,System.Text.Json.JsonSerializerOptions)">
             <summary>
-            Initializes a new instance of the <see cref="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient"/> class.
+            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient"/> that contains the core assertion logic.
+            This class encapsulates all dependencies needed for HTTP assertions.
+            All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
-            <param name="httpClient">The HttpClient to wrap with assertion capabilities.</param>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext)">
             <inheritdoc />
@@ -47,27 +54,16 @@
         <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <inheritdoc />
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClientFactory">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AddAssertableHttpClientFactoryExtension">
             <summary>
-            Factory for creating <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient"/> instances.
-            This factory allows for dependency injection and proper management of HTTP client instances.
+            Extension methods for registering assertable HTTP client services.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClientFactory.Create(System.Net.Http.HttpClient)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertableHttpClientFactoryExtension.AddAssertableHttpClientFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
-            Creates an assertable HTTP client that wraps the provided HttpClient.
+            Registers the assertable HTTP client services in the DI container.
+            The HttpClient is passed via the context when calling AssertAsync, not in the constructor.
             </summary>
-            <param name="httpClient">The HttpClient to wrap with assertion capabilities.</param>
-            <returns>An assertable HTTP client instance.</returns>
-        </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClientFactory">
-            <summary>
-            Factory implementation for creating <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient"/> instances.
-            This factory can be registered in a dependency injection container and used throughout tests.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClientFactory.Create(System.Net.Http.HttpClient)">
-            <inheritdoc />
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertDeleteAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext)">
             <summary>
@@ -231,6 +227,12 @@
             The parameter name of the expected result argument. Usually auto-filled by CallerArgumentExpression.
             </summary>
         </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.ShowTokenInCurl">
+            <summary>
+            Controls the visibility of the token in curl outputs.
+            Set to true to show the token in generated curl commands.
+            </summary>
+        </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext">
             <summary>
             Context object for HTTP assertion methods without a result type.
@@ -287,6 +289,12 @@
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.PayloadParameterName">
             <summary>
             The parameter name of the payload argument. Usually auto-filled by CallerArgumentExpression.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext.ShowTokenInCurl">
+            <summary>
+            Controls the visibility of the token in curl outputs.
+            Set to true to show the token in generated curl commands.
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternal`1">

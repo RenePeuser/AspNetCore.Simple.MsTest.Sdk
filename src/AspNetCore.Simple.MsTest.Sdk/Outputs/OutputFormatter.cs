@@ -1,8 +1,21 @@
 ﻿using System.Text;
 using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs
 {
+    public static class AddOutputFormatterExtension
+    {
+        public static void AddOutputFormatter(this IServiceCollection services)
+        {
+            // Register dependency
+            services.AddCurlFormatter();
+
+            // Register service itself
+            services.AddSingletonIfNotExists<OutputFormatter, OutputFormatter>();
+        }
+    }
+
     internal sealed class OutputFormatter(CurlFormatter curlFormatter)
     {
         internal string GetOutputString(string title,

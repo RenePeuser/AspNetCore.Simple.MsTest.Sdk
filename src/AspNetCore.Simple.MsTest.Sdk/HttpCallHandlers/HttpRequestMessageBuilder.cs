@@ -4,10 +4,23 @@ using System.Net.Http;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
+    public static class AddHttpRequestMessageBuilderExtension
+    {
+        public static void AddHttpRequestMessageBuilder(this IServiceCollection services)
+        {
+            // Register dependency
+            services.AddJsonSerializer();
+
+            // Register service itself
+            services.AddSingletonIfNotExists<HttpRequestMessageBuilder, HttpRequestMessageBuilder>();
+        }
+    }
+
     internal sealed class HttpRequestMessageBuilder(JsonSerializer jsonSerializer)
     {
         internal HttpRequestMessage BuildFrom(HttpMethod method,

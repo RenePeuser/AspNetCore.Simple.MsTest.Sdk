@@ -1,9 +1,18 @@
 ﻿using System;
 using System.Globalization;
 using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
+    public static class AddPrimitiveTypeConverterExtension
+    {
+        public static void AddPrimitiveTypeConverter(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<PrimitiveTypeConverter, PrimitiveTypeConverter>();
+        }
+    }
+
     internal sealed class PrimitiveTypeConverter
     {
         internal object ConvertTo(object source,
