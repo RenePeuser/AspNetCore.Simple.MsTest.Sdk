@@ -21,9 +21,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
 
+        private static readonly ParameterReplacer ParameterReplacer = new();
+
         private static readonly ResponseWriter ResponseWriter = new ResponseWriter([
-                                                                                       new DifferenceResponseWriter(JsonDiffer, new JsonPathWriter()),
-                                                                                       new OverwriteAllResponseWriter()
+                                                                                       new DifferenceResponseWriter(JsonDiffer, new JsonPathWriter(), ParameterReplacer),
+                                                                                       new OverwriteAllResponseWriter(ParameterReplacer)
                                                                                    ]);
 
         private static readonly WriteResponseService WriteResponseService = new WriteResponseService();

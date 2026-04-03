@@ -29,6 +29,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddResponseWriter();
             services.AddWriteResponseService();
             services.AddJsonSerializer();
+            services.AddParameterReplacer();
 
             // Note: IEmbeddedFileLocalizer registration requires IConfiguration and should be done at app startup
 
@@ -65,7 +66,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         IWriteResponseService writeResponseService,
                                         IEmbeddedFileLocalizer embeddedFileLocalizer,
                                         JsonSerializer jsonSerializer,
-                                        JsonSerializerOptions jsonSerializerOptions) : IAssertService
+                                        JsonSerializerOptions jsonSerializerOptions,
+                                        IParameterReplacer parameterReplacementService) : IAssertService
     {
         public void ObjectsAreEqual<T>(ObjectAssertContext<T> context)
         {
@@ -110,7 +112,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                         curl,
                                                                                         currentResultParameterName);
 
-            jsonObject = jsonObject.ResolveParameters(parameters);
+            jsonObject = parameterReplacementService.ResolveParameters(jsonObject, parameters);
 
             // Brand new crazy function
             // We write the current result to the expected file
@@ -173,11 +175,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var orderedObject1 = orderFunc(expectedObject);
                 var orderedObject2 = orderFunc(currentObject);
 
-                var object1AsJson = orderedObject1.ToJson(jsonSerializerOptions)
-                                                  .ResolveParameters(parameters);
+                var object1AsJson = parameterReplacementService.ResolveParameters(
+                    orderedObject1.ToJson(jsonSerializerOptions),
+                    parameters);
 
-                var object2AsJson = orderedObject2.ToJson(jsonSerializerOptions)
-                                                  .ResolveParameters(parameters);
+                var object2AsJson = parameterReplacementService.ResolveParameters(
+                    orderedObject2.ToJson(jsonSerializerOptions),
+                    parameters);
 
                 var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 

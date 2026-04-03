@@ -1,8 +1,5 @@
-﻿using System.Text.RegularExpressions;
-using Extensions.Pack;
+﻿using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -10,11 +7,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddOverwriteAllResponseWriter(this IServiceCollection services)
         {
+            services.AddParameterReplacer();
             services.AddSingletonIfNotExists<ISpecificResponseWriter, OverwriteAllResponseWriter>();
         }
     }
 
-    internal sealed class OverwriteAllResponseWriter : ISpecificResponseWriter
+    internal sealed class OverwriteAllResponseWriter(IParameterReplacer parameterReplacementService) : ISpecificResponseWriter
     {
         public bool CanHandle(WriteResponseRequest context)
         {
@@ -37,154 +35,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            var root = JToken.Parse(context.CurrentResponseAsString);
-
-            ApplySmartReplacements(root, context.Parameters);
-
-            var readOnlySpan = root.ToString(Formatting.Indented);
+            var result = parameterReplacementService.ReplaceWithPlaceholders(context.CurrentResponseAsString, context.Parameters);
 
             //// New we can have also indexer properties. Values[0] -> Values[$Index$]
             //foreach (var parameter in context.Parameters)
             //{
-            //    readOnlySpan = GlobalRegex.IndexReplacement().Replace(readOnlySpan, $"[{parameter.key}]");
+            //    result = GlobalRegex.IndexReplacement().Replace(result, $"[{parameter.key}]");
             //}
 
-            File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName,
-                              readOnlySpan);
-        }
-
-        // Smart Replace bleibt wie zuvor
-        private static void ApplySmartReplacements(JToken root,
-                                                   params (string key, object? Value)[] parameters)
-        {
-            if (parameters.IsNullOrEmpty())
-            {
-                return;
-            }
-
-            foreach (var (key, value) in parameters)
-            {
-                if (key.IsNullOrWhiteSpace())
-                {
-                    continue;
-                }
-
-                var propertyName = key.Trim('$');
-
-                // 🔥 Property-Replacement IMMER versuchen – auch bei null
-                ReplaceByProperty(root, propertyName, key,
-                                  value);
-
-                // FullText nur wenn value != null
-                if (value != null && value.ToString()?.Length >= 3)
-                {
-                    ReplaceFullText(root, key, value);
-                }
-            }
-        }
-
-        private static bool ReplaceByProperty(JToken token,
-                                              string propertyName,
-                                              string placeholder,
-                                              object? originalValue)
-        {
-            var replaced = false;
-
-            if (token is JProperty prop &&
-                string.Equals(prop.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-            {
-                if (originalValue == null && prop.Value.Type == JTokenType.Null)
-                {
-                    prop.Value = placeholder;
-
-                    return true;
-                }
-
-                if (originalValue != null && JToken.DeepEquals(prop.Value, JToken.FromObject(originalValue)))
-                {
-                    prop.Value = placeholder;
-
-                    return true;
-                }
-            }
-
-            if (token is JContainer container)
-            {
-                foreach (var child in container.Children())
-                {
-                    replaced |= ReplaceByProperty(child, propertyName, placeholder,
-                                                  originalValue);
-                }
-            }
-
-            return replaced;
-        }
-
-        private static void ReplaceFullText(JToken token,
-                                            string placeholder,
-                                            object? originalValue)
-        {
-            if (originalValue == null)
-            {
-                return;
-            }
-
-            var originalText = originalValue.ToString();
-
-            if (originalText.IsNullOrWhiteSpace() || originalText.Length < 3)
-            {
-                return;
-            }
-
-            if (token is JValue value && value.Type == JTokenType.String)
-            {
-                var s = (string?)value.Value;
-
-                if (s.IsNullOrWhiteSpace() || s.Contains(placeholder))
-                {
-                    return;
-                }
-
-                var escaped = Regex.Escape(originalText);
-                var pattern = $@"\b{escaped}\b";
-
-                var updated = ReplaceOutsidePlaceholders(s,
-                                                         text => Regex.Replace(text,
-                                                                               pattern,
-                                                                               placeholder,
-                                                                               RegexOptions.CultureInvariant));
-
-                value.Value = ReplaceOutsidePlaceholders(updated,
-                                                         text => text.Replace(originalText,
-                                                                              placeholder,
-                                                                              StringComparison.Ordinal));
-            }
-
-            if (token is JContainer container)
-            {
-                foreach (var child in container.Children())
-                {
-                    ReplaceFullText(child, placeholder, originalValue);
-                }
-            }
-        }
-
-        private static string ReplaceOutsidePlaceholders(string input,
-                                                         Func<string, string> replacer)
-        {
-            if (input.Contains('$').IsFalse())
-            {
-                return replacer(input);
-            }
-
-            var parts = input.Split('$');
-
-            for (var i = 0; i < parts.Length; i += 2)
-            {
-                parts[i] = replacer(parts[i]);
-            }
-
-            return string.Join("$", parts);
+            File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName, result);
         }
     }
 }

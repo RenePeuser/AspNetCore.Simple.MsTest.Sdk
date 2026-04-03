@@ -221,80 +221,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new InvalidJsonException($"Your given json string does not contains a valid json string. Json strings have to begin with '{{' and end with a '}}' or if you use an array notation then []{Environment.NewLine}Your invalid string is:{Environment.NewLine}{trimmedJsonValue}");
         }
 
+        /// <summary>
+        /// Extension method wrapper for backward compatibility with static extensions.
+        /// Delegates to ParameterReplacer for actual implementation.
+        /// </summary>
         public static string ResolveParameters(this string value,
                                                (string Key, object? Value)[] parameters)
         {
-            if (value.IsNullOrWhiteSpace())
-            {
-                return value;
-            }
-
-            var replacedString = value;
-
-            // Important to replace the parameters after ordering, because the order can change the
-            // position of the parameters in the json and if we replace before, we can end up with
-            // wrong replacements
-            var sortedParameters = parameters.OrderByDescending(p => p.Key.Length);
-
-            foreach (var keyValue in sortedParameters)
-            {
-                if (keyValue.Key.IsNullOrWhiteSpace())
-                {
-                    continue;
-                }
-
-                // We have to take care of int, bool, long and so on
-                // Json sample
-                // {
-                //   "Id": "$projectId$",
-                // }
-                // -------------------------------------------------
-                // Json sample
-                // {
-                //   "Id": $projectId$,
-                // }
-                // -------------------------------------------------
-                // Json sample
-                // {
-                //   "ReferenceId": null,  < If value is null this must be 
-                // }
-
-                if (keyValue.Value.IsNull())
-                {
-                    // We have to take care about "$MyParam$" <- So also the " have to gone with
-                    replacedString = replacedString.Replace($"\"{keyValue.Key}\"", "null");
-
-                    // And if someone use it correctly already $MyParam$ <- we have to replace it also
-                    replacedString = replacedString.Replace(keyValue.Key, "null");
-
-                    continue;
-                }
-
-                var type = keyValue.Value.GetType();
-
-                if (keyValue.Value.IsNotNull() &&
-                    type.IsPrimitive)
-                {
-                    var primitiveTypeValue = keyValue.Value.ToString();
-
-                    if (primitiveTypeValue.IsNull())
-                    {
-                        continue;
-                    }
-
-                    if (type.EqualsTo(typeof(bool)))
-                    {
-                        primitiveTypeValue = primitiveTypeValue.ToLowerInvariant();
-                    }
-
-                    replacedString = replacedString.Replace($"\"{keyValue.Key}\"", primitiveTypeValue, StringComparison.Ordinal);
-                }
-
-                // Only replace full placeholder tokens to prevent corrupting other placeholders/words.
-                replacedString = replacedString.Replace(keyValue.Key, keyValue.Value.ToString(), StringComparison.Ordinal);
-            }
-
-            return replacedString;
+            // Static instance for use in static extension methods that can't use DI
+            var parameterReplacementService = new ParameterReplacer();
+            return parameterReplacementService.ResolveParameters(value, parameters);
         }
     }
 }
