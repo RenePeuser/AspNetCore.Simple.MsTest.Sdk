@@ -24,17 +24,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public interface IHttpRequestMessageBuilder
     {
         HttpRequestMessage BuildFrom(HttpMethod method,
-                                    string uri,
-                                    object? payload,
-                                    string payloadParameterName);
+                                     string uri,
+                                     object? payload,
+                                     string payloadParameterName);
     }
 
     internal sealed class HttpRequestMessageBuilder(JsonSerializer jsonSerializer) : IHttpRequestMessageBuilder
     {
         public HttpRequestMessage BuildFrom(HttpMethod method,
-                                              string uri,
-                                              object? payload,
-                                              string payloadParameterName)
+                                            string uri,
+                                            object? payload,
+                                            string payloadParameterName)
         {
             var content = payload.IsNotNull() ? GetContent() : null;
 

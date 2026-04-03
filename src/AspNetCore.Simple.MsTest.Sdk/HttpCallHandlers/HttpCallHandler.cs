@@ -22,23 +22,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public interface IHttpCallHandler
     {
         Task<HttpResponseMessage> CallAsync(HttpClient httpClient,
-                                           HttpMethod httpMethod,
-                                           string url,
-                                           object? payload,
-                                           CancellationToken cancellationToken,
-                                           [CallerArgumentExpression(nameof(payload))]
-                                           string payloadParameterName = "");
+                                            HttpMethod httpMethod,
+                                            string url,
+                                            object? payload,
+                                            CancellationToken cancellationToken,
+                                            [CallerArgumentExpression(nameof(payload))]
+                                            string payloadParameterName = "");
     }
 
     internal sealed class HttpCallHandler(IHttpRequestMessageBuilder httpRequestMessageBuilder) : IHttpCallHandler
     {
         public async Task<HttpResponseMessage> CallAsync(HttpClient httpClient,
-                                                           HttpMethod httpMethod,
-                                                           string url,
-                                                           object? payload,
-                                                           CancellationToken cancellationToken,
-                                                           [CallerArgumentExpression(nameof(payload))]
-                                                           string payloadParameterName = "")
+                                                         HttpMethod httpMethod,
+                                                         string url,
+                                                         object? payload,
+                                                         CancellationToken cancellationToken,
+                                                         [CallerArgumentExpression(nameof(payload))]
+                                                         string payloadParameterName = "")
         {
             // 1. Set up the HttpRequestMessage and don't forget to dispose it
             using var message = httpRequestMessageBuilder.BuildFrom(httpMethod, url, payload,

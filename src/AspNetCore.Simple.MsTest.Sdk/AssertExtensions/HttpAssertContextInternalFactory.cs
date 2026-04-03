@@ -24,22 +24,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                             string expectedResult)
         {
             return new HttpAssertContextInternal<TResult>
-            {
-                Client = nonGenericContext.Client,
-                Url = nonGenericContext.Url,
-                PayloadAsJson = nonGenericContext.PayloadAsJson ?? string.Empty,
-                ExpectedResult = expectedResult,
-                HttpMethod = nonGenericContext.HttpMethod,
-                FilterFunc = item => item,
-                DifferenceFunc = item => item,
-                Parameters = nonGenericContext.Parameters,
-                CallingAssembly = nonGenericContext.CallingAssembly,
-                PayloadParameterName = nonGenericContext.PayloadParameterName,
-                ExpectedResultParameterName = string.Empty,
-                CallerFilePath = nonGenericContext.CallerFilePath,
-                IsSuccessStatusCode = nonGenericContext.IsSuccessStatusCode,
-                WriteResponse = nonGenericContext.WriteResponse
-            };
+                   {
+                       Client = nonGenericContext.Client,
+                       Url = nonGenericContext.Url,
+                       PayloadAsJson = nonGenericContext.PayloadAsJson ?? string.Empty,
+                       ExpectedResult = expectedResult,
+                       HttpMethod = nonGenericContext.HttpMethod,
+                       FilterFunc = item => item,
+                       DifferenceFunc = item => item,
+                       Parameters = nonGenericContext.Parameters,
+                       CallingAssembly = nonGenericContext.CallingAssembly,
+                       PayloadParameterName = nonGenericContext.PayloadParameterName,
+                       ExpectedResultParameterName = string.Empty,
+                       CallerFilePath = nonGenericContext.CallerFilePath,
+                       IsSuccessStatusCode = nonGenericContext.IsSuccessStatusCode,
+                       WriteResponse = nonGenericContext.WriteResponse
+                   };
         }
 
         // ============================================================
@@ -53,23 +53,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static HttpAssertContextInternal<TResult> FromContext<TResult>(HttpAssertContext<TResult> publicContext)
         {
             return new HttpAssertContextInternal<TResult>
-            {
-                Client = publicContext.Client,
-                Url = publicContext.Url,
-                PayloadAsJson = publicContext.PayloadAsJson ?? string.Empty,
-                ExpectedResult = publicContext.ExpectedResult ?? string.Empty,
-                HttpMethod = publicContext.HttpMethod,
-                FilterFunc = publicContext.FilterFunc,
-                DifferenceFunc = publicContext.DifferenceFunc,
-                Parameters = publicContext.Parameters,
-                CallingAssembly = publicContext.CallingAssembly,
-                WriteResponse = publicContext.WriteResponse,
-                IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
-                CallerFilePath = publicContext.CallerFilePath,
-                PayloadParameterName = publicContext.PayloadParameterName,
-                ExpectedResultParameterName = publicContext.ExpectedResultParameterName,
-                ShowTokenInCurl = publicContext.ShowTokenInCurl
-            };
+                   {
+                       Client = publicContext.Client,
+                       Url = publicContext.Url,
+                       PayloadAsJson = publicContext.PayloadAsJson ?? string.Empty,
+                       ExpectedResult = publicContext.ExpectedResult ?? string.Empty,
+                       HttpMethod = publicContext.HttpMethod,
+                       FilterFunc = publicContext.FilterFunc,
+                       DifferenceFunc = publicContext.DifferenceFunc,
+                       Parameters = publicContext.Parameters,
+                       CallingAssembly = publicContext.CallingAssembly,
+                       WriteResponse = publicContext.WriteResponse,
+                       IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
+                       CallerFilePath = publicContext.CallerFilePath,
+                       PayloadParameterName = publicContext.PayloadParameterName,
+                       ExpectedResultParameterName = publicContext.ExpectedResultParameterName,
+                       ShowTokenInCurl = publicContext.ShowTokenInCurl
+                   };
         }
 
         /// <summary>
@@ -80,22 +80,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                               HttpMethod httpMethod)
         {
             return new HttpAssertContextInternal<TResult>
-            {
-                Client = publicContext.Client,
-                Url = publicContext.Url,
-                PayloadAsJson = publicContext.PayloadAsJson ?? string.Empty,
-                ExpectedResult = publicContext.ExpectedResult ?? string.Empty,
-                HttpMethod = httpMethod,
-                FilterFunc = publicContext.FilterFunc,
-                DifferenceFunc = publicContext.DifferenceFunc,
-                Parameters = publicContext.Parameters,
-                CallingAssembly = publicContext.CallingAssembly,
-                WriteResponse = publicContext.WriteResponse,
-                IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
-                CallerFilePath = publicContext.CallerFilePath,
-                PayloadParameterName = publicContext.PayloadParameterName,
-                ExpectedResultParameterName = publicContext.ExpectedResultParameterName
-            };
+                   {
+                       Client = publicContext.Client,
+                       Url = publicContext.Url,
+                       PayloadAsJson = publicContext.PayloadAsJson ?? string.Empty,
+                       ExpectedResult = publicContext.ExpectedResult ?? string.Empty,
+                       HttpMethod = httpMethod,
+                       FilterFunc = publicContext.FilterFunc,
+                       DifferenceFunc = publicContext.DifferenceFunc,
+                       Parameters = publicContext.Parameters,
+                       CallingAssembly = publicContext.CallingAssembly,
+                       WriteResponse = publicContext.WriteResponse,
+                       IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
+                       CallerFilePath = publicContext.CallerFilePath,
+                       PayloadParameterName = publicContext.PayloadParameterName,
+                       ExpectedResultParameterName = publicContext.ExpectedResultParameterName
+                   };
         }
 
         /// <summary>
@@ -117,22 +117,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                  bool writeResponse = false)
         {
             var httpAssertContextInternal = new HttpAssertContextInternal<TResult>
-            {
-                Client = client,
-                Url = url,
-                PayloadAsJson = payloadAsJson,
-                ExpectedResult = expectedResult,
-                FilterFunc = filterFunc,
-                HttpMethod = httpMethod,
-                DifferenceFunc = differenceFunc,
-                Parameters = parameters,
-                CallingAssembly = callingAssembly,
-                PayloadParameterName = payloadAsJsonParameterName,
-                ExpectedResultParameterName = expectedResultParameterName,
-                CallerFilePath = callerFilePath,
-                IsSuccessStatusCode = isSuccessStatusCode,
-                WriteResponse = writeResponse
-            };
+                                            {
+                                                Client = client,
+                                                Url = url,
+                                                PayloadAsJson = payloadAsJson,
+                                                ExpectedResult = expectedResult,
+                                                FilterFunc = filterFunc,
+                                                HttpMethod = httpMethod,
+                                                DifferenceFunc = differenceFunc,
+                                                Parameters = parameters,
+                                                CallingAssembly = callingAssembly,
+                                                PayloadParameterName = payloadAsJsonParameterName,
+                                                ExpectedResultParameterName = expectedResultParameterName,
+                                                CallerFilePath = callerFilePath,
+                                                IsSuccessStatusCode = isSuccessStatusCode,
+                                                WriteResponse = writeResponse
+                                            };
 
             return httpAssertContextInternal;
         }
@@ -148,19 +148,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static HttpAssertContextInternal FromContext(HttpAssertContext publicContext)
         {
             var httpAssertContextInternal = new HttpAssertContextInternal
-            {
-                Client = publicContext.Client,
-                Url = publicContext.Url,
-                PayloadAsJson = publicContext.PayloadAsJson ?? string.Empty,
-                HttpMethod = publicContext.HttpMethod,
-                Parameters = publicContext.Parameters,
-                CallingAssembly = publicContext.CallingAssembly,
-                WriteResponse = publicContext.WriteResponse,
-                IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
-                CallerFilePath = publicContext.CallerFilePath,
-                PayloadParameterName = publicContext.PayloadParameterName,
-                ShowTokenInCurl = publicContext.ShowTokenInCurl
-            };
+                                            {
+                                                Client = publicContext.Client,
+                                                Url = publicContext.Url,
+                                                PayloadAsJson = publicContext.PayloadAsJson ?? string.Empty,
+                                                HttpMethod = publicContext.HttpMethod,
+                                                Parameters = publicContext.Parameters,
+                                                CallingAssembly = publicContext.CallingAssembly,
+                                                WriteResponse = publicContext.WriteResponse,
+                                                IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
+                                                CallerFilePath = publicContext.CallerFilePath,
+                                                PayloadParameterName = publicContext.PayloadParameterName,
+                                                ShowTokenInCurl = publicContext.ShowTokenInCurl
+                                            };
 
             return httpAssertContextInternal;
         }
@@ -173,18 +173,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             HttpMethod httpMethod)
         {
             var httpAssertContextInternal = new HttpAssertContextInternal
-            {
-                Client = publicContext.Client,
-                Url = publicContext.Url,
-                PayloadAsJson = publicContext.PayloadAsJson ?? string.Empty,
-                HttpMethod = httpMethod,
-                Parameters = publicContext.Parameters,
-                CallingAssembly = publicContext.CallingAssembly,
-                WriteResponse = publicContext.WriteResponse,
-                IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
-                CallerFilePath = publicContext.CallerFilePath,
-                PayloadParameterName = publicContext.PayloadParameterName
-            };
+                                            {
+                                                Client = publicContext.Client,
+                                                Url = publicContext.Url,
+                                                PayloadAsJson = publicContext.PayloadAsJson ?? string.Empty,
+                                                HttpMethod = httpMethod,
+                                                Parameters = publicContext.Parameters,
+                                                CallingAssembly = publicContext.CallingAssembly,
+                                                WriteResponse = publicContext.WriteResponse,
+                                                IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
+                                                CallerFilePath = publicContext.CallerFilePath,
+                                                PayloadParameterName = publicContext.PayloadParameterName
+                                            };
 
             return httpAssertContextInternal;
         }

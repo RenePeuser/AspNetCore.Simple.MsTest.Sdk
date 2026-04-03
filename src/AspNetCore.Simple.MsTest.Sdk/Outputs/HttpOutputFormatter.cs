@@ -19,9 +19,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
     public interface IHttpOutputFormatter
     {
         string GetOutputString(string errorInfo,
-                              HttpMethod httpMethod,
-                              string url,
-                              HttpStatusCode httpStatusCode);
+                               HttpMethod httpMethod,
+                               string url,
+                               HttpStatusCode httpStatusCode);
     }
 
     internal sealed class HttpOutputFormatter : IHttpOutputFormatter

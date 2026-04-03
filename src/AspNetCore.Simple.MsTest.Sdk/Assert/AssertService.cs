@@ -29,6 +29,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddResponseWriter();
             services.AddWriteResponseService();
             services.AddJsonSerializer();
+
             // Note: IEmbeddedFileLocalizer registration requires IConfiguration and should be done at app startup
 
             // 2. Register the service itself

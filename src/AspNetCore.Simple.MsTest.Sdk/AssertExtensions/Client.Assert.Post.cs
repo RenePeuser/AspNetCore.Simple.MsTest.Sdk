@@ -1067,7 +1067,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode, errorOutput);
         }
-        
+
         // ============================================================
         // Complete Context API (Level 3) - Everything in Context!
         // ============================================================

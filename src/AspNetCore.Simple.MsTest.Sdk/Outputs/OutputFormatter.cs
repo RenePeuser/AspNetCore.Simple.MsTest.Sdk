@@ -19,63 +19,63 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
     public interface IOutputFormatter
     {
         string GetOutputString(string title,
-                              string? expectedResultAsJson,
-                              string? currentResultAsJson);
+                               string? expectedResultAsJson,
+                               string? currentResultAsJson);
 
         string GetOutputString(string title,
-                              string errorInfo,
-                              string? expectedResultAsJson,
-                              string? currentResultAsJson);
+                               string errorInfo,
+                               string? expectedResultAsJson,
+                               string? currentResultAsJson);
 
         string GetOutputString(string title,
-                              string errorInfo,
-                              string? expectedResultAsJson,
-                              string? currentResultAsJson,
-                              string curl);
+                               string errorInfo,
+                               string? expectedResultAsJson,
+                               string? currentResultAsJson,
+                               string curl);
 
         string GetOutputString(string title,
-                              string errorInfo,
-                              string? expectedResultAsJson,
-                              string? currentResultAsJson,
-                              string objectDifferences,
-                              string curl);
+                               string errorInfo,
+                               string? expectedResultAsJson,
+                               string? currentResultAsJson,
+                               string objectDifferences,
+                               string curl);
     }
 
     internal sealed class OutputFormatter(ICurlFormatter curlFormatter) : IOutputFormatter
     {
         public string GetOutputString(string title,
-                                        string? expectedResultAsJson,
-                                        string? currentResultAsJson)
+                                      string? expectedResultAsJson,
+                                      string? currentResultAsJson)
         {
             return GetOutputString(title, string.Empty, expectedResultAsJson,
                                    currentResultAsJson);
         }
 
         public string GetOutputString(string title,
-                                        string errorInfo,
-                                        string? expectedResultAsJson,
-                                        string? currentResultAsJson)
+                                      string errorInfo,
+                                      string? expectedResultAsJson,
+                                      string? currentResultAsJson)
         {
             return GetOutputString(title, errorInfo, expectedResultAsJson,
                                    currentResultAsJson, string.Empty);
         }
 
         public string GetOutputString(string title,
-                                        string errorInfo,
-                                        string? expectedResultAsJson,
-                                        string? currentResultAsJson,
-                                        string curl)
+                                      string errorInfo,
+                                      string? expectedResultAsJson,
+                                      string? currentResultAsJson,
+                                      string curl)
         {
             return GetOutputString(title, errorInfo, expectedResultAsJson,
                                    currentResultAsJson, string.Empty, curl);
         }
 
         public string GetOutputString(string title,
-                                        string errorInfo,
-                                        string? expectedResultAsJson,
-                                        string? currentResultAsJson,
-                                        string objectDifferences,
-                                        string curl)
+                                      string errorInfo,
+                                      string? expectedResultAsJson,
+                                      string? currentResultAsJson,
+                                      string objectDifferences,
+                                      string curl)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();

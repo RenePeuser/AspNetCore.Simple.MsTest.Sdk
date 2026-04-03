@@ -15,8 +15,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     public interface IPrimitiveTypeConverter
     {
-        object ConvertTo(object source, Type targetType);
+        object ConvertTo(object source,
+                         Type targetType);
+
         T ConvertTo<T>(object source);
+
         T ConvertTo<T>(string source);
     }
 
