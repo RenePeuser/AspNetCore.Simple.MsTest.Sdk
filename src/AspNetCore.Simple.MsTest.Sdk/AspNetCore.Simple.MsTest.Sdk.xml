@@ -323,6 +323,12 @@
             Used for internal conversions where we need to add a result type.
             </summary>
         </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternalFactory.ToPublicContext``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternal{``0})">
+            <summary>
+            Converts an internal generic context to a public context.
+            Used for backward compatibility with existing static extensions that use HttpAssertContextInternal.
+            </summary>
+        </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextInternalFactory.FromContext``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <summary>
             Creates an internal context from the public context.

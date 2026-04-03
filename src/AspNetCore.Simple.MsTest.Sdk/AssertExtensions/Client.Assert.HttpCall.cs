@@ -69,6 +69,33 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new(new TestCreatorSettings(), JsonSerializerOptions);
 
+        private static readonly Serializer.Json.JsonSerializer JsonSerializerInstance = new(JsonSerializerOptions);
+
+        private static readonly AssertService AssertServiceInstance = new(PrimitiveTypeConverter,
+                                                                          JsonDiffer,
+                                                                          new CurlFormatter(),
+                                                                          new CurlPrinter(new CurlFormatter()),
+                                                                          OutputFormatter,
+                                                                          ResponseWriter,
+                                                                          WriteResponseService,
+                                                                          EmbeddedFileLocalizer,
+                                                                          JsonSerializerInstance,
+                                                                          JsonSerializerOptions,
+                                                                          ParameterReplacer);
+
+        private static readonly AssertableHttpClient AssertableHttpClientInstance = new(HttpOutputFormatter,
+                                                                                         CurlBuilder,
+                                                                                         OutputFormatter,
+                                                                                         PrimitiveTypeConverter,
+                                                                                         JsonDiffer,
+                                                                                         ResponseWriter,
+                                                                                         WriteResponseService,
+                                                                                         EmbeddedFileLocalizer,
+                                                                                         _httpCallHandler,
+                                                                                         JsonSerializerOptions,
+                                                                                         AssertServiceInstance,
+                                                                                         ParameterReplacer);
+
 #pragma warning disable CA1859
         private static Task AssertHttpCallAsync(this HttpClient client,
                                                 string url,
@@ -272,7 +299,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
         //    return AssertHttpCallInternalAsync(context);
         //}
 
-        private static async Task<TResult> AssertHttpCallInternalAsync<TResult>(HttpAssertContextInternal<TResult> context)
+        private static Task<TResult> AssertHttpCallInternalAsync<TResult>(HttpAssertContextInternal<TResult> context)
+        {
+            // Delegate to the DI-based AssertableHttpClient for the actual implementation
+            // This keeps the static extension method as a thin wrapper for backward compatibility
+            var publicContext = HttpAssertContextInternalFactory.ToPublicContext(context);
+            return AssertableHttpClientInstance.AssertAsync(publicContext);
+        }
+
+        // Old implementation - replaced by AssertableHttpClient
+        /*
+        private static async Task<TResult> AssertHttpCallInternalAsync_OLD<TResult>(HttpAssertContextInternal<TResult> context)
         {
             // localize expected response and payload
             // So the caller does not have to pass the unique file name of the embedded resource
@@ -556,6 +593,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         //    return AssertCustomHttpCallAsync(context);
         //}
+        */
 
         private static async Task<TResult> AssertCustomHttpCallAsync<TResult>(HttpAssertContextInternal<TResult> context)
         {

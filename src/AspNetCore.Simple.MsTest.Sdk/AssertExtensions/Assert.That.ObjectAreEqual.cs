@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -43,6 +43,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
         private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions);
+
+        private static readonly Serializer.Json.JsonSerializer JsonSerializer = new(JsonSerializerOptions);
+
+        private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
+                                                                  JsonDiffer,
+                                                                  CurlFormatter,
+                                                                  CurlPrinter,
+                                                                  OutputFormatter,
+                                                                  ResponseWriter,
+                                                                  WriteResponseService,
+                                                                  EmbeddedFileLocalizer,
+                                                                  JsonSerializer,
+                                                                  JsonSerializerOptions,
+                                                                  ParameterReplacer);
 
         // GlobalWriteResponse
         // NEW Env variable WriteResponse = true -> For Ai Usage
@@ -937,168 +951,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert _,
                                               ObjectAssertContext<T> context)
         {
-            // Extract values from context
-            var expectedObjectAsJson = context.ExpectedObjectAsJson;
-            var currentObject = context.CurrentObject;
-
-            var expectedResultParameterName = context.ExpectedResultParameterName;
-            var currentResultParameterName = context.CurrentResultParameterName;
-            var callerFilePath = context.CallerFilePath;
-            var callingAssembly = context.CallingAssembly;
-            var orderFunc = context.OrderFunc;
-            var differenceFunc = context.DifferenceFunc;
-            var title = context.Title ?? string.Empty;
-            var curl = context.Curl ?? string.Empty;
-            var parameters = context.Parameters;
-            var writeResponse = context.WriteResponse;
-
-            if (expectedObjectAsJson.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
-                expectedResultParameterName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
-            {
-                expectedResultParameterName = expectedObjectAsJson;
-            }
-
-            // localize expected response and payload
-            // So the caller does not have to pass the unique file name of the embedded resource
-            // - Api.V1.Users.GetAllUsersTest.Responses.GetAllUsersResponse.json
-            // - GetAllUsersResponse.json
-            var localizedExpectedResponseFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedResultParameterName, callerFilePath, callingAssembly);
-
-            if (localizedExpectedResponseFile.EmbeddedFile.IsNull() ||
-                localizedExpectedResponseFile.EmbeddedFile.Exists.IsFalse())
-            {
-                localizedExpectedResponseFile = localizedExpectedResponseFile with { Content = expectedObjectAsJson };
-            }
-
-            // This is most the use case when calling an API and want to know what comes back
-            var currentObjectAsJson = currentObject.ToJson(JsonSerializerOptions);
-
-            var jsonObject = localizedExpectedResponseFile.Content.GetJsonStringFrom<T>(currentObjectAsJson,
-                                                                                        callingAssembly,
-                                                                                        curl,
-                                                                                        currentResultParameterName);
-
-            jsonObject = jsonObject.ResolveParameters(parameters);
-
-            // Brand new crazy function
-            // We write the current result to the expected file
-            var shouldWriteResponse = WriteResponseService.ShouldWriteResponse(writeResponse, callingAssembly);
-
-            if (shouldWriteResponse)
-            {
-                var writeResponseRequest = new WriteResponseRequest()
-                                           {
-                                               CallingAssembly = callingAssembly,
-                                               DifferenceFunc = differenceFunc,
-                                               CurrentResponseAsString = currentObjectAsJson,
-                                               ExpectedResult = localizedExpectedResponseFile,
-                                               Parameters = parameters,
-                                               Mode = ResponseWriteMode.DifferencesOnly
-                                           };
-
-                ResponseWriter.Write(writeResponseRequest);
-            }
-
-            var type = typeof(T);
-
-            if (type.IsPrimitive || type.EqualsTo(typeof(string)))
-            {
-                var expectedResult = PrimitiveTypeConverter.ConvertTo<T>(jsonObject);
-                var output = OutputFormatter.GetOutputString(title, jsonObject, currentObjectAsJson);
-
-                Assert.AreEqual(expectedResult, currentObject, output);
-
-                CurlPrinter.PrintCurl(callingAssembly, curl);
-            }
-            else
-            {
-                T? expectedObject = default;
-
-                try
-                {
-                    expectedObject = JsonSerializer.Deserialize<T>(jsonObject, JsonSerializerOptions);
-                }
-#pragma warning disable CA1031
-                catch (Exception e)
-#pragma warning restore CA1031
-                {
-                    var cantSerializeJsonErrorOutput = OutputFormatter.GetOutputString(title,
-                                                                                       $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Exception: {e.Message}",
-                                                                                       jsonObject,
-                                                                                       currentObjectAsJson,
-                                                                                       CurlFormatter.GetCurlAsFormattedString(curl));
-
-                    Assert.Fail(cantSerializeJsonErrorOutput);
-                }
-
-                var serializeResultIsNullOutput = OutputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}",
-                                                                                  jsonObject.ToJson(JsonSerializerOptions),
-                                                                                  null,
-                                                                                  CurlFormatter.GetCurlAsFormattedString(curl));
-
-                Assert.IsNotNull(expectedObject, serializeResultIsNullOutput);
-
-                var orderedObject1 = orderFunc(expectedObject);
-                var orderedObject2 = orderFunc(currentObject);
-
-                var object1AsJson = orderedObject1.ToJson(JsonSerializerOptions)
-                                                  .ResolveParameters(parameters);
-
-                var object2AsJson = orderedObject2.ToJson(JsonSerializerOptions)
-                                                  .ResolveParameters(parameters);
-
-                var differences = JsonDiffer.FindDifferences(object1AsJson, object2AsJson);
-
-                // 1. Check if we are comparing the same schema
-                var hasSchemaMismatch = differences.Any(item => item.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &&
-                                                                item.MemberPath.EndsWith(']').IsFalse());
-
-                var contentValueDifferences = differences.FirstOrDefault(d => d.MemberPath.Equals("Content.Value", StringComparison.OrdinalIgnoreCase));
-
-                if (contentValueDifferences.IsNotNull())
-                {
-                    differences = JsonDiffer.FindDifferences(contentValueDifferences.Value1 ?? string.Empty, contentValueDifferences.Value2 ?? string.Empty);
-
-                    hasSchemaMismatch = differences.Any(item => (item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond) &&
-                                                                item.MemberPath.EndsWith(']').IsFalse());
-                }
-
-                var commonDifferences = DifferenceFunc(differences).ToImmutableList();
-                var optimizedDifferences = differenceFunc(commonDifferences).ToImmutableList();
-
-                var differenceOutputTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
-
-                var schemaNotMatchingError = OutputFormatter.GetOutputString(title, "Schema mismatch: Expected result and current result does not match", object1AsJson,
-                                                                             object2AsJson, differenceOutputTable, curl);
-
-                if (shouldWriteResponse)
-                {
-                    var writeResponseRequest = new WriteResponseRequest()
-                                               {
-                                                   CallingAssembly = callingAssembly,
-                                                   DifferenceFunc = differenceFunc,
-                                                   CurrentResponseAsString = object2AsJson,
-                                                   ExpectedResult = localizedExpectedResponseFile,
-                                                   Parameters = parameters,
-                                                   Mode = ResponseWriteMode.DifferencesOnly
-                                               };
-
-                    ResponseWriter.Write(writeResponseRequest);
-                }
-
-                var relevantSchemaMismatch = hasSchemaMismatch && optimizedDifferences.Any();
-
-                Assert.IsFalse(relevantSchemaMismatch, schemaNotMatchingError);
-
-                var resultTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
-
-                var output = OutputFormatter.GetOutputString(title, $"Detected differences: {optimizedDifferences.Count}", object1AsJson,
-                                                             object2AsJson, resultTable, curl);
-
-                Assert.IsTrue(optimizedDifferences.IsEmpty(), output);
-
-                CurlPrinter.PrintCurl(callingAssembly, curl);
-            }
+            // Delegate to the DI-based AssertService for the actual implementation
+            // This keeps the static extension method as a thin wrapper for backward compatibility
+            AssertService.ObjectsAreEqual(context);
         }
     }
 #pragma warning restore IDE0060 // Remove unused parameter

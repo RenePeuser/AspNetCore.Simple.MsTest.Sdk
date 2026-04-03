@@ -42,6 +42,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
                    };
         }
 
+        /// <summary>
+        /// Converts an internal generic context to a public context.
+        /// Used for backward compatibility with existing static extensions that use HttpAssertContextInternal.
+        /// </summary>
+        public static HttpAssertContext<TResult> ToPublicContext<TResult>(HttpAssertContextInternal<TResult> internalContext)
+        {
+            return new HttpAssertContext<TResult>
+                   {
+                       Client = internalContext.Client,
+                       Url = internalContext.Url,
+                       PayloadAsJson = internalContext.PayloadAsJson,
+                       ExpectedResult = internalContext.ExpectedResult,
+                       HttpMethod = internalContext.HttpMethod,
+                       FilterFunc = internalContext.FilterFunc,
+                       DifferenceFunc = internalContext.DifferenceFunc,
+                       Parameters = internalContext.Parameters,
+                       CallingAssembly = internalContext.CallingAssembly,
+                       WriteResponse = internalContext.WriteResponse,
+                       IsSuccessStatusCode = internalContext.IsSuccessStatusCode,
+                       CallerFilePath = internalContext.CallerFilePath,
+                       PayloadParameterName = internalContext.PayloadParameterName,
+                       ExpectedResultParameterName = internalContext.ExpectedResultParameterName,
+                       ShowTokenInCurl = internalContext.ShowTokenInCurl
+                   };
+        }
+
         // ============================================================
         // Generic Context Factory Methods
         // ============================================================
