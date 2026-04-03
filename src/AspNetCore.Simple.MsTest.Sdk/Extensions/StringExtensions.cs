@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,7 +11,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         private static readonly CurlFormatter CurlFormatter = new();
 
-        private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
+        private static readonly OutputFormatter OutputFormatter = new([
+                                                                          new HttpSpecificOutputFormatter(CurlFormatter),
+                                                                          new ObjectSpecificOutputFormatter()
+                                                                      ],
+                                                                      CurlFormatter);
 
         public static string GetJsonStringFrom(this string expectedObjectAsJson,
                                                Assembly callingAssembly)

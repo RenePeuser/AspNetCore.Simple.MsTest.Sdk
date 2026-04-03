@@ -1,8 +1,7 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Net;
-using System.Net.Http;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Outputs
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Contains all data needed for formatting assertion failure output.

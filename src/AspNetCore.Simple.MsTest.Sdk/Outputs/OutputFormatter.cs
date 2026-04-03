@@ -2,14 +2,16 @@
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Outputs
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static class AddOutputFormatterExtension
     {
         public static void AddOutputFormatter(this IServiceCollection services)
         {
-            // Register dependency
+            // Register dependencies
             services.AddCurlFormatter();
+            services.AddHttpSpecificOutputFormatter();
+            services.AddObjectSpecificOutputFormatter();
 
             // Register service itself
             services.AddSingletonIfNotExists<IOutputFormatter, OutputFormatter>();
@@ -18,6 +20,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
 
     public interface IOutputFormatter
     {
+        /// <summary>
+        /// Formats output using the appropriate strategy based on the context.
+        /// This is the new preferred method that uses the strategy pattern.
+        /// </summary>
+        string Format(OutputContext context);
+
+        // Legacy overloads for backward compatibility
         string GetOutputString(string title,
                                string? expectedResultAsJson,
                                string? currentResultAsJson);
@@ -41,8 +50,35 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
                                string curl);
     }
 
-    internal sealed class OutputFormatter(ICurlFormatter curlFormatter) : IOutputFormatter
+    /// <summary>
+    /// Strategy orchestrator that selects and delegates to the appropriate specific formatter.
+    /// Uses the Chain of Responsibility pattern to find the first formatter that can handle the context.
+    /// </summary>
+    internal sealed class OutputFormatter(IEnumerable<ISpecificOutputFormatter> specificFormatters,
+                                          ICurlFormatter curlFormatter) : IOutputFormatter
     {
+        public string Format(OutputContext context)
+        {
+            // Strategy pattern: Find the first formatter that can handle this context
+            // HttpSpecificOutputFormatter will match HTTP contexts
+            // ObjectSpecificOutputFormatter is the fallback for pure object comparisons
+            var formatter = specificFormatters.FirstOrDefault(f => f.CanFormat(context));
+
+            if (formatter is not null)
+            {
+                return formatter.Format(context);
+            }
+
+            // Fallback to legacy formatting if no strategy matched (should not happen)
+            return GetOutputString(context.Title ?? string.Empty,
+                                   context.ErrorInfo ?? string.Empty,
+                                   context.ExpectedResultAsJson,
+                                   context.CurrentResultAsJson,
+                                   context.DifferenceTableFormatted ?? string.Empty,
+                                   context.Curl ?? string.Empty);
+        }
+
+        // Legacy overloads for backward compatibility
         public string GetOutputString(string title,
                                       string? expectedResultAsJson,
                                       string? currentResultAsJson)

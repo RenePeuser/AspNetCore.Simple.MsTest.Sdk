@@ -43,6 +43,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public string? ExpectedResult
         {
             get => ExpectedObjectAsJson;
+
             init => ExpectedObjectAsJson = value ?? string.Empty;
         }
 
@@ -55,6 +56,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public Func<TResult?, TResult?> FilterFunc
         {
             get => OrderFunc;
+
             init => OrderFunc = value;
         }
 

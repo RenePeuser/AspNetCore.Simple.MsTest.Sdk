@@ -89,10 +89,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                [CallerFilePath] string callerFilePath = "")
         {
             var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
-                                                                                   expectedResult, item => item, HttpMethod.Delete,
-                                                                                   difference => difference, [], callingAssembly,
-                                                                                   string.Empty, expectedResultParameterName, callerFilePath,
-                                                                                   true, writeResponse);
+                                                                           expectedResult, item => item, HttpMethod.Delete,
+                                                                           difference => difference, [], callingAssembly,
+                                                                           string.Empty, expectedResultParameterName, callerFilePath,
+                                                                           true, writeResponse);
 
             return AssertHttpCallAsync(context);
         }
@@ -108,10 +108,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                [CallerFilePath] string callerFilePath = "")
         {
             var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
-                                                                                   expectedResult, item => item, HttpMethod.Delete,
-                                                                                   difference => difference, parameters, callingAssembly,
-                                                                                   string.Empty, expectedResultParameterName, callerFilePath,
-                                                                                   true, writeResponse);
+                                                                           expectedResult, item => item, HttpMethod.Delete,
+                                                                           difference => difference, parameters, callingAssembly,
+                                                                           string.Empty, expectedResultParameterName, callerFilePath,
+                                                                           true, writeResponse);
 
             return AssertHttpCallAsync(context);
         }

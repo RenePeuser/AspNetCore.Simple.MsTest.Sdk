@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -19,7 +18,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly CurlPrinter CurlPrinter = new(CurlFormatter);
 
-        private static readonly OutputFormatter OutputFormatter = new(CurlFormatter);
+        private static readonly OutputFormatter OutputFormatter = new([
+                                                                          new HttpSpecificOutputFormatter(CurlFormatter),
+                                                                          new ObjectSpecificOutputFormatter()
+                                                                      ],
+                                                                      CurlFormatter);
 
         private static readonly ParameterReplacer ParameterReplacer = new();
 
@@ -467,19 +470,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var expectedObjectAsJson = expectedObject.ToJson(JsonSerializerOptions);
 
             var context = new ObjectAssertContext<T>
-            {
-                ExpectedObjectAsJson = expectedObjectAsJson,
-                CurrentObject = currentObject,
-                OrderFunc = comparisonFunc,
-                DifferenceFunc = differenceFunc,
-                Parameters = parameters,
-                CallingAssembly = callingAssembly,
-                WriteResponse = writeResponse,
-                Title = title,
-                CallerFilePath = callerFilePath,
-                ExpectedResultParameterName = expectedResultParameterName,
-                CurrentResultParameterName = currentResultParameterName
-            };
+                          {
+                              ExpectedObjectAsJson = expectedObjectAsJson,
+                              Current = currentObject,
+                              OrderFunc = comparisonFunc,
+                              DifferenceFunc = differenceFunc,
+                              Parameters = parameters,
+                              CallingAssembly = callingAssembly,
+                              WriteResponse = writeResponse,
+                              Title = title,
+                              CallerFilePath = callerFilePath,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              CurrentResultParameterName = currentResultParameterName
+                          };
 
             AssertService.ObjectsAreEqual(context);
         }
@@ -916,7 +919,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var context = new ObjectAssertContext<T>
                           {
                               ExpectedObjectAsJson = expectedObjectAsJson,
-                              CurrentObject = currentObject,
+                              Current = currentObject,
                               OrderFunc = orderFunc,
                               Title = title,
                               CallingAssembly = callingAssembly,

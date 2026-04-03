@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
+﻿using System.Net;
 using System.Text;
 using ConsoleTables;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Outputs
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static class AddHttpOutputFormatterExtension
     {

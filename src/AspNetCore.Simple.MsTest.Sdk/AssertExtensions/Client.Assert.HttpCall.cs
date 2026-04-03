@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using Extensions.Pack;
 using JsonSerializer = AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer;
 
@@ -15,7 +14,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly CurlBuilder CurlBuilder = new();
 
-        private static readonly OutputFormatter OutputFormatter = new(new CurlFormatter());
+        private static readonly CurlFormatter CurlFormatterInstance = new();
+
+        private static readonly OutputFormatter OutputFormatter = new([
+                                                                          new HttpSpecificOutputFormatter(CurlFormatterInstance),
+                                                                          new ObjectSpecificOutputFormatter()
+                                                                      ],
+                                                                      CurlFormatterInstance);
 
         private static readonly PrimitiveTypeConverter PrimitiveTypeConverter = new();
 
@@ -54,29 +59,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
         private static JsonSerializerOptions _jsonSerializerOptions = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters = { new JsonStringEnumConverter() }
-        };
+                                                                      {
+                                                                          PropertyNameCaseInsensitive = true,
+                                                                          PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                                                          DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                                                                          NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                                                                          Converters = { new JsonStringEnumConverter() }
+                                                                      };
 
         private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new(new TestCreatorSettings(), JsonSerializerOptions);
 
         private static readonly JsonSerializer JsonSerializerInstance = new(JsonSerializerOptions);
 
         private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
-                                                                          JsonDiffer,
-                                                                          new CurlFormatter(),
-                                                                          new CurlPrinter(new CurlFormatter()),
-                                                                          OutputFormatter,
-                                                                          ResponseWriter,
-                                                                          WriteResponseService,
-                                                                          EmbeddedFileLocalizer,
-                                                                          JsonSerializerInstance,
-                                                                          JsonSerializerOptions,
-                                                                          ParameterReplacer);
+                                                                  JsonDiffer,
+                                                                  new CurlFormatter(),
+                                                                  new CurlPrinter(new CurlFormatter()),
+                                                                  OutputFormatter,
+                                                                  ResponseWriter,
+                                                                  WriteResponseService,
+                                                                  EmbeddedFileLocalizer,
+                                                                  JsonSerializerInstance,
+                                                                  JsonSerializerOptions,
+                                                                  ParameterReplacer);
 
         private static readonly AssertableHttpClient AssertableHttpClientDefault = new(HttpOutputFormatter,
                                                                                        CurlBuilder,
@@ -182,24 +187,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             // Create public context directly - no need for internal context
             var context = new HttpAssertContext<TResult>
-            {
-                Client = client,
-                Url = url,
-                PayloadAsJson = payloadAsJson,
-                ExpectedObjectAsJson = expectedResult,
-                CurrentObject = default,
-                HttpMethod = httpMethod,
-                OrderFunc = filterFunc,
-                DifferenceFunc = differenceFunc,
-                Parameters = parameters,
-                CallingAssembly = callingAssembly,
-                WriteResponse = writResponse,
-                IsSuccessStatusCode = isSuccessStatusCode,
-                CallerFilePath = callerFilePath,
-                PayloadParameterName = payloadAsJsonParameterName,
-                ExpectedResultParameterName = expectedResultParameterName,
-                CurrentResultParameterName = "Current response"
-            };
+                          {
+                              Client = client,
+                              Url = url,
+                              PayloadAsJson = payloadAsJson,
+                              ExpectedObjectAsJson = expectedResult,
+                              Current = default,
+                              HttpMethod = httpMethod,
+                              OrderFunc = filterFunc,
+                              DifferenceFunc = differenceFunc,
+                              Parameters = parameters,
+                              CallingAssembly = callingAssembly,
+                              WriteResponse = writResponse,
+                              IsSuccessStatusCode = isSuccessStatusCode,
+                              CallerFilePath = callerFilePath,
+                              PayloadParameterName = payloadAsJsonParameterName,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              CurrentResultParameterName = "Current response"
+                          };
 
             return AssertHttpCallAsync(context);
         }
@@ -218,10 +223,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Update context with resolved URL and ShowTokenInCurl from static field using record 'with' expression
             var updatedContext = context with
-            {
-                Url = url,
-                ShowTokenInCurl = ShowTokenInCurl
-            };
+                                 {
+                                     Url = url,
+                                     ShowTokenInCurl = ShowTokenInCurl
+                                 };
 
             // Delegate to the configured IAssertableHttpClient (default or custom implementation)
             // This allows for type-safe interception of HTTP assertions while maintaining backward compatibility

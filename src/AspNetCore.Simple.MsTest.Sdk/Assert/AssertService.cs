@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -74,7 +73,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             // Extract values from context
             var expectedObjectAsJson = context.ExpectedObjectAsJson;
-            var currentObject = context.CurrentObject;
+            var currentObject = context.Current;
 
             var expectedResultParameterName = context.ExpectedResultParameterName;
             var currentResultParameterName = context.CurrentResultParameterName;
@@ -225,11 +224,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var resultTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
-                var output = outputFormatter.GetOutputString(title, 
-                                                             $"Detected differences: {optimizedDifferences.Count}", 
+                var output = outputFormatter.GetOutputString(title,
+                                                             $"Detected differences: {optimizedDifferences.Count}",
                                                              object1AsJson,
                                                              object2AsJson,
-                                                             resultTable, 
+                                                             resultTable,
                                                              curl);
 
                 if (optimizedDifferences.Any())

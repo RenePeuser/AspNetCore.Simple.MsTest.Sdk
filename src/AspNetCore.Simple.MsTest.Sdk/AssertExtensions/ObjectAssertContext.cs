@@ -6,12 +6,11 @@ using System.Reflection;
 namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
-    /// Context object for ObjectsAreEqual assertion methods.
-    /// Provides a cleaner API compared to methods with many individual parameters.
-    /// Base context that can be extended for specialized assertion scenarios (e.g., HTTP assertions).
+    /// Non-generic base context for object assertions.
+    /// Contains all properties that don't depend on the object type.
+    /// Enables polymorphism and type-safe handling of assertion contexts.
     /// </summary>
-    /// <typeparam name="T">The type being compared</typeparam>
-    public record ObjectAssertContext<T>
+    public abstract record ObjectAssertContextBase
     {
         /// <summary>
         /// The expected object as JSON string or file name.
@@ -20,15 +19,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required string ExpectedObjectAsJson { get; init; }
 
         /// <summary>
-        /// The current/actual object to compare against the expected object.
+        /// The current/actual object to compare against the expected object (untyped).
+        /// Use the strongly-typed CurrentObject property in derived generic classes when possible.
+        /// This property is set automatically by the derived generic class.
         /// </summary>
-        public required T? CurrentObject { get; init; }
-
-        /// <summary>
-        /// Optional ordering/transformation function to apply before comparison.
-        /// Useful for sorting collections or normalizing data.
-        /// </summary>
-        public Func<T?, T?> OrderFunc { get; init; } = item => item;
+        public object? CurrentObject { get; init; }
 
         /// <summary>
         /// Optional function to filter differences found during comparison.
@@ -73,5 +68,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// The parameter name of the current object. Usually auto-filled by CallerArgumentExpression.
         /// </summary>
         public required string CurrentResultParameterName { get; init; }
+    }
+
+    /// <summary>
+    /// Generic context object for ObjectsAreEqual assertion methods.
+    /// Provides a cleaner API compared to methods with many individual parameters.
+    /// Can be extended for specialized assertion scenarios (e.g., HTTP assertions).
+    /// </summary>
+    /// <typeparam name="T">The type being compared</typeparam>
+    public record ObjectAssertContext<T> : ObjectAssertContextBase
+    {
+        /// <summary>
+        /// The current/actual object to compare against the expected object (strongly-typed).
+        /// When set, this also sets the base CurrentObject property for polymorphic access.
+        /// </summary>
+        public required T? Current
+        {
+            get => (T?)CurrentObject;
+
+            init => CurrentObject = value;
+        }
+
+        /// <summary>
+        /// Optional ordering/transformation function to apply before comparison.
+        /// Useful for sorting collections or normalizing data.
+        /// Note: Function must handle nullable inputs/outputs.
+        /// </summary>
+        public Func<T?, T?> OrderFunc { get; init; } = item => item;
     }
 }

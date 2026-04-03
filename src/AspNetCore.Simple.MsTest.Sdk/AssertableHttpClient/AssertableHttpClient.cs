@@ -8,7 +8,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -303,11 +302,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
             }
 
-            var objectAssertContext = new ObjectAssertContext<SimpleHttpResponseMessage>
+            var objectAssertContext = new HttpAssertContext<SimpleHttpResponseMessage>
                                       {
                                           ExpectedObjectAsJson = expectedObjectAsJson,
-                                          CurrentObject = currentResolvedSimpleHttpResponse,
-                                          OrderFunc = item => item,
+                                          Current = currentResolvedSimpleHttpResponse,
+                                          OrderFunc = item => item, // Order func was executed already on the primitive type level, so we can just use identity function here
                                           DifferenceFunc = context.DifferenceFunc,
                                           Parameters = context.Parameters,
                                           CallingAssembly = context.CallingAssembly,
@@ -315,7 +314,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           Title = httpCallInfo,
                                           CallerFilePath = context.CallerFilePath,
                                           ExpectedResultParameterName = context.ExpectedResultParameterName,
-                                          CurrentResultParameterName = "Current response"
+                                          CurrentResultParameterName = context.CurrentResultParameterName,
+                                          Client = context.Client,
+                                          Url = context.Url,
+                                          HttpMethod = context.HttpMethod,
                                       };
 
             assertService.ObjectsAreEqual(objectAssertContext);

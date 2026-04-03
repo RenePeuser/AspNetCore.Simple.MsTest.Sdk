@@ -45,24 +45,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          bool writeResponse = false)
         {
             return new HttpAssertContext<TResult>
-            {
-                Client = client,
-                Url = url,
-                PayloadAsJson = payloadAsJson,
-                ExpectedObjectAsJson = expectedResult,
-                CurrentObject = default,
-                HttpMethod = httpMethod,
-                OrderFunc = orderFunc,
-                DifferenceFunc = differenceFunc,
-                Parameters = parameters,
-                CallingAssembly = callingAssembly,
-                WriteResponse = writeResponse,
-                IsSuccessStatusCode = isSuccessStatusCode,
-                CallerFilePath = callerFilePath,
-                PayloadParameterName = payloadAsJsonParameterName,
-                ExpectedResultParameterName = expectedResultParameterName,
-                CurrentResultParameterName = "Current response"
-            };
+                   {
+                       Client = client,
+                       Url = url,
+                       PayloadAsJson = payloadAsJson,
+                       ExpectedObjectAsJson = expectedResult,
+                       Current = default,
+                       HttpMethod = httpMethod,
+                       OrderFunc = orderFunc,
+                       DifferenceFunc = differenceFunc,
+                       Parameters = parameters,
+                       CallingAssembly = callingAssembly,
+                       WriteResponse = writeResponse,
+                       IsSuccessStatusCode = isSuccessStatusCode,
+                       CallerFilePath = callerFilePath,
+                       PayloadParameterName = payloadAsJsonParameterName,
+                       ExpectedResultParameterName = expectedResultParameterName,
+                       CurrentResultParameterName = "Current response"
+                   };
         }
 
         // ============================================================
@@ -85,25 +85,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            bool writeResponse = false)
         {
             return new HttpAssertContext<string>
-            {
-                Client = client,
-                Url = url,
-                PayloadAsJson = payloadAsJson,
-                ExpectedObjectAsJson = "IgnoreResponse", // Special marker for no comparison
-                CurrentObject = default,
-                HttpMethod = httpMethod,
-                OrderFunc = item => item,
-                DifferenceFunc = item => item,
-                Parameters = parameters,
-                CallingAssembly = callingAssembly,
-                WriteResponse = writeResponse,
-                IsSuccessStatusCode = isSuccessStatusCode,
-                CallerFilePath = callerFilePath,
-                PayloadParameterName = payloadAsJsonParameterName,
-                ExpectedResultParameterName = string.Empty,
-                CurrentResultParameterName = "Current response",
-                ShowTokenInCurl = false
-            };
+                   {
+                       Client = client,
+                       Url = url,
+                       PayloadAsJson = payloadAsJson,
+                       ExpectedObjectAsJson = "IgnoreResponse", // Special marker for no comparison
+                       Current = default,
+                       HttpMethod = httpMethod,
+                       OrderFunc = item => item,
+                       DifferenceFunc = item => item,
+                       Parameters = parameters,
+                       CallingAssembly = callingAssembly,
+                       WriteResponse = writeResponse,
+                       IsSuccessStatusCode = isSuccessStatusCode,
+                       CallerFilePath = callerFilePath,
+                       PayloadParameterName = payloadAsJsonParameterName,
+                       ExpectedResultParameterName = string.Empty,
+                       CurrentResultParameterName = "Current response",
+                       ShowTokenInCurl = false
+                   };
         }
     }
 }

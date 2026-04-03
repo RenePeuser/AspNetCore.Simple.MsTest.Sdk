@@ -1,26 +1,29 @@
 <?xml version="1.0"?>
+
 <doc>
     <assembly>
         <name>AspNetCore.Simple.MsTest.Sdk</name>
     </assembly>
     <members>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertableHttpClientExtension.AddAssertableHttpClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertableHttpClientExtension.AddAssertableHttpClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
-            Registers all assertable HTTP client services and their dependencies in the DI container.
-            Feature-based registration following the dependency tree pattern.
+                Registers all assertable HTTP client services and their dependencies in the DI container.
+                Feature-based registration following the dependency tree pattern.
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient">
             <summary>
-            Represents an HTTP client with assertion capabilities for API testing.
-            Core service that performs HTTP calls with automatic response assertions.
-            The HTTP method (GET, POST, PUT, PATCH, DELETE) is determined by the context.
+                Represents an HTTP client with assertion capabilities for API testing.
+                Core service that performs HTTP calls with automatic response assertions.
+                The HTTP method (GET, POST, PUT, PATCH, DELETE) is determined by the context.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <summary>
-            Performs an HTTP request and asserts the response against an expected result.
-            The HTTP method is determined by the context's HttpMethod property.
+                Performs an HTTP request and asserts the response against an expected result.
+                The HTTP method is determined by the context's HttpMethod property.
             </summary>
             <typeparam name="TResult">The expected result type to deserialize the response to.</typeparam>
             <param name="context">The assertion context containing all request parameters including the HTTP method.</param>
@@ -28,305 +31,340 @@
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient">
             <summary>
-            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient"/> that contains the core assertion logic.
-            This class encapsulates all dependencies needed for HTTP assertions.
-            All dependencies are injected via the primary constructor for testability and flexibility.
+                Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient" /> that contains the core assertion logic.
+                This class encapsulates all dependencies needed for HTTP assertions.
+                All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.#ctor(AspNetCore.Simple.MsTest.Sdk.Outputs.IHttpOutputFormatter,AspNetCore.Simple.MsTest.Sdk.ICurlBuilder,AspNetCore.Simple.MsTest.Sdk.Outputs.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.IEmbeddedFileLocalizer,AspNetCore.Simple.MsTest.Sdk.IHttpCallHandler,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IAssertService,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer)">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.#ctor(AspNetCore.Simple.MsTest.Sdk.IHttpOutputFormatter,AspNetCore.Simple.MsTest.Sdk.ICurlBuilder,AspNetCore.Simple.MsTest.Sdk.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.IEmbeddedFileLocalizer,AspNetCore.Simple.MsTest.Sdk.IHttpCallHandler,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IAssertService,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer)">
             <summary>
-            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient"/> that contains the core assertion logic.
-            This class encapsulates all dependencies needed for HTTP assertions.
-            All dependencies are injected via the primary constructor for testability and flexibility.
+                Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient" /> that contains the core assertion logic.
+                This class encapsulates all dependencies needed for HTTP assertions.
+                All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <inheritdoc />
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AddAssertableHttpClientFactoryExtension">
             <summary>
-            Extension methods for registering assertable HTTP client services.
+                Extension methods for registering assertable HTTP client services.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertableHttpClientFactoryExtension.AddAssertableHttpClientFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertableHttpClientFactoryExtension.AddAssertableHttpClientFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
-            Registers the assertable HTTP client services in the DI container.
-            The HttpClient is passed via the context when calling AssertAsync, not in the constructor.
+                Registers the assertable HTTP client services in the DI container.
+                The HttpClient is passed via the context when calling AssertAsync, not in the constructor.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertDeleteAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertDeleteAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
             <summary>
-            Level 3: Complete Context API - All parameters in context (cleanest API).
+                Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertDeleteAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertDeleteAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <summary>
-            Level 3: Complete Context API - All parameters in context (cleanest API).
+                Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertGetAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
-             <summary>
-             Level 3: Complete Context API - All parameters in context (cleanest API).
-             </summary>
-             <example>
-             <code>
-             var context = new HttpAssertContext
-             {
-                 Client = httpClient,
-                 Url = "/api/users",
-                 Parameters = new[] { ("{userId}", 123) },
-                 WriteResponse = true
-             };
-            
-             await client.AssertGetAsync(context);
-             </code>
-             </example>
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertGetAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
+            <summary>
+                Level 3: Complete Context API - All parameters in context (cleanest API).
+            </summary>
+            <example>
+                <code>
+                    var context = new HttpAssertContext
+                    {
+                    Client = httpClient,
+                    Url = "/api/users",
+                    Parameters = new[] { ("{userId}", 123) },
+                    WriteResponse = true
+                    };
+
+                    await client.AssertGetAsync(context);
+                </code>
+            </example>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertGetAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
-             <summary>
-             Level 3: Complete Context API - All parameters in context (cleanest API).
-             </summary>
-             <example>
-             <code>
-             var context = new HttpAssertContext&lt;User&gt;
-             {
-                 Client = httpClient,
-                 Url = "/api/users/{userId}",
-                 ExpectedResult = "expected-user.json",
-                 Parameters = new[] { ("{userId}", 123) },
-                 FilterFunc = user => user with { Id = default },
-                 WriteResponse = true
-             };
-            
-             var user = await HttpClientAssertExtensions.AssertGetAsync(context);
-             </code>
-             </example>
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertGetAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
+            <summary>
+                Level 3: Complete Context API - All parameters in context (cleanest API).
+            </summary>
+            <example>
+                <code>
+                    var context = new HttpAssertContext&lt;User&gt;
+                    {
+                    Client = httpClient,
+                    Url = "/api/users/{userId}",
+                    ExpectedResult = "expected-user.json",
+                    Parameters = new[] { ("{userId}", 123) },
+                    FilterFunc = user => user with { Id = default },
+                    WriteResponse = true
+                    };
+
+                    var user = await HttpClientAssertExtensions.AssertGetAsync(context);
+                </code>
+            </example>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.CustomAssertableHttpClient">
             <summary>
-            Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.
-            Allows developers to plug in their own assertion logic while maintaining type safety.
-            Defaults to the standard AssertableHttpClient implementation.
+                Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.
+                Allows developers to plug in their own assertion logic while maintaining type safety.
+                Defaults to the standard AssertableHttpClient implementation.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPatchAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPatchAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
             <summary>
-            Level 3: Complete Context API - All parameters in context (cleanest API).
+                Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPatchAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPatchAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <summary>
-            Level 3: Complete Context API - All parameters in context (cleanest API).
+                Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPostAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPostAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
             <summary>
-            Level 3: Complete Context API - All parameters in context (cleanest API).
+                Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPostAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPostAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <summary>
-            Level 3: Complete Context API - All parameters in context (cleanest API).
+                Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPutAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPutAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
             <summary>
-            Level 3: Complete Context API - All parameters in context (cleanest API).
+                Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPutAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertPutAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <summary>
-            Level 3: Complete Context API - All parameters in context (cleanest API).
+                Level 3: Complete Context API - All parameters in context (cleanest API).
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1">
             <summary>
-            Context object for HTTP assertion methods that bundles common parameters
-            to provide a cleaner API compared to methods with many individual parameters.
-            Inherits from ObjectAssertContext to reuse comparison logic.
+                Context object for HTTP assertion methods that bundles common parameters
+                to provide a cleaner API compared to methods with many individual parameters.
+                Inherits from ObjectAssertContext to reuse comparison logic.
             </summary>
             <typeparam name="TResult">The expected result type</typeparam>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.Client">
             <summary>
-            The HttpClient instance to use for making the request.
+                The HttpClient instance to use for making the request.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.Url">
             <summary>
-            The URL to call. Can contain placeholders like {userId} that will be replaced using Parameters.
+                The URL to call. Can contain placeholders like {userId} that will be replaced using Parameters.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.HttpMethod">
             <summary>
-            The HTTP method to use for the request (GET, POST, PUT, PATCH, DELETE, etc.).
+                The HTTP method to use for the request (GET, POST, PUT, PATCH, DELETE, etc.).
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.PayloadAsJson">
             <summary>
-            The payload as JSON string or file name.
-            Can be a JSON string, a file name like "request.json", or an embedded resource path.
+                The payload as JSON string or file name.
+                Can be a JSON string, a file name like "request.json", or an embedded resource path.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.ExpectedResult">
             <summary>
-            Alias for ExpectedObjectAsJson from base class for backward compatibility.
-            The expected result as JSON string or file name.
+                Alias for ExpectedObjectAsJson from base class for backward compatibility.
+                The expected result as JSON string or file name.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.FilterFunc">
             <summary>
-            Alias for OrderFunc from base class for backward compatibility.
-            Optional filter function to transform the result before comparison.
-            Useful for filtering out dynamic properties like timestamps or IDs.
-            Note: Function must handle nullable inputs/outputs.
+                Alias for OrderFunc from base class for backward compatibility.
+                Optional filter function to transform the result before comparison.
+                Useful for filtering out dynamic properties like timestamps or IDs.
+                Note: Function must handle nullable inputs/outputs.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.IsSuccessStatusCode">
             <summary>
-            Whether the HTTP call is expected to succeed (2xx status code).
-            Set to false when testing error scenarios.
+                Whether the HTTP call is expected to succeed (2xx status code).
+                Set to false when testing error scenarios.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.PayloadParameterName">
             <summary>
-            The parameter name of the payload argument. Usually auto-filled by CallerArgumentExpression.
+                The parameter name of the payload argument. Usually auto-filled by CallerArgumentExpression.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.ShowTokenInCurl">
             <summary>
-            Controls the visibility of the token in curl outputs.
-            Set to true to show the token in generated curl commands.
+                Controls the visibility of the token in curl outputs.
+                Set to true to show the token in generated curl commands.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.Curl">
             <summary>
-            Curl command for reproducing the HTTP call.
+                Curl command for reproducing the HTTP call.
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextFactory">
             <summary>
-            Factory methods for creating HttpAssertContext instances.
-            Provides convenient creation methods for different scenarios.
+                Factory methods for creating HttpAssertContext instances.
+                Provides convenient creation methods for different scenarios.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextFactory.FromContext``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0},System.Net.Http.HttpMethod)">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextFactory.FromContext``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0},System.Net.Http.HttpMethod)">
             <summary>
-            Creates a context with explicit HttpMethod override.
-            Used by method-specific extensions (GET, POST, etc.) that set the HTTP method.
+                Creates a context with explicit HttpMethod override.
+                Used by method-specific extensions (GET, POST, etc.) that set the HTTP method.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextFactory.FromParameters``1(System.Net.Http.HttpClient,System.String,System.String,System.String,System.Func{``0,``0},System.Net.Http.HttpMethod,System.Func{System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference},System.Collections.Generic.IEnumerable{AspNetCore.Simple.MsTest.Sdk.Difference}},System.ValueTuple{System.String,System.Object}[],System.Reflection.Assembly,System.String,System.String,System.String,System.Boolean,System.Boolean)">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextFactory.FromParameters``1(System.Net.Http.HttpClient,System.String,System.String,System.String,System.Func{``0,``0},System.Net.Http.HttpMethod,System.Func{System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference},System.Collections.Generic.IEnumerable{AspNetCore.Simple.MsTest.Sdk.Difference}},System.ValueTuple{System.String,System.Object}[],System.Reflection.Assembly,System.String,System.String,System.String,System.Boolean,System.Boolean)">
             <summary>
-            Creates a context from individual parameters (for backward compatibility with old extension signatures).
+                Creates a context from individual parameters (for backward compatibility with old extension signatures).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextFactory.CreateFrom(System.Net.Http.HttpClient,System.String,System.String,System.Net.Http.HttpMethod,System.ValueTuple{System.String,System.Object}[],System.Reflection.Assembly,System.String,System.String,System.Boolean,System.Boolean)">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpAssertContextFactory.CreateFrom(System.Net.Http.HttpClient,System.String,System.String,System.Net.Http.HttpMethod,System.ValueTuple{System.String,System.Object}[],System.Reflection.Assembly,System.String,System.String,System.Boolean,System.Boolean)">
             <summary>
-            Creates a string context from individual parameters.
-            Used for HTTP calls without response comparison (just execution).
+                Creates a string context from individual parameters.
+                Used for HTTP calls without response comparison (just execution).
+            </summary>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContextBase">
+            <summary>
+                Non-generic base context for object assertions.
+                Contains all properties that don't depend on the object type.
+                Enables polymorphism and type-safe handling of assertion contexts.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContextBase.ExpectedObjectAsJson">
+            <summary>
+                The expected object as JSON string or file name.
+                Can be a JSON string, a file name like "expected.json", or an embedded resource path.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContextBase.CurrentObject">
+            <summary>
+                The current/actual object to compare against the expected object (untyped).
+                Use the strongly-typed CurrentObject property in derived generic classes when possible.
+                This property is set automatically by the derived generic class.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContextBase.DifferenceFunc">
+            <summary>
+                Optional function to filter differences found during comparison.
+                Allows ignoring specific differences that are expected.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContextBase.Parameters">
+            <summary>
+                Parameters to replace in JSON strings during comparison.
+                Format: (Key, Value) tuples where Key is the placeholder and Value is the replacement.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContextBase.CallingAssembly">
+            <summary>
+                The calling assembly. If not provided, will be automatically determined.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContextBase.WriteResponse">
+            <summary>
+                Whether to write the response to disk when the assertion fails.
+                Useful for updating test snapshots.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContextBase.Title">
+            <summary>
+                Title/description for the assertion output.
+                Used in error messages to provide context.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContextBase.CallerFilePath">
+            <summary>
+                The file path of the calling test method. Usually auto-filled by CallerFilePath.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContextBase.ExpectedResultParameterName">
+            <summary>
+                The parameter name of the expected object. Usually auto-filled by CallerArgumentExpression.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContextBase.CurrentResultParameterName">
+            <summary>
+                The parameter name of the current object. Usually auto-filled by CallerArgumentExpression.
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1">
             <summary>
-            Context object for ObjectsAreEqual assertion methods.
-            Provides a cleaner API compared to methods with many individual parameters.
-            Base context that can be extended for specialized assertion scenarios (e.g., HTTP assertions).
+                Generic context object for ObjectsAreEqual assertion methods.
+                Provides a cleaner API compared to methods with many individual parameters.
+                Can be extended for specialized assertion scenarios (e.g., HTTP assertions).
             </summary>
             <typeparam name="T">The type being compared</typeparam>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.ExpectedObjectAsJson">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.Current">
             <summary>
-            The expected object as JSON string or file name.
-            Can be a JSON string, a file name like "expected.json", or an embedded resource path.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.CurrentObject">
-            <summary>
-            The current/actual object to compare against the expected object.
+                The current/actual object to compare against the expected object (strongly-typed).
+                When set, this also sets the base CurrentObject property for polymorphic access.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.OrderFunc">
             <summary>
-            Optional ordering/transformation function to apply before comparison.
-            Useful for sorting collections or normalizing data.
+                Optional ordering/transformation function to apply before comparison.
+                Useful for sorting collections or normalizing data.
+                Note: Function must handle nullable inputs/outputs.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.DifferenceFunc">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertServiceExtension.AddAssertService(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
-            Optional function to filter differences found during comparison.
-            Allows ignoring specific differences that are expected.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.Parameters">
-            <summary>
-            Parameters to replace in JSON strings during comparison.
-            Format: (Key, Value) tuples where Key is the placeholder and Value is the replacement.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.CallingAssembly">
-            <summary>
-            The calling assembly. If not provided, will be automatically determined.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.WriteResponse">
-            <summary>
-            Whether to write the response to disk when the assertion fails.
-            Useful for updating test snapshots.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.Title">
-            <summary>
-            Title/description for the assertion output.
-            Used in error messages to provide context.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.CallerFilePath">
-            <summary>
-            The file path of the calling test method. Usually auto-filled by CallerFilePath.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.ExpectedResultParameterName">
-            <summary>
-            The parameter name of the expected object. Usually auto-filled by CallerArgumentExpression.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.CurrentResultParameterName">
-            <summary>
-            The parameter name of the current object. Usually auto-filled by CallerArgumentExpression.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertServiceExtension.AddAssertService(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
-            <summary>
-            Registers all assertion services and their dependencies in the DI container.
-            Feature-based registration following the dependency tree pattern.
+                Registers all assertion services and their dependencies in the DI container.
+                Feature-based registration following the dependency tree pattern.
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.IAssertService">
             <summary>
-            Represents an assertion service for comparing objects in tests.
-            Core service that performs deep object comparisons with automatic diff generation.
+                Represents an assertion service for comparing objects in tests.
+                Core service that performs deep object comparisons with automatic diff generation.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IAssertService.ObjectsAreEqual``1(AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext{``0})">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.IAssertService.ObjectsAreEqual``1(AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext{``0})">
             <summary>
-            Compares two objects and asserts they are equal using the provided context configuration.
+                Compares two objects and asserts they are equal using the provided context configuration.
             </summary>
             <typeparam name="T">The type of objects to compare.</typeparam>
             <param name="context">The assertion context containing all comparison parameters.</param>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertService">
             <summary>
-            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService"/> that contains the core assertion logic.
-            This class encapsulates all dependencies needed for object assertions.
-            All dependencies are injected via the primary constructor for testability and flexibility.
+                Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService" /> that contains the core assertion logic.
+                This class encapsulates all dependencies needed for object assertions.
+                All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.ICurlFormatter,AspNetCore.Simple.MsTest.Sdk.ICurlPrinter,AspNetCore.Simple.MsTest.Sdk.Outputs.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.IEmbeddedFileLocalizer,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer)">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.ICurlFormatter,AspNetCore.Simple.MsTest.Sdk.ICurlPrinter,AspNetCore.Simple.MsTest.Sdk.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.IEmbeddedFileLocalizer,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer)">
             <summary>
-            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService"/> that contains the core assertion logic.
-            This class encapsulates all dependencies needed for object assertions.
-            All dependencies are injected via the primary constructor for testability and flexibility.
+                Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService" /> that contains the core assertion logic.
+                This class encapsulates all dependencies needed for object assertions.
+                All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Type">
@@ -370,303 +408,318 @@
                 </para>
             </summary>
             <remarks>
-                The round-tripping behavior for <see cref="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Extensions" /> is determined by the implementation of the Input \ Output
+                The round-tripping behavior for <see cref="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Extensions" />
+                is determined by the implementation of the Input \ Output
                 formatters.
                 In particular, complex types or collection types may not round-trip to the original type when using the built-in
                 JSON or XML formatters.
             </remarks>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.StringExtensions.ResolveParameters(System.String,System.ValueTuple{System.String,System.Object}[])">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.StringExtensions.ResolveParameters(System.String,System.ValueTuple{System.String,System.Object}[])">
             <summary>
-            Extension method wrapper for backward compatibility with static extensions.
-            Delegates to ParameterReplacer for actual implementation.
+                Extension method wrapper for backward compatibility with static extensions.
+                Delegates to ParameterReplacer for actual implementation.
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute">
             <summary>
-            Attribute that locates use case request JSON files as test data for a given test method.
+                Attribute that locates use case request JSON files as test data for a given test method.
             </summary>
             <remarks>
-            This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
-            Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-            folder path and to allow additional parameters to be injected into each test case.
-            
-            <para>
-            If no request folder is provided in the attribute constructor, the attribute automatically determines the
-            request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-            </para>
-            
-            <para>
-            For example, if a test class is declared in the namespace:
-            <c>Api.User.V1.Create.Status_200_Ok</c>,
-            then by default, the attribute will look for JSON resources in the folder:
-            <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-            </para>
-            
-            <para>
-            The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-            filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-            separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-            provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
-            and the test data details.
-            </para>
-            
-            <para>
-            The attribute can be applied with or without an explicit request folder and additional parameters.
-            </para>
+                This attribute implements the
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                folder path and to allow additional parameters to be injected into each test case.
+                <para>
+                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                </para>
+
+                <para>
+                    For example, if a test class is declared in the namespace:
+                    <c>Api.User.V1.Create.Status_200_Ok</c>,
+                    then by default, the attribute will look for JSON resources in the folder:
+                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+                </para>
+
+                <para>
+                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    provided via the attribute. The
+                    <see
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                    method returns a descriptive name that combines the test method's name
+                    and the test data details.
+                </para>
+
+                <para>
+                    The attribute can be applied with or without an explicit request folder and additional parameters.
+                </para>
             </remarks>
             <example>
-            Applying the attribute without a path or additional parameters:
-            <code>
-            [RequestLocator]
-            public void TestSomeUseCase(...) { }
-            </code>
-            In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-            and supplies just the JSON identifier for each test case.
-            
-            <para>
-            Applying the attribute with an explicit folder and additional parameters:
-            <code>
-            [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-            public void TestSomeUseCase(...) { }
-            </code>
-            Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-            </para>
+                Applying the attribute without a path or additional parameters:
+                <code>
+                    [RequestLocator]
+                    public void TestSomeUseCase(...) { }
+                </code>
+                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                and supplies just the JSON identifier for each test case.
+                <para>
+                    Applying the attribute with an explicit folder and additional parameters:
+                    <code>
+                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+                        public void TestSomeUseCase(...) { }
+                    </code>
+                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                </para>
             </example>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.#ctor(System.Object[])">
             <summary>
-            Attribute that locates use case request JSON files as test data for a given test method.
+                Attribute that locates use case request JSON files as test data for a given test method.
             </summary>
             <remarks>
-            This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
-            Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-            folder path and to allow additional parameters to be injected into each test case.
-            
-            <para>
-            If no request folder is provided in the attribute constructor, the attribute automatically determines the
-            request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-            </para>
-            
-            <para>
-            For example, if a test class is declared in the namespace:
-            <c>Api.User.V1.Create.Status_200_Ok</c>,
-            then by default, the attribute will look for JSON resources in the folder:
-            <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-            </para>
-            
-            <para>
-            The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-            filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-            separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-            provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
-            and the test data details.
-            </para>
-            
-            <para>
-            The attribute can be applied with or without an explicit request folder and additional parameters.
-            </para>
+                This attribute implements the
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                folder path and to allow additional parameters to be injected into each test case.
+                <para>
+                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                </para>
+
+                <para>
+                    For example, if a test class is declared in the namespace:
+                    <c>Api.User.V1.Create.Status_200_Ok</c>,
+                    then by default, the attribute will look for JSON resources in the folder:
+                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+                </para>
+
+                <para>
+                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    provided via the attribute. The
+                    <see
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                    method returns a descriptive name that combines the test method's name
+                    and the test data details.
+                </para>
+
+                <para>
+                    The attribute can be applied with or without an explicit request folder and additional parameters.
+                </para>
             </remarks>
             <example>
-            Applying the attribute without a path or additional parameters:
-            <code>
-            [RequestLocator]
-            public void TestSomeUseCase(...) { }
-            </code>
-            In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-            and supplies just the JSON identifier for each test case.
-            
-            <para>
-            Applying the attribute with an explicit folder and additional parameters:
-            <code>
-            [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-            public void TestSomeUseCase(...) { }
-            </code>
-            Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-            </para>
+                Applying the attribute without a path or additional parameters:
+                <code>
+                    [RequestLocator]
+                    public void TestSomeUseCase(...) { }
+                </code>
+                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                and supplies just the JSON identifier for each test case.
+                <para>
+                    Applying the attribute with an explicit folder and additional parameters:
+                    <code>
+                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+                        public void TestSomeUseCase(...) { }
+                    </code>
+                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                </para>
             </example>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetData(System.Reflection.MethodInfo)">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetData(System.Reflection.MethodInfo)">
             <summary>
-            Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
-            Each test data object contains the JSON resource identifier and any additional parameters.
+                Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
+                Each test data object contains the JSON resource identifier and any additional parameters.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <returns>
-            An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
-            followed by any extra parameters.
+                An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
+                followed by any extra parameters.
             </returns>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
             <summary>
-            Generates a display name for each test case data variation.
+                Generates a display name for each test case data variation.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <param name="data">An array of objects representing the test case data.</param>
             <returns>
-            A descriptive name that combines the test method's name with the test data details, aiding in test identification.
+                A descriptive name that combines the test method's name with the test data details, aiding in test identification.
             </returns>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1">
-             <summary>
-             Attribute that locates use case request JSON files as test data for a given test method.
-             </summary>
-             <remarks>
-             This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
-             Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-             folder path and to allow additional parameters to be injected into each test case.
-            
-             <para>
-             If no request folder is provided in the attribute constructor, the attribute automatically determines the
-             request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-             </para>
-            
-             <para>
-             For example, if a test class is declared in the namespace:
-             <c>Api.User.V1.Create.Status_200_Ok</c>,
-             then by default, the attribute will look for JSON resources in the folder:
-             <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-             </para>
-            
-             <para>
-             The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-             filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-             separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-             provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
-             and the test data details.
-             </para>
-            
-             <para>
-             The attribute can be applied with or without an explicit request folder and additional parameters.
-             </para>
-             </remarks>
-             <example>
-             Applying the attribute without a path or additional parameters:
-             <code>
-             [RequestLocator]
-             public void TestSomeUseCase(...) { }
-             </code>
-             In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-             and supplies just the JSON identifier for each test case.
-            
-             <para>
-             Applying the attribute with an explicit folder and additional parameters:
-             <code>
-             [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-             public void TestSomeUseCase(...) { }
-             </code>
-             Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-             </para>
-             </example>
+            <summary>
+                Attribute that locates use case request JSON files as test data for a given test method.
+            </summary>
+            <remarks>
+                This attribute implements the
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                folder path and to allow additional parameters to be injected into each test case.
+                <para>
+                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                </para>
+
+                <para>
+                    For example, if a test class is declared in the namespace:
+                    <c>Api.User.V1.Create.Status_200_Ok</c>,
+                    then by default, the attribute will look for JSON resources in the folder:
+                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+                </para>
+
+                <para>
+                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    provided via the attribute. The
+                    <see
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                    method returns a descriptive name that combines the test method's name
+                    and the test data details.
+                </para>
+
+                <para>
+                    The attribute can be applied with or without an explicit request folder and additional parameters.
+                </para>
+            </remarks>
+            <example>
+                Applying the attribute without a path or additional parameters:
+                <code>
+                    [RequestLocator]
+                    public void TestSomeUseCase(...) { }
+                </code>
+                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                and supplies just the JSON identifier for each test case.
+                <para>
+                    Applying the attribute with an explicit folder and additional parameters:
+                    <code>
+                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+                        public void TestSomeUseCase(...) { }
+                    </code>
+                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                </para>
+            </example>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.#ctor(System.Object[])">
-             <summary>
-             Attribute that locates use case request JSON files as test data for a given test method.
-             </summary>
-             <remarks>
-             This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
-             Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-             folder path and to allow additional parameters to be injected into each test case.
-            
-             <para>
-             If no request folder is provided in the attribute constructor, the attribute automatically determines the
-             request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-             </para>
-            
-             <para>
-             For example, if a test class is declared in the namespace:
-             <c>Api.User.V1.Create.Status_200_Ok</c>,
-             then by default, the attribute will look for JSON resources in the folder:
-             <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-             </para>
-            
-             <para>
-             The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-             filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-             separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-             provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
-             and the test data details.
-             </para>
-            
-             <para>
-             The attribute can be applied with or without an explicit request folder and additional parameters.
-             </para>
-             </remarks>
-             <example>
-             Applying the attribute without a path or additional parameters:
-             <code>
-             [RequestLocator]
-             public void TestSomeUseCase(...) { }
-             </code>
-             In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-             and supplies just the JSON identifier for each test case.
-            
-             <para>
-             Applying the attribute with an explicit folder and additional parameters:
-             <code>
-             [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-             public void TestSomeUseCase(...) { }
-             </code>
-             Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-             </para>
-             </example>
+            <summary>
+                Attribute that locates use case request JSON files as test data for a given test method.
+            </summary>
+            <remarks>
+                This attribute implements the
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                folder path and to allow additional parameters to be injected into each test case.
+                <para>
+                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                </para>
+
+                <para>
+                    For example, if a test class is declared in the namespace:
+                    <c>Api.User.V1.Create.Status_200_Ok</c>,
+                    then by default, the attribute will look for JSON resources in the folder:
+                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+                </para>
+
+                <para>
+                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    provided via the attribute. The
+                    <see
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                    method returns a descriptive name that combines the test method's name
+                    and the test data details.
+                </para>
+
+                <para>
+                    The attribute can be applied with or without an explicit request folder and additional parameters.
+                </para>
+            </remarks>
+            <example>
+                Applying the attribute without a path or additional parameters:
+                <code>
+                    [RequestLocator]
+                    public void TestSomeUseCase(...) { }
+                </code>
+                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                and supplies just the JSON identifier for each test case.
+                <para>
+                    Applying the attribute with an explicit folder and additional parameters:
+                    <code>
+                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+                        public void TestSomeUseCase(...) { }
+                    </code>
+                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                </para>
+            </example>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetData(System.Reflection.MethodInfo)">
             <summary>
-            Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
-            Each test data object contains the JSON resource identifier and any additional parameters.
+                Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
+                Each test data object contains the JSON resource identifier and any additional parameters.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <returns>
-            An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
-            followed by any extra parameters.
+                An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
+                followed by any extra parameters.
             </returns>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
             <summary>
-            Generates a display name for each test case data variation.
+                Generates a display name for each test case data variation.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <param name="data">An array of objects representing the test case data.</param>
             <returns>
-            A descriptive name that combines the test method's name with the test data details, aiding in test identification.
+                A descriptive name that combines the test method's name with the test data details, aiding in test identification.
             </returns>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.GlobalRegex.IndexReplacement">
             <remarks>
-            Pattern:<br/>
-            <code>\\[(\\d+)\\](?=\\.)</code><br/>
-            Explanation:<br/>
-            <code>
-            ○ Match '['.<br/>
-            ○ 1st capture group.<br/>
-                ○ Match a Unicode digit atomically at least once.<br/>
-            ○ Match ']'.<br/>
-            ○ Zero-width positive lookahead.<br/>
-                ○ Match '.'.<br/>
-            </code>
+                Pattern:<br />
+                <code>\\[(\\d+)\\](?=\\.)</code><br />
+                Explanation:<br />
+                <code>
+                    ○ Match '['.<br />
+                    ○ 1st capture group.<br />
+                    ○ Match a Unicode digit atomically at least once.<br />
+                    ○ Match ']'.<br />
+                    ○ Zero-width positive lookahead.<br />
+                    ○ Match '.'.<br />
+                </code>
             </remarks>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.IParameterReplacer">
             <summary>
-            Service for replacing parameters in JSON strings.
-            Handles both directions: placeholder → value (for comparison) and value → placeholder (for snapshot writing).
+                Service for replacing parameters in JSON strings.
+                Handles both directions: placeholder → value (for comparison) and value → placeholder (for snapshot writing).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IParameterReplacer.ResolveParameters(System.String,System.ValueTuple{System.String,System.Object}[])">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.IParameterReplacer.ResolveParameters(System.String,System.ValueTuple{System.String,System.Object}[])">
             <summary>
-            Replaces placeholders with actual values in a JSON string.
-            Used when reading/comparing JSON - converts $placeholder$ to actual values.
+                Replaces placeholders with actual values in a JSON string.
+                Used when reading/comparing JSON - converts $placeholder$ to actual values.
             </summary>
             <param name="json">The JSON string containing placeholders</param>
             <param name="parameters">Parameters as (Key, Value) tuples where Key is the placeholder</param>
             <returns>JSON string with placeholders replaced by values</returns>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IParameterReplacer.ReplaceWithPlaceholders(System.String,System.ValueTuple{System.String,System.Object}[])">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.IParameterReplacer.ReplaceWithPlaceholders(System.String,System.ValueTuple{System.String,System.Object}[])">
             <summary>
-            Replaces actual values with placeholders in a JSON string.
-            Used when writing snapshots - converts actual values back to $placeholder$.
-            Works on JToken level for accurate property and full-text replacement.
+                Replaces actual values with placeholders in a JSON string.
+                Used when writing snapshots - converts actual values back to $placeholder$.
+                Works on JToken level for accurate property and full-text replacement.
             </summary>
             <param name="json">The JSON string containing actual values</param>
             <param name="parameters">Parameters as (Key, Value) tuples where Key is the placeholder and Value is what to replace</param>
@@ -674,239 +727,303 @@
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.ParameterReplacer">
             <summary>
-            Implementation of parameter replacement service.
-            Combines string-based replacement (for reading) and JToken-based replacement (for writing).
+                Implementation of parameter replacement service.
+                Combines string-based replacement (for reading) and JToken-based replacement (for writing).
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute">
-             <summary>
-             Attribute that locates use case request JSON files as test data for a given test method.
-             </summary>
-             <remarks>
-             This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
-             Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-             folder path and to allow additional parameters to be injected into each test case.
-            
-             <para>
-             If no request folder is provided in the attribute constructor, the attribute automatically determines the
-             request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-             </para>
-            
-             <para>
-             For example, if a test class is declared in the namespace:
-             <c>Api.User.V1.Create.Status_200_Ok</c>,
-             then by default, the attribute will look for JSON resources in the folder:
-             <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-             </para>
-            
-             <para>
-             The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-             filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-             separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-             provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
-             and the test data details.
-             </para>
-            
-             <para>
-             The attribute can be applied with or without an explicit request folder and additional parameters.
-             </para>
-             </remarks>
-             <example>
-             Applying the attribute without a path or additional parameters:
-             <code>
-             [RequestLocator]
-             public void TestSomeUseCase(...) { }
-             </code>
-             In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-             and supplies just the JSON identifier for each test case.
-            
-             <para>
-             Applying the attribute with an explicit folder and additional parameters:
-             <code>
-             [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-             public void TestSomeUseCase(...) { }
-             </code>
-             Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-             </para>
-             </example>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.#ctor(System.String,System.Object[])">
-             <summary>
-             Attribute that locates use case request JSON files as test data for a given test method.
-             </summary>
-             <remarks>
-             This attribute implements the <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/> interface for use with parameterized tests.
-             Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
-             folder path and to allow additional parameters to be injected into each test case.
-            
-             <para>
-             If no request folder is provided in the attribute constructor, the attribute automatically determines the
-             request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
-             </para>
-            
-             <para>
-             For example, if a test class is declared in the namespace:
-             <c>Api.User.V1.Create.Status_200_Ok</c>,
-             then by default, the attribute will look for JSON resources in the folder:
-             <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
-             </para>
-            
-             <para>
-             The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-             filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-             separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
-             provided via the attribute. The <see cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/> method returns a descriptive name that combines the test method's name
-             and the test data details.
-             </para>
-            
-             <para>
-             The attribute can be applied with or without an explicit request folder and additional parameters.
-             </para>
-             </remarks>
-             <example>
-             Applying the attribute without a path or additional parameters:
-             <code>
-             [RequestLocator]
-             public void TestSomeUseCase(...) { }
-             </code>
-             In this scenario, the attribute automatically calculates the request folder from the test class's namespace
-             and supplies just the JSON identifier for each test case.
-            
-             <para>
-             Applying the attribute with an explicit folder and additional parameters:
-             <code>
-             [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
-             public void TestSomeUseCase(...) { }
-             </code>
-             Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
-             </para>
-             </example>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetData(System.Reflection.MethodInfo)">
             <summary>
-            Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
-            Each test data object contains the JSON resource identifier and any additional parameters.
+                Attribute that locates use case request JSON files as test data for a given test method.
+            </summary>
+            <remarks>
+                This attribute implements the
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                folder path and to allow additional parameters to be injected into each test case.
+                <para>
+                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                </para>
+
+                <para>
+                    For example, if a test class is declared in the namespace:
+                    <c>Api.User.V1.Create.Status_200_Ok</c>,
+                    then by default, the attribute will look for JSON resources in the folder:
+                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+                </para>
+
+                <para>
+                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    provided via the attribute. The
+                    <see
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                    method returns a descriptive name that combines the test method's name
+                    and the test data details.
+                </para>
+
+                <para>
+                    The attribute can be applied with or without an explicit request folder and additional parameters.
+                </para>
+            </remarks>
+            <example>
+                Applying the attribute without a path or additional parameters:
+                <code>
+                    [RequestLocator]
+                    public void TestSomeUseCase(...) { }
+                </code>
+                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                and supplies just the JSON identifier for each test case.
+                <para>
+                    Applying the attribute with an explicit folder and additional parameters:
+                    <code>
+                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+                        public void TestSomeUseCase(...) { }
+                    </code>
+                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                </para>
+            </example>
+        </member>
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.#ctor(System.String,System.Object[])">
+            <summary>
+                Attribute that locates use case request JSON files as test data for a given test method.
+            </summary>
+            <remarks>
+                This attribute implements the
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                folder path and to allow additional parameters to be injected into each test case.
+                <para>
+                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                </para>
+
+                <para>
+                    For example, if a test class is declared in the namespace:
+                    <c>Api.User.V1.Create.Status_200_Ok</c>,
+                    then by default, the attribute will look for JSON resources in the folder:
+                    <c>Api.User.V1.Create.Status_200_Ok.Requests</c>.
+                </para>
+
+                <para>
+                    The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    provided via the attribute. The
+                    <see
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                    method returns a descriptive name that combines the test method's name
+                    and the test data details.
+                </para>
+
+                <para>
+                    The attribute can be applied with or without an explicit request folder and additional parameters.
+                </para>
+            </remarks>
+            <example>
+                Applying the attribute without a path or additional parameters:
+                <code>
+                    [RequestLocator]
+                    public void TestSomeUseCase(...) { }
+                </code>
+                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                and supplies just the JSON identifier for each test case.
+                <para>
+                    Applying the attribute with an explicit folder and additional parameters:
+                    <code>
+                        [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
+                        public void TestSomeUseCase(...) { }
+                    </code>
+                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                </para>
+            </example>
+        </member>
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetData(System.Reflection.MethodInfo)">
+            <summary>
+                Gets the test data by locating JSON resources in the computed or explicitly provided request folder.
+                Each test data object contains the JSON resource identifier and any additional parameters.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <returns>
-            An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
-            followed by any extra parameters.
+                An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
+                followed by any extra parameters.
             </returns>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])">
             <summary>
-            Generates a display name for each test case data variation.
+                Generates a display name for each test case data variation.
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <param name="data">An array of objects representing the test case data.</param>
             <returns>
-            A descriptive name that combines the test method's name with the test data details, aiding in test identification.
+                A descriptive name that combines the test method's name with the test data details, aiding in test identification.
             </returns>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.ISpecificOutputFormatter">
             <summary>
-            Contains all data needed for formatting assertion failure output.
-            This is a pure data container - rendering/formatting decisions are separate.
+                Strategy interface for context-specific output formatting.
+                Each implementation handles formatting for a specific assertion context type.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.Title">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.ISpecificOutputFormatter.CanFormat(AspNetCore.Simple.MsTest.Sdk.OutputContext)">
             <summary>
-            Main title for the output (e.g., "Http call infos:", "Assertion failed").
-            Optional - can be null if no title needed.
+                Checks if this formatter can handle the given context.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.ErrorInfo">
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.ISpecificOutputFormatter.Format(AspNetCore.Simple.MsTest.Sdk.OutputContext)">
             <summary>
-            Error description explaining what went wrong.
-            (e.g., "Schema mismatch: Expected result and current result does not match")
-            Optional - can be null if no specific error info needed.
+                Formats the output for the given context.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.HttpMethod">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.OutputContext">
             <summary>
-            HTTP method used in the call (GET, POST, etc.).
-            Null if this is not an HTTP assertion.
+                Contains all data needed for formatting assertion failure output.
+                This is a pure data container - rendering/formatting decisions are separate.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.Url">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.Title">
             <summary>
-            Full URL that was called.
-            Null if this is not an HTTP assertion.
+                Main title for the output (e.g., "Http call infos:", "Assertion failed").
+                Optional - can be null if no title needed.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.HttpStatusCode">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.ErrorInfo">
             <summary>
-            HTTP status code received.
-            Null if this is not an HTTP assertion.
+                Error description explaining what went wrong.
+                (e.g., "Schema mismatch: Expected result and current result does not match")
+                Optional - can be null if no specific error info needed.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.ExpectedResultAsJson">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.HttpMethod">
             <summary>
-            Expected result as JSON string.
-            This is what the test expected to receive.
+                HTTP method used in the call (GET, POST, etc.).
+                Null if this is not an HTTP assertion.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.CurrentResultAsJson">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.Url">
             <summary>
-            Current/actual result as JSON string.
-            This is what was actually received.
+                Full URL that was called.
+                Null if this is not an HTTP assertion.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.ExpectedResultParameterName">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.HttpStatusCode">
             <summary>
-            Name/label for the expected result (e.g., parameter name or file name).
-            Used in difference tables and output headers.
+                HTTP status code received.
+                Null if this is not an HTTP assertion.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.CurrentResultParameterName">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.ExpectedResultAsJson">
             <summary>
-            Name/label for the current result (e.g., "Current response", "Actual value").
-            Used in difference tables and output headers.
+                Expected result as JSON string.
+                This is what the test expected to receive.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.Differences">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.CurrentResultAsJson">
             <summary>
-            List of differences found between expected and current.
-            Raw difference data - can be formatted into tables or other representations.
-            Empty list if no differences.
+                Current/actual result as JSON string.
+                This is what was actually received.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.DifferenceTableFormatted">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.ExpectedResultParameterName">
             <summary>
-            Pre-formatted difference table as string (for backward compatibility).
-            If provided, this can be used directly. Otherwise, format from Differences list.
-            Optional - can be null.
+                Name/label for the expected result (e.g., parameter name or file name).
+                Used in difference tables and output headers.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.Curl">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.CurrentResultParameterName">
             <summary>
-            Curl command to reproduce the HTTP call.
-            Null if this is not an HTTP assertion or curl generation disabled.
+                Name/label for the current result (e.g., "Current response", "Actual value").
+                Used in difference tables and output headers.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.CallerFilePath">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.Differences">
             <summary>
-            File path of the test that failed (from CallerFilePath).
-            Useful for navigation and context.
-            Optional - can be null.
+                List of differences found between expected and current.
+                Raw difference data - can be formatted into tables or other representations.
+                Empty list if no differences.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.Parameters">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.DifferenceTableFormatted">
             <summary>
-            Parameters used in the test (for parameter replacement, etc.).
-            Can be shown in output for debugging parameterized tests.
-            Empty array if no parameters.
+                Pre-formatted difference table as string (for backward compatibility).
+                If provided, this can be used directly. Otherwise, format from Differences list.
+                Optional - can be null.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.Outputs.OutputContext.AdditionalData">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.Curl">
             <summary>
-            Any additional context-specific data that might be useful.
-            This is an extensibility point for custom output formatters.
-            Optional - can be null.
+                Curl command to reproduce the HTTP call.
+                Null if this is not an HTTP assertion or curl generation disabled.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.CallerFilePath">
+            <summary>
+                File path of the test that failed (from CallerFilePath).
+                Useful for navigation and context.
+                Optional - can be null.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.Parameters">
+            <summary>
+                Parameters used in the test (for parameter replacement, etc.).
+                Can be shown in output for debugging parameterized tests.
+                Empty array if no parameters.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.OutputContext.AdditionalData">
+            <summary>
+                Any additional context-specific data that might be useful.
+                This is an extensibility point for custom output formatters.
+                Optional - can be null.
+            </summary>
+        </member>
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.IOutputFormatter.Format(AspNetCore.Simple.MsTest.Sdk.OutputContext)">
+            <summary>
+                Formats output using the appropriate strategy based on the context.
+                This is the new preferred method that uses the strategy pattern.
+            </summary>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.OutputFormatter">
+            <summary>
+                Strategy orchestrator that selects and delegates to the appropriate specific formatter.
+                Uses the Chain of Responsibility pattern to find the first formatter that can handle the context.
+            </summary>
+        </member>
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.OutputFormatter.#ctor(System.Collections.Generic.IEnumerable{AspNetCore.Simple.MsTest.Sdk.ISpecificOutputFormatter},AspNetCore.Simple.MsTest.Sdk.ICurlFormatter)">
+            <summary>
+                Strategy orchestrator that selects and delegates to the appropriate specific formatter.
+                Uses the Chain of Responsibility pattern to find the first formatter that can handle the context.
+            </summary>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpSpecificOutputFormatter">
+            <summary>
+                Formats output for HTTP assertion contexts.
+                Includes HTTP-specific information like Method, URL, StatusCode, and Curl.
+            </summary>
+        </member>
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.HttpSpecificOutputFormatter.#ctor(AspNetCore.Simple.MsTest.Sdk.ICurlFormatter)">
+            <summary>
+                Formats output for HTTP assertion contexts.
+                Includes HTTP-specific information like Method, URL, StatusCode, and Curl.
+            </summary>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.ObjectSpecificOutputFormatter">
+            <summary>
+                Formats output for pure object comparison assertions.
+                Focuses on object differences without HTTP-specific information.
             </summary>
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_0">
-            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the IndexReplacement method.</summary>
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex" />-derived type for the IndexReplacement method.</summary>
         </member>
         <member name="F:System.Text.RegularExpressions.Generated.IndexReplacement_0.Instance">
             <summary>Cached, thread-safe singleton instance.</summary>
@@ -915,36 +1032,48 @@
             <summary>Initializes the instance.</summary>
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory">
-            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+            <summary>
+                Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner" />
+                instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex" />.
+            </summary>
         </member>
         <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.CreateInstance">
-            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+            <summary>
+                Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner" /> used by methods on
+                <see cref="T:System.Text.RegularExpressions.Regex" />.
+            </summary>
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.Runner">
             <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
         </member>
-        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
-            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+        <member
+            name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan" /> starting from base.runtextstart for the next match.</summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
         </member>
-        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
-            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+        <member
+            name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan" /> starting from base.runtextpos for the next location a match could possibly start.</summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
             <returns>true if a possible match was found; false if no more matches are possible.</returns>
         </member>
-        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
-            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+        <member
+            name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan" /> at base.runtextpos is a match for the regular expression.</summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
             <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.Utilities">
-            <summary>Helper methods used by generated <see cref="T:System.Text.RegularExpressions.Regex"/>-derived implementations.</summary>
+            <summary>Helper methods used by generated <see cref="T:System.Text.RegularExpressions.Regex" />-derived implementations.</summary>
         </member>
         <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout">
-            <summary>Default timeout value set in <see cref="T:System.AppContext"/>, or <see cref="F:System.Text.RegularExpressions.Regex.InfiniteMatchTimeout"/> if none was set.</summary>
+            <summary>
+                Default timeout value set in <see cref="T:System.AppContext" />, or
+                <see cref="F:System.Text.RegularExpressions.Regex.InfiniteMatchTimeout" /> if none was set.
+            </summary>
         </member>
         <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_hasTimeout">
-            <summary>Whether <see cref="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout"/> is non-infinite.</summary>
+            <summary>Whether <see cref="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout" /> is non-infinite.</summary>
         </member>
     </members>
 </doc>

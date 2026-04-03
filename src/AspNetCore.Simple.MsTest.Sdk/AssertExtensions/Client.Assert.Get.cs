@@ -22,15 +22,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           [CallerFilePath] string callerFilePath = "")
         {
             var context = HttpAssertContextFactory.CreateFrom(client,
-                                                                      url,
-                                                                      string.Empty,
-                                                                      HttpMethod.Get,
-                                                                      [],
-                                                                      Assembly.GetCallingAssembly(),
-                                                                      string.Empty,
-                                                                      callerFilePath,
-                                                                      true,
-                                                                      writeResponse);
+                                                              url,
+                                                              string.Empty,
+                                                              HttpMethod.Get,
+                                                              [],
+                                                              Assembly.GetCallingAssembly(),
+                                                              string.Empty,
+                                                              callerFilePath,
+                                                              true,
+                                                              writeResponse);
 
             return AssertHttpCallAsync(context);
         }
@@ -42,15 +42,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           [CallerFilePath] string callerFilePath = "")
         {
             var context = HttpAssertContextFactory.CreateFrom(client,
-                                                                      url,
-                                                                      string.Empty,
-                                                                      HttpMethod.Get,
-                                                                      parameters,
-                                                                      Assembly.GetCallingAssembly(),
-                                                                      string.Empty,
-                                                                      callerFilePath,
-                                                                      true,
-                                                                      writeResponse);
+                                                              url,
+                                                              string.Empty,
+                                                              HttpMethod.Get,
+                                                              parameters,
+                                                              Assembly.GetCallingAssembly(),
+                                                              string.Empty,
+                                                              callerFilePath,
+                                                              true,
+                                                              writeResponse);
 
             return AssertHttpCallAsync(context);
         }
@@ -275,19 +275,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerFilePath] string callerFilePath = "")
         {
             var context = HttpAssertContextFactory.FromParameters<TResult>(client,
-                                                                                   url,
-                                                                                   string.Empty,
-                                                                                   expectedResult,
-                                                                                   filterFunc,
-                                                                                   HttpMethod.Get,
-                                                                                   difference => difference,
-                                                                                   [],
-                                                                                   callingAssembly,
-                                                                                   string.Empty,
-                                                                                   expectedResultParameterName,
-                                                                                   callerFilePath,
-                                                                                   true,
-                                                                                   writeResponse);
+                                                                           url,
+                                                                           string.Empty,
+                                                                           expectedResult,
+                                                                           filterFunc,
+                                                                           HttpMethod.Get,
+                                                                           difference => difference,
+                                                                           [],
+                                                                           callingAssembly,
+                                                                           string.Empty,
+                                                                           expectedResultParameterName,
+                                                                           callerFilePath,
+                                                                           true,
+                                                                           writeResponse);
 
             return AssertHttpCallAsync(context);
         }
@@ -304,19 +304,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerFilePath] string callerFilePath = "")
         {
             var context = HttpAssertContextFactory.FromParameters<TResult>(client,
-                                                                                   url,
-                                                                                   string.Empty,
-                                                                                   expectedResult,
-                                                                                   filterFunc,
-                                                                                   HttpMethod.Get,
-                                                                                   difference => difference,
-                                                                                   parameters,
-                                                                                   callingAssembly,
-                                                                                   string.Empty,
-                                                                                   expectedResultParameterName,
-                                                                                   callerFilePath,
-                                                                                   true,
-                                                                                   writeResponse);
+                                                                           url,
+                                                                           string.Empty,
+                                                                           expectedResult,
+                                                                           filterFunc,
+                                                                           HttpMethod.Get,
+                                                                           difference => difference,
+                                                                           parameters,
+                                                                           callingAssembly,
+                                                                           string.Empty,
+                                                                           expectedResultParameterName,
+                                                                           callerFilePath,
+                                                                           true,
+                                                                           writeResponse);
 
             return AssertHttpCallAsync(context);
         }
@@ -333,19 +333,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerFilePath] string callerFilePath = "")
         {
             var context = HttpAssertContextFactory.FromParameters<TResult>(client,
-                                                                                   url,
-                                                                                   string.Empty,
-                                                                                   expectedResult,
-                                                                                   filterFunc,
-                                                                                   HttpMethod.Get,
-                                                                                   differenceFunc,
-                                                                                   [],
-                                                                                   callingAssembly,
-                                                                                   string.Empty,
-                                                                                   expectedResultParameterName,
-                                                                                   callerFilePath,
-                                                                                   true,
-                                                                                   writeResponse);
+                                                                           url,
+                                                                           string.Empty,
+                                                                           expectedResult,
+                                                                           filterFunc,
+                                                                           HttpMethod.Get,
+                                                                           differenceFunc,
+                                                                           [],
+                                                                           callingAssembly,
+                                                                           string.Empty,
+                                                                           expectedResultParameterName,
+                                                                           callerFilePath,
+                                                                           true,
+                                                                           writeResponse);
 
             return AssertHttpCallAsync(context);
         }
@@ -363,19 +363,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerFilePath] string callerFilePath = "")
         {
             var context = HttpAssertContextFactory.FromParameters<TResult>(client,
-                                                                                   url,
-                                                                                   string.Empty,
-                                                                                   expectedResult,
-                                                                                   filterFunc,
-                                                                                   HttpMethod.Get,
-                                                                                   differenceFunc,
-                                                                                   parameters,
-                                                                                   callingAssembly,
-                                                                                   string.Empty,
-                                                                                   expectedResultParameterName,
-                                                                                   callerFilePath,
-                                                                                   true,
-                                                                                   writeResponse);
+                                                                           url,
+                                                                           string.Empty,
+                                                                           expectedResult,
+                                                                           filterFunc,
+                                                                           HttpMethod.Get,
+                                                                           differenceFunc,
+                                                                           parameters,
+                                                                           callingAssembly,
+                                                                           string.Empty,
+                                                                           expectedResultParameterName,
+                                                                           callerFilePath,
+                                                                           true,
+                                                                           writeResponse);
 
             return AssertHttpCallAsync(context);
         }
