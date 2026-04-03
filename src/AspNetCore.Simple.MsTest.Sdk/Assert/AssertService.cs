@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk.Outputs;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
@@ -224,10 +225,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 var resultTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
-                var output = outputFormatter.GetOutputString(title, $"Detected differences: {optimizedDifferences.Count}", object1AsJson,
-                                                             object2AsJson, resultTable, curl);
+                var output = outputFormatter.GetOutputString(title, 
+                                                             $"Detected differences: {optimizedDifferences.Count}", 
+                                                             object1AsJson,
+                                                             object2AsJson,
+                                                             resultTable, 
+                                                             curl);
 
-                Assert.IsTrue(optimizedDifferences.IsEmpty(), output);
+                if (optimizedDifferences.Any())
+                {
+                    Assert.Fail(output);
+                }
 
                 curlPrinter.PrintCurl(callingAssembly, curl);
             }

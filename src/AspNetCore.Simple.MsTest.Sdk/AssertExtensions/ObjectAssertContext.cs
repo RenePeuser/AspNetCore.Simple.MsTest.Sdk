@@ -9,7 +9,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// Context object for ObjectsAreEqual assertion methods.
     /// Provides a cleaner API compared to methods with many individual parameters.
     /// </summary>
-    /// <typeparam name="T">The type being compared</typeparam>
+    /// <typeparam name="T">The type being compared</typeparam> 
     public sealed record ObjectAssertContext<T>
     {
         /// <summary>
