@@ -204,33 +204,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return AssertHttpCallAsync(context);
         }
 
-        internal static async Task<TResult> AssertHttpCallAsync<TResult>(HttpAssertContextInternal<TResult> context)
+        internal static Task<TResult> AssertHttpCallAsync<TResult>(HttpAssertContextInternal<TResult> context)
         {
-            // Special case if expected and current jsons are parameters passed by we need to set the
-            // correct parameter names
-            var payloadAsJson = EmbeddedFileLocalizer.LocalizeRequest(context.PayloadAsJson, context.CallerFilePath, context.CallingAssembly);
-            var expectedResult = EmbeddedFileLocalizer.LocalizeResponse(context.ExpectedResult, context.CallerFilePath, context.CallingAssembly);
-
-            var payloadAsJsonParameterName = context.PayloadParameterName;
-            var expectedResultParameterName = context.ExpectedResultParameterName;
-
-            if (payloadAsJson.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
-                payloadAsJsonParameterName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
-            {
-                payloadAsJsonParameterName = payloadAsJson;
-            }
-
-            if (expectedResult.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
-                expectedResultParameterName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
-            {
-                expectedResultParameterName = expectedResult;
-            }
-
-            // Important to replace the parameters after ordering, because the order can change the
-            // position of the parameters in the json and if we replace before, we can end up with
-            // wrong replacements
+            // URL parameter replacement - replace placeholders in URL with actual values
+            // This is the only preprocessing needed here, all other logic is handled by AssertableHttpClient
             var sortedParameters = context.Parameters.OrderByDescending(p => p.Key.Length);
-
             var url = context.Url;
 
             foreach (var valueTuple in sortedParameters)
@@ -238,33 +216,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 url = url.Replace(valueTuple.Key, valueTuple.Value?.ToString());
             }
 
-            // Update context with resolved values
+            // Update context with resolved URL and ShowTokenInCurl from static field
             var updatedContext = new HttpAssertContextInternal<TResult>
             {
                 Client = context.Client,
                 Url = url,
-                PayloadAsJson = payloadAsJson,
-                ExpectedResult = expectedResult,
+                PayloadAsJson = context.PayloadAsJson,
+                ExpectedResult = context.ExpectedResult,
                 FilterFunc = context.FilterFunc,
                 HttpMethod = context.HttpMethod,
                 DifferenceFunc = context.DifferenceFunc,
                 Parameters = context.Parameters,
                 CallingAssembly = context.CallingAssembly,
-                PayloadParameterName = payloadAsJsonParameterName,
-                ExpectedResultParameterName = expectedResultParameterName,
+                PayloadParameterName = context.PayloadParameterName,
+                ExpectedResultParameterName = context.ExpectedResultParameterName,
                 CallerFilePath = context.CallerFilePath,
                 IsSuccessStatusCode = context.IsSuccessStatusCode,
-                WriteResponse = context.WriteResponse
+                WriteResponse = context.WriteResponse,
+                ShowTokenInCurl = ShowTokenInCurl
             };
 
-            return await AssertHttpCallInternalAsync(updatedContext).ConfigureAwait(false);
-        }
-
-        private static Task<TResult> AssertHttpCallInternalAsync<TResult>(HttpAssertContextInternal<TResult> context)
-        {
             // Delegate to the configured IAssertableHttpClient (default or custom implementation)
             // This allows for type-safe interception of HTTP assertions while maintaining backward compatibility
-            var publicContext = HttpAssertContextInternalFactory.ToPublicContext(context);
+            var publicContext = HttpAssertContextInternalFactory.ToPublicContext(updatedContext);
             return CustomAssertableHttpClient.AssertAsync(publicContext);
         }
     }
