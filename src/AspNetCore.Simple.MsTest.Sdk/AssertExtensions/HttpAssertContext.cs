@@ -25,6 +25,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required string Url { get; init; }
 
         /// <summary>
+        /// The HTTP method to use for the request (GET, POST, PUT, PATCH, DELETE, etc.).
+        /// </summary>
+        public required HttpMethod HttpMethod { get; init; }
+
+        /// <summary>
         /// The payload as JSON string or file name.
         /// Can be a JSON string, a file name like "request.json", or an embedded resource path.
         /// </summary>
@@ -103,6 +108,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1056:Uri properties should not be strings",
                                                             Justification = "URL can contain template placeholders like {userId} that need string manipulation")]
         public required string Url { get; init; }
+
+        /// <summary>
+        /// The HTTP method to use for the request (GET, POST, PUT, PATCH, DELETE, etc.).
+        /// </summary>
+        public required HttpMethod HttpMethod { get; init; }
 
         /// <summary>
         /// The payload as JSON string or file name.

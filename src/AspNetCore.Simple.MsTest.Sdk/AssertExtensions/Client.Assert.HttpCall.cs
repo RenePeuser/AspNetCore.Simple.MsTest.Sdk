@@ -97,7 +97,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // Context-based non-generic overload
 #pragma warning disable CA1859
-        private static Task AssertHttpCallAsync(HttpAssertContextInternal context)
+        internal static Task AssertHttpCallAsync(HttpAssertContextInternal context)
 #pragma warning restore CA1859
         {
             var genericContext = HttpAssertContextInternalFactory.ToGeneric<string>(context,
@@ -173,7 +173,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return AssertHttpCallAsync(context);
         }
 
-        private static async Task<TResult> AssertHttpCallAsync<TResult>(HttpAssertContextInternal<TResult> context)
+        internal static async Task<TResult> AssertHttpCallAsync<TResult>(HttpAssertContextInternal<TResult> context)
         {
             // Special case if expected and current jsons are parameters passed by we need to set the
             // correct parameter names

@@ -50,6 +50,31 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Creates an internal context from the public context.
         /// All required values should be in the context (Clean API - Level 3).
         /// </summary>
+        public static HttpAssertContextInternal<TResult> FromContext<TResult>(HttpAssertContext<TResult> publicContext)
+        {
+            return new HttpAssertContextInternal<TResult>
+            {
+                Client = publicContext.Client,
+                Url = publicContext.Url,
+                PayloadAsJson = publicContext.PayloadAsJson ?? string.Empty,
+                ExpectedResult = publicContext.ExpectedResult ?? string.Empty,
+                HttpMethod = publicContext.HttpMethod,
+                FilterFunc = publicContext.FilterFunc,
+                DifferenceFunc = publicContext.DifferenceFunc,
+                Parameters = publicContext.Parameters,
+                CallingAssembly = publicContext.CallingAssembly,
+                WriteResponse = publicContext.WriteResponse,
+                IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
+                CallerFilePath = publicContext.CallerFilePath,
+                PayloadParameterName = publicContext.PayloadParameterName,
+                ExpectedResultParameterName = publicContext.ExpectedResultParameterName
+            };
+        }
+
+        /// <summary>
+        /// Creates an internal context from the public context with explicit HttpMethod override.
+        /// For backward compatibility with existing extension methods.
+        /// </summary>
         public static HttpAssertContextInternal<TResult> FromContext<TResult>(HttpAssertContext<TResult> publicContext,
                                                                               HttpMethod httpMethod)
         {
@@ -118,6 +143,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <summary>
         /// Creates an internal non-generic context from the public context.
         /// All required values should be in the context (Clean API - Level 3).
+        /// </summary>
+        public static HttpAssertContextInternal FromContext(HttpAssertContext publicContext)
+        {
+            var httpAssertContextInternal = new HttpAssertContextInternal
+            {
+                Client = publicContext.Client,
+                Url = publicContext.Url,
+                PayloadAsJson = publicContext.PayloadAsJson ?? string.Empty,
+                HttpMethod = publicContext.HttpMethod,
+                Parameters = publicContext.Parameters,
+                CallingAssembly = publicContext.CallingAssembly,
+                WriteResponse = publicContext.WriteResponse,
+                IsSuccessStatusCode = publicContext.IsSuccessStatusCode,
+                CallerFilePath = publicContext.CallerFilePath,
+                PayloadParameterName = publicContext.PayloadParameterName
+            };
+
+            return httpAssertContextInternal;
+        }
+
+        /// <summary>
+        /// Creates an internal non-generic context from the public context with explicit HttpMethod override.
+        /// For backward compatibility with existing extension methods.
         /// </summary>
         public static HttpAssertContextInternal FromContext(HttpAssertContext publicContext,
                                                             HttpMethod httpMethod)
