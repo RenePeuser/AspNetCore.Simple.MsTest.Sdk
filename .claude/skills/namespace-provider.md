@@ -23,6 +23,22 @@ Use folder structure for physical organization, but do not let technical subfold
 - Treat physical folder structure and logical namespace design as separate concerns.
 - Keep namespace conventions consistent across production and test code.
 - Share namespace provider settings across the team so generated namespaces remain uniform.
+- Store namespace provider configuration in the relevant `*.csproj.DotSettings` file.
+- Do not place these namespace provider settings into `*.sln.DotSettings`.
+
+## Settings File Convention
+
+Store namespace provider settings in the corresponding project settings file:
+
+- `[ProjectName].csproj.DotSettings`
+
+Do not place these namespace provider settings into:
+
+- `[SolutionName].sln.DotSettings`
+
+Reason:
+
+These namespace provider rules are project-specific and must stay close to the project they belong to.
 
 ## Prefer
 
@@ -61,6 +77,7 @@ Example:
 - Are technical folders hidden from the namespace where appropriate?
 - Are production and test code using the same namespace convention?
 - Are ReSharper or Rider settings aligned with the intended structure?
+- Is the namespace provider configuration stored in the correct `*.csproj.DotSettings` file?
 - Would renaming a technical folder avoid unnecessary namespace churn?
 
 ## Notes
