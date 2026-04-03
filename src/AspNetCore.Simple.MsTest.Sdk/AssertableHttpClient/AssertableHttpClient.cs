@@ -34,6 +34,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddResponseWriter();
             services.AddWriteResponseService();
             services.AddHttpCallHandler();
+            services.AddAssertService();
 
             // 2. Register the service itself
             services.AddSingletonIfNotExists<IAssertableHttpClient, AssertableHttpClient>();
@@ -65,22 +66,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
         Task<TResult> AssertAsync<TResult>(HttpAssertContext<TResult> context);
     }
 
-
     /// <summary>
     /// Implementation of <see cref="IAssertableHttpClient"/> that contains the core assertion logic.
     /// This class encapsulates all dependencies needed for HTTP assertions.
     /// All dependencies are injected via the primary constructor for testability and flexibility.
     /// </summary>
-    internal sealed class AssertableHttpClient(HttpOutputFormatter httpOutputFormatter,
-                                               CurlBuilder curlBuilder,
-                                               OutputFormatter outputFormatter,
-                                               PrimitiveTypeConverter primitiveTypeConverter,
-                                               JsonDiffer jsonDiffer,
-                                               ResponseWriter responseWriter,
-                                               WriteResponseService writeResponseService,
-                                               EmbeddedFileLocalizer embeddedFileLocalizer,
-                                               HttpCallHandler httpCallHandler,
-                                               JsonSerializerOptions jsonSerializerOptions) : IAssertableHttpClient
+    internal sealed class AssertableHttpClient(IHttpOutputFormatter httpOutputFormatter,
+                                               ICurlBuilder curlBuilder,
+                                               IOutputFormatter outputFormatter,
+                                               IPrimitiveTypeConverter primitiveTypeConverter,
+                                               IJsonDiffer jsonDiffer,
+                                               IResponseWriter responseWriter,
+                                               IWriteResponseService writeResponseService,
+                                               IEmbeddedFileLocalizer embeddedFileLocalizer,
+                                               IHttpCallHandler httpCallHandler,
+                                               JsonSerializerOptions jsonSerializerOptions,
+                                               IAssertService assertService) : IAssertableHttpClient
     {
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
@@ -88,6 +89,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public Task AssertAsync(HttpAssertContext context)
         {
             var internalContext = HttpAssertContextInternalFactory.FromContext(context);
+
             return AssertHttpCallAsync(internalContext);
         }
 
@@ -95,6 +97,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public Task<TResult> AssertAsync<TResult>(HttpAssertContext<TResult> context)
         {
             var internalContext = HttpAssertContextInternalFactory.FromContext(context);
+
             return AssertHttpCallAsync(internalContext);
         }
 
@@ -104,6 +107,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #pragma warning restore CA1859
         {
             var genericContext = HttpAssertContextInternalFactory.ToGeneric<string>(context, IgnoreResponseComparison);
+
             return AssertHttpCallAsync(genericContext);
         }
 
@@ -126,11 +130,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Call the endpoint
             using var httpResponseMessage = await httpCallHandler.CallAsync(context.Client,
-                                                                             context.HttpMethod,
-                                                                             context.Url,
-                                                                             jsonPayload,
-                                                                             CancellationToken.None,
-                                                                             context.PayloadParameterName).ConfigureAwait(false);
+                                                                            context.HttpMethod,
+                                                                            context.Url,
+                                                                            jsonPayload,
+                                                                            CancellationToken.None,
+                                                                            context.PayloadParameterName).ConfigureAwait(false);
 
             // Get the response as json
             var contentAsString = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -156,6 +160,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              context.ShowTokenInCurl);
 
             // Check if status code matches expectations
+            // If unexpected status code we do not write response because it would the wrong response !
+
             if (httpResponseMessage.IsSuccessStatusCode.NotEqualsTo(context.IsSuccessStatusCode))
             {
                 var errorInfo = context.IsSuccessStatusCode
@@ -258,29 +264,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var currentResponse = currentSimpleHttResponseMessage with
                 {
                     Content = currentSimpleHttResponseMessage.Content.IsNull()
-                                  ? new SimpleHttpContent()
-                                  {
-                                      Value = currentSimpleHttResponseMessage,
-                                      Headers = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty
-                                  }
-                                  : currentSimpleHttResponseMessage.Content with
-                                  {
-                                      Value = JsonDocument.Parse(contentAsString).RootElement,
-                                  }
+                                                        ? new SimpleHttpContent()
+                                                        {
+                                                            Value = currentSimpleHttResponseMessage,
+                                                            Headers = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty
+                                                        }
+                                                        : currentSimpleHttResponseMessage.Content with
+                                                        {
+                                                            Value = JsonDocument.Parse(contentAsString).RootElement,
+                                                        }
                 };
 
                 var expected = currentSimpleHttResponseMessage with
                 {
                     Content = currentSimpleHttResponseMessage.Content.IsNull()
-                                  ? new SimpleHttpContent()
-                                  {
-                                      Value = currentSimpleHttResponseMessage,
-                                      Headers = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty
-                                  }
-                                  : currentSimpleHttResponseMessage.Content with
-                                  {
-                                      Value = JsonDocument.Parse(expectedResultAsJsonParamterized).RootElement,
-                                  }
+                                                 ? new SimpleHttpContent()
+                                                 {
+                                                     Value = currentSimpleHttResponseMessage,
+                                                     Headers = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty
+                                                 }
+                                                 : currentSimpleHttResponseMessage.Content with
+                                                 {
+                                                     Value = JsonDocument.Parse(expectedResultAsJsonParamterized).RootElement,
+                                                 }
                 };
 
                 var expectedJson = expected.ToJson(jsonSerializerOptions);
@@ -318,18 +324,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
             }
 
-            Assert.That.ObjectsAreEqual(expectedObjectAsJson,
-                                        currentResolvedSimpleHttpResponse,
-                                        item => item,
-                                        httpCallInfo,
-                                        context.CallingAssembly,
-                                        context.DifferenceFunc,
-                                        curl,
-                                        context.Parameters,
-                                        context.WriteResponse,
-                                        context.ExpectedResultParameterName,
-                                        "Current response",
-                                        context.CallerFilePath);
+            
+            var objectAssertContext = new ObjectAssertContext<SimpleHttpResponseMessage>
+            {
+                ExpectedObjectAsJson = expectedObjectAsJson,
+                CurrentObject = currentResolvedSimpleHttpResponse,
+                OrderFunc = item => item,
+                DifferenceFunc = context.DifferenceFunc,
+                Parameters = context.Parameters,
+                CallingAssembly = context.CallingAssembly,
+                WriteResponse = context.WriteResponse,
+                Title = httpCallInfo,
+                Curl = curl,
+                CallerFilePath = context.CallerFilePath,
+                ExpectedResultParameterName = context.ExpectedResultParameterName,
+                CurrentResultParameterName = "Current response"
+            };
+
+            assertService.ObjectsAreEqual(objectAssertContext);
 
             // Return the current result
             return currentResult;

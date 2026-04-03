@@ -15,13 +15,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddHttpRequestMessageBuilder();
 
             // Register service itself
-            services.AddSingletonIfNotExists<HttpCallHandler, HttpCallHandler>();
+            services.AddSingletonIfNotExists<IHttpCallHandler, HttpCallHandler>();
         }
     }
 
-    internal sealed class HttpCallHandler(HttpRequestMessageBuilder httpRequestMessageBuilder)
+    public interface IHttpCallHandler
     {
-        internal async Task<HttpResponseMessage> CallAsync(HttpClient httpClient,
+        Task<HttpResponseMessage> CallAsync(HttpClient httpClient,
+                                           HttpMethod httpMethod,
+                                           string url,
+                                           object? payload,
+                                           CancellationToken cancellationToken,
+                                           [CallerArgumentExpression(nameof(payload))]
+                                           string payloadParameterName = "");
+    }
+
+    internal sealed class HttpCallHandler(IHttpRequestMessageBuilder httpRequestMessageBuilder) : IHttpCallHandler
+    {
+        public async Task<HttpResponseMessage> CallAsync(HttpClient httpClient,
                                                            HttpMethod httpMethod,
                                                            string url,
                                                            object? payload,

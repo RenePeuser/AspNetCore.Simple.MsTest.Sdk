@@ -17,13 +17,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddJsonSerializer();
 
             // Register service itself
-            services.AddSingletonIfNotExists<HttpRequestMessageBuilder, HttpRequestMessageBuilder>();
+            services.AddSingletonIfNotExists<IHttpRequestMessageBuilder, HttpRequestMessageBuilder>();
         }
     }
 
-    internal sealed class HttpRequestMessageBuilder(JsonSerializer jsonSerializer)
+    public interface IHttpRequestMessageBuilder
     {
-        internal HttpRequestMessage BuildFrom(HttpMethod method,
+        HttpRequestMessage BuildFrom(HttpMethod method,
+                                    string uri,
+                                    object? payload,
+                                    string payloadParameterName);
+    }
+
+    internal sealed class HttpRequestMessageBuilder(JsonSerializer jsonSerializer) : IHttpRequestMessageBuilder
+    {
+        public HttpRequestMessage BuildFrom(HttpMethod method,
                                               string uri,
                                               object? payload,
                                               string payloadParameterName)

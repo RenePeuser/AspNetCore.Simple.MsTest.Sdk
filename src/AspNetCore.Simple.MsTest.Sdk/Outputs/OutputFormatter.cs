@@ -12,13 +12,38 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
             services.AddCurlFormatter();
 
             // Register service itself
-            services.AddSingletonIfNotExists<OutputFormatter, OutputFormatter>();
+            services.AddSingletonIfNotExists<IOutputFormatter, OutputFormatter>();
         }
     }
 
-    internal sealed class OutputFormatter(CurlFormatter curlFormatter)
+    public interface IOutputFormatter
     {
-        internal string GetOutputString(string title,
+        string GetOutputString(string title,
+                              string? expectedResultAsJson,
+                              string? currentResultAsJson);
+
+        string GetOutputString(string title,
+                              string errorInfo,
+                              string? expectedResultAsJson,
+                              string? currentResultAsJson);
+
+        string GetOutputString(string title,
+                              string errorInfo,
+                              string? expectedResultAsJson,
+                              string? currentResultAsJson,
+                              string curl);
+
+        string GetOutputString(string title,
+                              string errorInfo,
+                              string? expectedResultAsJson,
+                              string? currentResultAsJson,
+                              string objectDifferences,
+                              string curl);
+    }
+
+    internal sealed class OutputFormatter(ICurlFormatter curlFormatter) : IOutputFormatter
+    {
+        public string GetOutputString(string title,
                                         string? expectedResultAsJson,
                                         string? currentResultAsJson)
         {
@@ -26,7 +51,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
                                    currentResultAsJson);
         }
 
-        internal string GetOutputString(string title,
+        public string GetOutputString(string title,
                                         string errorInfo,
                                         string? expectedResultAsJson,
                                         string? currentResultAsJson)
@@ -35,7 +60,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
                                    currentResultAsJson, string.Empty);
         }
 
-        internal string GetOutputString(string title,
+        public string GetOutputString(string title,
                                         string errorInfo,
                                         string? expectedResultAsJson,
                                         string? currentResultAsJson,
@@ -45,7 +70,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
                                    currentResultAsJson, string.Empty, curl);
         }
 
-        internal string GetOutputString(string title,
+        public string GetOutputString(string title,
                                         string errorInfo,
                                         string? expectedResultAsJson,
                                         string? currentResultAsJson,

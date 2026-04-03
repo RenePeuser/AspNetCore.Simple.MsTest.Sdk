@@ -12,11 +12,19 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
     {
         public static void AddHttpOutputFormatter(this IServiceCollection services)
         {
-            services.AddSingletonIfNotExists<HttpOutputFormatter, HttpOutputFormatter>();
+            services.AddSingletonIfNotExists<IHttpOutputFormatter, HttpOutputFormatter>();
         }
     }
 
-    internal sealed class HttpOutputFormatter
+    public interface IHttpOutputFormatter
+    {
+        string GetOutputString(string errorInfo,
+                              HttpMethod httpMethod,
+                              string url,
+                              HttpStatusCode httpStatusCode);
+    }
+
+    internal sealed class HttpOutputFormatter : IHttpOutputFormatter
     {
         public string GetOutputString(string errorInfo,
                                       HttpMethod httpMethod,

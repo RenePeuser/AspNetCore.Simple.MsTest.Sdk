@@ -41,7 +41,7 @@
             All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.#ctor(AspNetCore.Simple.MsTest.Sdk.Outputs.HttpOutputFormatter,AspNetCore.Simple.MsTest.Sdk.CurlBuilder,AspNetCore.Simple.MsTest.Sdk.Outputs.OutputFormatter,AspNetCore.Simple.MsTest.Sdk.PrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.JsonDiffer,AspNetCore.Simple.MsTest.Sdk.ResponseWriter,AspNetCore.Simple.MsTest.Sdk.WriteResponseService,AspNetCore.Simple.MsTest.Sdk.EmbeddedFileLocalizer,AspNetCore.Simple.MsTest.Sdk.HttpCallHandler,System.Text.Json.JsonSerializerOptions)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.#ctor(AspNetCore.Simple.MsTest.Sdk.Outputs.IHttpOutputFormatter,AspNetCore.Simple.MsTest.Sdk.ICurlBuilder,AspNetCore.Simple.MsTest.Sdk.Outputs.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.IEmbeddedFileLocalizer,AspNetCore.Simple.MsTest.Sdk.IHttpCallHandler,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IAssertService)">
             <summary>
             Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient"/> that contains the core assertion logic.
             This class encapsulates all dependencies needed for HTTP assertions.
@@ -429,6 +429,39 @@
         <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.CurrentResultParameterName">
             <summary>
             The parameter name of the current object. Usually auto-filled by CallerArgumentExpression.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertServiceExtension.AddAssertService(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers all assertion services and their dependencies in the DI container.
+            Feature-based registration following the dependency tree pattern.
+            </summary>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.IAssertService">
+            <summary>
+            Represents an assertion service for comparing objects in tests.
+            Core service that performs deep object comparisons with automatic diff generation.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.IAssertService.ObjectsAreEqual``1(AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext{``0})">
+            <summary>
+            Compares two objects and asserts they are equal using the provided context configuration.
+            </summary>
+            <typeparam name="T">The type of objects to compare.</typeparam>
+            <param name="context">The assertion context containing all comparison parameters.</param>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertService">
+            <summary>
+            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService"/> that contains the core assertion logic.
+            This class encapsulates all dependencies needed for object assertions.
+            All dependencies are injected via the primary constructor for testability and flexibility.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.ICurlFormatter,AspNetCore.Simple.MsTest.Sdk.ICurlPrinter,AspNetCore.Simple.MsTest.Sdk.Outputs.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.IEmbeddedFileLocalizer,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService"/> that contains the core assertion logic.
+            This class encapsulates all dependencies needed for object assertions.
+            All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Type">

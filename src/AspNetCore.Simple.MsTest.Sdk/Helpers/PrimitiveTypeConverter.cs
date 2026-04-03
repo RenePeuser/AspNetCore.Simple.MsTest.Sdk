@@ -9,14 +9,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddPrimitiveTypeConverter(this IServiceCollection services)
         {
-            services.AddSingletonIfNotExists<PrimitiveTypeConverter, PrimitiveTypeConverter>();
+            services.AddSingletonIfNotExists<IPrimitiveTypeConverter, PrimitiveTypeConverter>();
         }
     }
 
-    internal sealed class PrimitiveTypeConverter
+    public interface IPrimitiveTypeConverter
     {
-        internal object ConvertTo(object source,
-                                  Type targetType)
+        object ConvertTo(object source, Type targetType);
+        T ConvertTo<T>(object source);
+        T ConvertTo<T>(string source);
+    }
+
+    internal sealed class PrimitiveTypeConverter : IPrimitiveTypeConverter
+    {
+        public object ConvertTo(object source,
+                                Type targetType)
         {
             if (targetType.IsEnum)
             {
@@ -26,12 +33,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return Convert.ChangeType(source, targetType, CultureInfo.InvariantCulture);
         }
 
-        internal T ConvertTo<T>(object source)
+        public T ConvertTo<T>(object source)
         {
             return (T)Convert.ChangeType(source, typeof(T), CultureInfo.InvariantCulture);
         }
 
-        internal T ConvertTo<T>(string source)
+        public T ConvertTo<T>(string source)
         {
             // This is a real dirty workaround => this has to be removed soon => background => Some UI specific flags comes currently as number !!!
             // TableCreated and more
