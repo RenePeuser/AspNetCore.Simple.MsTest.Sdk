@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Extensions.Pack;
@@ -29,7 +29,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="json">The JSON string containing placeholders</param>
         /// <param name="parameters">Parameters as (Key, Value) tuples where Key is the placeholder</param>
         /// <returns>JSON string with placeholders replaced by values</returns>
-        string ResolveParameters(string json, params (string Key, object? Value)[] parameters);
+        string ResolveParameters(string json,
+                                 params (string Key, object? Value)[] parameters);
 
         /// <summary>
         /// Replaces actual values with placeholders in a JSON string.
@@ -39,7 +40,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="json">The JSON string containing actual values</param>
         /// <param name="parameters">Parameters as (Key, Value) tuples where Key is the placeholder and Value is what to replace</param>
         /// <returns>JSON string with values replaced by placeholders</returns>
-        string ReplaceWithPlaceholders(string json, params (string Key, object? Value)[] parameters);
+        string ReplaceWithPlaceholders(string json,
+                                       params (string Key, object? Value)[] parameters);
     }
 
     /// <summary>
@@ -48,7 +50,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </summary>
     internal sealed class ParameterReplacer : IParameterReplacer
     {
-        public string ResolveParameters(string json, params (string Key, object? Value)[] parameters)
+        public string ResolveParameters(string json,
+                                        params (string Key, object? Value)[] parameters)
         {
             if (json.IsNullOrWhiteSpace())
             {
@@ -123,7 +126,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return replacedString;
         }
 
-        public string ReplaceWithPlaceholders(string json, params (string Key, object? Value)[] parameters)
+        public string ReplaceWithPlaceholders(string json,
+                                              params (string Key, object? Value)[] parameters)
         {
             if (json.IsNullOrWhiteSpace() || parameters.IsNullOrEmpty())
             {
@@ -141,7 +145,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // Private helper methods for smart replacement logic
         // ============================================================
 
-        private static void ApplySmartReplacements(JToken root, params (string key, object? Value)[] parameters)
+        private static void ApplySmartReplacements(JToken root,
+                                                   params (string key, object? Value)[] parameters)
         {
             if (parameters.IsNullOrEmpty())
             {
@@ -158,7 +163,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var propertyName = key.Trim('$');
 
                 // 🔥 Property-Replacement IMMER versuchen – auch bei null
-                ReplaceByProperty(root, propertyName, key, value);
+                ReplaceByProperty(root, propertyName, key,
+                                  value);
 
                 // FullText nur wenn value != null
                 if (value != null && value.ToString()?.Length >= 3)
@@ -168,7 +174,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private static bool ReplaceByProperty(JToken token, string propertyName, string placeholder, object? originalValue)
+        private static bool ReplaceByProperty(JToken token,
+                                              string propertyName,
+                                              string placeholder,
+                                              object? originalValue)
         {
             var replaced = false;
 
@@ -178,12 +187,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (originalValue == null && prop.Value.Type == JTokenType.Null)
                 {
                     prop.Value = placeholder;
+
                     return true;
                 }
 
                 if (originalValue != null && JToken.DeepEquals(prop.Value, JToken.FromObject(originalValue)))
                 {
                     prop.Value = placeholder;
+
                     return true;
                 }
             }
@@ -192,14 +203,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 foreach (var child in container.Children())
                 {
-                    replaced |= ReplaceByProperty(child, propertyName, placeholder, originalValue);
+                    replaced |= ReplaceByProperty(child, propertyName, placeholder,
+                                                  originalValue);
                 }
             }
 
             return replaced;
         }
 
-        private static void ReplaceFullText(JToken token, string placeholder, object? originalValue)
+        private static void ReplaceFullText(JToken token,
+                                            string placeholder,
+                                            object? originalValue)
         {
             if (originalValue == null)
             {
@@ -246,7 +260,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private static string ReplaceOutsidePlaceholders(string input, Func<string, string> replacer)
+        private static string ReplaceOutsidePlaceholders(string input,
+                                                         Func<string, string> replacer)
         {
             if (input.Contains('$').IsFalse())
             {

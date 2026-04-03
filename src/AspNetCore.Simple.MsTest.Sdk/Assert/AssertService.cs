@@ -175,13 +175,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var orderedObject1 = orderFunc(expectedObject);
                 var orderedObject2 = orderFunc(currentObject);
 
-                var object1AsJson = parameterReplacementService.ResolveParameters(
-                    orderedObject1.ToJson(jsonSerializerOptions),
-                    parameters);
+                var object1AsJson = parameterReplacementService.ResolveParameters(orderedObject1.ToJson(jsonSerializerOptions),
+                                                                                  parameters);
 
-                var object2AsJson = parameterReplacementService.ResolveParameters(
-                    orderedObject2.ToJson(jsonSerializerOptions),
-                    parameters);
+                var object2AsJson = parameterReplacementService.ResolveParameters(orderedObject2.ToJson(jsonSerializerOptions),
+                                                                                  parameters);
 
                 var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 

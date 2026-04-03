@@ -230,6 +230,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             // Static instance for use in static extension methods that can't use DI
             var parameterReplacementService = new ParameterReplacer();
+
             return parameterReplacementService.ResolveParameters(value, parameters);
         }
     }
