@@ -476,7 +476,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 CallingAssembly = callingAssembly,
                 WriteResponse = writeResponse,
                 Title = title,
-                Curl = curl,
                 CallerFilePath = callerFilePath,
                 ExpectedResultParameterName = expectedResultParameterName,
                 CurrentResultParameterName = currentResultParameterName
@@ -922,7 +921,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               Title = title,
                               CallingAssembly = callingAssembly,
                               DifferenceFunc = differenceFunc,
-                              Curl = curl,
                               Parameters = parameters,
                               WriteResponse = writeResponse,
                               ExpectedResultParameterName = expectedResultParameterName,

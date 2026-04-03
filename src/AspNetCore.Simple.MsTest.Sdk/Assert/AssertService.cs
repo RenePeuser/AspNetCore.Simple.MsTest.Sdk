@@ -83,7 +83,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var orderFunc = context.OrderFunc;
             var differenceFunc = context.DifferenceFunc;
             var title = context.Title ?? string.Empty;
-            var curl = context.Curl ?? string.Empty;
+            var curl = string.Empty; // TODO: Move to HttpAssertContext when hierarchy is established
             var parameters = context.Parameters;
             var writeResponse = context.WriteResponse;
 

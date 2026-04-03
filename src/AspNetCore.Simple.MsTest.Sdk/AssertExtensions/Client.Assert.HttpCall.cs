@@ -218,22 +218,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Update context with resolved URL and ShowTokenInCurl from static field
             var updatedContext = new HttpAssertContextInternal<TResult>
-            {
-                Client = context.Client,
-                Url = url,
-                PayloadAsJson = context.PayloadAsJson,
-                ExpectedResult = context.ExpectedResult,
-                FilterFunc = context.FilterFunc,
-                HttpMethod = context.HttpMethod,
-                DifferenceFunc = context.DifferenceFunc,
-                Parameters = context.Parameters,
-                CallingAssembly = context.CallingAssembly,
-                PayloadParameterName = context.PayloadParameterName,
-                ExpectedResultParameterName = context.ExpectedResultParameterName,
-                CallerFilePath = context.CallerFilePath,
-                IsSuccessStatusCode = context.IsSuccessStatusCode,
-                WriteResponse = context.WriteResponse,
-                ShowTokenInCurl = ShowTokenInCurl
+                                 {
+                                     Client = context.Client,
+                                     Url = url,
+                                     PayloadAsJson = context.PayloadAsJson,
+                                     ExpectedResult = context.ExpectedResult,
+                                     OrderFunc = context.OrderFunc,
+                                     HttpMethod = context.HttpMethod,
+                                     DifferenceFunc = context.DifferenceFunc,
+                                     Parameters = context.Parameters,
+                                     CallingAssembly = context.CallingAssembly,
+                                     PayloadParameterName = context.PayloadParameterName,
+                                     ExpectedResultParameterName = context.ExpectedResultParameterName,
+                                     CallerFilePath = context.CallerFilePath,
+                                     IsSuccessStatusCode = context.IsSuccessStatusCode,
+                                     WriteResponse = context.WriteResponse,
+                                     ShowTokenInCurl = ShowTokenInCurl,
+                                     CurrentObject = context.CurrentObject
             };
 
             // Delegate to the configured IAssertableHttpClient (default or custom implementation)

@@ -41,7 +41,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs
         /// Full URL that was called.
         /// Null if this is not an HTTP assertion.
         /// </summary>
+#pragma warning disable CA1056 // URI properties should not be strings - keeping as string for consistency with rest of codebase
         public string? Url { get; init; }
+#pragma warning restore CA1056
 
         /// <summary>
         /// HTTP status code received.

@@ -8,9 +8,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// <summary>
     /// Context object for ObjectsAreEqual assertion methods.
     /// Provides a cleaner API compared to methods with many individual parameters.
+    /// Base context that can be extended for specialized assertion scenarios (e.g., HTTP assertions).
     /// </summary>
-    /// <typeparam name="T">The type being compared</typeparam> 
-    public sealed record ObjectAssertContext<T>
+    /// <typeparam name="T">The type being compared</typeparam>
+    public record ObjectAssertContext<T>
     {
         /// <summary>
         /// The expected object as JSON string or file name.
@@ -57,12 +58,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Used in error messages to provide context.
         /// </summary>
         public string? Title { get; init; }
-
-        /// <summary>
-        /// Optional curl command for context in error messages.
-        /// Helps reproduce the test scenario.
-        /// </summary>
-        public string? Curl { get; init; }
 
         /// <summary>
         /// The file path of the calling test method. Usually auto-filled by CallerFilePath.

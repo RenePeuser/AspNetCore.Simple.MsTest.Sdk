@@ -189,7 +189,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                 resolvedParametersJsonString.FromJsonStringAs<TResult>(jsonSerializerOptions);
 
             // Execute filter func
-            var filteredCurrentResult = context.FilterFunc(currentResult);
+            var filteredCurrentResult = context.OrderFunc(currentResult);
 
             // Simplify the response message
             var currentSimpleHttResponseMessage = httpResponseMessage.ToJson(jsonSerializerOptions).FromJsonStringAs<SimpleHttpResponseMessage>(jsonSerializerOptions);
@@ -232,7 +232,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var expectedType = targetIsPrimitiveType ? primitiveTypeConverter.ConvertTo<TResult>(contentAsString) : expectedResultAsJsonParamterized.FromJsonStringOrDefault<TResult>(jsonSerializerOptions);
 
             // Execute the filter function on the expected result
-            var filteredExpectedType = expectedType.IsNotNull() ? context.FilterFunc(expectedType) : expectedType;
+            var filteredExpectedType = expectedType.IsNotNull() ? context.OrderFunc(expectedType) : expectedType;
 
             // Create the container structure for the comparison
             var expectedResultAsSimpleResponse = expectedResultAsJsonParamterized.FromJsonStringOrDefault<SimpleHttpResponseMessage>(jsonSerializerOptions);
@@ -341,7 +341,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           CallingAssembly = context.CallingAssembly,
                                           WriteResponse = context.WriteResponse,
                                           Title = httpCallInfo,
-                                          Curl = curl,
                                           CallerFilePath = context.CallerFilePath,
                                           ExpectedResultParameterName = context.ExpectedResultParameterName,
                                           CurrentResultParameterName = "Current response"
