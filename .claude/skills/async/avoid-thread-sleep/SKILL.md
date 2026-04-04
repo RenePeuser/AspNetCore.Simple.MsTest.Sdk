@@ -13,7 +13,7 @@ When this skill is invoked, help the user with:
 ## Your Approach
 
 1. **Read the pattern documentation**:
-   - `.claude/skills/concurrency/avoid-thread-sleep/PATTERN.md` - Core rules and alternatives
+   - `.claude/skills/async/avoid-thread-sleep/PATTERN.md` - Core rules and alternatives
 
 2. **Understand the context**:
    - Identify `Thread.Sleep` calls

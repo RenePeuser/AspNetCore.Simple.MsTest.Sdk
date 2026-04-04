@@ -13,7 +13,7 @@ When this skill is invoked, help the user with:
 ## Your Approach
 
 1. **Read the pattern documentation**:
-   - `.claude/skills/concurrency/avoid-sync-over-async/PATTERN.md` - Core rules and risks
+   - `.claude/skills/async/avoid-sync-over-async/PATTERN.md` - Core rules and risks
 
 2. **Understand the context**:
    - Identify blocking calls on tasks
