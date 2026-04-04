@@ -51,7 +51,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
         /// <inheritdoc />
-        public bool CanHandle<TResult>(HttpResponseContext<TResult> context) => context.IsExpectedStatusCode;
+        public bool CanHandle<TResult>(HttpResponseContext<TResult> context)
+        {
+            var canHandle = (context.Request.IsSuccessStatusCode && context.IsExpectedStatusCode) ||
+                            (context.Request.IsSuccessStatusCode.IsFalse() && context.IsExpectedStatusCode.IsFalse());
+
+            return canHandle;
+        }
 
         /// <inheritdoc />
         public Task<TResult> ProcessAsync<TResult>(HttpResponseContext<TResult> context)

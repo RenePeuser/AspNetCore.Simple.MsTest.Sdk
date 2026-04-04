@@ -28,7 +28,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class UnexpectedStatusCodeStrategy(IOutputFormatter outputFormatter) : IHttpStatusCodeProcessingStrategy
     {
         /// <inheritdoc />
-        public bool CanHandle<TResult>(HttpResponseContext<TResult> context) => !context.IsExpectedStatusCode;
+        public bool CanHandle<TResult>(HttpResponseContext<TResult> context)
+        {
+            var canHandle = (context.Request.IsSuccessStatusCode && context.IsExpectedStatusCode.IsFalse()) ||
+                            (context.Request.IsSuccessStatusCode.IsFalse() && context.IsExpectedStatusCode);
+
+            return canHandle;
+        }
 
         /// <inheritdoc />
         public Task<TResult> ProcessAsync<TResult>(HttpResponseContext<TResult> context)

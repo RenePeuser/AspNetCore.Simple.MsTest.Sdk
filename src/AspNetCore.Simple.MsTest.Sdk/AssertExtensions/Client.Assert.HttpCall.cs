@@ -80,17 +80,30 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   JsonSerializerOptions,
                                                                   ParameterReplacer);
 
+        private static readonly UnexpectedStatusCodeStrategy UnexpectedStatusCodeStrategy = new(OutputFormatter);
+
+        private static readonly ExpectedStatusCodeStrategy ExpectedStatusCodeStrategy = new(PrimitiveTypeConverter,
+                                                                                            JsonDiffer,
+                                                                                            OutputFormatter,
+                                                                                            ResponseWriter,
+                                                                                            WriteResponseService,
+                                                                                            AssertService,
+                                                                                            ParameterReplacer,
+                                                                                            JsonSerializerOptions);
+
+        private static readonly HttpResponseAssertStrategy HttpResponseAssertStrategy = new(new IHttpStatusCodeProcessingStrategy[]
+                                                                                            {
+                                                                                                UnexpectedStatusCodeStrategy,
+                                                                                                ExpectedStatusCodeStrategy
+                                                                                            });
+
         private static readonly AssertableHttpClient AssertableHttpClientDefault = new(HttpOutputFormatter,
                                                                                        CurlBuilder,
-                                                                                       OutputFormatter,
-                                                                                       PrimitiveTypeConverter,
-                                                                                       JsonDiffer,
-                                                                                       ResponseWriter,
-                                                                                       WriteResponseService,
                                                                                        _httpCallHandler,
                                                                                        JsonSerializerOptions,
-                                                                                       AssertService,
-                                                                                       ParameterReplacer);
+                                                                                       ParameterReplacer,
+                                                                                       HttpResponseAssertStrategy,
+                                                                                       PrimitiveTypeConverter);
 
         /// <summary>
         /// Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.

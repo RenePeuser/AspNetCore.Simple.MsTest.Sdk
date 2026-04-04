@@ -73,7 +73,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// The absolute URL that was called (resolved from HttpResponseMessage).
         /// Used for output formatting and debugging.
         /// </summary>
+#pragma warning disable CA1056 // URI properties should not be strings - kept as string for compatibility with existing formatters
         public required string AbsoluteUrl { get; init; }
+#pragma warning restore CA1056
 
         /// <summary>
         /// Formatted HTTP call information for output/error messages.
