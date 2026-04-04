@@ -16,9 +16,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         void PrintCurl(Assembly callingAssembly,
                        string curl);
+
+        /// <summary>
+        /// Prints the curl command using the HTTP context's properties.
+        /// This is the preferred method for context-based operations.
+        /// Requires the context to have curl information available.
+        /// </summary>
+        void PrintCurl(IHttpAssertContext context);
     }
 
-    internal sealed class CurlPrinter(ICurlFormatter curlFormatter) : ICurlPrinter
+    internal sealed class CurlPrinter(ICurlFormatter curlFormatter, ICurlBuilder curlBuilder) : ICurlPrinter
     {
         public void PrintCurl(Assembly callingAssembly,
                               string curl)
@@ -28,6 +35,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
+            var curlAsString = curlFormatter.GetCurlAsFormattedString(curl);
+
+            if (curlAsString.IsNotNullOrWhiteSpace())
+            {
+                HttpClientAssertExtensions.LogAction(curlAsString);
+            }
+        }
+
+        public void PrintCurl(IHttpAssertContext context)
+        {
+            if (context.CallingAssembly.IsCompiledInDebug().IsFalse())
+            {
+                return;
+            }
+
+            var curl = curlBuilder.BuildFrom(context);
             var curlAsString = curlFormatter.GetCurlAsFormattedString(curl);
 
             if (curlAsString.IsNotNullOrWhiteSpace())

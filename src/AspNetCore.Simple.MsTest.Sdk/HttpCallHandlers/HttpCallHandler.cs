@@ -28,6 +28,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             CancellationToken cancellationToken,
                                             [CallerArgumentExpression(nameof(payload))]
                                             string payloadParameterName = "");
+
+        /// <summary>
+        /// Executes an HTTP call using the HTTP context's properties.
+        /// This is the preferred method for context-based operations.
+        /// </summary>
+        Task<HttpResponseMessage> CallAsync(IHttpAssertContext context,
+                                            CancellationToken cancellationToken = default);
     }
 
     internal sealed class HttpCallHandler(IHttpRequestMessageBuilder httpRequestMessageBuilder) : IHttpCallHandler
@@ -50,6 +57,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 3. Return the response
             return response;
+        }
+
+        public Task<HttpResponseMessage> CallAsync(IHttpAssertContext context,
+                                                   CancellationToken cancellationToken = default)
+        {
+            return CallAsync(context.Client,
+                           context.HttpMethod,
+                           context.Url,
+                           context.ResolvedPayload ?? context.PayloadAsJson,
+                           cancellationToken,
+                           context.PayloadParameterName);
         }
     }
 }

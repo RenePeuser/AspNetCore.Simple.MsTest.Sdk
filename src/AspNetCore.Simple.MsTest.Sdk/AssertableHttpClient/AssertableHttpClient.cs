@@ -87,32 +87,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // Master assert method - contains the core logic
         private async Task<TResult> AssertHttpCallAsync<TResult>(HttpAssertContext<TResult> context)
         {
-            // localize expected response and payload
-            var payloadAsJsonFile = embeddedFileLocalizer.LocalizeRequestFile(context.PayloadAsJson ?? string.Empty,
-                                                                              context.CallerFilePath,
-                                                                              context.CallingAssembly);
-
-            var expectedResultFile = embeddedFileLocalizer.LocalizeResponseFile(context.ExpectedObjectAsJson,
-                                                                                context.CallerFilePath,
-                                                                                context.CallingAssembly);
+            // Use pre-resolved files from context if available, otherwise resolve them now (fallback for backward compatibility)
+            var expectedResultFile = context.ExpectedResultFile ?? embeddedFileLocalizer.LocalizeResponseFile(context);
 
             // Target type is primitive type
             var targetType = typeof(TResult);
             var targetIsPrimitiveType = targetType.IsPrimitive || targetType.EqualsTo(typeof(string));
 
-            // Setup json payload
-            var jsonPayload = payloadAsJsonFile.Content;
-
-            // Resolve parameters if parameterized payload
-            jsonPayload = parameterReplacementService.ResolveParameters(jsonPayload, context.Parameters);
-
-            // Call the endpoint
-            using var httpResponseMessage = await httpCallHandler.CallAsync(context.Client,
-                                                                            context.HttpMethod,
-                                                                            context.Url,
-                                                                            jsonPayload,
-                                                                            CancellationToken.None,
-                                                                            context.PayloadParameterName).ConfigureAwait(false);
+            // Call the endpoint using context (contains resolved URL, resolved payload, etc.)
+            using var httpResponseMessage = await httpCallHandler.CallAsync(context, CancellationToken.None).ConfigureAwait(false);
 
             // Get the response as json
             var contentAsString = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -129,10 +112,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    absoluteUrl,
                                                                    httpResponseMessage.StatusCode);
 
-            // Build curl
+            // Build curl using context (with runtime absolute URL)
             var curl = curlBuilder.BuildFrom(context.HttpMethod,
                                              absoluteUrl,
-                                             jsonPayload,
+                                             context.ResolvedPayload ?? string.Empty,
                                              context.Client.DefaultRequestHeaders.Authorization,
                                              context.CallingAssembly,
                                              context.ShowTokenInCurl);

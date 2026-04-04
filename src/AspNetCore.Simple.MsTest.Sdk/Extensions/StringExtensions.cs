@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         private static readonly CurlFormatter CurlFormatter = new();
 

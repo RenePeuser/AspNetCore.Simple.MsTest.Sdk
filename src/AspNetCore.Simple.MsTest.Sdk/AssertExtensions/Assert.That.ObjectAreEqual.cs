@@ -16,8 +16,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly CurlFormatter CurlFormatter = new();
 
-        private static readonly CurlPrinter CurlPrinter = new(CurlFormatter);
-
         private static readonly OutputFormatter OutputFormatter = new([
                                                                           new HttpSpecificOutputFormatter(CurlFormatter),
                                                                           new ObjectSpecificOutputFormatter()
@@ -51,8 +49,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
                                                                   JsonDiffer,
-                                                                  CurlFormatter,
-                                                                  CurlPrinter,
                                                                   OutputFormatter,
                                                                   ResponseWriter,
                                                                   WriteResponseService,

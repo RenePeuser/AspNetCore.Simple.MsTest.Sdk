@@ -17,6 +17,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // Very important we do only write in DEBUG mode this is a pure Developer feature !
         bool ShouldWriteResponse(bool scopedWriteResponse,
                                  Assembly callingAssembly);
+
+        /// <summary>
+        /// Determines if the response should be written using the context's properties.
+        /// This is the preferred method for context-based operations.
+        /// </summary>
+        bool ShouldWriteResponse(IObjectAssertContext context);
     }
 
     internal sealed class WriteResponseService : IWriteResponseService
@@ -47,6 +53,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             return envVariable.Value;
+        }
+
+        public bool ShouldWriteResponse(IObjectAssertContext context)
+        {
+            return ShouldWriteResponse(context.WriteResponse, context.CallingAssembly);
         }
     }
 }

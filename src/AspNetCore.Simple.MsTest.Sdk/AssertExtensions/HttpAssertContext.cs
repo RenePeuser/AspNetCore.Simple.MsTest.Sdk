@@ -5,13 +5,70 @@ using System.Reflection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
+    public interface IHttpAssertContext : IObjectAssertContext
+    {
+        /// <summary>
+        /// The HttpClient instance to use for making the request.
+        /// </summary>
+        HttpClient Client { get; init; }
+
+        /// <summary>
+        /// The URL to call. Can contain placeholders like {userId} that will be replaced using Parameters.
+        /// </summary>
+#pragma warning disable CA1056 // URI-like properties should not be strings
+        string Url { get; init; }
+#pragma warning restore CA1056 // URI-like properties should not be strings
+
+        /// <summary>
+        /// The HTTP method to use for the request (GET, POST, PUT, PATCH, DELETE, etc.).
+        /// </summary>
+        HttpMethod HttpMethod { get; init; }
+
+        /// <summary>
+        /// The payload as JSON string or file name.
+        /// Can be a JSON string, a file name like "request.json", or an embedded resource path.
+        /// </summary>
+        string? PayloadAsJson { get; init; }
+
+        /// <summary>
+        /// The localized payload file info.
+        /// Contains the resolved embedded request file information including content and physical file location.
+        /// This is resolved once during context creation and reused throughout the assertion pipeline.
+        /// </summary>
+        EmbeddedFileInfo? PayloadFile { get; init; }
+
+        /// <summary>
+        /// The fully resolved payload JSON with all parameters replaced.
+        /// This is ready-to-use and prepared once during context creation.
+        /// Avoids repeated parameter resolution throughout the assertion pipeline.
+        /// </summary>
+        string? ResolvedPayload { get; init; }
+
+        /// <summary>
+        /// Whether the HTTP call is expected to succeed (2xx status code).
+        /// Set to false when testing error scenarios.
+        /// </summary>
+        bool IsSuccessStatusCode { get; init; }
+
+        /// <summary>
+        /// The parameter name of the payload argument. Usually auto-filled by CallerArgumentExpression.
+        /// </summary>
+        string PayloadParameterName { get; init; }
+
+        /// <summary>
+        /// Controls the visibility of the token in curl outputs.
+        /// Set to true to show the token in generated curl commands.
+        /// </summary>
+        bool ShowTokenInCurl { get; init; }
+    }
+
     /// <summary>
     /// Context object for HTTP assertion methods that bundles common parameters
     /// to provide a cleaner API compared to methods with many individual parameters.
     /// Inherits from ObjectAssertContext to reuse comparison logic.
     /// </summary>
     /// <typeparam name="TResult">The expected result type</typeparam>
-    public record HttpAssertContext<TResult> : ObjectAssertContext<TResult>
+    public record HttpAssertContext<TResult> : ObjectAssertContext<TResult>, IHttpAssertContext
     {
         /// <summary>
         /// The HttpClient instance to use for making the request.
@@ -37,28 +94,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public string? PayloadAsJson { get; init; }
 
         /// <summary>
-        /// Alias for ExpectedObjectAsJson from base class for backward compatibility.
-        /// The expected result as JSON string or file name.
+        /// The localized payload file info.
+        /// Contains the resolved embedded request file information including content and physical file location.
+        /// This is resolved once during context creation and reused throughout the assertion pipeline.
         /// </summary>
-        public string? ExpectedResult
-        {
-            get => ExpectedObjectAsJson;
-
-            init => ExpectedObjectAsJson = value ?? string.Empty;
-        }
+        public EmbeddedFileInfo? PayloadFile { get; init; }
 
         /// <summary>
-        /// Alias for OrderFunc from base class for backward compatibility.
-        /// Optional filter function to transform the result before comparison.
-        /// Useful for filtering out dynamic properties like timestamps or IDs.
-        /// Note: Function must handle nullable inputs/outputs.
+        /// The fully resolved payload JSON with all parameters replaced.
+        /// This is ready-to-use and prepared once during context creation.
+        /// Avoids repeated parameter resolution throughout the assertion pipeline.
         /// </summary>
-        public Func<TResult?, TResult?> FilterFunc
-        {
-            get => OrderFunc;
-
-            init => OrderFunc = value;
-        }
+        public string? ResolvedPayload { get; init; }
 
         /// <summary>
         /// Whether the HTTP call is expected to succeed (2xx status code).
@@ -76,10 +123,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Set to true to show the token in generated curl commands.
         /// </summary>
         public bool ShowTokenInCurl { get; init; }
-
-        /// <summary>
-        /// Curl command for reproducing the HTTP call.
-        /// </summary>
-        public string? Curl { get; init; }
     }
 }

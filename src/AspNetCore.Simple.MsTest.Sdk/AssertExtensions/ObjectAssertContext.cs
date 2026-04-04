@@ -5,18 +5,92 @@ using System.Reflection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
+    public interface IObjectAssertContext
+    {
+        /// <summary>
+        /// The expected object as JSON string or file name.
+        /// Can be a JSON string, a file name like "expected.json", or an embedded resource path.
+        /// </summary>
+        string ExpectedObjectAsJson { get; init; }
+
+        /// <summary>
+        /// The localized expected result file info.
+        /// Contains the resolved embedded file information including content and physical file location.
+        /// This is resolved once during context creation and reused throughout the assertion pipeline.
+        /// </summary>
+        EmbeddedFileInfo? ExpectedResultFile { get; init; }
+
+        /// <summary>
+        /// The current/actual object to compare against the expected object (untyped).
+        /// Use the strongly-typed CurrentObject property in derived generic classes when possible.
+        /// This property is set automatically by the derived generic class.
+        /// </summary>
+        object? CurrentObject { get; init; }
+
+        /// <summary>
+        /// Optional function to filter differences found during comparison.
+        /// Allows ignoring specific differences that are expected.
+        /// </summary>
+        Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; init; }
+
+        /// <summary>
+        /// Parameters to replace in JSON strings during comparison.
+        /// Format: (Key, Value) tuples where Key is the placeholder and Value is the replacement.
+        /// </summary>
+        (string Key, object? Value)[] Parameters { get; init; }
+
+        /// <summary>
+        /// The calling assembly. If not provided, will be automatically determined.
+        /// </summary>
+        Assembly CallingAssembly { get; init; }
+
+        /// <summary>
+        /// Whether to write the response to disk when the assertion fails.
+        /// Useful for updating test snapshots.
+        /// </summary>
+        bool WriteResponse { get; init; }
+
+        /// <summary>
+        /// Title/description for the assertion output.
+        /// Used in error messages to provide context.
+        /// </summary>
+        string? Title { get; init; }
+
+        /// <summary>
+        /// The file path of the calling test method. Usually auto-filled by CallerFilePath.
+        /// </summary>
+        string CallerFilePath { get; init; }
+
+        /// <summary>
+        /// The parameter name of the expected object. Usually auto-filled by CallerArgumentExpression.
+        /// </summary>
+        string ExpectedResultParameterName { get; init; }
+
+        /// <summary>
+        /// The parameter name of the current object. Usually auto-filled by CallerArgumentExpression.
+        /// </summary>
+        string CurrentResultParameterName { get; init; }
+    }
+
     /// <summary>
     /// Non-generic base context for object assertions.
     /// Contains all properties that don't depend on the object type.
     /// Enables polymorphism and type-safe handling of assertion contexts.
     /// </summary>
-    public abstract record ObjectAssertContextBase
+    public abstract record ObjectAssertContext : IObjectAssertContext
     {
         /// <summary>
         /// The expected object as JSON string or file name.
         /// Can be a JSON string, a file name like "expected.json", or an embedded resource path.
         /// </summary>
         public required string ExpectedObjectAsJson { get; init; }
+
+        /// <summary>
+        /// The localized expected result file info.
+        /// Contains the resolved embedded file information including content and physical file location.
+        /// This is resolved once during context creation and reused throughout the assertion pipeline.
+        /// </summary>
+        public EmbeddedFileInfo? ExpectedResultFile { get; init; }
 
         /// <summary>
         /// The current/actual object to compare against the expected object (untyped).
@@ -76,7 +150,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// Can be extended for specialized assertion scenarios (e.g., HTTP assertions).
     /// </summary>
     /// <typeparam name="T">The type being compared</typeparam>
-    public record ObjectAssertContext<T> : ObjectAssertContextBase
+    public record ObjectAssertContext<T> : ObjectAssertContext
     {
         /// <summary>
         /// The current/actual object to compare against the expected object (strongly-typed).

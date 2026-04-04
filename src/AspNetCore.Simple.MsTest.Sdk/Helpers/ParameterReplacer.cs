@@ -42,6 +42,47 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <returns>JSON string with values replaced by placeholders</returns>
         string ReplaceWithPlaceholders(string json,
                                        params (string Key, object? Value)[] parameters);
+
+        /// <summary>
+        /// Replaces placeholders with actual values in a JSON string using the context's parameters.
+        /// This is the preferred method for context-based operations.
+        /// </summary>
+        /// <param name="json">The JSON string containing placeholders</param>
+        /// <param name="context">The assertion context containing the parameters</param>
+        /// <returns>JSON string with placeholders replaced by values</returns>
+        string ResolveParameters(string json, IObjectAssertContext context);
+
+        /// <summary>
+        /// Replaces actual values with placeholders in a JSON string using the context's parameters.
+        /// This is the preferred method for context-based operations.
+        /// </summary>
+        /// <param name="json">The JSON string containing actual values</param>
+        /// <param name="context">The assertion context containing the parameters</param>
+        /// <returns>JSON string with values replaced by placeholders</returns>
+        string ReplaceWithPlaceholders(string json, IObjectAssertContext context);
+
+        /// <summary>
+        /// Replaces parameter placeholders in a URL string.
+        /// Handles URL-specific replacements like {userId} → actual value.
+        /// Parameters are sorted by length (longest first) to avoid partial replacements.
+        /// </summary>
+        /// <param name="url">The URL containing placeholders</param>
+        /// <param name="parameters">Parameters as (Key, Value) tuples where Key is the placeholder</param>
+        /// <returns>URL string with placeholders replaced by values</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like parameters should not be strings",
+                                                          Justification = "URL contains template placeholders like {userId} that need string manipulation before becoming a valid URI")]
+        string ReplaceInUrl(string url, params (string Key, object? Value)[] parameters);
+
+        /// <summary>
+        /// Replaces parameter placeholders in a URL string using the context's parameters.
+        /// This is the preferred method for context-based operations.
+        /// </summary>
+        /// <param name="url">The URL containing placeholders</param>
+        /// <param name="context">The assertion context containing the parameters</param>
+        /// <returns>URL string with placeholders replaced by values</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like parameters should not be strings",
+                                                          Justification = "URL contains template placeholders like {userId} that need string manipulation before becoming a valid URI")]
+        string ReplaceInUrl(string url, IObjectAssertContext context);
     }
 
     /// <summary>
@@ -139,6 +180,47 @@ namespace AspNetCore.Simple.MsTest.Sdk
             ApplySmartReplacements(root, parameters);
 
             return root.ToString(Formatting.Indented);
+        }
+
+        public string ResolveParameters(string json, IObjectAssertContext context)
+        {
+            return ResolveParameters(json, context.Parameters);
+        }
+
+        public string ReplaceWithPlaceholders(string json, IObjectAssertContext context)
+        {
+            return ReplaceWithPlaceholders(json, context.Parameters);
+        }
+
+        public string ReplaceInUrl(string url, params (string Key, object? Value)[] parameters)
+        {
+            if (url.IsNullOrWhiteSpace() || parameters.IsNullOrEmpty())
+            {
+                return url;
+            }
+
+            // Sort parameters by length (longest first) to avoid partial replacements
+            // Example: if we have both {userId} and {user}, we need to replace {userId} first
+            var sortedParameters = parameters.OrderByDescending(p => p.Key.Length);
+            var replacedUrl = url;
+
+            foreach (var (key, value) in sortedParameters)
+            {
+                if (key.IsNullOrWhiteSpace())
+                {
+                    continue;
+                }
+
+                // Replace placeholder with actual value (null becomes empty string)
+                replacedUrl = replacedUrl.Replace(key, value?.ToString() ?? string.Empty, StringComparison.Ordinal);
+            }
+
+            return replacedUrl;
+        }
+
+        public string ReplaceInUrl(string url, IObjectAssertContext context)
+        {
+            return ReplaceInUrl(url, context.Parameters);
         }
 
         // ============================================================

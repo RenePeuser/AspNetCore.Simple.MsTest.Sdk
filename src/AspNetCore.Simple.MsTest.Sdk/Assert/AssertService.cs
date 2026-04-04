@@ -23,8 +23,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 1. Register all dependencies via their own extensions
             services.AddPrimitiveTypeConverter();
             services.AddJsonDiffer();
-            services.AddCurlFormatter();
-            services.AddCurlPrinter();
             services.AddOutputFormatter();
             services.AddResponseWriter();
             services.AddWriteResponseService();
@@ -59,8 +57,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </summary>
     internal sealed class AssertService(IPrimitiveTypeConverter primitiveTypeConverter,
                                         IJsonDiffer jsonDiffer,
-                                        ICurlFormatter curlFormatter,
-                                        ICurlPrinter curlPrinter,
                                         IOutputFormatter outputFormatter,
                                         IResponseWriter responseWriter,
                                         IWriteResponseService writeResponseService,
@@ -82,7 +78,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var orderFunc = context.OrderFunc;
             var differenceFunc = context.DifferenceFunc;
             var title = context.Title ?? string.Empty;
-            var curl = string.Empty; // TODO: Move to HttpAssertContext when hierarchy is established
             var parameters = context.Parameters;
             var writeResponse = context.WriteResponse;
 
@@ -92,11 +87,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 expectedResultParameterName = expectedObjectAsJson;
             }
 
-            // localize expected response and payload
+            // Use pre-resolved file from context if available, otherwise resolve it now (fallback for backward compatibility)
             // So the caller does not have to pass the unique file name of the embedded resource
             // - Api.V1.Users.GetAllUsersTest.Responses.GetAllUsersResponse.json
             // - GetAllUsersResponse.json
-            var localizedExpectedResponseFile = embeddedFileLocalizer.LocalizeResponseFile(expectedResultParameterName, callerFilePath, callingAssembly);
+            var localizedExpectedResponseFile = context.ExpectedResultFile ?? embeddedFileLocalizer.LocalizeResponseFile(context);
 
             if (localizedExpectedResponseFile.EmbeddedFile.IsNull() ||
                 localizedExpectedResponseFile.EmbeddedFile.Exists.IsFalse())
@@ -109,28 +104,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var jsonObject = localizedExpectedResponseFile.Content.GetJsonStringFrom<T>(currentObjectAsJson,
                                                                                         callingAssembly,
-                                                                                        curl,
+                                                                                        string.Empty,
                                                                                         currentResultParameterName);
 
-            jsonObject = parameterReplacementService.ResolveParameters(jsonObject, parameters);
+            jsonObject = parameterReplacementService.ResolveParameters(jsonObject, context);
 
             // Brand new crazy function
             // We write the current result to the expected file
-            var shouldWriteResponse = writeResponseService.ShouldWriteResponse(writeResponse, callingAssembly);
+            var shouldWriteResponse = writeResponseService.ShouldWriteResponse(context);
 
             if (shouldWriteResponse)
             {
-                var writeResponseRequest = new WriteResponseRequest()
-                                           {
-                                               CallingAssembly = callingAssembly,
-                                               DifferenceFunc = differenceFunc,
-                                               CurrentResponseAsString = currentObjectAsJson,
-                                               ExpectedResult = localizedExpectedResponseFile,
-                                               Parameters = parameters,
-                                               Mode = ResponseWriteMode.DifferencesOnly
-                                           };
-
-                responseWriter.Write(writeResponseRequest);
+                responseWriter.Write(context, currentObjectAsJson, localizedExpectedResponseFile);
             }
 
             var type = typeof(T);
@@ -141,8 +126,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var output = outputFormatter.GetOutputString(title, jsonObject, currentObjectAsJson);
 
                 Assert.AreEqual(expectedResult, currentObject, output);
-
-                curlPrinter.PrintCurl(callingAssembly, curl);
             }
             else
             {
@@ -160,7 +143,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                        $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Exception: {e.Message}",
                                                                                        jsonObject,
                                                                                        currentObjectAsJson,
-                                                                                       curlFormatter.GetCurlAsFormattedString(curl));
+                                                                                       string.Empty);
 
                     Assert.Fail(cantSerializeJsonErrorOutput);
                 }
@@ -168,7 +151,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var serializeResultIsNullOutput = outputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}",
                                                                                   jsonObject.ToJson(jsonSerializerOptions),
                                                                                   null,
-                                                                                  curlFormatter.GetCurlAsFormattedString(curl));
+                                                                                  string.Empty);
 
                 Assert.IsNotNull(expectedObject, serializeResultIsNullOutput);
 
@@ -176,10 +159,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var orderedObject2 = orderFunc(currentObject);
 
                 var object1AsJson = parameterReplacementService.ResolveParameters(orderedObject1.ToJson(jsonSerializerOptions),
-                                                                                  parameters);
+                                                                                  context);
 
                 var object2AsJson = parameterReplacementService.ResolveParameters(orderedObject2.ToJson(jsonSerializerOptions),
-                                                                                  parameters);
+                                                                                  context);
 
                 var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 
@@ -203,21 +186,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var differenceOutputTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
                 var schemaNotMatchingError = outputFormatter.GetOutputString(title, "Schema mismatch: Expected result and current result does not match", object1AsJson,
-                                                                             object2AsJson, differenceOutputTable, curl);
+                                                                             object2AsJson, differenceOutputTable, string.Empty);
 
                 if (shouldWriteResponse)
                 {
-                    var writeResponseRequest = new WriteResponseRequest()
-                                               {
-                                                   CallingAssembly = callingAssembly,
-                                                   DifferenceFunc = differenceFunc,
-                                                   CurrentResponseAsString = object2AsJson,
-                                                   ExpectedResult = localizedExpectedResponseFile,
-                                                   Parameters = parameters,
-                                                   Mode = ResponseWriteMode.DifferencesOnly
-                                               };
-
-                    responseWriter.Write(writeResponseRequest);
+                    responseWriter.Write(context, object2AsJson, localizedExpectedResponseFile);
                 }
 
                 Assert.IsFalse(hasSchemaMismatch, schemaNotMatchingError);
@@ -229,14 +202,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              object1AsJson,
                                                              object2AsJson,
                                                              resultTable,
-                                                             curl);
+                                                             string.Empty);
 
                 if (optimizedDifferences.Any())
                 {
                     Assert.Fail(output);
                 }
-
-                curlPrinter.PrintCurl(callingAssembly, curl);
             }
         }
     }

@@ -51,6 +51,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              string callerFilePath,
                                              Assembly callingAssembly);
 
+        /// <summary>
+        /// Localizes a request file using the HTTP context's payload properties.
+        /// This is the preferred method for context-based operations.
+        /// </summary>
+        EmbeddedFileInfo LocalizeRequestFile(IHttpAssertContext context);
+
         IImmutableList<string> GetAllRequestFileNames(Assembly callingAssembly,
                                                       [CallerFilePath] string callerFilePath = "");
 
@@ -60,6 +66,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         EmbeddedFileInfo LocalizeResponseFile(string embeddedFile,
                                               string callerFilePath,
                                               Assembly callingAssembly);
+
+        /// <summary>
+        /// Localizes a response file using the context's properties.
+        /// This is the preferred method for context-based operations.
+        /// </summary>
+        EmbeddedFileInfo LocalizeResponseFile(IObjectAssertContext context);
     }
 
     internal sealed class EmbeddedFileLocalizer(TestCreatorSettings settings,
@@ -140,6 +152,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             settings.RequestFolderName);
         }
 
+        public EmbeddedFileInfo LocalizeRequestFile(IHttpAssertContext context)
+        {
+            return LocalizeRequestFile(context.PayloadAsJson ?? string.Empty,
+                                      context.CallerFilePath,
+                                      context.CallingAssembly);
+        }
+
         public IImmutableList<string> GetAllRequestFileNames(Assembly callingAssembly,
                                                              [CallerFilePath] string callerFilePath = "")
         {
@@ -168,6 +187,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             callingAssembly,
                             settings.LegacyResponseFolderNames.Concat(settings.ResponseFolderName),
                             settings.ResponseFolderName);
+        }
+
+        public EmbeddedFileInfo LocalizeResponseFile(IObjectAssertContext context)
+        {
+            return LocalizeResponseFile(context.ExpectedObjectAsJson,
+                                       context.CallerFilePath,
+                                       context.CallingAssembly);
         }
 
         // ============================================================

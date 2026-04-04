@@ -48,6 +48,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public interface IResponseWriter
     {
         void Write(WriteResponseRequest writeResponseRequest);
+
+        /// <summary>
+        /// Writes the response using the context's properties combined with computed values.
+        /// This is the preferred method for context-based operations.
+        /// </summary>
+        /// <param name="context">The assertion context containing parameters, assembly, and difference function</param>
+        /// <param name="currentResponseAsString">The current response as JSON string (computed)</param>
+        /// <param name="expectedResult">The expected result file info (computed)</param>
+        /// <param name="mode">The write mode (optional, defaults to DifferencesOnly)</param>
+        void Write(IObjectAssertContext context,
+                   string currentResponseAsString,
+                   EmbeddedFileInfo expectedResult,
+                   ResponseWriteMode mode = ResponseWriteMode.DifferencesOnly);
     }
 
     public sealed class ResponseWriter(IEnumerable<ISpecificResponseWriter> specificResponseWriters) : IResponseWriter
@@ -67,6 +80,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             writersCanHandle[0].Write(writeResponseRequest);
+        }
+
+        public void Write(IObjectAssertContext context,
+                          string currentResponseAsString,
+                          EmbeddedFileInfo expectedResult,
+                          ResponseWriteMode mode = ResponseWriteMode.DifferencesOnly)
+        {
+            var request = new WriteResponseRequest
+                          {
+                              CallingAssembly = context.CallingAssembly,
+                              DifferenceFunc = context.DifferenceFunc,
+                              CurrentResponseAsString = currentResponseAsString,
+                              ExpectedResult = expectedResult,
+                              Parameters = context.Parameters,
+                              Mode = mode
+                          };
+
+            Write(request);
         }
     }
 }

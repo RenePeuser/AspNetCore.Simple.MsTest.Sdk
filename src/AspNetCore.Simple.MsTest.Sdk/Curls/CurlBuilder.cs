@@ -36,6 +36,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                          AuthenticationHeaderValue? authenticationHeaderValue,
                          Assembly assembly,
                          bool showTokenInCurl);
+
+        /// <summary>
+        /// Builds a curl command from the HTTP context's properties.
+        /// This is the preferred method for context-based operations.
+        /// </summary>
+        string BuildFrom(IHttpAssertContext context);
     }
 
     internal sealed class CurlBuilder : ICurlBuilder
@@ -138,6 +144,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     yield return $"--data-raw '{json}'";
                 }
             }
+        }
+
+        public string BuildFrom(IHttpAssertContext context)
+        {
+            return BuildFrom(context.HttpMethod,
+                           context.Url,
+                           context.ResolvedPayload ?? context.PayloadAsJson ?? string.Empty,
+                           context.Client.DefaultRequestHeaders.Authorization,
+                           context.CallingAssembly,
+                           context.ShowTokenInCurl);
         }
     }
 }

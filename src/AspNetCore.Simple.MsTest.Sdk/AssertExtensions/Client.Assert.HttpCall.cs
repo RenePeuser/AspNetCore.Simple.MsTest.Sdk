@@ -59,13 +59,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
         private static JsonSerializerOptions _jsonSerializerOptions = new()
-                                                                      {
-                                                                          PropertyNameCaseInsensitive = true,
-                                                                          PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                                                                          DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                                                                          NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                                                                          Converters = { new JsonStringEnumConverter() }
-                                                                      };
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+            Converters = { new JsonStringEnumConverter() }
+        };
 
         private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new(new TestCreatorSettings(), JsonSerializerOptions);
 
@@ -73,8 +73,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
                                                                   JsonDiffer,
-                                                                  new CurlFormatter(),
-                                                                  new CurlPrinter(new CurlFormatter()),
                                                                   OutputFormatter,
                                                                   ResponseWriter,
                                                                   WriteResponseService,
@@ -131,12 +129,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       writResponse);
         }
 
-        // Context-based string overload (no expected result comparison)
-        internal static Task AssertHttpCallAsync(HttpAssertContext<string> context)
-        {
-            return AssertHttpCallAsync<string>(context);
-        }
-
         private static Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
                                                                   string url,
                                                                   string payloadAsJson,
@@ -168,69 +160,64 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               writResponse);
         }
 
-        private static Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
-                                                                  string url,
-                                                                  string payloadAsJson,
-                                                                  string expectedResult,
-                                                                  Func<TResult?, TResult?> filterFunc,
-                                                                  HttpMethod httpMethod,
-                                                                  Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                  (string Key, object? Value)[] parameters,
-                                                                  Assembly callingAssembly,
-                                                                  [CallerArgumentExpression(nameof(payloadAsJson))]
-                                                                  string payloadAsJsonParameterName = "",
-                                                                  [CallerArgumentExpression(nameof(expectedResult))]
-                                                                  string expectedResultParameterName = "",
-                                                                  [CallerFilePath] string callerFilePath = "",
-                                                                  bool isSuccessStatusCode = true,
-                                                                  bool writResponse = false)
+        private static async Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
+                                                                        string url,
+                                                                        string payloadAsJson,
+                                                                        string expectedResult,
+                                                                        Func<TResult?, TResult?> filterFunc,
+                                                                        HttpMethod httpMethod,
+                                                                        Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                        (string Key, object? Value)[] parameters,
+                                                                        Assembly callingAssembly,
+                                                                        [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                                        string payloadAsJsonParameterName = "",
+                                                                        [CallerArgumentExpression(nameof(expectedResult))]
+                                                                        string expectedResultParameterName = "",
+                                                                        [CallerFilePath] string callerFilePath = "",
+                                                                        bool isSuccessStatusCode = true,
+                                                                        bool writResponse = false)
         {
-            // Create public context directly - no need for internal context
-            var context = new HttpAssertContext<TResult>
-                          {
-                              Client = client,
-                              Url = url,
-                              PayloadAsJson = payloadAsJson,
-                              ExpectedObjectAsJson = expectedResult,
-                              Current = default,
-                              HttpMethod = httpMethod,
-                              OrderFunc = filterFunc,
-                              DifferenceFunc = differenceFunc,
-                              Parameters = parameters,
-                              CallingAssembly = callingAssembly,
-                              WriteResponse = writResponse,
-                              IsSuccessStatusCode = isSuccessStatusCode,
-                              CallerFilePath = callerFilePath,
-                              PayloadParameterName = payloadAsJsonParameterName,
-                              ExpectedResultParameterName = expectedResultParameterName,
-                              CurrentResultParameterName = "Current response"
-                          };
 
-            return AssertHttpCallAsync(context);
-        }
+            // Resolve embedded files once here - this avoids duplicate resolution later in the pipeline
+            var payloadFile = EmbeddedFileLocalizer.LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
+            var expectedResultFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedResult, callerFilePath, callingAssembly);
 
-        internal static Task<TResult> AssertHttpCallAsync<TResult>(HttpAssertContext<TResult> context)
-        {
+            // Resolve parameters in payload once here - ready-to-use for HTTP call
+            var resolvedPayload = ParameterReplacer.ResolveParameters(payloadFile.Content, parameters);
+
             // URL parameter replacement - replace placeholders in URL with actual values
             // This is the only preprocessing needed here, all other logic is handled by AssertableHttpClient
-            var sortedParameters = context.Parameters.OrderByDescending(p => p.Key.Length);
-            var url = context.Url;
+            var resolvedUrl = ParameterReplacer.ReplaceInUrl(url, parameters);
 
-            foreach (var valueTuple in sortedParameters)
+            // Create public context directly - no need for internal context
+            var context = new HttpAssertContext<TResult>
             {
-                url = url.Replace(valueTuple.Key, valueTuple.Value?.ToString());
-            }
+                Client = client,
+                Url = resolvedUrl,
+                PayloadAsJson = payloadAsJson,
+                ExpectedObjectAsJson = expectedResult,
+                Current = default,
+                HttpMethod = httpMethod,
+                OrderFunc = filterFunc,
+                DifferenceFunc = differenceFunc,
+                Parameters = parameters,
+                CallingAssembly = callingAssembly,
+                WriteResponse = writResponse,
+                IsSuccessStatusCode = isSuccessStatusCode,
+                CallerFilePath = callerFilePath,
+                PayloadParameterName = payloadAsJsonParameterName,
+                ExpectedResultParameterName = expectedResultParameterName,
+                CurrentResultParameterName = "Current response",
+                PayloadFile = payloadFile,
+                ExpectedResultFile = expectedResultFile,
+                ResolvedPayload = resolvedPayload
+            };
 
-            // Update context with resolved URL and ShowTokenInCurl from static field using record 'with' expression
-            var updatedContext = context with
-                                 {
-                                     Url = url,
-                                     ShowTokenInCurl = ShowTokenInCurl
-                                 };
+            var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
 
-            // Delegate to the configured IAssertableHttpClient (default or custom implementation)
-            // This allows for type-safe interception of HTTP assertions while maintaining backward compatibility
-            return CustomAssertableHttpClient.AssertAsync(updatedContext);
+            return result;
         }
+
+        
     }
 }
