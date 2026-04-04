@@ -1,11 +1,4 @@
----
-name: argument-check
-description: Use when adding or reviewing guard clauses with the Argument.Check package in this .NET codebase.
----
-
 # Argument Check
-
-Use this skill when adding or reviewing guard clauses with `Argument.Check`.
 
 ## Objective
 

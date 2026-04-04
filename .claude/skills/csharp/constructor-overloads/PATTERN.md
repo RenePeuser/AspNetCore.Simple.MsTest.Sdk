@@ -1,11 +1,4 @@
----
-name: constructor-overloads
-description: Use when designing or reviewing overloaded constructors in this .NET codebase.
----
-
 # Constructor Overloads
-
-Use this skill when creating or reviewing overloaded constructors.
 
 ## Objective
 
@@ -40,34 +33,6 @@ Use a strict constructor hierarchy like this:
 
 The maximum constructor is the only place where the object state should be initialized.
 
-## Prefer
-
-```csharp
-public sealed class ExampleService
-{
-    private readonly string _name;
-    private readonly bool _enabled;
-    private readonly int _retryCount;
-
-    public ExampleService(string name)
-        : this(name, enabled: true)
-    {
-    }
-
-    public ExampleService(string name, bool enabled)
-        : this(name, enabled, retryCount: 3)
-    {
-    }
-
-    public ExampleService(string name, bool enabled, int retryCount)
-    {
-        _name = name;
-        _enabled = enabled;
-        _retryCount = retryCount;
-    }
-}
-```
-
 ## Rules for the Maximum Constructor
 
 The maximum constructor should:
@@ -86,35 +51,7 @@ All smaller constructors should only:
 
 ## Avoid
 
-```csharp
-public sealed class ExampleService
-{
-    private readonly string _name;
-    private readonly bool _enabled;
-    private readonly int _retryCount;
-
-    public ExampleService(string name)
-    {
-        _name = name;
-        _enabled = true;
-        _retryCount = 3;
-    }
-
-    public ExampleService(string name, bool enabled)
-    {
-        _name = name;
-        _enabled = enabled;
-        _retryCount = 3;
-    }
-
-    public ExampleService(string name, bool enabled, int retryCount)
-    {
-        _name = name;
-        _enabled = enabled;
-        _retryCount = retryCount;
-    }
-}
-```
+Duplicate initialization across constructors where each independently assigns all fields.
 
 ## Review Checklist
 

@@ -1,11 +1,4 @@
----
-name: avoid-sync-over-async
-description: Use when adding or reviewing asynchronous code in this .NET codebase.
----
-
 # Avoid Sync-over-Async
-
-Use this skill when writing or reviewing asynchronous code.
 
 ## Objective
 

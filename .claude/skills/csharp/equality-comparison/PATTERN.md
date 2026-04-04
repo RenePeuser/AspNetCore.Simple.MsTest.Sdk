@@ -1,11 +1,4 @@
----
-name: equality-comparison
-description: Use when adding or reviewing equality checks in this .NET codebase.
----
-
 # Equality Comparison
-
-Use this skill when writing or reviewing equality checks.
 
 ## Objective
 

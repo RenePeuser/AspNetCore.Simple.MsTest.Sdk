@@ -1,11 +1,4 @@
----
-name: namespace-provider
-description: Use when creating, reviewing, or restructuring folder and namespace conventions in this .NET codebase.
----
-
 # Namespace Provider
-
-Use this skill when working with folder structure, namespaces, and ReSharper or Rider namespace provider settings.
 
 ## Objective
 
@@ -56,18 +49,6 @@ using Pulse.FieldingTool.Api.FormsConfigurations.V1.Endpoints;
 using Pulse.FieldingTool.Api.FormsConfigurations.V1.Mappers;
 using Pulse.FieldingTool.Api.FormsConfigurations.V1.Requests;
 using Pulse.FieldingTool.Api.FormsConfigurations.V1.Responses;
-```
-
-## ReSharper / Rider Setting Pattern
-
-Use namespace provider settings to skip technical folders from namespace generation.
-
-Example:
-
-```xml
-<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=api_005Cformsconfigurations_005Cv1_005Crequests/@EntryIndexedValue">True</s:Boolean>
-<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=api_005Cformsconfigurations_005Cv1_005Cvalidations/@EntryIndexedValue">True</s:Boolean>
-<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=api_005Cformsconfigurations_005Cv1_005Ccommands/@EntryIndexedValue">True</s:Boolean>
 ```
 
 ## Review Checklist

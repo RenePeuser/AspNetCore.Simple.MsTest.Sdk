@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net.Http;
@@ -18,6 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return client.AssertDeleteAsErrorAsync<TResult>(url,
                                                             expectedResult,
+                                                            [],
                                                             Assembly.GetCallingAssembly(),
                                                             writeResponse,
                                                             expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
@@ -45,57 +46,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
                                                                       string url,
                                                                       string expectedResult,
-                                                                      Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                      bool writeResponse = false,
-                                                                      [CallerArgumentExpression(nameof(expectedResult))]
-                                                                      string expectedResultParameterName = "",
-                                                                      [CallerFilePath] string callerFilePath = "")
-        {
-            return client.AssertDeleteAsErrorAsync<TResult>(url,
-                                                            expectedResult,
-                                                            differenceFunc,
-                                                            Assembly.GetCallingAssembly(),
-                                                            writeResponse,
-                                                            expectedResultParameterName,
-                                                            callerFilePath);
-        }
-
-        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
-                                                                      string url,
-                                                                      string expectedResult,
-                                                                      Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
-                                                                      (string Key, object? Value)[] parameters,
-                                                                      bool writeResponse = false,
-                                                                      [CallerArgumentExpression(nameof(expectedResult))]
-                                                                      string expectedResultParameterName = "",
-                                                                      [CallerFilePath] string callerFilePath = "")
-        {
-            return client.AssertDeleteAsErrorAsync<TResult>(url,
-                                                            expectedResult,
-                                                            differenceFunc,
-                                                            parameters,
-                                                            Assembly.GetCallingAssembly(),
-                                                            writeResponse,
-                                                            expectedResultParameterName,
-                                                            callerFilePath);
-        }
-
-        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
-                                                                      string url,
-                                                                      string expectedResult,
                                                                       Assembly callingAssembly,
                                                                       bool writeResponse = false,
                                                                       [CallerArgumentExpression(nameof(expectedResult))]
                                                                       string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
-                                                                           expectedResult, item => item, HttpMethod.Delete,
-                                                                           difference => difference, [], callingAssembly,
-                                                                           string.Empty, expectedResultParameterName, callerFilePath,
-                                                                           false, writeResponse);
-
-            return AssertHttpCallAsync(context);
+            return client.AssertDeleteAsErrorAsync<TResult>(url,
+                                                            expectedResult,
+                                                            item => item,
+                                                            difference => difference,
+                                                            [],
+                                                            callingAssembly,
+                                                            writeResponse,
+                                                            expectedResultParameterName,
+                                                            callerFilePath);
         }
 
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
@@ -111,11 +76,90 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertDeleteAsErrorAsync<TResult>(url,
                                                             expectedResult,
                                                             item => item,
+                                                            difference => difference,
                                                             parameters,
                                                             callingAssembly,
                                                             writeResponse,
                                                             expectedResultParameterName,
                                                             callerFilePath);
+        }
+
+        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
+                                                                      string url,
+                                                                      string expectedResult,
+                                                                      Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                      bool writeResponse = false,
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
+                                                                      [CallerFilePath] string callerFilePath = "")
+        {
+            return client.AssertDeleteAsErrorAsync<TResult>(url,
+                                                            expectedResult,
+                                                            differenceFunc,
+                                                            [],
+                                                            Assembly.GetCallingAssembly(),
+                                                            writeResponse,
+                                                            expectedResultParameterName,
+                                                            callerFilePath);
+        }
+
+        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
+                                                                      string url,
+                                                                      string expectedResult,
+                                                                      Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                      (string Key, object? Value)[] parameters,
+                                                                      bool writeResponse = false,
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
+                                                                      [CallerFilePath] string callerFilePath = "")
+        {
+            return client.AssertDeleteAsErrorAsync<TResult>(url,
+                                                            expectedResult,
+                                                            differenceFunc,
+                                                            parameters,
+                                                            Assembly.GetCallingAssembly(),
+                                                            writeResponse,
+                                                            expectedResultParameterName,
+                                                            callerFilePath);
+        }
+
+        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
+                                                                      string url,
+                                                                      string expectedResult,
+                                                                      Func<TResult?, TResult?> filterFunc,
+                                                                      bool writeResponse = false,
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
+                                                                      [CallerFilePath] string callerFilePath = "")
+        {
+            return client.AssertDeleteAsErrorAsync(url,
+                                                   expectedResult,
+                                                   filterFunc,
+                                                   [],
+                                                   Assembly.GetCallingAssembly(),
+                                                   writeResponse,
+                                                   expectedResultParameterName,
+                                                   callerFilePath);
+        }
+
+        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
+                                                                      string url,
+                                                                      string expectedResult,
+                                                                      Func<TResult?, TResult?> filterFunc,
+                                                                      (string Key, object? Value)[] parameters,
+                                                                      bool writeResponse = false,
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
+                                                                      [CallerFilePath] string callerFilePath = "")
+        {
+            return client.AssertDeleteAsErrorAsync(url,
+                                                   expectedResult,
+                                                   filterFunc,
+                                                   parameters,
+                                                   Assembly.GetCallingAssembly(),
+                                                   writeResponse,
+                                                   expectedResultParameterName,
+                                                   callerFilePath);
         }
 
         public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
@@ -130,6 +174,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return client.AssertDeleteAsErrorAsync<TResult>(url,
                                                             expectedResult,
+                                                            item => item,
                                                             differenceFunc,
                                                             [],
                                                             callingAssembly,
@@ -149,13 +194,108 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       string expectedResultParameterName = "",
                                                                       [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
-                                                                           expectedResult, item => item, HttpMethod.Delete,
-                                                                           differenceFunc, parameters, callingAssembly,
-                                                                           string.Empty, expectedResultParameterName, callerFilePath,
-                                                                           false, writeResponse);
+            return client.AssertDeleteAsErrorAsync<TResult>(url,
+                                                            expectedResult,
+                                                            item => item,
+                                                            differenceFunc,
+                                                            parameters,
+                                                            callingAssembly,
+                                                            writeResponse,
+                                                            expectedResultParameterName,
+                                                            callerFilePath);
+        }
 
-            return AssertHttpCallAsync(context);
+        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
+                                                                      string url,
+                                                                      string expectedResult,
+                                                                      Func<TResult?, TResult?> filterFunc,
+                                                                      Assembly callingAssembly,
+                                                                      bool writeResponse = false,
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
+                                                                      [CallerFilePath] string callerFilePath = "")
+        {
+            return client.AssertDeleteAsErrorAsync(url,
+                                                   expectedResult,
+                                                   filterFunc,
+                                                   difference => difference,
+                                                   [],
+                                                   callingAssembly,
+                                                   writeResponse,
+                                                   expectedResultParameterName,
+                                                   callerFilePath);
+        }
+
+        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
+                                                                      string url,
+                                                                      string expectedResult,
+                                                                      Func<TResult?, TResult?> filterFunc,
+                                                                      (string Key, object? Value)[] parameters,
+                                                                      Assembly callingAssembly,
+                                                                      bool writeResponse = false,
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
+                                                                      [CallerFilePath] string callerFilePath = "")
+        {
+            return client.AssertDeleteAsErrorAsync(url,
+                                                   expectedResult,
+                                                   filterFunc,
+                                                   difference => difference,
+                                                   parameters,
+                                                   callingAssembly,
+                                                   writeResponse,
+                                                   expectedResultParameterName,
+                                                   callerFilePath);
+        }
+
+        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
+                                                                      string url,
+                                                                      string expectedResult,
+                                                                      Func<TResult?, TResult?> filterFunc,
+                                                                      Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                      Assembly callingAssembly,
+                                                                      bool writeResponse = false,
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
+                                                                      [CallerFilePath] string callerFilePath = "")
+        {
+            return client.AssertDeleteAsErrorAsync(url,
+                                                   expectedResult,
+                                                   filterFunc,
+                                                   differenceFunc,
+                                                   [],
+                                                   callingAssembly,
+                                                   writeResponse,
+                                                   expectedResultParameterName,
+                                                   callerFilePath);
+        }
+
+        // MAXIMUM OVERLOAD
+        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
+                                                                      string url,
+                                                                      string expectedResult,
+                                                                      Func<TResult?, TResult?> filterFunc,
+                                                                      Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                      (string Key, object? Value)[] parameters,
+                                                                      Assembly callingAssembly,
+                                                                      bool writeResponse = false,
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
+                                                                      [CallerFilePath] string callerFilePath = "")
+        {
+            return client.AssertHttpCallAsync(url: url,
+                                              payloadAsJson: string.Empty,
+                                              expectedResult: expectedResult,
+                                              filterFunc: filterFunc,
+                                              httpMethod: HttpMethod.Delete,
+                                              differenceFunc: differenceFunc,
+                                              parameters: parameters,
+                                              callingAssembly: callingAssembly,
+                                              payloadAsJsonParameterName: string.Empty,
+                                              expectedResultParameterName: expectedResultParameterName,
+                                              callerFilePath: callerFilePath,
+                                              isSuccessStatusCode: false,
+                                              writResponse: writeResponse);
         }
     }
 }

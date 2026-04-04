@@ -1,11 +1,4 @@
----
-name: avoid-thread-sleep
-description: Use when adding or reviewing delays, waiting logic, or retry timing in this .NET codebase.
----
-
 # Avoid Thread.Sleep
-
-Use this skill when writing or reviewing delay and waiting logic.
 
 ## Objective
 

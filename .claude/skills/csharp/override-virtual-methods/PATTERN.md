@@ -1,11 +1,4 @@
----
-name: override-virtual-methods
-description: Use when adding or reviewing overrides of virtual or abstract members in this .NET codebase.
----
-
 # Overriding Virtual Methods
-
-Use this skill when writing or reviewing overrides of virtual members.
 
 ## Objective
 

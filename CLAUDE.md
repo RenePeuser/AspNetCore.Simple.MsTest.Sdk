@@ -4,24 +4,39 @@
 
 AspNetCore.Simple.MsTest.Sdk - A simple SDK to write easy and fast tests for your Web APIs.
 
-## Skills & Patterns
+## Skills
 
-This project uses specific patterns and conventions. Each skill is documented in detail:
+This project has comprehensive coding patterns available as executable skills.
 
-### Architecture & Design Patterns
+**See the full catalog**: [Skills Index](.claude/skills/INDEX.md)
 
-- **[Service Registration Pattern](.claude/skills/service-registration-pattern.md)** - Feature-based DI registration with AddXXX extensions per class
+### Invoke Skills
 
-## Quick Reference
+Use the command format: `/category/skill-name`
 
-### Service Registration
-- ✅ One extension per class in the same file
-- ✅ Feature-based tree structure (not flat)
-- ✅ Dependencies via their AddXXX extensions
-- ✅ Always use `AddSingletonIfNotExists`
+Examples:
+- `/architecture/service-registration` - DI registration patterns
+- `/architecture/strategy-pattern` - Extensible branching logic
+- `/csharp/constructor-overloads` - Constructor chaining patterns
+- `/api/minimal-api-structure` - Minimal API organization
 
-See [Service Registration Pattern](.claude/skills/service-registration-pattern.md) for full details.
+### Categories
+
+- **API Patterns** - Minimal API structure, namespace conventions
+- **C# Language** - Constructors, methods, equality, collections, validation
+- **Architecture** - Strategy Pattern, DI registration, data modeling
+- **Async** - Async/await patterns, avoiding blocking operations
+
+### Quick Reference
+
+**Key Patterns:**
+- Service Registration: Feature-based DI with `AddXxx()` extensions per class
+- Strategy Pattern: Strict resolution (exactly one match), explicit failures
+- Constructor Overloads: One maximum constructor with clear delegation chain
+- Immutable Data: Records for data, classes for services
+
+**See** [Skills Index](.claude/skills/INDEX.md) for complete list and documentation links.
 
 ---
 
-**Note:** This file serves as an index. Detailed documentation is in individual skill files under `.claude/skills/`.
+**Note:** Each skill has detailed documentation (PATTERN.md), code examples (EXAMPLES.md), and review checklists (CHECKLIST.md).

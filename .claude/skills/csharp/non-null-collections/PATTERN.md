@@ -1,17 +1,10 @@
----
-name: non-null-collections
-description: Use when designing or reviewing collection properties, parameters, return values, and s in this .NET codebase.
----
-
 # Non-Null Collections
-
-Use this skill when working with list types, collection properties, s, requests, responses, and method contracts.
 
 ## Objective
 
 Collection and list types must never be `null`.
 
-Always use an empty collection to represent “no items”.
+Always use an empty collection to represent "no items".
 Do not use `null` to represent an empty collection.
 
 ## Apply These Rules
@@ -91,6 +84,6 @@ return null;
 ## Notes
 
 This repository treats collections as always-present values.
-“No items” must be represented by an empty collection, not by `null`.
+"No items" must be represented by an empty collection, not by `null`.
 
 This improves safety, reduces defensive noise, and makes contracts easier to understand and consume.

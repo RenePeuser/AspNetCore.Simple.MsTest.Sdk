@@ -1,11 +1,4 @@
----
-name: method-overloads
-description: Use when designing or reviewing overloaded methods in this .NET codebase.
----
-
 # Method Overloads
-
-Use this skill when creating or reviewing overloaded methods.
 
 ## Objective
 
@@ -36,34 +29,6 @@ Use a strict call hierarchy like this:
 
 The maximum overload is the only place where the central logic should exist.
 
-## Prefer
-
-```csharp
-public static Task ProcessAsync(string value)
-{
-    return ProcessAsync(value, option: false);
-}
-
-public static Task ProcessAsync(string value, bool option)
-{
-    return ProcessAsync(value, option, CancellationToken.None);
-}
-
-public static Task ProcessAsync(
-    string value,
-    bool option,
-    CancellationToken cancellationToken)
-{
-    var request = new ProcessRequest
-    {
-        Value = value,
-        Option = option
-    };
-
-    return ExecuteAsync(request, cancellationToken);
-}
-```
-
 ## Rules for the Maximum Overload
 
 The maximum overload should:
@@ -79,31 +44,6 @@ All smaller overloads should only:
 - enrich arguments
 - normalize inputs
 - forward to the next overload
-
-## Avoid
-
-```csharp
-public static Task ProcessAsync(string value)
-{
-    var request = new ProcessRequest { Value = value, Option = false };
-    return ExecuteAsync(request, CancellationToken.None);
-}
-
-public static Task ProcessAsync(string value, bool option)
-{
-    var request = new ProcessRequest { Value = value, Option = option };
-    return ExecuteAsync(request, CancellationToken.None);
-}
-
-public static Task ProcessAsync(
-    string value,
-    bool option,
-    CancellationToken cancellationToken)
-{
-    var request = new ProcessRequest { Value = value, Option = option };
-    return ExecuteAsync(request, cancellationToken);
-}
-```
 
 ## Review Checklist
 

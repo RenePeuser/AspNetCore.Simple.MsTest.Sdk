@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -13,89 +13,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
-        public static Task AssertDeleteAsync(this HttpClient client,
-                                             string url,
-                                             bool writeResponse = false,
-                                             [CallerFilePath] string callerFilePath = "")
-        {
-            return client.AssertHttpCallAsync(url,
-                                              string.Empty,
-                                              HttpMethod.Delete,
-                                              [],
-                                              Assembly.GetCallingAssembly(),
-                                              string.Empty,
-                                              callerFilePath,
-                                              true,
-                                              writeResponse);
-        }
-
-        public static Task AssertDeleteAsync(this HttpClient client,
-                                             string url,
-                                             (string Key, object? Value)[] parameters,
-                                             bool writeResponse = false,
-                                             [CallerFilePath] string callerFilePath = "")
-        {
-            return client.AssertHttpCallAsync(url,
-                                              string.Empty,
-                                              HttpMethod.Delete,
-                                              parameters,
-                                              Assembly.GetCallingAssembly(),
-                                              string.Empty,
-                                              callerFilePath,
-                                              true,
-                                              writeResponse);
-        }
-
-        public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
-                                                               string url,
-                                                               string expectedResult,
-                                                               bool writeResponse = false,
-                                                               [CallerFilePath] string callerFilePath = "")
-        {
-            return client.AssertDeleteAsync<TResult>(url,
-                                                     expectedResult,
-                                                     [],
-                                                     Assembly.GetCallingAssembly(),
-                                                     writeResponse,
-                                                     expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
-                                                     callerFilePath);
-        }
-
-        public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
-                                                               string url,
-                                                               string expectedResult,
-                                                               (string Key, object? Value)[] parameters,
-                                                               bool writeResponse = false,
-                                                               [CallerArgumentExpression(nameof(expectedResult))]
-                                                               string expectedResultParameterName = "",
-                                                               [CallerFilePath] string callerFilePath = "")
-        {
-            return client.AssertDeleteAsync<TResult>(url,
-                                                     expectedResult,
-                                                     parameters,
-                                                     Assembly.GetCallingAssembly(),
-                                                     writeResponse,
-                                                     expectedResultParameterName,
-                                                     callerFilePath);
-        }
-
-        public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
-                                                               string url,
-                                                               string expectedResult,
-                                                               Assembly callingAssembly,
-                                                               bool writeResponse = false,
-                                                               [CallerArgumentExpression(nameof(expectedResult))]
-                                                               string expectedResultParameterName = "",
-                                                               [CallerFilePath] string callerFilePath = "")
-        {
-            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
-                                                                           expectedResult, item => item, HttpMethod.Delete,
-                                                                           difference => difference, [], callingAssembly,
-                                                                           string.Empty, expectedResultParameterName, callerFilePath,
-                                                                           true, writeResponse);
-
-            return AssertHttpCallAsync(context);
-        }
 
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                                string url,
@@ -107,13 +24,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "")
         {
-            var context = HttpAssertContextFactory.FromParameters<TResult>(client, url, string.Empty,
-                                                                           expectedResult, item => item, HttpMethod.Delete,
-                                                                           difference => difference, parameters, callingAssembly,
-                                                                           string.Empty, expectedResultParameterName, callerFilePath,
-                                                                           true, writeResponse);
-
-            return AssertHttpCallAsync(context);
+            return client.AssertHttpCallAsync<TResult>(url: url,
+                                                       payloadAsJson: string.Empty,
+                                                       expectedResult: expectedResult,
+                                                       filterFunc: item => item,
+                                                       httpMethod: HttpMethod.Delete,
+                                                       differenceFunc: difference => difference,
+                                                       parameters: parameters,
+                                                       callingAssembly: callingAssembly,
+                                                       payloadAsJsonParameterName: string.Empty,
+                                                       expectedResultParameterName: expectedResultParameterName,
+                                                       callerFilePath: callerFilePath,
+                                                       isSuccessStatusCode: true,
+                                                       writResponse: writeResponse);
         }
 
         public static async Task AssertDeleteAsUnauthorizedAsync(this HttpClient httpClient,
@@ -150,9 +73,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         public static Task AssertDeleteAsync(HttpAssertContext<string> context)
         {
-            var internalContext = HttpAssertContextFactory.FromContext(context, HttpMethod.Delete);
-
-            return AssertHttpCallAsync(internalContext);
+            return context.Client.AssertHttpCallAsync(url: context.Url,
+                                                      payloadAsJson: string.Empty,
+                                                      httpMethod: HttpMethod.Delete,
+                                                      parameters: context.Parameters,
+                                                      callingAssembly: context.CallingAssembly,
+                                                      payloadAsJsonParameterName: string.Empty,
+                                                      callerFilePath: context.CallerFilePath,
+                                                      isSuccessStatusCode: context.IsSuccessStatusCode,
+                                                      writResponse: context.WriteResponse);
         }
 
         /// <summary>
@@ -160,9 +89,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         public static Task<TResult> AssertDeleteAsync<TResult>(HttpAssertContext<TResult> context)
         {
-            var internalContext = HttpAssertContextFactory.FromContext(context, HttpMethod.Delete);
-
-            return AssertHttpCallAsync(internalContext);
+            return context.Client.AssertHttpCallAsync<TResult>(url: context.Url,
+                                                               payloadAsJson: string.Empty,
+                                                               expectedResult: context.ExpectedObjectAsJson,
+                                                               filterFunc: context.OrderFunc,
+                                                               httpMethod: HttpMethod.Delete,
+                                                               differenceFunc: context.DifferenceFunc,
+                                                               parameters: context.Parameters,
+                                                               callingAssembly: context.CallingAssembly,
+                                                               payloadAsJsonParameterName: string.Empty,
+                                                               expectedResultParameterName: context.ExpectedResultParameterName,
+                                                               callerFilePath: context.CallerFilePath,
+                                                               isSuccessStatusCode: context.IsSuccessStatusCode,
+                                                               writResponse: context.WriteResponse);
         }
     }
 }
