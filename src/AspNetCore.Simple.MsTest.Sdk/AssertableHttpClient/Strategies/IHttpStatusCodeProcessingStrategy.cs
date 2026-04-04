@@ -9,11 +9,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public interface IHttpStatusCodeProcessingStrategy
     {
         /// <summary>
-        /// Determines if this strategy can handle the given status code scenario.
+        /// Determines if this strategy can handle the given HTTP response context.
+        /// Allows flexible strategy selection based on any context data (status code, content type, etc.).
         /// </summary>
-        /// <param name="isExpectedStatusCode">True if the status code matches expectations</param>
+        /// <typeparam name="TResult">The expected result type</typeparam>
+        /// <param name="context">The HTTP response context containing all preprocessed data</param>
         /// <returns>True if this strategy should handle this scenario</returns>
-        bool CanHandle(bool isExpectedStatusCode);
+        bool CanHandle<TResult>(HttpResponseContext<TResult> context);
 
         /// <summary>
         /// Processes the HTTP response and performs assertions.

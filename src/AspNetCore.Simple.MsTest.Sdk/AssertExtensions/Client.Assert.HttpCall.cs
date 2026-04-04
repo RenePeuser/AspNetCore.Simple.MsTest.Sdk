@@ -59,13 +59,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
         private static JsonSerializerOptions _jsonSerializerOptions = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters = { new JsonStringEnumConverter() }
-        };
+                                                                      {
+                                                                          PropertyNameCaseInsensitive = true,
+                                                                          PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                                                          DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                                                                          NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                                                                          Converters = { new JsonStringEnumConverter() }
+                                                                      };
 
         private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new(new TestCreatorSettings(), JsonSerializerOptions);
 
@@ -175,7 +175,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                         bool isSuccessStatusCode = true,
                                                                         bool writResponse = false)
         {
-
             // Resolve embedded files once here - this avoids duplicate resolution later in the pipeline
             var payloadFile = EmbeddedFileLocalizer.LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
             var expectedResultFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedResult, callerFilePath, callingAssembly);
@@ -189,27 +188,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create public context directly - no need for internal context
             var context = new HttpAssertContext<TResult>
-            {
-                Client = client,
-                Url = resolvedUrl,
-                PayloadAsJson = payloadAsJson,
-                ExpectedObjectAsJson = expectedResult,
-                Current = default,
-                HttpMethod = httpMethod,
-                OrderFunc = filterFunc,
-                DifferenceFunc = differenceFunc,
-                Parameters = parameters,
-                CallingAssembly = callingAssembly,
-                WriteResponse = writResponse,
-                IsSuccessStatusCode = isSuccessStatusCode,
-                CallerFilePath = callerFilePath,
-                PayloadParameterName = payloadAsJsonParameterName,
-                ExpectedResultParameterName = expectedResultParameterName,
-                CurrentResultParameterName = "Current response",
-                PayloadFile = payloadFile,
-                ExpectedResultFile = expectedResultFile,
-                ResolvedPayload = resolvedPayload
-            };
+                          {
+                              Client = client,
+                              Url = resolvedUrl,
+                              PayloadAsJson = payloadAsJson,
+                              ExpectedObjectAsJson = expectedResult,
+                              Current = default,
+                              HttpMethod = httpMethod,
+                              OrderFunc = filterFunc,
+                              DifferenceFunc = differenceFunc,
+                              Parameters = parameters,
+                              CallingAssembly = callingAssembly,
+                              WriteResponse = writResponse,
+                              IsSuccessStatusCode = isSuccessStatusCode,
+                              CallerFilePath = callerFilePath,
+                              PayloadParameterName = payloadAsJsonParameterName,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              CurrentResultParameterName = "Current response",
+                              PayloadFile = payloadFile,
+                              ExpectedResultFile = expectedResultFile,
+                              ResolvedPayload = resolvedPayload
+                          };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
 
