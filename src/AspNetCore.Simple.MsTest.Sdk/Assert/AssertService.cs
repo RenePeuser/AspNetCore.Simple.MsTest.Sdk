@@ -87,27 +87,39 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 expectedResultParameterName = expectedObjectAsJson;
             }
 
-            // Use pre-resolved file from context if available, otherwise resolve it now (fallback for backward compatibility)
-            // So the caller does not have to pass the unique file name of the embedded resource
-            // - Api.V1.Users.GetAllUsersTest.Responses.GetAllUsersResponse.json
-            // - GetAllUsersResponse.json
-            var localizedExpectedResponseFile = context.ExpectedResultFile ?? embeddedFileLocalizer.LocalizeResponseFile(context);
+            // Use pre-resolved data from context if available, otherwise fall back to legacy resolution (backward compatibility)
+            string jsonObject;
+            EmbeddedFileInfo localizedExpectedResponseFile;
 
-            if (localizedExpectedResponseFile.EmbeddedFile.IsNull() ||
-                localizedExpectedResponseFile.EmbeddedFile.Exists.IsFalse())
+            if (context.ResolvedExpectedJson.IsNotNull())
             {
-                localizedExpectedResponseFile = localizedExpectedResponseFile with { Content = expectedObjectAsJson };
+                // Modern path: all preprocessing done before context creation
+                jsonObject = context.ResolvedExpectedJson;
+                localizedExpectedResponseFile = context.ExpectedResultFile!;
             }
+            else
+            {
+                // Legacy path: resolve and process data here (backward compatibility)
+                localizedExpectedResponseFile = context.ExpectedResultFile ?? embeddedFileLocalizer.LocalizeResponseFile(context);
 
-            // This is most the use case when calling an API and want to know what comes back
-            var currentObjectAsJson = currentObject.ToJson(jsonSerializerOptions);
+                if (localizedExpectedResponseFile.EmbeddedFile.IsNull() ||
+                    localizedExpectedResponseFile.EmbeddedFile.Exists.IsFalse())
+                {
+                    localizedExpectedResponseFile = localizedExpectedResponseFile with { Content = expectedObjectAsJson };
+                }
 
-            var jsonObject = localizedExpectedResponseFile.Content.GetJsonStringFrom<T>(currentObjectAsJson,
+                var currentObjectAsJson = currentObject.ToJson(jsonSerializerOptions);
+
+                jsonObject = localizedExpectedResponseFile.Content.GetJsonStringFrom<T>(currentObjectAsJson,
                                                                                         callingAssembly,
                                                                                         string.Empty,
                                                                                         currentResultParameterName);
 
-            jsonObject = parameterReplacementService.ResolveParameters(jsonObject, context);
+                jsonObject = parameterReplacementService.ResolveParameters(jsonObject, context);
+            }
+
+            // This is most the use case when calling an API and want to know what comes back
+            var currentObjectAsJson = currentObject.ToJson(jsonSerializerOptions);
 
             // Brand new crazy function
             // We write the current result to the expected file
@@ -158,11 +170,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var orderedObject1 = orderFunc(expectedObject);
                 var orderedObject2 = orderFunc(currentObject);
 
-                var object1AsJson = parameterReplacementService.ResolveParameters(orderedObject1.ToJson(jsonSerializerOptions),
-                                                                                  context);
+                var object1AsJson = orderedObject1.ToJson(jsonSerializerOptions);
+                var object2AsJson = orderedObject2.ToJson(jsonSerializerOptions);
 
-                var object2AsJson = parameterReplacementService.ResolveParameters(orderedObject2.ToJson(jsonSerializerOptions),
-                                                                                  context);
+                // Parameter replacement already done during context creation (modern path)
+                // For legacy path, parameters were resolved earlier in jsonObject
+                if (context.ResolvedExpectedJson.IsNull())
+                {
+                    // Legacy path: apply parameter replacement here
+                    object1AsJson = parameterReplacementService.ResolveParameters(object1AsJson, context);
+                    object2AsJson = parameterReplacementService.ResolveParameters(object2AsJson, context);
+                }
 
                 var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
 

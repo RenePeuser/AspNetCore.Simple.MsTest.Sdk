@@ -217,7 +217,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             return result;
         }
-
-        
     }
 }

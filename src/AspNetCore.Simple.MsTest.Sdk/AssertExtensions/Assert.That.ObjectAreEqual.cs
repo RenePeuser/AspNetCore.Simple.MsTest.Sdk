@@ -33,13 +33,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
-                                                                                  {
-                                                                                      PropertyNameCaseInsensitive = true,
-                                                                                      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                                                                                      DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                                                                                      NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                                                                                      Converters = { new JsonStringEnumConverter() }
-                                                                                  };
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+            Converters = { new JsonStringEnumConverter() }
+        };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
@@ -461,26 +461,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            // Delegate to AssertService by serializing expectedObject to JSON
-            // This eliminates code duplication and uses the central assertion logic
+            // Convert expected object to JSON and delegate to string-based method
+            // This ensures consistent data preprocessing through the main pipeline
             var expectedObjectAsJson = expectedObject.ToJson(JsonSerializerOptions);
 
-            var context = new ObjectAssertContext<T>
-                          {
-                              ExpectedObjectAsJson = expectedObjectAsJson,
-                              Current = currentObject,
-                              OrderFunc = comparisonFunc,
-                              DifferenceFunc = differenceFunc,
-                              Parameters = parameters,
-                              CallingAssembly = callingAssembly,
-                              WriteResponse = writeResponse,
-                              Title = title,
-                              CallerFilePath = callerFilePath,
-                              ExpectedResultParameterName = expectedResultParameterName,
-                              CurrentResultParameterName = currentResultParameterName
-                          };
-
-            AssertService.ObjectsAreEqual(context);
+            assert.ObjectsAreEqual(expectedObjectAsJson,
+                                   currentObject,
+                                   comparisonFunc,
+                                   title,
+                                   callingAssembly,
+                                   differenceFunc,
+                                   curl,
+                                   parameters,
+                                   writeResponse,
+                                   expectedResultParameterName,
+                                   currentResultParameterName,
+                                   callerFilePath);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -911,21 +907,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
-            // Convert parameters to context and call context-based implementation
+            // Resolve embedded files once here - this avoids duplicate resolution later in the pipeline
+            var expectedFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedObjectAsJson, callerFilePath, callingAssembly);
+
+            // Resolve parameters in expected JSON once here - ready-to-use for comparison
+            var resolvedExpectedJson = ParameterReplacer.ResolveParameters(expectedFile.Content, parameters);
+
+            // Create context with preprocessed data - no further logic needed in AssertService
             var context = new ObjectAssertContext<T>
-                          {
-                              ExpectedObjectAsJson = expectedObjectAsJson,
-                              Current = currentObject,
-                              OrderFunc = orderFunc,
-                              Title = title,
-                              CallingAssembly = callingAssembly,
-                              DifferenceFunc = differenceFunc,
-                              Parameters = parameters,
-                              WriteResponse = writeResponse,
-                              ExpectedResultParameterName = expectedResultParameterName,
-                              CurrentResultParameterName = currentResultParameterName,
-                              CallerFilePath = callerFilePath
-                          };
+            {
+                ExpectedObjectAsJson = expectedObjectAsJson,
+                Current = currentObject,
+                OrderFunc = orderFunc,
+                Title = title,
+                CallingAssembly = callingAssembly,
+                DifferenceFunc = differenceFunc,
+                Parameters = parameters,
+                WriteResponse = writeResponse,
+                ExpectedResultParameterName = expectedResultParameterName,
+                CurrentResultParameterName = currentResultParameterName,
+                CallerFilePath = callerFilePath,
+                ExpectedResultFile = expectedFile,
+                ResolvedExpectedJson = resolvedExpectedJson
+            };
 
             ObjectsAreEqual(assert, context);
         }
