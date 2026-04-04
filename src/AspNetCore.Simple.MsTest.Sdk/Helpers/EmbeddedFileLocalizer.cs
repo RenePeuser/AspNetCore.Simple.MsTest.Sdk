@@ -155,8 +155,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public EmbeddedFileInfo LocalizeRequestFile(IHttpAssertContext context)
         {
             return LocalizeRequestFile(context.PayloadAsJson ?? string.Empty,
-                                      context.CallerFilePath,
-                                      context.CallingAssembly);
+                                       context.CallerFilePath,
+                                       context.CallingAssembly);
         }
 
         public IImmutableList<string> GetAllRequestFileNames(Assembly callingAssembly,
@@ -192,8 +192,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public EmbeddedFileInfo LocalizeResponseFile(IObjectAssertContext context)
         {
             return LocalizeResponseFile(context.ExpectedObjectAsJson,
-                                       context.CallerFilePath,
-                                       context.CallingAssembly);
+                                        context.CallerFilePath,
+                                        context.CallingAssembly);
         }
 
         // ============================================================

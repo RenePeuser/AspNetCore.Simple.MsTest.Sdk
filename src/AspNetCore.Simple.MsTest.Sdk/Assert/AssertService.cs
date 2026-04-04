@@ -60,7 +60,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         IOutputFormatter outputFormatter,
                                         IResponseWriter responseWriter,
                                         IWriteResponseService writeResponseService,
-                                        IEmbeddedFileLocalizer embeddedFileLocalizer,
                                         JsonSerializer jsonSerializer,
                                         JsonSerializerOptions jsonSerializerOptions,
                                         IParameterReplacer parameterReplacementService) : IAssertService
@@ -100,7 +99,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             else
             {
                 // Legacy path: resolve and process data here (backward compatibility)
-                localizedExpectedResponseFile = context.ExpectedResultFile ?? embeddedFileLocalizer.LocalizeResponseFile(context);
+                localizedExpectedResponseFile = context.ExpectedResultFile;
 
                 if (localizedExpectedResponseFile.EmbeddedFile.IsNull() ||
                     localizedExpectedResponseFile.EmbeddedFile.Exists.IsFalse())
@@ -108,9 +107,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     localizedExpectedResponseFile = localizedExpectedResponseFile with { Content = expectedObjectAsJson };
                 }
 
-                var currentObjectAsJson = currentObject.ToJson(jsonSerializerOptions);
+                var currentObjectAsJsonScope = currentObject.ToJson(jsonSerializerOptions);
 
-                jsonObject = localizedExpectedResponseFile.Content.GetJsonStringFrom<T>(currentObjectAsJson,
+                jsonObject = localizedExpectedResponseFile.Content.GetJsonStringFrom<T>(currentObjectAsJsonScope,
                                                                                         callingAssembly,
                                                                                         string.Empty,
                                                                                         currentResultParameterName);

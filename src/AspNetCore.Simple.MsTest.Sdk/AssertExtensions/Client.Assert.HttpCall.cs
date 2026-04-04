@@ -76,7 +76,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   OutputFormatter,
                                                                   ResponseWriter,
                                                                   WriteResponseService,
-                                                                  EmbeddedFileLocalizer,
                                                                   JsonSerializerInstance,
                                                                   JsonSerializerOptions,
                                                                   ParameterReplacer);
@@ -88,7 +87,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                        JsonDiffer,
                                                                                        ResponseWriter,
                                                                                        WriteResponseService,
-                                                                                       EmbeddedFileLocalizer,
                                                                                        _httpCallHandler,
                                                                                        JsonSerializerOptions,
                                                                                        AssertService,

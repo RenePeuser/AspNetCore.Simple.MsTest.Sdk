@@ -13,7 +13,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
-
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                                string url,
                                                                string expectedResult,

@@ -25,7 +25,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         void PrintCurl(IHttpAssertContext context);
     }
 
-    internal sealed class CurlPrinter(ICurlFormatter curlFormatter, ICurlBuilder curlBuilder) : ICurlPrinter
+    internal sealed class CurlPrinter(ICurlFormatter curlFormatter,
+                                      ICurlBuilder curlBuilder) : ICurlPrinter
     {
         public void PrintCurl(Assembly callingAssembly,
                               string curl)

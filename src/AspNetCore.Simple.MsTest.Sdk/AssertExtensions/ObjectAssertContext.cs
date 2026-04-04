@@ -18,7 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Contains the resolved embedded file information including content and physical file location.
         /// This is resolved once during context creation and reused throughout the assertion pipeline.
         /// </summary>
-        EmbeddedFileInfo? ExpectedResultFile { get; init; }
+        EmbeddedFileInfo ExpectedResultFile { get; init; }
 
         /// <summary>
         /// The current/actual object to compare against the expected object (untyped).
@@ -90,7 +90,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Contains the resolved embedded file information including content and physical file location.
         /// This is resolved once during context creation and reused throughout the assertion pipeline.
         /// </summary>
-        public EmbeddedFileInfo? ExpectedResultFile { get; init; }
+        public required EmbeddedFileInfo ExpectedResultFile { get; init; }
 
         /// <summary>
         /// The current/actual object to compare against the expected object (untyped).

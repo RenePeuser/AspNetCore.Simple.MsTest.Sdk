@@ -63,11 +63,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    CancellationToken cancellationToken = default)
         {
             return CallAsync(context.Client,
-                           context.HttpMethod,
-                           context.Url,
-                           context.ResolvedPayload ?? context.PayloadAsJson,
-                           cancellationToken,
-                           context.PayloadParameterName);
+                             context.HttpMethod,
+                             context.Url,
+                             context.ResolvedPayload ?? context.PayloadAsJson,
+                             cancellationToken,
+                             context.PayloadParameterName);
         }
     }
 }

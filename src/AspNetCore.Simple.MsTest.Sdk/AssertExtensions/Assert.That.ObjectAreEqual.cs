@@ -33,13 +33,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters = { new JsonStringEnumConverter() }
-        };
+                                                                                  {
+                                                                                      PropertyNameCaseInsensitive = true,
+                                                                                      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                                                                      DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                                                                                      NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                                                                                      Converters = { new JsonStringEnumConverter() }
+                                                                                  };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
@@ -52,7 +52,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   OutputFormatter,
                                                                   ResponseWriter,
                                                                   WriteResponseService,
-                                                                  EmbeddedFileLocalizer,
                                                                   JsonSerializer,
                                                                   JsonSerializerOptions,
                                                                   ParameterReplacer);
@@ -915,21 +914,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with preprocessed data - no further logic needed in AssertService
             var context = new ObjectAssertContext<T>
-            {
-                ExpectedObjectAsJson = expectedObjectAsJson,
-                Current = currentObject,
-                OrderFunc = orderFunc,
-                Title = title,
-                CallingAssembly = callingAssembly,
-                DifferenceFunc = differenceFunc,
-                Parameters = parameters,
-                WriteResponse = writeResponse,
-                ExpectedResultParameterName = expectedResultParameterName,
-                CurrentResultParameterName = currentResultParameterName,
-                CallerFilePath = callerFilePath,
-                ExpectedResultFile = expectedFile,
-                ResolvedExpectedJson = resolvedExpectedJson
-            };
+                          {
+                              ExpectedObjectAsJson = expectedObjectAsJson,
+                              Current = currentObject,
+                              OrderFunc = orderFunc,
+                              Title = title,
+                              CallingAssembly = callingAssembly,
+                              DifferenceFunc = differenceFunc,
+                              Parameters = parameters,
+                              WriteResponse = writeResponse,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              CurrentResultParameterName = currentResultParameterName,
+                              CallerFilePath = callerFilePath,
+                              ExpectedResultFile = expectedFile,
+                              ResolvedExpectedJson = resolvedExpectedJson
+                          };
 
             ObjectsAreEqual(assert, context);
         }

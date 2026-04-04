@@ -942,18 +942,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync(url: url,
-                                             payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
-                                             expectedResult: expectedResult,
-                                             filterFunc: filterFunc,
-                                             httpMethod: HttpMethod.Put,
-                                             differenceFunc: differenceFunc,
-                                             parameters: parameters,
-                                             callingAssembly: callingAssembly,
-                                             payloadAsJsonParameterName: payloadAsObjectParameterName,
-                                             expectedResultParameterName: expectedResultParameterName,
-                                             callerFilePath: callerFilePath,
-                                             isSuccessStatusCode: true,
-                                             writResponse: writeResponse);
+                                              payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                              expectedResult: expectedResult,
+                                              filterFunc: filterFunc,
+                                              httpMethod: HttpMethod.Put,
+                                              differenceFunc: differenceFunc,
+                                              parameters: parameters,
+                                              callingAssembly: callingAssembly,
+                                              payloadAsJsonParameterName: payloadAsObjectParameterName,
+                                              expectedResultParameterName: expectedResultParameterName,
+                                              callerFilePath: callerFilePath,
+                                              isSuccessStatusCode: true,
+                                              writResponse: writeResponse);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -1000,18 +1000,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerFilePath] string callerFilePath = "")
         {
             return client.AssertHttpCallAsync(url: url,
-                                             payloadAsJson: payloadAsJson,
-                                             expectedResult: expectedResult,
-                                             filterFunc: filterFunc,
-                                             httpMethod: HttpMethod.Put,
-                                             differenceFunc: differenceFunc,
-                                             parameters: parameters,
-                                             callingAssembly: callingAssembly,
-                                             payloadAsJsonParameterName: payloadAsJsonParameterName,
-                                             expectedResultParameterName: expectedResultParameterName,
-                                             callerFilePath: callerFilePath,
-                                             isSuccessStatusCode: true,
-                                             writResponse: writeResponse);
+                                              payloadAsJson: payloadAsJson,
+                                              expectedResult: expectedResult,
+                                              filterFunc: filterFunc,
+                                              httpMethod: HttpMethod.Put,
+                                              differenceFunc: differenceFunc,
+                                              parameters: parameters,
+                                              callingAssembly: callingAssembly,
+                                              payloadAsJsonParameterName: payloadAsJsonParameterName,
+                                              expectedResultParameterName: expectedResultParameterName,
+                                              callerFilePath: callerFilePath,
+                                              isSuccessStatusCode: true,
+                                              writResponse: writeResponse);
         }
 
         public static Task AssertPutAsUnauthorizedAsync(this HttpClient httpClient,
@@ -1074,14 +1074,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task AssertPutAsync(HttpAssertContext<string> context)
         {
             return context.Client.AssertHttpCallAsync(url: context.Url,
-                                                     payloadAsJson: context.PayloadAsJson ?? string.Empty,
-                                                     httpMethod: HttpMethod.Put,
-                                                     parameters: context.Parameters,
-                                                     callingAssembly: context.CallingAssembly,
-                                                     payloadAsJsonParameterName: context.PayloadParameterName,
-                                                     callerFilePath: context.CallerFilePath,
-                                                     isSuccessStatusCode: true,
-                                                     writResponse: context.WriteResponse);
+                                                      payloadAsJson: context.PayloadAsJson ?? string.Empty,
+                                                      httpMethod: HttpMethod.Put,
+                                                      parameters: context.Parameters,
+                                                      callingAssembly: context.CallingAssembly,
+                                                      payloadAsJsonParameterName: context.PayloadParameterName,
+                                                      callerFilePath: context.CallerFilePath,
+                                                      isSuccessStatusCode: true,
+                                                      writResponse: context.WriteResponse);
         }
 
         /// <summary>
@@ -1090,18 +1090,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertPutAsync<TResult>(HttpAssertContext<TResult> context)
         {
             return context.Client.AssertHttpCallAsync(url: context.Url,
-                                                     payloadAsJson: context.PayloadAsJson ?? string.Empty,
-                                                     expectedResult: context.ExpectedObjectAsJson,
-                                                     filterFunc: context.OrderFunc,
-                                                     httpMethod: HttpMethod.Put,
-                                                     differenceFunc: context.DifferenceFunc,
-                                                     parameters: context.Parameters,
-                                                     callingAssembly: context.CallingAssembly,
-                                                     payloadAsJsonParameterName: context.PayloadParameterName,
-                                                     expectedResultParameterName: context.ExpectedResultParameterName,
-                                                     callerFilePath: context.CallerFilePath,
-                                                     isSuccessStatusCode: true,
-                                                     writResponse: context.WriteResponse);
+                                                      payloadAsJson: context.PayloadAsJson ?? string.Empty,
+                                                      expectedResult: context.ExpectedObjectAsJson,
+                                                      filterFunc: context.OrderFunc,
+                                                      httpMethod: HttpMethod.Put,
+                                                      differenceFunc: context.DifferenceFunc,
+                                                      parameters: context.Parameters,
+                                                      callingAssembly: context.CallingAssembly,
+                                                      payloadAsJsonParameterName: context.PayloadParameterName,
+                                                      expectedResultParameterName: context.ExpectedResultParameterName,
+                                                      callerFilePath: context.CallerFilePath,
+                                                      isSuccessStatusCode: true,
+                                                      writResponse: context.WriteResponse);
         }
     }
 }

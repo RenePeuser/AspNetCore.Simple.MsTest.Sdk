@@ -149,11 +149,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public string BuildFrom(IHttpAssertContext context)
         {
             return BuildFrom(context.HttpMethod,
-                           context.Url,
-                           context.ResolvedPayload ?? context.PayloadAsJson ?? string.Empty,
-                           context.Client.DefaultRequestHeaders.Authorization,
-                           context.CallingAssembly,
-                           context.ShowTokenInCurl);
+                             context.Url,
+                             context.ResolvedPayload ?? context.PayloadAsJson ?? string.Empty,
+                             context.Client.DefaultRequestHeaders.Authorization,
+                             context.CallingAssembly,
+                             context.ShowTokenInCurl);
         }
     }
 }

@@ -50,7 +50,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="json">The JSON string containing placeholders</param>
         /// <param name="context">The assertion context containing the parameters</param>
         /// <returns>JSON string with placeholders replaced by values</returns>
-        string ResolveParameters(string json, IObjectAssertContext context);
+        string ResolveParameters(string json,
+                                 IObjectAssertContext context);
 
         /// <summary>
         /// Replaces actual values with placeholders in a JSON string using the context's parameters.
@@ -59,7 +60,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="json">The JSON string containing actual values</param>
         /// <param name="context">The assertion context containing the parameters</param>
         /// <returns>JSON string with values replaced by placeholders</returns>
-        string ReplaceWithPlaceholders(string json, IObjectAssertContext context);
+        string ReplaceWithPlaceholders(string json,
+                                       IObjectAssertContext context);
 
         /// <summary>
         /// Replaces parameter placeholders in a URL string.
@@ -70,8 +72,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="parameters">Parameters as (Key, Value) tuples where Key is the placeholder</param>
         /// <returns>URL string with placeholders replaced by values</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like parameters should not be strings",
-                                                          Justification = "URL contains template placeholders like {userId} that need string manipulation before becoming a valid URI")]
-        string ReplaceInUrl(string url, params (string Key, object? Value)[] parameters);
+                                                            Justification = "URL contains template placeholders like {userId} that need string manipulation before becoming a valid URI")]
+        string ReplaceInUrl(string url,
+                            params (string Key, object? Value)[] parameters);
 
         /// <summary>
         /// Replaces parameter placeholders in a URL string using the context's parameters.
@@ -81,8 +84,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="context">The assertion context containing the parameters</param>
         /// <returns>URL string with placeholders replaced by values</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like parameters should not be strings",
-                                                          Justification = "URL contains template placeholders like {userId} that need string manipulation before becoming a valid URI")]
-        string ReplaceInUrl(string url, IObjectAssertContext context);
+                                                            Justification = "URL contains template placeholders like {userId} that need string manipulation before becoming a valid URI")]
+        string ReplaceInUrl(string url,
+                            IObjectAssertContext context);
     }
 
     /// <summary>
@@ -182,17 +186,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return root.ToString(Formatting.Indented);
         }
 
-        public string ResolveParameters(string json, IObjectAssertContext context)
+        public string ResolveParameters(string json,
+                                        IObjectAssertContext context)
         {
             return ResolveParameters(json, context.Parameters);
         }
 
-        public string ReplaceWithPlaceholders(string json, IObjectAssertContext context)
+        public string ReplaceWithPlaceholders(string json,
+                                              IObjectAssertContext context)
         {
             return ReplaceWithPlaceholders(json, context.Parameters);
         }
 
-        public string ReplaceInUrl(string url, params (string Key, object? Value)[] parameters)
+        public string ReplaceInUrl(string url,
+                                   params (string Key, object? Value)[] parameters)
         {
             if (url.IsNullOrWhiteSpace() || parameters.IsNullOrEmpty())
             {
@@ -218,7 +225,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return replacedUrl;
         }
 
-        public string ReplaceInUrl(string url, IObjectAssertContext context)
+        public string ReplaceInUrl(string url,
+                                   IObjectAssertContext context)
         {
             return ReplaceInUrl(url, context.Parameters);
         }
