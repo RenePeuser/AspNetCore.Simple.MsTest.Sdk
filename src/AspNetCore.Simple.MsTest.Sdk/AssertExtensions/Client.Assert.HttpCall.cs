@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using Extensions.Pack;
 using JsonSerializer = AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer;
 
@@ -10,10 +11,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
-        private static readonly HttpOutputFormatter HttpOutputFormatter = new();
-
-        private static readonly CurlBuilder CurlBuilder = new();
-
         private static readonly CurlFormatter CurlFormatterInstance = new();
 
         private static readonly OutputFormatter OutputFormatter = new([
@@ -80,30 +77,35 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   JsonSerializerOptions,
                                                                   ParameterReplacer);
 
-        private static readonly UnexpectedStatusCodeStrategy UnexpectedStatusCodeStrategy = new(OutputFormatter);
+        // Pipeline steps (replacing old strategies)
+        private static readonly StatusCodeValidationStep StatusCodeValidationStep = new(OutputFormatter);
 
-        private static readonly ExpectedStatusCodeStrategy ExpectedStatusCodeStrategy = new(PrimitiveTypeConverter,
-                                                                                            JsonDiffer,
-                                                                                            OutputFormatter,
-                                                                                            ResponseWriter,
-                                                                                            WriteResponseService,
-                                                                                            AssertService,
-                                                                                            ParameterReplacer,
-                                                                                            JsonSerializerOptions);
+        private static readonly ContentTypeHeaderValidationStep ContentTypeHeaderValidationStep = new(OutputFormatter);
 
-        private static readonly HttpResponseAssertStrategy HttpResponseAssertStrategy = new(new IHttpStatusCodeProcessingStrategy[]
-                                                                                            {
-                                                                                                UnexpectedStatusCodeStrategy,
-                                                                                                ExpectedStatusCodeStrategy
-                                                                                            });
+        private static readonly ContentFormatValidationStep ContentFormatValidationStep = new(OutputFormatter);
 
-        private static readonly AssertableHttpClient AssertableHttpClientDefault = new(HttpOutputFormatter,
-                                                                                       CurlBuilder,
-                                                                                       _httpCallHandler,
-                                                                                       JsonSerializerOptions,
-                                                                                       ParameterReplacer,
-                                                                                       HttpResponseAssertStrategy,
-                                                                                       PrimitiveTypeConverter);
+        private static readonly JsonComparisonStep JsonComparisonStep = new(PrimitiveTypeConverter,
+                                                                            JsonDiffer,
+                                                                            OutputFormatter,
+                                                                            ResponseWriter,
+                                                                            WriteResponseService,
+                                                                            AssertService,
+                                                                            ParameterReplacer,
+                                                                            JsonSerializerOptions);
+
+        private static readonly HttpAssertionPipeline HttpAssertionPipeline = new(new IHttpAssertionStep[]
+                                                                                  {
+                                                                                      StatusCodeValidationStep,
+                                                                                      ContentTypeHeaderValidationStep,
+                                                                                      ContentFormatValidationStep,
+                                                                                      JsonComparisonStep
+                                                                                  });
+
+        private static readonly AssertableHttpClient.AssertableHttpClient AssertableHttpClientDefault = new(_httpCallHandler,
+                                                                                                            ParameterReplacer,
+                                                                                                            HttpAssertionPipeline,
+                                                                                                            PrimitiveTypeConverter,
+                                                                                                            JsonSerializerOptions);
 
         /// <summary>
         /// Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.

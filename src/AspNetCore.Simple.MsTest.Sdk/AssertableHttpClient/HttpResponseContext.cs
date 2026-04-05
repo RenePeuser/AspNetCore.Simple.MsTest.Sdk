@@ -1,15 +1,12 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Net;
+﻿using System.Net;
+using System.Net.Http;
 
-namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 {
     /// <summary>
-    /// Contains all preprocessed HTTP response data for assertion processing.
-    /// Built after the HTTP call completes - all data preparation happens here before strategy execution.
-    /// Follows the data collection pattern: no logic, only prepared data.
-    /// NOTE: Does not hold HttpResponseMessage reference as it needs to be disposed.
-    /// All required data is extracted before disposal.
+    /// Contains minimal HTTP response data for assertion processing.
+    /// The HttpResponseMessage is kept alive during pipeline execution - steps can access it directly.
+    /// Follows lazy evaluation: steps extract only the data they need.
     /// </summary>
     /// <typeparam name="TResult">The type of the deserialized response</typeparam>
     public record HttpResponseContext<TResult>
@@ -21,14 +18,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required HttpAssertContext<TResult> Request { get; init; }
 
         /// <summary>
-        /// The HTTP status code from the response.
-        /// Extracted from HttpResponseMessage before disposal.
+        /// The raw HTTP response message.
+        /// IMPORTANT: This is still alive during pipeline execution (disposed after pipeline completes).
+        /// Steps can access headers, status code, content, etc. directly.
+        /// </summary>
+        public required HttpResponseMessage HttpResponseMessage { get; init; }
+
+        /// <summary>
+        /// The HTTP status code from the response (cached for quick access).
         /// </summary>
         public required HttpStatusCode HttpStatusCode { get; init; }
 
         /// <summary>
         /// The raw response content as string (before parameter replacement).
-        /// Direct output from HttpResponseMessage.Content.ReadAsStringAsync().
+        /// Pre-read from HttpResponseMessage.Content.ReadAsStringAsync() to avoid multiple reads.
         /// </summary>
         public required string ContentAsString { get; init; }
 
@@ -39,54 +42,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required string ResolvedParametersJsonString { get; init; }
 
         /// <summary>
-        /// Indicates whether the status code matches expectations.
-        /// true = response.IsSuccessStatusCode == context.IsSuccessStatusCode
-        /// false = unexpected status code (will trigger fast-fail strategy)
-        /// </summary>
-        public required bool IsExpectedStatusCode { get; init; }
-
-        /// <summary>
-        /// The deserialized current result (primitive or complex type).
-        /// Result of deserializing ResolvedParametersJsonString to TResult.
+        /// The deserialized current result from the API call.
+        /// This is the original, unmodified response that will be returned to the user.
+        /// Can be null if deserialization fails or response is empty.
         /// </summary>
         public required TResult? CurrentResult { get; init; }
 
         /// <summary>
-        /// The current result after applying the OrderFunc filter.
-        /// This is what will be compared against the expected result.
+        /// Indicates whether the status code matches expectations.
+        /// true = response.IsSuccessStatusCode == context.IsSuccessStatusCode
+        /// false = unexpected status code (will trigger fast-fail in StatusCodeValidationStep)
         /// </summary>
-        public required TResult? FilteredCurrentResult { get; init; }
+        public required bool IsExpectedStatusCode { get; init; }
 
         /// <summary>
-        /// The simplified HTTP response message extracted from HttpResponseMessage before disposal.
-        /// Contains status code, headers, and metadata but not the raw HttpResponseMessage.
-        /// </summary>
-        public required SimpleHttpResponseMessage SimpleHttpResponseMessage { get; init; }
-
-        /// <summary>
-        /// The response content headers extracted and preprocessed before HttpResponseMessage disposal.
-        /// Used for building comparison structures.
-        /// </summary>
-        public required ImmutableList<KeyValuePair<string, ImmutableList<string>>> ContentHeaders { get; init; }
-
-        /// <summary>
-        /// The absolute URL that was called (resolved from HttpResponseMessage).
+        /// The absolute URL that was called (resolved from HttpResponseMessage.RequestUri).
         /// Used for output formatting and debugging.
         /// </summary>
 #pragma warning disable CA1056 // URI properties should not be strings - kept as string for compatibility with existing formatters
         public required string AbsoluteUrl { get; init; }
 #pragma warning restore CA1056
-
-        /// <summary>
-        /// Formatted HTTP call information for output/error messages.
-        /// Contains method, URL, and status code in readable format.
-        /// </summary>
-        public required string HttpCallInfo { get; init; }
-
-        /// <summary>
-        /// Generated cURL command representing this HTTP call.
-        /// Used for debugging and reproducibility.
-        /// </summary>
-        public required string Curl { get; init; }
     }
 }

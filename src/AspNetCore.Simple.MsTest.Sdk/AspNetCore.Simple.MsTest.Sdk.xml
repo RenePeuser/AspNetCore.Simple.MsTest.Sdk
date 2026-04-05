@@ -4,20 +4,20 @@
         <name>AspNetCore.Simple.MsTest.Sdk</name>
     </assembly>
     <members>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertableHttpClientExtension.AddAssertableHttpClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddAssertableHttpClientExtension.AddAssertableHttpClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             Registers all assertable HTTP client services and their dependencies in the DI container.
             Feature-based registration following the dependency tree pattern.
             </summary>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IAssertableHttpClient">
             <summary>
             Represents an HTTP client with assertion capabilities for API testing.
             Core service that performs HTTP calls with automatic response assertions.
             The HTTP method (GET, POST, PUT, PATCH, DELETE) is determined by the context.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IAssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <summary>
             Performs an HTTP request and asserts the response against an expected result.
             The HTTP method is determined by the context's HttpMethod property.
@@ -26,35 +26,35 @@
             <param name="context">The assertion context containing all request parameters including the HTTP method.</param>
             <returns>A task containing the deserialized response.</returns>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertableHttpClient">
             <summary>
-            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient"/> that contains the core assertion logic.
+            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IAssertableHttpClient"/> that contains the core assertion logic.
             This class encapsulates all dependencies needed for HTTP assertions.
             All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.#ctor(AspNetCore.Simple.MsTest.Sdk.IHttpOutputFormatter,AspNetCore.Simple.MsTest.Sdk.ICurlBuilder,AspNetCore.Simple.MsTest.Sdk.IHttpCallHandler,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer,AspNetCore.Simple.MsTest.Sdk.IHttpResponseAssertStrategy,AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertableHttpClient.#ctor(AspNetCore.Simple.MsTest.Sdk.IHttpCallHandler,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer,AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionPipeline,AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter)">
             <summary>
-            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertableHttpClient"/> that contains the core assertion logic.
+            Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IAssertableHttpClient"/> that contains the core assertion logic.
             This class encapsulates all dependencies needed for HTTP assertions.
             All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
             <inheritdoc />
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.AddAssertableHttpClientFactoryExtension">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddAssertableHttpClientFactoryExtension">
             <summary>
             Extension methods for registering assertable HTTP client services.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertableHttpClientFactoryExtension.AddAssertableHttpClientFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddAssertableHttpClientFactoryExtension.AddAssertableHttpClientFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             Registers the assertable HTTP client services in the DI container.
             The HttpClient is passed via the context when calling AssertAsync, not in the constructor.
             </summary>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext`1">
             <summary>
             Contains all preprocessed HTTP response data for assertion processing.
             Built after the HTTP call completes - all data preparation happens here before strategy execution.
@@ -64,184 +64,211 @@
             </summary>
             <typeparam name="TResult">The type of the deserialized response</typeparam>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.Request">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext`1.Request">
             <summary>
             The original request context containing all request parameters.
             Immutable reference to the request configuration.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.HttpStatusCode">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext`1.HttpStatusCode">
             <summary>
             The HTTP status code from the response.
             Extracted from HttpResponseMessage before disposal.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.ContentAsString">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext`1.ContentAsString">
             <summary>
             The raw response content as string (before parameter replacement).
             Direct output from HttpResponseMessage.Content.ReadAsStringAsync().
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.ResolvedParametersJsonString">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext`1.ResolvedParametersJsonString">
             <summary>
             The response content with parameters resolved.
             Ready-to-use JSON string for deserialization or comparison.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.IsExpectedStatusCode">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext`1.IsExpectedStatusCode">
             <summary>
             Indicates whether the status code matches expectations.
             true = response.IsSuccessStatusCode == context.IsSuccessStatusCode
             false = unexpected status code (will trigger fast-fail strategy)
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.CurrentResult">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext`1.CurrentResult">
             <summary>
             The deserialized current result (primitive or complex type).
             Result of deserializing ResolvedParametersJsonString to TResult.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.FilteredCurrentResult">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext`1.FilteredCurrentResult">
             <summary>
             The current result after applying the OrderFunc filter.
             This is what will be compared against the expected result.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.SimpleHttpResponseMessage">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext`1.SimpleHttpResponseMessage">
             <summary>
             The simplified HTTP response message extracted from HttpResponseMessage before disposal.
             Contains status code, headers, and metadata but not the raw HttpResponseMessage.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.ContentHeaders">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext`1.ContentHeaders">
             <summary>
             The response content headers extracted and preprocessed before HttpResponseMessage disposal.
             Used for building comparison structures.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.AbsoluteUrl">
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext`1.AbsoluteUrl">
             <summary>
             The absolute URL that was called (resolved from HttpResponseMessage).
             Used for output formatting and debugging.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.HttpCallInfo">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddHttpAssertionPipelineExtension.AddHttpAssertionPipeline(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
-            Formatted HTTP call information for output/error messages.
-            Contains method, URL, and status code in readable format.
+            Registers the HTTP assertion pipeline and its steps.
+            Steps are executed in the order they are registered.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpResponseContext`1.Curl">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpAssertionPipeline">
             <summary>
-            Generated cURL command representing this HTTP call.
-            Used for debugging and reproducibility.
+            Pipeline that executes HTTP assertion steps sequentially.
+            Each step validates a specific aspect of the HTTP response.
+            The pipeline stops at the first failing step (Assert.Fail throws an exception).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AddExpectedStatusCodeStrategyExtension.AddExpectedStatusCodeStrategy(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpAssertionPipeline.#ctor(System.Collections.Generic.IEnumerable{AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionStep})">
             <summary>
-            Registers the expected status code strategy and its dependencies.
+            Pipeline that executes HTTP assertion steps sequentially.
+            Each step validates a specific aspect of the HTTP response.
+            The pipeline stops at the first failing step (Assert.Fail throws an exception).
             </summary>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.ExpectedStatusCodeStrategy">
-            <summary>
-            Strategy for handling expected HTTP status codes (both success and error).
-            Performs full response processing: deserialization, filtering, schema validation, and assertion.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.ExpectedStatusCodeStrategy.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.IAssertService,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer,System.Text.Json.JsonSerializerOptions)">
-            <summary>
-            Strategy for handling expected HTTP status codes (both success and error).
-            Performs full response processing: deserialization, filtering, schema validation, and assertion.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.ExpectedStatusCodeStrategy.CanHandle``1(AspNetCore.Simple.MsTest.Sdk.HttpResponseContext{``0})">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpAssertionPipeline.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
             <inheritdoc />
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.ExpectedStatusCodeStrategy.ProcessAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpResponseContext{``0})">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionPipeline">
+            <summary>
+            Represents a pipeline of HTTP assertion steps.
+            Executes steps sequentially until one fails (Assert.Fail) or all succeed.
+            Replaces the strategy pattern with a simpler, more extensible pipeline approach.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionPipeline.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
+            <summary>
+            Executes all assertion steps in sequence on the given HTTP response context.
+            Returns the filtered current result if all assertions pass.
+            If any step fails, the pipeline stops immediately (Assert.Fail throws).
+            </summary>
+            <typeparam name="TResult">The expected result type.</typeparam>
+            <param name="context">The HTTP response context containing all data needed for assertions.</param>
+            <returns>The filtered current result from the context.</returns>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddContentFormatValidationStepExtension.AddContentFormatValidationStep(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers the content format validation step and its dependencies.
+            </summary>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentFormatValidationStep">
+            <summary>
+            Validates that the response body content is structurally valid JSON.
+            Checks that content starts with '{' (object) or '[' (array).
+            This step runs after ContentTypeHeaderValidationStep and before JsonComparisonStep.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentFormatValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IOutputFormatter)">
+            <summary>
+            Validates that the response body content is structurally valid JSON.
+            Checks that content starts with '{' (object) or '[' (array).
+            This step runs after ContentTypeHeaderValidationStep and before JsonComparisonStep.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentFormatValidationStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
             <inheritdoc />
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AddHttpResponseAssertStrategyExtension.AddHttpResponseAssertStrategy(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddContentTypeHeaderValidationStepExtension.AddContentTypeHeaderValidationStep(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
-            Registers the HTTP response assertion strategy and its dependencies.
-            Feature-based registration following the dependency tree pattern.
+            Registers the content type header validation step and its dependencies.
             </summary>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpResponseAssertStrategy">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentTypeHeaderValidationStep">
             <summary>
-            Main strategy coordinator for HTTP response assertions.
-            Selects and delegates to the appropriate status code processing strategy.
-            Follows the Strategy Pattern: one strategy is chosen based on runtime conditions.
+            Validates that the Content-Type HTTP header indicates JSON content.
+            This prevents attempting to parse binary data (images, PDFs, etc.) as JSON.
+            Checks the Content-Type header value for application/json.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpResponseAssertStrategy.#ctor(System.Collections.Generic.IEnumerable{AspNetCore.Simple.MsTest.Sdk.IHttpStatusCodeProcessingStrategy})">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentTypeHeaderValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IOutputFormatter)">
             <summary>
-            Main strategy coordinator for HTTP response assertions.
-            Selects and delegates to the appropriate status code processing strategy.
-            Follows the Strategy Pattern: one strategy is chosen based on runtime conditions.
+            Validates that the Content-Type HTTP header indicates JSON content.
+            This prevents attempting to parse binary data (images, PDFs, etc.) as JSON.
+            Checks the Content-Type header value for application/json.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpResponseAssertStrategy.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpResponseContext{``0})">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentTypeHeaderValidationStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
             <inheritdoc />
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.IHttpResponseAssertStrategy">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionStep">
             <summary>
-            Main strategy interface for HTTP response assertion processing.
-            Coordinates the assertion flow by selecting and delegating to specific status code strategies.
+            Represents a single step in the HTTP assertion pipeline.
+            Each step performs a specific validation (e.g., status code, schema, values).
+            Steps are executed sequentially and can fail fast by throwing an assertion exception.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IHttpResponseAssertStrategy.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpResponseContext{``0})">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
             <summary>
-            Performs HTTP response assertion based on the response context.
-            Selects the appropriate processing strategy based on status code expectations.
+            Executes this assertion step on the given HTTP response context.
+            If the assertion fails, this method should call Assert.Fail() to stop the pipeline.
+            If the assertion succeeds, the method returns normally and the pipeline continues.
             </summary>
-            <typeparam name="TResult">The expected result type</typeparam>
-            <param name="context">The HTTP response context containing all preprocessed data</param>
-            <returns>The deserialized and validated result</returns>
+            <typeparam name="TResult">The expected result type.</typeparam>
+            <param name="context">The HTTP response context containing all data needed for assertion.</param>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.IHttpStatusCodeProcessingStrategy">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddJsonComparisonStepExtension.AddJsonComparisonStep(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
-            Strategy interface for processing HTTP responses based on status code expectations.
-            Implementations handle either expected or unexpected status codes with different processing logic.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IHttpStatusCodeProcessingStrategy.CanHandle``1(AspNetCore.Simple.MsTest.Sdk.HttpResponseContext{``0})">
-            <summary>
-            Determines if this strategy can handle the given HTTP response context.
-            Allows flexible strategy selection based on any context data (status code, content type, etc.).
-            </summary>
-            <typeparam name="TResult">The expected result type</typeparam>
-            <param name="context">The HTTP response context containing all preprocessed data</param>
-            <returns>True if this strategy should handle this scenario</returns>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IHttpStatusCodeProcessingStrategy.ProcessAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpResponseContext{``0})">
-            <summary>
-            Processes the HTTP response and performs assertions.
-            </summary>
-            <typeparam name="TResult">The expected result type</typeparam>
-            <param name="context">The HTTP response context containing all preprocessed data</param>
-            <returns>The deserialized and validated result</returns>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AddUnexpectedStatusCodeStrategyExtension.AddUnexpectedStatusCodeStrategy(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
-            <summary>
-            Registers the unexpected status code strategy and its dependencies.
+            Registers the JSON comparison step and its dependencies.
             </summary>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.UnexpectedStatusCodeStrategy">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.JsonComparisonStep">
             <summary>
-            Strategy for handling unexpected HTTP status codes.
-            Fast-fail strategy: immediately fails the test without further processing or response writing.
+            Compares the JSON response against expected JSON.
+            Handles both schema mismatches and value differences in a single step.
+            This step merges the logic from SchemaValidationStep and ValueComparisonStep.
+            Flow: Diff once → Check schema first → Then check values
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.UnexpectedStatusCodeStrategy.#ctor(AspNetCore.Simple.MsTest.Sdk.IOutputFormatter)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.JsonComparisonStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.IAssertService,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer,System.Text.Json.JsonSerializerOptions)">
             <summary>
-            Strategy for handling unexpected HTTP status codes.
-            Fast-fail strategy: immediately fails the test without further processing or response writing.
+            Compares the JSON response against expected JSON.
+            Handles both schema mismatches and value differences in a single step.
+            This step merges the logic from SchemaValidationStep and ValueComparisonStep.
+            Flow: Diff once → Check schema first → Then check values
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.UnexpectedStatusCodeStrategy.CanHandle``1(AspNetCore.Simple.MsTest.Sdk.HttpResponseContext{``0})">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.JsonComparisonStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
             <inheritdoc />
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.UnexpectedStatusCodeStrategy.ProcessAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpResponseContext{``0})">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddStatusCodeValidationStepExtension.AddStatusCodeValidationStep(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers the status code validation step and its dependencies.
+            </summary>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.StatusCodeValidationStep">
+            <summary>
+            Validates that the HTTP status code matches expectations.
+            Fast-fail step: if the status code is unexpected, the test fails immediately.
+            This step replaces the UnexpectedStatusCodeStrategy.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.StatusCodeValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IOutputFormatter)">
+            <summary>
+            Validates that the HTTP status code matches expectations.
+            Fast-fail step: if the status code is unexpected, the test fails immediately.
+            This step replaces the UnexpectedStatusCodeStrategy.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.StatusCodeValidationStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
             <inheritdoc />
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertDeleteAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">

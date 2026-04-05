@@ -1,7 +1,7 @@
 ﻿using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 {
     /// <summary>
     /// Extension methods for registering assertable HTTP client services.
