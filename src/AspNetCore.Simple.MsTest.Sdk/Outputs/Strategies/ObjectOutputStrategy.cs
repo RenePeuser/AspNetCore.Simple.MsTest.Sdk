@@ -30,9 +30,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public string BuildOutput(IObjectAssertContext context,
-                                 ImmutableList<Difference> differences,
-                                 string expectedJson,
-                                 string currentJson)
+                                  ImmutableList<Difference> differences,
+                                  string expectedJson,
+                                  string currentJson)
         {
             var title = context.Title ?? string.Empty;
             var expectedResultParameterName = context.ExpectedResultParameterName;
@@ -40,21 +40,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Determine if schema mismatch or value differences
             var hasSchemaMismatch = differences.Any(item =>
-                item.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &&
-                item.MemberPath.EndsWith(']').IsFalse());
+                                                        item.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &&
+                                                        item.MemberPath.EndsWith(']').IsFalse());
 
             if (hasSchemaMismatch)
             {
                 // Schema mismatch output
                 var differenceTable = differences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
-                return outputFormatter.GetOutputString(
-                    title,
-                    "Schema mismatch: Expected result and current result does not match",
-                    expectedJson,
-                    currentJson,
-                    differenceTable,
-                    string.Empty);
+                return outputFormatter.GetOutputString(title,
+                                                       "Schema mismatch: Expected result and current result does not match",
+                                                       expectedJson,
+                                                       currentJson,
+                                                       differenceTable,
+                                                       string.Empty);
             }
 
             // Value differences output
@@ -62,13 +61,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 var resultTable = differences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
-                return outputFormatter.GetOutputString(
-                    title,
-                    $"Detected differences: {differences.Count}",
-                    expectedJson,
-                    currentJson,
-                    resultTable,
-                    string.Empty);
+                return outputFormatter.GetOutputString(title,
+                                                       $"Detected differences: {differences.Count}",
+                                                       expectedJson,
+                                                       currentJson,
+                                                       resultTable,
+                                                       string.Empty);
             }
 
             // Fallback: no differences (shouldn't happen)

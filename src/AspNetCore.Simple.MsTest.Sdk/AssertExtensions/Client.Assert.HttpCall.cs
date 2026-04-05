@@ -93,7 +93,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly IAssertOutputStrategy[] OutputStrategies = [ObjectOutputStrategy, HttpResponseOutputStrategy];
 
-        private static readonly AssertOutputStrategyResolver StrategyResolver = new(OutputStrategies);
+        private static readonly AssertOutputBuilder OutputBuilder = new(OutputStrategies);
 
         private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
                                                                   JsonDiffer,
@@ -102,7 +102,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   WriteResponseService,
                                                                   JsonSerializerInstance,
                                                                   JsonSerializerOptions,
-                                                                  StrategyResolver);
+                                                                  OutputBuilder);
 
         // Pipeline steps (replacing old strategies)
         private static readonly StatusCodeValidationStep StatusCodeValidationStep = new(SnapshotTestOutputBuilder);

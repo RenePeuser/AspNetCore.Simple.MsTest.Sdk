@@ -682,7 +682,7 @@
             All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IAssertOutputStrategyResolver)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IAssertOutputBuilder)">
             <summary>
             Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService"/> that contains the core assertion logic.
             This class encapsulates all dependencies needed for object assertions.
@@ -1457,17 +1457,16 @@
             Focuses on object differences without HTTP-specific information.
             </summary>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.IAssertOutputStrategyResolver">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.IAssertOutputBuilder">
             <summary>
-            Resolves the appropriate output strategy for a given assertion context
-            and builds the formatted output string.
+            Builds assertion failure output by resolving and delegating to the appropriate strategy.
             Ensures exactly one strategy matches - throws if zero or multiple strategies are found.
             Encapsulates both strategy resolution and output building.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IAssertOutputStrategyResolver.BuildOutput(AspNetCore.Simple.MsTest.Sdk.IObjectAssertContext,System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference},System.String,System.String)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.IAssertOutputBuilder.BuildOutput(AspNetCore.Simple.MsTest.Sdk.IObjectAssertContext,System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference},System.String,System.String)">
             <summary>
-            Resolves the appropriate strategy for the given context and builds the output.
+            Builds formatted assertion failure output using the appropriate strategy.
             </summary>
             <param name="context">The assertion context to build output for</param>
             <param name="differences">List of differences found</param>
@@ -1476,18 +1475,18 @@
             <returns>Formatted error message for Assert.Fail()</returns>
             <exception cref="T:System.InvalidOperationException">Thrown when zero or multiple strategies match</exception>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertOutputStrategyResolver">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertOutputBuilder">
             <summary>
-            Implementation of strategy resolution with strict single-match validation.
-            Follows the Strategy Pattern with explicit failure on ambiguous matches.
-            Encapsulates both strategy resolution and output building for clean consumption.
+            Implementation of assertion output building with strategy pattern.
+            Resolves the appropriate strategy based on context type and delegates output building.
+            Follows strict single-match validation with explicit failure on ambiguous matches.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertOutputStrategyResolver.#ctor(System.Collections.Generic.IEnumerable{AspNetCore.Simple.MsTest.Sdk.IAssertOutputStrategy})">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertOutputBuilder.#ctor(System.Collections.Generic.IEnumerable{AspNetCore.Simple.MsTest.Sdk.IAssertOutputStrategy})">
             <summary>
-            Implementation of strategy resolution with strict single-match validation.
-            Follows the Strategy Pattern with explicit failure on ambiguous matches.
-            Encapsulates both strategy resolution and output building for clean consumption.
+            Implementation of assertion output building with strategy pattern.
+            Resolves the appropriate strategy based on context type and delegates output building.
+            Follows strict single-match validation with explicit failure on ambiguous matches.
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpResponseOutputStrategy">

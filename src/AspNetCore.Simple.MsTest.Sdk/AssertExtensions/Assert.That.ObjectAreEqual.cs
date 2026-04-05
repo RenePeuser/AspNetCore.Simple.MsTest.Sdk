@@ -52,7 +52,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly IAssertOutputStrategy[] OutputStrategies = [ObjectOutputStrategy];
 
-        private static readonly AssertOutputStrategyResolver StrategyResolver = new(OutputStrategies);
+        private static readonly AssertOutputBuilder OutputBuilder = new(OutputStrategies);
 
         private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
                                                                   JsonDiffer,
@@ -61,7 +61,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   WriteResponseService,
                                                                   JsonSerializer,
                                                                   JsonSerializerOptions,
-                                                                  StrategyResolver);
+                                                                  OutputBuilder);
 
         // GlobalWriteResponse
         // NEW Env variable WriteResponse = true -> For Ai Usage

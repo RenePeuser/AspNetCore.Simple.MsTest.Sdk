@@ -68,7 +68,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         IWriteResponseService writeResponseService,
                                         JsonSerializer jsonSerializer,
                                         JsonSerializerOptions jsonSerializerOptions,
-                                        IAssertOutputStrategyResolver strategyResolver) : IAssertService
+                                        IAssertOutputBuilder outputBuilder) : IAssertService
     {
         public void ObjectsAreEqual<T>(ObjectAssertContext<T> context)
         {
@@ -129,7 +129,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #pragma warning restore CA1031
             {
                 // Use strategy resolver for error output
-                var error = strategyResolver.BuildOutput(context,
+                var error = outputBuilder.BuildOutput(context,
                                                         ImmutableList<Difference>.Empty,
                                                         expectedJson,
                                                         currentJson);
@@ -140,7 +140,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // 2. Validate deserialized object
-            var nullError = strategyResolver.BuildOutput(context,
+            var nullError = outputBuilder.BuildOutput(context,
                                                         ImmutableList<Difference>.Empty,
                                                         expectedJson,
                                                         "null");
@@ -190,7 +190,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (hasSchemaMismatch || filteredDifferences.Any())
             {
                 // Use strategy resolver to build comprehensive output
-                var error = strategyResolver.BuildOutput(context,
+                var error = outputBuilder.BuildOutput(context,
                                                         filteredDifferences,
                                                         expectedOrderedJson,
                                                         currentOrderedJson);
