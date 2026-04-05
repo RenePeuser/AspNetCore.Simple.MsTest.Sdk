@@ -39,7 +39,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         /// The response content with parameters resolved.
         /// Ready-to-use JSON string for deserialization or comparison.
         /// </summary>
-        public required string ResolvedParametersJsonString { get; init; }
+        public required string ContentAsStringParameterized { get; init; }
 
         /// <summary>
         /// The deserialized current result from the API call.

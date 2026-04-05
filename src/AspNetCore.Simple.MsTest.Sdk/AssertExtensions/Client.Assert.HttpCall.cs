@@ -212,6 +212,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Resolve parameters in payload once here - ready-to-use for HTTP call
             var resolvedPayload = ParameterReplacer.ResolveParameters(payloadFile.Content, parameters);
 
+            var resolvedExpectedJson = ParameterReplacer.ResolveParameters(expectedResultFile.Content, parameters);
+
             // URL parameter replacement - replace placeholders in URL with actual values
             // This is the only preprocessing needed here, all other logic is handled by AssertableHttpClient
             var resolvedUrl = ParameterReplacer.ReplaceInUrl(url, parameters);
@@ -237,8 +239,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               CurrentResultParameterName = "Current response",
                               PayloadFile = payloadFile,
                               ExpectedResultFile = expectedResultFile,
-                              ResolvedPayload = resolvedPayload
-                          };
+                              ResolvedPayload = resolvedPayload,
+                              ResolvedExpectedJson = resolvedExpectedJson
+            };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
 

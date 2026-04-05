@@ -65,7 +65,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public void ObjectsAreEqual<T>(ObjectAssertContext<T> context)
         {
             // Assumption: Context is fully prepared with ResolvedExpectedJson
-            var expectedJson = context.ResolvedExpectedJson ?? throw new InvalidOperationException("ResolvedExpectedJson must be set in context");
+            var expectedJson = context.ResolvedExpectedJson ?? string.Empty;
             var currentObject = context.Current;
 
             // 1. Serialize current object

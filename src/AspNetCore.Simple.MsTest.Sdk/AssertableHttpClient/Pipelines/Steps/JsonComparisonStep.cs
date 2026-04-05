@@ -123,14 +123,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             if (shouldWriteResponse)
             {
                 var writeResponseRequest = new WriteResponseRequest()
-                                           {
-                                               CallingAssembly = context.Request.CallingAssembly,
-                                               DifferenceFunc = context.Request.DifferenceFunc,
-                                               CurrentResponseAsString = currentResponseJson,
-                                               ExpectedResult = expectedResultFile,
-                                               Parameters = context.Request.Parameters,
-                                               Mode = ResponseWriteMode.DifferencesOnly
-                                           };
+                {
+                    CallingAssembly = context.Request.CallingAssembly,
+                    DifferenceFunc = context.Request.DifferenceFunc,
+                    CurrentResponseAsString = currentResponseJson,
+                    ExpectedResult = expectedResultFile,
+                    Parameters = context.Request.Parameters,
+                    Mode = ResponseWriteMode.DifferencesOnly
+                };
 
                 responseWriter.Write(writeResponseRequest);
             }
@@ -147,23 +147,24 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Build context for AssertService
             var objectAssertContext = new HttpAssertContext<SimpleHttpResponseMessage>
-                                      {
-                                          ExpectedResultFile = expectedResultFile,
-                                          ExpectedObjectAsJson = expectedObjectAsJson,
-                                          Current = currentResponse,
-                                          OrderFunc = item => item, // Order func was executed already on the primitive type level
-                                          DifferenceFunc = context.Request.DifferenceFunc,
-                                          Parameters = context.Request.Parameters,
-                                          CallingAssembly = context.Request.CallingAssembly,
-                                          WriteResponse = context.Request.WriteResponse,
-                                          Title = string.Empty,
-                                          CallerFilePath = context.Request.CallerFilePath,
-                                          ExpectedResultParameterName = context.Request.ExpectedResultParameterName,
-                                          CurrentResultParameterName = context.Request.CurrentResultParameterName,
-                                          Client = context.Request.Client,
-                                          Url = context.Request.Url,
-                                          HttpMethod = context.Request.HttpMethod,
-                                      };
+            {
+                ExpectedResultFile = expectedResultFile,
+                ExpectedObjectAsJson = expectedObjectAsJson,
+                Current = currentResponse,
+                OrderFunc = item => item, // Order func was executed already on the primitive type level
+                DifferenceFunc = context.Request.DifferenceFunc,
+                Parameters = context.Request.Parameters,
+                CallingAssembly = context.Request.CallingAssembly,
+                WriteResponse = context.Request.WriteResponse,
+                Title = string.Empty,
+                CallerFilePath = context.Request.CallerFilePath,
+                ExpectedResultParameterName = context.Request.ExpectedResultParameterName,
+                CurrentResultParameterName = context.Request.CurrentResultParameterName,
+                Client = context.Request.Client,
+                Url = context.Request.Url,
+                HttpMethod = context.Request.HttpMethod,
+                ResolvedExpectedJson = context.Request.ResolvedExpectedJson,
+            };
 
             // Delegate to AssertService for value comparison
             assertService.ObjectsAreEqual(objectAssertContext);
@@ -180,13 +181,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             var contentHeaders = context.HttpResponseMessage.Content.Headers.ToJson(jsonSerializerOptions).FromJsonStringAs<ImmutableList<KeyValuePair<string, ImmutableList<string>>>>(jsonSerializerOptions);
 
             var currentResolvedSimpleHttpResponse = simpleHttpResponseMessage with
-                                                    {
-                                                        Content = new SimpleHttpContent
-                                                                  {
-                                                                      Headers = contentHeaders,
-                                                                      Value = context.IsExpectedStatusCode ? filteredCurrentResult : context.ResolvedParametersJsonString.Trim('"')
-                                                                  }
-                                                    };
+            {
+                Content = new SimpleHttpContent
+                {
+                    Headers = contentHeaders,
+                    Value = context.IsExpectedStatusCode ? filteredCurrentResult : context.ContentAsStringParameterized.Trim('"')
+                }
+            };
 
             string? expectedResultAsJson;
 
@@ -221,18 +222,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                                                         TResult? filteredCurrentResult)
         {
             return simpleHttpResponseMessage with
-                   {
-                       Content = simpleHttpResponseMessage.Content.IsNull()
+            {
+                Content = simpleHttpResponseMessage.Content.IsNull()
                                      ? new SimpleHttpContent()
-                                       {
-                                           Value = simpleHttpResponseMessage,
-                                           Headers = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty
-                                       }
+                                     {
+                                         Value = simpleHttpResponseMessage,
+                                         Headers = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty
+                                     }
                                      : simpleHttpResponseMessage.Content with
-                                       {
-                                           Value = JsonDocument.Parse(context.ContentAsString).RootElement,
-                                       }
-                   };
+                                     {
+                                         Value = JsonDocument.Parse(context.ContentAsString).RootElement,
+                                     }
+            };
         }
 
         private SimpleHttpResponseMessage BuildExpectedResponse<TResult>(HttpResponseContext<TResult> context,
@@ -257,13 +258,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             if (expectedResultAsSimpleResponse.IsNull() || expectedResultAsSimpleResponse.Content.IsNull())
             {
                 expectedResultAsSimpleResponse = simpleHttpResponseMessage with
-                                                 {
-                                                     Content = new SimpleHttpContent
-                                                               {
-                                                                   Headers = contentHeaders,
-                                                                   Value = expectedResultFile.Content.EqualsTo(IgnoreResponseComparison) ? filteredCurrentResult : filteredExpectedType
-                                                               }
-                                                 };
+                {
+                    Content = new SimpleHttpContent
+                    {
+                        Headers = contentHeaders,
+                        Value = expectedResultFile.Content.EqualsTo(IgnoreResponseComparison) ? filteredCurrentResult : filteredExpectedType
+                    }
+                };
             }
 
             // Fallback for AssertPostAsync and AssertPostAsErrorAsync
