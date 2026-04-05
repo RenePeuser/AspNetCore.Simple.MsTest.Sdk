@@ -24,6 +24,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         string Build<TResult>(HttpResponseContext<TResult> context,
                               ImmutableList<Difference> differences);
+
+        /// <summary>
+        /// Builds test information section from HTTP response context interface.
+        /// Non-generic overload for use with IHttpResponseContext.
+        /// </summary>
+        string Build(IHttpResponseContext context,
+                    ImmutableList<Difference> differences);
     }
 
     internal sealed class TestInfoBuilder : ITestInfoBuilder
@@ -31,8 +38,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public string Build<TResult>(HttpResponseContext<TResult> context,
                                      ImmutableList<Difference> differences)
         {
-            var projectName = context.Request.CallingAssembly.GetName().Name ?? "Unknown";
-            var classPath = context.Request.CallerFilePath;
+            return Build((IHttpResponseContext)context, differences);
+        }
+
+        public string Build(IHttpResponseContext context,
+                           ImmutableList<Difference> differences)
+        {
+            var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
+            var classPath = context.CallerFilePath;
             var snapshot = GetSnapshotName(context);
             var errorCount = differences.Count;
             var errorTypes = differences.Select(d => d.MismatchType).Distinct().ToList();
@@ -58,10 +71,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return stringBuilder.ToString();
         }
 
-        private static string GetSnapshotName<TResult>(HttpResponseContext<TResult> context)
+        private static string GetSnapshotName(IHttpResponseContext context)
         {
             // Prefer ExpectedResult file name
-            var expectedFileName = context.Request.ExpectedResultFile.EmbeddedFileName;
+            var expectedFileName = context.ExpectedResultFile.EmbeddedFileName;
 
             if (expectedFileName.IsNotNullOrWhiteSpace())
             {
@@ -69,7 +82,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // Fallback to Payload file name
-            var payloadFileName = context.Request.PayloadFile?.EmbeddedFileName;
+            var payloadFileName = context.PayloadFile?.EmbeddedFileName;
 
             if (payloadFileName.IsNotNullOrWhiteSpace())
             {

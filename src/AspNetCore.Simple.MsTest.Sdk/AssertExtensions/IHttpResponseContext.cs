@@ -1,60 +1,53 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http;
 
-namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
-    /// Contains minimal HTTP response data for assertion processing.
-    /// The HttpResponseMessage is kept alive during pipeline execution - steps can access it directly.
-    /// Follows lazy evaluation: steps extract only the data they need.
+    /// Represents an HTTP response context that extends HTTP assert context with response-specific data.
+    /// This interface provides access to both request information (via IHttpAssertContext)
+    /// and response information (status code, response message, etc.).
+    /// Contains all non-generic response properties - generic properties remain in HttpResponseContext&lt;TResult&gt;.
     /// </summary>
-    /// <typeparam name="TResult">The type of the deserialized response</typeparam>
-    public record HttpResponseContext<TResult> : HttpAssertContext<TResult>, IHttpResponseContext
+    public interface IHttpResponseContext : IHttpAssertContext
     {
         /// <summary>
         /// The raw HTTP response message.
         /// IMPORTANT: This is still alive during pipeline execution (disposed after pipeline completes).
         /// Steps can access headers, status code, content, etc. directly.
         /// </summary>
-        public required HttpResponseMessage HttpResponseMessage { get; init; }
+        HttpResponseMessage HttpResponseMessage { get; }
 
         /// <summary>
         /// The HTTP status code from the response (cached for quick access).
         /// </summary>
-        public required HttpStatusCode HttpStatusCode { get; init; }
+        HttpStatusCode HttpStatusCode { get; }
 
         /// <summary>
         /// The raw response content as string (before parameter replacement).
         /// Pre-read from HttpResponseMessage.Content.ReadAsStringAsync() to avoid multiple reads.
         /// </summary>
-        public required string ContentAsString { get; init; }
+        string ContentAsString { get; }
 
         /// <summary>
         /// The response content with parameters resolved.
         /// Ready-to-use JSON string for deserialization or comparison.
         /// </summary>
-        public required string ContentAsStringParameterized { get; init; }
-
-        /// <summary>
-        /// The deserialized current result from the API call.
-        /// This is the original, unmodified response that will be returned to the user.
-        /// Can be null if deserialization fails or response is empty.
-        /// </summary>
-        public required TResult? CurrentResult { get; init; }
+        string ContentAsStringParameterized { get; }
 
         /// <summary>
         /// Indicates whether the status code matches expectations.
         /// true = response.IsSuccessStatusCode == context.IsSuccessStatusCode
         /// false = unexpected status code (will trigger fast-fail in StatusCodeValidationStep)
         /// </summary>
-        public required bool IsExpectedStatusCode { get; init; }
+        bool IsExpectedStatusCode { get; }
 
         /// <summary>
         /// The absolute URL that was called (resolved from HttpResponseMessage.RequestUri).
         /// Used for output formatting and debugging.
         /// </summary>
 #pragma warning disable CA1056 // URI properties should not be strings - kept as string for compatibility with existing formatters
-        public required string AbsoluteUrl { get; init; }
+        string AbsoluteUrl { get; }
 #pragma warning restore CA1056
     }
 }

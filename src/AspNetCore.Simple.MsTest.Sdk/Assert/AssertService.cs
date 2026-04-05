@@ -28,9 +28,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddWriteResponseService();
             services.AddJsonSerializer();
 
+            // 2. Register output strategies
+            services.AddObjectOutputStrategy();
+            services.AddHttpResponseOutputStrategy();
+
+            // 3. Register output builder
+            services.AddAssertOutputBuilder();
+
             // Note: IEmbeddedFileLocalizer registration requires IConfiguration and should be done at app startup
 
-            // 2. Register the service itself
+            // 4. Register the service itself
             services.AddSingletonIfNotExists<IAssertService, AssertService>();
         }
     }
@@ -60,7 +67,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         IResponseWriter responseWriter,
                                         IWriteResponseService writeResponseService,
                                         JsonSerializer jsonSerializer,
-                                        JsonSerializerOptions jsonSerializerOptions) : IAssertService
+                                        JsonSerializerOptions jsonSerializerOptions,
+                                        IAssertOutputStrategyResolver strategyResolver) : IAssertService
     {
         public void ObjectsAreEqual<T>(ObjectAssertContext<T> context)
         {
@@ -79,7 +87,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 3. Handle primitive types vs. complex objects
             var type = typeof(T);
-
             if (type.IsPrimitive || type == typeof(string))
             {
                 HandlePrimitiveComparison(context, expectedJson, currentJson);
@@ -121,24 +128,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
             catch (Exception e)
 #pragma warning restore CA1031
             {
-                var error = outputFormatter.GetOutputString(title,
-                                                            $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Exception: {e.Message}",
-                                                            expectedJson,
-                                                            currentJson,
-                                                            string.Empty);
+                // Use strategy resolver for error output
+                var error = strategyResolver.BuildOutput(context,
+                                                        ImmutableList<Difference>.Empty,
+                                                        expectedJson,
+                                                        currentJson);
 
-                Assert.Fail(error);
+                Assert.Fail($"{title}\n\nThe given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Exception: {e.Message}\n\n{error}");
 
                 return; // Unreachable, but helps compiler
             }
 
             // 2. Validate deserialized object
-            var nullError = outputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}",
-                                                            expectedJson,
-                                                            null,
-                                                            string.Empty);
+            var nullError = strategyResolver.BuildOutput(context,
+                                                        ImmutableList<Difference>.Empty,
+                                                        expectedJson,
+                                                        "null");
 
-            Assert.IsNotNull(expectedObject, nullError);
+            Assert.IsNotNull(expectedObject, $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}\n\n{nullError}");
 
             // 3. Apply ordering function
             var orderedExpected = context.OrderFunc(expectedObject);
@@ -179,34 +186,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 responseWriter.Write(context, currentOrderedJson, context.ExpectedResultFile);
             }
 
-            // 9. Assert schema matches
-            if (hasSchemaMismatch)
+            // 9. Assert schema matches or values match
+            if (hasSchemaMismatch || filteredDifferences.Any())
             {
-                var differenceTable = filteredDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
+                // Use strategy resolver to build comprehensive output
+                var error = strategyResolver.BuildOutput(context,
+                                                        filteredDifferences,
+                                                        expectedOrderedJson,
+                                                        currentOrderedJson);
 
-                var schemaError = outputFormatter.GetOutputString(title,
-                                                                  "Schema mismatch: Expected result and current result does not match",
-                                                                  expectedOrderedJson,
-                                                                  currentOrderedJson,
-                                                                  differenceTable,
-                                                                  string.Empty);
-
-                Assert.Fail(schemaError);
-            }
-
-            // 10. Assert values match
-            if (filteredDifferences.Any())
-            {
-                var resultTable = filteredDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
-
-                var valueError = outputFormatter.GetOutputString(title,
-                                                                 $"Detected differences: {filteredDifferences.Count}",
-                                                                 expectedOrderedJson,
-                                                                 currentOrderedJson,
-                                                                 resultTable,
-                                                                 string.Empty);
-
-                Assert.Fail(valueError);
+                Assert.Fail(error);
             }
         }
     }

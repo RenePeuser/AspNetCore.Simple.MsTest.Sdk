@@ -22,11 +22,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Uses ConsoleTables for formatting.
         /// </summary>
         string Build<TResult>(HttpResponseContext<TResult> context);
+
+        /// <summary>
+        /// Builds HTTP call information table from HTTP response context interface.
+        /// Non-generic overload for use with IHttpResponseContext.
+        /// </summary>
+        string Build(IHttpResponseContext context);
     }
 
     internal sealed class HttpCallInfoTableBuilder : IHttpCallInfoTableBuilder
     {
         public string Build<TResult>(HttpResponseContext<TResult> context)
+        {
+            // Delegate to non-generic implementation
+            return Build((IHttpResponseContext)context);
+        }
+
+        public string Build(IHttpResponseContext context)
         {
             var table = new ConsoleTable { Options = { EnableCount = false } };
 
@@ -34,7 +46,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             table.AddColumn(new[] { "HttpMethod", "Url", "HttpStatusCode" });
 
             // Add data row
-            var httpMethod = context.Request.HttpMethod.Method;
+            var httpMethod = context.HttpMethod.Method;
             var url = context.AbsoluteUrl;
             var statusCode = $"{(int)context.HttpStatusCode} {context.HttpStatusCode}";
 

@@ -47,13 +47,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly Serializer.Json.JsonSerializer JsonSerializer = new(JsonSerializerOptions);
 
+        // Output strategies for AssertService
+        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(OutputFormatter);
+
+        private static readonly IAssertOutputStrategy[] OutputStrategies = [ObjectOutputStrategy];
+
+        private static readonly AssertOutputStrategyResolver StrategyResolver = new(OutputStrategies);
+
         private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
                                                                   JsonDiffer,
                                                                   OutputFormatter,
                                                                   ResponseWriter,
                                                                   WriteResponseService,
                                                                   JsonSerializer,
-                                                                  JsonSerializerOptions);
+                                                                  JsonSerializerOptions,
+                                                                  StrategyResolver);
 
         // GlobalWriteResponse
         // NEW Env variable WriteResponse = true -> For Ai Usage

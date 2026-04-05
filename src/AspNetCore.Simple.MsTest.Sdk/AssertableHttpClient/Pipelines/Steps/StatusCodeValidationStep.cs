@@ -37,10 +37,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Status code mismatch - build error message and fail fast
             // Get expected result for comparison (simplified, no complex processing)
-            var expectedJson = context.Request.ExpectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(context.ContentAsString,
-                                                                                                              context.Request.CallingAssembly,
-                                                                                                              string.Empty,
-                                                                                                              context.Request.ExpectedResultParameterName) ?? string.Empty;
+            var expectedJson = context.ExpectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(context.ContentAsString,
+                                                                                                      context.CallingAssembly,
+                                                                                                      string.Empty,
+                                                                                                      context.ExpectedResultParameterName) ?? string.Empty;
 
             var currentJson = context.ContentAsString;
 

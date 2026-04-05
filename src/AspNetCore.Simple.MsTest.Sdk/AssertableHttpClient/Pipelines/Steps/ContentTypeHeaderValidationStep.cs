@@ -32,7 +32,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         /// <inheritdoc />
         public void Execute<TResult>(HttpResponseContext<TResult> context)
         {
-            var expectedResultFile = context.Request.ExpectedResultFile;
+            var expectedResultFile = context.ExpectedResultFile;
 
             // Skip validation if IgnoreResponse marker is present
             if (expectedResultFile.Content.Contains(IgnoreResponseComparison))

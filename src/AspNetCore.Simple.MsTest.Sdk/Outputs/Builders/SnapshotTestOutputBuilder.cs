@@ -37,6 +37,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               ImmutableList<Difference> differences,
                               string expectedJson,
                               string currentJson);
+
+        /// <summary>
+        /// Builds complete snapshot test failure output from HTTP response context interface.
+        /// Non-generic overload for use with IHttpResponseContext.
+        /// </summary>
+        string Build(IHttpResponseContext context,
+                    ImmutableList<Difference> differences,
+                    string expectedJson,
+                    string currentJson);
     }
 
     internal sealed class SnapshotTestOutputBuilder(ITestInfoBuilder testInfoBuilder,
@@ -50,6 +59,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      ImmutableList<Difference> differences,
                                      string expectedJson,
                                      string currentJson)
+        {
+            return Build((IHttpResponseContext)context, differences, expectedJson, currentJson);
+        }
+
+        public string Build(IHttpResponseContext context,
+                           ImmutableList<Difference> differences,
+                           string expectedJson,
+                           string currentJson)
         {
             var stringBuilder = new StringBuilder();
 

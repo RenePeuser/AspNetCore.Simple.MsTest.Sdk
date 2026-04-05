@@ -26,7 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public void PrintCurl<TResult>(AssertableHttpClient.HttpResponseContext<TResult> context)
         {
-            if (context.Request.CallingAssembly.IsCompiledInDebug().IsFalse())
+            if (context.CallingAssembly.IsCompiledInDebug().IsFalse())
             {
                 return;
             }

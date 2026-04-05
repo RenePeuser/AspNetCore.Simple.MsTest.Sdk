@@ -68,14 +68,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly JsonSerializer JsonSerializerInstance = new(JsonSerializerOptions);
 
-        private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
-                                                                  JsonDiffer,
-                                                                  OutputFormatter,
-                                                                  ResponseWriter,
-                                                                  WriteResponseService,
-                                                                  JsonSerializerInstance,
-                                                                  JsonSerializerOptions);
-
         // Snapshot Test Output Builder (replaces OutputFormatter in pipeline steps)
         private static readonly TestInfoBuilder TestInfoBuilder = new();
 
@@ -93,6 +85,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                           JsonSectionBuilder,
                                                                                           CurlBuilder,
                                                                                           CurlFormatterInstance);
+
+        // Output strategies for AssertService
+        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(OutputFormatter);
+
+        private static readonly HttpResponseOutputStrategy HttpResponseOutputStrategy = new(SnapshotTestOutputBuilder);
+
+        private static readonly IAssertOutputStrategy[] OutputStrategies = [ObjectOutputStrategy, HttpResponseOutputStrategy];
+
+        private static readonly AssertOutputStrategyResolver StrategyResolver = new(OutputStrategies);
+
+        private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
+                                                                  JsonDiffer,
+                                                                  OutputFormatter,
+                                                                  ResponseWriter,
+                                                                  WriteResponseService,
+                                                                  JsonSerializerInstance,
+                                                                  JsonSerializerOptions,
+                                                                  StrategyResolver);
 
         // Pipeline steps (replacing old strategies)
         private static readonly StatusCodeValidationStep StatusCodeValidationStep = new(SnapshotTestOutputBuilder);

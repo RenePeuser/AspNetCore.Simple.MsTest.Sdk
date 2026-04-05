@@ -24,11 +24,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Uses the actual request from HttpResponseMessage (includes all headers, query params, etc.).
         /// </summary>
         string BuildFrom<TResult>(HttpResponseContext<TResult> context);
+
+        /// <summary>
+        /// Builds a curl command from HTTP response context interface.
+        /// Non-generic overload for use with IHttpResponseContext.
+        /// </summary>
+        string BuildFrom(IHttpResponseContext context);
     }
 
     internal sealed class CurlBuilder : ICurlBuilder
     {
         public string BuildFrom<TResult>(HttpResponseContext<TResult> context)
+        {
+            return BuildFrom((IHttpResponseContext)context);
+        }
+
+        public string BuildFrom(IHttpResponseContext context)
         {
             var httpRequestMessage = context.HttpResponseMessage.RequestMessage;
 
@@ -37,10 +48,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return string.Empty;
             }
 
-            var payloadAsJson = context.Request.ResolvedPayload ?? context.Request.PayloadAsJson ?? string.Empty;
-            var authenticationHeaderValue = context.Request.Client.DefaultRequestHeaders.Authorization;
-            var assembly = context.Request.CallingAssembly;
-            var showTokenInCurl = context.Request.ShowTokenInCurl;
+            var payloadAsJson = context.ResolvedPayload ?? context.PayloadAsJson ?? string.Empty;
+            var authenticationHeaderValue = context.Client.DefaultRequestHeaders.Authorization;
+            var assembly = context.CallingAssembly;
+            var showTokenInCurl = context.ShowTokenInCurl;
 
             var curl = BuildCurl(httpRequestMessage, payloadAsJson, authenticationHeaderValue,
                                  assembly, showTokenInCurl).Flatten(@$" \{Environment.NewLine}");
