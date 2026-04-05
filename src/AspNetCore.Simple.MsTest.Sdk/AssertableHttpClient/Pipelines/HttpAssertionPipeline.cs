@@ -12,10 +12,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         public static void AddHttpAssertionPipeline(this IServiceCollection services)
         {
             // Register steps in execution order
-            services.AddStatusCodeValidationStep();         // 1. Status code must match expectations
-            services.AddContentTypeHeaderValidationStep();  // 2. Content-Type header must be application/json
-            services.AddContentFormatValidationStep();      // 3. Content body must be valid JSON structure
-            services.AddJsonComparisonStep();               // 4. JSON comparison (schema + values)
+            services.AddStatusCodeValidationStep(); // 1. Status code must match expectations
+            services.AddContentTypeHeaderValidationStep(); // 2. Content-Type header must be application/json
+            services.AddContentFormatValidationStep(); // 3. Content body must be valid JSON structure
+            services.AddJsonComparisonStep(); // 4. JSON comparison (schema + values)
 
             // Register the pipeline itself
             services.AddSingletonIfNotExists<IHttpAssertionPipeline, HttpAssertionPipeline>();

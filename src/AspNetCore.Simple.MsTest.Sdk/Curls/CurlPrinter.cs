@@ -14,39 +14,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     internal interface ICurlPrinter
     {
-        void PrintCurl(Assembly callingAssembly,
-                       string curl);
-
         /// <summary>
-        /// Prints the curl command using the HTTP context's properties.
-        /// This is the preferred method for context-based operations.
-        /// Requires the context to have curl information available.
+        /// Prints the curl command from HTTP response context.
+        /// Only prints in DEBUG mode.
         /// </summary>
-        void PrintCurl(IHttpAssertContext context);
+        void PrintCurl<TResult>(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext<TResult> context);
     }
 
     internal sealed class CurlPrinter(ICurlFormatter curlFormatter,
                                       ICurlBuilder curlBuilder) : ICurlPrinter
     {
-        public void PrintCurl(Assembly callingAssembly,
-                              string curl)
+        public void PrintCurl<TResult>(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext<TResult> context)
         {
-            if (callingAssembly.IsCompiledInDebug().IsFalse())
-            {
-                return;
-            }
-
-            var curlAsString = curlFormatter.GetCurlAsFormattedString(curl);
-
-            if (curlAsString.IsNotNullOrWhiteSpace())
-            {
-                HttpClientAssertExtensions.LogAction(curlAsString);
-            }
-        }
-
-        public void PrintCurl(IHttpAssertContext context)
-        {
-            if (context.CallingAssembly.IsCompiledInDebug().IsFalse())
+            if (context.Request.CallingAssembly.IsCompiledInDebug().IsFalse())
             {
                 return;
             }

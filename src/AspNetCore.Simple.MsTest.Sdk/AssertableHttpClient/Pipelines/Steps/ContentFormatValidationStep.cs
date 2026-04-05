@@ -63,8 +63,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Content body is not valid JSON structure - fail with clear error
             var contentPreview = trimmedContent.Length > 100
-                ? string.Concat(trimmedContent.AsSpan(0, 100), "...")
-                : trimmedContent;
+                                     ? string.Concat(trimmedContent.AsSpan(0, 100), "...")
+                                     : trimmedContent;
 
             var errorOutput = outputFormatter.GetOutputString(string.Empty,
                                                               "Response body is not valid JSON. Expected content starting with '{' or '[' but got different format.",

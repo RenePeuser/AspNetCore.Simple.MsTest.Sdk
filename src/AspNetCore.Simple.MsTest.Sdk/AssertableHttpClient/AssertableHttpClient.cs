@@ -74,24 +74,25 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // Deserialize the response to TResult (this is what the user gets back - never modified!)
             var targetType = typeof(TResult);
             var targetIsPrimitiveType = targetType.IsPrimitive || targetType.EqualsTo(typeof(string));
+
             var currentResult = targetIsPrimitiveType
-                ? primitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString)
-                : resolvedParametersJsonString.IsNullOrWhiteSpace()
-                    ? "{}".FromJsonStringAs<TResult>(jsonSerializerOptions)
-                    : resolvedParametersJsonString.FromJsonStringAs<TResult>(jsonSerializerOptions);
+                                    ? primitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString)
+                                    : resolvedParametersJsonString.IsNullOrWhiteSpace()
+                                        ? "{}".FromJsonStringAs<TResult>(jsonSerializerOptions)
+                                        : resolvedParametersJsonString.FromJsonStringAs<TResult>(jsonSerializerOptions);
 
             // Build context with deserialized result - HttpResponseMessage stays alive until pipeline completes
             var responseContext = new HttpResponseContext<TResult>
-            {
-                Request = context,
-                HttpResponseMessage = httpResponseMessage,
-                HttpStatusCode = httpResponseMessage.StatusCode,
-                ContentAsString = contentAsString,
-                ResolvedParametersJsonString = resolvedParametersJsonString,
-                CurrentResult = currentResult,
-                IsExpectedStatusCode = isExpectedStatusCode,
-                AbsoluteUrl = absoluteUrl
-            };
+                                  {
+                                      Request = context,
+                                      HttpResponseMessage = httpResponseMessage,
+                                      HttpStatusCode = httpResponseMessage.StatusCode,
+                                      ContentAsString = contentAsString,
+                                      ResolvedParametersJsonString = resolvedParametersJsonString,
+                                      CurrentResult = currentResult,
+                                      IsExpectedStatusCode = isExpectedStatusCode,
+                                      AbsoluteUrl = absoluteUrl
+                                  };
 
             // Delegate to pipeline - steps only validate, never modify the result
             // Pipeline returns context.CurrentResult (the original deserialized response)

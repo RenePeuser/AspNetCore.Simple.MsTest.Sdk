@@ -95,9 +95,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly HttpAssertionPipeline HttpAssertionPipeline = new(new IHttpAssertionStep[]
                                                                                   {
-                                                                                      StatusCodeValidationStep,
-                                                                                      ContentTypeHeaderValidationStep,
-                                                                                      ContentFormatValidationStep,
+                                                                                      StatusCodeValidationStep, ContentTypeHeaderValidationStep, ContentFormatValidationStep,
                                                                                       JsonComparisonStep
                                                                                   });
 
