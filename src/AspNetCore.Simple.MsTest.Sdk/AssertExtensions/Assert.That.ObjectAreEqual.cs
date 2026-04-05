@@ -53,8 +53,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   ResponseWriter,
                                                                   WriteResponseService,
                                                                   JsonSerializer,
-                                                                  JsonSerializerOptions,
-                                                                  ParameterReplacer);
+                                                                  JsonSerializerOptions);
 
         // GlobalWriteResponse
         // NEW Env variable WriteResponse = true -> For Ai Usage

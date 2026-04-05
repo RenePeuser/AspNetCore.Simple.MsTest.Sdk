@@ -197,7 +197,7 @@
             </summary>
         </member>
         <member
-            name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentFormatValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IOutputFormatter)">
+            name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentFormatValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder)">
             <summary>
                 Validates that the response body content is structurally valid JSON.
                 Checks that content starts with '{' (object) or '[' (array).
@@ -222,7 +222,7 @@
             </summary>
         </member>
         <member
-            name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentTypeHeaderValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IOutputFormatter)">
+            name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentTypeHeaderValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder)">
             <summary>
                 Validates that the Content-Type HTTP header indicates JSON content.
                 This prevents attempting to parse binary data (images, PDFs, etc.) as JSON.
@@ -247,7 +247,7 @@
             </summary>
         </member>
         <member
-            name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.JsonComparisonStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.IAssertService,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer,System.Text.Json.JsonSerializerOptions)">
+            name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.JsonComparisonStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.IAssertService,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer,System.Text.Json.JsonSerializerOptions)">
             <summary>
                 Compares the JSON response against expected JSON.
                 Handles both schema mismatches and value differences in a single step.
@@ -272,7 +272,7 @@
             </summary>
         </member>
         <member
-            name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.StatusCodeValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IOutputFormatter)">
+            name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.StatusCodeValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder)">
             <summary>
                 Validates that the HTTP status code matches expectations.
                 Fast-fail step: if the status code is unexpected, the test fails immediately.
@@ -682,7 +682,7 @@
             </summary>
         </member>
         <member
-            name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer)">
+            name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions)">
             <summary>
                 Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService" /> that contains the core assertion logic.
                 This class encapsulates all dependencies needed for object assertions.
@@ -1296,6 +1296,17 @@
                 Builds current JSON section with label.
                 Format: "CURRENT JSON (copy/paste):\n\n{json}"
             </summary>
+        </member>
+        <member
+            name="M:AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder.Build``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0},System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference},System.String,System.String)">
+            <summary>
+                Builds complete snapshot test failure output.
+                Combines all sections: TestInfo, HTTP Call, Differences, Expected/Current JSON, Curl.
+            </summary>
+            <param name="context">HTTP response context with all request/response data</param>
+            <param name="differences">List of differences found (can be empty)</param>
+            <param name="expectedJson">Expected JSON string (already prepared by step)</param>
+            <param name="currentJson">Current/actual JSON string (already prepared by step)</param>
         </member>
         <member
             name="M:AspNetCore.Simple.MsTest.Sdk.ITestInfoBuilder.Build``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0},System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference})">

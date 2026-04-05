@@ -1,4 +1,5 @@
-﻿using Extensions.Pack;
+﻿using System.Collections.Immutable;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
@@ -11,7 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         public static void AddStatusCodeValidationStep(this IServiceCollection services)
         {
             // 1. Register dependencies
-            services.AddOutputFormatter();
+            services.AddSnapshotTestOutputBuilder();
 
             // 2. Register the step itself
             services.AddSingletonIfNotExists<IHttpAssertionStep, StatusCodeValidationStep>();
@@ -23,7 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
     /// Fast-fail step: if the status code is unexpected, the test fails immediately.
     /// This step replaces the UnexpectedStatusCodeStrategy.
     /// </summary>
-    internal sealed class StatusCodeValidationStep(IOutputFormatter outputFormatter) : IHttpAssertionStep
+    internal sealed class StatusCodeValidationStep(ISnapshotTestOutputBuilder snapshotTestOutputBuilder) : IHttpAssertionStep
     {
         /// <inheritdoc />
         public void Execute<TResult>(HttpResponseContext<TResult> context)
@@ -35,23 +36,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             }
 
             // Status code mismatch - build error message and fail fast
-            var errorInfo = context.Request.IsSuccessStatusCode
-                                ? $"You expect an OK result but the response was {context.HttpStatusCode}. Please check implementation or your expected response"
-                                : $"You expect an ERROR result but the response was {context.HttpStatusCode}. Please check implementation or your expected response";
-
             // Get expected result for comparison (simplified, no complex processing)
-            var simpleExpectedResult = context.Request.ExpectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(context.ContentAsString,
-                                                                                                                      context.Request.CallingAssembly,
-                                                                                                                      string.Empty,
-                                                                                                                      context.Request.ExpectedResultParameterName);
+            var expectedJson = context.Request.ExpectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(context.ContentAsString,
+                                                                                                              context.Request.CallingAssembly,
+                                                                                                              string.Empty,
+                                                                                                              context.Request.ExpectedResultParameterName) ?? string.Empty;
 
-            // Format output for assertion failure
-            var errorOutput = outputFormatter.GetOutputString(string.Empty,
-                                                              errorInfo,
-                                                              simpleExpectedResult,
-                                                              context.ContentAsString,
-                                                              string.Empty,
-                                                              string.Empty);
+            var currentJson = context.ContentAsString;
+
+            // Build differences list (empty for now - status code mismatch is conceptual, not JSON diff)
+            var differences = ImmutableList<Difference>.Empty;
+
+            // Build complete snapshot test output
+            var errorOutput = snapshotTestOutputBuilder.Build(context, differences, expectedJson,
+                                                              currentJson);
 
             // Fail immediately - no response writing, no further processing
             Assert.Fail(errorOutput);

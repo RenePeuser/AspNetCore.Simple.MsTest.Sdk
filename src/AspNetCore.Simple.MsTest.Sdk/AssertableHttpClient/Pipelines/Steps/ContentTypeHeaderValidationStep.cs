@@ -1,4 +1,5 @@
-﻿using System.Net.Mime;
+﻿using System.Collections.Immutable;
+using System.Net.Mime;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         public static void AddContentTypeHeaderValidationStep(this IServiceCollection services)
         {
             // 1. Register dependencies
-            services.AddOutputFormatter();
+            services.AddSnapshotTestOutputBuilder();
 
             // 2. Register the step itself
             services.AddSingletonIfNotExists<IHttpAssertionStep, ContentTypeHeaderValidationStep>();
@@ -24,7 +25,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
     /// This prevents attempting to parse binary data (images, PDFs, etc.) as JSON.
     /// Checks the Content-Type header value for application/json.
     /// </summary>
-    internal sealed class ContentTypeHeaderValidationStep(IOutputFormatter outputFormatter) : IHttpAssertionStep
+    internal sealed class ContentTypeHeaderValidationStep(ISnapshotTestOutputBuilder snapshotTestOutputBuilder) : IHttpAssertionStep
     {
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
@@ -65,12 +66,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             }
 
             // Content-Type header indicates non-JSON content - fail early to avoid parsing binary data
-            var errorOutput = outputFormatter.GetOutputString(string.Empty,
-                                                              $"Content-Type header mismatch: Expected '{MediaTypeNames.Application.Json}' but got '{contentTypeHeader}'. Cannot parse non-JSON content.",
-                                                              expectedResultFile.Content,
-                                                              $"Content-Type: {contentTypeHeader}",
-                                                              string.Empty,
-                                                              string.Empty);
+            var expectedJson = expectedResultFile.Content;
+            var currentJson = $"Content-Type: {contentTypeHeader}";
+            var differences = ImmutableList<Difference>.Empty;
+
+            var errorOutput = snapshotTestOutputBuilder.Build(context,
+                                                              differences,
+                                                              expectedJson,
+                                                              currentJson);
 
             Assert.Fail(errorOutput);
         }

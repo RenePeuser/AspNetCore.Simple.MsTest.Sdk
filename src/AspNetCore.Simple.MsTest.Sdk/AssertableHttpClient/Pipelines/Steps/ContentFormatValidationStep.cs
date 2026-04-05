@@ -1,4 +1,5 @@
-﻿using Extensions.Pack;
+﻿using System.Collections.Immutable;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
@@ -11,7 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         public static void AddContentFormatValidationStep(this IServiceCollection services)
         {
             // 1. Register dependencies
-            services.AddOutputFormatter();
+            services.AddSnapshotTestOutputBuilder();
 
             // 2. Register the step itself
             services.AddSingletonIfNotExists<IHttpAssertionStep, ContentFormatValidationStep>();
@@ -23,7 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
     /// Checks that content starts with '{' (object) or '[' (array).
     /// This step runs after ContentTypeHeaderValidationStep and before JsonComparisonStep.
     /// </summary>
-    internal sealed class ContentFormatValidationStep(IOutputFormatter outputFormatter) : IHttpAssertionStep
+    internal sealed class ContentFormatValidationStep(ISnapshotTestOutputBuilder snapshotTestOutputBuilder) : IHttpAssertionStep
     {
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
@@ -66,12 +67,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                      ? string.Concat(trimmedContent.AsSpan(0, 100), "...")
                                      : trimmedContent;
 
-            var errorOutput = outputFormatter.GetOutputString(string.Empty,
-                                                              "Response body is not valid JSON. Expected content starting with '{' or '[' but got different format.",
-                                                              expectedResultFile.Content,
-                                                              contentPreview,
-                                                              string.Empty,
-                                                              string.Empty);
+            var expectedJson = expectedResultFile.Content;
+            var currentJson = contentPreview;
+            var differences = ImmutableList<Difference>.Empty;
+
+            var errorOutput = snapshotTestOutputBuilder.Build(context,
+                                                              differences,
+                                                              expectedJson,
+                                                              currentJson);
 
             Assert.Fail(errorOutput);
         }

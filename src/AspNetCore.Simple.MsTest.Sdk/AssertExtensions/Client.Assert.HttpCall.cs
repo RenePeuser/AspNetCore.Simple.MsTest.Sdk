@@ -74,19 +74,36 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   ResponseWriter,
                                                                   WriteResponseService,
                                                                   JsonSerializerInstance,
-                                                                  JsonSerializerOptions,
-                                                                  ParameterReplacer);
+                                                                  JsonSerializerOptions);
+
+        // Snapshot Test Output Builder (replaces OutputFormatter in pipeline steps)
+        private static readonly TestInfoBuilder TestInfoBuilder = new();
+
+        private static readonly HttpCallInfoTableBuilder HttpCallInfoTableBuilder = new();
+
+        private static readonly DifferencesTableBuilder DifferencesTableBuilder = new();
+
+        private static readonly JsonSectionBuilder JsonSectionBuilder = new();
+
+        private static readonly CurlBuilder CurlBuilder = new();
+
+        private static readonly SnapshotTestOutputBuilder SnapshotTestOutputBuilder = new(TestInfoBuilder,
+                                                                                          HttpCallInfoTableBuilder,
+                                                                                          DifferencesTableBuilder,
+                                                                                          JsonSectionBuilder,
+                                                                                          CurlBuilder,
+                                                                                          CurlFormatterInstance);
 
         // Pipeline steps (replacing old strategies)
-        private static readonly StatusCodeValidationStep StatusCodeValidationStep = new(OutputFormatter);
+        private static readonly StatusCodeValidationStep StatusCodeValidationStep = new(SnapshotTestOutputBuilder);
 
-        private static readonly ContentTypeHeaderValidationStep ContentTypeHeaderValidationStep = new(OutputFormatter);
+        private static readonly ContentTypeHeaderValidationStep ContentTypeHeaderValidationStep = new(SnapshotTestOutputBuilder);
 
-        private static readonly ContentFormatValidationStep ContentFormatValidationStep = new(OutputFormatter);
+        private static readonly ContentFormatValidationStep ContentFormatValidationStep = new(SnapshotTestOutputBuilder);
 
         private static readonly JsonComparisonStep JsonComparisonStep = new(PrimitiveTypeConverter,
                                                                             JsonDiffer,
-                                                                            OutputFormatter,
+                                                                            SnapshotTestOutputBuilder,
                                                                             ResponseWriter,
                                                                             WriteResponseService,
                                                                             AssertService,

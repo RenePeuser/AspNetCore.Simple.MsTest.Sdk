@@ -27,7 +27,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddResponseWriter();
             services.AddWriteResponseService();
             services.AddJsonSerializer();
-            services.AddParameterReplacer();
 
             // Note: IEmbeddedFileLocalizer registration requires IConfiguration and should be done at app startup
 
@@ -61,170 +60,153 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         IResponseWriter responseWriter,
                                         IWriteResponseService writeResponseService,
                                         JsonSerializer jsonSerializer,
-                                        JsonSerializerOptions jsonSerializerOptions,
-                                        IParameterReplacer parameterReplacementService) : IAssertService
+                                        JsonSerializerOptions jsonSerializerOptions) : IAssertService
     {
         public void ObjectsAreEqual<T>(ObjectAssertContext<T> context)
         {
-            // Extract values from context
-            var expectedObjectAsJson = context.ExpectedObjectAsJson;
+            // Assumption: Context is fully prepared with ResolvedExpectedJson
+            var expectedJson = context.ResolvedExpectedJson ?? throw new InvalidOperationException("ResolvedExpectedJson must be set in context");
             var currentObject = context.Current;
 
-            var expectedResultParameterName = context.ExpectedResultParameterName;
-            var currentResultParameterName = context.CurrentResultParameterName;
-            var callerFilePath = context.CallerFilePath;
-            var callingAssembly = context.CallingAssembly;
-            var orderFunc = context.OrderFunc;
-            var differenceFunc = context.DifferenceFunc;
-            var title = context.Title ?? string.Empty;
-            var parameters = context.Parameters;
-            var writeResponse = context.WriteResponse;
+            // 1. Serialize current object
+            var currentJson = currentObject.ToJson(jsonSerializerOptions);
 
-            if (expectedObjectAsJson.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
-                expectedResultParameterName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
+            // 2. Write response if configured
+            if (writeResponseService.ShouldWriteResponse(context))
             {
-                expectedResultParameterName = expectedObjectAsJson;
+                responseWriter.Write(context, currentJson, context.ExpectedResultFile);
             }
 
-            // Use pre-resolved data from context if available, otherwise fall back to legacy resolution (backward compatibility)
-            string jsonObject;
-            EmbeddedFileInfo localizedExpectedResponseFile;
-
-            if (context.ResolvedExpectedJson.IsNotNull())
-            {
-                // Modern path: all preprocessing done before context creation
-                jsonObject = context.ResolvedExpectedJson;
-                localizedExpectedResponseFile = context.ExpectedResultFile!;
-            }
-            else
-            {
-                // Legacy path: resolve and process data here (backward compatibility)
-                localizedExpectedResponseFile = context.ExpectedResultFile;
-
-                if (localizedExpectedResponseFile.EmbeddedFile.IsNull() ||
-                    localizedExpectedResponseFile.EmbeddedFile.Exists.IsFalse())
-                {
-                    localizedExpectedResponseFile = localizedExpectedResponseFile with { Content = expectedObjectAsJson };
-                }
-
-                var currentObjectAsJsonScope = currentObject.ToJson(jsonSerializerOptions);
-
-                jsonObject = localizedExpectedResponseFile.Content.GetJsonStringFrom<T>(currentObjectAsJsonScope,
-                                                                                        callingAssembly,
-                                                                                        string.Empty,
-                                                                                        currentResultParameterName);
-
-                jsonObject = parameterReplacementService.ResolveParameters(jsonObject, context);
-            }
-
-            // This is most the use case when calling an API and want to know what comes back
-            var currentObjectAsJson = currentObject.ToJson(jsonSerializerOptions);
-
-            // Brand new crazy function
-            // We write the current result to the expected file
-            var shouldWriteResponse = writeResponseService.ShouldWriteResponse(context);
-
-            if (shouldWriteResponse)
-            {
-                responseWriter.Write(context, currentObjectAsJson, localizedExpectedResponseFile);
-            }
-
+            // 3. Handle primitive types vs. complex objects
             var type = typeof(T);
 
-            if (type.IsPrimitive || type.EqualsTo(typeof(string)))
+            if (type.IsPrimitive || type == typeof(string))
             {
-                var expectedResult = primitiveTypeConverter.ConvertTo<T>(jsonObject);
-                var output = outputFormatter.GetOutputString(title, jsonObject, currentObjectAsJson);
-
-                Assert.AreEqual(expectedResult, currentObject, output);
+                HandlePrimitiveComparison(context, expectedJson, currentJson);
             }
             else
             {
-                T? expectedObject = default;
+                HandleObjectComparison(context, expectedJson, currentJson);
+            }
+        }
 
-                try
-                {
-                    expectedObject = jsonSerializer.Deserialize<T>(jsonObject);
-                }
+        private void HandlePrimitiveComparison<T>(ObjectAssertContext<T> context,
+                                                  string expectedJson,
+                                                  string currentJson)
+        {
+            var expectedValue = primitiveTypeConverter.ConvertTo<T>(expectedJson);
+            var title = context.Title ?? string.Empty;
+
+            var output = outputFormatter.GetOutputString(title, expectedJson, currentJson);
+
+            Assert.AreEqual(expectedValue, context.Current, output);
+        }
+
+        private void HandleObjectComparison<T>(ObjectAssertContext<T> context,
+                                               string expectedJson,
+                                               string currentJson)
+        {
+            var expectedResultParameterName = context.ExpectedResultParameterName;
+            var currentResultParameterName = context.CurrentResultParameterName;
+            var title = context.Title ?? string.Empty;
+
+            // 1. Deserialize expected object
+            T? expectedObject;
+
+            try
+            {
+                expectedObject = jsonSerializer.Deserialize<T>(expectedJson);
+            }
 #pragma warning disable CA1031
-                catch (Exception e)
+            catch (Exception e)
 #pragma warning restore CA1031
-                {
-                    var cantSerializeJsonErrorOutput = outputFormatter.GetOutputString(title,
-                                                                                       $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Exception: {e.Message}",
-                                                                                       jsonObject,
-                                                                                       currentObjectAsJson,
-                                                                                       string.Empty);
+            {
+                var error = outputFormatter.GetOutputString(title,
+                                                            $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Exception: {e.Message}",
+                                                            expectedJson,
+                                                            currentJson,
+                                                            string.Empty);
 
-                    Assert.Fail(cantSerializeJsonErrorOutput);
-                }
+                Assert.Fail(error);
 
-                var serializeResultIsNullOutput = outputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}",
-                                                                                  jsonObject.ToJson(jsonSerializerOptions),
-                                                                                  null,
-                                                                                  string.Empty);
+                return; // Unreachable, but helps compiler
+            }
 
-                Assert.IsNotNull(expectedObject, serializeResultIsNullOutput);
+            // 2. Validate deserialized object
+            var nullError = outputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}",
+                                                            expectedJson,
+                                                            null,
+                                                            string.Empty);
 
-                var orderedObject1 = orderFunc(expectedObject);
-                var orderedObject2 = orderFunc(currentObject);
+            Assert.IsNotNull(expectedObject, nullError);
 
-                var object1AsJson = orderedObject1.ToJson(jsonSerializerOptions);
-                var object2AsJson = orderedObject2.ToJson(jsonSerializerOptions);
+            // 3. Apply ordering function
+            var orderedExpected = context.OrderFunc(expectedObject);
+            var orderedCurrent = context.OrderFunc(context.Current);
 
-                // Parameter replacement already done during context creation (modern path)
-                // For legacy path, parameters were resolved earlier in jsonObject
-                if (context.ResolvedExpectedJson.IsNull())
-                {
-                    // Legacy path: apply parameter replacement here
-                    object1AsJson = parameterReplacementService.ResolveParameters(object1AsJson, context);
-                    object2AsJson = parameterReplacementService.ResolveParameters(object2AsJson, context);
-                }
+            var expectedOrderedJson = orderedExpected.ToJson(jsonSerializerOptions);
+            var currentOrderedJson = orderedCurrent.ToJson(jsonSerializerOptions);
 
-                var differences = jsonDiffer.FindDifferences(object1AsJson, object2AsJson);
+            // 4. Find differences
+            var differences = jsonDiffer.FindDifferences(expectedOrderedJson, currentOrderedJson);
 
-                // 1. Check if we are comparing the same schema
-                var hasSchemaMismatch = differences.Any(item => item.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &&
-                                                                item.MemberPath.EndsWith(']').IsFalse());
+            // 5. Check for schema mismatches
+            var hasSchemaMismatch = differences.Any(item =>
+                                                        item.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &&
+                                                        item.MemberPath.EndsWith(']').IsFalse());
 
-                var contentValueDifferences = differences.FirstOrDefault(d => d.MemberPath.Equals("Content.Value", StringComparison.OrdinalIgnoreCase));
+            // 6. Special case: Content.Value differences (HTTP-specific - TODO: move to strategy)
+            var contentValueDifference = differences.FirstOrDefault(d =>
+                                                                        d.MemberPath.Equals("Content.Value", StringComparison.OrdinalIgnoreCase));
 
-                if (contentValueDifferences.IsNotNull())
-                {
-                    differences = jsonDiffer.FindDifferences(contentValueDifferences.Value1 ?? string.Empty, contentValueDifferences.Value2 ?? string.Empty);
+            if (contentValueDifference.IsNotNull())
+            {
+                differences = jsonDiffer.FindDifferences(contentValueDifference.Value1 ?? string.Empty,
+                                                         contentValueDifference.Value2 ?? string.Empty);
 
-                    hasSchemaMismatch = differences.Any(item => (item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond) &&
-                                                                item.MemberPath.EndsWith(']').IsFalse());
-                }
+                hasSchemaMismatch = differences.Any(item =>
+                                                        (item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond) &&
+                                                        item.MemberPath.EndsWith(']').IsFalse());
+            }
 
-                var commonDifferences = AssertObjectExtensions.DifferenceFunc(differences).ToImmutableList();
-                var optimizedDifferences = differenceFunc(commonDifferences).ToImmutableList();
+            // 7. Filter differences
+            var commonDifferences = AssertObjectExtensions.DifferenceFunc(differences).ToImmutableList();
+            var filteredDifferences = context.DifferenceFunc(commonDifferences).ToImmutableList();
 
-                var differenceOutputTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
+            // 8. Write response again if needed (with filtered differences)
+            if (writeResponseService.ShouldWriteResponse(context))
+            {
+                responseWriter.Write(context, currentOrderedJson, context.ExpectedResultFile);
+            }
 
-                var schemaNotMatchingError = outputFormatter.GetOutputString(title, "Schema mismatch: Expected result and current result does not match", object1AsJson,
-                                                                             object2AsJson, differenceOutputTable, string.Empty);
+            // 9. Assert schema matches
+            if (hasSchemaMismatch)
+            {
+                var differenceTable = filteredDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
-                if (shouldWriteResponse)
-                {
-                    responseWriter.Write(context, object2AsJson, localizedExpectedResponseFile);
-                }
+                var schemaError = outputFormatter.GetOutputString(title,
+                                                                  "Schema mismatch: Expected result and current result does not match",
+                                                                  expectedOrderedJson,
+                                                                  currentOrderedJson,
+                                                                  differenceTable,
+                                                                  string.Empty);
 
-                Assert.IsFalse(hasSchemaMismatch, schemaNotMatchingError);
+                Assert.Fail(schemaError);
+            }
 
-                var resultTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
+            // 10. Assert values match
+            if (filteredDifferences.Any())
+            {
+                var resultTable = filteredDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
-                var output = outputFormatter.GetOutputString(title,
-                                                             $"Detected differences: {optimizedDifferences.Count}",
-                                                             object1AsJson,
-                                                             object2AsJson,
-                                                             resultTable,
-                                                             string.Empty);
+                var valueError = outputFormatter.GetOutputString(title,
+                                                                 $"Detected differences: {filteredDifferences.Count}",
+                                                                 expectedOrderedJson,
+                                                                 currentOrderedJson,
+                                                                 resultTable,
+                                                                 string.Empty);
 
-                if (optimizedDifferences.Any())
-                {
-                    Assert.Fail(output);
-                }
+                Assert.Fail(valueError);
             }
         }
     }

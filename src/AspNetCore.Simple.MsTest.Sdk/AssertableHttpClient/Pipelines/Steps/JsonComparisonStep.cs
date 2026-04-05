@@ -19,7 +19,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // 1. Register dependencies
             services.AddPrimitiveTypeConverter();
             services.AddJsonDiffer();
-            services.AddOutputFormatter();
+            services.AddSnapshotTestOutputBuilder();
             services.AddResponseWriter();
             services.AddWriteResponseService();
             services.AddAssertService();
@@ -38,7 +38,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
     /// </summary>
     internal sealed class JsonComparisonStep(IPrimitiveTypeConverter primitiveTypeConverter,
                                              IJsonDiffer jsonDiffer,
-                                             IOutputFormatter outputFormatter,
+                                             ISnapshotTestOutputBuilder snapshotTestOutputBuilder,
                                              IResponseWriter responseWriter,
                                              IWriteResponseService writeResponseService,
                                              IAssertService assertService,
@@ -111,14 +111,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                                    string currentResponseJson,
                                                    EmbeddedFileInfo expectedResultFile)
         {
-            var differenceOutputTable = schemaMismatchDifferences.ToResultTable(context.Request.ExpectedResultParameterName, "Current");
-
-            var schemaNotMatchingError = outputFormatter.GetOutputString(string.Empty,
-                                                                         "Schema mismatch: Expected result and current result does not match",
+            // Build complete snapshot test output with differences
+            var schemaNotMatchingError = snapshotTestOutputBuilder.Build(context,
+                                                                         schemaMismatchDifferences,
                                                                          expectedJson,
-                                                                         currentResponseJson,
-                                                                         differenceOutputTable,
-                                                                         string.Empty);
+                                                                         currentResponseJson);
 
             // Write response file if configured
             var shouldWriteResponse = writeResponseService.ShouldWriteResponse(context.Request.WriteResponse, context.Request.CallingAssembly);
