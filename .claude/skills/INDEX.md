@@ -89,6 +89,13 @@ Call `base` by default unless intentionally replacing behavior.
 
 ## Architecture & Design Patterns
 
+### `/architecture/pipeline-pattern`
+**Apply or review the Pipeline Pattern**
+
+Implement sequential processing with multiple steps. Simpler than Strategy Pattern - no `CanHandle` logic needed.
+
+[Documentation](architecture/pipeline-pattern/PATTERN.md) | [Examples](architecture/pipeline-pattern/EXAMPLES.md) | [Checklist](architecture/pipeline-pattern/CHECKLIST.md)
+
 ### `/architecture/strategy-pattern`
 **Apply or review the Strategy Pattern**
 
@@ -137,14 +144,18 @@ Prefer `await Task.Delay()` over blocking `Thread.Sleep()`.
 - Registering services → `/architecture/service-registration`
 - Designing data models → `/architecture/immutable-data-and-services`
 - Adding overloads → `/csharp/constructor-overloads`, `/csharp/method-overloads`
+- Sequential processing → `/architecture/pipeline-pattern`
+- Conditional branching → `/architecture/strategy-pattern`
 
 **Reviewing existing code:**
+- Pipeline implementations → `/architecture/pipeline-pattern`
 - Strategy implementations → `/architecture/strategy-pattern`
 - DI registration → `/architecture/service-registration`
 - Async patterns → `/async/avoid-sync-over-async`
 - Guard clauses → `/csharp/argument-check`
 
 **Refactoring:**
+- Sequential processing → `/architecture/pipeline-pattern`
 - Branching logic → `/architecture/strategy-pattern`
 - Constructor duplication → `/csharp/constructor-overloads`
 - Blocking delays → `/async/avoid-thread-sleep`

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.Json;
@@ -61,7 +61,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             var filteredCurrentResult = context.Request.OrderFunc(currentResult);
 
             // Build expected result JSON
-            var expectedResultAsJson = BuildExpectedResultJson<TResult>(context, targetIsPrimitiveType, filteredCurrentResult);
+            var expectedResultAsJson = BuildExpectedResultJson(context, targetIsPrimitiveType, filteredCurrentResult);
             var expectedResultAsJsonParameterized = parameterReplacementService.ResolveParameters(expectedResultAsJson, context.Request.Parameters);
 
             // Skip comparison if IgnoreResponse marker is present
@@ -77,7 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Build comparison structures
             var currentResponse = BuildCurrentResponse(context, simpleHttpResponseMessage, contentHeaders, filteredCurrentResult);
-            var expectedResponse = BuildExpectedResponse<TResult>(context, expectedResultAsJsonParameterized, targetIsPrimitiveType, simpleHttpResponseMessage, contentHeaders, filteredCurrentResult);
+            var expectedResponse = BuildExpectedResponse(context, expectedResultAsJsonParameterized, targetIsPrimitiveType, simpleHttpResponseMessage, contentHeaders, filteredCurrentResult);
 
             var expectedJson = expectedResponse.ToJson(jsonSerializerOptions);
             var currentResponseJson = currentResponse.ToJson(jsonSerializerOptions);

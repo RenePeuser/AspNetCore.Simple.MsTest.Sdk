@@ -16,6 +16,7 @@ Use the command format: `/category/skill-name`
 
 Examples:
 - `/architecture/service-registration` - DI registration patterns
+- `/architecture/pipeline-pattern` - Sequential processing without CanHandle
 - `/architecture/strategy-pattern` - Extensible branching logic
 - `/csharp/constructor-overloads` - Constructor chaining patterns
 - `/api/minimal-api-structure` - Minimal API organization
@@ -24,13 +25,14 @@ Examples:
 
 - **API Patterns** - Minimal API structure, namespace conventions
 - **C# Language** - Constructors, methods, equality, collections, validation
-- **Architecture** - Strategy Pattern, DI registration, data modeling
+- **Architecture** - Pipeline Pattern, Strategy Pattern, DI registration, data modeling
 - **Async** - Async/await patterns, avoiding blocking operations
 
 ### Quick Reference
 
 **Key Patterns:**
 - Service Registration: Feature-based DI with `AddXxx()` extensions per class
+- Pipeline Pattern: Sequential processing, no CanHandle needed, simpler extension
 - Strategy Pattern: Strict resolution (exactly one match), explicit failures
 - Constructor Overloads: One maximum constructor with clear delegation chain
 - Immutable Data: Records for data, classes for services
