@@ -919,20 +919,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Create context with preprocessed data - no further logic needed in AssertService
             var context = new ObjectAssertContext<T>
                           {
-                              TypeIsPrimitiveType = targetIsPrimitiveType,
-                              ExpectedObjectAsJson = expectedObjectAsJson,
-                              Current = currentObject,
-                              OrderFunc = orderFunc,
-                              CallingAssembly = callingAssembly,
-                              DifferenceFunc = differenceFunc,
-                              Parameters = parameters,
-                              WriteResponse = writeResponse,
-                              ExpectedResultParameterName = expectedResultParameterName,
-                              CurrentResultParameterName = currentResultParameterName,
                               CallerFilePath = callerFilePath,
+                              CallingAssembly = callingAssembly,
+                              Current = currentObject,
+                              CurrentObject = currentObject,
+                              CurrentResultParameterName = currentResultParameterName,
+                              DifferenceFunc = differenceFunc,
+                              ExpectedObjectAsJson = expectedObjectAsJson,
                               ExpectedResultFile = expectedFile,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              OrderFunc = orderFunc,
+                              Parameters = parameters,
                               ResolvedExpectedJson = resolvedExpectedJson,
-                              CurrentObject = currentObject
+                              TypeIsPrimitiveType = targetIsPrimitiveType,
+                              WriteResponse = writeResponse,
                           };
 
             ObjectsAreEqual(assert, context);
