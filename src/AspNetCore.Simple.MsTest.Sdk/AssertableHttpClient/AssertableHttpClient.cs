@@ -89,7 +89,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 Client = context.Client,
                 ContentAsString = contentAsString,
                 ContentAsStringParameterized = resolvedParametersJsonString,
-                Current = context.Current,
+                Current = currentResult,
                 CurrentObject = currentResult,
                 CurrentResult = currentResult,
                 CurrentResultParameterName = context.CurrentResultParameterName,
