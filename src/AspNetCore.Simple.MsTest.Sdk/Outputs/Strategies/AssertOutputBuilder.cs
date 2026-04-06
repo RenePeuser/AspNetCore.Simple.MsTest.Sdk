@@ -66,7 +66,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var result = matchingStrategies[0].BuildOutput(context, differences, expectedJson,
-                                                     currentJson);
+                                                           currentJson);
 
             return result;
         }

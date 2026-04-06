@@ -19,7 +19,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Format: "EXPECTED RESULT (NewPerson.json):\n\n{json}"
         /// </summary>
         string BuildExpected(IHttpResponseContext context,
-                            string expectedJson);
+                             string expectedJson);
 
         /// <summary>
         /// Builds current result section with label.
@@ -31,10 +31,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class JsonSectionBuilder : IJsonSectionBuilder
     {
         public string BuildExpected(IHttpResponseContext context,
-                                   string expectedJson)
+                                    string expectedJson)
         {
             var responseFileName = GetResponseFileName(context);
             var label = $"EXPECTED RESULT ({responseFileName})";
+
             return BuildSection(label, expectedJson);
         }
 

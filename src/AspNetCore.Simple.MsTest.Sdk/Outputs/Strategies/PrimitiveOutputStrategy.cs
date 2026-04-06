@@ -26,12 +26,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             // Handle contexts where CurrentObject is a primitive type or string
             var currentObject = context.CurrentObject;
+
             if (currentObject == null)
             {
                 return false;
             }
 
             var type = currentObject.GetType();
+
             return type.IsPrimitive || type == typeof(string);
         }
 

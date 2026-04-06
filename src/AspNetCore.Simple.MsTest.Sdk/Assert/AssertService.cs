@@ -61,8 +61,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// This class encapsulates all dependencies needed for object assertions.
     /// All dependencies are injected via the primary constructor for testability and flexibility.
     /// </summary>
-    internal sealed class AssertService(IPrimitiveTypeConverter primitiveTypeConverter,
-                                        IJsonDiffer jsonDiffer,
+    internal sealed class AssertService(IJsonDiffer jsonDiffer,
                                         IResponseWriter responseWriter,
                                         IWriteResponseService writeResponseService,
                                         JsonSerializer jsonSerializer,
@@ -84,36 +83,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 responseWriter.Write(context, currentJson, context.ExpectedResultFile);
             }
 
-            // 3. Handle primitive types vs. complex objects
-            var type = typeof(T);
-
-            if (type.IsPrimitive || type == typeof(string))
-            {
-                HandlePrimitiveComparison(context, expectedJson, currentJson);
-            }
-            else
-            {
-                HandleObjectComparison(context, expectedJson, currentJson);
-            }
-        }
-
-        private void HandlePrimitiveComparison<T>(ObjectAssertContext<T> context,
-                                                  string expectedJson,
-                                                  string currentJson)
-        {
-            var expectedValue = primitiveTypeConverter.ConvertTo<T>(expectedJson);
-
-            // Check if values match
-            if (Equals(expectedValue, context.Current))
-            {
-                return; // Values match, test passes
-            }
-
-            // Values don't match - build output using strategy
-            var output = outputBuilder.BuildOutput(context, ImmutableList<Difference>.Empty,
-                                                  expectedJson, currentJson);
-
-            Assert.That.Fail(output);
+            HandleObjectComparison(context, expectedJson, currentJson);
         }
 
         private void HandleObjectComparison<T>(ObjectAssertContext<T> context,

@@ -97,8 +97,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private void BuildDifferencesTable(StringBuilder stringBuilder,
-                                          IObjectAssertContext context,
-                                          ImmutableList<Difference> differences)
+                                           IObjectAssertContext context,
+                                           ImmutableList<Difference> differences)
         {
             var expectedName = GetExpectedName(context);
 
@@ -120,7 +120,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private string BuildExpectedSection(IObjectAssertContext context,
-                                           string expectedJson)
+                                            string expectedJson)
         {
             // For object context, we can't use jsonSectionBuilder.BuildExpected because it expects IHttpResponseContext
             // So we build it manually here

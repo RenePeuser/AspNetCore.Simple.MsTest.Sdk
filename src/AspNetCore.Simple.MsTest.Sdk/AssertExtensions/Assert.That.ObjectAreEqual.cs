@@ -10,8 +10,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #pragma warning disable IDE0060 // Remove unused parameter
     public static class AssertObjectExtensions
     {
-        private static readonly PrimitiveTypeConverter PrimitiveTypeConverter = new();
-
         private static readonly JsonDiffer JsonDiffer = new();
 
         private static readonly ParameterReplacer ParameterReplacer = new();
@@ -41,18 +39,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // Builders for output strategies
         private static readonly DifferencesTableBuilder DifferencesTableBuilder = new();
+
         private static readonly JsonSectionBuilder JsonSectionBuilder = new();
 
         // Output strategies for AssertService
         private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new();
+
         private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(DifferencesTableBuilder, JsonSectionBuilder);
 
         private static readonly IAssertOutputStrategy[] OutputStrategies = [PrimitiveOutputStrategy, ObjectOutputStrategy];
 
         private static readonly AssertOutputBuilder OutputBuilder = new(OutputStrategies);
 
-        private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
-                                                                  JsonDiffer,
+        private static readonly AssertService AssertService = new(JsonDiffer,
                                                                   ResponseWriter,
                                                                   WriteResponseService,
                                                                   JsonSerializer,
@@ -915,9 +914,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Resolve parameters in expected JSON once here - ready-to-use for comparison
             var resolvedExpectedJson = ParameterReplacer.ResolveParameters(expectedFile.Content, parameters);
 
+            var targetIsPrimitiveType = typeof(T).IsPrimitive || typeof(T).EqualsTo(typeof(string));
+
             // Create context with preprocessed data - no further logic needed in AssertService
             var context = new ObjectAssertContext<T>
                           {
+                              TypeIsPrimitiveType = targetIsPrimitiveType,
                               ExpectedObjectAsJson = expectedObjectAsJson,
                               Current = currentObject,
                               OrderFunc = orderFunc,
@@ -931,7 +933,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               ExpectedResultFile = expectedFile,
                               ResolvedExpectedJson = resolvedExpectedJson,
                               CurrentObject = currentObject
-            };
+                          };
 
             ObjectsAreEqual(assert, context);
         }

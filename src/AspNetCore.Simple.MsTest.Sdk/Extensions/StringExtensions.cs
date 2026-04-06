@@ -9,7 +9,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     internal static class StringExtensions
     {
-
         public static string GetJsonStringFrom(this string expectedObjectAsJson,
                                                Assembly callingAssembly)
 
@@ -79,9 +78,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 mustBeAnArray.IsFalse())
             {
                 var output = $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {targeTypeInfo.FullName}\n" +
-                            $"Invalid source type object {{}} to target array type [] json conversion\n" +
-                            $"Expected: {trimmedJsonValue}\n" +
-                            $"Current: {currentObject}";
+                             $"Invalid source type object {{}} to target array type [] json conversion\n" +
+                             $"Expected: {trimmedJsonValue}\n" +
+                             $"Current: {currentObject}";
 
                 Assert.That.Fail(output);
             }
@@ -92,9 +91,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 mustBeAnArray)
             {
                 var output = $"Your passed json string: {expectedResultParameterName} is an object notation {{}}, but your target type: {targetType} is an array so you can't deserialize it. Please fix your json string\n" +
-                            $"Invalid source type array [] to target type object {{}} json conversion\n" +
-                            $"Expected: {trimmedJsonValue}\n" +
-                            $"Current: {currentObject}";
+                             $"Invalid source type array [] to target type object {{}} json conversion\n" +
+                             $"Expected: {trimmedJsonValue}\n" +
+                             $"Current: {currentObject}";
 
                 Assert.That.Fail(output);
             }
@@ -175,9 +174,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 isEnumerable.IsFalse())
             {
                 var output = $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).FullName}\n" +
-                            $"Invalid source type object {{}} to target array type [] json conversion\n" +
-                            $"Expected: {trimmedJsonValue}\n" +
-                            $"Current: {currentObject}";
+                             $"Invalid source type object {{}} to target array type [] json conversion\n" +
+                             $"Expected: {trimmedJsonValue}\n" +
+                             $"Current: {currentObject}";
 
                 Assert.That.Fail(output);
             }
@@ -188,9 +187,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 isEnumerable)
             {
                 var output = $"Your passed json string: {expectedResultParameterName} is an object notation {{}}, but your target type: {targetType} is an array so you can't deserialize it. Please fix your json string\n" +
-                            $"Invalid source type array [] to target type object {{}} json conversion\n" +
-                            $"Expected: {trimmedJsonValue}\n" +
-                            $"Current: {currentObject}";
+                             $"Invalid source type array [] to target type object {{}} json conversion\n" +
+                             $"Expected: {trimmedJsonValue}\n" +
+                             $"Current: {currentObject}";
 
                 Assert.That.Fail(output);
             }

@@ -144,6 +144,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// All data preparation happens before context creation - the service receives only processed data.
         /// </summary>
         public required string? ResolvedExpectedJson { get; init; }
+
+        public required bool TypeIsPrimitiveType { get; init; }
     }
 
     /// <summary>

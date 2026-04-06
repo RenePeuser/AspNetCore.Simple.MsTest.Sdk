@@ -78,6 +78,13 @@ Collections must always be non-null with empty defaults.
 
 [Documentation](csharp/non-null-collections/PATTERN.md)
 
+### `/csharp/object-initializer-order`
+**Design or review object initializers with consistent property ordering**
+
+Order properties alphabetically for predictability, better diffs, and merge safety.
+
+[Documentation](csharp/object-initializer-order/PATTERN.md) | [Examples](csharp/object-initializer-order/EXAMPLES.md)
+
 ### `/csharp/override-virtual-methods`
 **Add or review overrides of virtual/abstract members**
 
@@ -146,6 +153,7 @@ Prefer `await Task.Delay()` over blocking `Thread.Sleep()`.
 - Adding overloads → `/csharp/constructor-overloads`, `/csharp/method-overloads`
 - Sequential processing → `/architecture/pipeline-pattern`
 - Conditional branching → `/architecture/strategy-pattern`
+- Object initializers → `/csharp/object-initializer-order`
 
 **Reviewing existing code:**
 - Pipeline implementations → `/architecture/pipeline-pattern`
@@ -153,6 +161,7 @@ Prefer `await Task.Delay()` over blocking `Thread.Sleep()`.
 - DI registration → `/architecture/service-registration`
 - Async patterns → `/async/avoid-sync-over-async`
 - Guard clauses → `/csharp/argument-check`
+- Object initializers → `/csharp/object-initializer-order`
 
 **Refactoring:**
 - Sequential processing → `/architecture/pipeline-pattern`

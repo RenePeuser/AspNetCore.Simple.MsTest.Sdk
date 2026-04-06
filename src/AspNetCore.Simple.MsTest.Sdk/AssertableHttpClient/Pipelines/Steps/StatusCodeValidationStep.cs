@@ -49,7 +49,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Build complete output using strategy pattern (HTTP strategy will be auto-resolved)
             var errorOutput = assertOutputBuilder.BuildOutput(context, differences, expectedJson,
-                                                             currentJson);
+                                                              currentJson);
 
             // Fail immediately - no response writing, no further processing
             Assert.That.Fail(errorOutput);

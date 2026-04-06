@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -53,7 +53,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Add data rows
             foreach (var difference in differences)
             {
-                table.AddRow(difference.MemberPath ?? string.Empty,
+                table.AddRow(difference.MemberPath,
                              difference.Value1 ?? "null",
                              difference.Value2 ?? "null",
                              difference.MismatchType.ToString());

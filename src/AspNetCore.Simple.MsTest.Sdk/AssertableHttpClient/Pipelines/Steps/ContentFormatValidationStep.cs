@@ -31,6 +31,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         /// <inheritdoc />
         public void Execute<TResult>(HttpResponseContext<TResult> context)
         {
+            if (context.TypeIsPrimitiveType)
+            {
+                return;
+            }
+
             var expectedResultFile = context.ExpectedResultFile;
             var contentAsString = context.ContentAsString;
 

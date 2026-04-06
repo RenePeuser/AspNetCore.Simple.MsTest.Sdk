@@ -692,7 +692,7 @@
             All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IAssertOutputBuilder)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IAssertOutputBuilder)">
             <summary>
             Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService"/> that contains the core assertion logic.
             This class encapsulates all dependencies needed for object assertions.

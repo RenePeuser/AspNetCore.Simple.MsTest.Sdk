@@ -83,6 +83,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // Build context with deserialized result - HttpResponseMessage stays alive until pipeline completes
             var responseContext = new HttpResponseContext<TResult>
             {
+                TypeIsPrimitiveType = targetIsPrimitiveType,
                 HttpResponseMessage = httpResponseMessage,
                 HttpStatusCode = httpResponseMessage.StatusCode,
                 ContentAsString = contentAsString,
@@ -103,7 +104,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 Url = context.Url,
                 HttpMethod = context.HttpMethod,
                 PayloadFile = context.PayloadFile,
-                CurrentObject = context.CurrentObject,
+                CurrentObject = currentResult,
                 DifferenceFunc = context.DifferenceFunc,
                 Parameters = context.Parameters,
                 WriteResponse = context.WriteResponse,
@@ -112,7 +113,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 IsSuccessStatusCode = context.IsSuccessStatusCode,
                 PayloadParameterName = context.PayloadParameterName,
                 ShowTokenInCurl = context.ShowTokenInCurl,
-
             };
 
             // Delegate to pipeline - steps only validate, never modify the result
