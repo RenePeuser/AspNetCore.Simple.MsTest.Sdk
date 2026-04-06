@@ -4,7 +4,7 @@
         <name>AspNetCore.Simple.MsTest.Sdk</name>
     </assembly>
     <members>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddAssertableHttpClientExtension.AddAssertableHttpClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddAssertableHttpClientExtension.AddAssertableHttpClient(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>
             Registers all assertable HTTP client services and their dependencies in the DI container.
             Feature-based registration following the dependency tree pattern.
@@ -33,7 +33,7 @@
             All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertableHttpClient.#ctor(AspNetCore.Simple.MsTest.Sdk.IHttpCallHandler,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer,AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionPipeline,AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,System.Text.Json.JsonSerializerOptions)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertableHttpClient.#ctor(AspNetCore.Simple.MsTest.Sdk.IHttpCallHandler,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer,AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionPipeline,AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IEndpointValidator)">
             <summary>
             Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IAssertableHttpClient"/> that contains the core assertion logic.
             This class encapsulates all dependencies needed for HTTP assertions.
@@ -314,6 +314,14 @@
              </code>
              </example>
         </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.Setup(System.IServiceProvider)">
+            <summary>
+            Initializes all internal static fields with services resolved from the DI container.
+            Call this method once during test initialization (e.g., in [AssemblyInitialize])
+            after registering services via services.AddAssertableHttpClient().
+            </summary>
+            <param name="serviceProvider">The service provider containing registered services</param>
+        </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.CustomAssertableHttpClient">
             <summary>
             Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.
@@ -403,6 +411,13 @@
             Set to true to show the token in generated curl commands.
             </summary>
         </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.IHttpAssertContext.ApiVersion">
+            <summary>
+            The API version for the endpoint.
+            Used to filter endpoints when using API versioning (e.g., v1, v2).
+            Null means no specific version is required.
+            </summary>
+        </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1">
             <summary>
             Context object for HTTP assertion methods that bundles common parameters
@@ -461,6 +476,13 @@
             <summary>
             Controls the visibility of the token in curl outputs.
             Set to true to show the token in generated curl commands.
+            </summary>
+        </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.HttpAssertContext`1.ApiVersion">
+            <summary>
+            The API version for the endpoint.
+            Used to filter endpoints when using API versioning (e.g., "1", "2", "v1", "v2").
+            Null means no specific version is required (matches any version or unversioned endpoints).
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.IHttpResponseContext">
@@ -1036,21 +1058,6 @@
             A descriptive name that combines the test method's name with the test data details, aiding in test identification.
             </returns>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.GlobalRegex.IndexReplacement">
-            <remarks>
-            Pattern:<br/>
-            <code>\\[(\\d+)\\](?=\\.)</code><br/>
-            Explanation:<br/>
-            <code>
-            ○ Match '['.<br/>
-            ○ 1st capture group.<br/>
-                ○ Match a Unicode digit atomically at least once.<br/>
-            ○ Match ']'.<br/>
-            ○ Zero-width positive lookahead.<br/>
-                ○ Match '.'.<br/>
-            </code>
-            </remarks>
-        </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.IParameterReplacer">
             <summary>
             Service for replacing parameters in JSON strings.
@@ -1582,6 +1589,51 @@
             Builds simple assertion failure output showing expected vs current value.
             </summary>
         </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.ApiVersionRegex">
+            <summary>
+            Contains compiled regular expressions for API version pattern matching.
+            Uses source-generated regex for better performance.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.ApiVersionRegex.UrlVersionPattern">
+            <remarks>
+            Pattern:<br/>
+            <code>(?:^|/)v(\\d+(?:\\.\\d+)?)(?:/|$|\\?)</code><br/>
+            Options:<br/>
+            <code>RegexOptions.IgnoreCase</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match with 2 alternative expressions.<br/>
+                ○ Match if at the beginning of the string.<br/>
+                ○ Match '/'.<br/>
+            ○ Match a character in the set [Vv].<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a Unicode digit greedily at least once.<br/>
+                ○ Optional (greedy).<br/>
+                    ○ Match '.'.<br/>
+                    ○ Match a Unicode digit atomically at least once.<br/>
+            ○ Match with 3 alternative expressions, atomically.<br/>
+                ○ Match '/'.<br/>
+                ○ Match if at the end of the string or if before an ending newline.<br/>
+                ○ Match '?'.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.ApiVersionRegex.IndexReplacement">
+            <remarks>
+            Pattern:<br/>
+            <code>\\[(\\d+)\\](?=\\.)</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match '['.<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a Unicode digit atomically at least once.<br/>
+            ○ Match ']'.<br/>
+            ○ Zero-width positive lookahead.<br/>
+                ○ Match '.'.<br/>
+            </code>
+            </remarks>
+        </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.IResponseWriter.Write(AspNetCore.Simple.MsTest.Sdk.IObjectAssertContext,System.String,AspNetCore.Simple.MsTest.Sdk.EmbeddedFileInfo,AspNetCore.Simple.MsTest.Sdk.ResponseWriteMode)">
             <summary>
             Writes the response using the context's properties combined with computed values.
@@ -1592,34 +1644,92 @@
             <param name="expectedResult">The expected result file info (computed)</param>
             <param name="mode">The write mode (optional, defaults to DifferencesOnly)</param>
         </member>
-        <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_0">
-            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the IndexReplacement method.</summary>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.IApiVersionResolver.Resolve(System.String,System.Net.Http.HttpClient)">
+            <summary>
+            Resolves the API version from the URL and HTTP client headers.
+            Checks multiple sources in priority order:
+            1. URL path segment (e.g., /v1/, /v2/, /api/v3/)
+            2. Query string parameter (e.g., ?api-version=1.0)
+            3. HTTP client default headers (e.g., api-version: 1.0, x-api-version: 2)
+            </summary>
+            <param name="url">The request URL</param>
+            <param name="httpClient">The HTTP client (to check default headers)</param>
+            <returns>The resolved API version or null if no version was found</returns>
         </member>
-        <member name="F:System.Text.RegularExpressions.Generated.IndexReplacement_0.Instance">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.IEndpointValidator.Validate``1(AspNetCore.Simple.MsTest.Sdk.IHttpAssertContext)">
+            <summary>
+            Validates the HTTP assert context against the registered endpoints.
+            Checks if the endpoint exists and if the expected response type matches.
+            </summary>
+            <typeparam name="TResult">The expected result type</typeparam>
+            <param name="context">The HTTP assert context containing method, URL, and expected type</param>
+            <returns>Validation result with detailed information</returns>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.EndpointValidationResult">
+            <summary>
+            Result of endpoint validation containing match information and validation status.
+            </summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.UrlVersionPattern_0">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the UrlVersionPattern method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.Instance">
             <summary>Cached, thread-safe singleton instance.</summary>
         </member>
-        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.#ctor">
+        <member name="M:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.#ctor">
             <summary>Initializes the instance.</summary>
         </member>
-        <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory">
+        <member name="T:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory">
             <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
         </member>
-        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.CreateInstance">
+        <member name="M:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory.CreateInstance">
             <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
         </member>
-        <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.Runner">
+        <member name="T:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory.Runner">
             <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
         </member>
-        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+        <member name="M:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
             <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
         </member>
-        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+        <member name="M:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
             <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
             <returns>true if a possible match was found; false if no more matches are possible.</returns>
         </member>
-        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_0.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+        <member name="M:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_1">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the IndexReplacement method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.IndexReplacement_1.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_1.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
             <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
             <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
@@ -1632,6 +1742,9 @@
         </member>
         <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_hasTimeout">
             <summary>Whether <see cref="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout"/> is non-infinite.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Utilities.StackPush(System.Int32[]@,System.Int32@,System.Int32,System.Int32)">
+            <summary>Pushes 2 values onto the backtracking stack.</summary>
         </member>
     </members>
 </doc>

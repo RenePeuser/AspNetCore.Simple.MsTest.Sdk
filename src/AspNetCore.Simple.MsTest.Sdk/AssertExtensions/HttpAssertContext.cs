@@ -60,6 +60,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Set to true to show the token in generated curl commands.
         /// </summary>
         bool ShowTokenInCurl { get; init; }
+
+        /// <summary>
+        /// The API version for the endpoint.
+        /// Used to filter endpoints when using API versioning (e.g., v1, v2).
+        /// Null means no specific version is required.
+        /// </summary>
+        string? ApiVersion { get; init; }
     }
 
     /// <summary>
@@ -123,5 +130,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Set to true to show the token in generated curl commands.
         /// </summary>
         public required bool ShowTokenInCurl { get; init; }
+
+        /// <summary>
+        /// The API version for the endpoint.
+        /// Used to filter endpoints when using API versioning (e.g., "1", "2", "v1", "v2").
+        /// Null means no specific version is required (matches any version or unversioned endpoints).
+        /// </summary>
+        public required string? ApiVersion { get; init; }
     }
 }

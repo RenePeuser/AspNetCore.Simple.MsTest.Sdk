@@ -92,6 +92,13 @@ Call `base` by default unless intentionally replacing behavior.
 
 [Documentation](csharp/override-virtual-methods/PATTERN.md)
 
+### `/csharp/global-regex`
+**Create or review regular expressions with GeneratedRegex**
+
+Centralize all regex patterns in one `GlobalRegex` class per project, avoiding scattered partial classes.
+
+[Documentation](csharp/global-regex/PATTERN.md) | [Examples](csharp/global-regex/EXAMPLES.md) | [Checklist](csharp/global-regex/CHECKLIST.md)
+
 ---
 
 ## Architecture & Design Patterns
@@ -154,6 +161,7 @@ Prefer `await Task.Delay()` over blocking `Thread.Sleep()`.
 - Sequential processing → `/architecture/pipeline-pattern`
 - Conditional branching → `/architecture/strategy-pattern`
 - Object initializers → `/csharp/object-initializer-order`
+- Regular expressions → `/csharp/global-regex`
 
 **Reviewing existing code:**
 - Pipeline implementations → `/architecture/pipeline-pattern`
@@ -162,6 +170,7 @@ Prefer `await Task.Delay()` over blocking `Thread.Sleep()`.
 - Async patterns → `/async/avoid-sync-over-async`
 - Guard clauses → `/csharp/argument-check`
 - Object initializers → `/csharp/object-initializer-order`
+- Regular expressions → `/csharp/global-regex`
 
 **Refactoring:**
 - Sequential processing → `/architecture/pipeline-pattern`
@@ -169,3 +178,4 @@ Prefer `await Task.Delay()` over blocking `Thread.Sleep()`.
 - Constructor duplication → `/csharp/constructor-overloads`
 - Blocking delays → `/async/avoid-thread-sleep`
 - Namespace clutter → `/api/namespace-provider`
+- Scattered regex → `/csharp/global-regex`

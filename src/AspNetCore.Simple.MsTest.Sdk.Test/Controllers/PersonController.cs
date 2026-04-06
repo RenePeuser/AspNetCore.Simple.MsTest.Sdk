@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 using AspNetCore.Simple.MsTest.Sdk.Api.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
 {
@@ -32,6 +28,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
                                                               FilterFunc);
         }
 
+        [TestMethod]
+        public Task Invalid_Response_Type_Json_Exception()
+        {
+            return Client.AssertGetAsync<UnknownResponse>("/api/tests/v1/persons",
+                                                          "GetPersonResponse.json");
+        }
+
         // The filter func can be used to sort or do some custom filtering
         // Sample: You get unsorted results from API so each call will provide
         //         the users in different order. You can sort them before comparison
@@ -55,5 +58,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
                 yield return difference;
             }
         }
+    }
+
+    internal sealed record UnknownResponse
+    {
+        public required string Property { get; init; }
     }
 }
