@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -93,6 +93,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var errorCount = differences.Count;
             var errorTypes = differences.Select(d => d.MismatchType).Distinct().ToList();
 
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine();
             stringBuilder.AppendLine("══════════════════════════════════════════════════════════════════════════════");
             stringBuilder.AppendLine("SNAPSHOT TEST FAILED");
             stringBuilder.AppendLine("══════════════════════════════════════════════════════════════════════════════");

@@ -54,7 +54,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("HTTP CALL");
-            stringBuilder.AppendLine(table.ToString());
+            stringBuilder.Append(table.ToString().TrimEnd());
 
             return stringBuilder.ToString();
         }

@@ -61,7 +61,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("DIFFERENCES");
-            stringBuilder.AppendLine(table.ToString());
+            stringBuilder.Append(table.ToString().TrimEnd());
 
             return stringBuilder.ToString();
         }
