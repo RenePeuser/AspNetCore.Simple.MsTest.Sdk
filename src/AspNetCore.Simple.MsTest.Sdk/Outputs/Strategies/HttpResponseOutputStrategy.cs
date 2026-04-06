@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -112,26 +112,37 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static string GetRequestName(IHttpResponseContext context)
         {
-            var payloadFileName = context.PayloadFile?.EmbeddedFile?.Name;
-
-            if (payloadFileName.IsNotNullOrWhiteSpace())
+            if (context.PayloadFile.IsNull())
             {
-                return payloadFileName;
+                return "N/A";
             }
 
-            return "N/A";
+            if (context.PayloadFile.EmbeddedFile.IsNull())
+            {
+                return context.PayloadFile.Content;
+            }
+
+            if (context.PayloadFile.EmbeddedFileName.IsNullOrWhiteSpace())
+            {
+                return context.PayloadFile.Content;
+            }
+
+            return context.PayloadFile.EmbeddedFileName;
         }
 
         private static string GetResponseName(IHttpResponseContext context)
         {
-            var expectedFileName = context.ExpectedResultFile.EmbeddedFile?.Name;
-
-            if (expectedFileName.IsNotNullOrWhiteSpace())
+            if (context.ExpectedResultFile.EmbeddedFile.IsNull())
             {
-                return expectedFileName;
+                return context.ExpectedResultFile.Content;
             }
 
-            return "Expected";
+            if (context.ExpectedResultFile.EmbeddedFileName.IsNullOrWhiteSpace())
+            {
+                return context.ExpectedResultFile.Content;
+            }
+
+            return context.ExpectedResultFile.EmbeddedFileName;
         }
     }
 }
