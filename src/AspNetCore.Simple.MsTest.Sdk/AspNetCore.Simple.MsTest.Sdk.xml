@@ -1250,12 +1250,6 @@
             This is the preferred method for context-based operations.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IHttpCallHandler.CallAsync(AspNetCore.Simple.MsTest.Sdk.IHttpAssertContext,System.Threading.CancellationToken)">
-            <summary>
-            Executes an HTTP call using the HTTP context's properties.
-            This is the preferred method for context-based operations.
-            </summary>
-        </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.IDifferencesTableBuilder.Build(AspNetCore.Simple.MsTest.Sdk.IHttpResponseContext,System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference})">
             <summary>
             Builds differences table from list of differences.

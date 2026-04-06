@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,23 +38,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return string.Empty;
             }
 
-            var payloadAsJson = context.ResolvedPayload ?? context.PayloadAsJson ?? string.Empty;
-            var authenticationHeaderValue = context.Client.DefaultRequestHeaders.Authorization;
-            var assembly = context.CallingAssembly;
-            var showTokenInCurl = context.ShowTokenInCurl;
-
-            var curl = BuildCurl(httpRequestMessage, payloadAsJson, authenticationHeaderValue,
-                                 assembly, showTokenInCurl).Flatten(@$" \{Environment.NewLine}");
+            var curl = BuildCurl(context).Flatten(@$" \{Environment.NewLine}");
 
             return curl;
         }
 
-        private static IEnumerable<string> BuildCurl(HttpRequestMessage httpRequestMessage,
-                                                     string? payloadAsJson,
-                                                     AuthenticationHeaderValue? authenticationHeaderValue,
-                                                     Assembly assembly,
-                                                     bool showTokenInCurl)
+        private static IEnumerable<string> BuildCurl(IHttpResponseContext context)
         {
+            var httpRequestMessage = context.HttpResponseMessage.RequestMessage!;
+            var payloadAsJson = context.ResolvedPayload ?? context.PayloadAsJson ?? string.Empty;
+            var authenticationHeaderValue = context.Client.DefaultRequestHeaders.Authorization;
+            var showTokenInCurl = context.ShowTokenInCurl;
+
             // base curl call
             yield return "curl";
             yield return "--location";

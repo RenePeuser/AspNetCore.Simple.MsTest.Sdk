@@ -27,6 +27,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string uri,
                                      object? payload,
                                      string payloadParameterName);
+
+        HttpRequestMessage BuildFrom(IHttpAssertContext context);
     }
 
     internal sealed class HttpRequestMessageBuilder(JsonSerializer jsonSerializer) : IHttpRequestMessageBuilder
@@ -69,6 +71,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             return Application.Json;
+        }
+
+        public HttpRequestMessage BuildFrom(IHttpAssertContext context)
+        {
+            return BuildFrom(context.HttpMethod,
+                             context.Url,
+                             context.ResolvedPayload ?? context.PayloadAsJson,
+                             context.PayloadParameterName);
         }
     }
 }
