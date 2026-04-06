@@ -116,14 +116,14 @@
             <summary>
             Pipeline that executes HTTP assertion steps sequentially.
             Each step validates a specific aspect of the HTTP response.
-            The pipeline stops at the first failing step (Assert.Fail throws an exception).
+            The pipeline stops at the first failing step (Assert.That.Fail throws an exception).
             </summary>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpAssertionPipeline.#ctor(System.Collections.Generic.IEnumerable{AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionStep})">
             <summary>
             Pipeline that executes HTTP assertion steps sequentially.
             Each step validates a specific aspect of the HTTP response.
-            The pipeline stops at the first failing step (Assert.Fail throws an exception).
+            The pipeline stops at the first failing step (Assert.That.Fail throws an exception).
             </summary>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpAssertionPipeline.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
@@ -156,7 +156,7 @@
         <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
             <summary>
             Executes this assertion step on the given HTTP response context.
-            If the assertion fails, this method should call Assert.Fail() to stop the pipeline.
+            If the assertion fails, this method should call Assert.That.Fail() to stop the pipeline.
             If the assertion succeeds, the method returns normally and the pipeline continues.
             Steps are validators only - they never modify the result.
             </summary>
@@ -175,7 +175,7 @@
             This step runs after ContentTypeHeaderValidationStep and before JsonComparisonStep.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentFormatValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentFormatValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IAssertOutputBuilder)">
             <summary>
             Validates that the response body content is structurally valid JSON.
             Checks that content starts with '{' (object) or '[' (array).
@@ -197,7 +197,7 @@
             Checks the Content-Type header value for application/json.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentTypeHeaderValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentTypeHeaderValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IAssertOutputBuilder)">
             <summary>
             Validates that the Content-Type HTTP header indicates JSON content.
             This prevents attempting to parse binary data (images, PDFs, etc.) as JSON.
@@ -238,18 +238,33 @@
             <summary>
             Validates that the HTTP status code matches expectations.
             Fast-fail step: if the status code is unexpected, the test fails immediately.
-            This step replaces the UnexpectedStatusCodeStrategy.
+            Uses IAssertOutputBuilder to build error output (strategy resolved automatically).
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.StatusCodeValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.StatusCodeValidationStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IAssertOutputBuilder)">
             <summary>
             Validates that the HTTP status code matches expectations.
             Fast-fail step: if the status code is unexpected, the test fails immediately.
-            This step replaces the UnexpectedStatusCodeStrategy.
+            Uses IAssertOutputBuilder to build error output (strategy resolved automatically).
             </summary>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.StatusCodeValidationStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
             <inheritdoc />
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertThat">
+            <summary>
+            Provides assertion methods with cleaner output compared to standard Assert.Fail().
+            Throws AssertFailedException directly without the "Assert.Fail failed." prefix.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertThat.Fail(Microsoft.VisualStudio.TestTools.UnitTesting.Assert,System.String)">
+            <summary>
+            Fails the test with the specified message.
+            Unlike Assert.Fail(), this throws AssertFailedException directly without additional prefix.
+            Output: "SNAPSHOT TEST FAILED..." instead of "Assert.Fail failed. SNAPSHOT TEST FAILED..."
+            </summary>
+            <param name="_">just placeholder to use it as extension</param>
+            <param name="message">The error message to display</param>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpClientAssertExtensions.AssertDeleteAsync(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{System.String})">
             <summary>
@@ -536,12 +551,6 @@
             Useful for updating test snapshots.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.IObjectAssertContext.Title">
-            <summary>
-            Title/description for the assertion output.
-            Used in error messages to provide context.
-            </summary>
-        </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.IObjectAssertContext.CallerFilePath">
             <summary>
             The file path of the calling test method. Usually auto-filled by CallerFilePath.
@@ -614,12 +623,6 @@
             Useful for updating test snapshots.
             </summary>
         </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext.Title">
-            <summary>
-            Title/description for the assertion output.
-            Used in error messages to provide context.
-            </summary>
-        </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext.CallerFilePath">
             <summary>
             The file path of the calling test method. Usually auto-filled by CallerFilePath.
@@ -689,7 +692,7 @@
             All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IOutputFormatter,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IAssertOutputBuilder)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IAssertOutputBuilder)">
             <summary>
             Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService"/> that contains the core assertion logic.
             This class encapsulates all dependencies needed for object assertions.
@@ -1249,10 +1252,10 @@
             This is the preferred method for context-based operations.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IDifferencesTableBuilder.Build(System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference})">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.IDifferencesTableBuilder.Build(AspNetCore.Simple.MsTest.Sdk.IHttpResponseContext,System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference})">
             <summary>
             Builds differences table from list of differences.
-            Includes: MemberPath, Expected, Actual, MismatchType.
+            Includes: MemberPath, Expected (with filename), Actual, MismatchType.
             Uses ConsoleTables for formatting.
             Note: Differences should be pre-filtered by the calling step (step-specific filtering).
             </summary>
@@ -1270,27 +1273,17 @@
             Non-generic overload for use with IHttpResponseContext.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IJsonSectionBuilder.BuildExpected(System.String)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.IJsonSectionBuilder.BuildExpected(AspNetCore.Simple.MsTest.Sdk.IHttpResponseContext,System.String)">
             <summary>
-            Builds expected JSON section with label.
-            Format: "EXPECTED JSON (copy/paste):\n\n{json}"
+            Builds expected result section with label including response filename.
+            Format: "EXPECTED RESULT (NewPerson.json):\n\n{json}"
             </summary>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.IJsonSectionBuilder.BuildCurrent(System.String)">
             <summary>
-            Builds current JSON section with label.
-            Format: "CURRENT JSON (copy/paste):\n\n{json}"
+            Builds current result section with label.
+            Format: "CURRENT RESULT:\n\n{json}"
             </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder.Build``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0},System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference},System.String,System.String)">
-            <summary>
-            Builds complete snapshot test failure output.
-            Combines all sections: TestInfo, HTTP Call, Differences, Expected/Current JSON, Curl.
-            </summary>
-            <param name="context">HTTP response context with all request/response data</param>
-            <param name="differences">List of differences found (can be empty)</param>
-            <param name="expectedJson">Expected JSON string (already prepared by step)</param>
-            <param name="currentJson">Current/actual JSON string (already prepared by step)</param>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder.Build(AspNetCore.Simple.MsTest.Sdk.IHttpResponseContext,System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference},System.String,System.String)">
             <summary>
@@ -1301,7 +1294,7 @@
         <member name="M:AspNetCore.Simple.MsTest.Sdk.ITestInfoBuilder.Build``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0},System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference})">
             <summary>
             Builds test information section from HTTP response context and differences.
-            Includes: Project, Class, Method, Snapshot, Errors count, ErrorTypes.
+            Includes: Project, Class, Request, Response, Errors count, ErrorTypes.
             </summary>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.ITestInfoBuilder.Build(AspNetCore.Simple.MsTest.Sdk.IHttpResponseContext,System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference})">
@@ -1428,24 +1421,6 @@
             Optional - can be null.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.IOutputFormatter.Format(AspNetCore.Simple.MsTest.Sdk.OutputContext)">
-            <summary>
-            Formats output using the appropriate strategy based on the context.
-            This is the new preferred method that uses the strategy pattern.
-            </summary>
-        </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.OutputFormatter">
-            <summary>
-            Strategy orchestrator that selects and delegates to the appropriate specific formatter.
-            Uses the Chain of Responsibility pattern to find the first formatter that can handle the context.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.OutputFormatter.#ctor(System.Collections.Generic.IEnumerable{AspNetCore.Simple.MsTest.Sdk.ISpecificOutputFormatter},AspNetCore.Simple.MsTest.Sdk.ICurlFormatter)">
-            <summary>
-            Strategy orchestrator that selects and delegates to the appropriate specific formatter.
-            Uses the Chain of Responsibility pattern to find the first formatter that can handle the context.
-            </summary>
-        </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpSpecificOutputFormatter">
             <summary>
             Formats output for HTTP assertion contexts.
@@ -1479,7 +1454,7 @@
             <param name="differences">List of differences found</param>
             <param name="expectedJson">Expected JSON string</param>
             <param name="currentJson">Current/actual JSON string</param>
-            <returns>Formatted error message for Assert.Fail()</returns>
+            <returns>Formatted error message for Assert.That.Fail()</returns>
             <exception cref="T:System.InvalidOperationException">Thrown when zero or multiple strategies match</exception>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertOutputBuilder">
@@ -1499,15 +1474,15 @@
         <member name="T:AspNetCore.Simple.MsTest.Sdk.HttpResponseOutputStrategy">
             <summary>
             Output strategy for HTTP response contexts.
-            Uses SnapshotTestOutputBuilder to create comprehensive HTTP assertion failure output
-            including test info, HTTP call details, differences, JSON comparison, and curl reproduction.
+            Builds comprehensive HTTP assertion failure output including test info,
+            HTTP call details, differences, JSON comparison, and curl reproduction.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpResponseOutputStrategy.#ctor(AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpResponseOutputStrategy.#ctor(AspNetCore.Simple.MsTest.Sdk.IHttpCallInfoTableBuilder,AspNetCore.Simple.MsTest.Sdk.IDifferencesTableBuilder,AspNetCore.Simple.MsTest.Sdk.IJsonSectionBuilder,AspNetCore.Simple.MsTest.Sdk.ICurlBuilder,AspNetCore.Simple.MsTest.Sdk.ICurlFormatter)">
             <summary>
             Output strategy for HTTP response contexts.
-            Uses SnapshotTestOutputBuilder to create comprehensive HTTP assertion failure output
-            including test info, HTTP call details, differences, JSON comparison, and curl reproduction.
+            Builds comprehensive HTTP assertion failure output including test info,
+            HTTP call details, differences, JSON comparison, and curl reproduction.
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.IAssertOutputStrategy">
@@ -1531,7 +1506,7 @@
             <param name="differences">List of differences found (empty if no structural comparison)</param>
             <param name="expectedJson">Expected JSON string</param>
             <param name="currentJson">Current/actual JSON string</param>
-            <returns>Formatted error message for Assert.Fail()</returns>
+            <returns>Formatted error message for Assert.That.Fail()</returns>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertOutputStrategyBase`1">
             <summary>
@@ -1560,13 +1535,21 @@
         <member name="T:AspNetCore.Simple.MsTest.Sdk.ObjectOutputStrategy">
             <summary>
             Output strategy for pure object comparisons (non-HTTP).
-            Uses the legacy OutputFormatter for simple object comparison output.
+            Builds comprehensive object assertion failure output including test info,
+            differences, and JSON comparison with Expected/Current labels.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.ObjectOutputStrategy.#ctor(AspNetCore.Simple.MsTest.Sdk.IOutputFormatter)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.ObjectOutputStrategy.#ctor(AspNetCore.Simple.MsTest.Sdk.IDifferencesTableBuilder,AspNetCore.Simple.MsTest.Sdk.IJsonSectionBuilder)">
             <summary>
             Output strategy for pure object comparisons (non-HTTP).
-            Uses the legacy OutputFormatter for simple object comparison output.
+            Builds comprehensive object assertion failure output including test info,
+            differences, and JSON comparison with Expected/Current labels.
+            </summary>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.PrimitiveOutputStrategy">
+            <summary>
+            Output strategy for primitive type comparisons (int, string, bool, etc.).
+            Builds simple assertion failure output showing expected vs current value.
             </summary>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.IResponseWriter.Write(AspNetCore.Simple.MsTest.Sdk.IObjectAssertContext,System.String,AspNetCore.Simple.MsTest.Sdk.EmbeddedFileInfo,AspNetCore.Simple.MsTest.Sdk.ResponseWriteMode)">

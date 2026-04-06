@@ -9,7 +9,7 @@
     {
         /// <summary>
         /// Executes this assertion step on the given HTTP response context.
-        /// If the assertion fails, this method should call Assert.Fail() to stop the pipeline.
+        /// If the assertion fails, this method should call Assert.That.Fail() to stop the pipeline.
         /// If the assertion succeeds, the method returns normally and the pipeline continues.
         /// Steps are validators only - they never modify the result.
         /// </summary>

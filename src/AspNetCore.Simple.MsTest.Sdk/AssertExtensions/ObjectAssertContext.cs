@@ -51,12 +51,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         bool WriteResponse { get; init; }
 
         /// <summary>
-        /// Title/description for the assertion output.
-        /// Used in error messages to provide context.
-        /// </summary>
-        string? Title { get; init; }
-
-        /// <summary>
         /// The file path of the calling test method. Usually auto-filled by CallerFilePath.
         /// </summary>
         string CallerFilePath { get; init; }
@@ -104,19 +98,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Use the strongly-typed CurrentObject property in derived generic classes when possible.
         /// This property is set automatically by the derived generic class.
         /// </summary>
-        public object? CurrentObject { get; init; }
+        public required object? CurrentObject { get; init; }
 
         /// <summary>
         /// Optional function to filter differences found during comparison.
         /// Allows ignoring specific differences that are expected.
         /// </summary>
-        public Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; init; } = item => item;
+        public required Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; init; } = item => item;
 
         /// <summary>
         /// Parameters to replace in JSON strings during comparison.
         /// Format: (Key, Value) tuples where Key is the placeholder and Value is the replacement.
         /// </summary>
-        public (string Key, object? Value)[] Parameters { get; init; } = [];
+        public required (string Key, object? Value)[] Parameters { get; init; } = [];
 
         /// <summary>
         /// The calling assembly. If not provided, will be automatically determined.
@@ -127,13 +121,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Whether to write the response to disk when the assertion fails.
         /// Useful for updating test snapshots.
         /// </summary>
-        public bool WriteResponse { get; init; }
-
-        /// <summary>
-        /// Title/description for the assertion output.
-        /// Used in error messages to provide context.
-        /// </summary>
-        public string? Title { get; init; }
+        public required bool WriteResponse { get; init; }
 
         /// <summary>
         /// The file path of the calling test method. Usually auto-filled by CallerFilePath.

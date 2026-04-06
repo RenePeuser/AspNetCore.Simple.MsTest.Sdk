@@ -1,3 +1,4 @@
+using System.IO;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,34 +15,50 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public interface IJsonSectionBuilder
     {
         /// <summary>
-        /// Builds expected JSON section with label.
-        /// Format: "EXPECTED JSON (copy/paste):\n\n{json}"
+        /// Builds expected result section with label including response filename.
+        /// Format: "EXPECTED RESULT (NewPerson.json):\n\n{json}"
         /// </summary>
-        string BuildExpected(string expectedJson);
+        string BuildExpected(IHttpResponseContext context,
+                            string expectedJson);
 
         /// <summary>
-        /// Builds current JSON section with label.
-        /// Format: "CURRENT JSON (copy/paste):\n\n{json}"
+        /// Builds current result section with label.
+        /// Format: "CURRENT RESULT:\n\n{json}"
         /// </summary>
         string BuildCurrent(string currentJson);
     }
 
     internal sealed class JsonSectionBuilder : IJsonSectionBuilder
     {
-        public string BuildExpected(string expectedJson)
+        public string BuildExpected(IHttpResponseContext context,
+                                   string expectedJson)
         {
-            return BuildSection("EXPECTED JSON (copy/paste)", expectedJson);
+            var responseFileName = GetResponseFileName(context);
+            var label = $"EXPECTED RESULT ({responseFileName})";
+            return BuildSection(label, expectedJson);
         }
 
         public string BuildCurrent(string currentJson)
         {
-            return BuildSection("CURRENT JSON (copy/paste)", currentJson);
+            return BuildSection("CURRENT RESULT", currentJson);
         }
 
         private static string BuildSection(string label,
                                            string json)
         {
             return $"{label}:\n\n{json}";
+        }
+
+        private static string GetResponseFileName(IHttpResponseContext context)
+        {
+            var expectedFileName = context.ExpectedResultFile.EmbeddedFile?.Name;
+
+            if (expectedFileName.IsNotNullOrWhiteSpace())
+            {
+                return expectedFileName;
+            }
+
+            return "Expected";
         }
     }
 }

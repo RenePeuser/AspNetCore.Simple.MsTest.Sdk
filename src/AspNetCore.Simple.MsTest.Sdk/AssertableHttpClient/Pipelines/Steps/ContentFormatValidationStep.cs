@@ -12,7 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         public static void AddContentFormatValidationStep(this IServiceCollection services)
         {
             // 1. Register dependencies
-            services.AddSnapshotTestOutputBuilder();
+            services.AddAssertOutputBuilder();
 
             // 2. Register the step itself
             services.AddSingletonIfNotExists<IHttpAssertionStep, ContentFormatValidationStep>();
@@ -24,7 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
     /// Checks that content starts with '{' (object) or '[' (array).
     /// This step runs after ContentTypeHeaderValidationStep and before JsonComparisonStep.
     /// </summary>
-    internal sealed class ContentFormatValidationStep(ISnapshotTestOutputBuilder snapshotTestOutputBuilder) : IHttpAssertionStep
+    internal sealed class ContentFormatValidationStep(IAssertOutputBuilder assertOutputBuilder) : IHttpAssertionStep
     {
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
@@ -71,12 +71,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             var currentJson = contentPreview;
             var differences = ImmutableList<Difference>.Empty;
 
-            var errorOutput = snapshotTestOutputBuilder.Build(context,
+            var errorOutput = assertOutputBuilder.BuildOutput(context,
                                                               differences,
                                                               expectedJson,
                                                               currentJson);
 
-            Assert.Fail(errorOutput);
+            Assert.That.Fail(errorOutput);
         }
     }
 }

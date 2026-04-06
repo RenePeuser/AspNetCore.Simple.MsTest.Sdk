@@ -14,14 +14,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly JsonDiffer JsonDiffer = new();
 
-        private static readonly CurlFormatter CurlFormatter = new();
-
-        private static readonly OutputFormatter OutputFormatter = new([
-                                                                          new HttpSpecificOutputFormatter(CurlFormatter),
-                                                                          new ObjectSpecificOutputFormatter()
-                                                                      ],
-                                                                      CurlFormatter);
-
         private static readonly ParameterReplacer ParameterReplacer = new();
 
         private static readonly ResponseWriter ResponseWriter = new ResponseWriter([
@@ -47,16 +39,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly Serializer.Json.JsonSerializer JsonSerializer = new(JsonSerializerOptions);
 
-        // Output strategies for AssertService
-        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(OutputFormatter);
+        // Builders for output strategies
+        private static readonly DifferencesTableBuilder DifferencesTableBuilder = new();
+        private static readonly JsonSectionBuilder JsonSectionBuilder = new();
 
-        private static readonly IAssertOutputStrategy[] OutputStrategies = [ObjectOutputStrategy];
+        // Output strategies for AssertService
+        private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new();
+        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(DifferencesTableBuilder, JsonSectionBuilder);
+
+        private static readonly IAssertOutputStrategy[] OutputStrategies = [PrimitiveOutputStrategy, ObjectOutputStrategy];
 
         private static readonly AssertOutputBuilder OutputBuilder = new(OutputStrategies);
 
         private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
                                                                   JsonDiffer,
-                                                                  OutputFormatter,
                                                                   ResponseWriter,
                                                                   WriteResponseService,
                                                                   JsonSerializer,
@@ -925,7 +921,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               ExpectedObjectAsJson = expectedObjectAsJson,
                               Current = currentObject,
                               OrderFunc = orderFunc,
-                              Title = title,
                               CallingAssembly = callingAssembly,
                               DifferenceFunc = differenceFunc,
                               Parameters = parameters,
@@ -934,8 +929,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               CurrentResultParameterName = currentResultParameterName,
                               CallerFilePath = callerFilePath,
                               ExpectedResultFile = expectedFile,
-                              ResolvedExpectedJson = resolvedExpectedJson
-                          };
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              CurrentObject = currentObject
+            };
 
             ObjectsAreEqual(assert, context);
         }

@@ -23,12 +23,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 1. Register all dependencies via their own extensions
             services.AddPrimitiveTypeConverter();
             services.AddJsonDiffer();
-            services.AddOutputFormatter();
             services.AddResponseWriter();
             services.AddWriteResponseService();
             services.AddJsonSerializer();
 
             // 2. Register output strategies
+            services.AddPrimitiveOutputStrategy();
             services.AddObjectOutputStrategy();
             services.AddHttpResponseOutputStrategy();
 
@@ -63,7 +63,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </summary>
     internal sealed class AssertService(IPrimitiveTypeConverter primitiveTypeConverter,
                                         IJsonDiffer jsonDiffer,
-                                        IOutputFormatter outputFormatter,
                                         IResponseWriter responseWriter,
                                         IWriteResponseService writeResponseService,
                                         JsonSerializer jsonSerializer,
@@ -74,7 +73,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             // Assumption: Context is fully prepared with ResolvedExpectedJson
             var expectedJson = context.ResolvedExpectedJson ?? string.Empty;
-            var currentObject = context.Current;
+            var currentObject = context.CurrentObject;
 
             // 1. Serialize current object
             var currentJson = currentObject.ToJson(jsonSerializerOptions);
@@ -103,11 +102,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   string currentJson)
         {
             var expectedValue = primitiveTypeConverter.ConvertTo<T>(expectedJson);
-            var title = context.Title ?? string.Empty;
 
-            var output = outputFormatter.GetOutputString(title, expectedJson, currentJson);
+            // Check if values match
+            if (Equals(expectedValue, context.Current))
+            {
+                return; // Values match, test passes
+            }
 
-            Assert.AreEqual(expectedValue, context.Current, output);
+            // Values don't match - build output using strategy
+            var output = outputBuilder.BuildOutput(context, ImmutableList<Difference>.Empty,
+                                                  expectedJson, currentJson);
+
+            Assert.That.Fail(output);
         }
 
         private void HandleObjectComparison<T>(ObjectAssertContext<T> context,
@@ -116,7 +122,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var expectedResultParameterName = context.ExpectedResultParameterName;
             var currentResultParameterName = context.CurrentResultParameterName;
-            var title = context.Title ?? string.Empty;
 
             // 1. Deserialize expected object
             T? expectedObject;
@@ -135,7 +140,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       expectedJson,
                                                       currentJson);
 
-                Assert.Fail($"{title}\n\nThe given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Exception: {e.Message}\n\n{error}");
+                Assert.That.Fail($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Exception: {e.Message}\n\n{error}");
 
                 return; // Unreachable, but helps compiler
             }
@@ -196,7 +201,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       expectedOrderedJson,
                                                       currentOrderedJson);
 
-                Assert.Fail(error);
+                Assert.That.Fail(error);
             }
         }
     }

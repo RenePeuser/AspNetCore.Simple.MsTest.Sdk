@@ -91,37 +91,37 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// The payload as JSON string or file name.
         /// Can be a JSON string, a file name like "request.json", or an embedded resource path.
         /// </summary>
-        public string? PayloadAsJson { get; init; }
+        public required string? PayloadAsJson { get; init; }
 
         /// <summary>
         /// The localized payload file info.
         /// Contains the resolved embedded request file information including content and physical file location.
         /// This is resolved once during context creation and reused throughout the assertion pipeline.
         /// </summary>
-        public EmbeddedFileInfo? PayloadFile { get; init; }
+        public required EmbeddedFileInfo? PayloadFile { get; init; }
 
         /// <summary>
         /// The fully resolved payload JSON with all parameters replaced.
         /// This is ready-to-use and prepared once during context creation.
         /// Avoids repeated parameter resolution throughout the assertion pipeline.
         /// </summary>
-        public string? ResolvedPayload { get; init; }
+        public required string? ResolvedPayload { get; init; }
 
         /// <summary>
         /// Whether the HTTP call is expected to succeed (2xx status code).
         /// Set to false when testing error scenarios.
         /// </summary>
-        public bool IsSuccessStatusCode { get; init; } = true;
+        public required bool IsSuccessStatusCode { get; init; } = true;
 
         /// <summary>
         /// The parameter name of the payload argument. Usually auto-filled by CallerArgumentExpression.
         /// </summary>
-        public string PayloadParameterName { get; init; } = string.Empty;
+        public required string PayloadParameterName { get; init; } = string.Empty;
 
         /// <summary>
         /// Controls the visibility of the token in curl outputs.
         /// Set to true to show the token in generated curl commands.
         /// </summary>
-        public bool ShowTokenInCurl { get; init; }
+        public required bool ShowTokenInCurl { get; init; }
     }
 }

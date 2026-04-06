@@ -26,19 +26,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public interface ISnapshotTestOutputBuilder
     {
         /// <summary>
-        /// Builds complete snapshot test failure output.
-        /// Combines all sections: TestInfo, HTTP Call, Differences, Expected/Current JSON, Curl.
-        /// </summary>
-        /// <param name="context">HTTP response context with all request/response data</param>
-        /// <param name="differences">List of differences found (can be empty)</param>
-        /// <param name="expectedJson">Expected JSON string (already prepared by step)</param>
-        /// <param name="currentJson">Current/actual JSON string (already prepared by step)</param>
-        string Build<TResult>(HttpResponseContext<TResult> context,
-                              ImmutableList<Difference> differences,
-                              string expectedJson,
-                              string currentJson);
-
-        /// <summary>
         /// Builds complete snapshot test failure output from HTTP response context interface.
         /// Non-generic overload for use with IHttpResponseContext.
         /// </summary>
@@ -55,15 +42,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     ICurlBuilder curlBuilder,
                                                     ICurlFormatter curlFormatter) : ISnapshotTestOutputBuilder
     {
-        public string Build<TResult>(HttpResponseContext<TResult> context,
-                                     ImmutableList<Difference> differences,
-                                     string expectedJson,
-                                     string currentJson)
-        {
-            return Build((IHttpResponseContext)context, differences, expectedJson,
-                         currentJson);
-        }
-
         public string Build(IHttpResponseContext context,
                             ImmutableList<Difference> differences,
                             string expectedJson,
@@ -82,7 +60,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             stringBuilder.AppendLine();
 
             // Section 3: Differences Table (if any)
-            var differencesTable = differencesTableBuilder.Build(differences);
+            var differencesTable = differencesTableBuilder.Build(context, differences);
 
             if (differencesTable.IsNotNullOrWhiteSpace())
             {
@@ -90,12 +68,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 stringBuilder.AppendLine();
             }
 
-            // Section 4: Expected JSON
-            var expectedSection = jsonSectionBuilder.BuildExpected(expectedJson);
+            // Section 4: Expected Result
+            var expectedSection = jsonSectionBuilder.BuildExpected(context, expectedJson);
             stringBuilder.AppendLine(expectedSection);
             stringBuilder.AppendLine();
 
-            // Section 5: Current JSON
+            // Section 5: Current Result
             var currentSection = jsonSectionBuilder.BuildCurrent(currentJson);
             stringBuilder.AppendLine(currentSection);
             stringBuilder.AppendLine();

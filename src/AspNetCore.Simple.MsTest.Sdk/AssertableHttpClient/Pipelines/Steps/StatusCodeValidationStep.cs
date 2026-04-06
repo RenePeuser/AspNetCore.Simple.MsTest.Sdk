@@ -12,7 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         public static void AddStatusCodeValidationStep(this IServiceCollection services)
         {
             // 1. Register dependencies
-            services.AddSnapshotTestOutputBuilder();
+            services.AddAssertOutputBuilder();
 
             // 2. Register the step itself
             services.AddSingletonIfNotExists<IHttpAssertionStep, StatusCodeValidationStep>();
@@ -22,9 +22,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
     /// <summary>
     /// Validates that the HTTP status code matches expectations.
     /// Fast-fail step: if the status code is unexpected, the test fails immediately.
-    /// This step replaces the UnexpectedStatusCodeStrategy.
+    /// Uses IAssertOutputBuilder to build error output (strategy resolved automatically).
     /// </summary>
-    internal sealed class StatusCodeValidationStep(ISnapshotTestOutputBuilder snapshotTestOutputBuilder) : IHttpAssertionStep
+    internal sealed class StatusCodeValidationStep(IAssertOutputBuilder assertOutputBuilder) : IHttpAssertionStep
     {
         /// <inheritdoc />
         public void Execute<TResult>(HttpResponseContext<TResult> context)
@@ -47,12 +47,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // Build differences list (empty for now - status code mismatch is conceptual, not JSON diff)
             var differences = ImmutableList<Difference>.Empty;
 
-            // Build complete snapshot test output
-            var errorOutput = snapshotTestOutputBuilder.Build(context, differences, expectedJson,
-                                                              currentJson);
+            // Build complete output using strategy pattern (HTTP strategy will be auto-resolved)
+            var errorOutput = assertOutputBuilder.BuildOutput(context, differences, expectedJson,
+                                                             currentJson);
 
             // Fail immediately - no response writing, no further processing
-            Assert.Fail(errorOutput);
+            Assert.That.Fail(errorOutput);
         }
     }
 }

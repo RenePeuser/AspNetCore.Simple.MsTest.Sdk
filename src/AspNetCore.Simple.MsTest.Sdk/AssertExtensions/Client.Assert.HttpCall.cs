@@ -13,12 +13,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         private static readonly CurlFormatter CurlFormatterInstance = new();
 
-        private static readonly OutputFormatter OutputFormatter = new([
-                                                                          new HttpSpecificOutputFormatter(CurlFormatterInstance),
-                                                                          new ObjectSpecificOutputFormatter()
-                                                                      ],
-                                                                      CurlFormatterInstance);
-
         private static readonly PrimitiveTypeConverter PrimitiveTypeConverter = new();
 
         private static readonly JsonDiffer JsonDiffer = new JsonDiffer();
@@ -68,9 +62,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly JsonSerializer JsonSerializerInstance = new(JsonSerializerOptions);
 
-        // Snapshot Test Output Builder (replaces OutputFormatter in pipeline steps)
-        private static readonly TestInfoBuilder TestInfoBuilder = new();
-
+        // Builders for output strategies
         private static readonly HttpCallInfoTableBuilder HttpCallInfoTableBuilder = new();
 
         private static readonly DifferencesTableBuilder DifferencesTableBuilder = new();
@@ -79,37 +71,35 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly CurlBuilder CurlBuilder = new();
 
-        private static readonly SnapshotTestOutputBuilder SnapshotTestOutputBuilder = new(TestInfoBuilder,
-                                                                                          HttpCallInfoTableBuilder,
-                                                                                          DifferencesTableBuilder,
-                                                                                          JsonSectionBuilder,
-                                                                                          CurlBuilder,
-                                                                                          CurlFormatterInstance);
-
         // Output strategies for AssertService
-        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(OutputFormatter);
+        private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new();
 
-        private static readonly HttpResponseOutputStrategy HttpResponseOutputStrategy = new(SnapshotTestOutputBuilder);
+        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(DifferencesTableBuilder, JsonSectionBuilder);
 
-        private static readonly IAssertOutputStrategy[] OutputStrategies = [ObjectOutputStrategy, HttpResponseOutputStrategy];
+        private static readonly HttpResponseOutputStrategy HttpResponseOutputStrategy = new(HttpCallInfoTableBuilder,
+                                                                                            DifferencesTableBuilder,
+                                                                                            JsonSectionBuilder,
+                                                                                            CurlBuilder,
+                                                                                            CurlFormatterInstance);
+
+        private static readonly IAssertOutputStrategy[] OutputStrategies = [PrimitiveOutputStrategy, ObjectOutputStrategy, HttpResponseOutputStrategy];
 
         private static readonly AssertOutputBuilder OutputBuilder = new(OutputStrategies);
 
         private static readonly AssertService AssertService = new(PrimitiveTypeConverter,
                                                                   JsonDiffer,
-                                                                  OutputFormatter,
                                                                   ResponseWriter,
                                                                   WriteResponseService,
                                                                   JsonSerializerInstance,
                                                                   JsonSerializerOptions,
                                                                   OutputBuilder);
 
-        // Pipeline steps (replacing old strategies)
-        private static readonly StatusCodeValidationStep StatusCodeValidationStep = new(SnapshotTestOutputBuilder);
+        // Pipeline steps
+        private static readonly StatusCodeValidationStep StatusCodeValidationStep = new(OutputBuilder);
 
-        private static readonly ContentTypeHeaderValidationStep ContentTypeHeaderValidationStep = new(SnapshotTestOutputBuilder);
+        private static readonly ContentTypeHeaderValidationStep ContentTypeHeaderValidationStep = new(OutputBuilder);
 
-        private static readonly ContentFormatValidationStep ContentFormatValidationStep = new(SnapshotTestOutputBuilder);
+        private static readonly ContentFormatValidationStep ContentFormatValidationStep = new(OutputBuilder);
 
         private static readonly JsonComparisonStep JsonComparisonStep = new(PrimitiveTypeConverter,
                                                                             AssertService,
@@ -247,7 +237,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               PayloadFile = payloadFile,
                               ExpectedResultFile = expectedResultFile,
                               ResolvedPayload = resolvedPayload,
-                              ResolvedExpectedJson = resolvedExpectedJson
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              ShowTokenInCurl = false,
+                              CurrentObject = default,
                           };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);

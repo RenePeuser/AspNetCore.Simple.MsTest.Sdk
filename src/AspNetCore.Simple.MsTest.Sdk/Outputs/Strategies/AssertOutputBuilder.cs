@@ -30,7 +30,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="differences">List of differences found</param>
         /// <param name="expectedJson">Expected JSON string</param>
         /// <param name="currentJson">Current/actual JSON string</param>
-        /// <returns>Formatted error message for Assert.Fail()</returns>
+        /// <returns>Formatted error message for Assert.That.Fail()</returns>
         /// <exception cref="InvalidOperationException">Thrown when zero or multiple strategies match</exception>
         string BuildOutput(IObjectAssertContext context,
                            ImmutableList<Difference> differences,

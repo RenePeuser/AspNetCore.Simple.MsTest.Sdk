@@ -1,4 +1,5 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Text;
 using ConsoleTables;
@@ -19,16 +20,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         /// <summary>
         /// Builds differences table from list of differences.
-        /// Includes: MemberPath, Expected, Actual, MismatchType.
+        /// Includes: MemberPath, Expected (with filename), Actual, MismatchType.
         /// Uses ConsoleTables for formatting.
         /// Note: Differences should be pre-filtered by the calling step (step-specific filtering).
         /// </summary>
-        string Build(ImmutableList<Difference> differences);
+        string Build(IHttpResponseContext context,
+                     ImmutableList<Difference> differences);
     }
 
     internal sealed class DifferencesTableBuilder : IDifferencesTableBuilder
     {
-        public string Build(ImmutableList<Difference> differences)
+        public string Build(IHttpResponseContext context,
+                            ImmutableList<Difference> differences)
         {
             if (differences.IsEmpty)
             {
@@ -37,10 +40,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var table = new ConsoleTable { Options = { EnableCount = false } };
 
-            // Add columns
+            // Get response filename for Expected column header
+            var responseFileName = GetResponseFileName(context);
+
+            // Add columns with response filename
             table.AddColumn(new[]
                             {
-                                "MemberPath", "Expected", "Actual",
+                                "MemberPath", responseFileName, "CurrentResult",
                                 "MismatchType"
                             });
 
@@ -58,6 +64,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             stringBuilder.AppendLine(table.ToString());
 
             return stringBuilder.ToString();
+        }
+
+        private static string GetResponseFileName(IHttpResponseContext context)
+        {
+            var expectedFileName = context.ExpectedResultFile.EmbeddedFile?.Name;
+
+            if (expectedFileName.IsNotNullOrWhiteSpace())
+            {
+                return expectedFileName;
+            }
+
+            return "Expected";
         }
     }
 }

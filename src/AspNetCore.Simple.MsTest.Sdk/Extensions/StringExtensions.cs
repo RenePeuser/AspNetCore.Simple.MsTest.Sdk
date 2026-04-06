@@ -9,13 +9,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     internal static class StringExtensions
     {
-        private static readonly CurlFormatter CurlFormatter = new();
-
-        private static readonly OutputFormatter OutputFormatter = new([
-                                                                          new HttpSpecificOutputFormatter(CurlFormatter),
-                                                                          new ObjectSpecificOutputFormatter()
-                                                                      ],
-                                                                      CurlFormatter);
 
         public static string GetJsonStringFrom(this string expectedObjectAsJson,
                                                Assembly callingAssembly)
@@ -85,13 +78,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 trimmedJsonValue.EndWith("]") &&
                 mustBeAnArray.IsFalse())
             {
-                var output = OutputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {targeTypeInfo.FullName}",
-                                                             "Invalid source type object {} to target array type [] json conversion",
-                                                             trimmedJsonValue,
-                                                             currentObject,
-                                                             curl);
+                var output = $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {targeTypeInfo.FullName}\n" +
+                            $"Invalid source type object {{}} to target array type [] json conversion\n" +
+                            $"Expected: {trimmedJsonValue}\n" +
+                            $"Current: {currentObject}";
 
-                Assert.Fail(output);
+                Assert.That.Fail(output);
             }
 
             // 8. If the json string is an object but the target type is an enumerable then throw an exception
@@ -99,13 +91,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 trimmedJsonValue.EndWith("}") &&
                 mustBeAnArray)
             {
-                var output = OutputFormatter.GetOutputString($"Your passed json string: {expectedResultParameterName} is an object notation {{}}, but your target type: {targetType} is an array so you can't deserialize it. Please fix your json string",
-                                                             "Invalid source type array [] to target type object {} json conversion",
-                                                             trimmedJsonValue,
-                                                             currentObject,
-                                                             curl);
+                var output = $"Your passed json string: {expectedResultParameterName} is an object notation {{}}, but your target type: {targetType} is an array so you can't deserialize it. Please fix your json string\n" +
+                            $"Invalid source type array [] to target type object {{}} json conversion\n" +
+                            $"Expected: {trimmedJsonValue}\n" +
+                            $"Current: {currentObject}";
 
-                Assert.Fail(output);
+                Assert.That.Fail(output);
             }
 
             // 9. If json notation is fine so return it.
@@ -183,13 +174,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 trimmedJsonValue.EndWith("]") &&
                 isEnumerable.IsFalse())
             {
-                var output = OutputFormatter.GetOutputString($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).FullName}",
-                                                             "Invalid source type object {} to target array type [] json conversion",
-                                                             trimmedJsonValue,
-                                                             currentObject,
-                                                             curl);
+                var output = $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).FullName}\n" +
+                            $"Invalid source type object {{}} to target array type [] json conversion\n" +
+                            $"Expected: {trimmedJsonValue}\n" +
+                            $"Current: {currentObject}";
 
-                Assert.Fail(output);
+                Assert.That.Fail(output);
             }
 
             // 8. If the json string is an object but the target type is an enumerable then throw an exception
@@ -197,13 +187,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 trimmedJsonValue.EndWith("}") &&
                 isEnumerable)
             {
-                var output = OutputFormatter.GetOutputString($"Your passed json string: {expectedResultParameterName} is an object notation {{}}, but your target type: {targetType} is an array so you can't deserialize it. Please fix your json string",
-                                                             "Invalid source type array [] to target type object {} json conversion",
-                                                             trimmedJsonValue,
-                                                             currentObject,
-                                                             curl);
+                var output = $"Your passed json string: {expectedResultParameterName} is an object notation {{}}, but your target type: {targetType} is an array so you can't deserialize it. Please fix your json string\n" +
+                            $"Invalid source type array [] to target type object {{}} json conversion\n" +
+                            $"Expected: {trimmedJsonValue}\n" +
+                            $"Current: {currentObject}";
 
-                Assert.Fail(output);
+                Assert.That.Fail(output);
             }
 
             // 9. If json notation is fine so return it.

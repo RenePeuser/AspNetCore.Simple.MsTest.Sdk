@@ -20,7 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         /// <summary>
         /// Builds test information section from HTTP response context and differences.
-        /// Includes: Project, Class, Method, Snapshot, Errors count, ErrorTypes.
+        /// Includes: Project, Class, Request, Response, Errors count, ErrorTypes.
         /// </summary>
         string Build<TResult>(HttpResponseContext<TResult> context,
                               ImmutableList<Difference> differences);
@@ -45,13 +45,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             ImmutableList<Difference> differences)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var classPath = context.CallerFilePath;
-            var snapshot = GetSnapshotName(context);
+            var classPath = Path.GetFileName(context.CallerFilePath);
+            var requestName = GetRequestName(context);
+            var responseName = GetResponseName(context);
             var errorCount = differences.Count;
             var errorTypes = differences.Select(d => d.MismatchType).Distinct().ToList();
 
             var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("══════════════════════════════════════════════════════════════════════════════");
             stringBuilder.AppendLine("SNAPSHOT TEST FAILED");
+            stringBuilder.AppendLine("══════════════════════════════════════════════════════════════════════════════");
             stringBuilder.AppendLine();
             stringBuilder.AppendLine($"Project   : {projectName}");
             stringBuilder.AppendLine($"Class     : {classPath}");
@@ -59,7 +62,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Method name is not available from context - would need StackTrace or additional parameter
             // stringBuilder.AppendLine($"Method    : {methodName}");
 
-            stringBuilder.AppendLine($"Snapshot  : {snapshot}");
+            stringBuilder.AppendLine($"Expected  : {responseName}");
+            stringBuilder.AppendLine($"Current   : {requestName}");
             stringBuilder.AppendLine($"Errors    : {errorCount}");
 
             if (errorTypes.Any())
@@ -71,22 +75,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return stringBuilder.ToString();
         }
 
-        private static string GetSnapshotName(IHttpResponseContext context)
+        private static string GetRequestName(IHttpResponseContext context)
         {
-            // Prefer ExpectedResult file name
-            var expectedFileName = context.ExpectedResultFile.EmbeddedFileName;
-
-            if (expectedFileName.IsNotNullOrWhiteSpace())
-            {
-                return Path.GetFileName(expectedFileName);
-            }
-
-            // Fallback to Payload file name
             var payloadFileName = context.PayloadFile?.EmbeddedFileName;
 
             if (payloadFileName.IsNotNullOrWhiteSpace())
             {
                 return Path.GetFileName(payloadFileName);
+            }
+
+            return "N/A";
+        }
+
+        private static string GetResponseName(IHttpResponseContext context)
+        {
+            var expectedFileName = context.ExpectedResultFile.EmbeddedFileName;
+
+            if (expectedFileName.IsNotNullOrWhiteSpace())
+            {
+                return Path.GetFileName(expectedFileName);
             }
 
             return "N/A";

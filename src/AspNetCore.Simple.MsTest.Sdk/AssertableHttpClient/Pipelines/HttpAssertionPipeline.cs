@@ -25,7 +25,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
     /// <summary>
     /// Pipeline that executes HTTP assertion steps sequentially.
     /// Each step validates a specific aspect of the HTTP response.
-    /// The pipeline stops at the first failing step (Assert.Fail throws an exception).
+    /// The pipeline stops at the first failing step (Assert.That.Fail throws an exception).
     /// </summary>
     internal sealed class HttpAssertionPipeline(IEnumerable<IHttpAssertionStep> steps) : IHttpAssertionPipeline
     {
@@ -33,7 +33,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         public TResult Execute<TResult>(HttpResponseContext<TResult> context)
         {
             // Execute each step in sequence
-            // If a step calls Assert.Fail(), execution stops immediately (exception is thrown)
+            // If a step calls Assert.That.Fail(), execution stops immediately (exception is thrown)
             // Steps are validators only - they don't modify or return results
             foreach (var step in steps)
             {
