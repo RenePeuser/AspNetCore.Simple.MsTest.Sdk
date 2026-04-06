@@ -91,6 +91,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var classPath = Path.GetFileName(context.CallerFilePath);
+            var methodName = context.CallerMemberName;
             var requestName = GetRequestName(context);
             var responseName = GetResponseName(context);
             var errorCount = differences.Count;
@@ -104,8 +105,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             stringBuilder.AppendLine();
             stringBuilder.AppendLine($"{textDecorator.Highlight("Project")}   : {projectName}");
             stringBuilder.AppendLine($"{textDecorator.Highlight("Class")}     : {classPath}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Method")}    : {methodName}");
+            stringBuilder.AppendLine();
             stringBuilder.AppendLine($"{textDecorator.Highlight("Request")}   : {requestName}");
             stringBuilder.AppendLine($"{textDecorator.Highlight("Response")}  : {responseName}");
+            stringBuilder.AppendLine();
             stringBuilder.AppendLine($"{textDecorator.Highlight("Errors")}    : {textDecorator.Error(errorCount.ToString())}");
 
             if (errorTypes.Any())

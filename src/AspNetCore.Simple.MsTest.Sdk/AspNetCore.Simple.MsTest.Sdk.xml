@@ -556,6 +556,11 @@
             The file path of the calling test method. Usually auto-filled by CallerFilePath.
             </summary>
         </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.IObjectAssertContext.CallerMemberName">
+            <summary>
+            The name of the calling test method. Usually auto-filled by CallerMemberName.
+            </summary>
+        </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.IObjectAssertContext.ExpectedResultParameterName">
             <summary>
             The parameter name of the expected object. Usually auto-filled by CallerArgumentExpression.
@@ -628,6 +633,11 @@
             The file path of the calling test method. Usually auto-filled by CallerFilePath.
             </summary>
         </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext.CallerMemberName">
+            <summary>
+            The name of the calling test method. Usually auto-filled by CallerMemberName.
+            </summary>
+        </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext.ExpectedResultParameterName">
             <summary>
             The parameter name of the expected object. Usually auto-filled by CallerArgumentExpression.
@@ -697,12 +707,6 @@
             Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService"/> that contains the core assertion logic.
             This class encapsulates all dependencies needed for object assertions.
             All dependencies are injected via the primary constructor for testability and flexibility.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.ICurlBuilder.BuildFrom``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
-            <summary>
-            Builds a curl command from HTTP response context.
-            Uses the actual request from HttpResponseMessage (includes all headers, query params, etc.).
             </summary>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.ICurlBuilder.BuildFrom(AspNetCore.Simple.MsTest.Sdk.IHttpResponseContext)">
@@ -1283,24 +1287,6 @@
             <summary>
             Builds current result section with label.
             Format: "CURRENT RESULT:\n\n{json}"
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder.Build(AspNetCore.Simple.MsTest.Sdk.IHttpResponseContext,System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference},System.String,System.String)">
-            <summary>
-            Builds complete snapshot test failure output from HTTP response context interface.
-            Non-generic overload for use with IHttpResponseContext.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.ITestInfoBuilder.Build``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0},System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference})">
-            <summary>
-            Builds test information section from HTTP response context and differences.
-            Includes: Project, Class, Request, Response, Errors count, ErrorTypes.
-            </summary>
-        </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.ITestInfoBuilder.Build(AspNetCore.Simple.MsTest.Sdk.IHttpResponseContext,System.Collections.Immutable.ImmutableList{AspNetCore.Simple.MsTest.Sdk.Difference})">
-            <summary>
-            Builds test information section from HTTP response context interface.
-            Non-generic overload for use with IHttpResponseContext.
             </summary>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AnsiColorTextDecorator">

@@ -6,6 +6,8 @@ using System.Reflection;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -20,12 +22,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public interface ICurlBuilder
     {
         /// <summary>
-        /// Builds a curl command from HTTP response context.
-        /// Uses the actual request from HttpResponseMessage (includes all headers, query params, etc.).
-        /// </summary>
-        string BuildFrom<TResult>(HttpResponseContext<TResult> context);
-
-        /// <summary>
         /// Builds a curl command from HTTP response context interface.
         /// Non-generic overload for use with IHttpResponseContext.
         /// </summary>
@@ -34,11 +30,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     internal sealed class CurlBuilder : ICurlBuilder
     {
-        public string BuildFrom<TResult>(HttpResponseContext<TResult> context)
-        {
-            return BuildFrom((IHttpResponseContext)context);
-        }
-
         public string BuildFrom(IHttpResponseContext context)
         {
             var httpRequestMessage = context.HttpResponseMessage.RequestMessage;
@@ -60,7 +51,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static IEnumerable<string> BuildCurl(HttpRequestMessage httpRequestMessage,
-                                                     string payloadAsJson,
+                                                     string? payloadAsJson,
                                                      AuthenticationHeaderValue? authenticationHeaderValue,
                                                      Assembly assembly,
                                                      bool showTokenInCurl)
@@ -84,10 +75,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (payloadAsJson.IsNotNullOrWhiteSpace())
             {
-                var json = payloadAsJson.GetJsonStringFrom(assembly);
+                var token = JToken.Parse(payloadAsJson);
+                var flattenedJson = token.ToString(Formatting.None);
 
                 yield return "--header 'Content-Type: application/json'";
-                yield return $"--data-raw '{json}'";
+                yield return $"--data-raw '{flattenedJson}'";
             }
         }
     }

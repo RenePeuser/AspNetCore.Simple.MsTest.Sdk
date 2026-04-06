@@ -19,9 +19,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class PlainTextDecorator : ITextDecorator
     {
         public string Error(string text) => text;
+
         public string SectionTitle(string text) => text;
+
         public string Highlight(string text) => text;
+
         public string Dim(string text) => text;
+
         public string Success(string text) => text;
     }
 }

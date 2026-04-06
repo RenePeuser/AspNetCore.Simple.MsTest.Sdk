@@ -107,54 +107,53 @@ await Client.AssertPostAsync<AddUserResponse>("api/v1/users",
 ✔ Curl output on failure\
 ✔ Snapshot-based testing
 ```   
-    Http call infos:
-    
-     ----------------------------------------------------------------------------- 
-     | HttpMethod | Url                                         | HttpStatusCode |
-     ----------------------------------------------------------------------------- 
-     | POST       | https://localhost:5001/api/tests/v1/users   | OK             |
-     ----------------------------------------------------------------------------- 
-    
-    
-    Detected differences: 3
-    
-    
-     --------------------------------------------------------------------------------------------------------------------- 
-     | MemberPath                                  | "NewUser.json"                    | CurrentResult                   |
-     --------------------------------------------------------------------------------------------------------------------- 
-     | Content.Headers["Content-Type"].Value[0]    | application/octet; charset=utf-8  | application/json; charset=utf-8 |
-     --------------------------------------------------------------------------------------------------------------------- 
-     | Content.Value.FirstName                     | Goku Failed                       | Goku                            |
-     --------------------------------------------------------------------------------------------------------------------- 
-     | StatusCode                                  | NotFound                          | OK                              |
-     --------------------------------------------------------------------------------------------------------------------- 
-    
-    Expected result:
-    
-    {"Version":"1.1","Content":{"Headers":[{"Key":"Content-Type","Value":["application/octet; charset=utf-8"]}],"Value":{"Id":1,"Name":"Son","FirstName":"Goku Failed","Age":42,"Emails":[]}},"StatusCode":"NotFound","ReasonPhrase":"OK","Headers":[],"TrailingHeaders":[],"IsSuccessStatusCode":true}
-    
-    Current result:
-    
-    {"Version":"1.1","Content":{"Headers":[{"Key":"Content-Type","Value":["application/json; charset=utf-8"]}],"Value":{"Id":1,"Name":"Son","FirstName":"Goku","Age":42,"Emails":[]}},"StatusCode":"OK","ReasonPhrase":"OK","Headers":[],"TrailingHeaders":[],"IsSuccessStatusCode":true}
-    
-    
-    --------------------------------------------------------------
-    Http call as curl
-    --------------------------------------------------------------
-    curl \
-    --location \
-    --request POST 'https://localhost:5001/api/tests/v1/users' \
-    --header 'Content-Type: application/json' \
-    --header 'Authorization: Bearer Sorry i am secret :)'
-    --data-raw '{
-      "Id": 1,
-      "Name": "Son",
-      "FirstName": "Goku Failed",
-      "Age": 99,
-      "Emails": []
-    }'
-    --------------------------------------------------------------
-    
+══════════════════════════════════════════════════════════════════════════════
+SNAPSHOT TEST FAILED
+══════════════════════════════════════════════════════════════════════════════
+
+Project   : AspNetCore.Simple.MsTest.Sdk.Test
+Class     : Persons.cs
+Method    : Should_Be_Able_To_Put_A_Patch_By_Json
+
+Request   : AspNetCore.Simple.MsTest.Sdk.Test.Controllers.Requests.SonGoku.json
+Response  : AspNetCore.Simple.MsTest.Sdk.Test.Controllers.Responses.SonGokuNewResponse.json
+
+Errors    : 1
+ErrorTypes: ValueDifference
+
+HTTP CALL
+ ----------------------------------------------------------------------- 
+ | HttpMethod | Url                                   | HttpStatusCode |
+ ----------------------------------------------------------------------- 
+ | PUT        | http://localhost/api/tests/v1/persons | 200 OK         |
+ -----------------------------------------------------------------------
+
+DIFFERENCES
+ ---------------------------------------------------------------------------------- 
+ | MemberPath         | SonGokuNewResponse.json | CurrentResult | MismatchType    |
+ ---------------------------------------------------------------------------------- 
+ | content.value.name | Son 1                   | Son           | ValueDifference |
+ ----------------------------------------------------------------------------------
+
+EXPECTED RESULT (SonGokuNewResponse.json):
+
+{"content":{"headers":[{"key":"Content-Type","value":["application/json; charset=utf-8"]}],"value":{"id":1,"name":"Son 1","firstName":"Goku","age":99,"emails":[{"emailAddress":"alf@gmx.de","type":"GMX"},{"emailAddress":"abc@hotmail.de","type":"Microsoft"}]}},"statusCode":"OK","headers":[],"trailingHeaders":[],"isSuccessStatusCode":true}
+
+CURRENT RESULT:
+
+{"content":{"headers":[{"key":"Content-Type","value":["application/json; charset=utf-8"]}],"value":{"id":1,"name":"Son","firstName":"Goku","age":99,"emails":[{"emailAddress":"alf@gmx.de","type":"GMX"},{"emailAddress":"abc@hotmail.de","type":"Microsoft"}]}},"statusCode":"OK","headers":[],"trailingHeaders":[],"isSuccessStatusCode":true}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Http call as curl
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+curl \
+--location \
+--request PUT 'http://localhost/api/tests/v1/persons' \
+--header 'Content-Type: application/json' \
+--data-raw '{"Id":1,"Name":"Son","FirstName":"Goku","Age":99,"Emails":[{"EmailAddress":"alf@gmx.de","Type":"GMX"},{"EmailAddress":"abc@hotmail.de","Type":"Microsoft"}]}'
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 ```
 ------------------------------------------------------------------------
 

@@ -78,38 +78,39 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Build context for AssertService and delegate all comparison logic
             var objectAssertContext = new HttpResponseContext<SimpleHttpResponseMessage>
-            {
-                AbsoluteUrl = context.AbsoluteUrl,
-                CallerFilePath = context.CallerFilePath,
-                CallingAssembly = context.CallingAssembly,
-                Client = context.Client,
-                ContentAsString = context.ContentAsString,
-                ContentAsStringParameterized = context.ContentAsStringParameterized,
-                Current = currentResponse,
-                CurrentObject = currentResponse,
-                CurrentResult = currentResponse,
-                CurrentResultParameterName = context.CurrentResultParameterName,
-                DifferenceFunc = context.DifferenceFunc,
-                ExpectedObjectAsJson = expectedJson,
-                ExpectedResultFile = expectedResultFile,
-                ExpectedResultParameterName = context.ExpectedResultParameterName,
-                HttpMethod = context.HttpMethod,
-                HttpResponseMessage = context.HttpResponseMessage,
-                HttpStatusCode = context.HttpStatusCode,
-                IsExpectedStatusCode = context.IsExpectedStatusCode,
-                IsSuccessStatusCode = context.IsExpectedStatusCode,
-                OrderFunc = item => item, // Order func was executed already on the primitive type level
-                Parameters = context.Parameters,
-                PayloadAsJson = context.PayloadAsJson,
-                PayloadFile = context.PayloadFile,
-                PayloadParameterName = context.PayloadParameterName,
-                ResolvedExpectedJson = expectedJson,
-                ResolvedPayload = context.ResolvedPayload,
-                ShowTokenInCurl = context.ShowTokenInCurl,
-                TypeIsPrimitiveType = targetIsPrimitiveType,
-                Url = context.Url,
-                WriteResponse = context.WriteResponse,
-            };
+                                      {
+                                          AbsoluteUrl = context.AbsoluteUrl,
+                                          CallerFilePath = context.CallerFilePath,
+                                          CallerMemberName = context.CallerMemberName,
+                                          CallingAssembly = context.CallingAssembly,
+                                          Client = context.Client,
+                                          ContentAsString = context.ContentAsString,
+                                          ContentAsStringParameterized = context.ContentAsStringParameterized,
+                                          Current = currentResponse,
+                                          CurrentObject = currentResponse,
+                                          CurrentResult = currentResponse,
+                                          CurrentResultParameterName = context.CurrentResultParameterName,
+                                          DifferenceFunc = context.DifferenceFunc,
+                                          ExpectedObjectAsJson = expectedJson,
+                                          ExpectedResultFile = expectedResultFile,
+                                          ExpectedResultParameterName = context.ExpectedResultParameterName,
+                                          HttpMethod = context.HttpMethod,
+                                          HttpResponseMessage = context.HttpResponseMessage,
+                                          HttpStatusCode = context.HttpStatusCode,
+                                          IsExpectedStatusCode = context.IsExpectedStatusCode,
+                                          IsSuccessStatusCode = context.IsExpectedStatusCode,
+                                          OrderFunc = item => item, // Order func was executed already on the primitive type level
+                                          Parameters = context.Parameters,
+                                          PayloadAsJson = context.PayloadAsJson,
+                                          PayloadFile = context.PayloadFile,
+                                          PayloadParameterName = context.PayloadParameterName,
+                                          ResolvedExpectedJson = expectedJson,
+                                          ResolvedPayload = context.ResolvedPayload,
+                                          ShowTokenInCurl = context.ShowTokenInCurl,
+                                          TypeIsPrimitiveType = targetIsPrimitiveType,
+                                          Url = context.Url,
+                                          WriteResponse = context.WriteResponse,
+                                      };
 
             // Delegate to AssertService - it handles schema checks, value comparison, diff finding, and output building
             assertService.ObjectsAreEqual(objectAssertContext);
@@ -125,13 +126,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             var contentHeaders = context.HttpResponseMessage.Content.Headers.ToJson(jsonSerializerOptions).FromJsonStringAs<ImmutableList<KeyValuePair<string, ImmutableList<string>>>>(jsonSerializerOptions);
 
             var currentResolvedSimpleHttpResponse = simpleHttpResponseMessage with
-            {
-                Content = new SimpleHttpContent
-                {
-                    Headers = contentHeaders,
-                    Value = context.IsExpectedStatusCode ? filteredCurrentResult : context.ContentAsStringParameterized.Trim('"')
-                }
-            };
+                                                    {
+                                                        Content = new SimpleHttpContent
+                                                                  {
+                                                                      Headers = contentHeaders,
+                                                                      Value = context.IsExpectedStatusCode ? filteredCurrentResult : context.ContentAsStringParameterized.Trim('"')
+                                                                  }
+                                                    };
 
             string? expectedResultAsJson;
 
@@ -164,18 +165,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                                                         SimpleHttpResponseMessage simpleHttpResponseMessage)
         {
             return simpleHttpResponseMessage with
-            {
-                Content = simpleHttpResponseMessage.Content.IsNull()
+                   {
+                       Content = simpleHttpResponseMessage.Content.IsNull()
                                      ? new SimpleHttpContent()
-                                     {
-                                         Value = simpleHttpResponseMessage,
-                                         Headers = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty
-                                     }
+                                       {
+                                           Value = simpleHttpResponseMessage,
+                                           Headers = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty
+                                       }
                                      : simpleHttpResponseMessage.Content with
-                                     {
-                                         Value = JsonDocument.Parse(context.ContentAsString).RootElement,
-                                     }
-            };
+                                       {
+                                           Value = JsonDocument.Parse(context.ContentAsString).RootElement,
+                                       }
+                   };
         }
 
         private SimpleHttpResponseMessage BuildExpectedResponse<TResult>(HttpResponseContext<TResult> context,
@@ -200,13 +201,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             if (expectedResultAsSimpleResponse.IsNull() || expectedResultAsSimpleResponse.Content.IsNull())
             {
                 expectedResultAsSimpleResponse = simpleHttpResponseMessage with
-                {
-                    Content = new SimpleHttpContent
-                    {
-                        Headers = contentHeaders,
-                        Value = expectedResultFile.Content.EqualsTo(IgnoreResponseComparison) ? filteredCurrentResult : filteredExpectedType
-                    }
-                };
+                                                 {
+                                                     Content = new SimpleHttpContent
+                                                               {
+                                                                   Headers = contentHeaders,
+                                                                   Value = expectedResultFile.Content.EqualsTo(IgnoreResponseComparison) ? filteredCurrentResult : filteredExpectedType
+                                                               }
+                                                 };
             }
 
             // Fallback for AssertPostAsync and AssertPostAsErrorAsync

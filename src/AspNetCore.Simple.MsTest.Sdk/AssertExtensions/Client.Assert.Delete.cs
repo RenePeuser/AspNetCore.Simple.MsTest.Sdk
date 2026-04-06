@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -21,7 +21,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                bool writeResponse = false,
                                                                [CallerArgumentExpression(nameof(expectedResult))]
                                                                string expectedResultParameterName = "",
-                                                               [CallerFilePath] string callerFilePath = "")
+                                                               [CallerFilePath] string callerFilePath = "",
+                                                               [CallerMemberName] string callerMemberName = "")
         {
             return client.AssertHttpCallAsync<TResult>(url: url,
                                                        payloadAsJson: string.Empty,
@@ -35,7 +36,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        expectedResultParameterName: expectedResultParameterName,
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
-                                                       writResponse: writeResponse);
+                                                       writResponse: writeResponse,
+                                                       callerMemberName: callerMemberName);
         }
 
         public static async Task AssertDeleteAsUnauthorizedAsync(this HttpClient httpClient,

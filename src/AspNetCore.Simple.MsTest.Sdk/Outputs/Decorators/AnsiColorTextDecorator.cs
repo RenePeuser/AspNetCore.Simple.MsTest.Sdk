@@ -19,16 +19,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         // ANSI escape codes
         private const string Reset = "\x1b[0m";
+
         private const string BoldRed = "\x1b[1;31m";
+
         private const string BoldCyan = "\x1b[1;36m";
+
         private const string BoldWhite = "\x1b[1;37m";
+
         private const string Gray = "\x1b[90m";
+
         private const string Green = "\x1b[32m";
 
         public string Error(string text) => $"{BoldRed}{text}{Reset}";
+
         public string SectionTitle(string text) => $"{BoldCyan}{text}{Reset}";
+
         public string Highlight(string text) => $"{BoldWhite}{text}{Reset}";
+
         public string Dim(string text) => $"{Gray}{text}{Reset}";
+
         public string Success(string text) => $"{Green}{text}{Reset}";
     }
 }

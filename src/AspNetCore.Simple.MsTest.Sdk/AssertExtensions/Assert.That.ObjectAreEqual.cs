@@ -79,7 +79,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -87,7 +88,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
-                                   callerFilePath);
+                                   callerFilePath, callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -99,7 +100,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -108,7 +110,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -120,7 +122,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -129,7 +132,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -142,7 +145,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -152,7 +156,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -164,7 +168,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -173,7 +178,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
-                                   callerFilePath);
+                                   callerFilePath, callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -186,7 +191,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -196,7 +202,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -208,7 +214,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -219,7 +226,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
-                                   callerFilePath);
+                                   callerFilePath, callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -232,7 +239,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -244,7 +252,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -257,7 +265,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -267,7 +276,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
-                                   callerFilePath);
+                                   callerFilePath, callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -281,7 +290,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -292,7 +302,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -305,7 +315,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -316,7 +327,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -330,7 +341,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -342,7 +354,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -356,7 +368,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -367,7 +380,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
-                                   callerFilePath);
+                                   callerFilePath, callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -382,7 +395,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -394,7 +408,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -409,7 +423,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -421,7 +436,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
-                                   callerFilePath);
+                                   callerFilePath, callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -437,7 +452,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObject,
                                    currentObject,
@@ -450,7 +466,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
-                                   callerFilePath);
+                                   callerFilePath, callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -467,7 +483,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             // Convert expected object to JSON and delegate to string-based method
             // This ensures consistent data preprocessing through the main pipeline
@@ -484,7 +501,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse,
                                    expectedResultParameterName,
                                    currentResultParameterName,
-                                   callerFilePath);
+                                   callerFilePath, callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -515,7 +532,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
@@ -525,7 +543,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -537,7 +555,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentResult))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentResult,
@@ -546,7 +565,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -559,7 +578,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentResult))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentResult,
@@ -569,7 +589,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -581,7 +601,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentResult))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentResult,
@@ -592,7 +613,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -605,7 +626,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentResult))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentResult,
@@ -617,7 +639,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -630,7 +652,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentResult))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentResult,
@@ -641,7 +664,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -655,7 +678,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentResult))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentResult,
@@ -667,7 +691,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -679,7 +703,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
@@ -690,7 +715,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -703,7 +728,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
@@ -715,7 +741,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -727,7 +753,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
@@ -738,7 +765,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -752,7 +779,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
@@ -764,7 +792,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -777,7 +805,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
@@ -789,7 +818,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -802,7 +831,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
@@ -813,7 +843,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -827,7 +857,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
@@ -839,7 +870,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath, callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -854,7 +885,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
@@ -867,7 +899,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -883,7 +916,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
@@ -896,7 +930,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath);
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -913,7 +948,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFilePath = "")
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "")
         {
             // Resolve embedded files once here - this avoids duplicate resolution later in the pipeline
             var expectedFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedObjectAsJson, callerFilePath, callingAssembly);
@@ -927,6 +963,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var context = new ObjectAssertContext<T>
                           {
                               CallerFilePath = callerFilePath,
+                              CallerMemberName = callerMemberName,
                               CallingAssembly = callingAssembly,
                               Current = currentObject,
                               CurrentObject = currentObject,

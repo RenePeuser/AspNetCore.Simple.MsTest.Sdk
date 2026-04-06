@@ -26,14 +26,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public interface IEmbeddedFileLocalizer
     {
         T LocalizeRequest<T>(string embeddedFile,
-                             [CallerFilePath] string callerFilePath = "") where T : class;
+                             [CallerFilePath] string callerFilePath = "",
+                             [CallerMemberName] string callerMemberName = "") where T : class;
 
         T LocalizeRequest<T>(string embeddedFile,
                              string callerFilePath,
                              Assembly callingAssembly) where T : class;
 
         T LocalizeResponse<T>(string embeddedFile,
-                              [CallerFilePath] string callerFilePath = "") where T : class;
+                              [CallerFilePath] string callerFilePath = "",
+                              [CallerMemberName] string callerMemberName = "") where T : class;
 
         T LocalizeResponse<T>(string embeddedFile,
                               string callerFilePath,
@@ -58,10 +60,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         EmbeddedFileInfo LocalizeRequestFile(IHttpAssertContext context);
 
         IImmutableList<string> GetAllRequestFileNames(Assembly callingAssembly,
-                                                      [CallerFilePath] string callerFilePath = "");
+                                                      [CallerFilePath] string callerFilePath = "",
+                                                      [CallerMemberName] string callerMemberName = "");
 
         IImmutableList<EmbeddedFileInfo> GetAllRequestFileInfos(Assembly callingAssembly,
-                                                                [CallerFilePath] string callerFilePath = "");
+                                                                [CallerFilePath] string callerFilePath = "",
+                                                                [CallerMemberName] string callerMemberName = "");
 
         EmbeddedFileInfo LocalizeResponseFile(string embeddedFile,
                                               string callerFilePath,
@@ -83,7 +87,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // ============================================================
 
         public T LocalizeRequest<T>(string embeddedFile,
-                                    [CallerFilePath] string callerFilePath = "") where T : class
+                                    [CallerFilePath] string callerFilePath = "",
+                                    [CallerMemberName] string callerMemberName = "") where T : class
         {
             var request = LocalizeRequest<T>(embeddedFile, callerFilePath, Assembly.GetCallingAssembly());
 
@@ -101,7 +106,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public T LocalizeResponse<T>(string embeddedFile,
-                                     [CallerFilePath] string callerFilePath = "") where T : class
+                                     [CallerFilePath] string callerFilePath = "",
+                                     [CallerMemberName] string callerMemberName = "") where T : class
         {
             var response = LocalizeResponse<T>(embeddedFile, callerFilePath, Assembly.GetCallingAssembly());
 
@@ -160,7 +166,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public IImmutableList<string> GetAllRequestFileNames(Assembly callingAssembly,
-                                                             [CallerFilePath] string callerFilePath = "")
+                                                             [CallerFilePath] string callerFilePath = "",
+                                                             [CallerMemberName] string callerMemberName = "")
         {
             var contextPrefix = BuildContextPrefix(callerFilePath, callingAssembly);
             var testCases = callingAssembly.GetManifestResourceNames().Where(r => r.Contains(contextPrefix)).ToImmutableList();
@@ -169,7 +176,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public IImmutableList<EmbeddedFileInfo> GetAllRequestFileInfos(Assembly callingAssembly,
-                                                                       [CallerFilePath] string callerFilePath = "")
+                                                                       [CallerFilePath] string callerFilePath = "",
+                                                                       [CallerMemberName] string callerMemberName = "")
         {
             var contextPrefix = BuildContextPrefix(callerFilePath, callingAssembly);
             var testCases = callingAssembly.GetManifestResourceNames().Where(r => r.Contains(contextPrefix)).ToImmutableList();
