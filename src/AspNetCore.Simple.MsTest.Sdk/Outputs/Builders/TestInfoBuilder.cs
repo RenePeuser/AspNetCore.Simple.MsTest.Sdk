@@ -30,7 +30,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Non-generic overload for use with IHttpResponseContext.
         /// </summary>
         string Build(IHttpResponseContext context,
-                    ImmutableList<Difference> differences);
+                     ImmutableList<Difference> differences);
     }
 
     internal sealed class TestInfoBuilder : ITestInfoBuilder
@@ -42,7 +42,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public string Build(IHttpResponseContext context,
-                           ImmutableList<Difference> differences)
+                            ImmutableList<Difference> differences)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var classPath = context.CallerFilePath;

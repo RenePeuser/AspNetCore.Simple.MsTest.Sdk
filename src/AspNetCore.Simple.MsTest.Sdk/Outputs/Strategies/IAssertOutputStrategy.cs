@@ -24,9 +24,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="currentJson">Current/actual JSON string</param>
         /// <returns>Formatted error message for Assert.Fail()</returns>
         string BuildOutput(IObjectAssertContext context,
-                          ImmutableList<Difference> differences,
-                          string expectedJson,
-                          string currentJson);
+                           ImmutableList<Difference> differences,
+                           string expectedJson,
+                           string currentJson);
     }
 
     /// <summary>
@@ -48,20 +48,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Casts context to TContext and delegates to the type-safe abstract method.
         /// </summary>
         public string BuildOutput(IObjectAssertContext context,
-                                 ImmutableList<Difference> differences,
-                                 string expectedJson,
-                                 string currentJson)
+                                  ImmutableList<Difference> differences,
+                                  string expectedJson,
+                                  string currentJson)
         {
             var typedContext = (TContext)context;
-            return BuildOutput(typedContext, differences, expectedJson, currentJson);
+
+            return BuildOutput(typedContext, differences, expectedJson,
+                               currentJson);
         }
 
         /// <summary>
         /// Abstract method that subclasses implement with type-safe context access.
         /// </summary>
         protected abstract string BuildOutput(TContext context,
-                                             ImmutableList<Difference> differences,
-                                             string expectedJson,
-                                             string currentJson);
+                                              ImmutableList<Difference> differences,
+                                              string expectedJson,
+                                              string currentJson);
     }
 }

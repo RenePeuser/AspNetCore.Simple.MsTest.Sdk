@@ -215,15 +215,15 @@
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.JsonComparisonStep">
             <summary>
             Compares the JSON response against expected JSON.
-            Handles both schema mismatches and value differences in a single step.
-            Flow: Build structures → Diff once → Check schema first → Then check values
+            Prepares HTTP-specific structures (SimpleHttpResponseMessage) and delegates comparison to AssertService.
+            Flow: Build HTTP wrapper structures → Delegate to AssertService
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.JsonComparisonStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.ISnapshotTestOutputBuilder,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.IAssertService,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer,System.Text.Json.JsonSerializerOptions)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.JsonComparisonStep.#ctor(AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,AspNetCore.Simple.MsTest.Sdk.IAssertService,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,System.Text.Json.JsonSerializerOptions)">
             <summary>
             Compares the JSON response against expected JSON.
-            Handles both schema mismatches and value differences in a single step.
-            Flow: Build structures → Diff once → Check schema first → Then check values
+            Prepares HTTP-specific structures (SimpleHttpResponseMessage) and delegates comparison to AssertService.
+            Flow: Build HTTP wrapper structures → Delegate to AssertService
             </summary>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.JsonComparisonStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
@@ -557,6 +557,13 @@
             The parameter name of the current object. Usually auto-filled by CallerArgumentExpression.
             </summary>
         </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.IObjectAssertContext.ResolvedExpectedJson">
+            <summary>
+            The expected JSON content with all preprocessing applied (parameter replacement, etc.).
+            This is the ready-to-use JSON that can be directly deserialized or compared.
+            All data preparation happens before context creation - the service receives only processed data.
+            </summary>
+        </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext">
             <summary>
             Non-generic base context for object assertions.
@@ -628,6 +635,13 @@
             The parameter name of the current object. Usually auto-filled by CallerArgumentExpression.
             </summary>
         </member>
+        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext.ResolvedExpectedJson">
+            <summary>
+            The expected JSON content with all preprocessing applied (parameter replacement, etc.).
+            This is the ready-to-use JSON that can be directly deserialized or compared.
+            All data preparation happens before context creation - the service receives only processed data.
+            </summary>
+        </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1">
             <summary>
             Generic context object for ObjectsAreEqual assertion methods.
@@ -647,13 +661,6 @@
             Optional ordering/transformation function to apply before comparison.
             Useful for sorting collections or normalizing data.
             Note: Function must handle nullable inputs/outputs.
-            </summary>
-        </member>
-        <member name="P:AspNetCore.Simple.MsTest.Sdk.ObjectAssertContext`1.ResolvedExpectedJson">
-            <summary>
-            The expected JSON content with all preprocessing applied (parameter replacement, etc.).
-            This is the ready-to-use JSON that can be directly deserialized or compared.
-            All data preparation happens before context creation - the service receives only processed data.
             </summary>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.AddAssertServiceExtension.AddAssertService(Microsoft.Extensions.DependencyInjection.IServiceCollection)">

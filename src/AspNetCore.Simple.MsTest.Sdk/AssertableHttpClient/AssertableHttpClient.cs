@@ -83,27 +83,27 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Build context with deserialized result - HttpResponseMessage stays alive until pipeline completes
             var responseContext = new HttpResponseContext<TResult>
-            {
-                HttpResponseMessage = httpResponseMessage,
-                HttpStatusCode = httpResponseMessage.StatusCode,
-                ContentAsString = contentAsString,
-                ContentAsStringParameterized = resolvedParametersJsonString,
-                CurrentResult = currentResult,
-                IsExpectedStatusCode = isExpectedStatusCode,
-                AbsoluteUrl = absoluteUrl,
-                ExpectedObjectAsJson = context.ExpectedObjectAsJson,
-                ExpectedResultFile = context.ExpectedResultFile,
-                CallingAssembly = context.CallingAssembly,
-                CallerFilePath = context.CallerFilePath,
-                ExpectedResultParameterName = context.ExpectedResultParameterName,
-                CurrentResultParameterName = context.CurrentResultParameterName,
-                Current = context.Current,
-                OrderFunc = context.OrderFunc,
-                ResolvedExpectedJson = context.ResolvedExpectedJson,
-                Client = context.Client,
-                Url = context.Url,
-                HttpMethod = context.HttpMethod,
-            };
+                                  {
+                                      HttpResponseMessage = httpResponseMessage,
+                                      HttpStatusCode = httpResponseMessage.StatusCode,
+                                      ContentAsString = contentAsString,
+                                      ContentAsStringParameterized = resolvedParametersJsonString,
+                                      CurrentResult = currentResult,
+                                      IsExpectedStatusCode = isExpectedStatusCode,
+                                      AbsoluteUrl = absoluteUrl,
+                                      ExpectedObjectAsJson = context.ExpectedObjectAsJson,
+                                      ExpectedResultFile = context.ExpectedResultFile,
+                                      CallingAssembly = context.CallingAssembly,
+                                      CallerFilePath = context.CallerFilePath,
+                                      ExpectedResultParameterName = context.ExpectedResultParameterName,
+                                      CurrentResultParameterName = context.CurrentResultParameterName,
+                                      Current = context.Current,
+                                      OrderFunc = context.OrderFunc,
+                                      ResolvedExpectedJson = context.ResolvedExpectedJson,
+                                      Client = context.Client,
+                                      Url = context.Url,
+                                      HttpMethod = context.HttpMethod,
+                                  };
 
             // Delegate to pipeline - steps only validate, never modify the result
             // Pipeline returns context.CurrentResult (the original deserialized response)

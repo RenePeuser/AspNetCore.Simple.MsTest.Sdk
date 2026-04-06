@@ -25,12 +25,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         : AssertOutputStrategyBase<IHttpResponseContext>
     {
         protected override string BuildOutput(IHttpResponseContext context,
-                                             ImmutableList<Difference> differences,
-                                             string expectedJson,
-                                             string currentJson)
+                                              ImmutableList<Difference> differences,
+                                              string expectedJson,
+                                              string currentJson)
         {
             // Delegate to SnapshotTestOutputBuilder - now we have non-generic Build method!
-            return snapshotTestOutputBuilder.Build(context, differences, expectedJson, currentJson);
+            return snapshotTestOutputBuilder.Build(context, differences, expectedJson,
+                                                   currentJson);
         }
     }
 }

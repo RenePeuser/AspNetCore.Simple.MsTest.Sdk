@@ -87,6 +87,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 3. Handle primitive types vs. complex objects
             var type = typeof(T);
+
             if (type.IsPrimitive || type == typeof(string))
             {
                 HandlePrimitiveComparison(context, expectedJson, currentJson);
@@ -130,9 +131,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 // Use strategy resolver for error output
                 var error = outputBuilder.BuildOutput(context,
-                                                        ImmutableList<Difference>.Empty,
-                                                        expectedJson,
-                                                        currentJson);
+                                                      ImmutableList<Difference>.Empty,
+                                                      expectedJson,
+                                                      currentJson);
 
                 Assert.Fail($"{title}\n\nThe given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Exception: {e.Message}\n\n{error}");
 
@@ -141,9 +142,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 2. Validate deserialized object
             var nullError = outputBuilder.BuildOutput(context,
-                                                        ImmutableList<Difference>.Empty,
-                                                        expectedJson,
-                                                        "null");
+                                                      ImmutableList<Difference>.Empty,
+                                                      expectedJson,
+                                                      "null");
 
             Assert.IsNotNull(expectedObject, $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}\n\n{nullError}");
 
@@ -191,9 +192,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 // Use strategy resolver to build comprehensive output
                 var error = outputBuilder.BuildOutput(context,
-                                                        filteredDifferences,
-                                                        expectedOrderedJson,
-                                                        currentOrderedJson);
+                                                      filteredDifferences,
+                                                      expectedOrderedJson,
+                                                      currentOrderedJson);
 
                 Assert.Fail(error);
             }

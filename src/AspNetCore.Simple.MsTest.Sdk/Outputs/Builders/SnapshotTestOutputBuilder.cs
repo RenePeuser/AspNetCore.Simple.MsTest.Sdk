@@ -43,9 +43,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Non-generic overload for use with IHttpResponseContext.
         /// </summary>
         string Build(IHttpResponseContext context,
-                    ImmutableList<Difference> differences,
-                    string expectedJson,
-                    string currentJson);
+                     ImmutableList<Difference> differences,
+                     string expectedJson,
+                     string currentJson);
     }
 
     internal sealed class SnapshotTestOutputBuilder(ITestInfoBuilder testInfoBuilder,
@@ -60,13 +60,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string expectedJson,
                                      string currentJson)
         {
-            return Build((IHttpResponseContext)context, differences, expectedJson, currentJson);
+            return Build((IHttpResponseContext)context, differences, expectedJson,
+                         currentJson);
         }
 
         public string Build(IHttpResponseContext context,
-                           ImmutableList<Difference> differences,
-                           string expectedJson,
-                           string currentJson)
+                            ImmutableList<Difference> differences,
+                            string expectedJson,
+                            string currentJson)
         {
             var stringBuilder = new StringBuilder();
 

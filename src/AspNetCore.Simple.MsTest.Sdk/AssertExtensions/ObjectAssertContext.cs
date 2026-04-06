@@ -70,6 +70,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// The parameter name of the current object. Usually auto-filled by CallerArgumentExpression.
         /// </summary>
         string CurrentResultParameterName { get; init; }
+
+        /// <summary>
+        /// The expected JSON content with all preprocessing applied (parameter replacement, etc.).
+        /// This is the ready-to-use JSON that can be directly deserialized or compared.
+        /// All data preparation happens before context creation - the service receives only processed data.
+        /// </summary>
+        public string? ResolvedExpectedJson { get; init; }
     }
 
     /// <summary>
@@ -142,6 +149,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// The parameter name of the current object. Usually auto-filled by CallerArgumentExpression.
         /// </summary>
         public required string CurrentResultParameterName { get; init; }
+
+        /// <summary>
+        /// The expected JSON content with all preprocessing applied (parameter replacement, etc.).
+        /// This is the ready-to-use JSON that can be directly deserialized or compared.
+        /// All data preparation happens before context creation - the service receives only processed data.
+        /// </summary>
+        public required string? ResolvedExpectedJson { get; init; }
     }
 
     /// <summary>
@@ -169,12 +183,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Note: Function must handle nullable inputs/outputs.
         /// </summary>
         public required Func<T?, T?> OrderFunc { get; init; } = item => item;
-
-        /// <summary>
-        /// The expected JSON content with all preprocessing applied (parameter replacement, etc.).
-        /// This is the ready-to-use JSON that can be directly deserialized or compared.
-        /// All data preparation happens before context creation - the service receives only processed data.
-        /// </summary>
-        public required string? ResolvedExpectedJson { get; init; }
     }
 }

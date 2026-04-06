@@ -112,12 +112,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static readonly ContentFormatValidationStep ContentFormatValidationStep = new(SnapshotTestOutputBuilder);
 
         private static readonly JsonComparisonStep JsonComparisonStep = new(PrimitiveTypeConverter,
-                                                                            JsonDiffer,
-                                                                            SnapshotTestOutputBuilder,
-                                                                            ResponseWriter,
-                                                                            WriteResponseService,
                                                                             AssertService,
                                                                             ParameterReplacer,
+                                                                            WriteResponseService,
                                                                             JsonSerializerOptions);
 
         private static readonly HttpAssertionPipeline HttpAssertionPipeline = new(new IHttpAssertionStep[]
@@ -251,7 +248,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               ExpectedResultFile = expectedResultFile,
                               ResolvedPayload = resolvedPayload,
                               ResolvedExpectedJson = resolvedExpectedJson
-            };
+                          };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
 

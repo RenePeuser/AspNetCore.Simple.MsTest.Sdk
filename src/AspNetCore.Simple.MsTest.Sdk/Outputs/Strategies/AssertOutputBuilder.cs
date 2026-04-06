@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -33,9 +33,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <returns>Formatted error message for Assert.Fail()</returns>
         /// <exception cref="InvalidOperationException">Thrown when zero or multiple strategies match</exception>
         string BuildOutput(IObjectAssertContext context,
-                          ImmutableList<Difference> differences,
-                          string expectedJson,
-                          string currentJson);
+                           ImmutableList<Difference> differences,
+                           string expectedJson,
+                           string currentJson);
     }
 
     /// <summary>
@@ -47,15 +47,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         : IAssertOutputBuilder
     {
         public string BuildOutput(IObjectAssertContext context,
-                                 ImmutableList<Difference> differences,
-                                 string expectedJson,
-                                 string currentJson)
-        {
-            var strategy = ResolveStrategy(context);
-            return strategy.BuildOutput(context, differences, expectedJson, currentJson);
-        }
-
-        private IAssertOutputStrategy ResolveStrategy(IObjectAssertContext context)
+                                  ImmutableList<Difference> differences,
+                                  string expectedJson,
+                                  string currentJson)
         {
             var matchingStrategies = outputStrategies.Where(s => s.CanHandle(context)).ToList();
 
@@ -67,10 +61,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (matchingStrategies.Count > 1)
             {
                 var strategyNames = string.Join(", ", matchingStrategies.Select(s => s.GetType().Name));
+
                 throw new InvalidOperationException($"Multiple output strategies found for context type {context.GetType().Name}: {strategyNames}");
             }
 
-            return matchingStrategies[0];
+            var result = matchingStrategies[0].BuildOutput(context, differences, expectedJson,
+                                                     currentJson);
+
+            return result;
         }
     }
 }
