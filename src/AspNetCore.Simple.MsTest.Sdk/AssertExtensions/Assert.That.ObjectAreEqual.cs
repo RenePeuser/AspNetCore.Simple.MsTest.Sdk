@@ -37,10 +37,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly Serializer.Json.JsonSerializer JsonSerializer = new(JsonSerializerOptions);
 
-        // Builders for output strategies
-        private static readonly DifferencesTableBuilder DifferencesTableBuilder = new();
+        // Text decorator - conditional on build configuration
+#if DEBUG
+        private static readonly ITextDecorator TextDecorator = new PlainTextDecorator();
+#else
+        private static readonly ITextDecorator TextDecorator = new AnsiColorTextDecorator();
+#endif
 
-        private static readonly JsonSectionBuilder JsonSectionBuilder = new();
+        // Builders for output strategies
+        private static readonly DifferencesTableBuilder DifferencesTableBuilder = new(TextDecorator);
+
+        private static readonly JsonSectionBuilder JsonSectionBuilder = new(TextDecorator);
 
         // Output strategies for AssertService
         private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new();

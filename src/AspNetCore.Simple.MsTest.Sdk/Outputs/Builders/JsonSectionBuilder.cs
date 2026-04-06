@@ -8,6 +8,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddJsonSectionBuilder(this IServiceCollection services)
         {
+            // No dependencies - ITextDecorator is registered separately
             services.AddSingletonIfNotExists<IJsonSectionBuilder, JsonSectionBuilder>();
         }
     }
@@ -28,20 +29,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
         string BuildCurrent(string currentJson);
     }
 
-    internal sealed class JsonSectionBuilder : IJsonSectionBuilder
+    internal sealed class JsonSectionBuilder(ITextDecorator textDecorator) : IJsonSectionBuilder
     {
         public string BuildExpected(IHttpResponseContext context,
                                     string expectedJson)
         {
             var responseFileName = GetResponseFileName(context);
-            var label = $"EXPECTED RESULT ({responseFileName})";
+            var label = textDecorator.SectionTitle($"EXPECTED RESULT ({responseFileName})");
 
             return BuildSection(label, expectedJson);
         }
 
         public string BuildCurrent(string currentJson)
         {
-            return BuildSection("CURRENT RESULT", currentJson);
+            var label = textDecorator.SectionTitle("CURRENT RESULT");
+
+            return BuildSection(label, currentJson);
         }
 
         private static string BuildSection(string label,

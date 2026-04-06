@@ -12,6 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddDifferencesTableBuilder(this IServiceCollection services)
         {
+            // No dependencies - ITextDecorator is registered separately
             services.AddSingletonIfNotExists<IDifferencesTableBuilder, DifferencesTableBuilder>();
         }
     }
@@ -28,7 +29,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                      ImmutableList<Difference> differences);
     }
 
-    internal sealed class DifferencesTableBuilder : IDifferencesTableBuilder
+    internal sealed class DifferencesTableBuilder(ITextDecorator textDecorator) : IDifferencesTableBuilder
     {
         public string Build(IHttpResponseContext context,
                             ImmutableList<Difference> differences)
@@ -60,7 +61,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("DIFFERENCES");
+            stringBuilder.AppendLine(textDecorator.SectionTitle("DIFFERENCES"));
             stringBuilder.Append(table.ToString().TrimEnd());
 
             return stringBuilder.ToString();

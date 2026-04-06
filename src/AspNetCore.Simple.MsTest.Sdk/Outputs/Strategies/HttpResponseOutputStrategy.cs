@@ -18,6 +18,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddCurlBuilder();
             services.AddCurlFormatter();
 
+            // Note: ITextDecorator is registered separately based on build configuration
+
             // Register service itself
             services.AddSingletonIfNotExists<IAssertOutputStrategy, HttpResponseOutputStrategy>();
         }
@@ -32,7 +34,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      IDifferencesTableBuilder differencesTableBuilder,
                                                      IJsonSectionBuilder jsonSectionBuilder,
                                                      ICurlBuilder curlBuilder,
-                                                     ICurlFormatter curlFormatter)
+                                                     ICurlFormatter curlFormatter,
+                                                     ITextDecorator textDecorator)
         : AssertOutputStrategyBase<IHttpResponseContext>
     {
         protected override string BuildOutput(IHttpResponseContext context,
@@ -82,9 +85,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return stringBuilder.ToString();
         }
 
-        private static void BuildHeader(StringBuilder stringBuilder,
-                                        IHttpResponseContext context,
-                                        ImmutableList<Difference> differences)
+        private void BuildHeader(StringBuilder stringBuilder,
+                                 IHttpResponseContext context,
+                                 ImmutableList<Difference> differences)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var classPath = Path.GetFileName(context.CallerFilePath);
@@ -95,20 +98,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             stringBuilder.AppendLine();
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine("══════════════════════════════════════════════════════════════════════════════");
-            stringBuilder.AppendLine("SNAPSHOT TEST FAILED");
-            stringBuilder.AppendLine("══════════════════════════════════════════════════════════════════════════════");
+            stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════════════════════"));
+            stringBuilder.AppendLine(textDecorator.Error("SNAPSHOT TEST FAILED"));
+            stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════════════════════"));
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine($"Project   : {projectName}");
-            stringBuilder.AppendLine($"Class     : {classPath}");
-            stringBuilder.AppendLine($"Request   : {requestName}");
-            stringBuilder.AppendLine($"Response  : {responseName}");
-            stringBuilder.AppendLine($"Errors    : {errorCount}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Project")}   : {projectName}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Class")}     : {classPath}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Request")}   : {requestName}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Response")}  : {responseName}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Errors")}    : {textDecorator.Error(errorCount.ToString())}");
 
             if (errorTypes.Any())
             {
                 var errorTypesStr = string.Join(", ", errorTypes);
-                stringBuilder.AppendLine($"ErrorTypes: {errorTypesStr}");
+                stringBuilder.AppendLine($"{textDecorator.Highlight("ErrorTypes")}: {errorTypesStr}");
             }
         }
 

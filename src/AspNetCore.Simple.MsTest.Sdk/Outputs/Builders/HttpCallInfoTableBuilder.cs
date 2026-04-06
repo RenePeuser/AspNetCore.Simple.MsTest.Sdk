@@ -10,6 +10,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddHttpCallInfoTableBuilder(this IServiceCollection services)
         {
+            // No dependencies - ITextDecorator is registered separately
             services.AddSingletonIfNotExists<IHttpCallInfoTableBuilder, HttpCallInfoTableBuilder>();
         }
     }
@@ -30,7 +31,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         string Build(IHttpResponseContext context);
     }
 
-    internal sealed class HttpCallInfoTableBuilder : IHttpCallInfoTableBuilder
+    internal sealed class HttpCallInfoTableBuilder(ITextDecorator textDecorator) : IHttpCallInfoTableBuilder
     {
         public string Build<TResult>(HttpResponseContext<TResult> context)
         {
@@ -53,7 +54,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             table.AddRow(httpMethod, url, statusCode);
 
             var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("HTTP CALL");
+            stringBuilder.AppendLine(textDecorator.SectionTitle("HTTP CALL"));
             stringBuilder.Append(table.ToString().TrimEnd());
 
             return stringBuilder.ToString();

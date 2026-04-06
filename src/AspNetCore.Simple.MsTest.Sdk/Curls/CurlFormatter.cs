@@ -10,6 +10,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddCurlFormatter(this IServiceCollection services)
         {
+            // No dependencies - ITextDecorator is registered separately
             services.AddSingletonIfNotExists<ICurlFormatter, CurlFormatter>();
         }
     }
@@ -19,7 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         string GetCurlAsFormattedString(string curl);
     }
 
-    internal sealed class CurlFormatter : ICurlFormatter
+    internal sealed class CurlFormatter(ITextDecorator textDecorator) : ICurlFormatter
     {
         public string GetCurlAsFormattedString(string curl)
         {
@@ -32,11 +33,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var separator = maxLength.Times(() => "-").Flatten();
 
             var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine(separator);
-            stringBuilder.AppendLine("Http call as curl");
-            stringBuilder.AppendLine(separator);
-            stringBuilder.AppendLine(curl);
-            stringBuilder.AppendLine(separator);
+            stringBuilder.AppendLine(textDecorator.Dim(separator));
+            stringBuilder.AppendLine(textDecorator.SectionTitle("Http call as curl"));
+            stringBuilder.AppendLine(textDecorator.Dim(separator));
+            stringBuilder.AppendLine(textDecorator.Success(curl));
+            stringBuilder.AppendLine(textDecorator.Dim(separator));
             var curlOutput = stringBuilder.ToString();
 
             return curlOutput;

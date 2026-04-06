@@ -11,7 +11,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
-        private static readonly CurlFormatter CurlFormatterInstance = new();
+        // Text decorator - conditional on build configuration
+#if DEBUG
+        private static readonly ITextDecorator TextDecorator = new PlainTextDecorator();
+#else
+        private static readonly ITextDecorator TextDecorator = new AnsiColorTextDecorator();
+#endif
+
+        private static readonly CurlFormatter CurlFormatterInstance = new(TextDecorator);
 
         private static readonly PrimitiveTypeConverter PrimitiveTypeConverter = new();
 
@@ -63,11 +70,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static readonly JsonSerializer JsonSerializerInstance = new(JsonSerializerOptions);
 
         // Builders for output strategies
-        private static readonly HttpCallInfoTableBuilder HttpCallInfoTableBuilder = new();
+        private static readonly HttpCallInfoTableBuilder HttpCallInfoTableBuilder = new(TextDecorator);
 
-        private static readonly DifferencesTableBuilder DifferencesTableBuilder = new();
+        private static readonly DifferencesTableBuilder DifferencesTableBuilder = new(TextDecorator);
 
-        private static readonly JsonSectionBuilder JsonSectionBuilder = new();
+        private static readonly JsonSectionBuilder JsonSectionBuilder = new(TextDecorator);
 
         private static readonly CurlBuilder CurlBuilder = new();
 
@@ -80,7 +87,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                             DifferencesTableBuilder,
                                                                                             JsonSectionBuilder,
                                                                                             CurlBuilder,
-                                                                                            CurlFormatterInstance);
+                                                                                            CurlFormatterInstance,
+                                                                                            TextDecorator);
 
         private static readonly IAssertOutputStrategy[] OutputStrategies = [PrimitiveOutputStrategy, ObjectOutputStrategy, HttpResponseOutputStrategy];
 

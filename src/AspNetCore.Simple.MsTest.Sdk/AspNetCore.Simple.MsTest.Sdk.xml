@@ -1303,6 +1303,56 @@
             Non-generic overload for use with IHttpResponseContext.
             </summary>
         </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.AnsiColorTextDecorator">
+            <summary>
+            ANSI color text decorator that adds color and style codes.
+            Used in RELEASE builds for CI/terminal output with colors.
+            </summary>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.ITextDecorator">
+            <summary>
+            Decorates text output with styling (colors, emphasis).
+            Different implementations provide plain or colorized output.
+            Used to make test output more readable without breaking Visual Studio Test Explorer.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.ITextDecorator.Error(System.String)">
+            <summary>
+            Decorates error messages and critical information.
+            Typically rendered in bold red.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.ITextDecorator.SectionTitle(System.String)">
+            <summary>
+            Decorates section titles (HTTP CALL, DIFFERENCES, etc.).
+            Typically rendered in bold cyan.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.ITextDecorator.Highlight(System.String)">
+            <summary>
+            Highlights important values that should stand out.
+            Typically rendered in bold white.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.ITextDecorator.Dim(System.String)">
+            <summary>
+            Dims less important content (borders, separators).
+            Typically rendered in gray.
+            </summary>
+        </member>
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.ITextDecorator.Success(System.String)">
+            <summary>
+            Decorates positive/actionable content (curl commands).
+            Typically rendered in green.
+            </summary>
+        </member>
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.PlainTextDecorator">
+            <summary>
+            Plain text decorator that returns text unchanged.
+            Used in DEBUG builds for Visual Studio Test Explorer compatibility.
+            Prevents ANSI escape sequence artifacts in VS Test output.
+            </summary>
+        </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.ISpecificOutputFormatter">
             <summary>
             Strategy interface for context-specific output formatting.
@@ -1478,7 +1528,7 @@
             HTTP call details, differences, JSON comparison, and curl reproduction.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpResponseOutputStrategy.#ctor(AspNetCore.Simple.MsTest.Sdk.IHttpCallInfoTableBuilder,AspNetCore.Simple.MsTest.Sdk.IDifferencesTableBuilder,AspNetCore.Simple.MsTest.Sdk.IJsonSectionBuilder,AspNetCore.Simple.MsTest.Sdk.ICurlBuilder,AspNetCore.Simple.MsTest.Sdk.ICurlFormatter)">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.HttpResponseOutputStrategy.#ctor(AspNetCore.Simple.MsTest.Sdk.IHttpCallInfoTableBuilder,AspNetCore.Simple.MsTest.Sdk.IDifferencesTableBuilder,AspNetCore.Simple.MsTest.Sdk.IJsonSectionBuilder,AspNetCore.Simple.MsTest.Sdk.ICurlBuilder,AspNetCore.Simple.MsTest.Sdk.ICurlFormatter,AspNetCore.Simple.MsTest.Sdk.ITextDecorator)">
             <summary>
             Output strategy for HTTP response contexts.
             Builds comprehensive HTTP assertion failure output including test info,

@@ -20,24 +20,31 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         public static void AddAssertService(this IServiceCollection services)
         {
-            // 1. Register all dependencies via their own extensions
+            // 1. Register text decorator (conditional on build configuration)
+#if DEBUG
+            services.AddPlainTextDecorator(); // No colors for Visual Studio Test Explorer
+#else
+            services.AddAnsiColorTextDecorator(); // Colors for CI/terminal
+#endif
+
+            // 2. Register all dependencies via their own extensions
             services.AddPrimitiveTypeConverter();
             services.AddJsonDiffer();
             services.AddResponseWriter();
             services.AddWriteResponseService();
             services.AddJsonSerializer();
 
-            // 2. Register output strategies
+            // 3. Register output strategies
             services.AddPrimitiveOutputStrategy();
             services.AddObjectOutputStrategy();
             services.AddHttpResponseOutputStrategy();
 
-            // 3. Register output builder
+            // 4. Register output builder
             services.AddAssertOutputBuilder();
 
             // Note: IEmbeddedFileLocalizer registration requires IConfiguration and should be done at app startup
 
-            // 4. Register the service itself
+            // 5. Register the service itself
             services.AddSingletonIfNotExists<IAssertService, AssertService>();
         }
     }
