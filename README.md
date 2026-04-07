@@ -4,8 +4,8 @@
 [![.NET 10](https://img.shields.io/badge/.NET-10-purple)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-Proprietary-red)]()
 
-> **Snapshot testing for ASP.NET Core APIs that feels unfair.**  
-> Write one small test. Validate the full HTTP response. Get exact diffs. Reproduce failures instantly with generated `curl`.
+> **API snapshot testing so productive it feels like cheating.**  
+> Add a JSON file. A test appears. When it fails, you get the exact diff, full HTTP context, and a ready-to-run `curl`.
 
 ```csharp
 [TestMethod]
@@ -18,7 +18,7 @@ public Task Should_Create_User(string useCase)
 }
 ```
 
-Add a JSON file. A new test appears automatically.
+**Add a JSON file. A new test appears.**
 
 ## What you get
 
