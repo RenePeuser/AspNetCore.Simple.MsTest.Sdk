@@ -50,6 +50,11 @@
          or invariant-only workloads where culture-specific behavior is not required. -->
         <InvariantGlobalization>true</InvariantGlobalization>
 
+        <!-- IsPackable
+         Explicit default for non-packable projects.
+         Only library projects intended for NuGet distribution override this with true. -->
+        <IsPackable>false</IsPackable>
+
         <!-- IsTestProject
          Explicit default for non-test projects.
          Test projects override this locally when required by the test SDK. -->

@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Library</OutputType>
         <PackageLicenseFile>License.txt</PackageLicenseFile>
         <Authors>Rene Peuser</Authors>
         <Company>Rene Peuser Softwaresolutions</Company>
@@ -12,8 +11,6 @@
         <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
         <PackageReleaseNotes>Upgrade to .Net 10.</PackageReleaseNotes>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
-        <ApplicationIcon />
-        <StartupObject />
         <PackageId>AspNetCore.Simple.MsTest.Sdk</PackageId>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
         <NoWarn>CA1515;CA1707;CA1054;CA1062;MSTEST0016;CA2234;IDE0032</NoWarn>
@@ -47,10 +44,6 @@
         <PackageReference Include="MSTest.TestFramework" />
         <PackageReference Include="ConsoleTables" />
         <PackageReference Include="System.CodeDom" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Regex\" />
     </ItemGroup>
 
 </Project>
