@@ -25,7 +25,8 @@
       "Bash(ls -la src/AspNetCore.Simple.MsTest.Sdk.Api/bin/Debug/net10.0/*.xml)",
       "Bash(git stash:*)",
       "Bash(git checkout:*)",
-      "Bash(dotnet pack:*)"
+      "Bash(dotnet pack:*)",
+      "Bash(dotnet list:*)"
     ]
   }
 }
