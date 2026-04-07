@@ -19,7 +19,12 @@
       "Bash(grep -n \"new OutputFormatter\" *.cs **/*.cs)",
       "Bash(find . -name \"*.cs\" -type f -exec sed -i 's/CurrentObject = default/Current = default/g' {} \\\\;)",
       "Bash(find . -name \"*.cs\" -type f -exec sed -i 's/CurrentObject = currentObject/Current = currentObject/g' {} \\\\;)",
-      "Bash(find . -name \"*.cs\" -type f -exec sed -i 's/CurrentObject = currentResolvedSimpleHttpResponse/Current = currentResolvedSimpleHttpResponse/g' {} \\\\;)"
+      "Bash(find . -name \"*.cs\" -type f -exec sed -i 's/CurrentObject = currentResolvedSimpleHttpResponse/Current = currentResolvedSimpleHttpResponse/g' {} \\\\;)",
+      "Bash(dotnet restore:*)",
+      "Bash(ls -la src/AspNetCore.Simple.MsTest.Sdk/bin/Debug/net10.0/*.xml)",
+      "Bash(ls -la src/AspNetCore.Simple.MsTest.Sdk.Api/bin/Debug/net10.0/*.xml)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }

@@ -99,6 +99,13 @@ Centralize all regex patterns in one `GlobalRegex` class per project, avoiding s
 
 [Documentation](csharp/global-regex/PATTERN.md) | [Examples](csharp/global-regex/EXAMPLES.md) | [Checklist](csharp/global-regex/CHECKLIST.md)
 
+### `/csharp/http-client-usage`
+**Create or review outbound HTTP usage with `IHttpClientFactory`**
+
+Avoid socket exhaustion by replacing per-call `new HttpClient()` patterns with named or typed clients.
+
+[Documentation](csharp/http-client-usage/PATTERN.md) | [Examples](csharp/http-client-usage/EXAMPLES.md) | [Checklist](csharp/http-client-usage/CHECKLIST.md)
+
 ---
 
 ## Architecture & Design Patterns
@@ -158,6 +165,7 @@ Prefer `await Task.Delay()` over blocking `Thread.Sleep()`.
 - Registering services → `/architecture/service-registration`
 - Designing data models → `/architecture/immutable-data-and-services`
 - Adding overloads → `/csharp/constructor-overloads`, `/csharp/method-overloads`
+- Calling external HTTP APIs → `/csharp/http-client-usage`
 - Sequential processing → `/architecture/pipeline-pattern`
 - Conditional branching → `/architecture/strategy-pattern`
 - Object initializers → `/csharp/object-initializer-order`
@@ -169,6 +177,7 @@ Prefer `await Task.Delay()` over blocking `Thread.Sleep()`.
 - DI registration → `/architecture/service-registration`
 - Async patterns → `/async/avoid-sync-over-async`
 - Guard clauses → `/csharp/argument-check`
+- HttpClient lifetime and configuration → `/csharp/http-client-usage`
 - Object initializers → `/csharp/object-initializer-order`
 - Regular expressions → `/csharp/global-regex`
 
@@ -176,6 +185,7 @@ Prefer `await Task.Delay()` over blocking `Thread.Sleep()`.
 - Sequential processing → `/architecture/pipeline-pattern`
 - Branching logic → `/architecture/strategy-pattern`
 - Constructor duplication → `/csharp/constructor-overloads`
+- Per-call outbound HTTP logic → `/csharp/http-client-usage`
 - Blocking delays → `/async/avoid-thread-sleep`
 - Namespace clutter → `/api/namespace-provider`
 - Scattered regex → `/csharp/global-regex`

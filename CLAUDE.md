@@ -19,6 +19,7 @@ Examples:
 - `/architecture/pipeline-pattern` - Sequential processing without CanHandle
 - `/architecture/strategy-pattern` - Extensible branching logic
 - `/csharp/constructor-overloads` - Constructor chaining patterns
+- `/csharp/http-client-usage` - Safe outbound HTTP patterns with `IHttpClientFactory`
 - `/api/minimal-api-structure` - Minimal API organization
 
 ### Categories
@@ -35,6 +36,7 @@ Examples:
 - Pipeline Pattern: Sequential processing, no CanHandle needed, simpler extension
 - Strategy Pattern: Strict resolution (exactly one match), explicit failures
 - Constructor Overloads: One maximum constructor with clear delegation chain
+- HttpClient Usage: Avoid per-call `new HttpClient()` and prefer `IHttpClientFactory`
 - Immutable Data: Records for data, classes for services
 
 **See** [Skills Index](.claude/skills/INDEX.md) for complete list and documentation links.
