@@ -60,6 +60,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 9. Most important: Set CustomAssertableHttpClient to DI instance
             _assertableHttpClientDefault = serviceProvider.GetRequiredService<IAssertableHttpClient>();
             CustomAssertableHttpClient = _assertableHttpClientDefault;
+
+            _emptyEndpointProvider = serviceProvider.GetRequiredService<IEndpointProvider>();
+            _endpointValidationOutputBuilder = serviceProvider.GetRequiredService<IEndpointValidationOutputBuilder>();
         }
     }
 
@@ -170,7 +173,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static IApiVersionResolver _apiVersionResolver = new ApiVersionResolver();
 
-        private static IEndpointValidator _endpointValidator = new EndpointValidator(new DefaultEndpointDataSource());
+        private static IEndpointProvider _emptyEndpointProvider = new EmptyEndpointProvider();
+
+        private static ITextDecorator _plainTextDecorator = new PlainTextDecorator();
+
+        private static ICurlFormatter _curlFormatter = new CurlFormatter(_plainTextDecorator);
+
+        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(_curlFormatter);
+
+        private static IEndpointValidator _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 
         private static IAssertableHttpClient _assertableHttpClientDefault = new AssertableHttpClient.AssertableHttpClient(_httpCallHandler,
                                                                                                                          _parameterReplacer,
@@ -198,7 +209,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                 [CallerFilePath] string callerFilePath = "",
                                                 bool isSuccessStatusCode = true,
                                                 bool writResponse = false,
-                                                [CallerMemberName] string callerMemberName = "")
+                                                [CallerMemberName] string callerMemberName = "",
+                                                [CallerLineNumber] int callerLineNumber = 0)
 #pragma warning restore CA1859
         {
             return client.AssertHttpCallAsync<string>(url,
@@ -213,7 +225,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       callerFilePath,
                                                       isSuccessStatusCode,
                                                       writResponse,
-                                                      callerMemberName);
+                                                      callerMemberName,
+                                                      callerLineNumber);
         }
 
         private static Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
@@ -231,7 +244,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   [CallerFilePath] string callerFilePath = "",
                                                                   bool isSuccessStatusCode = true,
                                                                   bool writResponse = false,
-                                                                  [CallerMemberName] string callerMemberName = "")
+                                                                  [CallerMemberName] string callerMemberName = "",
+                                                                  [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync(url,
                                               payloadAsJson,
@@ -246,7 +260,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               callerFilePath,
                                               isSuccessStatusCode,
                                               writResponse,
-                                              callerMemberName);
+                                              callerMemberName,
+                                              callerLineNumber);
         }
 
         private static async Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
@@ -265,7 +280,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                         [CallerFilePath] string callerFilePath = "",
                                                                         bool isSuccessStatusCode = true,
                                                                         bool writResponse = false,
-                                                                        [CallerMemberName] string callerMemberName = "")
+                                                                        [CallerMemberName] string callerMemberName = "",
+                                                                        [CallerLineNumber] int callerLineNumber = 0)
         {
             // Resolve embedded files once here - this avoids duplicate resolution later in the pipeline
             var payloadFile = _embeddedFileLocalizer.LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
@@ -289,6 +305,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 CallerFilePath = callerFilePath,
                 CallerMemberName = callerMemberName,
+                CallerLineNumber = callerLineNumber,
                 CallingAssembly = callingAssembly,
                 Client = client,
                 Current = default,

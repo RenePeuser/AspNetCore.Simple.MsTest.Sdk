@@ -33,6 +33,9 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Asp.Versioning.Abstractions" />
+        <PackageReference Include="Asp.Versioning.Http" />
+        <PackageReference Include="Asp.Versioning.Mvc" />
         <PackageReference Include="Extensions.Pack" />
         <PackageReference Include="GitVersion.MsBuild">
             <PrivateAssets>all</PrivateAssets>

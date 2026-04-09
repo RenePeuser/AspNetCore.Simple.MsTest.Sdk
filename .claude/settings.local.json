@@ -26,7 +26,8 @@
       "Bash(git stash:*)",
       "Bash(git checkout:*)",
       "Bash(dotnet pack:*)",
-      "Bash(dotnet list:*)"
+      "Bash(dotnet list:*)",
+      "Bash(dotnet add:*)"
     ]
   }
 }

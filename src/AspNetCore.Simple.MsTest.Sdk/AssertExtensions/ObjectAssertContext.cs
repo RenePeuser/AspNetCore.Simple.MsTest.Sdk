@@ -61,6 +61,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         string CallerMemberName { get; init; }
 
         /// <summary>
+        /// The line number in the source file where the assertion was called.
+        /// Captured via CallerLineNumberAttribute for debugging purposes.
+        /// </summary>
+        int CallerLineNumber { get; init; }
+
+        /// <summary>
         /// The parameter name of the expected object. Usually auto-filled by CallerArgumentExpression.
         /// </summary>
         string ExpectedResultParameterName { get; init; }
@@ -137,6 +143,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// The name of the calling test method. Usually auto-filled by CallerMemberName.
         /// </summary>
         public required string CallerMemberName { get; init; }
+
+        /// <summary>
+        /// The line number in the source file where the assertion was called.
+        /// Captured via CallerLineNumberAttribute for debugging purposes.
+        /// </summary>
+        public required int CallerLineNumber { get; init; }
 
         /// <summary>
         /// The parameter name of the expected object. Usually auto-filled by CallerArgumentExpression.
