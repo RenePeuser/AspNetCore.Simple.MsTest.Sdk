@@ -59,17 +59,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         IObjectAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var classPath = Path.GetFileName(context.CallerFilePath);
+            var classPath = BuildClassPath(context);
             var expectedName = GetExpectedName(context);
 
             stringBuilder.AppendLine("══════════════════════════════════════════════════════════════════════════════");
             stringBuilder.AppendLine("PRIMITIVE COMPARISON FAILED");
             stringBuilder.AppendLine("══════════════════════════════════════════════════════════════════════════════");
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine($"Project   : {projectName}");
-            stringBuilder.AppendLine($"Class     : {classPath}");
-            stringBuilder.AppendLine($"Expected  : {expectedName}");
-            stringBuilder.AppendLine($"Current   : N/A");
+            stringBuilder.AppendLine($"Project    : {projectName}");
+            stringBuilder.AppendLine($"Class      : {classPath}");
+            stringBuilder.AppendLine($"LineNumber : {context.CallerLineNumber}");
+            stringBuilder.AppendLine($"Expected   : {expectedName}");
+            stringBuilder.AppendLine($"Current    : N/A");
         }
 
         private static string GetExpectedName(IObjectAssertContext context)
@@ -82,6 +83,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             return "Expected";
+        }
+
+        private static string BuildClassPath(IObjectAssertContext context)
+        {
+            var assemblyName = context.CallingAssembly.GetName().Name;
+            var callerFilePath = context.CallerFilePath;
+
+            if (assemblyName.IsNullOrWhiteSpace())
+            {
+                return Path.GetFileName(callerFilePath);
+            }
+
+            // Try to find assembly name in path
+            var assemblyIndex = callerFilePath.IndexOf(assemblyName, StringComparison.OrdinalIgnoreCase);
+
+            if (assemblyIndex >= 0)
+            {
+                // Found! Build namespace-style path
+                var relativePath = callerFilePath.Substring(assemblyIndex + assemblyName.Length)
+                                                 .TrimStart('\\', '/');
+
+                return $"{assemblyName}.{relativePath.Replace('\\', '.').Replace('/', '.')}";
+            }
+
+            // Fallback: Original path
+            return callerFilePath;
         }
     }
 }

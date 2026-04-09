@@ -40,7 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _differencesTableBuilder = serviceProvider.GetRequiredService<IDifferencesTableBuilder>();
             _jsonSectionBuilder = serviceProvider.GetRequiredService<IJsonSectionBuilder>();
             _curlBuilder = serviceProvider.GetRequiredService<ICurlBuilder>();
-            _curlFormatterInstance = serviceProvider.GetRequiredService<ICurlFormatter>();
+            _curlFormatter = serviceProvider.GetRequiredService<ICurlFormatter>();
 
             // 5. Resolve output builder and assert service
             _outputBuilder = serviceProvider.GetRequiredService<IAssertOutputBuilder>();
@@ -63,6 +63,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             _emptyEndpointProvider = serviceProvider.GetRequiredService<IEndpointProvider>();
             _endpointValidationOutputBuilder = serviceProvider.GetRequiredService<IEndpointValidationOutputBuilder>();
+
+            _plainTextDecorator = serviceProvider.GetRequiredService<ITextDecorator>();
+            _sourceCodeExtractor = serviceProvider.GetRequiredService<ISourceCodeExtractor>();
         }
     }
 
@@ -76,8 +79,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #else
         private static ITextDecorator TextDecorator = new AnsiColorTextDecorator();
 #endif
-
-        private static ICurlFormatter _curlFormatterInstance = new CurlFormatter(_textDecorator);
 
         private static IPrimitiveTypeConverter _primitiveTypeConverter = new PrimitiveTypeConverter();
 
@@ -128,6 +129,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static JsonSerializer _jsonSerializerInstance = new(JsonSerializerOptions);
 
+        private static ITextDecorator _plainTextDecorator = new PlainTextDecorator();
+
+        private static ICurlFormatter _curlFormatter = new CurlFormatter(_plainTextDecorator);
+
         // Builders for output strategies
         private static IHttpCallInfoTableBuilder _httpCallInfoTableBuilder = new HttpCallInfoTableBuilder(_textDecorator);
 
@@ -146,7 +151,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                              _differencesTableBuilder,
                                                                                              _jsonSectionBuilder,
                                                                                              _curlBuilder,
-                                                                                             _curlFormatterInstance,
+                                                                                             _curlFormatter,
                                                                                              _textDecorator);
 
         private static readonly IAssertOutputStrategy[] OutputStrategies = [PrimitiveOutputStrategy, ObjectOutputStrategy, HttpResponseOutputStrategy];
@@ -175,11 +180,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static IEndpointProvider _emptyEndpointProvider = new EmptyEndpointProvider();
 
-        private static ITextDecorator _plainTextDecorator = new PlainTextDecorator();
+        private static ISourceCodeExtractor _sourceCodeExtractor = new SourceCodeExtractor();
 
-        private static ICurlFormatter _curlFormatter = new CurlFormatter(_plainTextDecorator);
-
-        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(_curlFormatter);
+        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(_curlFormatter, _sourceCodeExtractor);
 
         private static IEndpointValidator _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 

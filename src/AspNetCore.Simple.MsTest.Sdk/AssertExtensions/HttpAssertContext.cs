@@ -137,11 +137,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Null means no specific version is required (matches any version or unversioned endpoints).
         /// </summary>
         public required string? ApiVersion { get; init; }
-
-        /// <summary>
-        /// The line number in the source file where the assertion was called.
-        /// Captured via CallerLineNumberAttribute for debugging purposes.
-        /// </summary>
-        public required int CallerLineNumber { get; init; }
     }
 }

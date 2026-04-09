@@ -162,7 +162,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (controllerActionDescriptors.IsNotNull())
             {
                 var controllerReturnType = controllerActionDescriptors.MethodInfo.ReturnType;
-                return controllerReturnType;
+
+                // Unwrap Task<T> to T
+                return UnwrapTaskType(controllerReturnType);
             }
 
             var producesAttributes = routeEndpoint.Metadata.GetOrderedMetadata<ProducesAttribute>();
@@ -171,7 +173,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Find the success response type (HTTP 200)
             var successResponse = producesAttributes.FirstOrDefault(m => m.StatusCode >= 200 && m.StatusCode < 300);
 
-            return successResponse?.Type;
+            if (successResponse?.Type.IsNull() ?? true)
+            {
+                return null;
+            }
+
+            // Unwrap Task<T> to T
+            return UnwrapTaskType(successResponse.Type);
+        }
+
+        private static Type UnwrapTaskType(Type type)
+        {
+            // Check if type is Task<T>
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                // Extract T from Task<T>
+                return type.GetGenericArguments()[0];
+            }
+
+            return type;
         }
 
         private static string ResolvePlaceholders(string routePattern,

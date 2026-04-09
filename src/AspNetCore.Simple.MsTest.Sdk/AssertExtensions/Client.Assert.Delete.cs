@@ -22,7 +22,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                [CallerArgumentExpression(nameof(expectedResult))]
                                                                string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "",
-                                                               [CallerMemberName] string callerMemberName = "")
+                                                               [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync<TResult>(url: url,
                                                        payloadAsJson: string.Empty,
@@ -37,7 +38,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
                                                        writResponse: writeResponse,
-                                                       callerMemberName: callerMemberName);
+                                                       callerMemberName: callerMemberName,
+                                                       callerLineNumber: callerLineNumber);
         }
 
         public static async Task AssertDeleteAsUnauthorizedAsync(this HttpClient httpClient,
@@ -82,7 +84,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       payloadAsJsonParameterName: string.Empty,
                                                       callerFilePath: context.CallerFilePath,
                                                       isSuccessStatusCode: context.IsSuccessStatusCode,
-                                                      writResponse: context.WriteResponse);
+                                                      writResponse: context.WriteResponse,
+                                                      callerLineNumber: context.CallerLineNumber);
         }
 
         /// <summary>
@@ -102,7 +105,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                expectedResultParameterName: context.ExpectedResultParameterName,
                                                                callerFilePath: context.CallerFilePath,
                                                                isSuccessStatusCode: context.IsSuccessStatusCode,
-                                                               writResponse: context.WriteResponse);
+                                                               writResponse: context.WriteResponse,
+                                                               callerLineNumber: context.CallerLineNumber);
         }
     }
 }

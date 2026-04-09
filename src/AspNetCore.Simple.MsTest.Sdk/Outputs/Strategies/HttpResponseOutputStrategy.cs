@@ -90,7 +90,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                  ImmutableList<Difference> differences)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var classPath = Path.GetFileName(context.CallerFilePath);
+            var classPath = BuildClassPath(context);
             var methodName = context.CallerMemberName;
             var requestName = GetRequestName(context);
             var responseName = GetResponseName(context);
@@ -103,9 +103,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             stringBuilder.AppendLine(textDecorator.Error("SNAPSHOT TEST FAILED"));
             stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════════════════════"));
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Project")}   : {projectName}");
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Class")}     : {classPath}");
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Method")}    : {methodName}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Project")}    : {projectName}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Class")}      : {classPath}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Method")}     : {methodName}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("LineNumber")} : {context.CallerLineNumber}");
             stringBuilder.AppendLine();
             stringBuilder.AppendLine($"{textDecorator.Highlight("Request")}   : {requestName}");
             stringBuilder.AppendLine($"{textDecorator.Highlight("Response")}  : {responseName}");
@@ -152,6 +153,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             return context.ExpectedResultFile.EmbeddedFileName;
+        }
+
+        private static string BuildClassPath(IObjectAssertContext context)
+        {
+            var assemblyName = context.CallingAssembly.GetName().Name;
+            var callerFilePath = context.CallerFilePath;
+
+            if (assemblyName.IsNullOrWhiteSpace())
+            {
+                return Path.GetFileName(callerFilePath);
+            }
+
+            // Try to find assembly name in path
+            var assemblyIndex = callerFilePath.IndexOf(assemblyName, StringComparison.OrdinalIgnoreCase);
+
+            if (assemblyIndex >= 0)
+            {
+                // Found! Build namespace-style path
+                var relativePath = callerFilePath.Substring(assemblyIndex + assemblyName.Length)
+                                                 .TrimStart('\\', '/');
+
+                return $"{assemblyName}.{relativePath.Replace('\\', '.').Replace('/', '.')}";
+            }
+
+            // Fallback: Original path
+            return callerFilePath;
         }
     }
 }

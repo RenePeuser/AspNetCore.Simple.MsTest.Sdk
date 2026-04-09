@@ -98,6 +98,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 AbsoluteUrl = absoluteUrl,
                 ApiVersion = context.ApiVersion,
                 CallerFilePath = context.CallerFilePath,
+                CallerLineNumber = context.CallerLineNumber,
                 CallerMemberName = context.CallerMemberName,
                 CallingAssembly = context.CallingAssembly,
                 Client = context.Client,

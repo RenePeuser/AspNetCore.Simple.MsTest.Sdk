@@ -14,6 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void AddEndpointValidationOutputBuilder(this IServiceCollection services)
         {
             services.AddCurlFormatter();
+            services.AddSourceCodeExtractor();
             services.AddSingletonIfNotExists<IEndpointValidationOutputBuilder, EndpointValidationOutputBuilder>();
         }
     }
@@ -40,7 +41,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                          Type expectedType);
     }
 
-    internal sealed class EndpointValidationOutputBuilder(ICurlFormatter curlFormatter) : IEndpointValidationOutputBuilder
+    internal sealed class EndpointValidationOutputBuilder(
+        ICurlFormatter curlFormatter,
+        ISourceCodeExtractor sourceCodeExtractor) : IEndpointValidationOutputBuilder
     {
         public string BuildEndpointNotFound(IHttpAssertContext context,
                                             ImmutableList<EndpointInfo> availableEndpoints)
@@ -143,18 +146,39 @@ namespace AspNetCore.Simple.MsTest.Sdk
             BuildTestInfo(sb, context);
             sb.AppendLine();
 
-            // HTTP CALL Table (like original output)
-            BuildHttpCallTable(sb, context);
-            sb.AppendLine();
-            sb.AppendLine();
+            // ASSERT CALL - Original source code
+            var sourceCode = sourceCodeExtractor.ExtractCallCode(context.CallerFilePath, context.CallerLineNumber);
+
+            if (sourceCode.IsNotNullOrWhiteSpace())
+            {
+                sb.AppendLine("ASSERT CALL");
+                sb.AppendLine();
+                sb.AppendLine(new string('-', 75));
+                sb.AppendLine(sourceCode);
+                sb.AppendLine(new string('-', 75));
+                sb.AppendLine();
+            }
+
+            // SUGGESTED FIX - Generate corrected code
+            var actualEndpointTypeName = endpoint.ResponseType.IsNotNull() ? FormatTypeName(endpoint.ResponseType) : "object";
+            var declaredTestTypeName = FormatTypeName(expectedType);
+
+            if (sourceCode.IsNotNullOrWhiteSpace())
+            {
+                var suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", $"<{actualEndpointTypeName}>");
+
+                sb.AppendLine("SUGGESTED FIX");
+                sb.AppendLine();
+                sb.AppendLine(new string('-', 75));
+                sb.AppendLine(suggestedFix);
+                sb.AppendLine(new string('-', 75));
+                sb.AppendLine();
+            }
 
             // TYPE VALIDATION Table
-            var expectedTypeName = FormatTypeName(expectedType);
-            var declaredTypeName = endpoint.ResponseType.IsNotNull() ? FormatTypeName(endpoint.ResponseType) : "N/A";
-
             var typeTable = new ConsoleTable { Options = { EnableCount = false } };
-            typeTable.AddColumn(new[] { "Source", "Expected Type", "Declared Type" });
-            typeTable.AddRow("ResponseType", expectedTypeName, declaredTypeName);
+            typeTable.AddColumn(new[] { "Source", "Actual Endpoint Type", "Declared Test Type" });
+            typeTable.AddRow("ResponseType", actualEndpointTypeName, declaredTestTypeName);
 
             sb.AppendLine("TYPE VALIDATION");
             sb.AppendLine();
@@ -164,12 +188,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             sb.AppendLine("SUMMARY");
             sb.AppendLine();
-            sb.AppendLine($"The test expects response type '{expectedTypeName}', but the endpoint declares");
-            sb.AppendLine($"'{declaredTypeName}' for HTTP 200 OK.");
+            sb.AppendLine($"The test declares response type '{declaredTestTypeName}', but the endpoint exposes");
+            sb.AppendLine($"'{actualEndpointTypeName}' for HTTP 200 OK.");
             sb.AppendLine();
-            sb.AppendLine("Fix options:");
-            sb.AppendLine($"  1. Change test to expect: {declaredTypeName}");
-            sb.AppendLine($"  2. Update endpoint to return: {expectedTypeName}");
+            sb.AppendLine("Suggested action:");
+            sb.AppendLine("- Update the test response type to match the endpoint contract");
+            sb.AppendLine();
+            sb.AppendLine("Alternative:");
+            sb.AppendLine("- If the endpoint contract is wrong, update the endpoint instead");
             sb.AppendLine();
 
             // Curl command
@@ -184,12 +210,39 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var classPath = Path.GetFileName(context.CallerFilePath);
+            var classPath = BuildClassPath(context);
             var methodName = context.CallerMemberName;
 
             sb.AppendLine($"Project      : {projectName}");
             sb.AppendLine($"Class        : {classPath}");
             sb.AppendLine($"Method       : {methodName}");
+            sb.AppendLine($"LineNumber   : {context.CallerLineNumber}");
+        }
+
+        private static string BuildClassPath(IHttpAssertContext context)
+        {
+            var assemblyName = context.CallingAssembly.GetName().Name;
+            var callerFilePath = context.CallerFilePath;
+
+            if (assemblyName.IsNullOrWhiteSpace())
+            {
+                return Path.GetFileName(callerFilePath);
+            }
+
+            // Try to find assembly name in path
+            var assemblyIndex = callerFilePath.IndexOf(assemblyName, StringComparison.OrdinalIgnoreCase);
+
+            if (assemblyIndex >= 0)
+            {
+                // Found! Build namespace-style path
+                var relativePath = callerFilePath.Substring(assemblyIndex + assemblyName.Length)
+                                                 .TrimStart('\\', '/');
+
+                return $"{assemblyName}.{relativePath.Replace('\\', '.').Replace('/', '.')}";
+            }
+
+            // Fallback: Original path
+            return callerFilePath;
         }
 
         private static void BuildRequestInfo(StringBuilder sb,

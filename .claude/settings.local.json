@@ -27,7 +27,11 @@
       "Bash(git checkout:*)",
       "Bash(dotnet pack:*)",
       "Bash(dotnet list:*)",
-      "Bash(dotnet add:*)"
+      "Bash(dotnet add:*)",
+      "Bash(cp Client.Assert.Get.cs Client.Assert.Get.cs.backup)",
+      "Bash(sed -i 's/\\\\\\(\\\\[CallerMemberName\\\\] string callerMemberName = \"\"\\\\\\)\\)/\\\\1,\\\\n                                                            [CallerLineNumber] int callerLineNumber = 0\\)/g' Client.Assert.Get.cs)",
+      "Bash(cp Assert.That.ObjectAreEqual.cs Assert.That.ObjectAreEqual.cs.backup)",
+      "Bash(sed -i 's/\\\\\\(\\\\[CallerMemberName\\\\] string callerMemberName = \"\"\\\\\\)\\)/\\\\1,\\\\n                                              [CallerLineNumber] int callerLineNumber = 0\\)/g' Assert.That.ObjectAreEqual.cs)"
     ]
   }
 }

@@ -22,12 +22,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            string url,
                                            bool writeResponse = false,
                                            [CallerFilePath] string callerFilePath = "",
-                                           [CallerMemberName] string callerMemberName = "")
+                                           [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           string.Empty,
                                           writeResponse,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task AssertPostAsync(this HttpClient client,
@@ -35,7 +36,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            string payloadAsJson,
                                            bool writeResponse = false,
                                            [CallerFilePath] string callerFilePath = "",
-                                           [CallerMemberName] string callerMemberName = "")
+                                           [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync(url: url,
                                               payloadAsJson: payloadAsJson,
@@ -53,14 +55,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              string expectedResult,
                                                              bool writeResponse = false,
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    expectedResult, [],
                                                    Assembly.GetCallingAssembly(),
                                                    writeResponse,
                                                    expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -71,7 +74,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    expectedResult,
@@ -79,7 +83,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    Assembly.GetCallingAssembly(),
                                                    writeResponse,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -90,7 +94,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           string.Empty,
@@ -101,7 +106,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           string.Empty,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -113,7 +118,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           string.Empty,
@@ -124,7 +130,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           string.Empty,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -135,7 +141,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    expectedResult,
@@ -144,7 +151,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    Assembly.GetCallingAssembly(),
                                                    writeResponse,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -156,7 +163,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    expectedResult,
@@ -165,7 +173,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    Assembly.GetCallingAssembly(),
                                                    writeResponse,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -176,7 +184,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync<TResult>(url: url,
                                                        payloadAsJson: string.Empty,
@@ -190,7 +199,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
                                                        writResponse: writeResponse,
-                                                       callerMemberName: callerMemberName);
+                                                       callerMemberName: callerMemberName,
+                                                       callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -202,7 +212,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync<TResult>(url: url,
                                                        payloadAsJson: string.Empty,
@@ -216,7 +227,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
                                                        writResponse: writeResponse,
-                                                       callerMemberName: callerMemberName);
+                                                       callerMemberName: callerMemberName,
+                                                       callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -228,7 +240,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    expectedResult,
@@ -237,7 +250,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    callingAssembly,
                                                    writeResponse,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -250,7 +263,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync<TResult>(url: url,
                                                        payloadAsJson: string.Empty,
@@ -265,7 +279,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
                                                        writResponse: writeResponse,
-                                                       callerMemberName: callerMemberName);
+                                                       callerMemberName: callerMemberName,
+                                                       callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -278,7 +293,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    payloadAsObject.ToJson(JsonSerializerOptions),
@@ -288,7 +304,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    writeResponse,
                                                    payloadAsObjectParameterName,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -302,7 +318,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    payloadAsObject.ToJson(JsonSerializerOptions),
@@ -312,7 +329,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    writeResponse,
                                                    payloadAsObjectParameterName,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -325,7 +342,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    payloadAsJson,
@@ -335,7 +353,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    writeResponse,
                                                    payloadAsJsonParameterName,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -349,7 +367,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    payloadAsJson,
@@ -359,7 +378,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    writeResponse,
                                                    payloadAsJsonParameterName,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -373,7 +392,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return AssertPostAsync<TResult>(client,
                                             url,
@@ -385,7 +405,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             writeResponse,
                                             payloadAsObjectParameterName,
                                             expectedResultParameterName,
-                                            callerFilePath, callerMemberName);
+                                            callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -400,7 +420,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return AssertPostAsync<TResult>(client,
                                             url,
@@ -412,7 +433,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             writeResponse,
                                             payloadAsObjectParameterName,
                                             expectedResultParameterName,
-                                            callerFilePath, callerMemberName);
+                                            callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -426,7 +447,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return AssertPostAsync<TResult>(client,
                                             url,
@@ -438,7 +460,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             writeResponse,
                                             payloadAsJsonParameterName,
                                             expectedResultParameterName,
-                                            callerFilePath, callerMemberName);
+                                            callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -453,7 +475,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return AssertPostAsync<TResult>(client,
                                             url,
@@ -465,7 +488,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             writeResponse,
                                             payloadAsJsonParameterName,
                                             expectedResultParameterName,
-                                            callerFilePath, callerMemberName);
+                                            callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -480,7 +503,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return AssertPostAsync<TResult>(client,
                                             url,
@@ -493,7 +517,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             writeResponse,
                                             payloadAsObjectParameterName,
                                             expectedResultParameterName,
-                                            callerFilePath, callerMemberName);
+                                            callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -509,7 +533,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return AssertPostAsync<TResult>(client,
                                             url,
@@ -522,7 +547,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             writeResponse,
                                             payloadAsObjectParameterName,
                                             expectedResultParameterName,
-                                            callerFilePath, callerMemberName);
+                                            callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -537,7 +562,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return AssertPostAsync<TResult>(client,
                                             url,
@@ -550,7 +576,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             writeResponse,
                                             payloadAsJsonParameterName,
                                             expectedResultParameterName,
-                                            callerFilePath, callerMemberName);
+                                            callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -566,7 +592,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return AssertPostAsync<TResult>(client,
                                             url,
@@ -579,7 +606,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             writeResponse,
                                             payloadAsJsonParameterName,
                                             expectedResultParameterName,
-                                            callerFilePath, callerMemberName);
+                                            callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -593,7 +620,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           payloadAsObject.ToJson(JsonSerializerOptions),
@@ -604,7 +632,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           payloadAsObjectParameterName,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -619,7 +647,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           payloadAsObject.ToJson(JsonSerializerOptions),
@@ -630,7 +659,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           payloadAsObjectParameterName,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -644,7 +673,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           payloadAsJson,
@@ -655,7 +685,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           payloadAsJsonParameterName,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -670,7 +700,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           payloadAsJson,
@@ -681,7 +712,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           payloadAsJsonParameterName,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -695,7 +726,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    payloadAsObject.ToJson(JsonSerializerOptions),
@@ -707,7 +739,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    writeResponse,
                                                    payloadAsObjectParameterName,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -722,7 +754,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    payloadAsObject.ToJson(JsonSerializerOptions),
@@ -734,7 +767,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    writeResponse,
                                                    payloadAsObjectParameterName,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -748,7 +781,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    payloadAsJson,
@@ -760,7 +794,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    writeResponse,
                                                    payloadAsJsonParameterName,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -775,7 +809,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
                                                    payloadAsJson,
@@ -787,7 +822,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    writeResponse,
                                                    payloadAsJsonParameterName,
                                                    expectedResultParameterName,
-                                                   callerFilePath, callerMemberName);
+                                                   callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -802,7 +837,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           payloadAsObject.ToJson(JsonSerializerOptions),
@@ -814,7 +850,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           payloadAsObjectParameterName,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -830,7 +866,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           payloadAsObject.ToJson(JsonSerializerOptions),
@@ -842,7 +879,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           payloadAsObjectParameterName,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -857,7 +894,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           payloadAsJson,
@@ -869,7 +907,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           payloadAsJsonParameterName,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -885,7 +923,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           payloadAsJson,
@@ -897,7 +936,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           payloadAsJsonParameterName,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -913,7 +952,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           payloadAsObject.ToJson(JsonSerializerOptions),
@@ -925,7 +965,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           payloadAsObjectParameterName,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         // MAXIMUM OVERLOAD - Contains the core logic (object payload variant)
@@ -943,7 +983,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync(url: url,
                                               payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
@@ -958,7 +999,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
                                               writResponse: writeResponse,
-                                              callerMemberName: callerMemberName);
+                                              callerMemberName: callerMemberName,
+                                                       callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -974,7 +1016,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url,
                                           payloadAsJson,
@@ -986,7 +1029,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           writeResponse,
                                           payloadAsJsonParameterName,
                                           expectedResultParameterName,
-                                          callerFilePath, callerMemberName);
+                                          callerFilePath, callerMemberName, callerLineNumber);
         }
 
         // MAXIMUM OVERLOAD - Contains the core logic (string payload variant)
@@ -1004,7 +1047,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              [CallerArgumentExpression(nameof(expectedResult))]
                                                              string expectedResultParameterName = "",
                                                              [CallerFilePath] string callerFilePath = "",
-                                                             [CallerMemberName] string callerMemberName = "")
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync(url: url,
                                               payloadAsJson: payloadAsJson,
@@ -1019,7 +1063,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
                                               writResponse: writeResponse,
-                                              callerMemberName: callerMemberName);
+                                              callerMemberName: callerMemberName,
+                                                       callerLineNumber: callerLineNumber);
         }
 
         public static Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient,
@@ -1091,7 +1136,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       payloadAsJsonParameterName: context.PayloadParameterName,
                                                       callerFilePath: context.CallerFilePath,
                                                       isSuccessStatusCode: true,
-                                                      writResponse: context.WriteResponse);
+                                                      writResponse: context.WriteResponse,
+                                                      callerLineNumber: context.CallerLineNumber);
         }
 
         /// <summary>
@@ -1111,7 +1157,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       expectedResultParameterName: context.ExpectedResultParameterName,
                                                       callerFilePath: context.CallerFilePath,
                                                       isSuccessStatusCode: true,
-                                                      writResponse: context.WriteResponse);
+                                                      writResponse: context.WriteResponse,
+                                                      callerLineNumber: context.CallerLineNumber);
         }
     }
 }
