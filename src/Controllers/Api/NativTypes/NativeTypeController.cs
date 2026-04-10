@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
+namespace Controllers.Api.NativTypes
 {
     [AllowAnonymous]
     [ApiVersion("1.0")]
@@ -9,12 +9,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
     public class NativeTypeController : ControllerBase
     {
         [HttpGet("string")]
+        [ProducesResponseType(typeof(string), 200)]
         public string GetString()
         {
             return "String only";
         }
 
         [HttpGet("int")]
+        [ProducesResponseType(typeof(int), 200)]
         public int GetInt()
         {
             return 42;

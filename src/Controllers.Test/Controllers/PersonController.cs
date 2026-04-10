@@ -1,7 +1,8 @@
 ﻿using System.Collections.Immutable;
-using AspNetCore.Simple.MsTest.Sdk.Api.Models;
+using AspNetCore.Simple.MsTest.Sdk;
+using Controllers.Api.Persons;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
+namespace Controller.Test.Controllers
 {
     [TestClass]
     public class PersonController : ApiTestBase

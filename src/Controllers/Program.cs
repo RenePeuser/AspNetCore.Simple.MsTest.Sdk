@@ -1,4 +1,4 @@
-﻿namespace AspNetCore.Simple.MsTest.Sdk.Api
+﻿namespace Controllers
 {
     public static class Program
     {

@@ -2,13 +2,12 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.Api.Models;
 using AspNetCore.Simple.Sdk.ErrorHandling;
 using Extensions.Pack;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
+namespace Controllers.Api.Persons
 {
     [AllowAnonymous]
     [ApiVersion("1.0")]
@@ -23,13 +22,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
                 77, ImmutableList.Create(new Email("abc@gmx.de", "GMX"), new Email("maxmustermann@hotmail.de", "Microsoft")))
         ];
 
+
+
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<Person>), 200)]
         public IEnumerable<Person> GetAllPersons()
         {
             return _persons;
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Person), 200)]
+        [ProducesResponseType(typeof(Person), 404)]
         public Task<Person> GetPersonByIdAsync(long id)
         {
             var person = _persons.FirstOrDefault(x => x.Id == id);
@@ -45,18 +49,21 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(typeof(Person), 200)]
         public Task<Person> UpdateAsync([FromBody] Person person)
         {
             return Task.FromResult(person);
         }
 
         [HttpPatch]
+        [ProducesResponseType(typeof(Person), 200)]
         public Task<Person> PatchAsync()
         {
             return Task.FromResult(_persons.First());
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(Person), 200)]
         public Task<Person> AddAsync([FromBody] Person person)
         {
             return Task.FromResult(person);

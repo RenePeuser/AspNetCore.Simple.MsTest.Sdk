@@ -1,13 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Net.Http;
-using AspNetCore.Simple.MsTest.Sdk.Api;
+﻿using Controllers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Test
+namespace Controller.Test
 {
     public class CustomWebApplicationFactory : WebApplicationFactory<Startup>
     {

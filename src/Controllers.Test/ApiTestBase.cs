@@ -1,11 +1,10 @@
-﻿using System.Configuration;
-using AspNetCore.Simple.MsTest.Sdk.Api;
+﻿using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
+using Controllers;
 using Microsoft.Extensions.DependencyInjection;
-
 [assembly: Parallelize(Scope = ExecutionScope.ClassLevel)]
 
-namespace AspNetCore.Simple.MsTest.Sdk.Test
+namespace Controller.Test
 {
     /// <summary>
     ///     Your base class for all API tests

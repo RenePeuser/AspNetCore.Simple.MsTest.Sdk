@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Api.Models
+namespace Controllers.Api.Persons
 {
     public sealed record Person(long Id,
                                 string Name,

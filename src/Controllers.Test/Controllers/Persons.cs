@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.Api.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Collections.Immutable;
+using AspNetCore.Simple.MsTest.Sdk;
+using Controllers.Api.Persons;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
+namespace Controller.Test.Controllers
 {
     [TestClass]
     public class Persons : ApiTestBase

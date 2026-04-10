@@ -1,9 +1,8 @@
-﻿using System.Linq;
+﻿using AspNetCore.Simple.MsTest.Sdk;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Test
+namespace Controller.Test
 {
     [TestClass]
     [TestCategory("JsonDiffer")]

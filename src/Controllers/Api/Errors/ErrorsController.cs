@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
+namespace Controllers.Api.Errors
 {
     [AllowAnonymous]
     [ApiVersion("1.0")]
@@ -10,6 +10,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Api.Controllers
     public class ErrorsController : ControllerBase
     {
         [HttpPost("not-implemented")]
+        [ProducesErrorResponseType(typeof(ProblemDetails))]
         public void ThrowNotImplementedException()
         {
             throw new ProblemDetailsException("Implementation is missing",

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Immutable;
+using AspNetCore.Simple.MsTest.Sdk;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
+namespace Controller.Test.Controllers
 {
     [TestClass]
     public class ErrorsController : ApiTestBase

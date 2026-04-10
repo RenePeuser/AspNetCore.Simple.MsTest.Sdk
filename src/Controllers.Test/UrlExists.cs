@@ -1,7 +1,7 @@
-﻿using Extensions.Pack;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using AspNetCore.Simple.MsTest.Sdk;
+using Extensions.Pack;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Test
+namespace Controller.Test
 {
     [TestClass]
     public class UrlExists : ApiTestBase

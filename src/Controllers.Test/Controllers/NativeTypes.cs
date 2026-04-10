@@ -1,7 +1,6 @@
-﻿using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using AspNetCore.Simple.MsTest.Sdk;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Test.Controllers
+namespace Controller.Test.Controllers
 {
     [TestClass]
     public class NativeTypes : ApiTestBase

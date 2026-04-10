@@ -21,8 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Api\AspNetCore.Simple.MsTest.Sdk.Api.csproj" />
         <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk\AspNetCore.Simple.MsTest.Sdk.csproj" />
+        <ProjectReference Include="..\Controllers\Controllers.csproj" />
     </ItemGroup>
 
     <ItemGroup>
