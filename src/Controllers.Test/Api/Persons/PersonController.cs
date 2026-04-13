@@ -24,10 +24,13 @@ namespace Controllers.Test.Api.Persons
         }
 
         [TestMethod]
-        public Task Invalid_Response_Type_Json_Exception()
+        public async Task Invalid_Response_Type_Json_Exception()
         {
-            return Client.AssertGetAsync<UnknownResponse>("/api/tests/v1/persons",
-                                                          "GetPersonResponse.json");
+            var error = await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<UnknownResponse>("/api/tests/v1/persons",
+                                                                                                                            "GetPersonResponse.json")).ConfigureAwait(false);
+
+            // Use named parameter to disambiguate between T,T and string,T overloads
+            Assert.That.ObjectsAreEqual(expectedObjectAsJson: "InvalidResponseType.txt", currentObject: error.Message);
         }
 
         // The filter func can be used to sort or do some custom filtering

@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
@@ -31,22 +32,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 2. Register all dependencies via their own extensions
             services.AddPrimitiveTypeConverter();
-            services.AddJsonDiffer();
             services.AddResponseWriter();
             services.AddWriteResponseService();
             services.AddJsonSerializer();
 
-            // 3. Register output strategies
+            // 3. Register comparison strategies (extensible system)
+            services.AddComparisonStrategy();
+
+            // 4. Register output strategies
             services.AddPrimitiveOutputStrategy();
             services.AddObjectOutputStrategy();
             services.AddHttpResponseOutputStrategy();
 
-            // 4. Register output builder
+            // 5. Register output builder
             services.AddAssertOutputBuilder();
 
             // Note: IEmbeddedFileLocalizer registration requires IConfiguration and should be done at app startup
 
-            // 5. Register the service itself
+            // 6. Register the service itself
             services.AddSingletonIfNotExists<IAssertService, AssertService>();
         }
     }
@@ -70,115 +73,33 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// This class encapsulates all dependencies needed for object assertions.
     /// All dependencies are injected via the primary constructor for testability and flexibility.
     /// </summary>
-    internal sealed class AssertService(IJsonDiffer jsonDiffer,
+    internal sealed class AssertService(IComparisonStrategy comparisonStrategy,
                                         IResponseWriter responseWriter,
                                         IWriteResponseService writeResponseService,
-                                        JsonSerializer jsonSerializer,
-                                        JsonSerializerOptions jsonSerializerOptions,
                                         IAssertOutputBuilder outputBuilder) : IAssertService
     {
         public void ObjectsAreEqual<T>(ObjectAssertContext<T> context)
         {
-            // Assumption: Context is fully prepared with ResolvedExpectedJson
-            var expectedJson = context.ResolvedExpectedJson ?? string.Empty;
-            var currentObject = context.CurrentObject;
+            // 1. Use comparison strategy to perform type-specific comparison
+            var result = comparisonStrategy.Compare(context);
 
-            // 1. Serialize current object
-            var currentJson = currentObject.ToJson(jsonSerializerOptions);
+            // 2. Serialize current object for writing (if needed)
+            var currentFormatted = result.FormattedCurrent;
 
-            // 2. Write response if configured
+            // 3. Write response if configured
             if (writeResponseService.ShouldWriteResponse(context))
             {
-                responseWriter.Write(context, currentJson, context.ExpectedResultFile);
+                responseWriter.Write(context, currentFormatted, context.ExpectedResultFile);
             }
 
-            HandleObjectComparison(context, expectedJson, currentJson);
-        }
-
-        private void HandleObjectComparison<T>(ObjectAssertContext<T> context,
-                                               string expectedJson,
-                                               string currentJson)
-        {
-            var expectedResultParameterName = context.ExpectedResultParameterName;
-            var currentResultParameterName = context.CurrentResultParameterName;
-
-            // 1. Deserialize expected object
-            T? expectedObject;
-
-            try
+            // 4. Assert schema matches or values match
+            if (result.HasSchemaMismatch || result.Differences.Any())
             {
-                expectedObject = jsonSerializer.Deserialize<T>(expectedJson);
-            }
-#pragma warning disable CA1031
-            catch (Exception e)
-#pragma warning restore CA1031
-            {
-                // Use strategy resolver for error output
+                // Build comprehensive output using the comparison result
                 var error = outputBuilder.BuildOutput(context,
-                                                      ImmutableList<Difference>.Empty,
-                                                      expectedJson,
-                                                      currentJson);
-
-                Assert.That.Fail($"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}. Exception: {e.Message}\n\n{error}");
-
-                return; // Unreachable, but helps compiler
-            }
-
-            // 2. Validate deserialized object
-            var nullError = outputBuilder.BuildOutput(context,
-                                                      ImmutableList<Difference>.Empty,
-                                                      expectedJson,
-                                                      "null");
-
-            Assert.IsNotNull(expectedObject, $"The given json for: '{expectedResultParameterName}' was not possible to convert into type: {typeof(T).Name}\n\n{nullError}");
-
-            // 3. Apply ordering function
-            var orderedExpected = context.OrderFunc(expectedObject);
-            var orderedCurrent = context.OrderFunc(context.Current);
-
-            var expectedOrderedJson = orderedExpected.ToJson(jsonSerializerOptions);
-            var currentOrderedJson = orderedCurrent.ToJson(jsonSerializerOptions);
-
-            // 4. Find differences
-            var differences = jsonDiffer.FindDifferences(expectedOrderedJson, currentOrderedJson);
-
-            // 5. Check for schema mismatches
-            var hasSchemaMismatch = differences.Any(item =>
-                                                        item.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &&
-                                                        item.MemberPath.EndsWith(']').IsFalse());
-
-            // 6. Special case: Content.Value differences (HTTP-specific - TODO: move to strategy)
-            var contentValueDifference = differences.FirstOrDefault(d =>
-                                                                        d.MemberPath.Equals("Content.Value", StringComparison.OrdinalIgnoreCase));
-
-            if (contentValueDifference.IsNotNull())
-            {
-                differences = jsonDiffer.FindDifferences(contentValueDifference.Value1 ?? string.Empty,
-                                                         contentValueDifference.Value2 ?? string.Empty);
-
-                hasSchemaMismatch = differences.Any(item =>
-                                                        (item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond) &&
-                                                        item.MemberPath.EndsWith(']').IsFalse());
-            }
-
-            // 7. Filter differences
-            var commonDifferences = AssertObjectExtensions.DifferenceFunc(differences).ToImmutableList();
-            var filteredDifferences = context.DifferenceFunc(commonDifferences).ToImmutableList();
-
-            // 8. Write response again if needed (with filtered differences)
-            if (writeResponseService.ShouldWriteResponse(context))
-            {
-                responseWriter.Write(context, currentOrderedJson, context.ExpectedResultFile);
-            }
-
-            // 9. Assert schema matches or values match
-            if (hasSchemaMismatch || filteredDifferences.Any())
-            {
-                // Use strategy resolver to build comprehensive output
-                var error = outputBuilder.BuildOutput(context,
-                                                      filteredDifferences,
-                                                      expectedOrderedJson,
-                                                      currentOrderedJson);
+                                                      result.Differences,
+                                                      result.FormattedExpected,
+                                                      result.FormattedCurrent);
 
                 Assert.That.Fail(error);
             }

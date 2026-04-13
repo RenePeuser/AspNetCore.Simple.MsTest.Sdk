@@ -35,7 +35,8 @@
       "Bash(dotnet package:*)",
       "WebFetch(domain:www.nuget.org)",
       "Bash(find . -name \"*.md\" -type f -exec grep -l \"Sdc\\\\.Console\" {} \\\\;)",
-      "Bash(xargs cat:*)"
+      "Bash(xargs cat:*)",
+      "Bash(ls:*)"
     ]
   }
 }

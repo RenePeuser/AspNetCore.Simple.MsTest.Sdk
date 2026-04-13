@@ -38,6 +38,8 @@ Not this:
 "Users.V1.Payloads.NewUser.json"
 ```
 
+The SDK uses **context-aware resolution** to find the right file automatically. If multiple files with the same name exist, it prefers the one in your test's namespace. See the [context-aware disambiguation section](#context-aware-disambiguation) for details.
+
 ### Recommended structure
 
 ```plaintext
@@ -336,6 +338,70 @@ curl \
 -------------------------------------------------------------------------
 ```
 
+### Smart endpoint validation with fallback
+
+The SDK validates that your test's response type matches the endpoint's contract using a three-tier strategy.
+
+**Tier 1: `[ProducesResponseType]` attributes**
+
+When your endpoint declares explicit response types:
+
+```csharp
+[HttpPost("errors/not-implemented")]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+public void ThrowNotImplementedException() { ... }
+```
+
+The SDK validates your test type against the declared status codes. Success tests (`AssertPostAsync`) are checked against 2xx responses. Error tests (`AssertPostAsErrorAsync`) are checked against 4xx/5xx responses.
+
+**Tier 2: Expected response JSON fallback**
+
+If no `[ProducesResponseType]` attributes exist, the SDK extracts the status code from your **expected response snapshot**:
+
+```json
+{
+  "StatusCode": "InternalServerError",
+  "IsSuccessStatusCode": false,
+  "Content": {
+    "Value": {
+      "title": "Implementation is missing",
+      "status": 500
+    }
+  }
+}
+```
+
+This enables validation even when developers forget to add attributes. The SDK parses both numeric (`500`) and enum string (`"InternalServerError"`) formats.
+
+**Tier 3: Test type mismatch detection**
+
+The SDK catches when test type doesn't align with the expected status code:
+
+```plaintext
+══════════════════════════════════════════════════════════════════════════════
+TEST TYPE MISMATCH
+══════════════════════════════════════════════════════════════════════════════
+
+The test is declared as a SUCCESS test (AssertPostAsync, AssertGetAsync, etc.)
+but the expected response has status code 500 which is an ERROR status.
+
+Expected Status Code: 500 (InternalServerError)
+Test Type: Success (expects 2xx status codes)
+
+SUGGESTED FIX:
+- Use AssertPostAsErrorAsync() or similar error assertion method instead
+- Or update the expected response to have a success status code (200, 201, etc.)
+```
+
+This catches common mistakes like using `AssertPostAsync` when you meant `AssertPostAsErrorAsync`, or vice versa.
+
+**Why this matters:**
+
+- catches `ProblemDetails` vs `ValidationProblemDetails` confusion
+- works even without explicit attributes
+- prevents wrong test type usage
+- uses test data that already exists
+
 ---
 
 ## Why this saves ridiculous amounts of time
@@ -497,6 +563,32 @@ Supported mismatch types include:
 - `ValueDifference`
 - `MissingInFirst`
 - `MissingInSecond`
+
+### Array length mismatches
+
+When array lengths differ, the SDK consolidates element-level differences into a single array-level entry.
+
+Instead of showing:
+
+```plaintext
+| content.value.emails[0] | null | {"emailAddress": "test@example.com"} | MissingInFirst |
+| content.value.emails[1] | null | {"emailAddress": "user@example.com"} | MissingInFirst |
+```
+
+You get:
+
+```plaintext
+DIFFERENCES
+ ----------------------------------------------------------------------------------- 
+ | MemberPath           | NewPersonParameter.json | CurrentResult | MismatchType   |
+ ----------------------------------------------------------------------------------- 
+ | content.value.emails | [] (0 items)            | [2 item(s)]   | MissingInFirst |
+ -----------------------------------------------------------------------------------
+```
+
+This makes it immediately clear that the issue is array length, not individual element values.
+
+When arrays have mixed differences (some elements changed, some missing), the SDK shows element-level details. Consolidation only happens when all elements are uniformly missing or added.
 
 ---
 
@@ -708,6 +800,40 @@ Not this:
 ```csharp
 "Users.V1.Payloads.NewUser.json"
 ```
+
+### Context-aware disambiguation
+
+If multiple files with the same name exist in different folders, the SDK prefers the file in the **same namespace** as your test.
+
+Example structure:
+
+```plaintext
+Api/
+├─ Persons/
+│  └─ Requests/SonGoku.json      ← Test in Persons namespace uses this
+├─ Errors/
+│  └─ Requests/SonGoku.json
+└─ NativeTypes/
+   └─ Requests/SonGoku.json
+```
+
+When you reference `"Requests.SonGoku.json"` from a test in the `Api.Persons` namespace, the SDK automatically picks `Api.Persons.Requests.SonGoku.json`.
+
+If needed, you can be more specific:
+
+```csharp
+"Api.Persons.Requests.SonGoku.json"  // Fully qualified
+"Persons.Requests.SonGoku.json"       // Partial namespace
+```
+
+The SDK uses **segment-based matching** to avoid false positives. `"Requests.SonGoku.json"` will not match `"ErrorRequests.SonGoku.json"` because the dot boundary matters.
+
+This means you get:
+
+- short, readable file references in tests
+- automatic disambiguation by context
+- explicit paths when you need them
+- predictable resolution behavior
 
 ### Recommended structure
 

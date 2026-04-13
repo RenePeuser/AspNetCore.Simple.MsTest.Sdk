@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
+using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
@@ -161,11 +162,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static IAssertOutputBuilder _outputBuilder = new AssertOutputBuilder(OutputStrategies);
 
-        private static IAssertService _assertService = new AssertService(_jsonDiffer,
+        // Comparison strategies (order matters - first match wins)
+        private static ISpecificComparisonStrategy _stringComparisonStrategy = new StringComparisonStrategy();
+
+        private static ISpecificComparisonStrategy _jsonComparisonStrategy = new JsonComparisonStrategy(_jsonDiffer, _jsonSerializerInstance, JsonSerializerOptions);
+
+        private static ISpecificComparisonStrategy[] _specificComparisonStrategies = [_stringComparisonStrategy, _jsonComparisonStrategy];
+
+        private static IComparisonStrategy _comparisonStrategy = new ComparisonStrategy(_specificComparisonStrategies);
+
+        private static IAssertService _assertService = new AssertService(_comparisonStrategy,
                                                                         _responseWriter,
                                                                         _writeResponseService,
-                                                                        _jsonSerializerInstance,
-                                                                        JsonSerializerOptions,
                                                                         _outputBuilder);
 
         // Pipeline (contains all steps internally)

@@ -13,7 +13,12 @@
       "name": "$Name$",
       "firstName": "Goku",
       "age": "$Age$",
-      "emails": []
+      "emails": [
+        {
+          "emailAddress": "abc@hotmail.de",
+          "type": "Microsoft"
+        }   
+      ]
     }
   },
   "statusCode": "OK",

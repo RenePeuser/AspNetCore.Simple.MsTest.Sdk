@@ -129,11 +129,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (allMissingInFirst || allMissingInSecond)
                 {
                     // Consolidate to array-level difference
-                    var elementCount = arrayDiffs.Count;
+                    // Calculate actual array lengths by analyzing indices
+                    var (expectedLength, currentLength) = CalculateArrayLengths(arrayDiffs, allMissingInFirst);
                     var mismatchType = allMissingInFirst ? MismatchType.MissingInFirst : MismatchType.MissingInSecond;
 
-                    var value1 = allMissingInFirst ? "[] (0 items)" : $"[{elementCount} item(s)]";
-                    var value2 = allMissingInFirst ? $"[{elementCount} item(s)]" : "[] (0 items)";
+                    var value1 = expectedLength == 0 ? "[] (0 items)" : $"[{expectedLength} item(s)]";
+                    var value2 = currentLength == 0 ? "[] (0 items)" : $"[{currentLength} item(s)]";
 
                     consolidated.Add(new Difference
                     {
@@ -171,6 +172,76 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var arrayPath = memberPath.Substring(0, lastBracketIndex);
 #pragma warning restore CA1845
             return (true, arrayPath);
+        }
+
+        /// <summary>
+        /// Calculates actual array lengths from differences.
+        /// Uses min and max indices to determine where arrays diverge.
+        /// </summary>
+        private static (int expectedLength, int currentLength) CalculateArrayLengths(
+            List<Difference> arrayDiffs,
+            bool allMissingInFirst)
+        {
+            if (arrayDiffs.Count == 0)
+            {
+                return (0, 0);
+            }
+
+            // Find min and max array indices from all differences
+            var minIndex = int.MaxValue;
+            var maxIndex = -1;
+
+            foreach (var diff in arrayDiffs)
+            {
+                var index = ExtractArrayIndex(diff.MemberPath);
+                if (index < minIndex)
+                {
+                    minIndex = index;
+                }
+                if (index > maxIndex)
+                {
+                    maxIndex = index;
+                }
+            }
+
+            // If allMissingInFirst: elements exist in Current but not in Expected
+            // If allMissingInSecond: elements exist in Expected but not in Current
+            if (allMissingInFirst)
+            {
+                // Expected is shorter, Current has elements from minIndex to maxIndex
+                // minIndex tells us where Expected ends
+                return (minIndex, maxIndex + 1);
+            }
+            else
+            {
+                // Current is shorter, Expected has elements from minIndex to maxIndex
+                // minIndex tells us where Current ends
+                return (maxIndex + 1, minIndex);
+            }
+        }
+
+        /// <summary>
+        /// Extracts the array index from a member path.
+        /// Example: "content.value.emails[1]" → 1
+        /// </summary>
+        private static int ExtractArrayIndex(string memberPath)
+        {
+            var lastBracketStart = memberPath.LastIndexOf('[');
+            var lastBracketEnd = memberPath.LastIndexOf(']');
+
+            if (lastBracketStart < 0 || lastBracketEnd < 0 || lastBracketEnd <= lastBracketStart)
+            {
+                return 0;
+            }
+
+            var indexString = memberPath.Substring(lastBracketStart + 1, lastBracketEnd - lastBracketStart - 1);
+
+            if (int.TryParse(indexString, out var index))
+            {
+                return index;
+            }
+
+            return 0;
         }
 
         /// <summary>

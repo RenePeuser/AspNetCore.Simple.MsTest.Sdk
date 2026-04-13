@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using Extensions.Pack;
@@ -25,13 +26,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
-                                                                                  {
-                                                                                      PropertyNameCaseInsensitive = true,
-                                                                                      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                                                                                      DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                                                                                      NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                                                                                      Converters = { new JsonStringEnumConverter() }
-                                                                                  };
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+            Converters = { new JsonStringEnumConverter() }
+        };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
@@ -60,11 +61,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly AssertOutputBuilder OutputBuilder = new(OutputStrategies);
 
-        private static readonly AssertService AssertService = new(JsonDiffer,
+        // Comparison strategies (order matters - first match wins)
+        private static readonly ISpecificComparisonStrategy StringComparisonStrategy = new StringComparisonStrategy();
+
+        private static readonly ISpecificComparisonStrategy JsonComparisonStrategy = new JsonComparisonStrategy(JsonDiffer, JsonSerializer, JsonSerializerOptions);
+
+        private static readonly ISpecificComparisonStrategy[] SpecificComparisonStrategies = [StringComparisonStrategy, JsonComparisonStrategy];
+
+        private static readonly IComparisonStrategy ComparisonStrategy = new ComparisonStrategy(SpecificComparisonStrategies);
+
+        private static readonly AssertService AssertService = new(ComparisonStrategy,
                                                                   ResponseWriter,
                                                                   WriteResponseService,
-                                                                  JsonSerializer,
-                                                                  JsonSerializerOptions,
                                                                   OutputBuilder);
 
         // GlobalWriteResponse
@@ -999,24 +1007,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with preprocessed data - no further logic needed in AssertService
             var context = new ObjectAssertContext<T>
-                          {
-                              CallerFilePath = callerFilePath,
-                              CallerLineNumber = callerLineNumber,
-                              CallerMemberName = callerMemberName,
-                              CallingAssembly = callingAssembly,
-                              Current = currentObject,
-                              CurrentObject = currentObject,
-                              CurrentResultParameterName = currentResultParameterName,
-                              DifferenceFunc = differenceFunc,
-                              ExpectedObjectAsJson = expectedObjectAsJson,
-                              ExpectedResultFile = expectedFile,
-                              ExpectedResultParameterName = expectedResultParameterName,
-                              OrderFunc = orderFunc,
-                              Parameters = parameters,
-                              ResolvedExpectedJson = resolvedExpectedJson,
-                              TypeIsPrimitiveType = targetIsPrimitiveType,
-                              WriteResponse = writeResponse,
-                          };
+            {
+                CallerFilePath = callerFilePath,
+                CallerLineNumber = callerLineNumber,
+                CallerMemberName = callerMemberName,
+                CallingAssembly = callingAssembly,
+                Current = currentObject,
+                CurrentObject = currentObject,
+                CurrentResultParameterName = currentResultParameterName,
+                DifferenceFunc = differenceFunc,
+                ExpectedObjectAsJson = expectedObjectAsJson,
+                ExpectedResultFile = expectedFile,
+                ExpectedResultParameterName = expectedResultParameterName,
+                OrderFunc = orderFunc,
+                Parameters = parameters,
+                ResolvedExpectedJson = resolvedExpectedJson,
+                TypeIsPrimitiveType = targetIsPrimitiveType,
+                WriteResponse = writeResponse,
+            };
 
             ObjectsAreEqual(assert, context);
         }
