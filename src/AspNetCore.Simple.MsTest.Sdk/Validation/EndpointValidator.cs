@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using Extensions.Pack;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
     public static class AddEndpointValidatorExtension
     {
@@ -41,7 +36,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var url = context.Url;
             var expectedResponse = typeof(TResult);
             var requestedVersion = context.ApiVersion;
-            
 
             // 2. Check if any endpoints are registered
             var allEndpoints = endpointProvider.GetAllEndpoints();
@@ -78,6 +72,42 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // 3. Validate response type
+            ValidateResponseType<TResult>(context, endpoint, expectedResponse);
+
+            // Validation passed - endpoint exists and type matches
+        }
+
+        private void ValidateResponseType<TResult>(IHttpAssertContext context,
+                                                   EndpointInfo endpoint,
+                                                   Type expectedResponse)
+        {
+            // Determine which status codes to check based on test type
+            var isSuccessTest = context.IsSuccessStatusCode;
+            var statusCodesToCheck = GetRelevantStatusCodes(endpoint.ResponseTypesByStatusCode, isSuccessTest);
+
+            // If we have explicit status code mappings, validate against them
+            if (statusCodesToCheck.Any())
+            {
+                var matchingTypes = statusCodesToCheck.Values.Distinct().ToList();
+
+                // Check if expected response type matches any of the relevant response types
+                var isMatch = matchingTypes.Any(type => type == expectedResponse);
+
+                if (isMatch.IsFalse())
+                {
+                    var typeMismatchError = outputBuilder.BuildResponseTypeMismatch(context,
+                                                                                    endpoint,
+                                                                                    expectedResponse,
+                                                                                    statusCodesToCheck);
+
+                    Assert.That.Fail(typeMismatchError);
+                }
+
+                // Type matches one of the valid response types for this test type
+                return;
+            }
+
+            // Fallback: Use old ResponseType property (backward compatibility)
             if (endpoint.ResponseType.IsNotNull())
             {
                 // Check if TResult matches the declared response type
@@ -85,12 +115,37 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     var typeMismatchError = outputBuilder.BuildResponseTypeMismatch(context, endpoint, expectedResponse);
                     Assert.That.Fail(typeMismatchError);
-
-                    return;
                 }
             }
+        }
 
-            // Validation passed - endpoint exists and type matches
+        /// <summary>
+        /// Filters response types by status code range based on test type.
+        /// </summary>
+        /// <param name="responseTypes">All response types by status code</param>
+        /// <param name="isSuccessTest">True for success tests (2xx), false for error tests (4xx/5xx)</param>
+        /// <returns>Filtered response types</returns>
+        private static ImmutableDictionary<int, Type> GetRelevantStatusCodes(
+            ImmutableDictionary<int, Type> responseTypes,
+            bool isSuccessTest)
+        {
+            if (!responseTypes.Any())
+            {
+                return responseTypes;
+            }
+
+            if (isSuccessTest)
+            {
+                // Success test: only check 2xx status codes
+                return responseTypes
+                       .Where(kvp => kvp.Key is >= 200 and < 300)
+                       .ToImmutableDictionary();
+            }
+
+            // Error test: only check 4xx and 5xx status codes
+            return responseTypes
+                   .Where(kvp => kvp.Key is >= 400 and < 600)
+                   .ToImmutableDictionary();
         }
     }
 }

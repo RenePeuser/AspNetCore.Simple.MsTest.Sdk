@@ -1,5 +1,6 @@
-using System.Text;
+﻿using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
+using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using ConsoleTables;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;

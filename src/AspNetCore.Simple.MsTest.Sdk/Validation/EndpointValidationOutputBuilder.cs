@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Text;
 using ConsoleTables;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
     public static class AddEndpointValidationOutputBuilderExtension
     {
@@ -39,11 +36,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
         string BuildResponseTypeMismatch(IHttpAssertContext context,
                                          EndpointInfo endpoint,
                                          Type expectedType);
+
+        /// <summary>
+        /// Builds error message for response type mismatch with status code details.
+        /// </summary>
+        string BuildResponseTypeMismatch(IHttpAssertContext context,
+                                         EndpointInfo endpoint,
+                                         Type expectedType,
+                                         ImmutableDictionary<int, Type> relevantStatusCodes);
     }
 
-    internal sealed class EndpointValidationOutputBuilder(
-        ICurlFormatter curlFormatter,
-        ISourceCodeExtractor sourceCodeExtractor) : IEndpointValidationOutputBuilder
+    internal sealed class EndpointValidationOutputBuilder(ICurlFormatter curlFormatter,
+                                                          ISourceCodeExtractor sourceCodeExtractor) : IEndpointValidationOutputBuilder
     {
         public string BuildEndpointNotFound(IHttpAssertContext context,
                                             ImmutableList<EndpointInfo> availableEndpoints)
@@ -196,6 +200,120 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
             sb.AppendLine("Alternative:");
             sb.AppendLine("- If the endpoint contract is wrong, update the endpoint instead");
+            sb.AppendLine();
+
+            // Curl command
+            var curl = BuildCurlCommand(context);
+            var curlFormatted = curlFormatter.GetCurlAsFormattedString(curl);
+            sb.AppendLine(curlFormatted);
+
+            return sb.ToString();
+        }
+
+        public string BuildResponseTypeMismatch(IHttpAssertContext context,
+                                                EndpointInfo endpoint,
+                                                Type expectedType,
+                                                ImmutableDictionary<int, Type> relevantStatusCodes)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine();
+            sb.AppendLine("══════════════════════════════════════════════════════════════════════════════");
+            sb.AppendLine("HTTP RESPONSE TYPE MISMATCH");
+            sb.AppendLine("══════════════════════════════════════════════════════════════════════════════");
+            sb.AppendLine();
+
+            BuildTestInfo(sb, context);
+            sb.AppendLine();
+
+            // ASSERT CALL - Original source code
+            var sourceCode = sourceCodeExtractor.ExtractCallCode(context.CallerFilePath, context.CallerLineNumber);
+
+            if (sourceCode.IsNotNullOrWhiteSpace())
+            {
+                sb.AppendLine("ASSERT CALL");
+                sb.AppendLine();
+                sb.AppendLine(new string('-', 75));
+                sb.AppendLine(sourceCode);
+                sb.AppendLine(new string('-', 75));
+                sb.AppendLine();
+            }
+
+            // SUGGESTED FIX - Generate corrected code
+            var declaredTestTypeName = FormatTypeName(expectedType);
+            var isSuccessTest = context.IsSuccessStatusCode;
+
+            // Find first matching type as suggestion
+            var firstRelevantType = relevantStatusCodes.FirstOrDefault().Value;
+            var suggestedTypeName = firstRelevantType.IsNotNull() ? FormatTypeName(firstRelevantType) : "object";
+
+            if (sourceCode.IsNotNullOrWhiteSpace())
+            {
+                var suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", $"<{suggestedTypeName}>");
+
+                sb.AppendLine("SUGGESTED FIX");
+                sb.AppendLine();
+                sb.AppendLine(new string('-', 75));
+                sb.AppendLine(suggestedFix);
+                sb.AppendLine(new string('-', 75));
+                sb.AppendLine();
+            }
+
+            // TYPE VALIDATION Table - Show all relevant status codes
+            sb.AppendLine("TYPE VALIDATION");
+            sb.AppendLine();
+
+            var typeTable = new ConsoleTable { Options = { EnableCount = false } };
+
+            typeTable.AddColumn(new[]
+                                {
+                                    "Status Code", "Endpoint Response Type", "Declared Test Type",
+                                    "Match"
+                                });
+
+            foreach (var statusCode in relevantStatusCodes.OrderBy(kvp => kvp.Key))
+            {
+                var actualTypeName = FormatTypeName(statusCode.Value);
+                var isMatch = statusCode.Value == expectedType ? "✓" : "✗";
+
+                typeTable.AddRow(statusCode.Key.ToString(), actualTypeName, declaredTestTypeName,
+                                 isMatch);
+            }
+
+            sb.Append(typeTable.ToString().TrimEnd());
+            sb.AppendLine();
+            sb.AppendLine();
+
+            // SUMMARY
+            sb.AppendLine("SUMMARY");
+            sb.AppendLine();
+
+            var testTypeDescription = isSuccessTest ? "success (2xx)" : "error (4xx/5xx)";
+            sb.AppendLine($"The test is a {testTypeDescription} test and declares response type '{declaredTestTypeName}',");
+            sb.AppendLine($"but none of the endpoint's {testTypeDescription} status codes return this type.");
+            sb.AppendLine();
+
+            if (relevantStatusCodes.Count == 1)
+            {
+                var singleStatus = relevantStatusCodes.First();
+                sb.AppendLine($"Endpoint defines: {singleStatus.Key} → {FormatTypeName(singleStatus.Value)}");
+            }
+            else
+            {
+                sb.AppendLine("Endpoint defines:");
+
+                foreach (var statusCode in relevantStatusCodes.OrderBy(kvp => kvp.Key))
+                {
+                    sb.AppendLine($"  - {statusCode.Key} → {FormatTypeName(statusCode.Value)}");
+                }
+            }
+
+            sb.AppendLine();
+            sb.AppendLine("Suggested action:");
+            sb.AppendLine($"- Update the test response type to '{suggestedTypeName}' to match one of the status codes above");
+            sb.AppendLine();
+            sb.AppendLine("Alternative:");
+            sb.AppendLine("- If the endpoint contract is wrong, update the endpoint's ProducesResponseType attributes");
             sb.AppendLine();
 
             // Curl command

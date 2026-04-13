@@ -1,11 +1,9 @@
 ﻿using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
 using System.Text;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk.Strategies
 {
     public static class AddPrimitiveOutputStrategyExtension
     {

@@ -31,11 +31,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuget", "Nuget", "{6E07E5DC
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{00D5F8A3-C0B0-4E43-91F2-7EFFD2C49046}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controllers.Test", "src\Controllers.Test\Controllers.Test.csproj", "{2C1B9E69-17FA-5FB6-32B7-37EE10C6395A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controllers", "src\Controllers\Controllers.csproj", "{BD0F153D-11DA-5F2D-DE62-532EF8F86C5C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Controller", "Controller", "{918A3963-F48D-496D-8BE0-6989A4456360}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MinimalApi", "MinimalApi", "{C2639F37-5BC2-4F77-B017-3B361053E1C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,8 +62,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{2C1B9E69-17FA-5FB6-32B7-37EE10C6395A} = {00D5F8A3-C0B0-4E43-91F2-7EFFD2C49046}
-		{BD0F153D-11DA-5F2D-DE62-532EF8F86C5C} = {00D5F8A3-C0B0-4E43-91F2-7EFFD2C49046}
+		{2C1B9E69-17FA-5FB6-32B7-37EE10C6395A} = {918A3963-F48D-496D-8BE0-6989A4456360}
+		{BD0F153D-11DA-5F2D-DE62-532EF8F86C5C} = {918A3963-F48D-496D-8BE0-6989A4456360}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2D4939EF-E02D-4FBC-A5F2-BBC4FFAA8A13}

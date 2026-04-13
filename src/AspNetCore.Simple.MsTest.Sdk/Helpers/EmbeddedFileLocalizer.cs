@@ -302,7 +302,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (isAbsoluteDottedPath)
             {
                 var absoluteMatches = resources
-                                      .Where(r => r.EndsWith(trimmed, StringComparison.OrdinalIgnoreCase))
+                                      .Where(r => MatchesAsSegment(r, trimmed))
                                       .ToList();
 
                 if (absoluteMatches.Count == 0)
@@ -322,14 +322,43 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (absoluteMatches.Count > 1)
                 {
+                    // ============================================================
+                    // 🎯 Context-aware disambiguation
+                    // ============================================================
+                    // If multiple matches exist, prefer the one matching the calling context
+                    // Example:
+                    //   Test in: Controllers.Test.Api.Persons.PersonController
+                    //   Pattern: Requests.SonGoku.json
+                    //   Matches:
+                    //     - Controllers.Test.Api.Errors.Requests.SonGoku.json
+                    //     - Controllers.Test.Api.Persons.Requests.SonGoku.json  ← Prefer this
+                    //     - Controllers.Test.Api.NativTypes.Requests.SonGoku.json
+                    // ============================================================
+
+                    var contextMatches = absoluteMatches
+                                         .Where(r => r.StartsWith(contextPrefix, StringComparison.OrdinalIgnoreCase))
+                                         .ToList();
+
+                    if (contextMatches.Count == 1)
+                    {
+                        // Found exactly one match in the same context - use it
+                        return (contextMatches[0], true);
+                    }
+
+                    // Still ambiguous or no context match - fail with clear error
                     throw new InvalidOperationException($"""
                                                          Absolute embedded resource ambiguous. Exactly ONE expected.
 
                                                          Requested:
                                                          {trimmed}
 
+                                                         Caller Context:
+                                                         {contextPrefix}
+
                                                          Matches:
                                                          {string.Join(Environment.NewLine, absoluteMatches)}
+
+                                                         Tip: Use a more specific path to disambiguate (e.g., "Api.Persons.Requests.SonGoku.json")
                                                          """);
                 }
 
@@ -406,6 +435,40 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             return actualFileName.Equals(fileName,
                                          StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Matches a resource name against a pattern as complete namespace segments.
+        /// Ensures that the pattern is not just a suffix, but a complete segment match.
+        /// </summary>
+        /// <param name="resourceName">Full resource name, e.g., "Controllers.Test.Api.Persons.Requests.SonGoku.json"</param>
+        /// <param name="pattern">Pattern to match, e.g., "Requests.SonGoku.json"</param>
+        /// <returns>True if the pattern matches as complete segments</returns>
+        /// <example>
+        /// MatchesAsSegment("Controllers.Test.Api.Persons.Requests.SonGoku.json", "Requests.SonGoku.json") → true
+        /// MatchesAsSegment("Controllers.Test.Api.Errors.Requests.SonGoku.json", "Requests.SonGoku.json") → true
+        /// MatchesAsSegment("Controllers.Test.Api.ErrorsRequests.SonGoku.json", "Requests.SonGoku.json") → false (no dot before Requests)
+        /// </example>
+        private static bool MatchesAsSegment(string resourceName, string pattern)
+        {
+            // First check: must end with the pattern
+            if (!resourceName.EndsWith(pattern, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            // Second check: ensure it's a complete segment match
+            // The character before the pattern must be a dot (or it's the start of string)
+            var startIndex = resourceName.Length - pattern.Length;
+
+            // If pattern starts at beginning, it's a match
+            if (startIndex == 0)
+            {
+                return true;
+            }
+
+            // Otherwise, the character before must be a dot (namespace separator)
+            return resourceName[startIndex - 1] == '.';
         }
 
         private static bool ContainsFolderSegment(string resourceName,

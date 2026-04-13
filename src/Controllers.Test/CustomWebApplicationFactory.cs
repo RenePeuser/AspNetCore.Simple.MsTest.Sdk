@@ -1,10 +1,9 @@
-﻿using Controllers;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Controller.Test
+namespace Controllers.Test
 {
     public class CustomWebApplicationFactory : WebApplicationFactory<Startup>
     {

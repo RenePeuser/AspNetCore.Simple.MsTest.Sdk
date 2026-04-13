@@ -1,0 +1,20 @@
+Description
+The Create Project API is designed to initialize a new Siemens Data Cloud (SDC) project. It requires the user to provide essential details such as the project name, organizational ID, and project owner information. Additional fields allow the inclusion of deputy owners, cybersecurity officers, data stewardship, and financial control responsibilities. Furthermore, users can define the project's lead domain, associated domains, and its regional and organizational scopes.
+
+This endpoint is essential for onboarding and managing SDC projects, ensuring clear roles and scopes are defined from the outset.
+
+Key Fields:
+* ProjectName: Name of the project.
+* OrgId: Organizational ID of the entity creating the project.
+* ProjectOwner: The primary owner of the project.
+* DeputyOwners: A list of users acting as deputy owners.
+* CyberSecurityOfficers: A list of cybersecurity officers responsible for project security.
+* DataSteward: The individual responsible for managing data within the project.
+* FinancialController: The person overseeing financial aspects.
+* ChargingInformation: Billing and charging details.
+* LeadDomain: The primary domain associated with the project.
+* OtherDomains: Additional domains related to the project.
+* RegionalScopes: Geographic regions applicable to the project.
+* OrganizationalScopes: Specific organizational contexts relevant to the project.
+
+This API ensures a structured and compliant project setup for efficient collaboration and management in the Siemens Data Cloud.

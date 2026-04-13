@@ -1,6 +1,6 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 
-namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk.Strategies
 {
     /// <summary>
     /// Strategy for building assertion failure output based on context type.

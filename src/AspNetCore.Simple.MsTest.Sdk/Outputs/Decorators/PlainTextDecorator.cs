@@ -1,7 +1,7 @@
-using Extensions.Pack;
+﻿using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk.Decorators
 {
     public static class AddPlainTextDecoratorExtension
     {

@@ -31,7 +31,11 @@
       "Bash(cp Client.Assert.Get.cs Client.Assert.Get.cs.backup)",
       "Bash(sed -i 's/\\\\\\(\\\\[CallerMemberName\\\\] string callerMemberName = \"\"\\\\\\)\\)/\\\\1,\\\\n                                                            [CallerLineNumber] int callerLineNumber = 0\\)/g' Client.Assert.Get.cs)",
       "Bash(cp Assert.That.ObjectAreEqual.cs Assert.That.ObjectAreEqual.cs.backup)",
-      "Bash(sed -i 's/\\\\\\(\\\\[CallerMemberName\\\\] string callerMemberName = \"\"\\\\\\)\\)/\\\\1,\\\\n                                              [CallerLineNumber] int callerLineNumber = 0\\)/g' Assert.That.ObjectAreEqual.cs)"
+      "Bash(sed -i 's/\\\\\\(\\\\[CallerMemberName\\\\] string callerMemberName = \"\"\\\\\\)\\)/\\\\1,\\\\n                                              [CallerLineNumber] int callerLineNumber = 0\\)/g' Assert.That.ObjectAreEqual.cs)",
+      "Bash(dotnet package:*)",
+      "WebFetch(domain:www.nuget.org)",
+      "Bash(find . -name \"*.md\" -type f -exec grep -l \"Sdc\\\\.Console\" {} \\\\;)",
+      "Bash(xargs cat:*)"
     ]
   }
 }

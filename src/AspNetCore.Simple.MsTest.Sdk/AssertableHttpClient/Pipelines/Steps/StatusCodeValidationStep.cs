@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 

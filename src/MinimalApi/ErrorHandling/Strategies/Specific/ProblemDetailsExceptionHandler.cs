@@ -1,0 +1,29 @@
+﻿using System.Collections.Immutable;
+using System.Net.Mime;
+using Extensions.Pack;
+using MinimalApi.ErrorHandling.Exceptions;
+
+namespace MinimalApi.ErrorHandling.Strategies.Specific
+{
+    internal static class AddProblemDetailsExceptionHandlerExtension
+    {
+        public static void AddProblemDetailsExceptionHandler(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<ISpecificErrorHandler, ProblemDetailsExceptionHandler>();
+        }
+    }
+
+    internal sealed class ProblemDetailsExceptionHandler : SpecificErrorHandler<ProblemDetailsException>
+    {
+        protected override async Task HandleAsync(HttpContext context, ProblemDetailsException exception)
+        {
+            var headers = context.Response.Headers.ToImmutableList();
+            context.Response.Clear();
+            context.Response.Headers.AddRange(headers);
+            context.Response.ContentType = MediaTypeNames.Application.Json;
+            context.Response.StatusCode = exception.ProblemDetails.Status ?? StatusCodes.Status500InternalServerError;
+
+            await context.Response.WriteAsJsonAsync(exception.ProblemDetails).ConfigureAwait(false);
+        }
+    }
+}

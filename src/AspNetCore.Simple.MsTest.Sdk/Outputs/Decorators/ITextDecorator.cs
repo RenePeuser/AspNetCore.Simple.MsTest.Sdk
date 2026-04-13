@@ -1,4 +1,4 @@
-namespace AspNetCore.Simple.MsTest.Sdk
+﻿namespace AspNetCore.Simple.MsTest.Sdk.Decorators
 {
     /// <summary>
     /// Decorates text output with styling (colors, emphasis).

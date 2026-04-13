@@ -1,5 +1,6 @@
 ﻿using AspNetCore.Simple.Sdk.ErrorHandling;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Controllers.Api.Errors
@@ -10,7 +11,7 @@ namespace Controllers.Api.Errors
     public class ErrorsController : ControllerBase
     {
         [HttpPost("not-implemented")]
-        [ProducesErrorResponseType(typeof(ProblemDetails))]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public void ThrowNotImplementedException()
         {
             throw new ProblemDetailsException("Implementation is missing",

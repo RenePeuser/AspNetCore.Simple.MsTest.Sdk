@@ -1,7 +1,7 @@
 ﻿using AspNetCore.Simple.MsTest.Sdk;
 using Extensions.Pack;
 
-namespace Controller.Test
+namespace Controllers.Test
 {
     [TestClass]
     public class UrlExists : ApiTestBase

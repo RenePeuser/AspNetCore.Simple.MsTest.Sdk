@@ -1,7 +1,7 @@
-using System;
+﻿using System.Collections.Immutable;
 using Asp.Versioning;
 
-namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
     /// <summary>
     /// Represents a parsed endpoint with resolved metadata.
@@ -29,7 +29,38 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <summary>
         /// Expected response type from ProducesResponseTypeAttribute metadata.
         /// Used for compile-time validation against TResult in tests.
+        /// DEPRECATED: Use ResponseTypesByStatusCode instead for multi-status code support.
         /// </summary>
         public required Type? ResponseType { get; init; }
+
+        /// <summary>
+        /// Response types by HTTP status code.
+        /// Key: Status code (200, 400, 404, etc.)
+        /// Value: Response type for that status code
+        /// Example: { 200: typeof(CreateEdgeResponse), 400: typeof(ValidationProblemDetailsExtended) }
+        /// </summary>
+        public ImmutableDictionary<int, Type> ResponseTypesByStatusCode { get; init; } = ImmutableDictionary<int, Type>.Empty;
+
+        /// <summary>
+        /// OpenAPI tags for grouping endpoints.
+        /// Example: ["Edges", "Admin"]
+        /// </summary>
+        public ImmutableList<string> Tags { get; init; } = ImmutableList<string>.Empty;
+
+        /// <summary>
+        /// Endpoint name (from WithName() in Minimal API or Name property in MVC).
+        /// Example: "createEdgeV1"
+        /// </summary>
+        public string? Name { get; init; }
+
+        /// <summary>
+        /// Endpoint description (from WithDescription() or XML comments).
+        /// </summary>
+        public string? Description { get; init; }
+
+        /// <summary>
+        /// Endpoint summary (from WithSummary() or XML comments).
+        /// </summary>
+        public string? Summary { get; init; }
     }
 }

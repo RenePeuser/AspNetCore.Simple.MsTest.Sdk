@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <NoWarn>CA1515;CA1707;CA1054;CA1062;MSTEST0016</NoWarn>
+    </PropertyGroup>
+
+    <!--Embedded files area-->
+    <ItemGroup>
+        <EmbeddedResource Include="**\*.txt" Exclude="bin\**\*;obj\**\*" />
+        <EmbeddedResource Include="**\*.json" Exclude="bin\**\*;obj\**\*;appsettings*.json" />
+        <EmbeddedResource Include="**\*.sh" Exclude="bin\**\*;obj\**\*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+        <PackageReference Include="MSTest" />
+        <PackageReference Include="coverlet.collector">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk\AspNetCore.Simple.MsTest.Sdk.csproj" />
+        <ProjectReference Include="..\MinimalApi\MinimalApi.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Api\Health\V1\" />
+    </ItemGroup>
+
+</Project>

@@ -50,16 +50,62 @@ internal sealed class GetAllNodesEndpoint(GetAllNodesQuery query) : IEndpoint
     public void Map(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet("nodes", HandleAsync)
+                 .Produces<GetAllNodesResponse>()
+                 .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
+                 .Produces<ProblemDetails>(StatusCodes.Status403Forbidden)
+                 .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
                  .WithTags("Nodes")
                  .WithName("getAllNodesV1")
                  .MapToApiVersion(1)
                  .WithDescriptionFromFile("Description.md")
                  .WithSummaryFromFile("Summary.md");
 
+        return;
+
         async Task<GetAllNodesResponse> HandleAsync(CancellationToken cancellationToken = default)
         {
             var result = await query.ExecuteAsync(cancellationToken).ConfigureAwait(false);
             return new GetAllNodesResponse(result);
+        }
+    }
+}
+```
+
+## POST Endpoint with Complete Metadata
+
+```csharp
+internal static class AddCreateNodeEndpointExtension
+{
+    internal static void AddCreateNodeEndpoint(this IServiceCollection services)
+    {
+        services.AddSingletonIfNotExists<IEndpoint, CreateNodeEndpoint>();
+    }
+}
+
+internal sealed class CreateNodeEndpoint(CreateNodeCommand command) : IEndpoint
+{
+    public void Map(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost("nodes", HandleAsync)
+                 .Accepts<CreateNodeRequest>(MediaTypeNames.Application.Json)
+                 .Produces<CreateNodeResponse>(StatusCodes.Status201Created)
+                 .Produces<ValidationProblemDetailsExtended>(StatusCodes.Status400BadRequest)
+                 .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
+                 .Produces<ProblemDetails>(StatusCodes.Status403Forbidden)
+                 .Produces<ProblemDetails>(StatusCodes.Status409Conflict)
+                 .Produces<ValidationProblemDetailsExtended>(StatusCodes.Status422UnprocessableEntity)
+                 .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
+                 .WithTags("Nodes")
+                 .WithName("createNodeV1")
+                 .MapToApiVersion(1)
+                 .WithDescriptionFromFile("Description.md")
+                 .WithSummaryFromFile("Summary.md");
+
+        return;
+
+        async Task<CreateNodeResponse> HandleAsync(CreateNodeRequest request, CancellationToken cancellationToken = default)
+        {
+            return await command.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
         }
     }
 }

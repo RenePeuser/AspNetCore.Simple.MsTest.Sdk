@@ -1,4 +1,5 @@
-using System.IO;
+﻿using System.IO;
+using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 

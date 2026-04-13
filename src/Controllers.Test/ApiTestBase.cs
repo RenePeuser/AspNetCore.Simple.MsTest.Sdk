@@ -1,10 +1,9 @@
 ﻿using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
-using Controllers;
 using Microsoft.Extensions.DependencyInjection;
 [assembly: Parallelize(Scope = ExecutionScope.ClassLevel)]
 
-namespace Controller.Test
+namespace Controllers.Test
 {
     /// <summary>
     ///     Your base class for all API tests
@@ -15,6 +14,7 @@ namespace Controller.Test
         private static ApiTestBase<Startup> _apiTestBase = null!;
 
         protected static HttpClient Client { get; private set; } = null!;
+
         protected static IAssertableHttpClient AssertableHttpClient { get; private set; } = null!;
 
         /// <summary>
@@ -39,7 +39,6 @@ namespace Controller.Test
 
             // NEW: Initialize the HttpClientAssertExtensions with the service provider to enable assertion capabilities in your tests
             HttpClientAssertExtensions.Setup(_apiTestBase.Services);
-
         }
 
         [AssemblyCleanup]

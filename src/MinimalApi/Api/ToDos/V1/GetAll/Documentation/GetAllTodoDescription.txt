@@ -1,0 +1,3 @@
+﻿The new extension method is soo cool.
+We are bounding directly files into Minimal API
+descrption and summaries

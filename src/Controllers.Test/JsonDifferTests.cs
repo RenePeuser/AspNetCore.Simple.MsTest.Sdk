@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 
-namespace Controller.Test
+namespace Controllers.Test
 {
     [TestClass]
     [TestCategory("JsonDiffer")]
