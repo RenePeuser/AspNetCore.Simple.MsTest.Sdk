@@ -375,26 +375,26 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine($" {httpMethod} {url}{apiVersion}");
         }
 
-        private static void BuildHttpCallTable(StringBuilder sb,
-                                               IHttpAssertContext context)
-        {
-            var table = new ConsoleTable { Options = { EnableCount = false } };
+        //private static void BuildHttpCallTable(StringBuilder sb,
+        //                                       IHttpAssertContext context)
+        //{
+        //    var table = new ConsoleTable { Options = { EnableCount = false } };
 
-            // Add columns
-            table.AddColumn(new[] { "HttpMethod", "Url" });
+        //    // Add columns
+        //    table.AddColumn(new[] { "HttpMethod", "Url" });
 
-            // Build full URL from client base address
-            var fullUrl = context.Client.BaseAddress.IsNotNull()
-                              ? new Uri(context.Client.BaseAddress, context.Url).ToString()
-                              : context.Url;
+        //    // Build full URL from client base address
+        //    var fullUrl = context.Client.BaseAddress.IsNotNull()
+        //                      ? new Uri(context.Client.BaseAddress, context.Url).ToString()
+        //                      : context.Url;
 
-            // Add data row
-            table.AddRow(context.HttpMethod.Method, fullUrl);
+        //    // Add data row
+        //    table.AddRow(context.HttpMethod.Method, fullUrl);
 
-            sb.AppendLine("HTTP CALL");
-            sb.AppendLine();
-            sb.Append(table.ToString().TrimEnd());
-        }
+        //    sb.AppendLine("HTTP CALL");
+        //    sb.AppendLine();
+        //    sb.Append(table.ToString().TrimEnd());
+        //}
 
         private static string FormatTypeName(Type type)
         {

@@ -10,7 +10,7 @@
     <PackageVersion Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="9.0.0" />
     <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="9.0.0" />
     <PackageVersion Include="AspNetCore.Simple.Sdk" Version="7.0.0" />
-    <PackageVersion Include="ConsoleTables" Version="2.7.0" />
+    <PackageVersion Include="ConsoleTables" Version="2.6.2" />
     <PackageVersion Include="Extensions.Pack" Version="7.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc" Version="2.3.9" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.3.9" />
