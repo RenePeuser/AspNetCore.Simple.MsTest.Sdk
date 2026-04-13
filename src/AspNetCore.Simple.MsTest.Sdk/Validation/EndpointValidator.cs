@@ -1,6 +1,8 @@
 ﻿using System.Collections.Immutable;
+using System.Net;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
@@ -107,7 +109,19 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 return;
             }
 
-            // Fallback: Use old ResponseType property (backward compatibility)
+            // Fallback 1: Try to extract status code from Expected Response JSON
+            var expectedStatusCode = TryExtractStatusCodeFromExpectedResponse(context);
+
+            if (expectedStatusCode.HasValue)
+            {
+                // Validate test type matches expected status code
+                ValidateTestTypeMatchesStatusCode(context, expectedStatusCode.Value, isSuccessTest);
+
+                // Success: Expected status code aligns with test type
+                return;
+            }
+
+            // Fallback 2: Use old ResponseType property (backward compatibility)
             if (endpoint.ResponseType.IsNotNull())
             {
                 // Check if TResult matches the declared response type
@@ -116,6 +130,118 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                     var typeMismatchError = outputBuilder.BuildResponseTypeMismatch(context, endpoint, expectedResponse);
                     Assert.That.Fail(typeMismatchError);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Tries to extract the HTTP status code from the expected response JSON.
+        /// Expected response format (SimpleHttpResponseMessage):
+        /// {
+        ///   "StatusCode": "InternalServerError",  // or 500
+        ///   "IsSuccessStatusCode": false,
+        ///   "Content": { "Value": { ... } }
+        /// }
+        /// </summary>
+        private static int? TryExtractStatusCodeFromExpectedResponse(IHttpAssertContext context)
+        {
+            try
+            {
+                var expectedJson = context.ExpectedObjectAsJson;
+
+                if (expectedJson.IsNullOrWhiteSpace())
+                {
+                    return null;
+                }
+
+                var json = JObject.Parse(expectedJson);
+
+                // Try to get StatusCode property
+                var statusCodeToken = json["StatusCode"];
+
+                if (statusCodeToken.IsNull())
+                {
+                    return null;
+                }
+
+                // StatusCode can be either a number (200) or a string ("OK", "InternalServerError")
+                if (statusCodeToken.Type == JTokenType.Integer)
+                {
+                    return statusCodeToken.Value<int>();
+                }
+
+                if (statusCodeToken.Type == JTokenType.String)
+                {
+                    var statusCodeString = statusCodeToken.Value<string>();
+
+                    // Try to parse as HttpStatusCode enum
+                    if (Enum.TryParse<HttpStatusCode>(statusCodeString, ignoreCase: true, out var statusCode))
+                    {
+                        return (int)statusCode;
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex) when (ex is Newtonsoft.Json.JsonException or ArgumentException or InvalidOperationException)
+            {
+                // Parsing failed - not a SimpleHttpResponseMessage format
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Validates that the test type (success vs error) matches the expected status code.
+        /// </summary>
+        private void ValidateTestTypeMatchesStatusCode(IHttpAssertContext context, int expectedStatusCode, bool isSuccessTest)
+        {
+            var isSuccessStatusCode = expectedStatusCode is >= 200 and < 300;
+
+            // Test type should match the expected status code range
+            if (isSuccessTest && !isSuccessStatusCode)
+            {
+                // Success test but expected status code is error (4xx/5xx)
+                var error = $"""
+
+                            ══════════════════════════════════════════════════════════════════════════════
+                            TEST TYPE MISMATCH
+                            ══════════════════════════════════════════════════════════════════════════════
+
+                            The test is declared as a SUCCESS test (AssertPostAsync, AssertGetAsync, etc.)
+                            but the expected response has status code {expectedStatusCode} which is an ERROR status.
+
+                            Expected Status Code: {expectedStatusCode} ({(HttpStatusCode)expectedStatusCode})
+                            Test Type: Success (expects 2xx status codes)
+
+                            SUGGESTED FIX:
+                            - Use AssertPostAsErrorAsync() or similar error assertion method instead
+                            - Or update the expected response to have a success status code (200, 201, etc.)
+
+                            """;
+
+                Assert.That.Fail(error);
+            }
+            else if (!isSuccessTest && isSuccessStatusCode)
+            {
+                // Error test but expected status code is success (2xx)
+                var error = $"""
+
+                            ══════════════════════════════════════════════════════════════════════════════
+                            TEST TYPE MISMATCH
+                            ══════════════════════════════════════════════════════════════════════════════
+
+                            The test is declared as an ERROR test (AssertPostAsErrorAsync, AssertGetAsErrorAsync, etc.)
+                            but the expected response has status code {expectedStatusCode} which is a SUCCESS status.
+
+                            Expected Status Code: {expectedStatusCode} ({(HttpStatusCode)expectedStatusCode})
+                            Test Type: Error (expects 4xx/5xx status codes)
+
+                            SUGGESTED FIX:
+                            - Use AssertPostAsync() or similar success assertion method instead
+                            - Or update the expected response to have an error status code (400, 404, 500, etc.)
+
+                            """;
+
+                Assert.That.Fail(error);
             }
         }
 
