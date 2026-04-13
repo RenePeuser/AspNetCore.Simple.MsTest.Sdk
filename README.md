@@ -7,6 +7,8 @@
 > **API snapshot testing so productive it feels like cheating.**  
 > Add a JSON file. A test appears. When it fails, you get the exact diff, full HTTP context, and a ready-to-run `curl`.
 
+---
+
 ```csharp
 [TestMethod]
 [DynamicRequestLocator]
@@ -17,6 +19,44 @@ public Task Should_Create_User(string useCase)
                                                 useCase);
 }
 ```
+
+---
+
+## File conventions and folder structure
+
+### Use file names, not full resource paths
+
+Prefer this:
+
+```
+"NewUser.json"
+```
+
+Not this:
+
+```
+"Users.V1.Payloads.NewUser.json"
+```
+
+### Recommended structure
+
+```plaintext
+Api
+└─ Users
+   └─ V1
+      └─ Create
+         └─ Status_200_Ok
+            ├─ Requests
+            │  ├─ ValidUser.json
+            │  ├─ AdminUser.json
+            │  └─ GuestUser.json
+            ├─ Responses
+            │  ├─ ValidUser.json
+            │  ├─ AdminUser.json
+            │  └─ GuestUser.json
+            └─ CreateUser_Status_200_OK_Test.cs
+```
+---
 
 **Add a JSON file. A new test appears.**
 
@@ -163,6 +203,8 @@ Run the test and you get:
 
 ## What a failure looks like
 
+
+### Value differences
 This is where the SDK earns its place.
 
 ```plaintext
@@ -170,12 +212,13 @@ This is where the SDK earns its place.
 SNAPSHOT TEST FAILED
 ══════════════════════════════════════════════════════════════════════════════
 
-Project   : AspNetCore.Simple.MsTest.Sdk.Test
-Class     : Person_Test.cs
-Method    : Should_Be_Able_To_Put_A_Patch_By_Json
+Project    : Controllers.Test
+Class      : Controllers.Test.Api.Persons.PersonController.cs
+Method     : Should_Be_Able_To_Post_A_Person_By_Json_1
+LineNumber : 145
 
-Request   : AspNetCore.Simple.MsTest.Sdk.Test.Controllers.Requests.SonGoku.json
-Response  : AspNetCore.Simple.MsTest.Sdk.Test.Controllers.Responses.SonGokuNewResponse.json
+Request   : Controllers.Test.Api.Persons.Requests.SonGoku.json
+Response  : Controllers.Test.Api.Persons.Responses.SonGoku.json
 
 Errors    : 1
 ErrorTypes: ValueDifference
@@ -184,19 +227,19 @@ HTTP CALL
  ----------------------------------------------------------------------- 
  | HttpMethod | Url                                   | HttpStatusCode |
  ----------------------------------------------------------------------- 
- | PUT        | http://localhost/api/tests/v1/persons | 200 OK         |
+ | POST       | http://localhost/api/tests/v1/persons | 200 OK         |
  -----------------------------------------------------------------------
 
 DIFFERENCES
- ---------------------------------------------------------------------------------- 
- | MemberPath         | SonGokuNewResponse.json | CurrentResult | MismatchType    |
- ---------------------------------------------------------------------------------- 
- | content.value.name | Son 1                   | Son           | ValueDifference |
- ----------------------------------------------------------------------------------
+ ----------------------------------------------------------------------- 
+ | MemberPath         | SonGoku.json | CurrentResult | MismatchType    |
+ ----------------------------------------------------------------------- 
+ | content.value.name | Son Invalid  | Son           | ValueDifference |
+ -----------------------------------------------------------------------
 
-EXPECTED RESULT (SonGokuNewResponse.json):
+EXPECTED RESULT (SonGoku.json):
 
-{"content":{"headers":[{"key":"Content-Type","value":["application/json; charset=utf-8"]}],"value":{"id":1,"name":"Son 1","firstName":"Goku","age":99,"emails":[{"emailAddress":"alf@gmx.de","type":"GMX"},{"emailAddress":"abc@hotmail.de","type":"Microsoft"}]}},"statusCode":"OK","headers":[],"trailingHeaders":[],"isSuccessStatusCode":true}
+{"content":{"headers":[{"key":"Content-Type","value":["application/json; charset=utf-8"]}],"value":{"id":1,"name":"Son Invalid","firstName":"Goku","age":99,"emails":[{"emailAddress":"alf@gmx.de","type":"GMX"},{"emailAddress":"abc@hotmail.de","type":"Microsoft"}]}},"statusCode":"OK","headers":[],"trailingHeaders":[],"isSuccessStatusCode":true}
 
 CURRENT RESULT:
 
@@ -207,10 +250,11 @@ Http call as curl
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 curl \
 --location \
---request PUT 'http://localhost/api/tests/v1/persons' \
+--request POST 'http://localhost/api/tests/v1/persons' \
 --header 'Content-Type: application/json' \
 --data-raw '{"Id":1,"Name":"Son","FirstName":"Goku","Age":99,"Emails":[{"EmailAddress":"alf@gmx.de","Type":"GMX"},{"EmailAddress":"abc@hotmail.de","Type":"Microsoft"}]}'
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 ```
 
 You immediately see:
@@ -235,6 +279,62 @@ Assert.AreEqual("Son 1", response.Name);
 ```
 
 This SDK does not just tell you that something failed. It tells you **where**, **what**, **under which HTTP call**, and **how to replay it now**.
+
+
+### Response types not matching
+```
+══════════════════════════════════════════════════════════════════════════════
+HTTP RESPONSE TYPE MISMATCH
+══════════════════════════════════════════════════════════════════════════════
+
+Project      : Controllers.Test
+Class        : Controllers.Test.Api.Persons.PersonController.cs
+Method       : Invalid_Response_Type_Json_Exception
+LineNumber   : 29
+
+ASSERT CALL
+
+---------------------------------------------------------------------------
+return Client.AssertGetAsync<UnknownResponse>("/api/tests/v1/persons",
+                                              "GetPersonResponse.json");
+---------------------------------------------------------------------------
+
+SUGGESTED FIX
+
+---------------------------------------------------------------------------
+return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons",
+                                              "GetPersonResponse.json");
+---------------------------------------------------------------------------
+
+TYPE VALIDATION
+
+ --------------------------------------------------------------------- 
+ | Status Code | Endpoint Response Type | Declared Test Type | Match |
+ --------------------------------------------------------------------- 
+ | 200         | IEnumerable<Person>    | UnknownResponse    | ✗     |
+ ---------------------------------------------------------------------
+
+SUMMARY
+
+The test is a success (2xx) test and declares response type 'UnknownResponse',
+but none of the endpoint's success (2xx) status codes return this type.
+
+Endpoint defines: 200 → IEnumerable<Person>
+
+Suggested action:
+- Update the test response type to 'IEnumerable<Person>' to match one of the status codes above
+
+Alternative:
+- If the endpoint contract is wrong, update the endpoint's ProducesResponseType attributes
+
+-------------------------------------------------------------------------
+Http call as curl
+-------------------------------------------------------------------------
+curl \
+--location \
+--request GET 'http://localhost/api/tests/v1/persons'
+-------------------------------------------------------------------------
+```
 
 ---
 
