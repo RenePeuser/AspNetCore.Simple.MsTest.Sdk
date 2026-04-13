@@ -40,8 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
     /// Resolves the appropriate strategy based on context type and delegates output building.
     /// Follows strict single-match validation with explicit failure on ambiguous matches.
     /// </summary>
-    internal sealed class AssertOutputBuilder(IEnumerable<IAssertOutputStrategy> outputStrategies)
-        : IAssertOutputBuilder
+    internal sealed class AssertOutputBuilder(IEnumerable<IAssertOutputStrategy> outputStrategies) : IAssertOutputBuilder
     {
         public string BuildOutput(IObjectAssertContext context,
                                   ImmutableList<Difference> differences,

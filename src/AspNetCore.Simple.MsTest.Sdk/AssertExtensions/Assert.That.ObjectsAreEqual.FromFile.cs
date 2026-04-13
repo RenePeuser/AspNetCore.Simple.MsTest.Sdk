@@ -24,15 +24,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string expectedResultParameterName = "",
                                               [CallerArgumentExpression(nameof(currentObject))]
                                               string currentResultParameterName = "",
-                                              [CallerFilePath] string callerFile = "")
+                                              [CallerFilePath] string callerFilePath = "")
         {
-            assert.ObjectsAreEqual(expectedObjectAsJson,
-                                   currentObject,
+            assert.ObjectsAreEqual(expectedObjectAsJson: expectedObjectAsJson,
+                                   currentObject: currentObject,
                                    item => item,
-                                   Assembly.GetCallingAssembly(),
-                                   writeResponse,
-                                   expectedResultParameterName,
-                                   currentResultParameterName);
+                                   callingAssembly:Assembly.GetCallingAssembly(),
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,

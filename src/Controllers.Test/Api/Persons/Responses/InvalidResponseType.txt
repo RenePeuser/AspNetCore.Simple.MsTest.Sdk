@@ -2,47 +2,47 @@
 ══════════════════════════════════════════════════════════════════════════════
 HTTP RESPONSE TYPE MISMATCH
 ══════════════════════════════════════════════════════════════════════════════
-                                
+
 Project      : Controllers.Test
 Class        : Controllers.Test.Api.Persons.PersonController.cs
 Method       : Invalid_Response_Type_Json_Exception
-LineNumber   : 35
-                                
+LineNumber   : 29
+
 ASSERT CALL
-                                
+
 ---------------------------------------------------------------------------
 var error = await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<UnknownResponse>("/api/tests/v1/persons",
-                                                                                    "GetPersonResponse.json")).ConfigureAwait(false);
+                                                                                                                "GetPersonResponse.json")).ConfigureAwait(false);
 ---------------------------------------------------------------------------
-                                
+
 SUGGESTED FIX
-                                
+
 ---------------------------------------------------------------------------
 var error = await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons",
-                                                                                    "GetPersonResponse.json")).ConfigureAwait(false);
+                                                                                                                "GetPersonResponse.json")).ConfigureAwait(false);
 ---------------------------------------------------------------------------
-                                
+
 TYPE VALIDATION
-                                
---------------------------------------------------------------------- 
-| Status Code | Endpoint Response Type | Declared Test Type | Match |
---------------------------------------------------------------------- 
-| 200         | IEnumerable<Person>    | UnknownResponse    | ✗     |
----------------------------------------------------------------------
-                                
+
+ --------------------------------------------------------------------- 
+ | Status Code | Endpoint Response Type | Declared Test Type | Match |
+ --------------------------------------------------------------------- 
+ | 200         | IEnumerable<Person>    | UnknownResponse    | ✗     |
+ ---------------------------------------------------------------------
+
 SUMMARY
-                                
+
 The test is a success (2xx) test and declares response type 'UnknownResponse',
 but none of the endpoint's success (2xx) status codes return this type.
-                                
+
 Endpoint defines: 200 → IEnumerable<Person>
-                                
+
 Suggested action:
 - Update the test response type to 'IEnumerable<Person>' to match one of the status codes above
-                                
+
 Alternative:
 - If the endpoint contract is wrong, update the endpoint's ProducesResponseType attributes
-                                
+
 -------------------------------------------------------------------------
 Http call as curl
 -------------------------------------------------------------------------
@@ -50,5 +50,4 @@ curl \
 --location \
 --request GET 'http://localhost/api/tests/v1/persons'
 -------------------------------------------------------------------------
-                                
-                                
+

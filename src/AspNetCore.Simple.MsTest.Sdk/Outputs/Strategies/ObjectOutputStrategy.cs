@@ -30,8 +30,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
     {
         public bool CanHandle(IObjectAssertContext context)
         {
-            // Handle only pure object contexts, not HTTP-derived contexts
-            return context is not IHttpResponseContext;
+            // Handle contexts where CurrentObject is a primitive type or string
+            var currentObject = context.CurrentObject;
+
+            if (currentObject == null)
+            {
+                return false;
+            }
+
+            var type = currentObject.GetType();
+
+            var typeIsNotPrimitive = type.IsPrimitive.IsFalse() &&
+                                     type.NotEqualsTo(typeof(string));
+
+            return typeIsNotPrimitive;
         }
 
         public string BuildOutput(IObjectAssertContext context,

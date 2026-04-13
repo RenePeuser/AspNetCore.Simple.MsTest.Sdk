@@ -32,7 +32,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
 
             var type = currentObject.GetType();
 
-            return type.IsPrimitive || type == typeof(string);
+            var typeIsPrimitive = type.IsPrimitive || type == typeof(string);
+
+            return typeIsPrimitive;
         }
 
         public string BuildOutput(IObjectAssertContext context,
