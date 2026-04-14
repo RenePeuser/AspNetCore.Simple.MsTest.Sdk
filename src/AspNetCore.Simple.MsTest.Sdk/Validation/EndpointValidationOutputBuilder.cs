@@ -63,32 +63,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             BuildTestInfo(sb, context);
             sb.AppendLine();
 
-            BuildRequestInfo(sb, context);
+            // HTTP Call Table
+            BuildHttpCallTable(sb, context, "404 NotFound");
+            sb.AppendLine();
             sb.AppendLine();
 
-            sb.AppendLine("AVAILABLE ENDPOINTS");
-            sb.AppendLine(" " + new string('-', 100));
-
-            if (availableEndpoints.IsEmpty())
-            {
-                sb.AppendLine(" No endpoints registered");
-            }
-            else
-            {
-                var table = new ConsoleTable("Method", "URL", "API Version",
-                                             "Response Type");
-
-                foreach (var endpoint in availableEndpoints.OrderBy(e => e.Url).ThenBy(e => e.HttpMethod))
-                {
-                    var version = endpoint.ApiVersion?.ToString() ?? "N/A";
-                    var responseType = endpoint.ResponseType?.Name ?? "N/A";
-
-                    table.AddRow(endpoint.HttpMethod, endpoint.Url, version,
-                                 responseType);
-                }
-
-                sb.AppendLine(table.ToMinimalString());
-            }
+            // Curl command
+            var curl = BuildCurlCommand(context);
+            var curlFormatted = curlFormatter.GetCurlAsFormattedString(curl);
+            sb.AppendLine(curlFormatted);
 
             return sb.ToString();
         }
@@ -107,7 +90,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             BuildTestInfo(sb, context);
             sb.AppendLine();
 
-            BuildRequestInfo(sb, context);
+            // HTTP Call Table
+            BuildHttpCallTable(sb, context, "Ambiguous");
+            sb.AppendLine();
             sb.AppendLine();
 
             sb.AppendLine("MATCHING ENDPOINTS");
@@ -131,6 +116,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
             sb.AppendLine($"Multiple endpoints matched the request. Found {matchingEndpoints.Count} candidates.");
             sb.AppendLine("Please ensure your endpoint routes are unique.");
+            sb.AppendLine();
+
+            // Curl command
+            var curl = BuildCurlCommand(context);
+            var curlFormatted = curlFormatter.GetCurlAsFormattedString(curl);
+            sb.AppendLine(curlFormatted);
 
             return sb.ToString();
         }
@@ -375,26 +366,27 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine($" {httpMethod} {url}{apiVersion}");
         }
 
-        //private static void BuildHttpCallTable(StringBuilder sb,
-        //                                       IHttpAssertContext context)
-        //{
-        //    var table = new ConsoleTable { Options = { EnableCount = false } };
+        private static void BuildHttpCallTable(StringBuilder sb,
+                                               IHttpAssertContext context,
+                                               string statusCode)
+        {
+            var table = new ConsoleTable { Options = { EnableCount = false } };
 
-        //    // Add columns
-        //    table.AddColumn(new[] { "HttpMethod", "Url" });
+            // Add columns
+            table.AddColumn(new[] { "HttpMethod", "Url", "HttpStatusCode" });
 
-        //    // Build full URL from client base address
-        //    var fullUrl = context.Client.BaseAddress.IsNotNull()
-        //                      ? new Uri(context.Client.BaseAddress, context.Url).ToString()
-        //                      : context.Url;
+            // Build full URL from client base address
+            var fullUrl = context.Client.BaseAddress.IsNotNull()
+                              ? new Uri(context.Client.BaseAddress, context.Url).ToString()
+                              : context.Url;
 
-        //    // Add data row
-        //    table.AddRow(context.HttpMethod.Method, fullUrl);
+            // Add data row
+            table.AddRow(context.HttpMethod.Method, fullUrl, statusCode);
 
-        //    sb.AppendLine("HTTP CALL");
-        //    sb.AppendLine();
-        //    sb.Append(table.ToString().TrimEnd());
-        //}
+            sb.AppendLine("HTTP CALL");
+            sb.AppendLine();
+            sb.Append(table.ToString().TrimEnd());
+        }
 
         private static string FormatTypeName(Type type)
         {
