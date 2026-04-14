@@ -1,4 +1,6 @@
 ﻿using AspNetCore.Simple.MsTest.Sdk;
+using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MinimalApi.Test
 {
@@ -12,14 +14,18 @@ namespace MinimalApi.Test
         {
             // 1. Super simple just use the provided API test base class and you are ready to go
             _apiTestBase = new ApiTestBase<Program>("Development", // The environment name
-                                                    (_,
-                                                     _) =>
+                                                    (services,
+                                                     configuration) =>
                                                     {
+                                                        services.AddAssertableHttpClient(configuration);
                                                     }, // The register services action
-                                                    []); // Configure environment variables  
+                                                    []); // Configure environment variables
 
             // 2. We need once the http client to communicate with the started api
             Client = _apiTestBase.CreateClient();
+
+            // NEW: Initialize the HttpClientAssertExtensions with the service provider to enable assertion capabilities in your tests
+            HttpClientAssertExtensions.Setup(_apiTestBase.Services);
         }
 
         protected static HttpClient Client { get; private set; } = null!;
