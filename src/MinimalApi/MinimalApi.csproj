@@ -1,24 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <NoWarn>CA1515;CA1024</NoWarn>
+        <NoWarn>CA1515;CA1024;CA1873</NoWarn>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Compile Remove="Api\ToDos\V1\Create\NewFolder\**" />
-      <Content Remove="Api\ToDos\V1\Create\NewFolder\**" />
-      <EmbeddedResource Remove="Api\ToDos\V1\Create\NewFolder\**" />
-      <None Remove="Api\ToDos\V1\Create\NewFolder\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Remove="Api\ToDos\V1\GetAll\Documentation\GetAllTodoDescription.txt" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Include="Api\ToDos\V1\DeleteAll\Documentation\GetAllTodoDescription.txt" />
-        <EmbeddedResource Include="Api\ToDos\V1\GetAll\Documentation\GetAllTodoDescription.txt" />
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Asp.Versioning.Http" />

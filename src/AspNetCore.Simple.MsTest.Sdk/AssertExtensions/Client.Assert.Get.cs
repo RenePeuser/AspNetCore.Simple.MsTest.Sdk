@@ -387,7 +387,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               true,
                                               writeResponse,
                                               callerMemberName: callerMemberName,
-                                                       callerLineNumber: callerLineNumber);
+                                              callerLineNumber: callerLineNumber);
         }
 
         public static async Task AssertGetAsUnauthorizedAsync(this HttpClient httpClient,

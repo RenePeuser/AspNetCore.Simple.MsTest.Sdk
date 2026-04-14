@@ -11,13 +11,18 @@ namespace MinimalApi.Swagger
         {
             foreach (var apiVersionDescription in apiVersionDescriptionProvider.ApiVersionDescriptions)
             {
-                var openApiInfo = new OpenApiInfo { Title = "Minimal API - Swagger Title", Version = apiVersionDescription.ApiVersion.ToString() };
+                var openApiInfo = new OpenApiInfo
+                                  {
+                                      Title = "Minimal API - Swagger Title",
+                                      Version = apiVersionDescription.ApiVersion.ToString()
+                                  };
 
                 options.SwaggerDoc(apiVersionDescription.GroupName, openApiInfo);
             }
         }
 
-        public void Configure(string? name, SwaggerGenOptions options)
+        public void Configure(string? name,
+                              SwaggerGenOptions options)
         {
             Configure(options);
         }

@@ -107,7 +107,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             return count;
         }
 
-        private static string RemoveLeadingWhitespace(string line, int count)
+        private static string RemoveLeadingWhitespace(string line,
+                                                      int count)
         {
             if (count <= 0 || line.Length <= count)
             {

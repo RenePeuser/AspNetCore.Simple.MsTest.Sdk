@@ -1,2 +1,0 @@
-Create a new SDC Project.
-This endpoint allows users to create a new project within the Siemens Data Cloud (SDC) by specifying key project details, organizational information, and scope settings.

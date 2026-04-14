@@ -23,7 +23,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           bool writeResponse = false,
                                           [CallerFilePath] string callerFilePath = "",
                                           [CallerMemberName] string callerMemberName = "",
-                                                            [CallerLineNumber] int callerLineNumber = 0)
+                                          [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync(url,
                                               string.Empty,
@@ -35,7 +35,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               true,
                                               writeResponse,
                                               callerMemberName: callerMemberName,
-                                                       callerLineNumber: callerLineNumber);
+                                              callerLineNumber: callerLineNumber);
         }
 
         public static Task AssertPutAsync(this HttpClient client,
@@ -44,7 +44,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           bool writeResponse = false,
                                           [CallerFilePath] string callerFilePath = "",
                                           [CallerMemberName] string callerMemberName = "",
-                                                            [CallerLineNumber] int callerLineNumber = 0)
+                                          [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync(url,
                                               string.Empty,
@@ -56,7 +56,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               true,
                                               writeResponse,
                                               callerMemberName: callerMemberName,
-                                                       callerLineNumber: callerLineNumber);
+                                              callerLineNumber: callerLineNumber);
         }
 
         public static Task AssertPutAsync(this HttpClient client,
@@ -65,7 +65,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           bool writeResponse = false,
                                           [CallerFilePath] string callerFilePath = "",
                                           [CallerMemberName] string callerMemberName = "",
-                                                            [CallerLineNumber] int callerLineNumber = 0)
+                                          [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync(url,
                                               payload,
@@ -77,7 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               true,
                                               writeResponse,
                                               callerMemberName: callerMemberName,
-                                                       callerLineNumber: callerLineNumber);
+                                              callerLineNumber: callerLineNumber);
         }
 
         public static Task AssertPutAsync(this HttpClient client,
@@ -89,7 +89,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           string payloadParameterName = "",
                                           [CallerFilePath] string callerFilePath = "",
                                           [CallerMemberName] string callerMemberName = "",
-                                                            [CallerLineNumber] int callerLineNumber = 0)
+                                          [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync(url,
                                               payload,
@@ -101,7 +101,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               true,
                                               writeResponse,
                                               callerMemberName: callerMemberName,
-                                                       callerLineNumber: callerLineNumber);
+                                              callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -396,7 +396,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   writeResponse,
                                                   payloadAsJsonParameterName,
                                                   expectedResultParameterName,
-                                                  callerFilePath, 
+                                                  callerFilePath,
                                                   callerMemberName);
         }
 
@@ -1044,7 +1044,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               isSuccessStatusCode: true,
                                               writResponse: writeResponse,
                                               callerMemberName: callerMemberName,
-                                                       callerLineNumber: callerLineNumber);
+                                              callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -1108,7 +1108,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               isSuccessStatusCode: true,
                                               writResponse: writeResponse,
                                               callerMemberName: callerMemberName,
-                                                       callerLineNumber: callerLineNumber); 
+                                              callerLineNumber: callerLineNumber);
         }
 
         public static Task AssertPutAsUnauthorizedAsync(this HttpClient httpClient,

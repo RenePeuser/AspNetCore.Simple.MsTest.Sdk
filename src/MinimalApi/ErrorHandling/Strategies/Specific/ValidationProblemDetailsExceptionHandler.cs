@@ -15,7 +15,8 @@ namespace MinimalApi.ErrorHandling.Strategies.Specific
 
     internal sealed class ValidationProblemDetailsExceptionHandler : SpecificErrorHandler<ValidationProblemDetailsException>
     {
-        protected override async Task HandleAsync(HttpContext context, ValidationProblemDetailsException exception)
+        protected override async Task HandleAsync(HttpContext context,
+                                                  ValidationProblemDetailsException exception)
         {
             var headers = context.Response.Headers.ToImmutableList();
             context.Response.Clear();

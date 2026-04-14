@@ -23,7 +23,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "",
                                                                [CallerMemberName] string callerMemberName = "",
-                                                            [CallerLineNumber] int callerLineNumber = 0)
+                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync<TResult>(url: url,
                                                        payloadAsJson: string.Empty,

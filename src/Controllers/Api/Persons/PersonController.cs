@@ -22,8 +22,6 @@ namespace Controllers.Api.Persons
                 77, ImmutableList.Create(new Email("abc@gmx.de", "GMX"), new Email("maxmustermann@hotmail.de", "Microsoft")))
         ];
 
-
-
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<Person>), 200)]
         public IEnumerable<Person> GetAllPersons()

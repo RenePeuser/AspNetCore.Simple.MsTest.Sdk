@@ -223,6 +223,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         public bool CanHandle(RouteEndpoint routeEndpoint)
         {
             var controllerActionDescriptor = routeEndpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+
             return controllerActionDescriptor.IsNotNull();
         }
 
@@ -294,6 +295,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             if (apiVersionAttribute.IsNotNull())
             {
                 var enumerable = apiVersionAttribute.GetType().GetProperty("Versions")?.GetValue(apiVersionAttribute) as System.Collections.IEnumerable;
+
                 if (enumerable.IsNullOrEmpty())
                 {
                     return null;
@@ -361,6 +363,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         {
             // Minimal API endpoints don't have ControllerActionDescriptor
             var controllerActionDescriptor = routeEndpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+
             return controllerActionDescriptor.IsNull();
         }
 
@@ -464,9 +467,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
     // ==================== Main EndpointInfoParser ====================
 
-    internal sealed class EndpointInfoParser(
-        EndpointDataSource endpointDataSource,
-        IEnumerable<IRouteEndpointParser> routeEndpointParsers) : IEndpointInfoParser
+    internal sealed class EndpointInfoParser(EndpointDataSource endpointDataSource,
+                                             IEnumerable<IRouteEndpointParser> routeEndpointParsers) : IEndpointInfoParser
     {
         private readonly Lazy<ImmutableList<EndpointInfo>> _endpoints = new(() => ParseEndpoints(endpointDataSource, routeEndpointParsers));
 

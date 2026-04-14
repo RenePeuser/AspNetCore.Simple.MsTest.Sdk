@@ -29,7 +29,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             assert.ObjectsAreEqual(expectedObjectAsJson: expectedObjectAsJson,
                                    currentObject: currentObject,
                                    item => item,
-                                   callingAssembly:Assembly.GetCallingAssembly(),
+                                   callingAssembly: Assembly.GetCallingAssembly(),
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
@@ -428,7 +428,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
                                    callerFilePath: callerFilePath,
-                                              callerLineNumber: callerLineNumber,
+                                   callerLineNumber: callerLineNumber,
                                    callerMemberName: callerMemberName);
         }
 
@@ -461,7 +461,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
                                    callerFilePath: callerFilePath,
-                                              callerLineNumber: callerLineNumber,
+                                   callerLineNumber: callerLineNumber,
                                    callerMemberName: callerMemberName);
         }
 
@@ -493,24 +493,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with preprocessed data - no further logic needed in AssertService
             var context = new ObjectAssertContext<T>
-            {
-                CallerFilePath = callerFilePath,
-                CallerLineNumber = callerLineNumber,
-                CallerMemberName = callerMemberName,
-                CallingAssembly = callingAssembly,
-                Current = currentObject,
-                CurrentObject = currentObject,
-                CurrentResultParameterName = currentResultParameterName,
-                DifferenceFunc = differenceFunc,
-                ExpectedObjectAsJson = expectedObjectAsJson,
-                ExpectedResultFile = expectedFile,
-                ExpectedResultParameterName = expectedResultParameterName,
-                OrderFunc = orderFunc,
-                Parameters = parameters,
-                ResolvedExpectedJson = resolvedExpectedJson,
-                TypeIsPrimitiveType = targetIsPrimitiveType,
-                WriteResponse = writeResponse,
-            };
+                          {
+                              CallerFilePath = callerFilePath,
+                              CallerLineNumber = callerLineNumber,
+                              CallerMemberName = callerMemberName,
+                              CallingAssembly = callingAssembly,
+                              Current = currentObject,
+                              CurrentObject = currentObject,
+                              CurrentResultParameterName = currentResultParameterName,
+                              DifferenceFunc = differenceFunc,
+                              ExpectedObjectAsJson = expectedObjectAsJson,
+                              ExpectedResultFile = expectedFile,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              OrderFunc = orderFunc,
+                              Parameters = parameters,
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              TypeIsPrimitiveType = targetIsPrimitiveType,
+                              WriteResponse = writeResponse,
+                          };
 
             ObjectsAreEqual(assert, context);
         }

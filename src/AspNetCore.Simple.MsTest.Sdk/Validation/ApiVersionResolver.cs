@@ -23,7 +23,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// <param name="url">The request URL</param>
         /// <param name="httpClient">The HTTP client (to check default headers)</param>
         /// <returns>The resolved API version or null if no version was found</returns>
-        string? Resolve(string url, HttpClient httpClient);
+        string? Resolve(string url,
+                        HttpClient httpClient);
     }
 
     internal sealed class ApiVersionResolver : IApiVersionResolver
@@ -34,7 +35,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         // Common query string parameter names
         private static readonly string[] VersionQueryNames = ["api-version", "version", "v"];
 
-        public string? Resolve(string url, HttpClient httpClient)
+        public string? Resolve(string url,
+                               HttpClient httpClient)
         {
             // 1. Try to extract version from URL path segment (highest priority)
             var versionFromPath = ResolveFromUrlPath(url);

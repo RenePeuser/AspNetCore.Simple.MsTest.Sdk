@@ -1,0 +1,12 @@
+{
+  "id": 1,
+  "name": "$Name$",
+  "firstName": "Goku",
+  "age": "$Age$",
+  "emails": [
+    {
+      "emailAddress": "abc@hotmail.de",
+      "type": "Microsoft"
+    }
+  ]
+}

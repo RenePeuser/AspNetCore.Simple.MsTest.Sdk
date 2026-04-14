@@ -107,6 +107,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                         group = new List<Difference>();
                         arrayGroups[arrayPath] = group;
                     }
+
                     group.Add(diff);
                 }
                 else
@@ -137,12 +138,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     var value2 = currentLength == 0 ? "[] (0 items)" : $"[{currentLength} item(s)]";
 
                     consolidated.Add(new Difference
-                    {
-                        MemberPath = arrayPath,
-                        Value1 = value1,
-                        Value2 = value2,
-                        MismatchType = mismatchType
-                    });
+                                     {
+                                         MemberPath = arrayPath,
+                                         Value1 = value1,
+                                         Value2 = value2,
+                                         MismatchType = mismatchType
+                                     });
                 }
                 else
                 {
@@ -194,10 +195,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             foreach (var diff in arrayDiffs)
             {
                 var index = ExtractArrayIndex(diff.MemberPath);
+
                 if (index < minIndex)
                 {
                     minIndex = index;
                 }
+
                 if (index > maxIndex)
                 {
                     maxIndex = index;

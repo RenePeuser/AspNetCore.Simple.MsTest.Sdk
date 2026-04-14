@@ -26,7 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Api\Health\V1\" />
+      <Folder Include="Api\" />
     </ItemGroup>
 
 </Project>

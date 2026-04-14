@@ -1,0 +1,16 @@
+{
+  "Id": 1,
+  "Name": "Son",
+  "FirstName": "Goku",
+  "Age": 99,
+  "Emails": [
+    {
+      "EmailAddress": "alf@gmx.de",
+      "Type": "GMX"
+    },
+    {
+      "EmailAddress": "abc@hotmail.de",
+      "Type": "Microsoft"
+    }
+  ]
+}

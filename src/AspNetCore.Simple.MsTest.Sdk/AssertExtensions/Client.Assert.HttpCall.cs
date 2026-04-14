@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -10,7 +9,6 @@ using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using JsonSerializer = AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer;
 
@@ -73,8 +71,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-
-
     public static partial class HttpClientAssertExtensions
     {
         // Text decorator - conditional on build configuration
@@ -91,9 +87,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static IParameterReplacer _parameterReplacer = new ParameterReplacer();
 
         private static IResponseWriter _responseWriter = new ResponseWriter([
-                                                                               new DifferenceResponseWriter(_jsonDiffer, new JsonPathWriter(), _parameterReplacer),
-                                                                               new OverwriteAllResponseWriter(_parameterReplacer)
-                                                                           ]);
+                                                                                new DifferenceResponseWriter(_jsonDiffer, new JsonPathWriter(), _parameterReplacer),
+                                                                                new OverwriteAllResponseWriter(_parameterReplacer)
+                                                                            ]);
 
         private static IWriteResponseService _writeResponseService = new WriteResponseService();
 
@@ -121,13 +117,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
         private static JsonSerializerOptions _jsonSerializerOptions = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters = { new JsonStringEnumConverter() }
-        };
+                                                                      {
+                                                                          PropertyNameCaseInsensitive = true,
+                                                                          PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                                                          DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                                                                          NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                                                                          Converters = { new JsonStringEnumConverter() }
+                                                                      };
 
         private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions);
 
@@ -152,40 +148,40 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(_differencesTableBuilder, _jsonSectionBuilder);
 
         private static readonly HttpResponseOutputStrategy HttpResponseOutputStrategy = new(_httpCallInfoTableBuilder,
-                                                                                             _differencesTableBuilder,
-                                                                                             _jsonSectionBuilder,
-                                                                                             _curlBuilder,
-                                                                                             _curlFormatter,
-                                                                                             _textDecorator);
+                                                                                            _differencesTableBuilder,
+                                                                                            _jsonSectionBuilder,
+                                                                                            _curlBuilder,
+                                                                                            _curlFormatter,
+                                                                                            _textDecorator);
 
         private static readonly IAssertOutputStrategy[] OutputStrategies = [PrimitiveOutputStrategy, ObjectOutputStrategy, HttpResponseOutputStrategy];
 
         private static IAssertOutputBuilder _outputBuilder = new AssertOutputBuilder(OutputStrategies);
 
         // Comparison strategies (order matters - first match wins)
-        private static ISpecificComparisonStrategy _stringComparisonStrategy = new StringComparisonStrategy();
+        private static readonly ISpecificComparisonStrategy StringComparisonStrategy = new StringComparisonStrategy();
 
-        private static ISpecificComparisonStrategy _jsonComparisonStrategy = new JsonComparisonStrategy(_jsonDiffer, _jsonSerializerInstance, JsonSerializerOptions);
+        private static readonly ISpecificComparisonStrategy JsonComparisonStrategy = new JsonComparisonStrategy(_jsonDiffer, _jsonSerializerInstance, JsonSerializerOptions);
 
-        private static ISpecificComparisonStrategy[] _specificComparisonStrategies = [_stringComparisonStrategy, _jsonComparisonStrategy];
+        private static readonly ISpecificComparisonStrategy[] SpecificComparisonStrategies = [StringComparisonStrategy, JsonComparisonStrategy];
 
-        private static IComparisonStrategy _comparisonStrategy = new ComparisonStrategy(_specificComparisonStrategies);
+        private static readonly IComparisonStrategy ComparisonStrategy = new ComparisonStrategy(SpecificComparisonStrategies);
 
-        private static IAssertService _assertService = new AssertService(_comparisonStrategy,
-                                                                        _responseWriter,
-                                                                        _writeResponseService,
-                                                                        _outputBuilder);
+        private static IAssertService _assertService = new AssertService(ComparisonStrategy,
+                                                                         _responseWriter,
+                                                                         _writeResponseService,
+                                                                         _outputBuilder);
 
         // Pipeline (contains all steps internally)
         private static IHttpAssertionPipeline _httpAssertionPipeline = new HttpAssertionPipeline(new IHttpAssertionStep[]
-                                                                                                {
-                                                                                                    new StatusCodeValidationStep(_outputBuilder), new ContentTypeHeaderValidationStep(_outputBuilder), new ContentFormatValidationStep(_outputBuilder),
-                                                                                                    new JsonComparisonStep(_primitiveTypeConverter,
-                                                                                                                           _assertService,
-                                                                                                                           _parameterReplacer,
-                                                                                                                           _writeResponseService,
-                                                                                                                           JsonSerializerOptions)
-                                                                                                });
+                                                                                                 {
+                                                                                                     new StatusCodeValidationStep(_outputBuilder), new ContentTypeHeaderValidationStep(_outputBuilder), new ContentFormatValidationStep(_outputBuilder),
+                                                                                                     new JsonComparisonStep(_primitiveTypeConverter,
+                                                                                                                            _assertService,
+                                                                                                                            _parameterReplacer,
+                                                                                                                            _writeResponseService,
+                                                                                                                            JsonSerializerOptions)
+                                                                                                 });
 
         private static IApiVersionResolver _apiVersionResolver = new ApiVersionResolver();
 
@@ -198,11 +194,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static IEndpointValidator _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 
         private static IAssertableHttpClient _assertableHttpClientDefault = new AssertableHttpClient.AssertableHttpClient(_httpCallHandler,
-                                                                                                                         _parameterReplacer,
-                                                                                                                         _httpAssertionPipeline,
-                                                                                                                         _primitiveTypeConverter,
-                                                                                                                         JsonSerializerOptions,
-                                                                                                                         _endpointValidator);
+                                                                                                                          _parameterReplacer,
+                                                                                                                          _httpAssertionPipeline,
+                                                                                                                          _primitiveTypeConverter,
+                                                                                                                          JsonSerializerOptions,
+                                                                                                                          _endpointValidator);
 
         /// <summary>
         /// Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.
@@ -316,34 +312,34 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create public context directly - no need for internal context
             var context = new HttpAssertContext<TResult>
-            {
-                CallerFilePath = callerFilePath,
-                CallerMemberName = callerMemberName,
-                CallerLineNumber = callerLineNumber,
-                CallingAssembly = callingAssembly,
-                Client = client,
-                Current = default,
-                CurrentObject = null,
-                CurrentResultParameterName = "Current response",
-                DifferenceFunc = differenceFunc,
-                ExpectedObjectAsJson = expectedResult,
-                ExpectedResultFile = expectedResultFile,
-                ExpectedResultParameterName = expectedResultParameterName,
-                HttpMethod = httpMethod,
-                IsSuccessStatusCode = isSuccessStatusCode,
-                OrderFunc = filterFunc,
-                Parameters = parameters,
-                PayloadAsJson = payloadAsJson,
-                PayloadFile = payloadFile,
-                PayloadParameterName = payloadAsJsonParameterName,
-                ResolvedExpectedJson = resolvedExpectedJson,
-                ResolvedPayload = resolvedPayload,
-                ShowTokenInCurl = false,
-                TypeIsPrimitiveType = targetIsPrimitiveType,
-                Url = resolvedUrl,
-                WriteResponse = writResponse,
-                ApiVersion = apiVersion
-            };
+                          {
+                              CallerFilePath = callerFilePath,
+                              CallerMemberName = callerMemberName,
+                              CallerLineNumber = callerLineNumber,
+                              CallingAssembly = callingAssembly,
+                              Client = client,
+                              Current = default,
+                              CurrentObject = null,
+                              CurrentResultParameterName = "Current response",
+                              DifferenceFunc = differenceFunc,
+                              ExpectedObjectAsJson = expectedResult,
+                              ExpectedResultFile = expectedResultFile,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              HttpMethod = httpMethod,
+                              IsSuccessStatusCode = isSuccessStatusCode,
+                              OrderFunc = filterFunc,
+                              Parameters = parameters,
+                              PayloadAsJson = payloadAsJson,
+                              PayloadFile = payloadFile,
+                              PayloadParameterName = payloadAsJsonParameterName,
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              ResolvedPayload = resolvedPayload,
+                              ShowTokenInCurl = false,
+                              TypeIsPrimitiveType = targetIsPrimitiveType,
+                              Url = resolvedUrl,
+                              WriteResponse = writResponse,
+                              ApiVersion = apiVersion
+                          };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
 

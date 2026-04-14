@@ -13,12 +13,13 @@ namespace MinimalApi.ErrorHandling
         }
     }
 
-
     // this middle ware is just for handling the errors, not for logging !!
     internal sealed class ErrorHandlingMiddleware(IErrorHandlingStrategy errorHandlingStrategy) : IMiddleware
     {
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        public async Task InvokeAsync(HttpContext context,
+                                      RequestDelegate next)
         {
+#pragma warning disable CA1031 // Do not catch general exception types
             try
             {
                 await next(context).ConfigureAwait(false);
@@ -27,6 +28,7 @@ namespace MinimalApi.ErrorHandling
             {
                 await errorHandlingStrategy.HandleAsync(context, exception).ConfigureAwait(false);
             }
+#pragma warning restore CA1031 // Do not catch general exception types
         }
     }
 }

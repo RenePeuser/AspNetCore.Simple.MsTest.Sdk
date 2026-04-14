@@ -1003,6 +1003,82 @@ Persons are not equal
  ----------------------------------
 ```
 
+### Custom comparison strategies
+
+The SDK uses a **Strategy Pattern** for comparisons, making it extensible for custom types.
+
+**Built-in strategies:**
+
+1. **`StringComparisonStrategy`** - Line-by-line comparison (like git diff) for string types
+   - Perfect for comparing console outputs, log files, error messages
+   - Use `.txt` files as snapshots for string comparisons
+2. **`JsonComparisonStrategy`** - Deep object comparison via JSON serialization (fallback for all non-string types)
+   - Use `.json` files as snapshots for object comparisons
+
+**How it works:**
+
+- Strategies are checked in registration order via `CanCompare()`
+- First matching strategy handles the comparison
+- String comparisons use line-by-line diff
+- All other types use JSON deep comparison
+
+**Example: String comparison from file**
+
+```csharp
+[TestMethod]
+public void Compare_Error_Message()
+{
+    var error = GetErrorMessage();
+    
+    // Uses StringComparisonStrategy for line-by-line comparison
+    Assert.That.ObjectsAreEqual<string>(
+        expectedObjectAsJson: "ExpectedError.txt", 
+        currentObject: error.Message);
+}
+```
+
+**Example: Custom CSV comparison strategy**
+
+```csharp
+public class CsvComparisonStrategy : ComparisonStrategyBase<CsvData>
+{
+    protected override ComparisonResult CompareTyped(ObjectAssertContext<CsvData> context)
+    {
+        var expected = ParseCsv(context.ResolvedExpectedJson);
+        var current = context.Current;
+        
+        var differences = CompareCsvRows(expected, current);
+        
+        return new ComparisonResult
+        {
+            Differences = differences,
+            FormattedExpected = FormatCsv(expected),
+            FormattedCurrent = FormatCsv(current),
+            HasSchemaMismatch = differences.Any(d => d.MismatchType != MismatchType.ValueDifference)
+        };
+    }
+}
+```
+
+**Registration:**
+
+```csharp
+// In your test setup (before running tests)
+services.AddSingleton<ISpecificComparisonStrategy, CsvComparisonStrategy>();
+services.AddComparisonStrategy(); // Adds built-in strategies (String + JSON)
+```
+
+**Why use `ComparisonStrategyBase<T>`?**
+
+- Automatic type checking via `CanCompare()`
+- Automatic casting to strongly-typed context
+- Defensive validation built-in
+- You only implement `CompareTyped()` with your comparison logic
+
+**When NOT to use the base class:**
+
+Don't use `ComparisonStrategyBase<T>` for fallback strategies that handle multiple types (like `JsonComparisonStrategy`). Implement `ISpecificComparisonStrategy` directly instead.
+
 ---
 
 ## Architecture / design philosophy
@@ -1025,9 +1101,11 @@ The assertion flow is pipeline-based:
 1. status code validation
 2. content-type validation
 3. JSON structure validation
-4. deep comparison
+4. deep comparison (extensible via custom comparison strategies)
 
 That means failures stop early and come with relevant context instead of a long tail of noisy assertions.
+
+The comparison system uses a Strategy Pattern, making it extensible for custom types beyond the built-in JSON and string comparisons.
 
 ### Contract drift should be obvious
 

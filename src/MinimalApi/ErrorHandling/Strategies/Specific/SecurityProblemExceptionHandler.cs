@@ -15,7 +15,8 @@ namespace MinimalApi.ErrorHandling.Strategies.Specific
 
     internal sealed class SecurityProblemExceptionHandler : SpecificErrorHandler<SecurityProblemException>
     {
-        protected override async Task HandleAsync(HttpContext context, SecurityProblemException exception)
+        protected override async Task HandleAsync(HttpContext context,
+                                                  SecurityProblemException exception)
         {
             var headers = context.Response.Headers.ToImmutableList();
             context.Response.Clear();

@@ -30,16 +30,23 @@ namespace MinimalApi.ErrorHandling.Strategies.Specific
             return true;
         }
 
-        protected override Task HandleAsync(HttpContext context, Exception exception)
+        protected override Task HandleAsync(HttpContext context,
+                                            Exception exception)
         {
             context.Response.ContentType = MediaTypeNames.Application.Json;
 
             // If there is no specific exception error handling then internal server error.
             context.Response.StatusCode = GetErrorCode(exception).Cast<int>();
 
-            var problemDetails = new ProblemDetails() { Title = $"{exception.GetType().Name} was thrown.", Detail = exception.Message, Status = context.Response.StatusCode };
+            var problemDetails = new ProblemDetails()
+                                 {
+                                     Title = $"{exception.GetType().Name} was thrown.",
+                                     Detail = exception.Message,
+                                     Status = context.Response.StatusCode
+                                 };
 
             var problemDetailsSerialized = JsonSerializer.Serialize(problemDetails);
+
             return context.Response.WriteAsync(problemDetailsSerialized);
         }
 

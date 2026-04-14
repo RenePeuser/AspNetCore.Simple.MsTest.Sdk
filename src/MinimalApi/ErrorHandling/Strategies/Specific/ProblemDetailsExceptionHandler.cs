@@ -15,7 +15,8 @@ namespace MinimalApi.ErrorHandling.Strategies.Specific
 
     internal sealed class ProblemDetailsExceptionHandler : SpecificErrorHandler<ProblemDetailsException>
     {
-        protected override async Task HandleAsync(HttpContext context, ProblemDetailsException exception)
+        protected override async Task HandleAsync(HttpContext context,
+                                                  ProblemDetailsException exception)
         {
             var headers = context.Response.Headers.ToImmutableList();
             context.Response.Clear();

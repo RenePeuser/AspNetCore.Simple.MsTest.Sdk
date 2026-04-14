@@ -449,7 +449,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// MatchesAsSegment("Controllers.Test.Api.Errors.Requests.SonGoku.json", "Requests.SonGoku.json") → true
         /// MatchesAsSegment("Controllers.Test.Api.ErrorsRequests.SonGoku.json", "Requests.SonGoku.json") → false (no dot before Requests)
         /// </example>
-        private static bool MatchesAsSegment(string resourceName, string pattern)
+        private static bool MatchesAsSegment(string resourceName,
+                                             string pattern)
         {
             // First check: must end with the pattern
             if (!resourceName.EndsWith(pattern, StringComparison.OrdinalIgnoreCase))

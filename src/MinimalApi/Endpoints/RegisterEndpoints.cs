@@ -55,12 +55,17 @@
         void Map(IEndpointRouteBuilder versionBasePath);
     }
 
-    internal sealed class RegisterEndpoints(IEnumerable<IEndpoint> endpoints)
+    internal sealed class RegisterEndpoints(IEnumerable<IEndpoint> endpoints,
+                                            ILogger<RegisterEndpoints> logger)
     {
         public void MapEndpoints(IEndpointRouteBuilder routeBuilder)
         {
-            foreach (var endpoint in endpoints)
+            var endpointList = endpoints.ToList();
+            logger.LogInformation("Registering {Count} endpoints", endpointList.Count);
+
+            foreach (var endpoint in endpointList)
             {
+                logger.LogInformation("Mapping endpoint: {EndpointType}", endpoint.GetType().Name);
                 endpoint.Map(routeBuilder);
             }
         }
