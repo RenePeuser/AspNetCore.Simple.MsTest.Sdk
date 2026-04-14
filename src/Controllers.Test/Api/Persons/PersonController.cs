@@ -5,6 +5,7 @@ using Controllers.Api.Persons;
 namespace Controllers.Test.Api.Persons
 {
     [TestClass]
+    [TestCategory("Controller")]
     public class PersonController : ApiTestBase
     {
         [TestMethod]

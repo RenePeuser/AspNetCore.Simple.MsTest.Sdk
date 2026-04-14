@@ -3,6 +3,7 @@ using AspNetCore.Simple.MsTest.Sdk;
 namespace MinimalApi.Test.Api.NativeTypes
 {
     [TestClass]
+    [TestCategory("Minimal Api")]
     public class NativeTypesEndpointsTests : ApiTestBase
     {
         [TestMethod]

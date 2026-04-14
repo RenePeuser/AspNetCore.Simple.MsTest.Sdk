@@ -4,6 +4,7 @@ using Extensions.Pack;
 namespace Controllers.Test
 {
     [TestClass]
+    [TestCategory("Controller")]
     public class UrlExists : ApiTestBase
     {
         [TestMethod]

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Controllers.Test.Api.Errors
 {
     [TestClass]
+    [TestCategory("Controller")]
     public class ErrorsController : ApiTestBase
     {
         [TestMethod]

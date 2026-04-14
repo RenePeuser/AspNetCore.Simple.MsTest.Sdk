@@ -3,6 +3,7 @@
 namespace Controllers.Test.Api.NativTypes
 {
     [TestClass]
+    [TestCategory("Controller")]
     public class NativeTypes : ApiTestBase
     {
         [TestMethod]

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MinimalApi.Test.Api.Errors
 {
     [TestClass]
+    [TestCategory("Minimal Api")]
     public class ErrorsEndpointsTests : ApiTestBase
     {
         [TestMethod]

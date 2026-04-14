@@ -5,6 +5,7 @@ using MinimalApi.Api.Persons.V1;
 namespace MinimalApi.Test.Api.Persons
 {
     [TestClass]
+    [TestCategory("Minimal Api")]
     public class PersonEndpointsTests : ApiTestBase
     {
         [TestMethod]
