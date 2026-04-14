@@ -5,6 +5,17 @@ using StrategyPattern.Evolution;
 
 namespace MinimalApi.Api.Persons.V1.GetById
 {
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // 🎯 SERVICE REGISTRATION: GetPersonByIdEndpoint
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    public static class AddGetPersonByIdEndpointExtension
+    {
+        public static void AddGetPersonByIdEndpoint(this IServiceCollection services)
+        {
+            services.AddSingleton<IEndpoint, GetPersonByIdEndpoint>();
+        }
+    }
+
     internal sealed class GetPersonByIdEndpoint : IEndpoint
     {
         public void Map(IEndpointRouteBuilder routeBuilder)

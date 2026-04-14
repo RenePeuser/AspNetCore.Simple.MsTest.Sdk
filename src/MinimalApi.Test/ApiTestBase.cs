@@ -12,19 +12,15 @@ namespace MinimalApi.Test
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext _)
         {
-            // 1. Super simple just use the provided API test base class and you are ready to go
-            _apiTestBase = new ApiTestBase<Program>("Development", // The environment name
+            // Use TestStartup instead of Program for proper WebApplicationFactory support
+            _apiTestBase = new ApiTestBase<Program>("Development",
                                                     (services,
                                                      configuration) =>
                                                     {
                                                         services.AddAssertableHttpClient(configuration);
-                                                    }, // The register services action
-                                                    []); // Configure environment variables
+                                                    });
 
-            // 2. We need once the http client to communicate with the started api
             Client = _apiTestBase.CreateClient();
-
-            // NEW: Initialize the HttpClientAssertExtensions with the service provider to enable assertion capabilities in your tests
             HttpClientAssertExtensions.Setup(_apiTestBase.Services);
         }
 
@@ -38,3 +34,6 @@ namespace MinimalApi.Test
         }
     }
 }
+
+
+

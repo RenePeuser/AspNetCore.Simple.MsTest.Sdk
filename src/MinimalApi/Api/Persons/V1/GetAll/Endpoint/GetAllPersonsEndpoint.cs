@@ -3,6 +3,17 @@ using StrategyPattern.Evolution;
 
 namespace MinimalApi.Api.Persons.V1.GetAll
 {
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // 🎯 SERVICE REGISTRATION: GetAllPersonsEndpoint
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    public static class AddGetAllPersonsEndpointExtension
+    {
+        public static void AddGetAllPersonsEndpoint(this IServiceCollection services)
+        {
+            services.AddSingleton<IEndpoint, GetAllPersonsEndpoint>();
+        }
+    }
+
     internal sealed class GetAllPersonsEndpoint : IEndpoint
     {
         public void Map(IEndpointRouteBuilder routeBuilder)

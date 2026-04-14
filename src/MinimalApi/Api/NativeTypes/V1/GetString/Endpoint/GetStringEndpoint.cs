@@ -3,6 +3,17 @@ using StrategyPattern.Evolution;
 
 namespace MinimalApi.Api.NativeTypes.V1.GetString
 {
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // 🎯 SERVICE REGISTRATION: GetStringEndpoint
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    public static class AddGetStringEndpointExtension
+    {
+        public static void AddGetStringEndpoint(this IServiceCollection services)
+        {
+            services.AddSingleton<IEndpoint, GetStringEndpoint>();
+        }
+    }
+
     internal sealed class GetStringEndpoint : IEndpoint
     {
         public void Map(IEndpointRouteBuilder routeBuilder)

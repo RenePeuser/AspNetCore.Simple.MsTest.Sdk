@@ -4,6 +4,17 @@ using StrategyPattern.Evolution;
 
 namespace MinimalApi.Api.Errors.V1.NotImplemented
 {
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // 🎯 SERVICE REGISTRATION: NotImplementedEndpoint
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    public static class AddNotImplementedEndpointExtension
+    {
+        public static void AddNotImplementedEndpoint(this IServiceCollection services)
+        {
+            services.AddSingleton<IEndpoint, NotImplementedEndpoint>();
+        }
+    }
+
     internal sealed class NotImplementedEndpoint : IEndpoint
     {
         public void Map(IEndpointRouteBuilder routeBuilder)

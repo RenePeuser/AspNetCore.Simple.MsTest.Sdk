@@ -7,8 +7,8 @@ namespace MinimalApi.Api.NativeTypes.V1
     {
         internal static void AddNativeTypesV1(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddGetString();
-            serviceCollection.AddGetInt();
+            serviceCollection.AddGetStringEndpoint();
+            serviceCollection.AddGetIntEndpoint();
         }
     }
 }

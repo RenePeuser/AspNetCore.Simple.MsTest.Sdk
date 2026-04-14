@@ -6,7 +6,7 @@ namespace MinimalApi.Api.Errors.V1
     {
         internal static void AddErrorsV1(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddNotImplemented();
+            serviceCollection.AddNotImplementedEndpoint();
         }
     }
 }

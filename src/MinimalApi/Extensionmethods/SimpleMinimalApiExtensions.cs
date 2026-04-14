@@ -44,25 +44,6 @@ namespace MinimalApi.Extensionmethods
                                          .WithApiVersionSet(apiVersionSet);
 
             endpointRegistration(basePath);
-
-            // Configure the HTTP request pipeline.
-            if (webApplication.Environment.IsDevelopment())
-            {
-                webApplication.UseSwagger();
-
-                webApplication.UseSwaggerUI(options =>
-                                            {
-                                                var apiVersionDescriptions = webApplication.DescribeApiVersions();
-
-                                                foreach (var apiVersionDescription in apiVersionDescriptions)
-                                                {
-                                                    var url = $"/swagger/{apiVersionDescription.GroupName}/swagger.json";
-                                                    var name = $"V{apiVersionDescription.ApiVersion.MajorVersion}";
-
-                                                    options.SwaggerEndpoint(url, name);
-                                                }
-                                            });
-            }
         }
     }
 

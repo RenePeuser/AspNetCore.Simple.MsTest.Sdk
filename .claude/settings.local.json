@@ -16,12 +16,14 @@
       "Bash(winget:*)",
       "Read(**)",
       "Bash(python3 -c ':*)",
-      "Bash(python patch_canvas_files.py)",
-      "WebFetch(domain:github.siemens.cloud)",
       "Bash(gh auth:*)",
       "Bash(gh repo:*)",
       "Bash(gh api:*)",
-      "Bash(find 'D:\\\\AzureDevOps\\\\AspNetCore.Simple.MsTest.Sdk\\\\src\\\\AspNetCore.Simple.MsTest.Sdk' -name \"*.cs\" -exec grep -l \"class ApiTestBase\" {} +)"
+      "Bash(dotnet clean:*)",
+      "Bash(dotnet run:*)",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs kill:*)",
+      "Bash(taskkill //F //PID 32280)"
     ]
   }
 }

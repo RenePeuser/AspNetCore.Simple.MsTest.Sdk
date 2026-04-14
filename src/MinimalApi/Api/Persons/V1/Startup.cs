@@ -10,11 +10,11 @@ namespace MinimalApi.Api.Persons.V1
     {
         internal static void AddPersonsV1(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddGetAll();
-            serviceCollection.AddGetById();
-            serviceCollection.AddCreate();
-            serviceCollection.AddUpdate();
-            serviceCollection.AddPatch();
+            serviceCollection.AddGetAllPersonsEndpoint();
+            serviceCollection.AddGetPersonByIdEndpoint();
+            serviceCollection.AddCreatePersonEndpoint();
+            serviceCollection.AddUpdatePersonEndpoint();
+            serviceCollection.AddPatchPersonEndpoint();
         }
     }
 }

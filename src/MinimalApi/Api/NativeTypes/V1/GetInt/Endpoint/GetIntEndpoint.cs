@@ -3,6 +3,17 @@ using StrategyPattern.Evolution;
 
 namespace MinimalApi.Api.NativeTypes.V1.GetInt
 {
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // 🎯 SERVICE REGISTRATION: GetIntEndpoint
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    public static class AddGetIntEndpointExtension
+    {
+        public static void AddGetIntEndpoint(this IServiceCollection services)
+        {
+            services.AddSingleton<IEndpoint, GetIntEndpoint>();
+        }
+    }
+
     internal sealed class GetIntEndpoint : IEndpoint
     {
         public void Map(IEndpointRouteBuilder routeBuilder)

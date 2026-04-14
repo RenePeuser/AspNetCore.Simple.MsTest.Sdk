@@ -3,6 +3,17 @@ using StrategyPattern.Evolution;
 
 namespace MinimalApi.Api.Persons.V1.Patch
 {
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // 🎯 SERVICE REGISTRATION: PatchPersonEndpoint
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    public static class AddPatchPersonEndpointExtension
+    {
+        public static void AddPatchPersonEndpoint(this IServiceCollection services)
+        {
+            services.AddSingleton<IEndpoint, PatchPersonEndpoint>();
+        }
+    }
+
     internal sealed class PatchPersonEndpoint : IEndpoint
     {
         public void Map(IEndpointRouteBuilder routeBuilder)

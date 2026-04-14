@@ -354,18 +354,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             return callerFilePath;
         }
 
-        private static void BuildRequestInfo(StringBuilder sb,
-                                             IHttpAssertContext context)
-        {
-            var httpMethod = context.HttpMethod.Method;
-            var url = context.Url;
-            var apiVersion = context.ApiVersion.IsNotNullOrWhiteSpace() ? $" (API Version: {context.ApiVersion})" : string.Empty;
-
-            sb.AppendLine("HTTP REQUEST");
-            sb.AppendLine(" " + new string('-', 100));
-            sb.AppendLine($" {httpMethod} {url}{apiVersion}");
-        }
-
         private static void BuildHttpCallTable(StringBuilder sb,
                                                IHttpAssertContext context,
                                                string statusCode)
