@@ -1,3 +1,5 @@
+using System.Net.Mime;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using StrategyPattern.Evolution;
 
@@ -18,20 +20,20 @@ namespace MinimalApi.Api.Persons.V1.Patch
     {
         public void Map(IEndpointRouteBuilder routeBuilder)
         {
-            routeBuilder.MapPatch("persons", () =>
+            routeBuilder.MapPatch("persons", (Person person) =>
                                              {
-                                                 var person = new Person(1, "Son", "Goku",
-                                                                         99,
-                                                                         [new Email("alf@gmx.de", "GMX"), new Email("abc@hotmail.de", "Microsoft")]);
-
                                                  return Results.Ok(person);
                                              })
                         .WithName("patchPersonV1")
                         .WithSummary("Partially updates a person")
                         .WithTags("Persons")
-                        .Produces<Person>(200)
-                        .Produces<ProblemDetails>(400)
-                        .Produces<ProblemDetails>(500)
+                        .Accepts<Person>(MediaTypeNames.Application.Json)
+                        .Produces<Person>(StatusCodes.Status200OK)
+                        .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+                        .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
+                        .Produces<ProblemDetails>(StatusCodes.Status409Conflict)
+                        .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
+                        .MapToApiVersion(1)
                         .WithOpenApi();
         }
     }

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Immutable;
 using Asp.Versioning;
 using Extensions.Pack;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
@@ -105,7 +107,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var builder = ImmutableDictionary.CreateBuilder<int, Type>();
 
             // Get all ProducesResponseTypeAttribute
-            var producesMetadata = routeEndpoint.Metadata.GetOrderedMetadata<ProducesResponseTypeAttribute>();
+            var producesMetadata = routeEndpoint.Metadata.GetOrderedMetadata<ProducesResponseTypeMetadata>();
 
             foreach (var metadata in producesMetadata)
             {
@@ -164,7 +166,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         public static string? ExtractDescription(RouteEndpoint routeEndpoint)
         {
             // Try IEndpointDescriptionMetadata (Minimal API: WithDescription())
-            var descriptionMetadata = routeEndpoint.Metadata.GetMetadata<Microsoft.AspNetCore.Http.Metadata.IEndpointDescriptionMetadata>();
+            var descriptionMetadata = routeEndpoint.Metadata.GetMetadata<IEndpointDescriptionMetadata>();
 
             if (descriptionMetadata.IsNotNull())
             {
@@ -181,7 +183,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         public static string? ExtractSummary(RouteEndpoint routeEndpoint)
         {
             // Try IEndpointSummaryMetadata (Minimal API: WithSummary())
-            var summaryMetadata = routeEndpoint.Metadata.GetMetadata<Microsoft.AspNetCore.Http.Metadata.IEndpointSummaryMetadata>();
+            var summaryMetadata = routeEndpoint.Metadata.GetMetadata<IEndpointSummaryMetadata>();
 
             if (summaryMetadata.IsNotNull())
             {
@@ -438,10 +440,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // Try ApiVersionMetadata (for neutrality check)
             var apiVersionMetadata = routeEndpoint.Metadata.GetMetadata<ApiVersionMetadata>();
 
-            if (apiVersionMetadata.IsNotNull() && apiVersionMetadata.IsApiVersionNeutral)
+            if (apiVersionMetadata.IsNotNull())
             {
-                // Endpoint is version-neutral (supports all versions)
-                return null;
+                apiVersionMetadata.Deconstruct(out var model, out var endpointModel);
+
+                if (model.DeclaredApiVersions.Count > 0)
+                {
+                    return model.DeclaredApiVersions[0];
+                }
             }
 
             return null;
@@ -450,7 +456,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         private static Type? ExtractResponseType(RouteEndpoint routeEndpoint)
         {
             // Try to find ProducesAttribute for HTTP 200 OK
-            var producesAttributes = routeEndpoint.Metadata.GetOrderedMetadata<ProducesAttribute>();
+            var producesAttributes = routeEndpoint.Metadata.GetOrderedMetadata<ProducesResponseTypeMetadata>();
 
             // Find the success response type (HTTP 200)
             var successResponse = producesAttributes.FirstOrDefault(m => m.StatusCode >= 200 && m.StatusCode < 300);

@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Extensions.Pack;
 using Microsoft.AspNetCore.Mvc;
 using MinimalApi.ErrorHandling.Exceptions;
@@ -46,9 +47,11 @@ namespace MinimalApi.Api.Persons.V1.GetById
                         .WithName("getPersonByIdV1")
                         .WithSummary("Returns a person by ID")
                         .WithTags("Persons")
-                        .Produces<Person>(200)
-                        .Produces<ProblemDetails>(404)
-                        .Produces<ProblemDetails>(500)
+                        .Produces<Person>(StatusCodes.Status200OK)
+                        .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+                        .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
+                        .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
+                        .MapToApiVersion(1)
                         .WithOpenApi();
         }
     }

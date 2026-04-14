@@ -1,3 +1,4 @@
+﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using StrategyPattern.Evolution;
 
@@ -35,9 +36,10 @@ namespace MinimalApi.Api.Persons.V1.GetAll
                         .WithName("getAllPersonsV1")
                         .WithSummary("Returns all available persons")
                         .WithTags("Persons")
-                        .Produces<IEnumerable<Person>>(200)
-                        .Produces<ProblemDetails>(400)
-                        .Produces<ProblemDetails>(500)
+                        .Produces<IEnumerable<Person>>(StatusCodes.Status200OK)
+                        .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+                        .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
+                        .MapToApiVersion(1)
                         .WithOpenApi();
         }
     }

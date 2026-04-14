@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using StrategyPattern.Evolution;
 
@@ -25,8 +26,10 @@ namespace MinimalApi.Api.NativeTypes.V1.GetString
                         .WithName("getStringV1")
                         .WithSummary("Returns a simple string")
                         .WithTags("NativeTypes")
-                        .Produces<string>(200)
-                        .Produces<ProblemDetails>(500)
+                        .Produces<string>(StatusCodes.Status200OK)
+                        .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+                        .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
+                        .MapToApiVersion(1)
                         .WithOpenApi();
         }
     }

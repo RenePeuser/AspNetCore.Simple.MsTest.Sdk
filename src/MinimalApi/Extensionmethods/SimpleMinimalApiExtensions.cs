@@ -1,6 +1,5 @@
 ﻿using Asp.Versioning;
 using Extensions.Pack;
-using MinimalApi.Swagger;
 
 namespace MinimalApi.Extensionmethods
 {
@@ -24,8 +23,6 @@ namespace MinimalApi.Extensionmethods
                                                             apiExplorer.GroupNameFormat = "'v'V";
                                                             apiExplorer.SubstituteApiVersionInUrl = true;
                                                         });
-
-            services.ConfigureOptions<FixApiVersionConfigureNameOption>();
         }
 
         internal static void UseSimpleMinimalApiEnvironment(this WebApplication webApplication,

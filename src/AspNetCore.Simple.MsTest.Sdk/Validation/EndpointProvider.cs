@@ -155,6 +155,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var normalizedRequest = requestUrl.TrimStart('/');
             var normalizedPattern = endpointPattern.TrimStart('/');
 
+            if (normalizedRequest.EqualsTo(normalizedPattern))
+            {
+                return true;
+            }
+
             // Stage 1: Check if there's a version segment like /v1/, /v2/, etc.
             var versionIndex = FindVersionSegmentIndex(normalizedRequest);
 

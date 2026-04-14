@@ -1,3 +1,4 @@
+﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using MinimalApi.ErrorHandling.Exceptions;
 using StrategyPattern.Evolution;
@@ -29,7 +30,8 @@ namespace MinimalApi.Api.Errors.V1.NotImplemented
                         .WithName("throwNotImplementedV1")
                         .WithSummary("Throws a not implemented exception")
                         .WithTags("Errors")
-                        .Produces<ProblemDetails>(500)
+                        .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
+                        .MapToApiVersion(1)
                         .WithOpenApi();
         }
     }

@@ -1,9 +1,9 @@
 ﻿using Asp.Versioning;
+using Asp.Versioning.Builder;
 using MinimalApi.Api.Errors;
 using MinimalApi.Api.NativeTypes;
 using MinimalApi.Api.Persons;
 using MinimalApi.ErrorHandling;
-using MinimalApi.Startup;
 using StrategyPattern.Evolution;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,10 +33,22 @@ builder.Services.AddPersons();
 builder.Services.AddErrors();
 builder.Services.AddNativeTypes();
 
-// Add IStartupFilter for endpoint mapping (handles both production and WebApplicationFactory)
-builder.Services.AddEndpointMappingStartupFilter();
-
 var app = builder.Build();
+
+// Use error handling middleware
+app.UseErrorHandling();
+
+// Use routing (required for endpoint mapping)
+app.UseRouting();
+
+// Map endpoints using UseEndpoints
+var endpointRegistrations = app.Services.GetRequiredService<RegisterEndpoints>();
+
+var apiVersionSet = app.NewApiVersionSet();
+var apiVersions = apiVersionSet.HasApiVersion(new ApiVersion(1)).Build();
+
+var apiV1 = app.MapGroup("api/v1").WithApiVersionSet(apiVersions);
+endpointRegistrations.MapEndpoints(apiV1);
 
 app.Run();
 
