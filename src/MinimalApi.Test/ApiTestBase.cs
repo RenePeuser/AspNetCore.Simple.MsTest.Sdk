@@ -1,6 +1,5 @@
 ﻿using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace MinimalApi.Test
 {

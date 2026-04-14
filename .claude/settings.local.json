@@ -23,7 +23,9 @@
       "Bash(dotnet run:*)",
       "Bash(awk '{print $2}')",
       "Bash(xargs kill:*)",
-      "Bash(taskkill //F //PID 32280)"
+      "Bash(taskkill //F //PID 32280)",
+      "Read(//d//**)",
+      "Bash(rm src/MinimalApi.Test/DiagnosticTest.cs)"
     ]
   }
 }

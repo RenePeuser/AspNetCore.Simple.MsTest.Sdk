@@ -19,35 +19,29 @@ namespace MinimalApi.Startup
 
     /// <summary>
     /// Startup filter that ensures endpoints are mapped.
-    /// Required for WebApplicationFactory compatibility where code after app.Build() may not execute.
+    /// Required for WebApplicationFactory compatibility.
     /// </summary>
-    internal sealed class EndpointMappingStartupFilter(RegisterEndpoints registerEndpoints,
-                                                       ILogger<EndpointMappingStartupFilter> logger) : IStartupFilter
+    internal sealed class EndpointMappingStartupFilter : IStartupFilter
     {
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
         {
             return app =>
             {
-                logger.LogInformation("EndpointMappingStartupFilter: Starting configuration");
+                next(app);
 
                 // Use error handling middleware
                 app.UseErrorHandling();
 
-                // Map endpoints - WebApplication implements both IApplicationBuilder and IEndpointRouteBuilder
-                if (app is IEndpointRouteBuilder routeBuilder)
-                {
-                    logger.LogInformation("EndpointMappingStartupFilter: Mapping endpoints");
-                    var apiV1 = routeBuilder.MapGroup("api/v1");
-                    registerEndpoints.MapEndpoints(apiV1);
-                    logger.LogInformation("EndpointMappingStartupFilter: Endpoints mapped successfully");
-                }
-                else
-                {
-                    logger.LogWarning("EndpointMappingStartupFilter: IApplicationBuilder is not IEndpointRouteBuilder");
-                }
+                // Use routing (required for endpoint mapping)
+                app.UseRouting();
 
-                // Call the next middleware
-                next(app);
+                // Map endpoints using UseEndpoints
+                app.UseEndpoints(endpoints =>
+                {
+                    var apiV1 = endpoints.MapGroup("api/v1");
+                    var registerEndpoints = app.ApplicationServices.GetRequiredService<RegisterEndpoints>();
+                    registerEndpoints.MapEndpoints(apiV1);
+                });
             };
         }
     }

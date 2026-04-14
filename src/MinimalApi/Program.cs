@@ -33,16 +33,10 @@ builder.Services.AddPersons();
 builder.Services.AddErrors();
 builder.Services.AddNativeTypes();
 
-// Add IStartupFilter for endpoint mapping (WebApplicationFactory compatibility)
+// Add IStartupFilter for endpoint mapping (handles both production and WebApplicationFactory)
 builder.Services.AddEndpointMappingStartupFilter();
 
 var app = builder.Build();
-
-// Map endpoints for production (IStartupFilter handles testing scenario)
-app.UseErrorHandling();
-var apiV1 = app.MapGroup("api/v1");
-var registerEndpoints = app.Services.GetRequiredService<RegisterEndpoints>();
-registerEndpoints.MapEndpoints(apiV1);
 
 app.Run();
 
