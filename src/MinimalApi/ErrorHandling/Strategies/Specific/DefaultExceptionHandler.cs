@@ -14,12 +14,6 @@ namespace MinimalApi.ErrorHandling.Strategies.Specific
         {
             services.AddSingletonIfNotExists<ISpecificErrorHandler, DefaultExceptionHandler>();
         }
-
-        public static void RemoveDefaultExceptionHandler(this IServiceCollection services)
-        {
-            var defaultExceptionHandlers = services.Where(serviceRegistration => serviceRegistration.ImplementationType == typeof(DefaultExceptionHandler));
-            services.RemoveRange(defaultExceptionHandlers);
-        }
     }
 
     internal sealed class DefaultExceptionHandler : SpecificErrorHandler<Exception>

@@ -8,11 +8,6 @@ namespace MinimalApi.ErrorHandling
     {
         public static void AddErrorHandling(this IServiceCollection services)
         {
-            if (services.IsAlreadyRegistered<IErrorHandlingStrategy>())
-            {
-                return;
-            }
-
             services.AddErrorHandlingMiddleware();
 
             services.AddSecurityProblemExceptionHandler();
