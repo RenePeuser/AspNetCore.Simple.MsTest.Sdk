@@ -77,7 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #if DEBUG
         private static ITextDecorator _textDecorator = new PlainTextDecorator();
 #else
-        private static ITextDecorator TextDecorator = new AnsiColorTextDecorator();
+        private static ITextDecorator _textDecorator = new AnsiColorTextDecorator();
 #endif
 
         private static IPrimitiveTypeConverter _primitiveTypeConverter = new PrimitiveTypeConverter();
