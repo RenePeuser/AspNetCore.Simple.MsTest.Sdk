@@ -9,7 +9,7 @@
         <PackageProjectUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
-        <PackageReleaseNotes>Upgrade to .Net 10.</PackageReleaseNotes>
+        <PackageReleaseNotes>Core refactoring, new features, better results and response handling</PackageReleaseNotes>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <PackageId>AspNetCore.Simple.MsTest.Sdk</PackageId>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
