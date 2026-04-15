@@ -6,7 +6,7 @@ HTTP RESPONSE TYPE MISMATCH
 Project      : Controllers.Test
 Class        : Controllers.Test.Api.Persons.PersonController.cs
 Method       : Invalid_Response_Type_Json_Exception
-LineNumber   : 29
+LineNumber   : 30
 
 ASSERT CALL
 
@@ -24,24 +24,22 @@ var error = await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.
 
 TYPE VALIDATION
 
- --------------------------------------------------------------------- 
- | Status Code | Endpoint Response Type | Declared Test Type | Match |
- --------------------------------------------------------------------- 
- | 200         | IEnumerable<Person>    | UnknownResponse    | ✗     |
- ---------------------------------------------------------------------
+ ------------------------------------------------------------ 
+ | Source       | Actual Endpoint Type | Declared Test Type |
+ ------------------------------------------------------------ 
+ | ResponseType | IEnumerable<Person>  | UnknownResponse    |
+ ------------------------------------------------------------
 
 SUMMARY
 
-The test is a success (2xx) test and declares response type 'UnknownResponse',
-but none of the endpoint's success (2xx) status codes return this type.
-
-Endpoint defines: 200 → IEnumerable<Person>
+The test declares response type 'UnknownResponse', but the endpoint exposes
+'IEnumerable<Person>' for HTTP 200 OK.
 
 Suggested action:
-- Update the test response type to 'IEnumerable<Person>' to match one of the status codes above
+- Update the test response type to match the endpoint contract
 
 Alternative:
-- If the endpoint contract is wrong, update the endpoint's ProducesResponseType attributes
+- If the endpoint contract is wrong, update the endpoint instead
 
 -------------------------------------------------------------------------
 Http call as curl

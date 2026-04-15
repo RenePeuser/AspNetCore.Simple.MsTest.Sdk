@@ -1,8 +1,7 @@
-using Asp.Versioning;
-using Microsoft.AspNetCore.Mvc;
-using StrategyPattern.Evolution;
+﻿using Microsoft.AspNetCore.Mvc;
+using MinimalApi.Endpoints;
 
-namespace MinimalApi.Api.NativeTypes.V1.GetInt
+namespace MinimalApi.Api.NativeTypes.V1
 {
     // ═══════════════════════════════════════════════════════════════════════════════════
     // 🎯 SERVICE REGISTRATION: GetIntEndpoint

@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using AspNetCore.Simple.MsTest.Sdk;
 using Microsoft.AspNetCore.Mvc;
 

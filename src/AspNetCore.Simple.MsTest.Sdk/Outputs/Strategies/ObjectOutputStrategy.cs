@@ -30,6 +30,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
     {
         public bool CanHandle(IObjectAssertContext context)
         {
+            if (context is IHttpAssertContext)
+            {
+                return false;
+            }
+
             // Handle contexts where CurrentObject is a primitive type or string
             var currentObject = context.CurrentObject;
 

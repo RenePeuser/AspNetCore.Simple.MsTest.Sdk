@@ -26,7 +26,7 @@ namespace MinimalApi.Extensionmethods
         }
 
         internal static void UseSimpleMinimalApiEnvironment(this WebApplication webApplication,
-                                                          Action<IEndpointRouteBuilder> endpointRegistration)
+                                                            Action<IEndpointRouteBuilder> endpointRegistration)
         {
             webApplication.UseHttpsRedirection();
 

@@ -1,9 +1,8 @@
 ﻿using System.Net.Mime;
-using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
-using StrategyPattern.Evolution;
+using MinimalApi.Endpoints;
 
-namespace MinimalApi.Api.Persons.V1.Create
+namespace MinimalApi.Api.Persons.V1
 {
     // ═══════════════════════════════════════════════════════════════════════════════════
     // 🎯 SERVICE REGISTRATION: CreatePersonEndpoint
@@ -31,8 +30,7 @@ namespace MinimalApi.Api.Persons.V1.Create
                         .Produces<Person>(StatusCodes.Status201Created)
                         .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
                         .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
-                        .MapToApiVersion(1)
-                        .WithOpenApi();
+                        .MapToApiVersion(1);
         }
     }
 }

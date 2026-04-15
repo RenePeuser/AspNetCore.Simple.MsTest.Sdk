@@ -1,4 +1,4 @@
-﻿namespace StrategyPattern.Evolution
+﻿namespace MinimalApi.Endpoints
 {
     // ═══════════════════════════════════════════════════════════════════════════════════════
     // 🎯 STRATEGY PATTERN: Endpoint Registration

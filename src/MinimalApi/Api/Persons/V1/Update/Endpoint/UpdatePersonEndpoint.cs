@@ -1,9 +1,8 @@
-using System.Net.Mime;
-using Asp.Versioning;
+﻿using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
-using StrategyPattern.Evolution;
+using MinimalApi.Endpoints;
 
-namespace MinimalApi.Api.Persons.V1.Update
+namespace MinimalApi.Api.Persons.V1
 {
     // ═══════════════════════════════════════════════════════════════════════════════════
     // 🎯 SERVICE REGISTRATION: UpdatePersonEndpoint
@@ -33,8 +32,7 @@ namespace MinimalApi.Api.Persons.V1.Update
                         .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
                         .Produces<ProblemDetails>(StatusCodes.Status409Conflict)
                         .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
-                        .MapToApiVersion(1)
-                        .WithOpenApi();
+                        .MapToApiVersion(1);
         }
     }
 }

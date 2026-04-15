@@ -146,7 +146,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         {
             try
             {
-                var expectedJson = context.ExpectedObjectAsJson;
+                var expectedJson = context.ExpectedResultFile.Content;
 
                 if (expectedJson.IsNullOrWhiteSpace())
                 {

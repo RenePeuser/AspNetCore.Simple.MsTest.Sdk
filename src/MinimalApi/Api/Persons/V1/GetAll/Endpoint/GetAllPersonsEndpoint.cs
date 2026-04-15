@@ -1,8 +1,7 @@
-﻿using Asp.Versioning;
-using Microsoft.AspNetCore.Mvc;
-using StrategyPattern.Evolution;
+﻿using Microsoft.AspNetCore.Mvc;
+using MinimalApi.Endpoints;
 
-namespace MinimalApi.Api.Persons.V1.GetAll
+namespace MinimalApi.Api.Persons.V1
 {
     // ═══════════════════════════════════════════════════════════════════════════════════
     // 🎯 SERVICE REGISTRATION: GetAllPersonsEndpoint
@@ -39,8 +38,7 @@ namespace MinimalApi.Api.Persons.V1.GetAll
                         .Produces<IEnumerable<Person>>(StatusCodes.Status200OK)
                         .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
                         .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
-                        .MapToApiVersion(1)
-                        .WithOpenApi();
+                        .MapToApiVersion(1);
         }
     }
 }

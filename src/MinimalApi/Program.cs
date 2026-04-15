@@ -1,26 +1,14 @@
 ﻿using Asp.Versioning;
-using Asp.Versioning.Builder;
 using MinimalApi.Api.Errors;
 using MinimalApi.Api.NativeTypes;
 using MinimalApi.Api.Persons;
+using MinimalApi.Endpoints;
 using MinimalApi.ErrorHandling;
-using StrategyPattern.Evolution;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add minimal required services
 builder.Services.AddProblemDetails();
-
-// Add API versioning
-builder.Services.AddApiVersioning(options =>
-{
-    options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.ApiVersionReader = new UrlSegmentApiVersionReader();
-}).AddApiExplorer(options =>
-{
-    options.GroupNameFormat = "'v'V";
-    options.SubstituteApiVersionInUrl = true;
-});
 
 // Add error handling
 builder.Services.AddErrorHandlingMiddleware();
@@ -33,29 +21,51 @@ builder.Services.AddPersons();
 builder.Services.AddErrors();
 builder.Services.AddNativeTypes();
 
+builder.Services.AddErrorHandling();
+
+// Add services to the container.
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddProblemDetails();
+
+// Add API versioning
+builder.Services.AddApiVersioning(apiVersion =>
+                                  {
+                                      apiVersion.DefaultApiVersion = new ApiVersion(1, 0);
+                                      apiVersion.ApiVersionReader = new UrlSegmentApiVersionReader();
+                                  }).AddApiExplorer(apiExplorer =>
+                                                    {
+                                                        apiExplorer.GroupNameFormat = "'v'V";
+                                                        apiExplorer.SubstituteApiVersionInUrl = true;
+                                                    });
+
 var app = builder.Build();
 
-// Use error handling middleware
+app.UseHttpsRedirection();
+
+// No error middleware
 app.UseErrorHandling();
 
-// Use routing (required for endpoint mapping)
-app.UseRouting();
+// Setup API versioning
+var apiVersionSet = app.NewApiVersionSet()
+                       .HasApiVersion(new ApiVersion(1))
+                       .ReportApiVersions()
+                       .Build();
 
-// Map endpoints using UseEndpoints
-var endpointRegistrations = app.Services.GetRequiredService<RegisterEndpoints>();
+// Setup base path for API versioning
+var basePath = app.MapGroup("api/v{version:apiVersion}")
+                  .WithApiVersionSet(apiVersionSet);
 
-var apiVersionSet = app.NewApiVersionSet();
-var apiVersions = apiVersionSet.HasApiVersion(new ApiVersion(1)).Build();
-
-var apiV1 = app.MapGroup("api/v1").WithApiVersionSet(apiVersions);
-endpointRegistrations.MapEndpoints(apiV1);
+// Register endpoints
+var registerEndpoints = app.Services.GetRequiredService<RegisterEndpoints>();
+registerEndpoints.MapEndpoints(basePath);
 
 app.Run();
 
 // Important for API tests!
 namespace MinimalApi
 {
-    public class Program
+    public partial class Program
     {
     }
 }

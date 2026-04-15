@@ -1,9 +1,8 @@
-﻿using Asp.Versioning;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using MinimalApi.Endpoints;
 using MinimalApi.ErrorHandling.Exceptions;
-using StrategyPattern.Evolution;
 
-namespace MinimalApi.Api.Errors.V1.NotImplemented
+namespace MinimalApi.Api.Errors.V1.NotImplemented.Endpoint
 {
     // ═══════════════════════════════════════════════════════════════════════════════════
     // 🎯 SERVICE REGISTRATION: NotImplementedEndpoint

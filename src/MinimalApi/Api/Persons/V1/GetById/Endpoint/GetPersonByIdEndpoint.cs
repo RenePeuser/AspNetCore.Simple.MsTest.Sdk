@@ -1,10 +1,9 @@
-using Asp.Versioning;
-using Extensions.Pack;
+﻿using Extensions.Pack;
 using Microsoft.AspNetCore.Mvc;
+using MinimalApi.Endpoints;
 using MinimalApi.ErrorHandling.Exceptions;
-using StrategyPattern.Evolution;
 
-namespace MinimalApi.Api.Persons.V1.GetById
+namespace MinimalApi.Api.Persons.V1
 {
     // ═══════════════════════════════════════════════════════════════════════════════════
     // 🎯 SERVICE REGISTRATION: GetPersonByIdEndpoint
@@ -51,8 +50,7 @@ namespace MinimalApi.Api.Persons.V1.GetById
                         .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
                         .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
                         .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
-                        .MapToApiVersion(1)
-                        .WithOpenApi();
+                        .MapToApiVersion(1);
         }
     }
 }

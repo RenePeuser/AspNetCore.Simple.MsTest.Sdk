@@ -131,7 +131,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         public static ImmutableList<string> ExtractTags(RouteEndpoint routeEndpoint)
         {
             // Try ITagsMetadata (Minimal API: WithTags())
-            var tagsMetadata = routeEndpoint.Metadata.GetMetadata<Microsoft.AspNetCore.Http.Metadata.ITagsMetadata>();
+            var tagsMetadata = routeEndpoint.Metadata.GetMetadata<ITagsMetadata>();
 
             if (tagsMetadata.IsNotNull())
             {

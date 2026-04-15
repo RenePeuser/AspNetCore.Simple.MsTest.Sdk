@@ -1,7 +1,4 @@
-using MinimalApi.Api.NativeTypes.V1.GetInt;
-using MinimalApi.Api.NativeTypes.V1.GetString;
-
-namespace MinimalApi.Api.NativeTypes.V1
+﻿namespace MinimalApi.Api.NativeTypes.V1
 {
     internal static class Startup
     {
