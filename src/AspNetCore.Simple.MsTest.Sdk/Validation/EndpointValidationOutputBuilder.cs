@@ -10,6 +10,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     {
         public static void AddEndpointValidationOutputBuilder(this IServiceCollection services)
         {
+            services.AddCurlBuilder();
             services.AddCurlFormatter();
             services.AddSourceCodeExtractor();
             services.AddSingletonIfNotExists<IEndpointValidationOutputBuilder, EndpointValidationOutputBuilder>();
@@ -46,7 +47,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                          ImmutableDictionary<int, Type> relevantStatusCodes);
     }
 
-    internal sealed class EndpointValidationOutputBuilder(ICurlFormatter curlFormatter,
+    internal sealed class EndpointValidationOutputBuilder(ICurlBuilder curlBuilder,
+                                                          ICurlFormatter curlFormatter,
                                                           ISourceCodeExtractor sourceCodeExtractor) : IEndpointValidationOutputBuilder
     {
         public string BuildEndpointNotFound(IHttpAssertContext context,
@@ -69,7 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Curl command
-            var curl = BuildCurlCommand(context);
+            var curl = curlBuilder.BuildFrom(context);
             var curlFormatted = curlFormatter.GetCurlAsFormattedString(curl);
             sb.AppendLine(curlFormatted);
 
@@ -119,7 +121,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Curl command
-            var curl = BuildCurlCommand(context);
+            var curl = curlBuilder.BuildFrom(context);
             var curlFormatted = curlFormatter.GetCurlAsFormattedString(curl);
             sb.AppendLine(curlFormatted);
 
@@ -194,7 +196,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Curl command
-            var curl = BuildCurlCommand(context);
+            var curl = curlBuilder.BuildFrom(context);
             var curlFormatted = curlFormatter.GetCurlAsFormattedString(curl);
             sb.AppendLine(curlFormatted);
 
@@ -308,7 +310,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Curl command
-            var curl = BuildCurlCommand(context);
+            var curl = curlBuilder.BuildFrom(context);
             var curlFormatted = curlFormatter.GetCurlAsFormattedString(curl);
             sb.AppendLine(curlFormatted);
 
@@ -398,37 +400,5 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             return $"{typeName}<{genericArgNames}>";
         }
 
-        private static string BuildCurlCommand(IHttpAssertContext context)
-        {
-            var sb = new StringBuilder();
-
-            // Build full URL
-            var fullUrl = context.Client.BaseAddress.IsNotNull()
-                              ? new Uri(context.Client.BaseAddress, context.Url).ToString()
-                              : context.Url;
-
-            sb.Append("curl \\");
-            sb.Append($"\n--location \\");
-            sb.Append($"\n--request {context.HttpMethod.Method} '{fullUrl}'");
-
-            // Add authorization header if present
-            var authHeader = context.Client.DefaultRequestHeaders.Authorization;
-
-            if (authHeader.IsNotNull())
-            {
-                sb.Append(" \\");
-                sb.Append($"\n--header 'Authorization: {authHeader.Scheme} {authHeader.Parameter}'");
-            }
-
-            // Add payload if present
-            if (context.ResolvedPayload.IsNotNullOrWhiteSpace())
-            {
-                sb.Append(" \\");
-                sb.Append($"\n--header 'Content-Type: application/json' \\");
-                sb.Append($"\n--data-raw '{context.ResolvedPayload}'");
-            }
-
-            return sb.ToString();
-        }
     }
 }

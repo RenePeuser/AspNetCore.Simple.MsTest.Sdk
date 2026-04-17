@@ -189,7 +189,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static ISourceCodeExtractor _sourceCodeExtractor = new SourceCodeExtractor();
 
-        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(_curlFormatter, _sourceCodeExtractor);
+        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(_curlBuilder, _curlFormatter, _sourceCodeExtractor);
 
         private static IEndpointValidator _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 
@@ -334,7 +334,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               PayloadParameterName = payloadAsJsonParameterName,
                               ResolvedExpectedJson = resolvedExpectedJson,
                               ResolvedPayload = resolvedPayload,
-                              ShowTokenInCurl = false,
+                              ShowTokenInCurl = ShowTokenInCurl,
                               TypeIsPrimitiveType = targetIsPrimitiveType,
                               Url = resolvedUrl,
                               WriteResponse = writResponse,
