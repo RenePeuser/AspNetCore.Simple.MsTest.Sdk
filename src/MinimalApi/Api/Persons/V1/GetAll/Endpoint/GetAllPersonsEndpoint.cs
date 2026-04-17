@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Extensions.Pack;
+using Microsoft.AspNetCore.Mvc;
 using MinimalApi.Endpoints;
 
 namespace MinimalApi.Api.Persons.V1
@@ -18,7 +19,7 @@ namespace MinimalApi.Api.Persons.V1
     {
         public void Map(IEndpointRouteBuilder routeBuilder)
         {
-            routeBuilder.MapGet("persons", () =>
+            routeBuilder.MapGet("persons", ([FromQuery] string name = "") =>
                                            {
                                                var persons = new List<Person>
                                                              {
@@ -29,6 +30,11 @@ namespace MinimalApi.Api.Persons.V1
                                                                      77,
                                                                      [new Email("abc@gmx.de", "GMX"), new Email("maxmustermann@hotmail.de", "Microsoft")])
                                                              };
+
+                                               if (name.IsNotNullOrWhiteSpace())
+                                               {
+                                                   persons = persons.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+                                               }
 
                                                return Results.Ok(persons);
                                            })

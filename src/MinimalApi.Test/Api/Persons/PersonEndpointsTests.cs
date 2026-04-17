@@ -53,6 +53,13 @@ namespace MinimalApi.Test.Api.Persons
         }
 
         [TestMethod]
+        public Task Should_Filter_Persons_By_Name_Query_Parameter()
+        {
+            return Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons?name=Son",
+                                                              "GetPersonFilteredResponse.json");
+        }
+
+        [TestMethod]
         public Task Should_Be_Able_To_Post_A_Person_Object()
         {
             return Client.AssertPostAsync<Person>("api/v1/persons",

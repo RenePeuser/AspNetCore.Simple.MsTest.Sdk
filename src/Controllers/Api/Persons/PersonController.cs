@@ -24,8 +24,13 @@ namespace Controllers.Api.Persons
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<Person>), 200)]
-        public IEnumerable<Person> GetAllPersons()
+        public IEnumerable<Person> GetAllPersons([FromQuery] string name = "")
         {
+            if (name.IsNotNullOrWhiteSpace())
+            {
+                return _persons.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+            }
+
             return _persons;
         }
 

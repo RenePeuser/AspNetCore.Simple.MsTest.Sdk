@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
@@ -191,6 +192,86 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Builds the full route pattern including any base path from the route endpoint.
+        /// This handles cases where UsePathBase or similar middleware adds a path prefix.
+        /// </summary>
+        public static string BuildFullRoutePattern(RouteEndpoint routeEndpoint,
+                                                   ApiVersion? apiVersion)
+        {
+            if (routeEndpoint.RoutePattern.PathSegments.Count == 0)
+            {
+                return "/";
+            }
+
+            // Reconstruct the full path from segments
+            var segments = new List<string>();
+
+            foreach (var segment in routeEndpoint.RoutePattern.PathSegments)
+            {
+                if (segment.IsSimple && segment.Parts.Count == 1)
+                {
+                    var part = segment.Parts[0];
+
+                    if (part is RoutePatternLiteralPart literal)
+                    {
+                        segments.Add(literal.Content);
+                    }
+                    else if (part is RoutePatternParameterPart parameter)
+                    {
+                        var paramName = "{" + parameter.Name;
+
+                        // Include constraints if present
+                        if (parameter.ParameterPolicies.Count > 0)
+                        {
+                            var policyNames = string.Join(":", parameter.ParameterPolicies.Select(p => p.Content));
+                            paramName += ":" + policyNames;
+                        }
+
+                        paramName += "}";
+                        segments.Add(paramName);
+                    }
+                }
+                else
+                {
+                    // Complex segment with multiple parts
+                    var segmentText = string.Join(string.Empty, segment.Parts.Select(p =>
+                    {
+                        if (p is RoutePatternLiteralPart lit)
+                        {
+                            return lit.Content;
+                        }
+
+                        if (p is RoutePatternParameterPart param)
+                        {
+                            var paramName = "{" + param.Name;
+
+                            if (param.ParameterPolicies.Count > 0)
+                            {
+                                var policyNames = string.Join(":", param.ParameterPolicies.Select(pp => pp.Content));
+                                paramName += ":" + policyNames;
+                            }
+
+                            paramName += "}";
+
+                            return paramName;
+                        }
+
+                        return string.Empty;
+                    }));
+
+                    segments.Add(segmentText);
+                }
+            }
+
+            var fullPattern = "/" + string.Join("/", segments);
+
+            // Resolve placeholders
+            var resolvedUrl = ResolvePlaceholders(fullPattern, apiVersion);
+
+            return resolvedUrl;
         }
     }
 

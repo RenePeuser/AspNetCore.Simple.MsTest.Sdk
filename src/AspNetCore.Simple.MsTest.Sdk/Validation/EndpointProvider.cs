@@ -67,8 +67,24 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         }
     }
 
+    /// <summary>
+    /// Pre-processed endpoint data for fast lookup.
+    /// </summary>
+    internal sealed record PreProcessedEndpoint(EndpointInfo Endpoint,
+                                                string NormalizedUrl,
+                                                string[] UrlSegments,
+                                                int? VersionSegmentIndex,
+                                                string? VersionString);
+
     internal sealed class EndpointProvider(IEndpointInfoParser endpointInfoParser) : IEndpointProvider
     {
+        private readonly Lazy<ImmutableList<PreProcessedEndpoint>> _cachedEndpoints = new(() =>
+                                                                                          {
+                                                                                              var allEndpoints = endpointInfoParser.GetEndpoints();
+
+                                                                                              return PreProcessEndpoints(allEndpoints);
+                                                                                          }, LazyThreadSafetyMode.ExecutionAndPublication);
+
         public EndpointInfo? FindEndpointFor(string httpMethod,
                                              string url,
                                              string? apiVersion)
@@ -83,14 +99,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                                                     string url,
                                                                     string? apiVersion)
         {
-            var allEndpoints = endpointInfoParser.GetEndpoints();
+            var processedEndpoints = _cachedEndpoints.Value;
 
-            if (allEndpoints.IsEmpty())
+            if (processedEndpoints.IsEmpty())
             {
                 return ImmutableList<EndpointInfo>.Empty;
             }
 
-            var matchingEndpoints = FindMatches(allEndpoints, httpMethod, url,
+            var matchingEndpoints = FindMatches(processedEndpoints, httpMethod, url,
                                                 apiVersion);
 
             return matchingEndpoints;
@@ -101,114 +117,131 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             return endpointInfoParser.GetEndpoints();
         }
 
-        private static ImmutableList<EndpointInfo> FindMatches(ImmutableList<EndpointInfo> endpoints,
+        private static ImmutableList<PreProcessedEndpoint> PreProcessEndpoints(ImmutableList<EndpointInfo> endpoints)
+        {
+            var preProcessedEndpoints = endpoints.Select(endpoint =>
+                                                         {
+                                                             var normalizedUrl = endpoint.Url.TrimStart('/');
+                                                             var segments = normalizedUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                                                             var versionIndex = FindVersionSegmentIndexInSegments(segments);
+                                                             var versionString = endpoint.ApiVersion?.MajorVersion.ToString();
+
+                                                             return new PreProcessedEndpoint(endpoint,
+                                                                                             normalizedUrl,
+                                                                                             segments,
+                                                                                             versionIndex,
+                                                                                             versionString);
+                                                         })
+                                                 .ToImmutableList();
+
+            return preProcessedEndpoints;
+        }
+
+        private static ImmutableList<EndpointInfo> FindMatches(ImmutableList<PreProcessedEndpoint> processedEndpoints,
                                                                string httpMethod,
                                                                string url,
                                                                string? requestedVersion)
         {
-            // Normalize URL for comparison
-            var normalizedUrl = url.TrimStart('/');
+            // Normalize request URL - remove query parameters
+            var urlWithoutQuery = url.Split('?', 2)[0];
+            var normalizedUrl = urlWithoutQuery.TrimStart('/');
+            var requestSegments = normalizedUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var requestVersionIndex = FindVersionSegmentIndexInSegments(requestSegments);
 
-            var matches = endpoints.Where(endpoint =>
-                                          {
-                                              // 1. Check HTTP method
-                                              if (endpoint.HttpMethod.Equals(httpMethod, StringComparison.OrdinalIgnoreCase).IsFalse())
-                                              {
-                                                  return false;
-                                              }
+            var matches = processedEndpoints.Where(processed =>
+                                                   {
+                                                       var endpoint = processed.Endpoint;
 
-                                              // 2. Check API version if specified
-                                              if (requestedVersion.IsNotNullOrWhiteSpace())
-                                              {
-                                                  if (endpoint.ApiVersion.IsNull())
-                                                  {
-                                                      // Endpoint has no version, but version was requested
-                                                      return false;
-                                                  }
+                                                       // 1. Check HTTP method (fast string comparison)
+                                                       if (endpoint.HttpMethod.Equals(httpMethod, StringComparison.OrdinalIgnoreCase).IsFalse())
+                                                       {
+                                                           return false;
+                                                       }
 
-                                                  var endpointVersionString = endpoint.ApiVersion.MajorVersion.ToString();
+                                                       // 2. Check API version if specified
+                                                       if (requestedVersion.IsNotNullOrWhiteSpace())
+                                                       {
+                                                           if (processed.VersionString.IsNull() ||
+                                                               processed.VersionString.NotEqualsTo(requestedVersion))
+                                                           {
+                                                               return false;
+                                                           }
+                                                       }
 
-                                                  if (endpointVersionString.NotEqualsTo(requestedVersion))
-                                                  {
-                                                      // Version mismatch
-                                                      return false;
-                                                  }
-                                              }
+                                                       // 3. Check URL pattern match using pre-processed data
+                                                       var urlMatches = UrlMatchesOptimized(normalizedUrl,
+                                                                                            requestSegments,
+                                                                                            requestVersionIndex,
+                                                                                            processed);
 
-                                              // 3. Check URL pattern match
-                                              var normalizedEndpointUrl = endpoint.Url.TrimStart('/');
-
-                                              return UrlMatches(normalizedUrl, normalizedEndpointUrl);
-                                          })
-                                   .ToImmutableList();
+                                                       return urlMatches;
+                                                   })
+                                            .Select(p => p.Endpoint)
+                                            .ToImmutableList();
 
             return matches;
         }
 
-        private static bool UrlMatches(string requestUrl,
-                                       string endpointPattern)
+        private static bool UrlMatchesOptimized(string requestUrl,
+                                                string[] requestSegments,
+                                                int? requestVersionIndex,
+                                                PreProcessedEndpoint processed)
         {
-            // Multi-stage URL matching to handle different routing patterns:
-            // 1. If version is in URL (e.g., /v1/, /v2/), split and match from version onwards
-            // 2. Otherwise, do exact segment matching
-
-            var normalizedRequest = requestUrl.TrimStart('/');
-            var normalizedPattern = endpointPattern.TrimStart('/');
-
-            if (normalizedRequest.EqualsTo(normalizedPattern))
+            // Fast path: exact match
+            if (requestUrl.EqualsTo(processed.NormalizedUrl))
             {
                 return true;
             }
 
-            // Stage 1: Check if there's a version segment like /v1/, /v2/, etc.
-            var versionIndex = FindVersionSegmentIndex(normalizedRequest);
-
-            if (versionIndex >= 0)
+            // Try suffix matching first - this handles base path scenarios
+            // where request has prefix like /api/tests but endpoint doesn't
+            // Example: Request: api/tests/v1/persons, Endpoint: v1/persons
+            if (requestSegments.Length > processed.UrlSegments.Length)
             {
-                // Split at version - match from version onwards
-                // Request:  api/tests/v1/persons → v1/persons
-                // Pattern:  v1/persons            → v1/persons
-                var requestFromVersion = normalizedRequest.Substring(versionIndex);
+                var offset = requestSegments.Length - processed.UrlSegments.Length;
+                var suffixSegments = requestSegments.Skip(offset).ToArray();
 
-                var segmentMatches = SegmentMatches(requestFromVersion, normalizedPattern);
-
-                return segmentMatches;
+                if (SegmentMatchesOptimized(suffixSegments, processed.UrlSegments))
+                {
+                    return true;
+                }
             }
 
-            // Stage 2: No version in URL - exact segment matching
-            return SegmentMatches(normalizedRequest, normalizedPattern);
+            // If request has version segment, match from version onwards
+            if (requestVersionIndex >= 0)
+            {
+                var requestFromVersionIndex = GetVersionSegmentPosition(requestSegments, requestVersionIndex.Value);
+
+                return SegmentMatchesOptimized(requestSegments.Skip(requestFromVersionIndex).ToArray(),
+                                               processed.UrlSegments.Skip(processed.VersionSegmentIndex ?? 0).ToArray());
+            }
+
+            // No version in URL - exact segment matching
+            return SegmentMatchesOptimized(requestSegments, processed.UrlSegments);
         }
 
-        private static int FindVersionSegmentIndex(string url)
+        private static int GetVersionSegmentPosition(string[] segments,
+                                                     int versionIndex)
         {
-            // Find /v1/, /v2/, /v10/, etc. in URL
-            // Returns the index of 'v' in the version segment, or -1 if not found
-            var segments = url.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            var currentIndex = 0;
+            // versionIndex points to the character position, we need segment position
+            var currentPos = 0;
 
-            foreach (var segment in segments)
+            for (var i = 0; i < segments.Length; i++)
             {
-                // Check if segment starts with 'v' followed by digits
-                if (segment.Length >= 2 &&
-                    (segment[0] == 'v' || segment[0] == 'V') &&
-                    char.IsDigit(segment[1]))
+                if (currentPos == versionIndex)
                 {
-                    return currentIndex;
+                    return i;
                 }
 
-                currentIndex += segment.Length + 1; // +1 for the '/'
+                currentPos += segments[i].Length + 1; // +1 for '/'
             }
 
-            return -1;
+            return 0;
         }
 
-        private static bool SegmentMatches(string requestUrl,
-                                           string endpointPattern)
+        private static bool SegmentMatchesOptimized(string[] requestSegments,
+                                                    string[] patternSegments)
         {
-            // Split by '/' for segment-by-segment comparison
-            var requestSegments = requestUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            var patternSegments = endpointPattern.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
             // Must have same number of segments
             if (requestSegments.Length != patternSegments.Length)
             {
@@ -218,7 +251,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // Compare each segment
             for (var i = 0; i < requestSegments.Length; i++)
             {
-                var requestSegment = requestSegments[i];
                 var patternSegment = patternSegments[i];
 
                 // If pattern segment is a route parameter like {id}, it matches any value
@@ -228,13 +260,33 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 }
 
                 // Otherwise, must match exactly (case-insensitive)
-                if (requestSegment.Equals(patternSegment, StringComparison.OrdinalIgnoreCase).IsFalse())
+                if (requestSegments[i].Equals(patternSegment, StringComparison.OrdinalIgnoreCase).IsFalse())
                 {
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private static int? FindVersionSegmentIndexInSegments(string[] segments)
+        {
+            // Find v1, v2, v10, etc. in segments
+            // Returns the segment index, or null if not found
+            for (var i = 0; i < segments.Length; i++)
+            {
+                var segment = segments[i];
+
+                // Check if segment starts with 'v' followed by digits
+                if (segment.Length >= 2 &&
+                    (segment[0] == 'v' || segment[0] == 'V') &&
+                    char.IsDigit(segment[1]))
+                {
+                    return i;
+                }
+            }
+
+            return null;
         }
     }
 }
