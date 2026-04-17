@@ -92,6 +92,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             {
                 var matchingTypes = statusCodesToCheck.Values.Distinct().ToList();
 
+                // Special case: 204 NoContent with Void type is compatible with String
+                // This happens when non-generic AssertDeleteAsync() forwards to generic version with <string>
+                var has204NoContent = statusCodesToCheck.ContainsKey(204);
+                var endpointReturnsVoid = matchingTypes.Any(t => t == typeof(void) || t.Name == "Void");
+                var testExpectsString = expectedResponse == typeof(string);
+
+                if (has204NoContent && endpointReturnsVoid && testExpectsString)
+                {
+                    // Allow this combination - it's the non-generic overload pattern
+                    return;
+                }
+
                 // Check if expected response type matches any of the relevant response types
                 var isMatch = matchingTypes.Any(type => type == expectedResponse);
 

@@ -73,18 +73,22 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             if (apiVersion.IsNotNull())
             {
-                // Format: "1.0" or "1" (without 'v' prefix)
+                // Format: "1.0" or "1" (without 'v' prefix unless explicitly needed)
                 var versionString = apiVersion.MajorVersion.ToString();
 
                 // Common placeholders for API version
+                // {apiVersion:apiVersion} is used in patterns like "v{apiVersion:apiVersion}/users"
+                // so we replace with just the number, not "v1"
+                resolved = resolved.Replace("{apiVersion:apiVersion}", versionString, StringComparison.OrdinalIgnoreCase);
                 resolved = resolved.Replace("{apiVersion}", versionString, StringComparison.OrdinalIgnoreCase);
                 resolved = resolved.Replace("{version}", versionString, StringComparison.OrdinalIgnoreCase);
                 resolved = resolved.Replace("{documentName}", $"v{versionString}", StringComparison.OrdinalIgnoreCase);
-                resolved = resolved.Replace("{version:apiversion}", $"{versionString}", StringComparison.OrdinalIgnoreCase);
+                resolved = resolved.Replace("{version:apiversion}", versionString, StringComparison.OrdinalIgnoreCase);
             }
             else
             {
-                // If no version is found, replace with empty or remove placeholder
+                // If no version is found, replace with default
+                resolved = resolved.Replace("{apiVersion:apiVersion}", "1", StringComparison.OrdinalIgnoreCase);
                 resolved = resolved.Replace("{apiVersion}", string.Empty, StringComparison.OrdinalIgnoreCase);
                 resolved = resolved.Replace("{version}", string.Empty, StringComparison.OrdinalIgnoreCase);
                 resolved = resolved.Replace("{documentName}", "v1", StringComparison.OrdinalIgnoreCase);

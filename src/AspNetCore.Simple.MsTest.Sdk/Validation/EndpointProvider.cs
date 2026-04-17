@@ -142,33 +142,25 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                                                string url,
                                                                string? requestedVersion)
         {
-            // Normalize request URL - remove query parameters
-            var urlWithoutQuery = url.Split('?', 2)[0];
+            // Extract path from URL (remove scheme, host, query parameters)
+            var urlPath = ExtractPathFromUrl(url);
+
+            // Normalize: remove query parameters and leading slash
+            var urlWithoutQuery = urlPath.Split('?', 2)[0];
             var normalizedUrl = urlWithoutQuery.TrimStart('/');
             var requestSegments = normalizedUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
             var requestVersionIndex = FindVersionSegmentIndexInSegments(requestSegments);
 
-            var matches = processedEndpoints.Where(processed =>
+            // Filter candidates by HTTP method and version first
+            var candidateEndpoints = processedEndpoints.Where(ep =>
+                ep.Endpoint.HttpMethod.Equals(httpMethod, StringComparison.OrdinalIgnoreCase) &&
+                (requestedVersion.IsNullOrWhiteSpace() || ep.VersionString == requestedVersion)
+            ).ToImmutableList();
+
+            // Now match URL patterns only for filtered candidates
+            var matches = candidateEndpoints.Where(processed =>
                                                    {
-                                                       var endpoint = processed.Endpoint;
-
-                                                       // 1. Check HTTP method (fast string comparison)
-                                                       if (endpoint.HttpMethod.Equals(httpMethod, StringComparison.OrdinalIgnoreCase).IsFalse())
-                                                       {
-                                                           return false;
-                                                       }
-
-                                                       // 2. Check API version if specified
-                                                       if (requestedVersion.IsNotNullOrWhiteSpace())
-                                                       {
-                                                           if (processed.VersionString.IsNull() ||
-                                                               processed.VersionString.NotEqualsTo(requestedVersion))
-                                                           {
-                                                               return false;
-                                                           }
-                                                       }
-
-                                                       // 3. Check URL pattern match using pre-processed data
+                                                       // Check URL pattern match using pre-processed data
                                                        var urlMatches = UrlMatchesOptimized(normalizedUrl,
                                                                                             requestSegments,
                                                                                             requestVersionIndex,
@@ -208,35 +200,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             // If request has version segment, match from version onwards
-            if (requestVersionIndex >= 0)
+            if (requestVersionIndex.HasValue)
             {
-                var requestFromVersionIndex = GetVersionSegmentPosition(requestSegments, requestVersionIndex.Value);
-
-                return SegmentMatchesOptimized(requestSegments.Skip(requestFromVersionIndex).ToArray(),
+                return SegmentMatchesOptimized(requestSegments.Skip(requestVersionIndex.Value).ToArray(),
                                                processed.UrlSegments.Skip(processed.VersionSegmentIndex ?? 0).ToArray());
             }
 
             // No version in URL - exact segment matching
             return SegmentMatchesOptimized(requestSegments, processed.UrlSegments);
-        }
-
-        private static int GetVersionSegmentPosition(string[] segments,
-                                                     int versionIndex)
-        {
-            // versionIndex points to the character position, we need segment position
-            var currentPos = 0;
-
-            for (var i = 0; i < segments.Length; i++)
-            {
-                if (currentPos == versionIndex)
-                {
-                    return i;
-                }
-
-                currentPos += segments[i].Length + 1; // +1 for '/'
-            }
-
-            return 0;
         }
 
         private static bool SegmentMatchesOptimized(string[] requestSegments,
@@ -287,6 +258,23 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             return null;
+        }
+
+        private static string ExtractPathFromUrl(string url)
+        {
+            // If URL contains scheme (http:// or https://), parse it as URI
+            if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                {
+                    // Return path + query (e.g., "/api/console/v1/capability-types?information=...")
+                    return uri.PathAndQuery;
+                }
+            }
+
+            // Otherwise, assume it's already a path
+            return url;
         }
     }
 }
