@@ -13,6 +13,116 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
+        public static Task AssertDeleteAsync(this HttpClient client,
+                                             string url,
+                                             bool writeResponse = false,
+                                             [CallerFilePath] string callerFilePath = "",
+                                             [CallerMemberName] string callerMemberName = "",
+                                             [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertHttpCallAsync(url: url,
+                                              payloadAsJson: string.Empty,
+                                              httpMethod: HttpMethod.Delete,
+                                              parameters: [],
+                                              callingAssembly: Assembly.GetCallingAssembly(),
+                                              payloadAsJsonParameterName: string.Empty,
+                                              callerFilePath: callerFilePath,
+                                              isSuccessStatusCode: true,
+                                              writResponse: writeResponse,
+                                              callerMemberName: callerMemberName,
+                                              callerLineNumber: callerLineNumber);
+        }
+
+        public static Task AssertDeleteAsync(this HttpClient client,
+                                             string url,
+                                             (string Key, object? Value)[] parameters,
+                                             bool writeResponse = false,
+                                             [CallerFilePath] string callerFilePath = "",
+                                             [CallerMemberName] string callerMemberName = "",
+                                             [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertHttpCallAsync(url: url,
+                                              payloadAsJson: string.Empty,
+                                              httpMethod: HttpMethod.Delete,
+                                              parameters: parameters,
+                                              callingAssembly: Assembly.GetCallingAssembly(),
+                                              payloadAsJsonParameterName: string.Empty,
+                                              callerFilePath: callerFilePath,
+                                              isSuccessStatusCode: true,
+                                              writResponse: writeResponse,
+                                              callerMemberName: callerMemberName,
+                                              callerLineNumber: callerLineNumber);
+        }
+
+        public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
+                                                               string url,
+                                                               string expectedResult,
+                                                               bool writeResponse = false,
+                                                               [CallerFilePath] string callerFilePath = "",
+                                                               [CallerMemberName] string callerMemberName = "",
+                                                               [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertDeleteAsync<TResult>(url: url,
+                                                     expectedResult: expectedResult,
+                                                     parameters: [],
+                                                     callingAssembly: Assembly.GetCallingAssembly(),
+                                                     writeResponse: writeResponse,
+                                                     expectedResultParameterName: expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
+                                                     callerFilePath: callerFilePath,
+                                                     callerMemberName: callerMemberName,
+                                                     callerLineNumber: callerLineNumber);
+        }
+
+        public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
+                                                               string url,
+                                                               string expectedResult,
+                                                               (string Key, object? Value)[] parameters,
+                                                               bool writeResponse = false,
+                                                               [CallerArgumentExpression(nameof(expectedResult))]
+                                                               string expectedResultParameterName = "",
+                                                               [CallerFilePath] string callerFilePath = "",
+                                                               [CallerMemberName] string callerMemberName = "",
+                                                               [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertDeleteAsync<TResult>(url: url,
+                                                     expectedResult: expectedResult,
+                                                     parameters: parameters,
+                                                     callingAssembly: Assembly.GetCallingAssembly(),
+                                                     writeResponse: writeResponse,
+                                                     expectedResultParameterName: expectedResultParameterName,
+                                                     callerFilePath: callerFilePath,
+                                                     callerMemberName: callerMemberName,
+                                                     callerLineNumber: callerLineNumber);
+        }
+
+        public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
+                                                               string url,
+                                                               string expectedResult,
+                                                               Assembly callingAssembly,
+                                                               bool writeResponse = false,
+                                                               [CallerArgumentExpression(nameof(expectedResult))]
+                                                               string expectedResultParameterName = "",
+                                                               [CallerFilePath] string callerFilePath = "",
+                                                               [CallerMemberName] string callerMemberName = "",
+                                                               [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertHttpCallAsync<TResult>(url: url,
+                                                       payloadAsJson: string.Empty,
+                                                       expectedResult: expectedResult,
+                                                       filterFunc: item => item,
+                                                       httpMethod: HttpMethod.Delete,
+                                                       differenceFunc: difference => difference,
+                                                       parameters: [],
+                                                       callingAssembly: callingAssembly,
+                                                       payloadAsJsonParameterName: string.Empty,
+                                                       expectedResultParameterName: expectedResultParameterName,
+                                                       callerFilePath: callerFilePath,
+                                                       isSuccessStatusCode: true,
+                                                       writResponse: writeResponse,
+                                                       callerMemberName: callerMemberName,
+                                                       callerLineNumber: callerLineNumber);
+        }
+
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                                string url,
                                                                string expectedResult,
