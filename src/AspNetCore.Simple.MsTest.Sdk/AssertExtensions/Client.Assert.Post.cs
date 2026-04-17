@@ -52,6 +52,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            string payloadAsJson,
                                            (string Key, object? Value)[] parameters,
                                            bool writeResponse = false,
+                                           [CallerArgumentExpression(nameof(payloadAsJson))]
+                                           string payloadAsJsonParameterName = "",
                                            [CallerFilePath] string callerFilePath = "",
                                            [CallerMemberName] string callerMemberName = "",
                                            [CallerLineNumber] int callerLineNumber = 0)
@@ -61,7 +63,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               httpMethod: HttpMethod.Post,
                                               parameters: parameters,
                                               callingAssembly: Assembly.GetCallingAssembly(),
-                                              payloadAsJsonParameterName: nameof(payloadAsJson),
+                                              payloadAsJsonParameterName: payloadAsJsonParameterName,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
                                               writResponse: writeResponse,
