@@ -192,7 +192,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// <summary>
         /// Validates that the test type (success vs error) matches the expected status code.
         /// </summary>
-        private void ValidateTestTypeMatchesStatusCode(IHttpAssertContext context,
+        private void ValidateTestTypeMatchesStatusCode(IHttpAssertContext _,
                                                        int expectedStatusCode,
                                                        bool isSuccessTest)
         {
