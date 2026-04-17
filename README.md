@@ -1156,14 +1156,3 @@ Repository: `https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.S
 ## License
 
 Copyright 2021-2026 (c) Rene Peuser. All rights reserved.
-
----
-
-## What changed and why
-
-- **Rebuilt the README around impact-first flow.** The new structure leads with the value proposition, tiny example, and immediate “why this is different” message instead of starting with a long feature dump.
-- **Moved the failure output near the top.** The debugging experience is one of the strongest differentiators, so the README now shows exact diffs, HTTP context, and generated `curl` before deeper explanations.
-- **Made `DynamicRequestLocator` a centerpiece instead of a buried detail.** The “add a JSON file → a test appears” story is now clearly positioned as a major productivity breakthrough.
-- **Cut repetition aggressively.** Duplicate explanations of `DynamicRequestLocator`, `curl`, ignore strategies, and snapshot update mode were consolidated into single stronger sections.
-- **Shifted lower-value material later.** Folder conventions, test base setup, general object comparison, and architecture details now support the story instead of slowing down the opening.
-- **Framed the package as a productivity multiplier, not just a test library.** The revised README emphasizes speed, scale, debuggability, and boilerplate reduction throughout.
