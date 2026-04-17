@@ -1,11 +1,6 @@
-﻿using System;
-using System.CodeDom;
+﻿using System.CodeDom;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Extensions.Pack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,9 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         internal static void AddTestCreatorSettings(this IServiceCollection services,
                                                     IConfiguration configuration)
         {
-            var settings = configuration.GetSection(nameof(TestCreatorSettings)).Get<TestCreatorSettings>();
-
-            if (settings.IsNull())
+            if (configuration.TryGetSettings<TestCreatorSettings>(out var settings).IsFalse())
             {
                 settings = new TestCreatorSettings();
             }
