@@ -53,6 +53,49 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               callerLineNumber: callerLineNumber);
         }
 
+        public static Task AssertPatchAsync(this HttpClient client,
+                                            string url,
+                                            string payload,
+                                            bool writeResponse = false,
+                                            [CallerFilePath] string callerFilePath = "",
+                                            [CallerMemberName] string callerMemberName = "",
+                                            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertHttpCallAsync(url,
+                                              payload,
+                                              HttpMethod.Patch,
+                                              [],
+                                              Assembly.GetCallingAssembly(),
+                                              nameof(payload),
+                                              callerFilePath,
+                                              true,
+                                              writeResponse,
+                                              callerMemberName: callerMemberName,
+                                              callerLineNumber: callerLineNumber);
+        }
+
+        public static Task AssertPatchAsync(this HttpClient client,
+                                            string url,
+                                            string payload,
+                                            (string Key, object? Value)[] parameters,
+                                            bool writeResponse = false,
+                                            [CallerFilePath] string callerFilePath = "",
+                                            [CallerMemberName] string callerMemberName = "",
+                                            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertHttpCallAsync(url,
+                                              payload,
+                                              HttpMethod.Patch,
+                                              parameters,
+                                              Assembly.GetCallingAssembly(),
+                                              nameof(payload),
+                                              callerFilePath,
+                                              true,
+                                              writeResponse,
+                                              callerMemberName: callerMemberName,
+                                              callerLineNumber: callerLineNumber);
+        }
+
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
                                                               string url,
                                                               string expectedResult,

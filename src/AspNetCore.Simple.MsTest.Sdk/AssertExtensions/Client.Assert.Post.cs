@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
 using Argument.Check;
 using ConsoleTables;
 using Extensions.Pack;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -47,7 +42,31 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               payloadAsJsonParameterName: nameof(payloadAsJson),
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
-                                              writResponse: writeResponse);
+                                              writResponse: writeResponse,
+                                              callerMemberName: callerMemberName,
+                                              callerLineNumber: callerLineNumber);
+        }
+
+        public static Task AssertPostAsync(this HttpClient client,
+                                           string url,
+                                           string payloadAsJson,
+                                           (string Key, object? Value)[] parameters,
+                                           bool writeResponse = false,
+                                           [CallerFilePath] string callerFilePath = "",
+                                           [CallerMemberName] string callerMemberName = "",
+                                           [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertHttpCallAsync(url: url,
+                                              payloadAsJson: payloadAsJson,
+                                              httpMethod: HttpMethod.Post,
+                                              parameters: parameters,
+                                              callingAssembly: Assembly.GetCallingAssembly(),
+                                              payloadAsJsonParameterName: nameof(payloadAsJson),
+                                              callerFilePath: callerFilePath,
+                                              isSuccessStatusCode: true,
+                                              writResponse: writeResponse,
+                                              callerMemberName: callerMemberName,
+                                              callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -1107,11 +1126,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-                                {
-                                    Request = $"POST {url}",
-                                    Expected = HttpStatusCode.Unauthorized,
-                                    Current = result.StatusCode
-                                }.ToIList();
+            {
+                Request = $"POST {url}",
+                Expected = HttpStatusCode.Unauthorized,
+                Current = result.StatusCode
+            }.ToIList();
 
             var table = ConsoleTable.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
