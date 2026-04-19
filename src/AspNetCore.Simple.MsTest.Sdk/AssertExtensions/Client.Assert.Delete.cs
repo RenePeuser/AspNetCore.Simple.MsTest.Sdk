@@ -56,6 +56,35 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               callerLineNumber: callerLineNumber);
         }
 
+        /// <summary>
+        /// Clean API: DELETE with type parameter, no expectedResult - validates endpoint and ignores response.
+        /// Useful when you only care about endpoint validation (correct response type) without comparing response content.
+        /// </summary>
+        public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
+                                                               string url,
+                                                               bool writeResponse = false,
+                                                               [CallerFilePath] string callerFilePath = "",
+                                                               [CallerMemberName] string callerMemberName = "",
+                                                               [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertHttpCallAsync<TResult>(url: url,
+                                                       payloadAsJson: string.Empty,
+                                                       expectedResult: string.Empty,
+                                                       filterFunc: item => item,
+                                                       httpMethod: HttpMethod.Delete,
+                                                       differenceFunc: difference => difference,
+                                                       parameters: [],
+                                                       callingAssembly: Assembly.GetCallingAssembly(),
+                                                       payloadAsJsonParameterName: string.Empty,
+                                                       expectedResultParameterName: string.Empty,
+                                                       callerFilePath: callerFilePath,
+                                                       isSuccessStatusCode: true,
+                                                       writResponse: writeResponse,
+                                                       ignoreResponse: true,
+                                                       callerMemberName: callerMemberName,
+                                                       callerLineNumber: callerLineNumber);
+        }
+
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                                string url,
                                                                string expectedResult,
