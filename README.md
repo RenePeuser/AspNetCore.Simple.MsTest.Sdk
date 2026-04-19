@@ -404,6 +404,73 @@ This catches common mistakes like using `AssertPostAsync` when you meant `Assert
 
 ---
 
+### Endpoint-only validation mode
+
+Sometimes you need to validate that an endpoint exists and returns the correct type, but don't care about the response content. Perfect for process chain tests or when the endpoint is already thoroughly tested elsewhere.
+
+**Simple syntax - no response comparison:**
+
+```csharp
+// Validates endpoint exists and returns GetAllNodesResponse
+// Skips response content comparison automatically
+await Client.AssertGetAsync<GetAllNodesResponse>("api/v1/nodes");
+```
+
+**With explicit control:**
+
+```csharp
+// Same as above, but explicit
+await Client.AssertGetAsync<GetAllNodesResponse>("api/v1/nodes", 
+                                                  ignoreResponse: true);
+
+// Full response comparison (default when expectedResult provided)
+await Client.AssertGetAsync<GetAllNodesResponse>("api/v1/nodes", 
+                                                  "ExpectedNodes.json");
+```
+
+**What gets validated:**
+
+- ✅ Endpoint exists and is reachable
+- ✅ Response type matches endpoint contract
+- ✅ HTTP status code is success (2xx)
+- ✅ Request executes without errors
+- ⏭️ Response content comparison skipped
+
+**Why this matters:**
+
+In large systems with lots of backend services, you often have:
+- **Deep tests** that validate full response snapshots (detailed unit/integration tests)
+- **Process tests** that validate multi-step workflows where intermediate calls just need to succeed
+
+This feature lets you write process tests that stay fast and focused:
+
+```csharp
+[TestMethod]
+public async Task Complete_User_Registration_Flow()
+{
+    // Step 1: Create user (validate full response)
+    var user = await Client.AssertPostAsync<CreateUserResponse>(
+        "api/v1/users", 
+        "NewUser.json", 
+        "NewUser.json");
+    
+    // Step 2: Send verification email (just validate it succeeds)
+    await Client.AssertPostAsync<EmailSentResponse>(
+        $"api/v1/users/{user.Id}/send-verification");
+    
+    // Step 3: Verify email (just validate it succeeds)  
+    await Client.AssertPostAsync<VerificationResponse>(
+        $"api/v1/users/{user.Id}/verify");
+    
+    // Step 4: Get final user state (validate full response)
+    await Client.AssertGetAsync<GetUserResponse>(
+        $"api/v1/users/{user.Id}",
+        "VerifiedUser.json");
+}
+```
+
+---
+
 ## Why this saves ridiculous amounts of time
 
 ### Traditional API testing
@@ -1119,6 +1186,53 @@ Snapshot testing flips that:
 - if a header changes, you see it
 
 That is exactly what you want for API regression safety.
+
+### Type-safe endpoint validation
+
+The SDK enforces type safety at the HTTP layer by distinguishing between compile-time types (`TResult`) and runtime validation types (`ExpectedType`).
+
+**Non-generic methods = NoContent endpoints (204):**
+
+```csharp
+// Non-generic signature expects void response (204 NoContent)
+await Client.AssertDeleteAsync("api/v1/items/123");
+// → ExpectedType = typeof(void)
+// → Validates endpoint returns 204 NoContent
+```
+
+**Generic methods = Typed responses (200, 201, etc.):**
+
+```csharp
+// Generic signature expects DeleteItemResponse (200 OK with body)
+await Client.AssertDeleteAsync<DeleteItemResponse>("api/v1/items/123", 
+                                                     "Expected.json");
+// → ExpectedType = typeof(DeleteItemResponse)
+// → Validates endpoint returns 200 OK with DeleteItemResponse body
+```
+
+**Why this distinction matters:**
+
+HTTP semantics demand different handling:
+- **200 OK** = success with response body
+- **204 NoContent** = success without response body
+
+Using the wrong method signature catches real bugs:
+
+```csharp
+// ❌ Bug: Test expects void but endpoint returns 200 with body
+await Client.AssertDeleteAsync("api/v1/items/123");
+// → Validator Error: "Expected void, got DeleteItemResponse"
+
+// ✅ Fix: Use correct generic signature
+await Client.AssertDeleteAsync<DeleteItemResponse>("api/v1/items/123", 
+                                                     "Expected.json");
+```
+
+This prevents:
+- Tests passing with wrong expectations
+- Refactoring breaking test contracts silently
+- 200 vs 204 confusion
+- Mismatch between `[ProducesResponseType]` and actual endpoint behavior
 
 ### Real behavior should be easy to turn into tests
 
