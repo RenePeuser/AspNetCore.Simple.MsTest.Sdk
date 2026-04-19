@@ -159,10 +159,49 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // SUGGESTED FIX - Generate corrected code
             var actualEndpointTypeName = endpoint.ResponseType.IsNotNull() ? FormatTypeName(endpoint.ResponseType) : "object";
             var declaredTestTypeName = FormatTypeName(expectedType);
+            var endpointReturnsVoid = endpoint.ResponseType.IsNull();
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                var suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", $"<{actualEndpointTypeName}>");
+                string suggestedFix;
+
+                // Check if source code already has generic type parameter
+                if (sourceCode.Contains($"<{declaredTestTypeName}>"))
+                {
+                    if (endpointReturnsVoid)
+                    {
+                        // Endpoint returns void (204 NoContent) - remove type parameter
+                        suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", string.Empty);
+                    }
+                    else
+                    {
+                        // Replace existing type parameter
+                        suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", $"<{actualEndpointTypeName}>");
+                    }
+                }
+                else
+                {
+                    if (endpointReturnsVoid)
+                    {
+                        // Already non-generic and endpoint returns void - correct!
+                        suggestedFix = sourceCode;
+                    }
+                    else
+                    {
+                        // Non-generic call - need to add type parameter
+                        // Find method name (AssertGetAsync, AssertPostAsync, etc.)
+                        var methodMatch = GlobalRegex.AssertMethodPattern().Match(sourceCode);
+                        if (methodMatch.Success)
+                        {
+                            var methodName = methodMatch.Groups[1].Value;
+                            suggestedFix = sourceCode.Replace($"{methodName}(", $"{methodName}<{actualEndpointTypeName}>(");
+                        }
+                        else
+                        {
+                            suggestedFix = sourceCode; // Fallback - no change
+                        }
+                    }
+                }
 
                 sb.AppendLine("SUGGESTED FIX");
                 sb.AppendLine();
@@ -239,10 +278,49 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // Find first matching type as suggestion
             var firstRelevantType = relevantStatusCodes.FirstOrDefault().Value;
             var suggestedTypeName = firstRelevantType.IsNotNull() ? FormatTypeName(firstRelevantType) : "object";
+            var endpointReturnsVoid = firstRelevantType.IsNull();
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                var suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", $"<{suggestedTypeName}>");
+                string suggestedFix;
+
+                // Check if source code already has generic type parameter
+                if (sourceCode.Contains($"<{declaredTestTypeName}>"))
+                {
+                    if (endpointReturnsVoid)
+                    {
+                        // Endpoint returns void (204 NoContent) - remove type parameter
+                        suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", string.Empty);
+                    }
+                    else
+                    {
+                        // Replace existing type parameter
+                        suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", $"<{suggestedTypeName}>");
+                    }
+                }
+                else
+                {
+                    if (endpointReturnsVoid)
+                    {
+                        // Already non-generic and endpoint returns void - correct!
+                        suggestedFix = sourceCode;
+                    }
+                    else
+                    {
+                        // Non-generic call - need to add type parameter
+                        // Find method name (AssertGetAsync, AssertPostAsync, etc.)
+                        var methodMatch = GlobalRegex.AssertMethodPattern().Match(sourceCode);
+                        if (methodMatch.Success)
+                        {
+                            var methodName = methodMatch.Groups[1].Value;
+                            suggestedFix = sourceCode.Replace($"{methodName}(", $"{methodName}<{suggestedTypeName}>(");
+                        }
+                        else
+                        {
+                            suggestedFix = sourceCode; // Fallback - no change
+                        }
+                    }
+                }
 
                 sb.AppendLine("SUGGESTED FIX");
                 sb.AppendLine();

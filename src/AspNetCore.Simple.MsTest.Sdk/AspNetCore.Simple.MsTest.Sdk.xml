@@ -1676,13 +1676,13 @@
                 Builds simple assertion failure output showing expected vs current value.
             </summary>
         </member>
-        <member name="T:AspNetCore.Simple.MsTest.Sdk.ApiVersionRegex">
+        <member name="T:AspNetCore.Simple.MsTest.Sdk.GlobalRegex">
             <summary>
                 Contains compiled regular expressions for API version pattern matching.
                 Uses source-generated regex for better performance.
             </summary>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.ApiVersionRegex.UrlVersionPattern">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.GlobalRegex.UrlVersionPattern">
             <remarks>
                 Pattern:<br />
                 <code>(?:^|/)v(\\d+(?:\\.\\d+)?)(?:/|$|\\?)</code><br />
@@ -1706,7 +1706,7 @@
                 </code>
             </remarks>
         </member>
-        <member name="M:AspNetCore.Simple.MsTest.Sdk.ApiVersionRegex.IndexReplacement">
+        <member name="M:AspNetCore.Simple.MsTest.Sdk.GlobalRegex.IndexReplacement">
             <remarks>
                 Pattern:<br />
                 <code>\\[(\\d+)\\](?=\\.)</code><br />

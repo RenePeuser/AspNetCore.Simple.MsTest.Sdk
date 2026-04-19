@@ -6,7 +6,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// Contains compiled regular expressions for API version pattern matching.
     /// Uses source-generated regex for better performance.
     /// </summary>
-    internal static partial class ApiVersionRegex
+    internal static partial class GlobalRegex
     {
         /// <summary>
         /// Matches version patterns in URL path segments.
@@ -19,5 +19,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         [GeneratedRegex(@"\[(\d+)\](?=\.)")]
         internal static partial Regex IndexReplacement();
+
+        /// <summary>
+        /// Matches Assert method names followed by opening parenthesis.
+        /// Examples: AssertGetAsync(, AssertPostAsync(, AssertDeleteAsync(, etc.
+        /// Captures the method name in group 1.
+        /// Pattern: (Assert\w+Async)\s*\(
+        /// </summary>
+        [GeneratedRegex(@"(Assert\w+Async)\s*\(")]
+        internal static partial Regex AssertMethodPattern();
     }
 }

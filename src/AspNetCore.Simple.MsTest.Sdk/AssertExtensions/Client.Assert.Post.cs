@@ -71,20 +71,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               callerLineNumber: callerLineNumber);
         }
 
+        /// <summary>
+        /// Clean API: POST with type parameter, no expectedResult - validates endpoint and ignores response.
+        /// Useful when you only care about endpoint validation (correct response type) without comparing response content.
+        /// </summary>
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
-                                                             string expectedResult,
                                                              bool writeResponse = false,
                                                              [CallerFilePath] string callerFilePath = "",
                                                              [CallerMemberName] string callerMemberName = "",
                                                              [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync<TResult>(url,
-                                                   expectedResult, [],
+                                                   string.Empty,
+                                                   string.Empty, [],
                                                    Assembly.GetCallingAssembly(),
                                                    writeResponse,
-                                                   expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
-                                                   callerFilePath, callerMemberName, callerLineNumber);
+                                                   ignoreResponse: true,
+                                                   string.Empty,
+                                                   string.Empty,
+                                                   callerFilePath,
+                                                   callerMemberName,
+                                                   callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
@@ -195,6 +203,39 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    writeResponse,
                                                    expectedResultParameterName,
                                                    callerFilePath, callerMemberName, callerLineNumber);
+        }
+
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string payloadAsJson,
+                                                             string expectedResult,
+                                                             (string Key, object? Value)[] parameters,
+                                                             Assembly callingAssembly,
+                                                             bool writeResponse,
+                                                             bool ignoreResponse,
+                                                             [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                             string payloadAsJsonParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResult))]
+                                                             string expectedResultParameterName = "",
+                                                             [CallerFilePath] string callerFilePath = "",
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                             [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertHttpCallAsync<TResult>(url: url,
+                                                       payloadAsJson: payloadAsJson,
+                                                       expectedResult: expectedResult,
+                                                       filterFunc: item => item,
+                                                       httpMethod: HttpMethod.Post,
+                                                       parameters: parameters,
+                                                       callingAssembly: callingAssembly,
+                                                       payloadAsJsonParameterName: payloadAsJsonParameterName,
+                                                       expectedResultParameterName: expectedResultParameterName,
+                                                       callerFilePath: callerFilePath,
+                                                       isSuccessStatusCode: true,
+                                                       writResponse: writeResponse,
+                                                       ignoreResponse: ignoreResponse,
+                                                       callerMemberName: callerMemberName,
+                                                       callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,

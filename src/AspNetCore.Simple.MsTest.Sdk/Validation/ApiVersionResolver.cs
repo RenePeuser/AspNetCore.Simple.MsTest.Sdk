@@ -74,7 +74,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             // Match version pattern in URL path using global regex
-            var match = ApiVersionRegex.UrlVersionPattern().Match(url);
+            var match = GlobalRegex.UrlVersionPattern().Match(url);
 
             if (match.Success && match.Groups.Count > 1)
             {
