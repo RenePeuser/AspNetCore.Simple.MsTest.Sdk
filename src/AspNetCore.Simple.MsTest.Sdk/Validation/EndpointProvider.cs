@@ -223,15 +223,54 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             for (var i = 0; i < requestSegments.Length; i++)
             {
                 var patternSegment = patternSegments[i];
+                var requestSegment = requestSegments[i];
 
-                // If pattern segment is a route parameter like {id}, it matches any value
+                // If pattern segment is a route parameter like {id} or {id:guid}, check constraints
                 if (patternSegment.StartsWith('{') && patternSegment.EndsWith('}'))
                 {
+                    // Extract parameter name and constraint (e.g., "id:guid" -> "id", "guid")
+                    var parameterDefinition = patternSegment.Trim('{', '}');
+                    var parts = parameterDefinition.Split(':', 2);
+
+                    // If there's a constraint, validate it
+                    if (parts.Length == 2)
+                    {
+                        var constraint = parts[1].ToLowerInvariant();
+
+                        // Check common constraints
+                        if (constraint == "guid")
+                        {
+                            // Must be a valid GUID
+                            if (Guid.TryParse(requestSegment, out _).IsFalse())
+                            {
+                                return false;
+                            }
+                        }
+                        else if (constraint == "int" || constraint == "long")
+                        {
+                            // Must be a valid integer
+                            if (long.TryParse(requestSegment, out _).IsFalse())
+                            {
+                                return false;
+                            }
+                        }
+                        else if (constraint == "bool")
+                        {
+                            // Must be a valid boolean
+                            if (bool.TryParse(requestSegment, out _).IsFalse())
+                            {
+                                return false;
+                            }
+                        }
+                        // For other constraints, we accept any value (conservative approach)
+                    }
+
+                    // Parameter matches (either no constraint, or constraint validated)
                     continue;
                 }
 
                 // Otherwise, must match exactly (case-insensitive)
-                if (requestSegments[i].Equals(patternSegment, StringComparison.OrdinalIgnoreCase).IsFalse())
+                if (requestSegment.Equals(patternSegment, StringComparison.OrdinalIgnoreCase).IsFalse())
                 {
                     return false;
                 }
