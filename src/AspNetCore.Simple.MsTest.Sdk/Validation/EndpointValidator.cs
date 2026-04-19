@@ -36,7 +36,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         {
             var httpMethod = context.HttpMethod.Method;
             var url = context.Url;
-            var expectedResponse = typeof(TResult);
+            var expectedResponse = context.ExpectedType;
             var requestedVersion = context.ApiVersion;
 
             // 2. Check if any endpoints are registered

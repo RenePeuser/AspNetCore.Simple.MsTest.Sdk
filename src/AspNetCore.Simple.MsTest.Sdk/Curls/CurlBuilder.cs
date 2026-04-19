@@ -60,7 +60,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var httpRequestMessage = context.HttpResponseMessage.RequestMessage!;
             var payloadAsJson = context.ResolvedPayload ?? context.PayloadAsJson ?? string.Empty;
-            var authenticationHeaderValue = context.Client.DefaultRequestHeaders.Authorization;
             var showTokenInCurl = context.ShowTokenInCurl;
 
             // base curl call
@@ -68,15 +67,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
             yield return "--location";
             yield return $"--request {httpRequestMessage.Method} '{httpRequestMessage.RequestUri}'";
 
-            if (authenticationHeaderValue.IsNotNull())
-            {
-                var token = showTokenInCurl ? authenticationHeaderValue.Parameter : "Sorry i am secret :)";
-
-                yield return $"--header 'Authorization: {authenticationHeaderValue.Scheme} {token}'";
-            }
-
+            // Handle all headers from the actual request message
             foreach (var requestMessageHeader in httpRequestMessage.Headers)
             {
+                // Authorization header needs special handling - mask the token unless ShowTokenInCurl is true
+                if (requestMessageHeader.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase))
+                {
+                    var authValue = requestMessageHeader.Value.Flatten(", ");
+
+                    // Parse scheme and token from "Bearer <token>" format
+                    var parts = authValue.Split(' ', 2);
+                    if (parts.Length == 2 && !showTokenInCurl)
+                    {
+                        yield return $"--header 'Authorization: {parts[0]} Sorry i am secret :)'";
+                    }
+                    else
+                    {
+                        yield return $"--header 'Authorization: {authValue}'";
+                    }
+
+                    continue;
+                }
+
                 yield return $"--header '{requestMessageHeader.Key}: {requestMessageHeader.Value.Flatten(", ")}'";
             }
 

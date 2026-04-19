@@ -502,6 +502,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               CurrentObject = currentObject,
                               CurrentResultParameterName = currentResultParameterName,
                               DifferenceFunc = differenceFunc,
+                              ExpectedType = typeof(T),
                               ExpectedObjectAsJson = expectedObjectAsJson,
                               ExpectedResultFile = expectedFile,
                               ExpectedResultParameterName = expectedResultParameterName,

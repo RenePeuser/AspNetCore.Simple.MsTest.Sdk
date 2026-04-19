@@ -208,35 +208,70 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static IAssertableHttpClient CustomAssertableHttpClient { get; set; } = _assertableHttpClientDefault;
 
 #pragma warning disable CA1859
-        private static Task AssertHttpCallAsync(this HttpClient client,
-                                                string url,
-                                                string payloadAsJson,
-                                                HttpMethod httpMethod,
-                                                (string Key, object? Value)[] parameters,
-                                                Assembly callingAssembly,
-                                                [CallerArgumentExpression(nameof(payloadAsJson))]
-                                                string payloadAsJsonParameterName = "",
-                                                [CallerFilePath] string callerFilePath = "",
-                                                bool isSuccessStatusCode = true,
-                                                bool writResponse = false,
-                                                [CallerMemberName] string callerMemberName = "",
-                                                [CallerLineNumber] int callerLineNumber = 0)
+        private static async Task AssertHttpCallAsync(this HttpClient client,
+                                                      string url,
+                                                      string payloadAsJson,
+                                                      HttpMethod httpMethod,
+                                                      (string Key, object? Value)[] parameters,
+                                                      Assembly callingAssembly,
+                                                      [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                      string payloadAsJsonParameterName = "",
+                                                      [CallerFilePath] string callerFilePath = "",
+                                                      bool isSuccessStatusCode = true,
+                                                      bool writResponse = false,
+                                                      [CallerMemberName] string callerMemberName = "",
+                                                      [CallerLineNumber] int callerLineNumber = 0)
 #pragma warning restore CA1859
         {
-            return client.AssertHttpCallAsync<string>(url,
-                                                      payloadAsJson,
-                                                      IgnoreResponseComparison,
-                                                      item => item,
-                                                      httpMethod,
-                                                      parameters,
-                                                      callingAssembly,
-                                                      payloadAsJsonParameterName,
-                                                      string.Empty,
-                                                      callerFilePath,
-                                                      isSuccessStatusCode,
-                                                      writResponse,
-                                                      callerMemberName,
-                                                      callerLineNumber);
+            // Non-generic overload for endpoints without response body (e.g., 204 NoContent)
+            // Creates context with ExpectedType = typeof(void) to match endpoint signature
+
+            // Resolve embedded files once here
+            var payloadFile = _embeddedFileLocalizer.LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
+            var expectedResultFile = new EmbeddedFileInfo(string.Empty, string.Empty, null);
+
+            // Resolve parameters in payload
+            var resolvedPayload = _parameterReplacer.ResolveParameters(payloadFile.Content, parameters);
+            var resolvedExpectedJson = string.Empty;
+
+            // URL parameter replacement
+            var resolvedUrl = _parameterReplacer.ReplaceInUrl(url, parameters);
+
+            var apiVersion = _apiVersionResolver.Resolve(url, client);
+
+            // Create context with ExpectedType = typeof(void) for NoContent scenarios
+            var context = new HttpAssertContext<string>
+                          {
+                              CallerFilePath = callerFilePath,
+                              CallerMemberName = callerMemberName,
+                              CallerLineNumber = callerLineNumber,
+                              CallingAssembly = callingAssembly,
+                              Client = client,
+                              Current = default,
+                              CurrentObject = null,
+                              CurrentResultParameterName = "Current response",
+                              DifferenceFunc = difference => difference,
+                              ExpectedType = typeof(void), // <-- Key difference: void for NoContent
+                              ExpectedObjectAsJson = IgnoreResponseComparison,
+                              ExpectedResultFile = expectedResultFile,
+                              ExpectedResultParameterName = string.Empty,
+                              HttpMethod = httpMethod,
+                              IsSuccessStatusCode = isSuccessStatusCode,
+                              OrderFunc = item => item,
+                              Parameters = parameters,
+                              PayloadAsJson = payloadAsJson,
+                              PayloadFile = payloadFile,
+                              PayloadParameterName = payloadAsJsonParameterName,
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              ResolvedPayload = resolvedPayload,
+                              ShowTokenInCurl = ShowTokenInCurl,
+                              TypeIsPrimitiveType = true,
+                              Url = resolvedUrl,
+                              WriteResponse = writResponse,
+                              ApiVersion = apiVersion
+                          };
+
+            await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
         }
 
         private static Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
@@ -322,6 +357,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               CurrentObject = null,
                               CurrentResultParameterName = "Current response",
                               DifferenceFunc = differenceFunc,
+                              ExpectedType = typeof(TResult),
                               ExpectedObjectAsJson = expectedResult,
                               ExpectedResultFile = expectedResultFile,
                               ExpectedResultParameterName = expectedResultParameterName,

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -71,6 +73,34 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      callerFilePath: callerFilePath,
                                                      callerMemberName: callerMemberName,
                                                      callerLineNumber: callerLineNumber);
+        }
+
+        public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
+                                                               string url,
+                                                               string expectedResult,
+                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                               bool writeResponse = false,
+                                                               [CallerArgumentExpression(nameof(expectedResult))]
+                                                               string expectedResultParameterName = "",
+                                                               [CallerFilePath] string callerFilePath = "",
+                                                               [CallerMemberName] string callerMemberName = "",
+                                                               [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertHttpCallAsync<TResult>(url: url,
+                                                       payloadAsJson: string.Empty,
+                                                       expectedResult: expectedResult,
+                                                       filterFunc: item => item,
+                                                       httpMethod: HttpMethod.Delete,
+                                                       differenceFunc: differenceFunc,
+                                                       parameters: [],
+                                                       callingAssembly: Assembly.GetCallingAssembly(),
+                                                       payloadAsJsonParameterName: string.Empty,
+                                                       expectedResultParameterName: expectedResultParameterName,
+                                                       callerFilePath: callerFilePath,
+                                                       isSuccessStatusCode: true,
+                                                       writResponse: writeResponse,
+                                                       callerMemberName: callerMemberName,
+                                                       callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,

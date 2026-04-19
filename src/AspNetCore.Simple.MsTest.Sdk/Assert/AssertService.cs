@@ -92,7 +92,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 responseWriter.Write(context, currentFormatted, context.ExpectedResultFile);
             }
 
-            // 4. Assert schema matches or values match
+            // 4. No differences -> means all fine or the dev force to ignore all diffs by difference func
+            if (result.Differences.IsEmpty)
+            {
+                return;
+            }
+
+            // 5. Assert schema matches or values match
             if (result.HasSchemaMismatch || result.Differences.Any())
             {
                 // Build comprehensive output using the comparison result

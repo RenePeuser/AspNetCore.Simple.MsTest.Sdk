@@ -8,6 +8,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public interface IObjectAssertContext
     {
         /// <summary>
+        /// The expected type of the result/response.
+        /// Defaults to the generic type parameter TResult, but can be overridden.
+        /// Use typeof(void) for operations that return no content (e.g., 204 NoContent, DELETE with no response body).
+        /// </summary>
+        Type ExpectedType { get; init; }
+
+        /// <summary>
         /// The expected object as JSON string or file name.
         /// Can be a JSON string, a file name like "expected.json", or an embedded resource path.
         /// </summary>
@@ -91,6 +98,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </summary>
     public abstract record ObjectAssertContext : IObjectAssertContext
     {
+        /// <summary>
+        /// The expected type of the result/response.
+        /// Defaults to the generic type parameter TResult, but can be overridden.
+        /// Use typeof(void) for operations that return no content (e.g., 204 NoContent, DELETE with no response body).
+        /// </summary>
+        public required Type ExpectedType { get; init; }
+
         /// <summary>
         /// The expected object as JSON string or file name.
         /// Can be a JSON string, a file name like "expected.json", or an embedded resource path.
