@@ -55,8 +55,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             var expectedResultAsJson = BuildExpectedResultJson(context, filteredCurrentResult);
             var expectedResultAsJsonParameterized = parameterReplacementService.ResolveParameters(expectedResultAsJson, context.Parameters);
 
-            // Skip comparison if IgnoreResponse marker is present
-            if (expectedResultAsJsonParameterized.IsNullOrWhiteSpace() ||
+            // Skip comparison if IgnoreResponse flag is set or marker is present
+            if (context.IgnoreResponse ||
+                expectedResultAsJsonParameterized.IsNullOrWhiteSpace() ||
                 expectedResultAsJsonParameterized.Contains(IgnoreResponseComparison))
             {
                 return;
@@ -98,6 +99,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                           ExpectedResultFile = expectedResultFile,
                                           ExpectedResultParameterName = context.ExpectedResultParameterName,
                                           HttpMethod = context.HttpMethod,
+                                          IgnoreResponse = context.IgnoreResponse,
                                           HttpResponseMessage = context.HttpResponseMessage,
                                           HttpStatusCode = context.HttpStatusCode,
                                           IsExpectedStatusCode = context.IsExpectedStatusCode,

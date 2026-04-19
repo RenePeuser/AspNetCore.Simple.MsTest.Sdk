@@ -67,6 +67,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Null means no specific version is required.
         /// </summary>
         string? ApiVersion { get; init; }
+
+        /// <summary>
+        /// When true, skips the response content comparison but still validates endpoint and status code.
+        /// Useful for process chain tests where only the success of the call matters.
+        /// The response type must still be specified correctly for endpoint validation.
+        /// </summary>
+        bool IgnoreResponse { get; init; }
     }
 
     /// <summary>
@@ -137,5 +144,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Null means no specific version is required (matches any version or unversioned endpoints).
         /// </summary>
         public required string? ApiVersion { get; init; }
+
+        /// <summary>
+        /// When true, skips the response content comparison but still validates endpoint and status code.
+        /// Useful for process chain tests where only the success of the call matters.
+        /// The response type must still be specified correctly for endpoint validation.
+        /// </summary>
+        public required bool IgnoreResponse { get; init; }
     }
 }

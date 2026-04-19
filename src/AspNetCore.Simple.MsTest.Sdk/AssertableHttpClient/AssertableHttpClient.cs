@@ -115,6 +115,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                       ExpectedResultFile = context.ExpectedResultFile,
                                       ExpectedResultParameterName = context.ExpectedResultParameterName,
                                       HttpMethod = context.HttpMethod,
+                                      IgnoreResponse = context.IgnoreResponse,
                                       HttpResponseMessage = httpResponseMessage,
                                       HttpStatusCode = httpResponseMessage.StatusCode,
                                       IsExpectedStatusCode = isExpectedStatusCode,

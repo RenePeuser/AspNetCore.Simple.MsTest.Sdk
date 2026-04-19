@@ -35,8 +35,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         {
             var expectedResultFile = context.ExpectedResultFile;
 
-            // Skip validation if IgnoreResponse marker is present
-            if (expectedResultFile.Content.Contains(IgnoreResponseComparison))
+            // Skip validation if IgnoreResponse flag is set or marker is present (legacy)
+            if (context.IgnoreResponse || expectedResultFile.Content.Contains(IgnoreResponseComparison))
             {
                 return;
             }

@@ -268,7 +268,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               TypeIsPrimitiveType = true,
                               Url = resolvedUrl,
                               WriteResponse = writResponse,
-                              ApiVersion = apiVersion
+                              ApiVersion = apiVersion,
+                              IgnoreResponse = false
                           };
 
             await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
@@ -289,6 +290,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   [CallerFilePath] string callerFilePath = "",
                                                                   bool isSuccessStatusCode = true,
                                                                   bool writResponse = false,
+                                                                  bool ignoreResponse = false,
                                                                   [CallerMemberName] string callerMemberName = "",
                                                                   [CallerLineNumber] int callerLineNumber = 0)
         {
@@ -305,6 +307,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               callerFilePath,
                                               isSuccessStatusCode,
                                               writResponse,
+                                              ignoreResponse,
                                               callerMemberName,
                                               callerLineNumber);
         }
@@ -325,6 +328,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                         [CallerFilePath] string callerFilePath = "",
                                                                         bool isSuccessStatusCode = true,
                                                                         bool writResponse = false,
+                                                                        bool ignoreResponse = false,
                                                                         [CallerMemberName] string callerMemberName = "",
                                                                         [CallerLineNumber] int callerLineNumber = 0)
         {
@@ -374,7 +378,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                               TypeIsPrimitiveType = targetIsPrimitiveType,
                               Url = resolvedUrl,
                               WriteResponse = writResponse,
-                              ApiVersion = apiVersion
+                              ApiVersion = apiVersion,
+                              IgnoreResponse = ignoreResponse
                           };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
