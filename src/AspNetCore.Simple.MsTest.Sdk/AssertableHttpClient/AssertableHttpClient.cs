@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
+using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.AspNetCore.Routing;
@@ -18,6 +19,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                                    IConfiguration configuration)
         {
             // 1. Register all dependencies via their own extensions
+            services.AddTextDecorator();
             services.AddHttpOutputFormatter();
             services.AddCurlBuilder();
             services.AddPrimitiveTypeConverter();

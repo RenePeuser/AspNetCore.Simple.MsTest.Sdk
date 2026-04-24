@@ -107,15 +107,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine($"{textDecorator.Highlight("Method")}     : {methodName}");
             stringBuilder.AppendLine($"{textDecorator.Highlight("LineNumber")} : {context.CallerLineNumber}");
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Request")}   : {requestName}");
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Response")}  : {responseName}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Request")}   : {textDecorator.Highlight(requestName)}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Response")}  : {textDecorator.Highlight(responseName)}");
             stringBuilder.AppendLine();
             stringBuilder.AppendLine($"{textDecorator.Highlight("Errors")}    : {textDecorator.Error(errorCount.ToString())}");
 
             if (errorTypes.Any())
             {
                 var errorTypesStr = string.Join(", ", errorTypes);
-                stringBuilder.AppendLine($"{textDecorator.Highlight("ErrorTypes")}: {errorTypesStr}");
+                stringBuilder.AppendLine($"{textDecorator.Highlight("ErrorTypes")}: {textDecorator.Error(errorTypesStr)}");
             }
         }
 

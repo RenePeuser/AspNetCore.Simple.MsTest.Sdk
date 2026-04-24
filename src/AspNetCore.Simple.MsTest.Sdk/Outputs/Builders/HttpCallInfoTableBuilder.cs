@@ -56,9 +56,34 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine(textDecorator.SectionTitle("HTTP CALL"));
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Outcome")} : {DecorateStatusCode(context.HttpStatusCode)}");
+            stringBuilder.AppendLine();
             stringBuilder.Append(table.ToString().TrimEnd());
 
             return stringBuilder.ToString();
+        }
+
+        private string DecorateStatusCode(System.Net.HttpStatusCode statusCode)
+        {
+            var statusCodeText = $"{(int)statusCode} {statusCode}";
+            var statusCodeNumber = (int)statusCode;
+
+            if (statusCodeNumber is >= 200 and < 300)
+            {
+                return textDecorator.Success(statusCodeText);
+            }
+
+            if (statusCodeNumber is >= 400 and < 500)
+            {
+                return textDecorator.SectionTitle(statusCodeText);
+            }
+
+            if (statusCodeNumber >= 500)
+            {
+                return textDecorator.Error(statusCodeText);
+            }
+
+            return textDecorator.Highlight(statusCodeText);
         }
     }
 }

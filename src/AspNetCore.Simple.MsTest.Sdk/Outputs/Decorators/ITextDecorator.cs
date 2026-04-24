@@ -1,5 +1,19 @@
-﻿namespace AspNetCore.Simple.MsTest.Sdk.Decorators
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace AspNetCore.Simple.MsTest.Sdk.Decorators
 {
+    public static class AddTextDecoratorExtension
+    {
+        public static void AddTextDecorator(this IServiceCollection services)
+        {
+#if DEBUG
+            services.AddPlainTextDecorator();
+#else
+            services.AddAnsiColorTextDecorator();
+#endif
+        }
+    }
+
     /// <summary>
     /// Decorates text output with styling (colors, emphasis).
     /// Different implementations provide plain or colorized output.

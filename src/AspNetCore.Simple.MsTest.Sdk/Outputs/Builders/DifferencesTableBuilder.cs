@@ -69,6 +69,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine(textDecorator.SectionTitle("DIFFERENCES"));
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Difference Count")} : {textDecorator.Error(consolidatedDifferences.Count.ToString())}");
+            stringBuilder.AppendLine();
             stringBuilder.Append(table.ToString().TrimEnd());
 
             return stringBuilder.ToString();
