@@ -79,11 +79,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     internal sealed class EndpointProvider(IEndpointInfoParser endpointInfoParser) : IEndpointProvider
     {
         private readonly Lazy<ImmutableList<PreProcessedEndpoint>> _cachedEndpoints = new(() =>
-                                                                                          {
-                                                                                              var allEndpoints = endpointInfoParser.GetEndpoints();
+        {
+            var allEndpoints = endpointInfoParser.GetEndpoints();
 
-                                                                                              return PreProcessEndpoints(allEndpoints);
-                                                                                          }, LazyThreadSafetyMode.ExecutionAndPublication);
+            return PreProcessEndpoints(allEndpoints);
+        }, LazyThreadSafetyMode.ExecutionAndPublication);
 
         public EndpointInfo? FindEndpointFor(string httpMethod,
                                              string url,
@@ -120,18 +120,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         private static ImmutableList<PreProcessedEndpoint> PreProcessEndpoints(ImmutableList<EndpointInfo> endpoints)
         {
             var preProcessedEndpoints = endpoints.Select(endpoint =>
-                                                         {
-                                                             var normalizedUrl = endpoint.Url.TrimStart('/');
-                                                             var segments = normalizedUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
-                                                             var versionIndex = FindVersionSegmentIndexInSegments(segments);
-                                                             var versionString = endpoint.ApiVersion?.MajorVersion.ToString();
+                                                 {
+                                                     var normalizedUrl = endpoint.Url.TrimStart('/');
+                                                     var segments = normalizedUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                                                     var versionIndex = FindVersionSegmentIndexInSegments(segments);
+                                                     var versionString = endpoint.ApiVersion?.MajorVersion.ToString();
 
-                                                             return new PreProcessedEndpoint(endpoint,
-                                                                                             normalizedUrl,
-                                                                                             segments,
-                                                                                             versionIndex,
-                                                                                             versionString);
-                                                         })
+                                                     return new PreProcessedEndpoint(endpoint,
+                                                                                     normalizedUrl,
+                                                                                     segments,
+                                                                                     versionIndex,
+                                                                                     versionString);
+                                                 })
                                                  .ToImmutableList();
 
             return preProcessedEndpoints;
@@ -153,31 +153,50 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             // Filter candidates by HTTP method and version first
             var candidateEndpoints = processedEndpoints.Where(ep =>
-                ep.Endpoint.HttpMethod.Equals(httpMethod, StringComparison.OrdinalIgnoreCase) &&
-                (requestedVersion.IsNullOrWhiteSpace() || ep.VersionString == requestedVersion)
-            ).ToImmutableList();
+                                                                  ep.Endpoint.HttpMethod.Equals(httpMethod, StringComparison.OrdinalIgnoreCase) &&
+                                                                  (requestedVersion.IsNullOrWhiteSpace() || ep.VersionString == requestedVersion)).ToImmutableList();
 
             // Now match URL patterns only for filtered candidates
             var matches = candidateEndpoints.Where(processed =>
-                                                   {
-                                                       // Check URL pattern match using pre-processed data
-                                                       var urlMatches = UrlMatchesOptimized(normalizedUrl,
-                                                                                            requestSegments,
-                                                                                            requestVersionIndex,
-                                                                                            processed);
+                                            {
+                                                // Check URL pattern match using pre-processed data
+                                                var urlMatches = UrlMatchesOptimized(normalizedUrl,
+                                                                                     requestSegments,
+                                                                                     requestVersionIndex,
+                                                                                     processed,
+                                                                                     validateRouteConstraints: true);
 
-                                                       return urlMatches;
-                                                   })
+                                                return urlMatches;
+                                            })
                                             .Select(p => p.Endpoint)
                                             .ToImmutableList();
 
-            return matches;
+            if (matches.Any())
+            {
+                return matches;
+            }
+
+            // Fallback for error scenarios where invalid route parameter values like "-1"
+            // should still resolve to the matching endpoint template "{id:guid}".
+            return candidateEndpoints.Where(processed =>
+                                     {
+                                         var urlMatches = UrlMatchesOptimized(normalizedUrl,
+                                                                              requestSegments,
+                                                                              requestVersionIndex,
+                                                                              processed,
+                                                                              validateRouteConstraints: false);
+
+                                         return urlMatches;
+                                     })
+                                     .Select(p => p.Endpoint)
+                                     .ToImmutableList();
         }
 
         private static bool UrlMatchesOptimized(string requestUrl,
                                                 string[] requestSegments,
                                                 int? requestVersionIndex,
-                                                PreProcessedEndpoint processed)
+                                                PreProcessedEndpoint processed,
+                                                bool validateRouteConstraints)
         {
             // Fast path: exact match
             if (requestUrl.EqualsTo(processed.NormalizedUrl))
@@ -193,7 +212,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 var offset = requestSegments.Length - processed.UrlSegments.Length;
                 var suffixSegments = requestSegments.Skip(offset).ToArray();
 
-                if (SegmentMatchesOptimized(suffixSegments, processed.UrlSegments))
+                if (SegmentMatchesOptimized(suffixSegments,
+                                            processed.UrlSegments,
+                                            validateRouteConstraints))
                 {
                     return true;
                 }
@@ -203,15 +224,19 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             if (requestVersionIndex.HasValue)
             {
                 return SegmentMatchesOptimized(requestSegments.Skip(requestVersionIndex.Value).ToArray(),
-                                               processed.UrlSegments.Skip(processed.VersionSegmentIndex ?? 0).ToArray());
+                                               processed.UrlSegments.Skip(processed.VersionSegmentIndex ?? 0).ToArray(),
+                                               validateRouteConstraints);
             }
 
             // No version in URL - exact segment matching
-            return SegmentMatchesOptimized(requestSegments, processed.UrlSegments);
+            return SegmentMatchesOptimized(requestSegments,
+                                           processed.UrlSegments,
+                                           validateRouteConstraints);
         }
 
         private static bool SegmentMatchesOptimized(string[] requestSegments,
-                                                    string[] patternSegments)
+                                                    string[] patternSegments,
+                                                    bool validateRouteConstraints)
         {
             // Must have same number of segments
             if (requestSegments.Length != patternSegments.Length)
@@ -228,6 +253,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 // If pattern segment is a route parameter like {id} or {id:guid}, check constraints
                 if (patternSegment.StartsWith('{') && patternSegment.EndsWith('}'))
                 {
+                    if (!validateRouteConstraints)
+                    {
+                        continue;
+                    }
+
                     // Extract parameter name and constraint (e.g., "id:guid" -> "id", "guid")
                     var parameterDefinition = patternSegment.Trim('{', '}');
                     var parts = parameterDefinition.Split(':', 2);
@@ -246,7 +276,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                 return false;
                             }
                         }
-                        else if (constraint == "int" || constraint == "long")
+                        else if (constraint is "int" or "long")
                         {
                             // Must be a valid integer
                             if (long.TryParse(requestSegment, out _).IsFalse())

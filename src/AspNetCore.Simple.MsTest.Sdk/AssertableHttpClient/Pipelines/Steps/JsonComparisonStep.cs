@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -179,7 +180,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                        }
                                      : simpleHttpResponseMessage.Content with
                                        {
-                                           Value = JsonDocument.Parse(context.ContentAsString).RootElement,
+                                           Value = context.ContentAsString.IsNullOrWhiteSpace() ? "{}" :  JsonDocument.Parse(context.ContentAsString).RootElement,
                                        }
                    };
         }
