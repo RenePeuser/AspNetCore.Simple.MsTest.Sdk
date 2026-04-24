@@ -85,7 +85,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         {
             // Determine which status codes to check based on test type
             var isSuccessTest = context.IsSuccessStatusCode;
-            var statusCodesToCheck = GetRelevantStatusCodes(endpoint.ResponseTypesByStatusCode, isSuccessTest);
+            var expectedStatusCode = TryExtractStatusCodeFromExpectedResponse(context);
+
+            if (expectedStatusCode.HasValue)
+            {
+                ValidateTestTypeMatchesStatusCode(context, expectedStatusCode.Value, isSuccessTest);
+            }
+
+            var statusCodesToCheck = GetStatusCodesToCheck(endpoint.ResponseTypesByStatusCode,
+                                                           isSuccessTest,
+                                                           expectedStatusCode);
 
             // If we have explicit status code mappings, validate against them
             if (statusCodesToCheck.Any())
@@ -122,13 +131,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             // Fallback 1: Try to extract status code from Expected Response JSON
-            var expectedStatusCode = TryExtractStatusCodeFromExpectedResponse(context);
-
             if (expectedStatusCode.HasValue)
             {
-                // Validate test type matches expected status code
-                ValidateTestTypeMatchesStatusCode(context, expectedStatusCode.Value, isSuccessTest);
-
                 // Success: Expected status code aligns with test type
                 return;
             }
@@ -167,8 +171,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
                 var json = JObject.Parse(expectedJson);
 
-                // Try to get StatusCode property
-                var statusCodeToken = json["StatusCode"];
+                // Try to get statusCode property (support PascalCase and camelCase)
+                var statusCodeToken = json.GetValue("StatusCode", StringComparison.OrdinalIgnoreCase);
 
                 if (statusCodeToken.IsNull())
                 {
@@ -286,6 +290,19 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             return responseTypes
                    .Where(kvp => kvp.Key is >= 400 and < 600)
                    .ToImmutableDictionary();
+        }
+
+        private static ImmutableDictionary<int, Type> GetStatusCodesToCheck(
+            ImmutableDictionary<int, Type> responseTypes,
+            bool isSuccessTest,
+            int? expectedStatusCode)
+        {
+            if (expectedStatusCode.HasValue && responseTypes.TryGetValue(expectedStatusCode.Value, out var responseType))
+            {
+                return ImmutableDictionary<int, Type>.Empty.Add(expectedStatusCode.Value, responseType);
+            }
+
+            return GetRelevantStatusCodes(responseTypes, isSuccessTest);
         }
     }
 }

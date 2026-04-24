@@ -111,22 +111,70 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         {
             var builder = ImmutableDictionary.CreateBuilder<int, Type>();
 
-            // Get all ProducesResponseTypeAttribute
-            var producesMetadata = routeEndpoint.Metadata.GetOrderedMetadata<ProducesResponseTypeMetadata>();
-
-            foreach (var metadata in producesMetadata)
+            foreach (var metadata in GetProducesResponseMetadata(routeEndpoint))
             {
-                if (metadata.Type.IsNotNull())
+                if (TryGetStatusCodeAndType(metadata, out var statusCode, out var responseType))
                 {
-                    var statusCode = metadata.StatusCode;
-                    var responseType = UnwrapTaskType(metadata.Type);
-
                     // Add or update - later entries win (more specific)
                     builder[statusCode] = responseType;
                 }
             }
 
             return builder.ToImmutable();
+        }
+
+        internal static IEnumerable<object> GetProducesResponseMetadata(RouteEndpoint routeEndpoint)
+        {
+            foreach (var metadata in routeEndpoint.Metadata)
+            {
+                if (metadata is IProducesResponseTypeMetadata or ProducesResponseTypeMetadata)
+                {
+                    yield return metadata;
+                }
+            }
+        }
+
+        internal static bool TryGetStatusCodeAndType(object metadata,
+                                                     out int statusCode,
+                                                     out Type responseType)
+        {
+            statusCode = default;
+            responseType = default!;
+
+            if (metadata is IProducesResponseTypeMetadata producesResponseTypeMetadata)
+            {
+                if (producesResponseTypeMetadata.Type.IsNull())
+                {
+                    return false;
+                }
+
+                statusCode = producesResponseTypeMetadata.StatusCode;
+                responseType = UnwrapTaskType(producesResponseTypeMetadata.Type);
+
+                return true;
+            }
+
+            if (metadata is ProducesResponseTypeMetadata producesMetadata && producesMetadata.Type.IsNotNull())
+            {
+                statusCode = producesMetadata.StatusCode;
+                responseType = UnwrapTaskType(producesMetadata.Type);
+
+                return true;
+            }
+
+            var statusCodeProperty = metadata.GetType().GetProperty("StatusCode");
+            var typeProperty = metadata.GetType().GetProperty("Type");
+
+            if (statusCodeProperty?.GetValue(metadata) is int reflectedStatusCode &&
+                typeProperty?.GetValue(metadata) is Type reflectedType)
+            {
+                statusCode = reflectedStatusCode;
+                responseType = UnwrapTaskType(reflectedType);
+
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -527,7 +575,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             if (apiVersionMetadata.IsNotNull())
             {
-                apiVersionMetadata.Deconstruct(out var model, out var endpointModel);
+                apiVersionMetadata.Deconstruct(out var model, out _);
 
                 if (model.DeclaredApiVersions.Count > 0)
                 {
@@ -541,18 +589,23 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         private static Type? ExtractResponseType(RouteEndpoint routeEndpoint)
         {
             // Try to find ProducesAttribute for HTTP 200 OK
-            var producesAttributes = routeEndpoint.Metadata.GetOrderedMetadata<ProducesResponseTypeMetadata>();
+            var producesAttributes = EndpointParsingHelpers.GetProducesResponseMetadata(routeEndpoint)
+                                    .Select(metadata => EndpointParsingHelpers.TryGetStatusCodeAndType(metadata, out var statusCode, out var responseType)
+                                                            ? new { StatusCode = statusCode, Type = responseType }
+                                                            : null)
+                                    .Where(x => x.IsNotNull())
+                                    .Select(x => x!)
+                                    .ToList();
 
             // Find the success response type (HTTP 200)
-            var successResponse = producesAttributes.FirstOrDefault(m => m.StatusCode >= 200 && m.StatusCode < 300);
+            var successResponse = producesAttributes.FirstOrDefault(m => m.StatusCode is >= 200 and < 300);
 
             if (successResponse?.Type.IsNull() ?? true)
             {
                 return null;
             }
 
-            // Unwrap Task<T> to T
-            return EndpointParsingHelpers.UnwrapTaskType(successResponse.Type);
+            return successResponse.Type;
         }
     }
 
