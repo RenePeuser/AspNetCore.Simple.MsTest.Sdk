@@ -389,11 +389,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // Get API version
             var apiVersion = ExtractApiVersion(routeEndpoint);
 
-            // Get route pattern
-            var routePattern = routeEndpoint.RoutePattern.RawText ?? string.Empty;
-
-            // Resolve placeholders
-            var resolvedUrl = EndpointParsingHelpers.ResolvePlaceholders(routePattern, apiVersion);
+            // Build the full route pattern including route groups and prefixes
+            var resolvedUrl = EndpointParsingHelpers.BuildFullRoutePattern(routeEndpoint, apiVersion);
 
             // Get response type from controller action method (deprecated, for backward compatibility)
             var responseType = ExtractResponseType(controllerActionDescriptor);
@@ -522,11 +519,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // Get API version
             var apiVersion = ExtractApiVersion(routeEndpoint);
 
-            // Get route pattern
-            var routePattern = routeEndpoint.RoutePattern.RawText ?? string.Empty;
-
-            // Resolve placeholders
-            var resolvedUrl = EndpointParsingHelpers.ResolvePlaceholders(routePattern, apiVersion);
+            // Build the full route pattern including route groups and prefixes
+            var resolvedUrl = EndpointParsingHelpers.BuildFullRoutePattern(routeEndpoint, apiVersion);
 
             // Get response type from ProducesAttribute (deprecated, for backward compatibility)
             var responseType = ExtractResponseType(routeEndpoint);

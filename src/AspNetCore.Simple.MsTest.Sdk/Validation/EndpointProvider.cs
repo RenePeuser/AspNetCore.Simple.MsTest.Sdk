@@ -154,7 +154,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // Filter candidates by HTTP method and version first
             var candidateEndpoints = processedEndpoints.Where(ep =>
                                                                   ep.Endpoint.HttpMethod.Equals(httpMethod, StringComparison.OrdinalIgnoreCase) &&
-                                                                  (requestedVersion.IsNullOrWhiteSpace() || ep.VersionString == requestedVersion)).ToImmutableList();
+                                                                   (requestedVersion.IsNullOrWhiteSpace() || ep.VersionString == requestedVersion || ep.VersionString.IsNullOrWhiteSpace())).ToImmutableList();
 
             // Now match URL patterns only for filtered candidates
             var matches = candidateEndpoints.Where(processed =>
