@@ -625,7 +625,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             // Convert expected object to JSON and delegate to string-based method
             // This ensures consistent data preprocessing through the main pipeline
-            var expectedObjectAsJson = expectedObject.ToJson(JsonSerializerOptions);
+            var expectedObjectAsJson = typeof(T) == typeof(string)
+                                           ? expectedObject?.ToString() ?? string.Empty
+                                           : expectedObject.ToJson(JsonSerializerOptions);
 
             assert.ObjectsAreEqual(expectedObjectAsJson: expectedObjectAsJson,
                                    currentObject: currentObject,
