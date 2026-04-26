@@ -26,13 +26,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
-                                                                                  {
-                                                                                      PropertyNameCaseInsensitive = true,
-                                                                                      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                                                                                      DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                                                                                      NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                                                                                      Converters = { new JsonStringEnumConverter() }
-                                                                                  };
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+            Converters =
+            {
+                new JsonStringEnumConverter()
+            }
+        };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
@@ -57,7 +60,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(DifferencesTableBuilder, JsonSectionBuilder);
 
-        private static readonly IAssertOutputStrategy[] OutputStrategies = [PrimitiveOutputStrategy, ObjectOutputStrategy];
+        private static readonly IAssertOutputStrategy[] OutputStrategies =
+        [
+            PrimitiveOutputStrategy,
+            ObjectOutputStrategy
+        ];
 
         private static readonly AssertOutputBuilder OutputBuilder = new(OutputStrategies);
 
@@ -66,7 +73,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly ISpecificComparisonStrategy JsonComparisonStrategy = new JsonComparisonStrategy(JsonDiffer, JsonSerializer, JsonSerializerOptions);
 
-        private static readonly ISpecificComparisonStrategy[] SpecificComparisonStrategies = [StringComparisonStrategy, JsonComparisonStrategy];
+        private static readonly ISpecificComparisonStrategy[] SpecificComparisonStrategies =
+        [
+            StringComparisonStrategy,
+            JsonComparisonStrategy
+        ];
 
         private static readonly IComparisonStrategy ComparisonStrategy = new ComparisonStrategy(SpecificComparisonStrategies);
 
