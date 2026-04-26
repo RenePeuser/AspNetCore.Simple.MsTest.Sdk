@@ -25,11 +25,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           [CallerMemberName] string callerMemberName = "",
                                           [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertHttpCallAsync(url,
                                               string.Empty,
                                               HttpMethod.Put,
                                               [],
-                                              Assembly.GetCallingAssembly(),
+                                              callingAssembly,
                                               string.Empty,
                                               callerFilePath,
                                               true,
@@ -46,11 +48,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           [CallerMemberName] string callerMemberName = "",
                                           [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertHttpCallAsync(url,
                                               string.Empty,
                                               HttpMethod.Put,
                                               parameters,
-                                              Assembly.GetCallingAssembly(),
+                                              callingAssembly,
                                               string.Empty,
                                               callerFilePath,
                                               true,
@@ -67,11 +71,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           [CallerMemberName] string callerMemberName = "",
                                           [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertHttpCallAsync(url,
                                               payload,
                                               HttpMethod.Put,
                                               [],
-                                              Assembly.GetCallingAssembly(),
+                                              callingAssembly,
                                               nameof(payload),
                                               callerFilePath,
                                               true,
@@ -91,11 +97,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           [CallerMemberName] string callerMemberName = "",
                                           [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertHttpCallAsync(url,
                                               payload,
                                               HttpMethod.Put,
                                               parameters,
-                                              Assembly.GetCallingAssembly(),
+                                              callingAssembly,
                                               payloadParameterName,
                                               callerFilePath,
                                               true,
@@ -112,10 +120,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   expectedResult,
                                                   [],
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
                                                   callerFilePath, callerMemberName, callerLineNumber);
@@ -132,10 +142,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   expectedResult,
                                                   parameters,
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   expectedResultParameterName,
                                                   callerFilePath, callerMemberName, callerLineNumber);
@@ -152,12 +164,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync(url,
                                          string.Empty,
                                          expectedResult,
                                          filterFunc,
                                          [],
-                                         Assembly.GetCallingAssembly(),
+                                         callingAssembly,
                                          writeResponse,
                                          string.Empty,
                                          expectedResultParameterName,
@@ -176,12 +190,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync(url,
                                          string.Empty,
                                          expectedResult,
                                          filterFunc,
                                          parameters,
-                                         Assembly.GetCallingAssembly(),
+                                         callingAssembly,
                                          writeResponse,
                                          string.Empty,
                                          expectedResultParameterName,
@@ -199,11 +215,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   expectedResult,
                                                   differenceFunc,
                                                   [],
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   expectedResultParameterName,
                                                   callerFilePath, callerMemberName, callerLineNumber);
@@ -221,11 +239,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   expectedResult,
                                                   differenceFunc,
                                                   parameters,
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   expectedResultParameterName,
                                                   callerFilePath, callerMemberName, callerLineNumber);
@@ -339,11 +359,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   [],
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   payloadAsObjectParameterName,
                                                   expectedResultParameterName,
@@ -364,11 +386,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   parameters,
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   payloadAsObjectParameterName,
                                                   expectedResultParameterName,
@@ -388,16 +412,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   payloadAsJson,
                                                   expectedResult,
                                                   [],
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   payloadAsJsonParameterName,
                                                   expectedResultParameterName,
                                                   callerFilePath,
-                                                  callerMemberName);
+                                                  callerMemberName,
+                                                  callerLineNumber);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -414,11 +441,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   payloadAsJson,
                                                   expectedResult,
                                                   parameters,
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   payloadAsJsonParameterName,
                                                   expectedResultParameterName,
@@ -667,12 +696,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync(url,
                                          payloadAsObject.ToJson(JsonSerializerOptions),
                                          expectedResult,
                                          filterFunc,
                                          [],
-                                         Assembly.GetCallingAssembly(),
+                                         callingAssembly,
                                          writeResponse,
                                          payloadAsObjectParameterName,
                                          expectedResultParameterName,
@@ -694,12 +725,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync(url,
                                          payloadAsObject.ToJson(JsonSerializerOptions),
                                          expectedResult,
                                          filterFunc,
                                          parameters,
-                                         Assembly.GetCallingAssembly(),
+                                         callingAssembly,
                                          writeResponse,
                                          payloadAsObjectParameterName,
                                          expectedResultParameterName,
@@ -720,12 +753,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync(url,
                                          payloadAsJson,
                                          expectedResult,
                                          filterFunc,
                                          [],
-                                         Assembly.GetCallingAssembly(),
+                                         callingAssembly,
                                          writeResponse,
                                          payloadAsJsonParameterName,
                                          expectedResultParameterName,
@@ -747,12 +782,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync(url,
                                          payloadAsJson,
                                          expectedResult,
                                          filterFunc,
                                          parameters,
-                                         Assembly.GetCallingAssembly(),
+                                         callingAssembly,
                                          writeResponse,
                                          payloadAsJsonParameterName,
                                          expectedResultParameterName,
@@ -773,13 +810,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   item => item,
                                                   differenceFunc,
                                                   [],
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   payloadAsObjectParameterName,
                                                   expectedResultParameterName,
@@ -801,13 +840,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   payloadAsObject.ToJson(JsonSerializerOptions),
                                                   expectedResult,
                                                   item => item,
                                                   differenceFunc,
                                                   parameters,
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   payloadAsObjectParameterName,
                                                   expectedResultParameterName,
@@ -828,13 +869,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   payloadAsJson,
                                                   expectedResult,
                                                   item => item,
                                                   differenceFunc,
                                                   [],
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   payloadAsJsonParameterName,
                                                   expectedResultParameterName,
@@ -856,13 +899,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPutAsync<TResult>(url,
                                                   payloadAsJson,
                                                   expectedResult,
                                                   item => item,
                                                   differenceFunc,
                                                   parameters,
-                                                  Assembly.GetCallingAssembly(),
+                                                  callingAssembly,
                                                   writeResponse,
                                                   payloadAsJsonParameterName,
                                                   expectedResultParameterName,

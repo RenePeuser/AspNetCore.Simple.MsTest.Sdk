@@ -22,11 +22,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              [CallerMemberName] string callerMemberName = "",
                                              [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertHttpCallAsync(url: url,
                                               payloadAsJson: string.Empty,
                                               httpMethod: HttpMethod.Delete,
                                               parameters: [],
-                                              callingAssembly: Assembly.GetCallingAssembly(),
+                                              callingAssembly: callingAssembly,
                                               payloadAsJsonParameterName: string.Empty,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
@@ -43,11 +45,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              [CallerMemberName] string callerMemberName = "",
                                              [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertHttpCallAsync(url: url,
                                               payloadAsJson: string.Empty,
                                               httpMethod: HttpMethod.Delete,
                                               parameters: parameters,
-                                              callingAssembly: Assembly.GetCallingAssembly(),
+                                              callingAssembly: callingAssembly,
                                               payloadAsJsonParameterName: string.Empty,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
@@ -67,6 +71,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                [CallerMemberName] string callerMemberName = "",
                                                                [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertHttpCallAsync<TResult>(url: url,
                                                        payloadAsJson: string.Empty,
                                                        expectedResult: string.Empty,
@@ -74,7 +80,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        httpMethod: HttpMethod.Delete,
                                                        differenceFunc: difference => difference,
                                                        parameters: [],
-                                                       callingAssembly: Assembly.GetCallingAssembly(),
+                                                       callingAssembly: callingAssembly,
                                                        payloadAsJsonParameterName: string.Empty,
                                                        expectedResultParameterName: string.Empty,
                                                        callerFilePath: callerFilePath,
@@ -93,10 +99,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                [CallerMemberName] string callerMemberName = "",
                                                                [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertDeleteAsync<TResult>(url: url,
                                                      expectedResult: expectedResult,
                                                      parameters: [],
-                                                     callingAssembly: Assembly.GetCallingAssembly(),
+                                                     callingAssembly: callingAssembly,
                                                      writeResponse: writeResponse,
                                                      expectedResultParameterName: expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
                                                      callerFilePath: callerFilePath,
@@ -115,6 +123,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                [CallerMemberName] string callerMemberName = "",
                                                                [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertHttpCallAsync<TResult>(url: url,
                                                        payloadAsJson: string.Empty,
                                                        expectedResult: expectedResult,
@@ -122,7 +132,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        httpMethod: HttpMethod.Delete,
                                                        differenceFunc: differenceFunc,
                                                        parameters: [],
-                                                       callingAssembly: Assembly.GetCallingAssembly(),
+                                                       callingAssembly: callingAssembly,
                                                        payloadAsJsonParameterName: string.Empty,
                                                        expectedResultParameterName: expectedResultParameterName,
                                                        callerFilePath: callerFilePath,
@@ -143,10 +153,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                [CallerMemberName] string callerMemberName = "",
                                                                [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertDeleteAsync<TResult>(url: url,
                                                      expectedResult: expectedResult,
                                                      parameters: parameters,
-                                                     callingAssembly: Assembly.GetCallingAssembly(),
+                                                     callingAssembly: callingAssembly,
                                                      writeResponse: writeResponse,
                                                      expectedResultParameterName: expectedResultParameterName,
                                                      callerFilePath: callerFilePath,
