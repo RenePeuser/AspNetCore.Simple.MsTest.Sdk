@@ -26,10 +26,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string currentResultParameterName = "",
                                               [CallerFilePath] string callerFilePath = "")
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             assert.ObjectsAreEqual(expectedObjectAsJson: expectedObjectAsJson,
                                    currentObject: currentObject,
                                    item => item,
-                                   callingAssembly: Assembly.GetCallingAssembly(),
+                                   callingAssembly: callingAssembly,
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
@@ -49,10 +51,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
                                    item => item,
-                                   Assembly.GetCallingAssembly(),
+                                   callingAssembly,
                                    parameters: parameters,
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
@@ -123,11 +127,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentResult,
                                    item => item,
                                    title,
-                                   Assembly.GetCallingAssembly(),
+                                   callingAssembly,
                                    difference => difference,
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
@@ -149,11 +155,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentResult,
                                    item => item,
                                    title,
-                                   Assembly.GetCallingAssembly(),
+                                   callingAssembly,
                                    difference => difference,
                                    parameters: parameters,
                                    writeResponse: writeResponse,
@@ -232,11 +240,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
                                    orderFunc,
                                    string.Empty,
-                                   Assembly.GetCallingAssembly(),
+                                   callingAssembly,
                                    difference => difference,
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
@@ -258,11 +268,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
                                    orderFunc,
                                    string.Empty,
-                                   Assembly.GetCallingAssembly(),
+                                   callingAssembly,
                                    difference => difference,
                                    parameters: parameters,
                                    writeResponse: writeResponse,
@@ -284,11 +296,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
                                    item => item,
                                    string.Empty,
-                                   Assembly.GetCallingAssembly(),
+                                   callingAssembly,
                                    differenceFunc,
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
@@ -311,11 +325,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
                                    orderFunc,
                                    string.Empty,
-                                   Assembly.GetCallingAssembly(),
+                                   callingAssembly,
                                    differenceFunc,
                                    parameters: parameters,
                                    writeResponse: writeResponse,
@@ -338,11 +354,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             assert.ObjectsAreEqual(expectedObjectAsJson,
                                    currentObject,
                                    item => item,
                                    string.Empty,
-                                   Assembly.GetCallingAssembly(),
+                                   callingAssembly,
                                    differenceFunc,
                                    parameters: parameters,
                                    writeResponse: writeResponse,

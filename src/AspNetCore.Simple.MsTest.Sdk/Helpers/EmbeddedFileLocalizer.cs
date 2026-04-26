@@ -90,7 +90,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                     [CallerFilePath] string callerFilePath = "",
                                     [CallerMemberName] string callerMemberName = "") where T : class
         {
-            var request = LocalizeRequest<T>(embeddedFile, callerFilePath, Assembly.GetCallingAssembly());
+            var callingAssembly = Assembly.GetCallingAssembly();
+            var request = LocalizeRequest<T>(embeddedFile, callerFilePath, callingAssembly);
 
             return request;
         }
@@ -109,7 +110,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      [CallerFilePath] string callerFilePath = "",
                                      [CallerMemberName] string callerMemberName = "") where T : class
         {
-            var response = LocalizeResponse<T>(embeddedFile, callerFilePath, Assembly.GetCallingAssembly());
+            var callingAssembly = Assembly.GetCallingAssembly();
+            var response = LocalizeResponse<T>(embeddedFile, callerFilePath, callingAssembly);
 
             return response;
         }
@@ -118,7 +120,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string callerFilePath,
                                      Assembly callingAssembly) where T : class
         {
-            var localizeResponseFile = LocalizeResponseFile(embeddedFile, callerFilePath, Assembly.GetCallingAssembly());
+            var localizeResponseFile = LocalizeResponseFile(embeddedFile, callerFilePath, callingAssembly);
             var response = localizeResponseFile.Content.FromJsonStringAs<T>(jsonSerializerOptions);
 
             return response;
