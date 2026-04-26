@@ -555,17 +555,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
-            assert.ObjectsAreEqual(expectedObject,
-                                   currentObject,
-                                   comparisonFunc,
-                                   title,
-                                   differenceFunc,
-                                   curl,
-                                   [],
-                                   writeResponse,
-                                   expectedResultParameterName,
-                                   currentResultParameterName,
-                                   callerFilePath, callerMemberName);
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: comparisonFunc,
+                                   title: title,
+                                   differenceFunc: differenceFunc,
+                                   curl: curl,
+                                   parameters: [],
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -585,18 +587,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
-            assert.ObjectsAreEqual(expectedObject,
-                                   currentObject,
-                                   comparisonFunc,
-                                   title,
-                                   differenceFunc,
-                                   curl,
-                                   parameters,
-                                   Assembly.GetCallingAssembly(),
-                                   writeResponse,
-                                   expectedResultParameterName,
-                                   currentResultParameterName,
-                                   callerFilePath, callerMemberName);
+            var callingAssembly = Assembly.GetCallingAssembly();
+
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: comparisonFunc,
+                                   title: title,
+                                   differenceFunc: differenceFunc,
+                                   curl: curl,
+                                   parameters: parameters,
+                                   callingAssembly: callingAssembly,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
         }
 
         public static void ObjectsAreEqual<T>(this Assert assert,
@@ -621,20 +627,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // This ensures consistent data preprocessing through the main pipeline
             var expectedObjectAsJson = expectedObject.ToJson(JsonSerializerOptions);
 
-            assert.ObjectsAreEqual(expectedObjectAsJson,
-                                   currentObject,
-                                   comparisonFunc,
-                                   title,
-                                   callingAssembly,
-                                   differenceFunc,
-                                   curl,
-                                   parameters,
-                                   writeResponse,
-                                   expectedResultParameterName,
-                                   currentResultParameterName,
-                                   callerFilePath,
-                                   callerMemberName,
-                                   callerLineNumber);
+            assert.ObjectsAreEqual(expectedObjectAsJson: expectedObjectAsJson,
+                                   currentObject: currentObject,
+                                   orderFunc: comparisonFunc,
+                                   title: title,
+                                   callingAssembly: callingAssembly,
+                                   differenceFunc: differenceFunc,
+                                   curl: curl,
+                                   parameters: parameters,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
         }
 
         // Context-based implementation (internal)
