@@ -14,7 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                        params (string name, object? value)[] environmentVariables) : WebApplicationFactory<TStartup>
         where TStartup : class
     {
-        private readonly Assembly _callingAssembly = Assembly.GetCallingAssembly();
+        private Assembly CallingAssembly => GetType().Assembly;
 
         public string EnvironmentName { get; } = environmentName;
 
@@ -31,8 +31,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var testSettings = findAllTestSettings.Where(file => file.Name.Contains("test", StringComparison.OrdinalIgnoreCase));
             var settingsToRegister = environmentSpecificSettings.Concat(testSettings);
 
-            var embeddedAppSettings = _callingAssembly.GetManifestResourceNames().Where(item => item.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
-                                                                                                item.Contains("appsettings", StringComparison.OrdinalIgnoreCase)).ToList();
+            var embeddedAppSettings = CallingAssembly.GetManifestResourceNames().Where(item => item.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
+                                                                                               item.Contains("appsettings", StringComparison.OrdinalIgnoreCase)).ToList();
 
             IConfiguration configuration = null!;
 
@@ -44,7 +44,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       configurationBuilder.AddJsonFile(testSettingsFile.FullName, true);
                                                   }
 
-                                                  configurationBuilder.AddUserSecrets(_callingAssembly);
+                                                   configurationBuilder.AddUserSecrets(CallingAssembly);
                                                   configurationBuilder.AddEnvironmentVariables();
 
                                                   configuration = configurationBuilder.Build();

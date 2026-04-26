@@ -23,10 +23,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           [CallerMemberName] string callerMemberName = "",
                                           [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertGetAsync(url,
-                                         [],
-                                         writeResponse,
-                                         callerFilePath, callerMemberName, callerLineNumber);
+            return client.AssertGetAsync(url: url,
+                                         parameters: [],
+                                         writeResponse: writeResponse,
+                                         callerFilePath: callerFilePath,
+                                         callerMemberName: callerMemberName,
+                                         callerLineNumber: callerLineNumber);
         }
 
         public static Task AssertGetAsync(this HttpClient client,
@@ -84,14 +86,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
-            return client.AssertGetAsync<TResult>(url,
-                                                  expectedResult,
-                                                  [],
-                                                  callingAssembly,
-                                                  ignoreResponse,
-                                                  writeResponse,
-                                                  expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
-                                                  callerFilePath, callerMemberName, callerLineNumber);
+            return client.AssertGetAsync<TResult>(url: url,
+                                                  expectedResult: expectedResult,
+                                                  parameters: [],
+                                                  callingAssembly: callingAssembly,
+                                                  ignoreResponse: ignoreResponse,
+                                                  writeResponse: writeResponse,
+                                                  expectedResultParameterName: expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
+                                                  callerFilePath: callerFilePath,
+                                                  callerMemberName: callerMemberName,
+                                                  callerLineNumber: callerLineNumber);
         }
 
         /// <summary>
@@ -132,14 +136,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
-            return client.AssertGetAsync<TResult>(url,
-                                                  expectedResult,
-                                                  parameters,
-                                                  callingAssembly,
-                                                  ignoreResponse,
-                                                  writeResponse,
-                                                  expectedResultParameterName,
-                                                  callerFilePath, callerMemberName, callerLineNumber);
+            return client.AssertGetAsync<TResult>(url: url,
+                                                  expectedResult: expectedResult,
+                                                  parameters: parameters,
+                                                  callingAssembly: callingAssembly,
+                                                  ignoreResponse: ignoreResponse,
+                                                  writeResponse: writeResponse,
+                                                  expectedResultParameterName: expectedResultParameterName,
+                                                  callerFilePath: callerFilePath,
+                                                  callerMemberName: callerMemberName,
+                                                  callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
@@ -155,14 +161,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
-            return client.AssertGetAsync<TResult>(url,
-                                                  expectedResult,
-                                                  differenceFunc,
-                                                  [],
-                                                  callingAssembly,
-                                                  writeResponse,
-                                                  expectedResultParameterName,
-                                                  callerFilePath, callerMemberName, callerLineNumber);
+            return client.AssertGetAsync<TResult>(url: url,
+                                                  expectedResult: expectedResult,
+                                                  differenceFunc: differenceFunc,
+                                                  parameters: [],
+                                                  callingAssembly: callingAssembly,
+                                                  writeResponse: writeResponse,
+                                                  expectedResultParameterName: expectedResultParameterName,
+                                                  callerFilePath: callerFilePath,
+                                                  callerMemberName: callerMemberName,
+                                                  callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
@@ -179,14 +187,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
-            return client.AssertGetAsync<TResult>(url,
-                                                  expectedResult,
-                                                  differenceFunc,
-                                                  parameters,
-                                                  callingAssembly,
-                                                  writeResponse,
-                                                  expectedResultParameterName,
-                                                  callerFilePath, callerMemberName, callerLineNumber);
+            return client.AssertGetAsync<TResult>(url: url,
+                                                  expectedResult: expectedResult,
+                                                  differenceFunc: differenceFunc,
+                                                  parameters: parameters,
+                                                  callingAssembly: callingAssembly,
+                                                  writeResponse: writeResponse,
+                                                  expectedResultParameterName: expectedResultParameterName,
+                                                  callerFilePath: callerFilePath,
+                                                  callerMemberName: callerMemberName,
+                                                  callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
@@ -202,14 +212,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
-            return client.AssertGetAsync(url,
-                                         expectedResult,
-                                         filterFunc,
-                                         [],
-                                         callingAssembly,
-                                         writeResponse,
-                                         expectedResultParameterName,
-                                         callerFilePath, callerMemberName, callerLineNumber);
+            return client.AssertGetAsync(url: url,
+                                         expectedResult: expectedResult,
+                                         filterFunc: filterFunc,
+                                         parameters: [],
+                                         callingAssembly: callingAssembly,
+                                         writeResponse: writeResponse,
+                                         expectedResultParameterName: expectedResultParameterName,
+                                         callerFilePath: callerFilePath,
+                                         callerMemberName: callerMemberName,
+                                         callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
@@ -226,14 +238,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
-            return client.AssertGetAsync(url,
-                                         expectedResult,
-                                         filterFunc,
-                                         parameters,
-                                         callingAssembly,
-                                         writeResponse,
-                                         expectedResultParameterName,
-                                         callerFilePath, callerMemberName, callerLineNumber);
+            return client.AssertGetAsync(url: url,
+                                         expectedResult: expectedResult,
+                                         filterFunc: filterFunc,
+                                         parameters: parameters,
+                                         callingAssembly: callingAssembly,
+                                         writeResponse: writeResponse,
+                                         expectedResultParameterName: expectedResultParameterName,
+                                         callerFilePath: callerFilePath,
+                                         callerMemberName: callerMemberName,
+                                         callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertGetAsync<TResult>(this HttpClient client,
