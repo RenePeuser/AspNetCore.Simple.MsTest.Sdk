@@ -79,7 +79,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
 
             var normalizedJson1 = json1.Replace("\r\n", "\n");
-            var normalizedJson2 = json1.Replace("\r\n", "\n");
+             var normalizedJson2 = json2.Replace("\r\n", "\n");
 
             var differences = new Dictionary<string, (JToken?, JToken?, MismatchType)>();
 
