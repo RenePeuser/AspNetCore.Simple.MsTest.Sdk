@@ -87,7 +87,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var currentFormatted = result.FormattedCurrent;
 
             // 3. Write response if configured
-            if (writeResponseService.ShouldWriteResponse(context))
+            var shouldWriteResponse = writeResponseService.ShouldWriteResponse(context);
+            if (shouldWriteResponse)
             {
                 responseWriter.Write(context, currentFormatted, context.ExpectedResultFile);
             }

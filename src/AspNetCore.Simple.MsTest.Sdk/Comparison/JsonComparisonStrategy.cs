@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 {
