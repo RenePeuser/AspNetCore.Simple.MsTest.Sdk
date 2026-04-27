@@ -59,6 +59,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public ImmutableList<Difference> FindDifferences(string json1,
                                                          string json2)
         {
+
             var differences = FindDifferencesNative(json1, json2);
 
             var simpleDifferences = differences.Select(item =>
@@ -76,9 +77,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public Dictionary<string, (JToken?, JToken?, MismatchType)> FindDifferencesNative(string json1,
                                                                                           string json2)
         {
+
+            var normalizedJson1 = json1.Replace("\r\n", "\n");
+            var normalizedJson2 = json1.Replace("\r\n", "\n");
+
             var differences = new Dictionary<string, (JToken?, JToken?, MismatchType)>();
 
-            CompareTokens(JToken.Parse(json1), JToken.Parse(json2), differences,
+            CompareTokens(JToken.Parse(normalizedJson1), JToken.Parse(normalizedJson2), differences,
                           "");
 
             return differences;
