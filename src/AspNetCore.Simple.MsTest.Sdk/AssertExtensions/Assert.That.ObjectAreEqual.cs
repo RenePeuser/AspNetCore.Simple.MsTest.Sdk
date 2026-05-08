@@ -1047,7 +1047,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     ResponseWriter.Write(writeResponseRequest);
                 }
 
-                Assert.IsFalse(hasSchemaMismatch, schemaNotMatchingError);
+                var relevantSchemaMismatch = hasSchemaMismatch && optimizedDifferences.Any();
+
+                Assert.IsFalse(relevantSchemaMismatch, schemaNotMatchingError);
 
                 var resultTable = optimizedDifferences.ToResultTable(expectedResultParameterName, currentResultParameterName);
 
