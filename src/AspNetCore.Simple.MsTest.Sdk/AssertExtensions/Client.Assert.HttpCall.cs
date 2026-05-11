@@ -408,9 +408,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var currentResponseJson = currentResponse.ToJson(JsonSerializerOptions);
 
                 var differences = JsonDiffer.FindDifferences(expectedJson, currentResponseJson);
-                var schemaMismatchDifferences = differences.Where(d => d.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &&
-                                                                       // Very important an collection with more or less entries is not a schema mismatch
-                                                                       d.MemberPath.EndsWith(']').IsFalse()).ToImmutableList();
+
+
+                var filtered = differenceFunc(differences).ToImmutableList();
+                var globalFiltered = AssertObjectExtensions.DifferenceFunc(filtered).ToImmutableList();
+
+                var schemaMismatchDifferences = globalFiltered.Where(d => d.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &&
+                                                                          // Very important an collection with more or less entries is not a schema mismatch
+                                                                          d.MemberPath.EndsWith(']').IsFalse()).ToImmutableList();
 
                 if (schemaMismatchDifferences.Any())
                 {
