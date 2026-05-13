@@ -45,9 +45,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
                 throw new InvalidOperationException($"JsonComparisonStrategy can only compare objects, but was asked to compare {typeof(T).Name}");
             }
 
-            var expectedJson = context.ResolvedExpectedJson ?? string.Empty;
             var currentObject = context.CurrentObject;
-            var expectedResultParameterName = context.ExpectedResultParameterName;
 
             // 1. Serialize current object
             string currentJson;
@@ -67,39 +65,52 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
                 currentJson = currentObject?.ToString() ?? "null";
             }
 
-            // 2. Deserialize expected object
+            // 2. Get or deserialize expected object
             T? expectedObject;
+            string expectedJson;
 
-            try
+            // Optimization: If Expected object is already available, skip deserialization
+            if (context.Expected.IsNotNull())
             {
-                expectedObject = jsonSerializer.Deserialize<T>(expectedJson);
+                expectedObject = context.Expected;
+                expectedJson = string.Empty; // Will be serialized later after ordering
             }
-            catch (ProblemDetailsException problemDetailsException)
+            else
             {
-                Console.WriteLine(problemDetailsException.Message);
-                expectedObject = default(T);
+                // Fallback: Deserialize from JSON
+                expectedJson = context.ResolvedExpectedJson ?? string.Empty;
 
-                Assert.Fail("aaaa");
-            }
-#pragma warning disable CA1031
-            catch (Exception)
-#pragma warning restore CA1031
-            {
-                // Deserialization failed - might be a text file rather than JSON
-                // If serialization also failed, do string comparison
-                if (serializationFailed)
+                try
                 {
-                    return CompareAsStrings(expectedJson, currentJson);
+                    expectedObject = jsonSerializer.Deserialize<T>(expectedJson);
                 }
-
-                // Return error result - caller will handle assertion failure
-                return new ComparisonResult
+                catch (ProblemDetailsException problemDetailsException)
                 {
-                    Differences = ImmutableList<Difference>.Empty,
-                    FormattedExpected = expectedJson,
-                    FormattedCurrent = currentJson,
-                    HasSchemaMismatch = true
-                };
+                    Console.WriteLine(problemDetailsException.Message);
+                    expectedObject = default(T);
+
+                    Assert.Fail("aaaa");
+                }
+#pragma warning disable CA1031
+                catch (Exception)
+#pragma warning restore CA1031
+                {
+                    // Deserialization failed - might be a text file rather than JSON
+                    // If serialization also failed, do string comparison
+                    if (serializationFailed)
+                    {
+                        return CompareAsStrings(expectedJson, currentJson);
+                    }
+
+                    // Return error result - caller will handle assertion failure
+                    return new ComparisonResult
+                    {
+                        Differences = ImmutableList<Difference>.Empty,
+                        FormattedExpected = expectedJson,
+                        FormattedCurrent = currentJson,
+                        HasSchemaMismatch = true
+                    };
+                }
             }
 
             // 3. Validate deserialized object

@@ -193,6 +193,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public record ObjectAssertContext<T> : ObjectAssertContext
     {
         /// <summary>
+        /// The expected object (strongly-typed and already deserialized).
+        /// When available, this avoids unnecessary JSON serialization → deserialization → serialization cycles.
+        /// If null, the comparison strategy will deserialize from ResolvedExpectedJson.
+        /// </summary>
+        public T? Expected { get; init; }
+
+        /// <summary>
         /// The current/actual object to compare against the expected object (strongly-typed).
         /// When set, this also sets the base CurrentObject property for polymorphic access.
         /// </summary>

@@ -75,10 +75,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                                          simpleHttpResponseMessage, contentHeaders, filteredCurrentResult);
 
             // Prepare expected JSON for AssertService
-            // The expected response is already built as SimpleHttpResponseMessage, so we serialize it
+            // For HttpResponse asserts we need both: the object AND the JSON (for WriteResponse/debugging)
             var expectedJson = expectedResponse.ToJson(jsonSerializerOptions);
 
             // Build context for AssertService and delegate all comparison logic
+            // Optimization: Pass both expectedResponse object AND expectedJson for flexibility
             var objectAssertContext = new HttpResponseContext<SimpleHttpResponseMessage>
                                       {
                                           ApiVersion = context.ApiVersion,
@@ -95,8 +96,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                           CurrentResult = currentResponse,
                                           CurrentResultParameterName = context.CurrentResultParameterName,
                                           DifferenceFunc = context.DifferenceFunc,
+                                          Expected = expectedResponse, // Direct object - avoids deserialize step in comparison
                                           ExpectedType = typeof(SimpleHttpResponseMessage),
-                                          ExpectedObjectAsJson = expectedJson,
+                                          ExpectedObjectAsJson = expectedJson, // Keep JSON for WriteResponse
                                           ExpectedResultFile = expectedResultFile,
                                           ExpectedResultParameterName = context.ExpectedResultParameterName,
                                           HttpMethod = context.HttpMethod,

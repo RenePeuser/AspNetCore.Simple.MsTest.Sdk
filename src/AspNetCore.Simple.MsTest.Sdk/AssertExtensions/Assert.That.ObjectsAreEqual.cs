@@ -623,26 +623,44 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
-            // Convert expected object to JSON and delegate to string-based method
-            // This ensures consistent data preprocessing through the main pipeline
+            // Optimization: Pass the expected object directly to avoid unnecessary serialize → deserialize → serialize cycles
+            // Only serialize to JSON for string types (which need string representation)
             var expectedObjectAsJson = typeof(T) == typeof(string)
                                            ? expectedObject?.ToString() ?? string.Empty
-                                           : expectedObject.ToJson(JsonSerializerOptions);
+                                           : string.Empty;
 
-            assert.ObjectsAreEqual(expectedObjectAsJson: expectedObjectAsJson,
-                                   currentObject: currentObject,
-                                   orderFunc: comparisonFunc,
-                                   title: title,
-                                   callingAssembly: callingAssembly,
-                                   differenceFunc: differenceFunc,
-                                   curl: curl,
-                                   parameters: parameters,
-                                   writeResponse: writeResponse,
-                                   expectedResultParameterName: expectedResultParameterName,
-                                   currentResultParameterName: currentResultParameterName,
-                                   callerFilePath: callerFilePath,
-                                   callerMemberName: callerMemberName,
-                                   callerLineNumber: callerLineNumber);
+            // For embedded file resolution (used in FromFile overloads)
+            var expectedFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedObjectAsJson, callerFilePath, callingAssembly);
+
+            // Resolve parameters (no-op if expectedObjectAsJson is empty)
+            var resolvedExpectedJson = ParameterReplacer.ResolveParameters(expectedFile.Content, parameters);
+
+            var targetIsPrimitiveType = typeof(T).IsPrimitive || typeof(T).EqualsTo(typeof(string));
+
+            // Create context with the expected object directly - avoids serialization roundtrip
+            var context = new ObjectAssertContext<T>
+            {
+                CallerFilePath = callerFilePath,
+                CallerLineNumber = callerLineNumber,
+                CallerMemberName = callerMemberName,
+                CallingAssembly = callingAssembly,
+                Current = currentObject,
+                CurrentObject = currentObject,
+                CurrentResultParameterName = currentResultParameterName,
+                DifferenceFunc = differenceFunc,
+                Expected = expectedObject, // Direct object reference - no serialization needed
+                ExpectedType = typeof(T),
+                ExpectedObjectAsJson = expectedObjectAsJson,
+                ExpectedResultFile = expectedFile,
+                ExpectedResultParameterName = expectedResultParameterName,
+                OrderFunc = comparisonFunc,
+                Parameters = parameters,
+                ResolvedExpectedJson = resolvedExpectedJson,
+                TypeIsPrimitiveType = targetIsPrimitiveType,
+                WriteResponse = writeResponse,
+            };
+
+            ObjectsAreEqual(assert, context);
         }
 
         // Context-based implementation (internal)
