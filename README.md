@@ -1279,8 +1279,11 @@ The SDK enforces type safety at the HTTP layer by distinguishing between compile
 **Non-generic methods = NoContent endpoints (204):**
 
 ```csharp
-// Non-generic signature expects void response (204 NoContent)
+// Non-generic signatures expect void response (204 NoContent)
 await Client.AssertDeleteAsync("api/v1/items/123");
+await Client.AssertPostAsync("api/v1/items", "NewItem.json");
+await Client.AssertPutAsync("api/v1/items/123", "UpdatedItem.json");
+await Client.AssertPatchAsync("api/v1/items/123", "PatchItem.json");
 // → ExpectedType = typeof(void)
 // → Validates endpoint returns 204 NoContent
 ```
@@ -1288,29 +1291,67 @@ await Client.AssertDeleteAsync("api/v1/items/123");
 **Generic methods = Typed responses (200, 201, etc.):**
 
 ```csharp
-// Generic signature expects DeleteItemResponse (200 OK with body)
+// Generic signatures expect typed responses (200 OK, 201 Created with body)
 await Client.AssertDeleteAsync<DeleteItemResponse>("api/v1/items/123", 
                                                      "Expected.json");
-// → ExpectedType = typeof(DeleteItemResponse)
-// → Validates endpoint returns 200 OK with DeleteItemResponse body
+await Client.AssertPostAsync<CreateItemResponse>("api/v1/items",
+                                                  "NewItem.json",
+                                                  "Expected.json");
+await Client.AssertPutAsync<UpdateItemResponse>("api/v1/items/123",
+                                                 "UpdatedItem.json",
+                                                 "Expected.json");
+await Client.AssertPatchAsync<PatchItemResponse>("api/v1/items/123",
+                                                  "PatchItem.json",
+                                                  "Expected.json");
+// → ExpectedType = typeof(ResponseType)
+// → Validates endpoint returns 2xx with response body
 ```
 
 **Why this distinction matters:**
 
 HTTP semantics demand different handling:
-- **200 OK** = success with response body
+- **200 OK / 201 Created** = success with response body
 - **204 NoContent** = success without response body
 
 Using the wrong method signature catches real bugs:
 
 ```csharp
 // ❌ Bug: Test expects void but endpoint returns 200 with body
-await Client.AssertDeleteAsync("api/v1/items/123");
-// → Validator Error: "Expected void, got DeleteItemResponse"
+await Client.AssertPostAsync("api/v1/items", "NewItem.json");
+// → Validator Error: "Expected void, got CreateItemResponse"
 
 // ✅ Fix: Use correct generic signature
-await Client.AssertDeleteAsync<DeleteItemResponse>("api/v1/items/123", 
-                                                     "Expected.json");
+await Client.AssertPostAsync<CreateItemResponse>("api/v1/items", 
+                                                  "NewItem.json",
+                                                  "Expected.json");
+```
+
+**Supported methods with NoContent variants:**
+
+| HTTP Method | NoContent (204) | With Response Body (200/201) |
+|-------------|-----------------|------------------------------|
+| DELETE | `AssertDeleteAsync()` | `AssertDeleteAsync<T>()` |
+| POST | `AssertPostAsync()` | `AssertPostAsync<T>()` |
+| PUT | `AssertPutAsync()` | `AssertPutAsync<T>()` |
+| PATCH | `AssertPatchAsync()` | `AssertPatchAsync<T>()` |
+
+**Real-world examples:**
+
+```csharp
+// Command-style endpoint (no response needed)
+await Client.AssertPostAsync("api/v1/notifications/send", "Notification.json");
+
+// Update endpoint that returns updated entity
+await Client.AssertPutAsync<User>("api/v1/users/123", 
+                                   "UpdateUser.json", 
+                                   "UpdatedUser.json");
+
+// Partial update without response
+await Client.AssertPatchAsync("api/v1/users/123/status", "StatusUpdate.json");
+
+// Delete with confirmation response
+await Client.AssertDeleteAsync<DeleteConfirmation>("api/v1/items/123", 
+                                                     "DeletedItem.json");
 ```
 
 This prevents:
