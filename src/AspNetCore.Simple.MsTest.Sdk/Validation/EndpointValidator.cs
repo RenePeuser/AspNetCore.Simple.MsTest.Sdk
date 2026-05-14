@@ -34,6 +34,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     {
         public void Validate<TResult>(IHttpAssertContext context)
         {
+            if (context.SkipEndpointValidation)
+            {
+                return;
+            }
+
             var httpMethod = context.HttpMethod.Method;
             var url = context.Url;
             var expectedResponse = context.ExpectedType;

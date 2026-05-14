@@ -279,12 +279,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       parameters: context.Parameters,
                                                       callingAssembly: context.CallingAssembly,
                                                       payloadAsJsonParameterName: string.Empty,
-                                                      callerFilePath: context.CallerFilePath,
                                                       isSuccessStatusCode: context.IsSuccessStatusCode,
                                                       writeResponse: context.WriteResponse,
                                                       skipEndpointValidation: context.SkipEndpointValidation,
                                                       callerMemberName: context.CallerMemberName,
-                                                      callerLineNumber: context.CallerLineNumber);
+                                                      callerLineNumber: context.CallerLineNumber,
+                                                      callerFilePath: context.CallerFilePath);
         }
 
         /// <summary>
