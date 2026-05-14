@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AspNetCore.Simple.MsTest.Sdk
+﻿namespace AspNetCore.Simple.MsTest.Sdk
 {
     public class InvalidJsonException : Exception
     {

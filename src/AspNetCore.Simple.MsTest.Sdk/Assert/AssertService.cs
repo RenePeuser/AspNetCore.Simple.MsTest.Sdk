@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Reflection;
-using System.Text.Json;
-using AspNetCore.Simple.MsTest.Sdk.Comparison;
+﻿using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using JsonSerializer = AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {

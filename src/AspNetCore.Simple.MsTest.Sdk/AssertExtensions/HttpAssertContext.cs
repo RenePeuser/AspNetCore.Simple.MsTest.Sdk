@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Reflection;
-
-namespace AspNetCore.Simple.MsTest.Sdk
+﻿namespace AspNetCore.Simple.MsTest.Sdk
 {
     public interface IHttpAssertContext : IObjectAssertContext
     {

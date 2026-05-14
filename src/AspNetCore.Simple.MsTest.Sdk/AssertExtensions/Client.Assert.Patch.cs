@@ -1,11 +1,6 @@
 ﻿using System.Collections.Immutable;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Mime;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using ConsoleTables;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk

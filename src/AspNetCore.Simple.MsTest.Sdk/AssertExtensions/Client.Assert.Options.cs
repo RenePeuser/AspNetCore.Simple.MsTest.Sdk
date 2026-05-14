@@ -1,11 +1,7 @@
 ﻿using System.Collections.Immutable;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 using Extensions.Pack;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {

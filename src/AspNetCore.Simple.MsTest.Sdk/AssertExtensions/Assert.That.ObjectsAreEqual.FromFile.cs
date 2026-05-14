@@ -1,11 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using AspNetCore.Simple.MsTest.Sdk.Comparison;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
-using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
