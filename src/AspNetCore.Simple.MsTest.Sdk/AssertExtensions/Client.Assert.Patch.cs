@@ -432,7 +432,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               skipEndpointValidation: skipEndpointValidation,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
-                                              writResponse: writeResponse,
+                                              writeResponse: writeResponse,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }
@@ -1253,7 +1253,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               skipEndpointValidation: skipEndpointValidation,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
-                                              writResponse: writeResponse,
+                                              writeResponse: writeResponse,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }
@@ -1323,7 +1323,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               skipEndpointValidation: skipEndpointValidation,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
-                                              writResponse: writeResponse,
+                                              writeResponse: writeResponse,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }

@@ -358,7 +358,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        expectedResultParameterName: expectedResultParameterName,
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
-                                                       writResponse: writeResponse,
+                                                       writeResponse: writeResponse,
                                                        skipEndpointValidation: skipEndpointValidation,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
@@ -390,7 +390,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        expectedResultParameterName: expectedResultParameterName,
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
-                                                       writResponse: writeResponse,
+                                                       writeResponse: writeResponse,
                                                        skipEndpointValidation: skipEndpointValidation,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
@@ -507,7 +507,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               expectedResultParameterName: expectedResultParameterName,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
-                                              writResponse: writeResponse,
+                                              writeResponse: writeResponse,
                                               skipEndpointValidation: skipEndpointValidation,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);

@@ -612,7 +612,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               skipEndpointValidation: skipEndpointValidation,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: false,
-                                              writResponse: writeResponse,
+                                              writeResponse: writeResponse,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }

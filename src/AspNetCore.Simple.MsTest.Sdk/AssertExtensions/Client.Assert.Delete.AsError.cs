@@ -376,7 +376,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               expectedResultParameterName: expectedResultParameterName,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: false,
-                                              writResponse: writeResponse,
+                                              writeResponse: writeResponse,
                                               ignoreResponse: false,
                                               skipEndpointValidation: skipEndpointValidation,
                                               callerMemberName: callerMemberName,

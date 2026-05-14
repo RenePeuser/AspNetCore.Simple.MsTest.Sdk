@@ -90,7 +90,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        expectedResultParameterName: string.Empty,
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
-                                                       writResponse: writeResponse,
+                                                       writeResponse: writeResponse,
                                                        ignoreResponse: true,
                                                        skipEndpointValidation: skipEndpointValidation,
                                                        callerMemberName: callerMemberName,
@@ -146,7 +146,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        expectedResultParameterName: expectedResultParameterName,
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
-                                                       writResponse: writeResponse,
+                                                       writeResponse: writeResponse,
                                                        skipEndpointValidation: skipEndpointValidation,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
@@ -202,7 +202,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        expectedResultParameterName: expectedResultParameterName,
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
-                                                       writResponse: writeResponse,
+                                                       writeResponse: writeResponse,
                                                        skipEndpointValidation: skipEndpointValidation,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
@@ -233,7 +233,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        expectedResultParameterName: expectedResultParameterName,
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
-                                                       writResponse: writeResponse,
+                                                       writeResponse: writeResponse,
                                                        skipEndpointValidation: skipEndpointValidation,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
@@ -304,7 +304,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                expectedResultParameterName: context.ExpectedResultParameterName,
                                                                callerFilePath: context.CallerFilePath,
                                                                isSuccessStatusCode: context.IsSuccessStatusCode,
-                                                               writResponse: context.WriteResponse,
+                                                               writeResponse: context.WriteResponse,
                                                                skipEndpointValidation: context.SkipEndpointValidation,
                                                                callerMemberName: context.CallerMemberName,
                                                                callerLineNumber: context.CallerLineNumber);
