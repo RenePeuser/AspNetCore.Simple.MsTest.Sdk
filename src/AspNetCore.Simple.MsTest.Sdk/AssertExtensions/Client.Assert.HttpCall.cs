@@ -68,6 +68,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             _plainTextDecorator = serviceProvider.GetRequiredService<ITextDecorator>();
             _sourceCodeExtractor = serviceProvider.GetRequiredService<ISourceCodeExtractor>();
+
+            var callingAssembly = Assembly.GetCallingAssembly();
+
+            if (callingAssembly.IsCompiledInDebug())
+            {
+                _textDecorator = new PlainTextDecorator();
+            }
+            else
+            {
+                _textDecorator = new AnsiColorTextDecorator();
+
+            }
         }
     }
 
@@ -122,7 +134,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
             NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters = { new JsonStringEnumConverter() }
+            Converters =
+            {
+                new JsonStringEnumConverter()
+            }
         };
 
         private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions);
@@ -154,7 +169,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                             _curlFormatter,
                                                                                             _textDecorator);
 
-        private static readonly IAssertOutputStrategy[] OutputStrategies = [PrimitiveOutputStrategy, ObjectOutputStrategy, HttpResponseOutputStrategy];
+        private static readonly IAssertOutputStrategy[] OutputStrategies =
+        [
+            PrimitiveOutputStrategy,
+            ObjectOutputStrategy,
+            HttpResponseOutputStrategy
+        ];
 
         private static IAssertOutputBuilder _outputBuilder = new AssertOutputBuilder(OutputStrategies);
 
@@ -163,7 +183,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly ISpecificComparisonStrategy JsonComparisonStrategy = new JsonComparisonStrategy(_jsonDiffer, _jsonSerializerInstance, JsonSerializerOptions);
 
-        private static readonly ISpecificComparisonStrategy[] SpecificComparisonStrategies = [StringComparisonStrategy, JsonComparisonStrategy];
+        private static readonly ISpecificComparisonStrategy[] SpecificComparisonStrategies =
+        [
+            StringComparisonStrategy,
+            JsonComparisonStrategy
+        ];
 
         private static readonly IComparisonStrategy ComparisonStrategy = new ComparisonStrategy(SpecificComparisonStrategies);
 
@@ -174,14 +198,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // Pipeline (contains all steps internally)
         private static IHttpAssertionPipeline _httpAssertionPipeline = new HttpAssertionPipeline(new IHttpAssertionStep[]
-                                                                                                 {
-                                                                                                     new StatusCodeValidationStep(_outputBuilder), new ContentTypeHeaderValidationStep(_outputBuilder), new ContentFormatValidationStep(_outputBuilder),
-                                                                                                     new JsonComparisonStep(_primitiveTypeConverter,
-                                                                                                                            _assertService,
-                                                                                                                            _parameterReplacer,
-                                                                                                                            _writeResponseService,
-                                                                                                                            JsonSerializerOptions)
-                                                                                                 });
+        {
+            new StatusCodeValidationStep(_outputBuilder),
+            new ContentTypeHeaderValidationStep(_outputBuilder),
+            new ContentFormatValidationStep(_outputBuilder),
+            new JsonComparisonStep(_primitiveTypeConverter,
+                                   _assertService,
+                                   _parameterReplacer,
+                                   _writeResponseService,
+                                   JsonSerializerOptions)
+        });
 
         private static IApiVersionResolver _apiVersionResolver = new ApiVersionResolver();
 
@@ -312,7 +338,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               writeResponse: writeResponse,
                                               ignoreResponse: ignoreResponse,
                                               skipEndpointValidation: skipEndpointValidation,
-                                              callerMemberName:callerMemberName,
+                                              callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }
 
@@ -329,8 +355,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                         bool writeResponse = false,
                                                                         bool ignoreResponse = false,
                                                                         bool skipEndpointValidation = false,
-                                                                        [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
-                                                                        [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                        [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                                        string payloadAsJsonParameterName = "",
+                                                                        [CallerArgumentExpression(nameof(expectedResult))]
+                                                                        string expectedResultParameterName = "",
                                                                         [CallerFilePath] string callerFilePath = "",
                                                                         [CallerMemberName] string callerMemberName = "",
                                                                         [CallerLineNumber] int callerLineNumber = 0)
