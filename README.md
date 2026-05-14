@@ -471,6 +471,91 @@ public async Task Complete_User_Registration_Flow()
 
 ---
 
+### Skip endpoint validation
+
+Sometimes you need to test external APIs or use different response types than what the endpoint declares. In these cases, endpoint validation becomes a blocker rather than a helper.
+
+**When to skip endpoint validation:**
+
+- Testing external APIs where endpoint metadata is not available
+- Using a different response type than defined in the endpoint contract
+- Working with OpenAPI specs not yet integrated into your codebase
+- Testing legacy endpoints without proper `[ProducesResponseType]` attributes
+
+**How to use it:**
+
+```csharp
+// Test external API without endpoint validation
+await Client.AssertGetAsync<ExternalApiResponse>(
+    "https://external-api.com/v1/data",
+    "ExpectedResponse.json",
+    skipEndpointValidation: true);
+
+// Use custom response type for endpoint
+await Client.AssertPostAsync<CustomResponse>(
+    "api/v1/users",
+    "Request.json",
+    "Response.json",
+    skipEndpointValidation: true);
+```
+
+**What gets validated when skipped:**
+
+- ✅ HTTP status code matches expectation (success vs error)
+- ✅ Response content comparison (if `expectedResult` provided)
+- ✅ Request executes successfully
+- ⏭️ Endpoint metadata validation skipped
+- ⏭️ Response type contract checking skipped
+
+**What gets skipped:**
+
+- Type checking against `[ProducesResponseType]` attributes
+- Endpoint existence validation
+- Status code to response type mapping
+
+**Difference from `ignoreResponse`:**
+
+| Feature | `ignoreResponse: true` | `skipEndpointValidation: true` |
+|---------|------------------------|--------------------------------|
+| Validates endpoint exists | ✅ Yes | ❌ No |
+| Validates response type matches endpoint | ✅ Yes | ❌ No |
+| Compares response content | ❌ No | ✅ Yes (if expectedResult provided) |
+| Use case | Process tests where call must succeed | External APIs or custom response types |
+
+**Example: Testing external API**
+
+```csharp
+[TestMethod]
+public async Task Should_Fetch_GitHub_User()
+{
+    // GitHub API is external - no endpoint metadata available
+    await Client.AssertGetAsync<GitHubUser>(
+        "https://api.github.com/users/octocat",
+        "GitHubUser.json",
+        skipEndpointValidation: true);
+}
+```
+
+**Example: Custom response transformation**
+
+```csharp
+[TestMethod]
+public async Task Should_Transform_Response()
+{
+    // Endpoint returns User, but we transform to UserViewModel in test
+    await Client.AssertGetAsync<UserViewModel>(
+        "api/v1/users/123",
+        "UserViewModel.json",
+        skipEndpointValidation: true);
+}
+```
+
+**Future enhancement:**
+
+Later versions may support OpenAPI spec integration for external APIs, allowing endpoint validation even for external services. This would involve downloading and parsing OpenAPI specs at runtime - a bigger round trip that's not currently implemented.
+
+---
+
 ## Why this saves ridiculous amounts of time
 
 ### Traditional API testing
