@@ -13,75 +13,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
-        public static Task AssertPostAsync(this HttpClient client,
-                                           string url,
-                                           bool writeResponse = false,
-                                           bool skipEndpointValidation = false,
-                                           [CallerFilePath] string callerFilePath = "",
-                                           [CallerMemberName] string callerMemberName = "",
-                                           [CallerLineNumber] int callerLineNumber = 0)
-        {
-            return client.AssertPostAsync(url: url,
-                                          payloadAsJson: string.Empty,
-                                          writeResponse: writeResponse,
-                                          skipEndpointValidation: skipEndpointValidation,
-                                          callerFilePath: callerFilePath,
-                                          callerMemberName: callerMemberName,
-                                          callerLineNumber: callerLineNumber);
-        }
-
-        public static Task AssertPostAsync(this HttpClient client,
-                                           string url,
-                                           string payloadAsJson,
-                                           bool writeResponse = false,
-                                           bool skipEndpointValidation = false,
-                                           [CallerFilePath] string callerFilePath = "",
-                                           [CallerMemberName] string callerMemberName = "",
-                                           [CallerLineNumber] int callerLineNumber = 0)
-        {
-            var callingAssembly = Assembly.GetCallingAssembly();
-
-            return client.AssertHttpCallAsync(url: url,
-                                              payloadAsJson: payloadAsJson,
-                                              httpMethod: HttpMethod.Post,
-                                              parameters: [],
-                                              callingAssembly: callingAssembly,
-                                              payloadAsJsonParameterName: nameof(payloadAsJson),
-                                              callerFilePath: callerFilePath,
-                                              isSuccessStatusCode: true,
-                                              writeResponse: writeResponse,
-                                              skipEndpointValidation: skipEndpointValidation,
-                                              callerMemberName: callerMemberName,
-                                              callerLineNumber: callerLineNumber);
-        }
-
-        public static Task AssertPostAsync(this HttpClient client,
-                                           string url,
-                                           string payloadAsJson,
-                                           (string Key, object? Value)[] parameters,
-                                           bool writeResponse = false,
-                                           [CallerArgumentExpression(nameof(payloadAsJson))]
-                                           string payloadAsJsonParameterName = "",
-                                           bool skipEndpointValidation = false,
-                                           [CallerFilePath] string callerFilePath = "",
-                                           [CallerMemberName] string callerMemberName = "",
-                                           [CallerLineNumber] int callerLineNumber = 0)
-        {
-            var callingAssembly = Assembly.GetCallingAssembly();
-
-            return client.AssertHttpCallAsync(url: url,
-                                              payloadAsJson: payloadAsJson,
-                                              httpMethod: HttpMethod.Post,
-                                              parameters: parameters,
-                                              callingAssembly: callingAssembly,
-                                              payloadAsJsonParameterName: payloadAsJsonParameterName,
-                                              callerFilePath: callerFilePath,
-                                              isSuccessStatusCode: true,
-                                              writeResponse: writeResponse,
-                                              skipEndpointValidation: skipEndpointValidation,
-                                              callerMemberName: callerMemberName,
-                                              callerLineNumber: callerLineNumber);
-        }
+        // ============================================================
+        // POST with Response (TResult) - All overloads
+        // ============================================================
 
         /// <summary>
         /// Clean API: POST with type parameter, no expectedResult - validates endpoint and ignores response.
@@ -1356,23 +1290,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // ============================================================
         // Complete Context API (Level 3) - Everything in Context!
         // ============================================================
-
-        /// <summary>
-        /// Level 3: Complete Context API - All parameters in context (cleanest API).
-        /// </summary>
-        public static Task AssertPostAsync(HttpAssertContext<string> context)
-        {
-            return context.Client.AssertHttpCallAsync(url: context.Url,
-                                                      payloadAsJson: context.PayloadAsJson ?? string.Empty,
-                                                      httpMethod: HttpMethod.Post,
-                                                      parameters: context.Parameters,
-                                                      callingAssembly: context.CallingAssembly,
-                                                      payloadAsJsonParameterName: context.PayloadParameterName,
-                                                      callerFilePath: context.CallerFilePath,
-                                                      isSuccessStatusCode: true,
-                                                      writeResponse: context.WriteResponse,
-                                                      callerLineNumber: context.CallerLineNumber);
-        }
 
         /// <summary>
         /// Level 3: Complete Context API - All parameters in context (cleanest API).

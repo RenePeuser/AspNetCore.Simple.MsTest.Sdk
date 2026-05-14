@@ -12,97 +12,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static partial class HttpClientAssertExtensions
     {
-        public static Task AssertPatchAsync(this HttpClient client,
-                                            string url,
-                                            bool writeResponse = false,
-                                            bool skipEndpointValidation = false,
-                                            [CallerFilePath] string callerFilePath = "",
-                                            [CallerMemberName] string callerMemberName = "",
-                                            [CallerLineNumber] int callerLineNumber = 0)
-        {
-            return client.AssertHttpCallAsync(url: url,
-                                              payloadAsJson: string.Empty,
-                                              httpMethod: HttpMethod.Patch,
-                                              parameters: [],
-                                              callingAssembly: Assembly.GetCallingAssembly(),
-                                              payloadAsJsonParameterName: string.Empty,
-                                              callerFilePath: callerFilePath,
-                                              isSuccessStatusCode: true,
-                                              writeResponse: writeResponse,
-                                              skipEndpointValidation: skipEndpointValidation,
-                                              callerMemberName: callerMemberName,
-                                              callerLineNumber: callerLineNumber);
-        }
-
-        public static Task AssertPatchAsync(this HttpClient client,
-                                            string url,
-                                            (string Key, object? Value)[] parameters,
-                                            bool writeResponse = false,
-                                            bool skipEndpointValidation = false,
-                                            [CallerFilePath] string callerFilePath = "",
-                                            [CallerMemberName] string callerMemberName = "",
-                                            [CallerLineNumber] int callerLineNumber = 0)
-        {
-            return client.AssertHttpCallAsync(url: url,
-                                              payloadAsJson: string.Empty,
-                                              httpMethod: HttpMethod.Patch,
-                                              parameters: parameters,
-                                              callingAssembly: Assembly.GetCallingAssembly(),
-                                              payloadAsJsonParameterName: string.Empty,
-                                              callerFilePath: callerFilePath,
-                                              isSuccessStatusCode: true,
-                                              writeResponse: writeResponse,
-                                              skipEndpointValidation: skipEndpointValidation,
-                                              callerMemberName: callerMemberName,
-                                              callerLineNumber: callerLineNumber);
-        }
-
-        public static Task AssertPatchAsync(this HttpClient client,
-                                            string url,
-                                            string payload,
-                                            bool writeResponse = false,
-                                            bool skipEndpointValidation = false,
-                                            [CallerFilePath] string callerFilePath = "",
-                                            [CallerMemberName] string callerMemberName = "",
-                                            [CallerLineNumber] int callerLineNumber = 0)
-        {
-            return client.AssertHttpCallAsync(url: url,
-                                              payloadAsJson: payload,
-                                              httpMethod: HttpMethod.Patch,
-                                              parameters: [],
-                                              callingAssembly: Assembly.GetCallingAssembly(),
-                                              payloadAsJsonParameterName: nameof(payload),
-                                              callerFilePath: callerFilePath,
-                                              isSuccessStatusCode: true,
-                                              writeResponse: writeResponse,
-                                              skipEndpointValidation: skipEndpointValidation,
-                                              callerMemberName: callerMemberName,
-                                              callerLineNumber: callerLineNumber);
-        }
-
-        public static Task AssertPatchAsync(this HttpClient client,
-                                            string url,
-                                            string payload,
-                                            (string Key, object? Value)[] parameters,
-                                            bool writeResponse = false,
-                                            bool skipEndpointValidation = false,
-                                            [CallerFilePath] string callerFilePath = "",
-                                            [CallerMemberName] string callerMemberName = "",
-                                            [CallerLineNumber] int callerLineNumber = 0)
-        {
-            return client.AssertHttpCallAsync(url: url,
-                                              payloadAsJson: payload,
-                                              httpMethod: HttpMethod.Patch,
-                                              parameters: parameters,
-                                              callingAssembly: Assembly.GetCallingAssembly(),
-                                              payloadAsJsonParameterName: nameof(payload),
-                                              callerFilePath: callerFilePath,
-                                              isSuccessStatusCode: true,
-                                              writeResponse: writeResponse,
-                                              skipEndpointValidation: skipEndpointValidation,
-                                              callerMemberName: callerMemberName,
-                                              callerLineNumber: callerLineNumber);
-        }
+        // ============================================================
+        // PATCH with Response (TResult) - All overloads
+        // ============================================================
 
         public static Task<TResult> AssertPatchAsync<TResult>(this HttpClient client,
                                                               string url,
@@ -1328,56 +1240,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               callerLineNumber: callerLineNumber);
         }
 
-        public static Task AssertPatchAsUnauthorizedAsync(this HttpClient httpClient,
-                                                          string url)
-        {
-            return httpClient.AssertPatchAsUnauthorizedAsync(url: url, body: null);
-        }
-
-        public static async Task AssertPatchAsUnauthorizedAsync(this HttpClient httpClient,
-                                                                string url,
-                                                                object? body)
-        {
-            // Save original auth header
-            var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Unauthorized token");
-
-            using var stringContent = new StringContent(content: body.ToJson(JsonSerializerOptions), encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json);
-
-            var result = await httpClient.PatchAsync(requestUri: url, content: body.IsNull() ? null : stringContent).ConfigureAwait(false);
-
-            // Reset back to original
-            httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
-
-            var currentResult = new
-            {
-                Request = $"PATCH {url}",
-                Expected = HttpStatusCode.Unauthorized,
-                Current = result.StatusCode
-            }.ToIList();
-
-            var table = ConsoleTable.From(currentResult);
-            var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
-
-            Assert.AreEqual(expected: HttpStatusCode.Unauthorized, actual: result.StatusCode, message: errorOutput);
-        }
-
         // ============================================================
         // Complete Context API (Level 3) - Everything in Context!
         // ============================================================
-
-        /// <summary>
-        /// Level 3: Complete Context API - All parameters in context (cleanest API).
-        /// </summary>
-        public static Task AssertPatchAsync(HttpAssertContext<string> context)
-        {
-            return context.Client.AssertPatchAsync(url: context.Url,
-                                                   parameters: context.Parameters,
-                                                   writeResponse: context.WriteResponse,
-                                                   callerFilePath: context.CallerFilePath,
-                                                   callerMemberName: context.CallerMemberName,
-                                                   callerLineNumber: context.CallerLineNumber);
-        }
 
         /// <summary>
         /// Level 3: Complete Context API - All parameters in context (cleanest API).
