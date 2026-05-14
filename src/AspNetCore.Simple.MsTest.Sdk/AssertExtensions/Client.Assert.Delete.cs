@@ -18,6 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task AssertDeleteAsync(this HttpClient client,
                                              string url,
                                              bool writeResponse = false,
+                                             bool skipEndpointValidation = false,
                                              [CallerFilePath] string callerFilePath = "",
                                              [CallerMemberName] string callerMemberName = "",
                                              [CallerLineNumber] int callerLineNumber = 0)
@@ -32,7 +33,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               payloadAsJsonParameterName: string.Empty,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
-                                              writResponse: writeResponse,
+                                              writeResponse: writeResponse,
+                                              skipEndpointValidation: skipEndpointValidation,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }
@@ -41,6 +43,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              string url,
                                              (string Key, object? Value)[] parameters,
                                              bool writeResponse = false,
+                                             bool skipEndpointValidation = false,
                                              [CallerFilePath] string callerFilePath = "",
                                              [CallerMemberName] string callerMemberName = "",
                                              [CallerLineNumber] int callerLineNumber = 0)
@@ -55,7 +58,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               payloadAsJsonParameterName: string.Empty,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
-                                              writResponse: writeResponse,
+                                              writeResponse: writeResponse,
+                                              skipEndpointValidation: skipEndpointValidation,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }
@@ -67,6 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
                                                                string url,
                                                                bool writeResponse = false,
+                                                               bool skipEndpointValidation = false,
                                                                [CallerFilePath] string callerFilePath = "",
                                                                [CallerMemberName] string callerMemberName = "",
                                                                [CallerLineNumber] int callerLineNumber = 0)
@@ -87,6 +92,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        isSuccessStatusCode: true,
                                                        writResponse: writeResponse,
                                                        ignoreResponse: true,
+                                                       skipEndpointValidation: skipEndpointValidation,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
         }
@@ -95,6 +101,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string url,
                                                                string expectedResult,
                                                                bool writeResponse = false,
+                                                               bool skipEndpointValidation = false,
                                                                [CallerFilePath] string callerFilePath = "",
                                                                [CallerMemberName] string callerMemberName = "",
                                                                [CallerLineNumber] int callerLineNumber = 0)
@@ -108,6 +115,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      writeResponse: writeResponse,
                                                      expectedResultParameterName: expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
                                                      callerFilePath: callerFilePath,
+                                                     skipEndpointValidation: skipEndpointValidation,
                                                      callerMemberName: callerMemberName,
                                                      callerLineNumber: callerLineNumber);
         }
@@ -117,6 +125,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string expectedResult,
                                                                Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                bool writeResponse = false,
+                                                               bool skipEndpointValidation = false,
                                                                [CallerArgumentExpression(nameof(expectedResult))]
                                                                string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "",
@@ -138,6 +147,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
                                                        writResponse: writeResponse,
+                                                       skipEndpointValidation: skipEndpointValidation,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
         }
@@ -147,6 +157,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string expectedResult,
                                                                (string Key, object? Value)[] parameters,
                                                                bool writeResponse = false,
+                                                               bool skipEndpointValidation = false,
                                                                [CallerArgumentExpression(nameof(expectedResult))]
                                                                string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "",
@@ -161,6 +172,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      callingAssembly: callingAssembly,
                                                      writeResponse: writeResponse,
                                                      expectedResultParameterName: expectedResultParameterName,
+                                                     skipEndpointValidation: skipEndpointValidation,
                                                      callerFilePath: callerFilePath,
                                                      callerMemberName: callerMemberName,
                                                      callerLineNumber: callerLineNumber);
@@ -171,6 +183,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string expectedResult,
                                                                Assembly callingAssembly,
                                                                bool writeResponse = false,
+                                                               bool skipEndpointValidation = false,
                                                                [CallerArgumentExpression(nameof(expectedResult))]
                                                                string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "",
@@ -190,6 +203,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
                                                        writResponse: writeResponse,
+                                                       skipEndpointValidation: skipEndpointValidation,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
         }
@@ -200,6 +214,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                (string Key, object? Value)[] parameters,
                                                                Assembly callingAssembly,
                                                                bool writeResponse = false,
+                                                               bool skipEndpointValidation = false,
                                                                [CallerArgumentExpression(nameof(expectedResult))]
                                                                string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "",
@@ -219,6 +234,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        callerFilePath: callerFilePath,
                                                        isSuccessStatusCode: true,
                                                        writResponse: writeResponse,
+                                                       skipEndpointValidation: skipEndpointValidation,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
         }
@@ -265,7 +281,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       payloadAsJsonParameterName: string.Empty,
                                                       callerFilePath: context.CallerFilePath,
                                                       isSuccessStatusCode: context.IsSuccessStatusCode,
-                                                      writResponse: context.WriteResponse,
+                                                      writeResponse: context.WriteResponse,
+                                                      skipEndpointValidation: context.SkipEndpointValidation,
+                                                      callerMemberName: context.CallerMemberName,
                                                       callerLineNumber: context.CallerLineNumber);
         }
 
@@ -287,6 +305,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                callerFilePath: context.CallerFilePath,
                                                                isSuccessStatusCode: context.IsSuccessStatusCode,
                                                                writResponse: context.WriteResponse,
+                                                               skipEndpointValidation: context.SkipEndpointValidation,
+                                                               callerMemberName: context.CallerMemberName,
                                                                callerLineNumber: context.CallerLineNumber);
         }
     }

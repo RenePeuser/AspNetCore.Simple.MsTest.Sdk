@@ -118,7 +118,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                           TypeIsPrimitiveType = targetIsPrimitiveType,
                                           Url = context.Url,
                                           WriteResponse = context.WriteResponse,
-                                      };
+                                          SkipEndpointValidation = context.SkipEndpointValidation
+            };
 
             // Delegate to AssertService - it handles schema checks, value comparison, diff finding, and output building
             assertService.ObjectsAreEqual(objectAssertContext);

@@ -74,6 +74,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// The response type must still be specified correctly for endpoint validation.
         /// </summary>
         bool IgnoreResponse { get; init; }
+
+        /// <summary>
+        /// When true, skips the endpoint validation entirely.
+        /// Useful when testing external APIs where endpoint metadata is not available,
+        /// or when intentionally using a different response type than defined in the endpoint.
+        /// </summary>
+        bool SkipEndpointValidation { get; init; }
     }
 
     /// <summary>
@@ -151,5 +158,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// The response type must still be specified correctly for endpoint validation.
         /// </summary>
         public required bool IgnoreResponse { get; init; }
+
+        /// <summary>
+        /// When true, skips the endpoint validation entirely.
+        /// Useful when testing external APIs where endpoint metadata is not available,
+        /// or when intentionally using a different response type than defined in the endpoint.
+        /// </summary>
+        public required bool SkipEndpointValidation { get; init; }
     }
 }

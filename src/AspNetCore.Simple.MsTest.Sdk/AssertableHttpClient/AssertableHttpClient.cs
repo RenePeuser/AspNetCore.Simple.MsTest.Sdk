@@ -133,7 +133,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                       TypeIsPrimitiveType = targetIsPrimitiveType,
                                       Url = context.Url,
                                       WriteResponse = context.WriteResponse,
-                                  };
+                                      SkipEndpointValidation = context.SkipEndpointValidation
+            };
 
             // Delegate to pipeline - steps only validate, never modify the result
             // Pipeline returns context.CurrentResult (the original deserialized response)

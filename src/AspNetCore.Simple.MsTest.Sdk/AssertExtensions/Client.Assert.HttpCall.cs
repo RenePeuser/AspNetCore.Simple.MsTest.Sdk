@@ -117,13 +117,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
         private static JsonSerializerOptions _jsonSerializerOptions = new()
-                                                                      {
-                                                                          PropertyNameCaseInsensitive = true,
-                                                                          PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                                                                          DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                                                                          NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                                                                          Converters = { new JsonStringEnumConverter() }
-                                                                      };
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+            Converters = { new JsonStringEnumConverter() }
+        };
 
         private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions);
 
@@ -218,7 +218,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       string payloadAsJsonParameterName = "",
                                                       [CallerFilePath] string callerFilePath = "",
                                                       bool isSuccessStatusCode = true,
-                                                      bool writResponse = false,
+                                                      bool writeResponse = false,
+                                                      bool skipEndpointValidation = false,
                                                       [CallerMemberName] string callerMemberName = "",
                                                       [CallerLineNumber] int callerLineNumber = 0)
 #pragma warning restore CA1859
@@ -241,36 +242,37 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with ExpectedType = typeof(void) for NoContent scenarios
             var context = new HttpAssertContext<string>
-                          {
-                              CallerFilePath = callerFilePath,
-                              CallerMemberName = callerMemberName,
-                              CallerLineNumber = callerLineNumber,
-                              CallingAssembly = callingAssembly,
-                              Client = client,
-                              Current = default,
-                              CurrentObject = null,
-                              CurrentResultParameterName = "Current response",
-                              DifferenceFunc = difference => difference,
-                              ExpectedType = typeof(void), // <-- Key difference: void for NoContent
-                              ExpectedObjectAsJson = IgnoreResponseComparison,
-                              ExpectedResultFile = expectedResultFile,
-                              ExpectedResultParameterName = string.Empty,
-                              HttpMethod = httpMethod,
-                              IsSuccessStatusCode = isSuccessStatusCode,
-                              OrderFunc = item => item,
-                              Parameters = parameters,
-                              PayloadAsJson = payloadAsJson,
-                              PayloadFile = payloadFile,
-                              PayloadParameterName = payloadAsJsonParameterName,
-                              ResolvedExpectedJson = resolvedExpectedJson,
-                              ResolvedPayload = resolvedPayload,
-                              ShowTokenInCurl = ShowTokenInCurl,
-                              TypeIsPrimitiveType = true,
-                              Url = resolvedUrl,
-                              WriteResponse = writResponse,
-                              ApiVersion = apiVersion,
-                              IgnoreResponse = false
-                          };
+            {
+                CallerFilePath = callerFilePath,
+                CallerMemberName = callerMemberName,
+                CallerLineNumber = callerLineNumber,
+                CallingAssembly = callingAssembly,
+                Client = client,
+                Current = default,
+                CurrentObject = null,
+                CurrentResultParameterName = "Current response",
+                DifferenceFunc = difference => difference,
+                ExpectedType = typeof(void), // <-- Key difference: void for NoContent
+                ExpectedObjectAsJson = IgnoreResponseComparison,
+                ExpectedResultFile = expectedResultFile,
+                ExpectedResultParameterName = string.Empty,
+                HttpMethod = httpMethod,
+                IsSuccessStatusCode = isSuccessStatusCode,
+                OrderFunc = item => item,
+                Parameters = parameters,
+                PayloadAsJson = payloadAsJson,
+                PayloadFile = payloadFile,
+                PayloadParameterName = payloadAsJsonParameterName,
+                ResolvedExpectedJson = resolvedExpectedJson,
+                ResolvedPayload = resolvedPayload,
+                ShowTokenInCurl = ShowTokenInCurl,
+                TypeIsPrimitiveType = true,
+                Url = resolvedUrl,
+                WriteResponse = writeResponse,
+                ApiVersion = apiVersion,
+                IgnoreResponse = false,
+                SkipEndpointValidation = skipEndpointValidation
+            };
 
             await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
         }
@@ -283,33 +285,35 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   HttpMethod httpMethod,
                                                                   (string Key, object? Value)[] parameters,
                                                                   Assembly callingAssembly,
+                                                                  bool isSuccessStatusCode = true,
+                                                                  bool writeResponse = false,
+                                                                  bool ignoreResponse = false,
+                                                                  bool skipEndpointValidation = false,
                                                                   [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                   string payloadAsJsonParameterName = "",
                                                                   [CallerArgumentExpression(nameof(expectedResult))]
                                                                   string expectedResultParameterName = "",
                                                                   [CallerFilePath] string callerFilePath = "",
-                                                                  bool isSuccessStatusCode = true,
-                                                                  bool writResponse = false,
-                                                                  bool ignoreResponse = false,
                                                                   [CallerMemberName] string callerMemberName = "",
                                                                   [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertHttpCallAsync(url,
-                                              payloadAsJson,
-                                              expectedResult,
-                                              filterFunc,
-                                              httpMethod,
-                                              difference => difference,
-                                              parameters,
-                                              callingAssembly,
-                                              payloadAsJsonParameterName,
-                                              expectedResultParameterName,
-                                              callerFilePath,
-                                              isSuccessStatusCode,
-                                              writResponse,
-                                              ignoreResponse,
-                                              callerMemberName,
-                                              callerLineNumber);
+            return client.AssertHttpCallAsync(url: url,
+                                              payloadAsJson: payloadAsJson,
+                                              expectedResult: expectedResult,
+                                              filterFunc: filterFunc,
+                                              httpMethod: httpMethod,
+                                              differenceFunc: difference => difference,
+                                              parameters: parameters,
+                                              callingAssembly: callingAssembly,
+                                              payloadAsJsonParameterName: payloadAsJsonParameterName,
+                                              expectedResultParameterName: expectedResultParameterName,
+                                              callerFilePath: callerFilePath,
+                                              isSuccessStatusCode: isSuccessStatusCode,
+                                              writResponse: writeResponse,
+                                              ignoreResponse: ignoreResponse,
+                                              skipEndpointValidation: skipEndpointValidation,
+                                              callerMemberName:callerMemberName,
+                                              callerLineNumber: callerLineNumber);
         }
 
         private static async Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
@@ -321,14 +325,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                         Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                         (string Key, object? Value)[] parameters,
                                                                         Assembly callingAssembly,
-                                                                        [CallerArgumentExpression(nameof(payloadAsJson))]
-                                                                        string payloadAsJsonParameterName = "",
-                                                                        [CallerArgumentExpression(nameof(expectedResult))]
-                                                                        string expectedResultParameterName = "",
-                                                                        [CallerFilePath] string callerFilePath = "",
                                                                         bool isSuccessStatusCode = true,
                                                                         bool writResponse = false,
                                                                         bool ignoreResponse = false,
+                                                                        bool skipEndpointValidation = false,
+                                                                        [CallerArgumentExpression(nameof(payloadAsJson))] string payloadAsJsonParameterName = "",
+                                                                        [CallerArgumentExpression(nameof(expectedResult))] string expectedResultParameterName = "",
+                                                                        [CallerFilePath] string callerFilePath = "",
                                                                         [CallerMemberName] string callerMemberName = "",
                                                                         [CallerLineNumber] int callerLineNumber = 0)
         {
@@ -351,36 +354,37 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create public context directly - no need for internal context
             var context = new HttpAssertContext<TResult>
-                          {
-                              CallerFilePath = callerFilePath,
-                              CallerMemberName = callerMemberName,
-                              CallerLineNumber = callerLineNumber,
-                              CallingAssembly = callingAssembly,
-                              Client = client,
-                              Current = default,
-                              CurrentObject = null,
-                              CurrentResultParameterName = "Current response",
-                              DifferenceFunc = differenceFunc,
-                              ExpectedType = typeof(TResult),
-                              ExpectedObjectAsJson = expectedResult,
-                              ExpectedResultFile = expectedResultFile,
-                              ExpectedResultParameterName = expectedResultParameterName,
-                              HttpMethod = httpMethod,
-                              IsSuccessStatusCode = isSuccessStatusCode,
-                              OrderFunc = filterFunc,
-                              Parameters = parameters,
-                              PayloadAsJson = payloadAsJson,
-                              PayloadFile = payloadFile,
-                              PayloadParameterName = payloadAsJsonParameterName,
-                              ResolvedExpectedJson = resolvedExpectedJson,
-                              ResolvedPayload = resolvedPayload,
-                              ShowTokenInCurl = ShowTokenInCurl,
-                              TypeIsPrimitiveType = targetIsPrimitiveType,
-                              Url = resolvedUrl,
-                              WriteResponse = writResponse,
-                              ApiVersion = apiVersion,
-                              IgnoreResponse = ignoreResponse
-                          };
+            {
+                CallerFilePath = callerFilePath,
+                CallerMemberName = callerMemberName,
+                CallerLineNumber = callerLineNumber,
+                CallingAssembly = callingAssembly,
+                Client = client,
+                Current = default,
+                CurrentObject = null,
+                CurrentResultParameterName = "Current response",
+                DifferenceFunc = differenceFunc,
+                ExpectedType = typeof(TResult),
+                ExpectedObjectAsJson = expectedResult,
+                ExpectedResultFile = expectedResultFile,
+                ExpectedResultParameterName = expectedResultParameterName,
+                HttpMethod = httpMethod,
+                IsSuccessStatusCode = isSuccessStatusCode,
+                OrderFunc = filterFunc,
+                Parameters = parameters,
+                PayloadAsJson = payloadAsJson,
+                PayloadFile = payloadFile,
+                PayloadParameterName = payloadAsJsonParameterName,
+                ResolvedExpectedJson = resolvedExpectedJson,
+                ResolvedPayload = resolvedPayload,
+                ShowTokenInCurl = ShowTokenInCurl,
+                TypeIsPrimitiveType = targetIsPrimitiveType,
+                Url = resolvedUrl,
+                WriteResponse = writResponse,
+                ApiVersion = apiVersion,
+                IgnoreResponse = ignoreResponse,
+                SkipEndpointValidation = skipEndpointValidation
+            };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
 
