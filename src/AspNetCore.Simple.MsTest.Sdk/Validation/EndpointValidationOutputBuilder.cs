@@ -139,6 +139,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             BuildTestInfo(sb, context);
             sb.AppendLine();
 
+            // HTTP Call Table - validation happens before HTTP call, so status is pending
+            BuildHttpCallTable(sb, context, "Type Mismatch");
+            sb.AppendLine();
+
             // ASSERT CALL - Original source code
             var sourceCode = sourceCodeExtractor.ExtractCallCode(context.CallerFilePath, context.CallerLineNumber);
 
@@ -250,6 +254,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             BuildTestInfo(sb, context);
+            sb.AppendLine();
+
+            // HTTP Call Table - validation happens before HTTP call, so status is pending
+            BuildHttpCallTable(sb, context, "Type Mismatch");
             sb.AppendLine();
 
             // ASSERT CALL - Original source code

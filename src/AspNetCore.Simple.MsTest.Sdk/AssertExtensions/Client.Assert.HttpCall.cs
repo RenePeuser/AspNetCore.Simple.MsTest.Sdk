@@ -252,7 +252,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static ISourceCodeExtractor _sourceCodeExtractor = new SourceCodeExtractor();
 
-        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(_curlBuilder, _curlFormatter, _sourceCodeExtractor, _textDecorator);
+        // Note: Uses _plainTextDecorator as placeholder - will be recreated in Setup() with correct decorator based on calling assembly
+        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(_curlBuilder, _curlFormatter, _sourceCodeExtractor, _plainTextDecorator);
 
         private static IEndpointValidator _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 
