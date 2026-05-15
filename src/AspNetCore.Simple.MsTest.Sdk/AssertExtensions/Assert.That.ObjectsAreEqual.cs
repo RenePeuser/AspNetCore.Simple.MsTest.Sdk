@@ -43,7 +43,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly Serializer.Json.JsonSerializer JsonSerializer = new(JsonSerializerOptions);
 
-        // Text decorator - conditional on build configuration
+        // Text decorator - conditional on build configuration (default fallback)
 #if DEBUG
         private static readonly ITextDecorator TextDecorator = new PlainTextDecorator();
 #else
@@ -669,9 +669,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert _,
                                               ObjectAssertContext<T> context)
         {
-            // Delegate to the DI-based AssertService for the actual implementation
-            // This keeps the static extension method as a thin wrapper for backward compatibility
-            AssertService.ObjectsAreEqual(context);
+            // Check if calling assembly is in debug mode - if so, use PlainTextDecorator
+            var useDebugDecorator = context.CallingAssembly.IsCompiledInDebug();
+
+            if (useDebugDecorator)
+            {
+                // Create debug-specific builders and service
+                var plainTextDecorator = new PlainTextDecorator();
+                var debugDifferencesTableBuilder = new DifferencesTableBuilder(plainTextDecorator);
+                var debugJsonSectionBuilder = new JsonSectionBuilder(plainTextDecorator);
+                var debugObjectOutputStrategy = new ObjectOutputStrategy(debugDifferencesTableBuilder, debugJsonSectionBuilder);
+                var debugOutputStrategies = new IAssertOutputStrategy[]
+                {
+                    PrimitiveOutputStrategy,
+                    debugObjectOutputStrategy
+                };
+                var debugOutputBuilder = new AssertOutputBuilder(debugOutputStrategies);
+                var debugAssertService = new AssertService(ComparisonStrategy, ResponseWriter, WriteResponseService, debugOutputBuilder);
+
+                // Use debug service
+                debugAssertService.ObjectsAreEqual(context);
+            }
+            else
+            {
+                // Use the default (release) service
+                AssertService.ObjectsAreEqual(context);
+            }
         }
     }
 #pragma warning restore IDE0060 // Remove unused parameter

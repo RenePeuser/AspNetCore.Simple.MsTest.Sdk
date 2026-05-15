@@ -24,8 +24,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="serviceProvider">The service provider containing registered services</param>
         public static void Setup(IServiceProvider serviceProvider)
         {
-            // 1. Resolve core services
-            _textDecorator = serviceProvider.GetRequiredService<ITextDecorator>();
+            // 0. Detect calling assembly debug mode first
+            var callingAssembly = Assembly.GetCallingAssembly();
+            var useDebugDecorator = callingAssembly.IsCompiledInDebug();
+
+            // 1. Resolve core services - use appropriate text decorator based on calling assembly
+            if (useDebugDecorator)
+            {
+                _textDecorator = new PlainTextDecorator();
+            }
+            else
+            {
+                _textDecorator = new AnsiColorTextDecorator();
+            }
+
             _primitiveTypeConverter = serviceProvider.GetRequiredService<IPrimitiveTypeConverter>();
             _jsonDiffer = serviceProvider.GetRequiredService<IJsonDiffer>();
             _parameterReplacer = serviceProvider.GetRequiredService<IParameterReplacer>();
@@ -37,49 +49,74 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 2. Update JsonSerializerOptions from DI
             _jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
 
-            // 3. Resolve builders
-            _httpCallInfoTableBuilder = serviceProvider.GetRequiredService<IHttpCallInfoTableBuilder>();
-            _differencesTableBuilder = serviceProvider.GetRequiredService<IDifferencesTableBuilder>();
-            _jsonSectionBuilder = serviceProvider.GetRequiredService<IJsonSectionBuilder>();
+            // 3. Resolve builders - use the correct text decorator
+            _httpCallInfoTableBuilder = new HttpCallInfoTableBuilder(_textDecorator);
+            _differencesTableBuilder = new DifferencesTableBuilder(_textDecorator);
+            _jsonSectionBuilder = new JsonSectionBuilder(_textDecorator);
             _curlBuilder = serviceProvider.GetRequiredService<ICurlBuilder>();
             _curlFormatter = serviceProvider.GetRequiredService<ICurlFormatter>();
 
-            // 5. Resolve output builder and assert service
-            _outputBuilder = serviceProvider.GetRequiredService<IAssertOutputBuilder>();
-            _assertService = serviceProvider.GetRequiredService<IAssertService>();
+            // 4. Rebuild output strategies with the correct decorator
+            var primitiveOutputStrategy = new PrimitiveOutputStrategy();
+            var objectOutputStrategy = new ObjectOutputStrategy(_differencesTableBuilder, _jsonSectionBuilder);
+            var httpResponseOutputStrategy = new HttpResponseOutputStrategy(_httpCallInfoTableBuilder,
+                                                                             _differencesTableBuilder,
+                                                                             _jsonSectionBuilder,
+                                                                             _curlBuilder,
+                                                                             _curlFormatter,
+                                                                             _textDecorator);
+
+            var outputStrategies = new IAssertOutputStrategy[]
+            {
+                primitiveOutputStrategy,
+                objectOutputStrategy,
+                httpResponseOutputStrategy
+            };
+
+            // 5. Create output builder and assert service with rebuilt strategies
+            _outputBuilder = new AssertOutputBuilder(outputStrategies);
+
+            var comparisonStrategy = new ComparisonStrategy(SpecificComparisonStrategies);
+            _assertService = new AssertService(comparisonStrategy,
+                                              _responseWriter,
+                                              _writeResponseService,
+                                              _outputBuilder);
 
             // 6. Resolve HTTP handler and update _httpCallHandler
             var httpCallHandler = serviceProvider.GetRequiredService<IHttpCallHandler>();
             _httpCallHandler = (HttpCallHandler)httpCallHandler;
 
-            // 7. Resolve pipeline (all steps are contained within it)
-            _httpAssertionPipeline = serviceProvider.GetRequiredService<IHttpAssertionPipeline>();
+            // 7. Rebuild pipeline with the updated components
+            _httpAssertionPipeline = new HttpAssertionPipeline(new IHttpAssertionStep[]
+            {
+                new StatusCodeValidationStep(_outputBuilder),
+                new ContentTypeHeaderValidationStep(_outputBuilder),
+                new ContentFormatValidationStep(_outputBuilder),
+                new JsonComparisonStep(_primitiveTypeConverter,
+                                      _assertService,
+                                      _parameterReplacer,
+                                      _writeResponseService,
+                                      _jsonSerializerOptions)
+            });
 
             // 8. Resolve validation services
             _apiVersionResolver = serviceProvider.GetRequiredService<IApiVersionResolver>();
-            _endpointValidator = serviceProvider.GetRequiredService<IEndpointValidator>();
-
-            // 9. Most important: Set CustomAssertableHttpClient to DI instance
-            _assertableHttpClientDefault = serviceProvider.GetRequiredService<IAssertableHttpClient>();
-            CustomAssertableHttpClient = _assertableHttpClientDefault;
 
             _emptyEndpointProvider = serviceProvider.GetRequiredService<IEndpointProvider>();
-            _endpointValidationOutputBuilder = serviceProvider.GetRequiredService<IEndpointValidationOutputBuilder>();
-
-            _plainTextDecorator = serviceProvider.GetRequiredService<ITextDecorator>();
             _sourceCodeExtractor = serviceProvider.GetRequiredService<ISourceCodeExtractor>();
+            _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(_curlBuilder, _curlFormatter, _sourceCodeExtractor, _textDecorator);
+            _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 
-            var callingAssembly = Assembly.GetCallingAssembly();
+            // 9. Most important: Rebuild AssertableHttpClient with all updated components
+            _assertableHttpClientDefault = new AssertableHttpClient.AssertableHttpClient(_httpCallHandler,
+                                                                                         _parameterReplacer,
+                                                                                         _httpAssertionPipeline,
+                                                                                         _primitiveTypeConverter,
+                                                                                         _jsonSerializerOptions,
+                                                                                         _endpointValidator);
+            CustomAssertableHttpClient = _assertableHttpClientDefault;
 
-            if (callingAssembly.IsCompiledInDebug())
-            {
-                _textDecorator = new PlainTextDecorator();
-            }
-            else
-            {
-                _textDecorator = new AnsiColorTextDecorator();
-
-            }
+            _plainTextDecorator = new PlainTextDecorator();
         }
     }
 
