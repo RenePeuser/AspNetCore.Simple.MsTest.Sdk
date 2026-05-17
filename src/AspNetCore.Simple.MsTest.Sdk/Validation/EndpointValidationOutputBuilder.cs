@@ -148,6 +148,29 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             BuildHttpCallTable(sb, context, "Type Mismatch");
             sb.AppendLine();
 
+            // TYPE VALIDATION Table - Show problem first
+            var actualEndpointTypeName = endpoint.ResponseType.IsNotNull() ? FormatTypeName(endpoint.ResponseType) : "object";
+            var declaredTestTypeName = FormatTypeName(expectedType);
+            var endpointReturnsVoid = endpoint.ResponseType.IsNull();
+
+            var typeColumns = new[] { "Source", "Actual Endpoint Type", "Declared Test Type" };
+            var typeRows = new List<object[]>
+                           {
+                               new object[] { "ResponseType", actualEndpointTypeName, declaredTestTypeName }
+                           };
+
+            var typeTable = tableBuilder.BuildTable(typeColumns, typeRows, enableCount: false);
+
+            sb.AppendLine(textDecorator.SectionTitle("🔍 Type Validation"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.Append(typeTable.TrimEnd());
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine($"The test declares response type '{textDecorator.Error(declaredTestTypeName)}', but the endpoint exposes");
+            sb.AppendLine($"'{textDecorator.Success(actualEndpointTypeName)}' for HTTP 200 OK.");
+            sb.AppendLine();
+
             // ASSERT CALL - Original source code
             var sourceCode = sourceCodeExtractor.ExtractCallCode(context.CallerFilePath, context.CallerLineNumber);
 
@@ -161,10 +184,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             // SUGGESTED FIX - Generate corrected code
-            var actualEndpointTypeName = endpoint.ResponseType.IsNotNull() ? FormatTypeName(endpoint.ResponseType) : "object";
-            var declaredTestTypeName = FormatTypeName(expectedType);
-            var endpointReturnsVoid = endpoint.ResponseType.IsNull();
-
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
                 string suggestedFix;
@@ -214,25 +233,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine();
             }
 
-            // TYPE VALIDATION Table
-            var typeColumns = new[] { "Source", "Actual Endpoint Type", "Declared Test Type" };
-            var typeRows = new List<object[]>
-                           {
-                               new object[] { "ResponseType", actualEndpointTypeName, declaredTestTypeName }
-                           };
-
-            var typeTable = tableBuilder.BuildTable(typeColumns, typeRows, enableCount: false);
-
-            sb.AppendLine(textDecorator.SectionTitle("🔍 Type Validation"));
-            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
-            sb.AppendLine();
-            sb.Append(typeTable.TrimEnd());
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.AppendLine($"The test declares response type '{textDecorator.Error(declaredTestTypeName)}', but the endpoint exposes");
-            sb.AppendLine($"'{textDecorator.Success(actualEndpointTypeName)}' for HTTP 200 OK.");
-            sb.AppendLine();
-
             // Curl command
             var curl = curlBuilder.BuildFrom(context);
             var curlFormatted = curlFormatter.GetCurlAsFormattedString(curl);
@@ -262,6 +262,63 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             BuildHttpCallTable(sb, context, "Type Mismatch");
             sb.AppendLine();
 
+            // TYPE VALIDATION Table - Show all relevant status codes
+            var declaredTestTypeName = FormatTypeName(expectedType);
+            var isSuccessTest = context.IsSuccessStatusCode;
+
+            // Find first matching type as suggestion
+            var firstRelevantType = relevantStatusCodes.FirstOrDefault().Value;
+            var suggestedTypeName = firstRelevantType.IsNotNull() ? FormatTypeName(firstRelevantType) : "object";
+            var endpointReturnsVoid = firstRelevantType.IsNull();
+
+            sb.AppendLine(textDecorator.SectionTitle("🔍 Type Validation"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+
+            var typeColumns = new[] { "Status Code", "Endpoint Response Type", "Declared Test Type", "Match" };
+            var typeRows = new List<object[]>();
+
+            foreach (var statusCode in relevantStatusCodes.OrderBy(kvp => kvp.Key))
+            {
+                var actualTypeName = FormatTypeName(statusCode.Value);
+                var isMatch = statusCode.Value == expectedType ? "✓" : "✗";
+
+                typeRows.Add(new object[]
+                             {
+                                 statusCode.Key.ToString(),
+                                 actualTypeName,
+                                 declaredTestTypeName,
+                                 isMatch
+                             });
+            }
+
+            var typeTable = tableBuilder.BuildTable(typeColumns, typeRows, enableCount: false);
+            sb.Append(typeTable.TrimEnd());
+            sb.AppendLine();
+            sb.AppendLine();
+
+            var testTypeDescription = isSuccessTest ? "success (2xx)" : "error (4xx/5xx)";
+            sb.AppendLine($"The test is a {testTypeDescription} test and declares response type '{textDecorator.Error(declaredTestTypeName)}',");
+            sb.AppendLine($"but none of the endpoint's {testTypeDescription} status codes return this type.");
+            sb.AppendLine();
+
+            if (relevantStatusCodes.Count == 1)
+            {
+                var singleStatus = relevantStatusCodes.First();
+                sb.AppendLine($"Endpoint defines: {singleStatus.Key} → {FormatTypeName(singleStatus.Value)}");
+            }
+            else
+            {
+                sb.AppendLine("Endpoint defines:");
+
+                foreach (var statusCode in relevantStatusCodes.OrderBy(kvp => kvp.Key))
+                {
+                    sb.AppendLine($"  - {statusCode.Key} → {FormatTypeName(statusCode.Value)}");
+                }
+            }
+
+            sb.AppendLine();
+
             // ASSERT CALL - Original source code
             var sourceCode = sourceCodeExtractor.ExtractCallCode(context.CallerFilePath, context.CallerLineNumber);
 
@@ -275,14 +332,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             // SUGGESTED FIX - Generate corrected code
-            var declaredTestTypeName = FormatTypeName(expectedType);
-            var isSuccessTest = context.IsSuccessStatusCode;
-
-            // Find first matching type as suggestion
-            var firstRelevantType = relevantStatusCodes.FirstOrDefault().Value;
-            var suggestedTypeName = firstRelevantType.IsNotNull() ? FormatTypeName(firstRelevantType) : "object";
-            var endpointReturnsVoid = firstRelevantType.IsNull();
-
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
                 string suggestedFix;
@@ -331,55 +380,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine(textDecorator.Success(suggestedFix));
                 sb.AppendLine();
             }
-
-            // TYPE VALIDATION Table - Show all relevant status codes
-            sb.AppendLine(textDecorator.SectionTitle("🔍 Type Validation"));
-            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
-            sb.AppendLine();
-
-            var typeColumns = new[] { "Status Code", "Endpoint Response Type", "Declared Test Type", "Match" };
-            var typeRows = new List<object[]>();
-
-            foreach (var statusCode in relevantStatusCodes.OrderBy(kvp => kvp.Key))
-            {
-                var actualTypeName = FormatTypeName(statusCode.Value);
-                var isMatch = statusCode.Value == expectedType ? "✓" : "✗";
-
-                typeRows.Add(new object[]
-                             {
-                                 statusCode.Key.ToString(),
-                                 actualTypeName,
-                                 declaredTestTypeName,
-                                 isMatch
-                             });
-            }
-
-            var typeTable = tableBuilder.BuildTable(typeColumns, typeRows, enableCount: false);
-            sb.Append(typeTable.TrimEnd());
-            sb.AppendLine();
-            sb.AppendLine();
-
-            var testTypeDescription = isSuccessTest ? "success (2xx)" : "error (4xx/5xx)";
-            sb.AppendLine($"The test is a {testTypeDescription} test and declares response type '{textDecorator.Error(declaredTestTypeName)}',");
-            sb.AppendLine($"but none of the endpoint's {testTypeDescription} status codes return this type.");
-            sb.AppendLine();
-
-            if (relevantStatusCodes.Count == 1)
-            {
-                var singleStatus = relevantStatusCodes.First();
-                sb.AppendLine($"Endpoint defines: {singleStatus.Key} → {FormatTypeName(singleStatus.Value)}");
-            }
-            else
-            {
-                sb.AppendLine("Endpoint defines:");
-
-                foreach (var statusCode in relevantStatusCodes.OrderBy(kvp => kvp.Key))
-                {
-                    sb.AppendLine($"  - {statusCode.Key} → {FormatTypeName(statusCode.Value)}");
-                }
-            }
-
-            sb.AppendLine();
 
             // Curl command
             var curl = curlBuilder.BuildFrom(context);
