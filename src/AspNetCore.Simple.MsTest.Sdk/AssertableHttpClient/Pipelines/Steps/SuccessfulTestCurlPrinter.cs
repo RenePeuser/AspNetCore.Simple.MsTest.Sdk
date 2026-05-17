@@ -40,12 +40,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // Use both Console.Out (for captured output) and Trace (for test frameworks)
             if (curlFormatted.IsNotNullOrWhiteSpace())
             {
-                // Write to Console.Out explicitly (captured by test runners)
-                Console.Out.WriteLine(curlFormatted);
-                Console.Out.Flush();
+                //// Write to Console.Out explicitly (captured by test runners)
+                //Console.Out.WriteLine(curlFormatted);
+                //Console.Out.Flush();
 
-                // Also write via Trace for test frameworks that capture trace output
-                System.Diagnostics.Trace.WriteLine(curlFormatted);
+                //// Also write via Trace for test frameworks that capture trace output
+                //System.Diagnostics.Trace.WriteLine(curlFormatted);
+
+                // Custom log action
+                HttpClientAssertExtensions.LogAction.Invoke(curlFormatted);
             }
         }
     }
