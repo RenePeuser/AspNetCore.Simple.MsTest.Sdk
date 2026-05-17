@@ -1,0 +1,202 @@
+# Rethinking API Testing: A Fresh Approach to Snapshot Testing for ASP.NET Core
+
+After years of building and testing Web APIs, I've learned that the most time-consuming part isn't writing the code—it's maintaining the tests. Today, I'm excited to share a project that tackles this challenge from a completely new angle.
+
+## The Challenge We All Face
+
+Testing Web APIs has always involved a tension between three things:
+- **Coverage**: How much of the response do we validate?
+- **Speed**: How quickly can we add test cases?
+- **Maintainability**: How painful is it when the API changes?
+
+Traditional assertion-based testing makes us choose. We cherry-pick fields to validate (incomplete coverage), write repetitive boilerplate (slow), and manually update every assertion when contracts change (painful maintenance).
+
+Snapshot testing improves this, but I kept hitting the same friction points:
+- Adding test cases still requires manual attribute updates
+- Type mismatches only surface at runtime
+- Debugging failures means reconstructing the request manually
+- Test coverage and file system state can drift apart
+
+## A Different Perspective
+
+What if the file system *was* the test suite? What if type safety extended to the HTTP layer? What if failed tests told you exactly how to fix them?
+
+These questions led to **AspNetCore.Simple.MsTest.Sdk v2.0**—a complete architectural rethink of how snapshot testing could work for ASP.NET Core.
+
+## Innovation 1: Files *Are* Tests
+
+The breakthrough idea: `DynamicRequestLocator`
+
+```csharp
+[DataTestMethod]
+[DynamicRequestLocator]
+public Task Should_Create_User(string requestFileName)
+{
+    return Client.AssertPostAsync<UserResponse>(
+        "api/v1/users",
+        requestFileName,
+        requestFileName);
+}
+```
+
+That's the entire test method. Add a JSON file to your `Requests` folder, and a new test case appears automatically. No attributes to update. No sync issues. The file system *becomes* your test suite.
+
+**Impact**: Adding 50 edge cases goes from hours to minutes.
+
+## Innovation 2: Type Safety at the HTTP Layer
+
+What if your test knew about your endpoint's contract?
+
+```csharp
+await Client.AssertPostAsync<UserResponse>("api/v1/users", ...);
+```
+
+The SDK validates that `UserResponse` matches what your endpoint actually returns—**before the test even runs**. It checks `[ProducesResponseType]` attributes, endpoint metadata, and even falls back to analyzing your expected response JSON.
+
+When there's a mismatch, you get:
+- The exact type difference
+- Your current test code
+- **Suggested corrected code** (ready to copy-paste)
+
+**Impact**: Type mismatches caught in milliseconds instead of minutes.
+
+## Innovation 3: Failures That Fix Themselves (Almost)
+
+Every failed test includes:
+
+```plaintext
+📦 Where: Test context (file, line, method)
+🌍 What: HTTP details (method, URL, status)
+🔍 Why: Exact differences with deep paths
+📝 How: Suggested fix with corrected code
+🔁 Reproduce: Ready-to-run curl command
+```
+
+Example diff:
+```
+| MemberPath         | Expected  | Current | MismatchType    |
+| content.value.name | Son Test  | Son     | ValueDifference |
+```
+
+Not "something failed." Not "objects don't match." **Exact property, exact difference, exact fix.**
+
+**Impact**: Debugging time drops from minutes to seconds.
+
+## Innovation 4: Full HTTP Response Validation
+
+A single snapshot captures:
+- Response body (full JSON structure)
+- Status code
+- Response headers
+- Content headers
+- Trailing headers
+- Success state
+
+Change a header? The test catches it.
+Change a status code? The test catches it.
+Add a field? The test catches it.
+
+**Impact**: Comprehensive contract validation without writing individual assertions.
+
+## Innovation 5: From Production to Tests in One Line
+
+```csharp
+app.UseTestCreator();
+```
+
+This middleware captures live requests and responses, automatically generating test files. Perfect for:
+- Bootstrapping regression test suites
+- Documenting legacy APIs
+- Converting exploratory testing into permanent coverage
+
+**Impact**: Turn production traffic into test coverage.
+
+## The Architecture Matters
+
+This wasn't just about features—it required a complete architectural rewrite:
+
+- **Pipeline-based execution**: Clean validation flow with early exits
+- **Strategy Pattern**: Extensible outputs and comparison strategies
+- **Builder Pattern**: Composable formatters for all output components
+- **Service-oriented design**: Full dependency injection support
+- **Feature-based registration**: Each component registers its dependencies
+
+Every component follows SOLID principles. Everything is extensible. Nothing is hardcoded.
+
+## Design Philosophy
+
+Three principles guided every decision:
+
+1. **Fail fast, fail with context**: Early validation with complete diagnostic information
+2. **The file system is the source of truth**: Tests scale with files, not code
+3. **Type safety extends to HTTP**: Compile-time types should match runtime contracts
+
+## Real-World Impact
+
+The productivity difference is substantial:
+
+**Before**:
+- 15 minutes to add 5 test cases (write DataRows, create files, keep in sync)
+- 10 minutes to diagnose a deep object mismatch
+- Manual reproduction of failed requests
+
+**After**:
+- 1 minute to add 5 test cases (just create the files)
+- 30 seconds to diagnose failures (deep path + suggested fix + curl)
+- Instant reproduction (paste the curl command)
+
+## Try It Yourself
+
+```bash
+dotnet add package AspNetCore.Simple.MsTest.Sdk
+```
+
+The README includes comprehensive examples and architectural documentation: [NuGet Package](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk)
+
+## What's Next?
+
+This is v2.0, but it's really just the beginning. The architecture is designed for extensibility:
+- Custom comparison strategies
+- Custom output formatters
+- Custom validation pipelines
+
+I'm excited to see what the community builds on top of this foundation.
+
+## Open Question for the Community
+
+What if we applied the `DynamicRequestLocator` pattern to other testing scenarios? What if enum-driven tests were always this simple? What if all snapshot testing came with suggested fixes?
+
+**These aren't rhetorical questions—they're design opportunities.**
+
+---
+
+## Key Takeaways
+
+✅ **DynamicRequestLocator**: Add a file, get a test—no boilerplate
+✅ **Smart Endpoint Validation**: Type safety at the HTTP layer
+✅ **Suggested Fixes**: Auto-generated corrected code on failures
+✅ **Deep MemberPath Diffs**: Pinpoint exact differences instantly
+✅ **Curl Generation**: Every failure includes reproduction command
+✅ **Full HTTP Snapshots**: Status + Headers + Body in one assertion
+✅ **Live Traffic Capture**: Production traffic becomes test coverage
+✅ **Clean Architecture**: Pipeline + Strategy + DI throughout
+
+---
+
+## Closing Thoughts
+
+Testing shouldn't be the bottleneck. It should be the safety net that lets you move fast with confidence.
+
+If you're tired of writing repetitive test boilerplate, manually diagnosing deep object mismatches, or keeping test attributes in sync with files, this might be worth a look.
+
+I'd love to hear your thoughts. What are your biggest pain points in API testing? What would make testing feel less like a chore and more like a productivity multiplier?
+
+**Let's discuss in the comments.** 👇
+
+---
+
+**#dotnet #aspnetcore #testing #softwaredevelopment #webapi #csharp #snapshottesting #productivity #cleancode #softwareengineering**
+
+---
+
+*René Peuser - Software Architect | Passionate about developer productivity and clean architecture*

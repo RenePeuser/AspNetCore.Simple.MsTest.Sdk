@@ -74,7 +74,6 @@ namespace MinimalApi.Test.Api.Persons
             return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   "NewPersonParameter.json",
                                                   "NewPersonParameter.json",
-                                                  parameters:
                                                   [
                                                       ("$Name$", "Son"),
                                                       ("$Age$", 42)

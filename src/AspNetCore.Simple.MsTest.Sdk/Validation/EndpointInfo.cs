@@ -62,5 +62,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// Endpoint summary (from WithSummary() or XML comments).
         /// </summary>
         public string? Summary { get; init; }
+
+        /// <summary>
+        /// Source location of the endpoint (Controller class or Minimal API file).
+        /// Examples:
+        /// - "Controllers.PersonController.CreatePerson"
+        /// - "Program.cs:MapPost"
+        /// - "PersonEndpoints.cs:MapPersonEndpoints"
+        /// </summary>
+        public string? SourceLocation { get; init; }
     }
 }

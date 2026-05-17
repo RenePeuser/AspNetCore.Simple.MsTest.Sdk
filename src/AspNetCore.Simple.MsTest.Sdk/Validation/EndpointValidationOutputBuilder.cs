@@ -145,7 +145,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // HTTP Call Table - validation happens before HTTP call, so status is pending
-            BuildHttpCallTable(sb, context, "Type Mismatch");
+            BuildHttpCallTable(sb, context, "Type Mismatch", endpoint);
             sb.AppendLine();
 
             // TYPE VALIDATION Table - Show problem first
@@ -259,7 +259,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // HTTP Call Table - validation happens before HTTP call, so status is pending
-            BuildHttpCallTable(sb, context, "Type Mismatch");
+            BuildHttpCallTable(sb, context, "Type Mismatch", endpoint);
             sb.AppendLine();
 
             // TYPE VALIDATION Table - Show all relevant status codes
@@ -440,7 +440,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
         private void BuildHttpCallTable(StringBuilder sb,
                                         IHttpAssertContext context,
-                                        string statusCode)
+                                        string statusCode,
+                                        EndpointInfo? endpoint = null)
         {
             // Build full URL from client base address
             var fullUrl = context.Client.BaseAddress.IsNotNull()
@@ -453,6 +454,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine($"{"Method",-10} : {context.HttpMethod.Method}");
             sb.AppendLine($"{"Url",-10} : {fullUrl}");
             sb.AppendLine($"{"Status",-10} : {DecorateStatusCode(statusCode)}");
+
+            if (endpoint?.SourceLocation.IsNotNullOrWhiteSpace() ?? false)
+            {
+                sb.AppendLine($"{"Source",-10} : {endpoint.SourceLocation}");
+            }
         }
 
 
