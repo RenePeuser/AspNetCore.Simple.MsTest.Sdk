@@ -18,9 +18,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public static partial class HttpClientAssertExtensions
     {
         /// <summary>
-        /// Initializes all internal static fields with services resolved from the DI container.
-        /// Call this method once during test initialization (e.g., in [AssemblyInitialize])
-        /// after registering services via services.AddAssertableHttpClient().
+        ///     Initializes all internal static fields with services resolved from the DI container.
+        ///     Call this method once during test initialization (e.g., in [AssemblyInitialize])
+        ///     after registering services via services.AddAssertableHttpClient().
         /// </summary>
         /// <param name="serviceProvider">The service provider containing registered services</param>
         public static void Setup(IServiceProvider serviceProvider)
@@ -61,28 +61,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 4. Rebuild output strategies with the correct decorator
             var primitiveOutputStrategy = new PrimitiveOutputStrategy(_textDecorator);
             var objectOutputStrategy = new ObjectOutputStrategy(_differencesTableBuilder, _jsonSectionBuilder, _textDecorator);
-            var httpResponseOutputStrategy = new HttpResponseOutputStrategy(_httpCallInfoTableBuilder,
-                                                                             _differencesTableBuilder,
-                                                                             _jsonSectionBuilder,
-                                                                             _curlBuilder,
-                                                                             _curlFormatter,
-                                                                             _textDecorator);
 
-            var outputStrategies = new IAssertOutputStrategy[]
-            {
-                primitiveOutputStrategy,
-                objectOutputStrategy,
-                httpResponseOutputStrategy
-            };
+            var httpResponseOutputStrategy = new HttpResponseOutputStrategy(_httpCallInfoTableBuilder,
+                                                                            _differencesTableBuilder,
+                                                                            _jsonSectionBuilder,
+                                                                            _curlBuilder,
+                                                                            _curlFormatter,
+                                                                            _textDecorator);
+
+            var outputStrategies = new IAssertOutputStrategy[] { primitiveOutputStrategy, objectOutputStrategy, httpResponseOutputStrategy };
 
             // 5. Create output builder and assert service with rebuilt strategies
             _outputBuilder = new AssertOutputBuilder(outputStrategies);
 
             var comparisonStrategy = new ComparisonStrategy(SpecificComparisonStrategies);
+
             _assertService = new AssertService(comparisonStrategy,
-                                              _responseWriter,
-                                              _writeResponseService,
-                                              _outputBuilder);
+                                               _responseWriter,
+                                               _writeResponseService,
+                                               _outputBuilder);
 
             // 6. Resolve HTTP handler and update _httpCallHandler
             var httpCallHandler = serviceProvider.GetRequiredService<IHttpCallHandler>();
@@ -90,24 +87,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 7. Rebuild pipeline with the updated components
             _httpAssertionPipeline = new HttpAssertionPipeline(new IHttpAssertionStep[]
-            {
-                new StatusCodeValidationStep(_outputBuilder),
-                new ContentTypeHeaderValidationStep(_outputBuilder),
-                new ContentFormatValidationStep(_outputBuilder),
-                new JsonComparisonStep(_primitiveTypeConverter,
-                                      _assertService,
-                                      _parameterReplacer,
-                                      _writeResponseService,
-                                      _jsonSerializerOptions),
-                new SuccessfulTestCurlPrinter(_curlBuilder, _curlFormatter)
-            });
+                                                               {
+                                                                   new StatusCodeValidationStep(_outputBuilder), new ContentTypeHeaderValidationStep(_outputBuilder), new ContentFormatValidationStep(_outputBuilder),
+                                                                   new JsonComparisonStep(_primitiveTypeConverter,
+                                                                                          _assertService,
+                                                                                          _parameterReplacer,
+                                                                                          _writeResponseService,
+                                                                                          _jsonSerializerOptions),
+                                                                   new SuccessfulTestCurlPrinter(_curlBuilder, _curlFormatter)
+                                                               });
 
             // 8. Resolve validation services
             _apiVersionResolver = serviceProvider.GetRequiredService<IApiVersionResolver>();
 
             _emptyEndpointProvider = serviceProvider.GetRequiredService<IEndpointProvider>();
             _sourceCodeExtractor = serviceProvider.GetRequiredService<ISourceCodeExtractor>();
-            _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(tableBuilder, _curlBuilder, _curlFormatter, _sourceCodeExtractor, _textDecorator);
+
+            _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(tableBuilder, _curlBuilder, _curlFormatter,
+                                                                                   _sourceCodeExtractor, _textDecorator);
+
             _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 
             // 9. Most important: Rebuild AssertableHttpClient with all updated components
@@ -117,6 +115,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                          _primitiveTypeConverter,
                                                                                          _jsonSerializerOptions,
                                                                                          _endpointValidator);
+
             CustomAssertableHttpClient = _assertableHttpClientDefault;
 
             _plainTextDecorator = new PlainTextDecorator();
@@ -125,12 +124,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     public static partial class HttpClientAssertExtensions
     {
-        // Text decorator - conditional on build configuration
-#if DEBUG
         private static ITextDecorator _textDecorator = new PlainTextDecorator();
-#else
-        private static ITextDecorator _textDecorator = new AnsiColorTextDecorator();
-#endif
 
         private static IPrimitiveTypeConverter _primitiveTypeConverter = new PrimitiveTypeConverter();
 
@@ -169,16 +163,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
         private static JsonSerializerOptions _jsonSerializerOptions = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters =
-            {
-                new JsonStringEnumConverter()
-            }
-        };
+                                                                      {
+                                                                          PropertyNameCaseInsensitive = true,
+                                                                          PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                                                          DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                                                                          NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                                                                          Converters = { new JsonStringEnumConverter() }
+                                                                      };
 
         private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions);
 
@@ -189,7 +180,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static ICurlFormatter _curlFormatter = new CurlFormatter(_plainTextDecorator);
 
         // Builders for output strategies
-        private static readonly TableBuilder StaticTableBuilder = new TableBuilder();
+        private static readonly TableBuilder StaticTableBuilder = new();
 
         private static IHttpCallInfoTableBuilder _httpCallInfoTableBuilder = new HttpCallInfoTableBuilder(_textDecorator);
 
@@ -240,16 +231,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // Pipeline (contains all steps internally)
         private static IHttpAssertionPipeline _httpAssertionPipeline = new HttpAssertionPipeline(new IHttpAssertionStep[]
-        {
-            new StatusCodeValidationStep(_outputBuilder),
-            new ContentTypeHeaderValidationStep(_outputBuilder),
-            new ContentFormatValidationStep(_outputBuilder),
-            new JsonComparisonStep(_primitiveTypeConverter,
-                                   _assertService,
-                                   _parameterReplacer,
-                                   _writeResponseService,
-                                   JsonSerializerOptions)
-        });
+                                                                                                 {
+                                                                                                     new StatusCodeValidationStep(_outputBuilder), new ContentTypeHeaderValidationStep(_outputBuilder), new ContentFormatValidationStep(_outputBuilder),
+                                                                                                     new JsonComparisonStep(_primitiveTypeConverter,
+                                                                                                                            _assertService,
+                                                                                                                            _parameterReplacer,
+                                                                                                                            _writeResponseService,
+                                                                                                                            JsonSerializerOptions)
+                                                                                                 });
 
         private static IApiVersionResolver _apiVersionResolver = new ApiVersionResolver();
 
@@ -258,7 +247,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static ISourceCodeExtractor _sourceCodeExtractor = new SourceCodeExtractor();
 
         // Note: Uses _plainTextDecorator as placeholder - will be recreated in Setup() with correct decorator based on calling assembly
-        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(StaticTableBuilder, _curlBuilder, _curlFormatter, _sourceCodeExtractor, _plainTextDecorator);
+        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(StaticTableBuilder, _curlBuilder, _curlFormatter,
+                                                                                                                               _sourceCodeExtractor, _plainTextDecorator);
 
         private static IEndpointValidator _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 
@@ -270,9 +260,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                                                           _endpointValidator);
 
         /// <summary>
-        /// Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.
-        /// Allows developers to plug in their own assertion logic while maintaining type safety.
-        /// Defaults to the standard AssertableHttpClient implementation.
+        ///     Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.
+        ///     Allows developers to plug in their own assertion logic while maintaining type safety.
+        ///     Defaults to the standard AssertableHttpClient implementation.
         /// </summary>
         public static IAssertableHttpClient CustomAssertableHttpClient { get; set; } = _assertableHttpClientDefault;
 
@@ -311,37 +301,37 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with ExpectedType = typeof(void) for NoContent scenarios
             var context = new HttpAssertContext<string>
-            {
-                CallerFilePath = callerFilePath,
-                CallerMemberName = callerMemberName,
-                CallerLineNumber = callerLineNumber,
-                CallingAssembly = callingAssembly,
-                Client = client,
-                Current = default,
-                CurrentObject = null,
-                CurrentResultParameterName = "Current response",
-                DifferenceFunc = difference => difference,
-                ExpectedType = typeof(void), // <-- Key difference: void for NoContent
-                ExpectedObjectAsJson = IgnoreResponseComparison,
-                ExpectedResultFile = expectedResultFile,
-                ExpectedResultParameterName = string.Empty,
-                HttpMethod = httpMethod,
-                IsSuccessStatusCode = isSuccessStatusCode,
-                OrderFunc = item => item,
-                Parameters = parameters,
-                PayloadAsJson = payloadAsJson,
-                PayloadFile = payloadFile,
-                PayloadParameterName = payloadAsJsonParameterName,
-                ResolvedExpectedJson = resolvedExpectedJson,
-                ResolvedPayload = resolvedPayload,
-                ShowTokenInCurl = ShowTokenInCurl,
-                TypeIsPrimitiveType = true,
-                Url = resolvedUrl,
-                WriteResponse = writeResponse,
-                ApiVersion = apiVersion,
-                IgnoreResponse = false,
-                SkipEndpointValidation = skipEndpointValidation
-            };
+                          {
+                              CallerFilePath = callerFilePath,
+                              CallerMemberName = callerMemberName,
+                              CallerLineNumber = callerLineNumber,
+                              CallingAssembly = callingAssembly,
+                              Client = client,
+                              Current = default,
+                              CurrentObject = null,
+                              CurrentResultParameterName = "Current response",
+                              DifferenceFunc = difference => difference,
+                              ExpectedType = typeof(void), // <-- Key difference: void for NoContent
+                              ExpectedObjectAsJson = IgnoreResponseComparison,
+                              ExpectedResultFile = expectedResultFile,
+                              ExpectedResultParameterName = string.Empty,
+                              HttpMethod = httpMethod,
+                              IsSuccessStatusCode = isSuccessStatusCode,
+                              OrderFunc = item => item,
+                              Parameters = parameters,
+                              PayloadAsJson = payloadAsJson,
+                              PayloadFile = payloadFile,
+                              PayloadParameterName = payloadAsJsonParameterName,
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              ResolvedPayload = resolvedPayload,
+                              ShowTokenInCurl = ShowTokenInCurl,
+                              TypeIsPrimitiveType = true,
+                              Url = resolvedUrl,
+                              WriteResponse = writeResponse,
+                              ApiVersion = apiVersion,
+                              IgnoreResponse = false,
+                              SkipEndpointValidation = skipEndpointValidation
+                          };
 
             await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
         }
@@ -366,14 +356,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   [CallerMemberName] string callerMemberName = "",
                                                                   [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertHttpCallAsync(url: url,
-                                              payloadAsJson: payloadAsJson,
-                                              expectedResult: expectedResult,
-                                              filterFunc: filterFunc,
-                                              httpMethod: httpMethod,
-                                              differenceFunc: difference => difference,
-                                              parameters: parameters,
-                                              callingAssembly: callingAssembly,
+            return client.AssertHttpCallAsync(url,
+                                              payloadAsJson,
+                                              expectedResult,
+                                              filterFunc,
+                                              httpMethod,
+                                              difference => difference,
+                                              parameters,
+                                              callingAssembly,
                                               payloadAsJsonParameterName: payloadAsJsonParameterName,
                                               expectedResultParameterName: expectedResultParameterName,
                                               callerFilePath: callerFilePath,
@@ -425,37 +415,37 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create public context directly - no need for internal context
             var context = new HttpAssertContext<TResult>
-            {
-                CallerFilePath = callerFilePath,
-                CallerMemberName = callerMemberName,
-                CallerLineNumber = callerLineNumber,
-                CallingAssembly = callingAssembly,
-                Client = client,
-                Current = default,
-                CurrentObject = null,
-                CurrentResultParameterName = "Current response",
-                DifferenceFunc = differenceFunc,
-                ExpectedType = typeof(TResult),
-                ExpectedObjectAsJson = expectedResult,
-                ExpectedResultFile = expectedResultFile,
-                ExpectedResultParameterName = expectedResultParameterName,
-                HttpMethod = httpMethod,
-                IsSuccessStatusCode = isSuccessStatusCode,
-                OrderFunc = filterFunc,
-                Parameters = parameters,
-                PayloadAsJson = payloadAsJson,
-                PayloadFile = payloadFile,
-                PayloadParameterName = payloadAsJsonParameterName,
-                ResolvedExpectedJson = resolvedExpectedJson,
-                ResolvedPayload = resolvedPayload,
-                ShowTokenInCurl = ShowTokenInCurl,
-                TypeIsPrimitiveType = targetIsPrimitiveType,
-                Url = resolvedUrl,
-                WriteResponse = writeResponse,
-                ApiVersion = apiVersion,
-                IgnoreResponse = ignoreResponse,
-                SkipEndpointValidation = skipEndpointValidation
-            };
+                          {
+                              CallerFilePath = callerFilePath,
+                              CallerMemberName = callerMemberName,
+                              CallerLineNumber = callerLineNumber,
+                              CallingAssembly = callingAssembly,
+                              Client = client,
+                              Current = default,
+                              CurrentObject = null,
+                              CurrentResultParameterName = "Current response",
+                              DifferenceFunc = differenceFunc,
+                              ExpectedType = typeof(TResult),
+                              ExpectedObjectAsJson = expectedResult,
+                              ExpectedResultFile = expectedResultFile,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              HttpMethod = httpMethod,
+                              IsSuccessStatusCode = isSuccessStatusCode,
+                              OrderFunc = filterFunc,
+                              Parameters = parameters,
+                              PayloadAsJson = payloadAsJson,
+                              PayloadFile = payloadFile,
+                              PayloadParameterName = payloadAsJsonParameterName,
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              ResolvedPayload = resolvedPayload,
+                              ShowTokenInCurl = ShowTokenInCurl,
+                              TypeIsPrimitiveType = targetIsPrimitiveType,
+                              Url = resolvedUrl,
+                              WriteResponse = writeResponse,
+                              ApiVersion = apiVersion,
+                              IgnoreResponse = ignoreResponse,
+                              SkipEndpointValidation = skipEndpointValidation
+                          };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
 
