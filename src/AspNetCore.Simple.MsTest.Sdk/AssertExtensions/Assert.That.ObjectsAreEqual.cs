@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
+using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -51,7 +52,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #endif
 
         // Builders for output strategies
-        private static readonly DifferencesTableBuilder DifferencesTableBuilder = new(TextDecorator);
+        private static readonly TableBuilder StaticTableBuilder = new();
+
+        private static readonly DifferencesTableBuilder DifferencesTableBuilder = new(StaticTableBuilder, TextDecorator);
 
         private static readonly JsonSectionBuilder JsonSectionBuilder = new(TextDecorator);
 
@@ -676,7 +679,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 // Create debug-specific builders and service
                 var plainTextDecorator = new PlainTextDecorator();
-                var debugDifferencesTableBuilder = new DifferencesTableBuilder(plainTextDecorator);
+                var tableBuilder = new TableBuilder();
+                var debugDifferencesTableBuilder = new DifferencesTableBuilder(tableBuilder, plainTextDecorator);
                 var debugJsonSectionBuilder = new JsonSectionBuilder(plainTextDecorator);
                 var debugObjectOutputStrategy = new ObjectOutputStrategy(debugDifferencesTableBuilder, debugJsonSectionBuilder);
                 var debugOutputStrategies = new IAssertOutputStrategy[]

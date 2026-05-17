@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
-using ConsoleTables;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -42,25 +41,71 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public string Build(IHttpResponseContext context)
         {
-            var table = new ConsoleTable { Options = { EnableCount = false } };
-
-            // Add columns
-            table.AddColumn(new[] { "HttpMethod", "Url", "HttpStatusCode" });
-
-            // Add data row
             var httpMethod = context.HttpMethod.Method;
             var url = context.AbsoluteUrl;
-            var statusCode = $"{(int)context.HttpStatusCode} {context.HttpStatusCode}";
-
-            table.AddRow(httpMethod, url, statusCode);
+            var statusCode = DecorateStatusCode(context.HttpStatusCode);
+            var bodyContent = GetBodyContent(context);
+            var responseFile = GetResponseFileName(context);
 
             var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine(textDecorator.SectionTitle("HTTP CALL"));
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Outcome")} : {DecorateStatusCode(context.HttpStatusCode)}");
             stringBuilder.AppendLine();
-            stringBuilder.Append(table.ToString().TrimEnd());
+            stringBuilder.AppendLine(textDecorator.SectionTitle("🌍 HTTP"));
+            stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Method")}   : {httpMethod}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Url")}      : {url}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Status")}   : {statusCode}");
+
+            if (bodyContent.IsNotNullOrWhiteSpace())
+            {
+                stringBuilder.AppendLine($"{textDecorator.Highlight("Body")}     : {bodyContent}");
+            }
+
+            stringBuilder.Append($"{textDecorator.Highlight("Response")} : {responseFile}");
 
             return stringBuilder.ToString();
+        }
+
+        private static string GetBodyContent(IHttpResponseContext context)
+        {
+            if (context.PayloadFile.IsNull())
+            {
+                return string.Empty;
+            }
+
+            var content = context.PayloadFile.Content;
+
+            if (content.IsNullOrWhiteSpace())
+            {
+                return string.Empty;
+            }
+
+            // Compress whitespace for display
+            var compressed = content
+                             .Replace("\r\n", " ")
+                             .Replace("\n", " ")
+                             .Replace("\r", " ")
+                             .Replace("\t", " ");
+
+            // Compress multiple spaces to single space
+            while (compressed.Contains("  "))
+            {
+                compressed = compressed.Replace("  ", " ");
+            }
+
+            return compressed.Trim();
+        }
+
+        private static string GetResponseFileName(IHttpResponseContext context)
+        {
+            var expectedFileName = context.ExpectedResultFile.EmbeddedFile?.Name;
+
+            if (expectedFileName.IsNotNullOrWhiteSpace())
+            {
+                return expectedFileName;
+            }
+
+            return "Expected";
         }
 
         private string DecorateStatusCode(System.Net.HttpStatusCode statusCode)

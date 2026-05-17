@@ -28,15 +28,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return string.Empty;
             }
 
-            var maxLength = curl.Split(Environment.NewLine).Max(line => line.Length);
-            var separator = maxLength.Times(() => "-").Flatten();
-
             var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine(textDecorator.Dim(separator));
-            stringBuilder.AppendLine(textDecorator.SectionTitle("Http call as curl"));
-            stringBuilder.AppendLine(textDecorator.Dim(separator));
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(textDecorator.SectionTitle("🔁 Reproduce Locally"));
+            stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            stringBuilder.AppendLine();
             stringBuilder.AppendLine(textDecorator.Success(curl));
-            stringBuilder.AppendLine(textDecorator.Dim(separator));
+            stringBuilder.AppendLine();
+            stringBuilder.Append(textDecorator.Dim("══════════════════════════════════════════════════════════════"));
             var curlOutput = stringBuilder.ToString();
 
             return curlOutput;

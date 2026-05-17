@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
-using ConsoleTables;
+using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,6 +11,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     {
         public static void AddEndpointValidationOutputBuilder(this IServiceCollection services)
         {
+            services.AddTableBuilder();
             services.AddCurlBuilder();
             services.AddCurlFormatter();
             services.AddSourceCodeExtractor();
@@ -48,7 +49,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                          ImmutableDictionary<int, Type> relevantStatusCodes);
     }
 
-    internal sealed class EndpointValidationOutputBuilder(ICurlBuilder curlBuilder,
+    internal sealed class EndpointValidationOutputBuilder(ITableBuilder tableBuilder,
+                                                          ICurlBuilder curlBuilder,
                                                           ICurlFormatter curlFormatter,
                                                           ISourceCodeExtractor sourceCodeExtractor,
                                                           ITextDecorator textDecorator) : IEndpointValidationOutputBuilder
@@ -98,19 +100,19 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine(textDecorator.SectionTitle("MATCHING ENDPOINTS"));
             sb.AppendLine(textDecorator.Dim(" " + new string('-', 100)));
 
-            var table = new ConsoleTable("Method", "URL", "API Version",
-                                         "Response Type");
+            var columns = new[] { "Method", "URL", "API Version", "Response Type" };
+            var rows = new List<object[]>();
 
             foreach (var endpoint in matchingEndpoints)
             {
                 var version = endpoint.ApiVersion?.ToString() ?? "N/A";
                 var responseType = endpoint.ResponseType?.Name ?? "N/A";
 
-                table.AddRow(endpoint.HttpMethod, endpoint.Url, version,
-                             responseType);
+                rows.Add(new object[] { endpoint.HttpMethod, endpoint.Url, version, responseType });
             }
 
-            sb.AppendLine(table.ToMinimalString());
+            var table = tableBuilder.BuildTable(columns, rows, enableCount: false);
+            sb.AppendLine(table);
             sb.AppendLine();
             sb.AppendLine(textDecorator.SectionTitle("SUMMARY"));
             sb.AppendLine();
@@ -212,13 +214,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             // TYPE VALIDATION Table
-            var typeTable = new ConsoleTable { Options = { EnableCount = false } };
-            typeTable.AddColumn(new[] { "Source", "Actual Endpoint Type", "Declared Test Type" });
-            typeTable.AddRow("ResponseType", actualEndpointTypeName, declaredTestTypeName);
+            var typeColumns = new[] { "Source", "Actual Endpoint Type", "Declared Test Type" };
+            var typeRows = new List<object[]>
+                           {
+                               new object[] { "ResponseType", actualEndpointTypeName, declaredTestTypeName }
+                           };
+
+            var typeTable = tableBuilder.BuildTable(typeColumns, typeRows, enableCount: false);
 
             sb.AppendLine(textDecorator.SectionTitle("TYPE VALIDATION"));
             sb.AppendLine();
-            sb.Append(typeTable.ToString().TrimEnd());
+            sb.Append(typeTable.TrimEnd());
             sb.AppendLine();
             sb.AppendLine();
 
@@ -336,24 +342,25 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine(textDecorator.SectionTitle("TYPE VALIDATION"));
             sb.AppendLine();
 
-            var typeTable = new ConsoleTable { Options = { EnableCount = false } };
-
-            typeTable.AddColumn(new[]
-                                {
-                                    "Status Code", "Endpoint Response Type", "Declared Test Type",
-                                    "Match"
-                                });
+            var typeColumns = new[] { "Status Code", "Endpoint Response Type", "Declared Test Type", "Match" };
+            var typeRows = new List<object[]>();
 
             foreach (var statusCode in relevantStatusCodes.OrderBy(kvp => kvp.Key))
             {
                 var actualTypeName = FormatTypeName(statusCode.Value);
                 var isMatch = statusCode.Value == expectedType ? "✓" : "✗";
 
-                typeTable.AddRow(statusCode.Key.ToString(), actualTypeName, declaredTestTypeName,
-                                 isMatch);
+                typeRows.Add(new object[]
+                             {
+                                 statusCode.Key.ToString(),
+                                 actualTypeName,
+                                 declaredTestTypeName,
+                                 isMatch
+                             });
             }
 
-            sb.Append(typeTable.ToString().TrimEnd());
+            var typeTable = tableBuilder.BuildTable(typeColumns, typeRows, enableCount: false);
+            sb.Append(typeTable.TrimEnd());
             sb.AppendLine();
             sb.AppendLine();
 
@@ -440,24 +447,25 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                         IHttpAssertContext context,
                                         string statusCode)
         {
-            var table = new ConsoleTable { Options = { EnableCount = false } };
-
-            // Add columns
-            table.AddColumn(new[] { "HttpMethod", "Url", "HttpStatusCode" });
-
             // Build full URL from client base address
             var fullUrl = context.Client.BaseAddress.IsNotNull()
                               ? new Uri(context.Client.BaseAddress, context.Url).ToString()
                               : context.Url;
 
-            // Add data row
-            table.AddRow(context.HttpMethod.Method, fullUrl, statusCode);
+            // Build table
+            var columns = new[] { "HttpMethod", "Url", "HttpStatusCode" };
+            var rows = new List<object[]>
+                       {
+                           new object[] { context.HttpMethod.Method, fullUrl, statusCode }
+                       };
+
+            var table = tableBuilder.BuildTable(columns, rows, enableCount: false);
 
             sb.AppendLine(textDecorator.SectionTitle("HTTP CALL"));
             sb.AppendLine();
             sb.AppendLine($"{textDecorator.Highlight("Outcome")} : {DecorateStatusCode(statusCode)}");
             sb.AppendLine();
-            sb.Append(table.ToString().TrimEnd());
+            sb.Append(table.TrimEnd());
         }
 
         private void AppendErrorBanner(StringBuilder sb,

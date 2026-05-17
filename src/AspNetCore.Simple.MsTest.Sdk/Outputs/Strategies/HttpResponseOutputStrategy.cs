@@ -89,34 +89,25 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
                                  ImmutableList<Difference> differences)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var classPath = BuildClassPath(context);
+            var className = ExtractClassName(context);
             var methodName = context.CallerMemberName;
             var requestName = GetRequestName(context);
             var responseName = GetResponseName(context);
             var errorCount = differences.Count;
-            var errorTypes = differences.Select(d => d.MismatchType).Distinct().ToList();
 
             stringBuilder.AppendLine();
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════════════════════"));
-            stringBuilder.AppendLine(textDecorator.Error("SNAPSHOT TEST FAILED"));
-            stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════════════════════"));
+            stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            stringBuilder.AppendLine(textDecorator.Error("❌ SNAPSHOT TEST FAILED"));
+            stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Project")}    : {projectName}");
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Class")}      : {classPath}");
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Method")}     : {methodName}");
-            stringBuilder.AppendLine($"{textDecorator.Highlight("LineNumber")} : {context.CallerLineNumber}");
+            stringBuilder.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Request")}   : {textDecorator.Highlight(requestName)}");
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Response")}  : {textDecorator.Highlight(responseName)}");
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Errors")}    : {textDecorator.Error(errorCount.ToString())}");
-
-            if (errorTypes.Any())
-            {
-                var errorTypesStr = string.Join(", ", errorTypes);
-                stringBuilder.AppendLine($"{textDecorator.Highlight("ErrorTypes")}: {textDecorator.Error(errorTypesStr)}");
-            }
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Project")} : {projectName}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Class")}   : {className}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Method")}  : {methodName}");
+            stringBuilder.AppendLine($"{textDecorator.Highlight("Line")}    : {context.CallerLineNumber}");
         }
 
         private static string GetRequestName(IHttpResponseContext context)
@@ -152,6 +143,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             }
 
             return context.ExpectedResultFile.EmbeddedFileName;
+        }
+
+        private static string ExtractClassName(IObjectAssertContext context)
+        {
+            var callerFilePath = context.CallerFilePath;
+            var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
+
+            // Remove .cs extension if present
+            return fileName.Replace(".cs", string.Empty);
         }
 
         private static string BuildClassPath(IObjectAssertContext context)

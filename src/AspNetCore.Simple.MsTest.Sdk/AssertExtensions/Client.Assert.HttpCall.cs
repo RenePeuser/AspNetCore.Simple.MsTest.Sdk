@@ -7,6 +7,7 @@ using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
+using AspNetCore.Simple.MsTest.Sdk.Tables;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,8 +51,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
 
             // 3. Resolve builders - use the correct text decorator
+            var tableBuilder = new TableBuilder();
             _httpCallInfoTableBuilder = new HttpCallInfoTableBuilder(_textDecorator);
-            _differencesTableBuilder = new DifferencesTableBuilder(_textDecorator);
+            _differencesTableBuilder = new DifferencesTableBuilder(tableBuilder, _textDecorator);
             _jsonSectionBuilder = new JsonSectionBuilder(_textDecorator);
             _curlBuilder = serviceProvider.GetRequiredService<ICurlBuilder>();
             _curlFormatter = serviceProvider.GetRequiredService<ICurlFormatter>();
@@ -104,7 +106,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             _emptyEndpointProvider = serviceProvider.GetRequiredService<IEndpointProvider>();
             _sourceCodeExtractor = serviceProvider.GetRequiredService<ISourceCodeExtractor>();
-            _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(_curlBuilder, _curlFormatter, _sourceCodeExtractor, _textDecorator);
+            _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(tableBuilder, _curlBuilder, _curlFormatter, _sourceCodeExtractor, _textDecorator);
             _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 
             // 9. Most important: Rebuild AssertableHttpClient with all updated components
@@ -186,9 +188,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static ICurlFormatter _curlFormatter = new CurlFormatter(_plainTextDecorator);
 
         // Builders for output strategies
+        private static readonly TableBuilder StaticTableBuilder = new TableBuilder();
+
         private static IHttpCallInfoTableBuilder _httpCallInfoTableBuilder = new HttpCallInfoTableBuilder(_textDecorator);
 
-        private static IDifferencesTableBuilder _differencesTableBuilder = new DifferencesTableBuilder(_textDecorator);
+        private static IDifferencesTableBuilder _differencesTableBuilder = new DifferencesTableBuilder(StaticTableBuilder, _textDecorator);
 
         private static IJsonSectionBuilder _jsonSectionBuilder = new JsonSectionBuilder(_textDecorator);
 
@@ -253,7 +257,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static ISourceCodeExtractor _sourceCodeExtractor = new SourceCodeExtractor();
 
         // Note: Uses _plainTextDecorator as placeholder - will be recreated in Setup() with correct decorator based on calling assembly
-        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(_curlBuilder, _curlFormatter, _sourceCodeExtractor, _plainTextDecorator);
+        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(StaticTableBuilder, _curlBuilder, _curlFormatter, _sourceCodeExtractor, _plainTextDecorator);
 
         private static IEndpointValidator _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
-using ConsoleTables;
+using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +11,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddDifferencesTableBuilder(this IServiceCollection services)
         {
-            // No dependencies - ITextDecorator is registered separately
+            // Register dependencies
+            services.AddTableBuilder();
+
+            // Register service itself
             services.AddSingletonIfNotExists<IDifferencesTableBuilder, DifferencesTableBuilder>();
         }
     }
@@ -28,7 +31,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                      ImmutableList<Difference> differences);
     }
 
-    internal sealed class DifferencesTableBuilder(ITextDecorator textDecorator) : IDifferencesTableBuilder
+    internal sealed class DifferencesTableBuilder(ITableBuilder tableBuilder,
+                                                   ITextDecorator textDecorator) : IDifferencesTableBuilder
     {
         public string Build(IHttpResponseContext context,
                             ImmutableList<Difference> differences)
@@ -41,35 +45,42 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Consolidate array element differences into array-level differences
             var consolidatedDifferences = ConsolidateArrayDifferences(differences);
 
-            var table = new ConsoleTable { Options = { EnableCount = false } };
-
             // Get response filename for Expected column header
             var responseFileName = GetResponseFileName(context);
 
-            // Add columns with response filename
-            table.AddColumn(new[]
-                            {
-                                "MemberPath", responseFileName, "CurrentResult",
-                                "MismatchType"
-                            });
+            // Build columns
+            var columns = new[]
+                          {
+                              "MemberPath", responseFileName, "CurrentResult",
+                              "MismatchType"
+                          };
 
-            // Add data rows
+            // Build data rows
+            var rows = new List<object[]>();
+
             foreach (var difference in consolidatedDifferences)
             {
                 var value1 = CompressWhitespace(difference.Value1);
                 var value2 = CompressWhitespace(difference.Value2);
 
-                table.AddRow(difference.MemberPath,
+                rows.Add(new object[]
+                         {
+                             difference.MemberPath,
                              value1,
                              value2,
-                             difference.MismatchType.ToString());
+                             difference.MismatchType.ToString()
+                         });
             }
 
+            // Build table
+            var table = tableBuilder.BuildTable(columns, rows, enableCount: false);
+
             var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine(textDecorator.SectionTitle("DIFFERENCES"));
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Difference Count")} : {textDecorator.Error(consolidatedDifferences.Count.ToString())}");
             stringBuilder.AppendLine();
-            stringBuilder.Append(table.ToString().TrimEnd());
+            stringBuilder.AppendLine(textDecorator.SectionTitle($"🔍 Differences (Count {consolidatedDifferences.Count})"));
+            stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            stringBuilder.AppendLine();
+            stringBuilder.Append(table.TrimEnd());
 
             return stringBuilder.ToString();
         }

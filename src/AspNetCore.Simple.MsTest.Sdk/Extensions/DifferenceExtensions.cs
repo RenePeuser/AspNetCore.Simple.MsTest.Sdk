@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
+using System.Text;
 using System.Text.Json;
-using ConsoleTables;
+using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -35,42 +36,71 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 objectName1 = objectName1.Split($".{matched}.").Last();
             }
 
+            // Build table using static helper
+            return BuildDifferenceTable(differences, objectName1, objectName2);
+        }
+
+        private static string BuildDifferenceTable(ImmutableList<Difference> differences,
+                                                   string objectName1,
+                                                   string objectName2)
+        {
+            var tableBuilder = new TableBuilder();
+
             if (differences.Count.EqualsTo(1) && differences[0].MemberPath.IsNullOrWhiteSpace())
             {
-                var table = new ConsoleTable(objectName1, objectName2, "MismatchType") { Options = { EnableCount = false } };
-                differences.ForEach(dif => table.AddRow(dif.Value1, dif.Value2, dif.MismatchType));
+                var columns = new[] { objectName1, objectName2, "MismatchType" };
+                var rows = new List<object[]>();
 
-                return table.ToString();
+                foreach (var dif in differences)
+                {
+                    rows.Add(new object[] { dif.Value1 ?? "null", dif.Value2 ?? "null", dif.MismatchType });
+                }
+
+                return tableBuilder.BuildTable(columns, rows, enableCount: false);
             }
 
             var flattened = FlattenDifferences(differences).ToImmutableList();
-
-            var fullTable = new ConsoleTable(nameof(Difference.MemberPath), objectName1, objectName2,
-                                             "MismatchType") { Options = { EnableCount = false } };
+            var fullColumns = new[] { nameof(Difference.MemberPath), objectName1, objectName2, "MismatchType" };
+            var fullRows = new List<object[]>();
 
             foreach (var dif in flattened)
             {
                 switch (dif.MismatchType)
                 {
                     case MismatchType.ValueDifference:
-                        fullTable.AddRow(dif.MemberPath, dif.Value1, dif.Value2,
-                                         dif.MismatchType);
+                        fullRows.Add(new object[]
+                                     {
+                                         dif.MemberPath,
+                                         dif.Value1 ?? "null",
+                                         dif.Value2 ?? "null",
+                                         dif.MismatchType
+                                     });
 
                         break;
                     case MismatchType.MissingInFirst:
-                        fullTable.AddRow(dif.MemberPath, "Property missing", dif.Value2,
-                                         dif.MismatchType);
+                        fullRows.Add(new object[]
+                                     {
+                                         dif.MemberPath,
+                                         "Property missing",
+                                         dif.Value2 ?? "null",
+                                         dif.MismatchType
+                                     });
 
                         break;
                     case MismatchType.MissingInSecond:
-                        fullTable.AddRow(dif.MemberPath, dif.Value1, "Property missing",
-                                         dif.MismatchType);
+                        fullRows.Add(new object[]
+                                     {
+                                         dif.MemberPath,
+                                         dif.Value1 ?? "null",
+                                         "Property missing",
+                                         dif.MismatchType
+                                     });
 
                         break;
                 }
             }
 
-            return fullTable.ToString();
+            return tableBuilder.BuildTable(fullColumns, fullRows, enableCount: false);
         }
 
         private static IEnumerable<Difference> FlattenDifferences(IEnumerable<Difference> diffs)

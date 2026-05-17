@@ -3,8 +3,8 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using ConsoleTables;
 using Extensions.Pack;
+using AspNetCore.Simple.MsTest.Sdk.Tables;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -253,7 +253,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                     Current = result.StatusCode
                                 }.ToIList();
 
-            var table = ConsoleTable.From(currentResult);
+            var table = TableFormatter.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode, errorOutput);

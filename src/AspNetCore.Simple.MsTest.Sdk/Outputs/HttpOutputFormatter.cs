@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Text;
-using ConsoleTables;
+using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +10,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddHttpOutputFormatter(this IServiceCollection services)
         {
+            services.AddTableBuilder();
             services.AddSingletonIfNotExists<IHttpOutputFormatter, HttpOutputFormatter>();
         }
     }
@@ -22,36 +23,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                HttpStatusCode httpStatusCode);
     }
 
-    internal sealed class HttpOutputFormatter : IHttpOutputFormatter
+    internal sealed class HttpOutputFormatter(ITableBuilder tableBuilder) : IHttpOutputFormatter
     {
         public string GetOutputString(string errorInfo,
                                       HttpMethod httpMethod,
                                       string url,
                                       HttpStatusCode httpStatusCode)
         {
-            var consoleTable = new ConsoleTable { Options = { EnableCount = false } };
+            var columns = new[] { "HttpMethod", "Url", "HttpStatusCode" };
+            var rows = new List<object[]>
+                       {
+                           new object[] { httpMethod.Method, url, httpStatusCode }
+                       };
 
-            var enumerable = new List<string>
-                             {
-                                 "HttpMethod",
-                                 "Url",
-                                 "HttpStatusCode"
-                             };
-
-            consoleTable.AddColumn(enumerable);
-
-            consoleTable.AddRow(httpMethod.Method, url, httpStatusCode);
+            var table = tableBuilder.BuildTable(columns, rows, enableCount: false);
 
             var stringBuilder = new StringBuilder();
-            var consoleTableResult = consoleTable.ToString();
-
             stringBuilder.AppendLine(errorInfo);
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(consoleTableResult);
+            stringBuilder.AppendLine(table);
 
-            var output = stringBuilder.ToString();
-
-            return output;
+            return stringBuilder.ToString();
         }
     }
 }

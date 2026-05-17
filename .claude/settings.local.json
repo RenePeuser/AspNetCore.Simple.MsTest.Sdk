@@ -25,7 +25,9 @@
       "Bash(xargs kill:*)",
       "Bash(taskkill //F //PID 32280)",
       "Read(//d//**)",
-      "Bash(rm src/MinimalApi.Test/DiagnosticTest.cs)"
+      "Bash(rm src/MinimalApi.Test/DiagnosticTest.cs)",
+      "Bash(dotnet list *)",
+      "Bash(dotnet remove *)"
     ]
   }
 }

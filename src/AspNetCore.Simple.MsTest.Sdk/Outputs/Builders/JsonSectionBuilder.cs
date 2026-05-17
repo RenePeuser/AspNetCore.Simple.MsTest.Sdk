@@ -1,4 +1,5 @@
-﻿using AspNetCore.Simple.MsTest.Sdk.Decorators;
+﻿using System.Text;
+using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,22 +36,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                     string expectedJson)
         {
             var responseFileName = GetResponseFileName(context);
-            var label = textDecorator.SectionTitle($"EXPECTED RESULT ({responseFileName})");
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(textDecorator.SectionTitle("📄 Expected Snapshot"));
+            stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            stringBuilder.AppendLine();
+            stringBuilder.Append(expectedJson);
 
-            return BuildSection(label, expectedJson);
+            return stringBuilder.ToString();
         }
 
         public string BuildCurrent(string currentJson)
         {
-            var label = textDecorator.SectionTitle("CURRENT RESULT");
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(textDecorator.SectionTitle("📄 Current Result"));
+            stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            stringBuilder.AppendLine();
+            stringBuilder.Append(currentJson);
 
-            return BuildSection(label, currentJson);
-        }
-
-        private static string BuildSection(string label,
-                                           string json)
-        {
-            return $"{label}:\n\n{json}";
+            return stringBuilder.ToString();
         }
 
         private static string GetResponseFileName(IHttpResponseContext context)

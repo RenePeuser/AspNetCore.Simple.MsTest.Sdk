@@ -45,7 +45,6 @@
         <PackageReference Include="Microsoft.AspNetCore.TestHost" />
         <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" PrivateAssets="All" />
         <PackageReference Include="MSTest.TestFramework" />
-        <PackageReference Include="ConsoleTables" />
         <PackageReference Include="System.CodeDom" />
     </ItemGroup>
 
