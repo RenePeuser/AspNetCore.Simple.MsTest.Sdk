@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using AspNetCore.Simple.MsTest.Sdk.Converters;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
@@ -79,14 +80,68 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
 
             var normalizedJson1 = json1.Replace("\r\n", "\n");
-             var normalizedJson2 = json2.Replace("\r\n", "\n");
+            var normalizedJson2 = json2.Replace("\r\n", "\n");
 
             var differences = new Dictionary<string, (JToken?, JToken?, MismatchType)>();
 
-            CompareTokens(JToken.Parse(normalizedJson1), JToken.Parse(normalizedJson2), differences,
-                          "");
+            // Parse and normalize both tokens using CurrentValueJsonConverter
+            // This ensures that stringified JSON values in 'currentValue' properties are compared correctly
+            var token1 = JToken.Parse(normalizedJson1);
+            var token2 = JToken.Parse(normalizedJson2);
+
+            // Apply CurrentValue normalization to both tokens
+            NormalizeCurrentValues(token1);
+            NormalizeCurrentValues(token2);
+
+            CompareTokens(token1, token2, differences, "");
 
             return differences;
+        }
+
+        /// <summary>
+        /// Normalizes 'currentValue' properties by converting stringified JSON to actual JSON values.
+        /// This ensures consistent comparison between expected (from file) and actual (from API) responses.
+        /// </summary>
+        private static void NormalizeCurrentValues(JToken token)
+        {
+            if (token is JObject obj)
+            {
+                foreach (var property in obj.Properties().ToList())
+                {
+                    if (property.Name == "currentValue" && property.Value.Type == JTokenType.String)
+                    {
+                        var stringValue = property.Value.ToString();
+
+                        // Try to parse the string as JSON
+                        try
+                        {
+                            var parsed = Newtonsoft.Json.JsonConvert.DeserializeObject(stringValue);
+                            if (parsed != null)
+                            {
+                                property.Value = JToken.FromObject(parsed);
+                            }
+                            else if (stringValue == "null")
+                            {
+                                property.Value = JValue.CreateNull();
+                            }
+                        }
+                        catch (Newtonsoft.Json.JsonException)
+                        {
+                            // Keep original string value if parsing fails
+                        }
+                    }
+
+                    // Recursively process nested values
+                    NormalizeCurrentValues(property.Value);
+                }
+            }
+            else if (token is JArray array)
+            {
+                foreach (var item in array)
+                {
+                    NormalizeCurrentValues(item);
+                }
+            }
         }
 
         private void CompareTokens(JToken? token1,

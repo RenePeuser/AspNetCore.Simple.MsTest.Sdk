@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using AspNetCore.Simple.MsTest.Sdk.Converters;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -84,7 +85,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
             }
 
-            var output = resultRoot.ToString(Formatting.Indented);
+            // Use custom serializer settings to handle currentValue un-escaping
+            var serializerSettings = new JsonSerializerSettings
+                                     {
+                                         Formatting = Formatting.Indented,
+                                         Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
+                                     };
+
+            var output = JsonConvert.SerializeObject(resultRoot, serializerSettings);
 
             File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName,
                               output);
