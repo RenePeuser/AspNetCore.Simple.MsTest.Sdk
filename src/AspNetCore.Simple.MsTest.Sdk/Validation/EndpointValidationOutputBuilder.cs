@@ -61,7 +61,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var sb = new StringBuilder();
 
             sb.AppendLine();
-            AppendErrorBanner(sb, "ENDPOINT NOT FOUND");
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine(textDecorator.Error("❌ ENDPOINT NOT FOUND"));
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
             BuildTestInfo(sb, context);
@@ -69,7 +72,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             // HTTP Call Table
             BuildHttpCallTable(sb, context, "404 NotFound");
-            sb.AppendLine();
             sb.AppendLine();
 
             // Curl command
@@ -86,7 +88,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var sb = new StringBuilder();
 
             sb.AppendLine();
-            AppendErrorBanner(sb, "AMBIGUOUS ENDPOINT MATCH");
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine(textDecorator.Error("❌ AMBIGUOUS ENDPOINT MATCH"));
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
             BuildTestInfo(sb, context);
@@ -95,10 +100,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // HTTP Call Table
             BuildHttpCallTable(sb, context, "Ambiguous");
             sb.AppendLine();
-            sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("MATCHING ENDPOINTS"));
-            sb.AppendLine(textDecorator.Dim(" " + new string('-', 100)));
+            sb.AppendLine(textDecorator.SectionTitle("🔍 Matching Endpoints (Count " + matchingEndpoints.Count + ")"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
 
             var columns = new[] { "Method", "URL", "API Version", "Response Type" };
             var rows = new List<object[]>();
@@ -113,11 +118,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             var table = tableBuilder.BuildTable(columns, rows, enableCount: false);
             sb.AppendLine(table);
-            sb.AppendLine();
-            sb.AppendLine(textDecorator.SectionTitle("SUMMARY"));
-            sb.AppendLine();
-            sb.AppendLine($"Multiple endpoints matched the request. Found {textDecorator.Error(matchingEndpoints.Count.ToString())} candidates.");
-            sb.AppendLine("Please ensure your endpoint routes are unique.");
             sb.AppendLine();
 
             // Curl command
@@ -135,7 +135,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var sb = new StringBuilder();
 
             sb.AppendLine();
-            AppendErrorBanner(sb, "HTTP RESPONSE TYPE MISMATCH");
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine(textDecorator.Error("❌ HTTP RESPONSE TYPE MISMATCH"));
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
             BuildTestInfo(sb, context);
@@ -150,11 +153,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                sb.AppendLine(textDecorator.SectionTitle("ASSERT CALL"));
+                sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+                sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
-                sb.AppendLine(textDecorator.Dim(new string('-', 75)));
                 sb.AppendLine(sourceCode);
-                sb.AppendLine(textDecorator.Dim(new string('-', 75)));
                 sb.AppendLine();
             }
 
@@ -205,11 +207,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                     }
                 }
 
-                sb.AppendLine(textDecorator.SectionTitle("SUGGESTED FIX"));
+                sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
-                sb.AppendLine(textDecorator.Dim(new string('-', 75)));
                 sb.AppendLine(textDecorator.Success(suggestedFix));
-                sb.AppendLine(textDecorator.Dim(new string('-', 75)));
                 sb.AppendLine();
             }
 
@@ -222,22 +223,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             var typeTable = tableBuilder.BuildTable(typeColumns, typeRows, enableCount: false);
 
-            sb.AppendLine(textDecorator.SectionTitle("TYPE VALIDATION"));
+            sb.AppendLine(textDecorator.SectionTitle("🔍 Type Validation"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.Append(typeTable.TrimEnd());
             sb.AppendLine();
             sb.AppendLine();
-
-            sb.AppendLine(textDecorator.SectionTitle("SUMMARY"));
-            sb.AppendLine();
             sb.AppendLine($"The test declares response type '{textDecorator.Error(declaredTestTypeName)}', but the endpoint exposes");
             sb.AppendLine($"'{textDecorator.Success(actualEndpointTypeName)}' for HTTP 200 OK.");
-            sb.AppendLine();
-            sb.AppendLine(textDecorator.SectionTitle("Suggested action:"));
-            sb.AppendLine(textDecorator.Success("- Update the test response type to match the endpoint contract"));
-            sb.AppendLine();
-            sb.AppendLine(textDecorator.SectionTitle("Alternative:"));
-            sb.AppendLine(textDecorator.Highlight("- If the endpoint contract is wrong, update the endpoint instead"));
             sb.AppendLine();
 
             // Curl command
@@ -256,7 +249,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var sb = new StringBuilder();
 
             sb.AppendLine();
-            AppendErrorBanner(sb, "HTTP RESPONSE TYPE MISMATCH");
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine(textDecorator.Error("❌ HTTP RESPONSE TYPE MISMATCH"));
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
             BuildTestInfo(sb, context);
@@ -271,11 +267,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                sb.AppendLine(textDecorator.SectionTitle("ASSERT CALL"));
+                sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+                sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
-                sb.AppendLine(textDecorator.Dim(new string('-', 75)));
                 sb.AppendLine(sourceCode);
-                sb.AppendLine(textDecorator.Dim(new string('-', 75)));
                 sb.AppendLine();
             }
 
@@ -330,16 +325,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                     }
                 }
 
-                sb.AppendLine(textDecorator.SectionTitle("SUGGESTED FIX"));
+                sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
-                sb.AppendLine(textDecorator.Dim(new string('-', 75)));
                 sb.AppendLine(textDecorator.Success(suggestedFix));
-                sb.AppendLine(textDecorator.Dim(new string('-', 75)));
                 sb.AppendLine();
             }
 
             // TYPE VALIDATION Table - Show all relevant status codes
-            sb.AppendLine(textDecorator.SectionTitle("TYPE VALIDATION"));
+            sb.AppendLine(textDecorator.SectionTitle("🔍 Type Validation"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
             var typeColumns = new[] { "Status Code", "Endpoint Response Type", "Declared Test Type", "Match" };
@@ -364,10 +359,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
             sb.AppendLine();
 
-            // SUMMARY
-            sb.AppendLine(textDecorator.SectionTitle("SUMMARY"));
-            sb.AppendLine();
-
             var testTypeDescription = isSuccessTest ? "success (2xx)" : "error (4xx/5xx)";
             sb.AppendLine($"The test is a {testTypeDescription} test and declares response type '{textDecorator.Error(declaredTestTypeName)}',");
             sb.AppendLine($"but none of the endpoint's {testTypeDescription} status codes return this type.");
@@ -389,12 +380,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             sb.AppendLine();
-            sb.AppendLine(textDecorator.SectionTitle("Suggested action:"));
-            sb.AppendLine(textDecorator.Success($"- Update the test response type to '{suggestedTypeName}' to match one of the status codes above"));
-            sb.AppendLine();
-            sb.AppendLine(textDecorator.SectionTitle("Alternative:"));
-            sb.AppendLine(textDecorator.Highlight("- If the endpoint contract is wrong, update the endpoint's ProducesResponseType attributes"));
-            sb.AppendLine();
 
             // Curl command
             var curl = curlBuilder.BuildFrom(context);
@@ -408,13 +393,23 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                    IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var classPath = BuildClassPath(context);
+            var className = ExtractClassName(context);
             var methodName = context.CallerMemberName;
 
-            sb.AppendLine($"{textDecorator.Highlight("Project")}      : {projectName}");
-            sb.AppendLine($"{textDecorator.Highlight("Class")}        : {classPath}");
-            sb.AppendLine($"{textDecorator.Highlight("Method")}       : {methodName}");
-            sb.AppendLine($"{textDecorator.Highlight("LineNumber")}   : {context.CallerLineNumber}");
+            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine($"{"Project",-10} : {projectName}");
+            sb.AppendLine($"{"Class",-10} : {className}");
+            sb.AppendLine($"{"Method",-10} : {methodName}");
+            sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
+        }
+
+        private static string ExtractClassName(IHttpAssertContext context)
+        {
+            var callerFilePath = context.CallerFilePath;
+            var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
+            return fileName.Replace(".cs", string.Empty);
         }
 
         private static string BuildClassPath(IHttpAssertContext context)
@@ -452,29 +447,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                               ? new Uri(context.Client.BaseAddress, context.Url).ToString()
                               : context.Url;
 
-            // Build table
-            var columns = new[] { "HttpMethod", "Url", "HttpStatusCode" };
-            var rows = new List<object[]>
-                       {
-                           new object[] { context.HttpMethod.Method, fullUrl, statusCode }
-                       };
-
-            var table = tableBuilder.BuildTable(columns, rows, enableCount: false);
-
-            sb.AppendLine(textDecorator.SectionTitle("HTTP CALL"));
+            sb.AppendLine(textDecorator.SectionTitle("🌍 HTTP"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
-            sb.AppendLine($"{textDecorator.Highlight("Outcome")} : {DecorateStatusCode(statusCode)}");
-            sb.AppendLine();
-            sb.Append(table.TrimEnd());
+            sb.AppendLine($"{"Method",-10} : {context.HttpMethod.Method}");
+            sb.AppendLine($"{"Url",-10} : {fullUrl}");
+            sb.AppendLine($"{"Status",-10} : {DecorateStatusCode(statusCode)}");
         }
 
-        private void AppendErrorBanner(StringBuilder sb,
-                                       string title)
-        {
-            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error(title));
-            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════════════════════"));
-        }
 
         private string DecorateStatusCode(string statusCode)
         {

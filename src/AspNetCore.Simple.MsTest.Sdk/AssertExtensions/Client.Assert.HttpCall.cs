@@ -59,8 +59,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _curlFormatter = serviceProvider.GetRequiredService<ICurlFormatter>();
 
             // 4. Rebuild output strategies with the correct decorator
-            var primitiveOutputStrategy = new PrimitiveOutputStrategy();
-            var objectOutputStrategy = new ObjectOutputStrategy(_differencesTableBuilder, _jsonSectionBuilder);
+            var primitiveOutputStrategy = new PrimitiveOutputStrategy(_textDecorator);
+            var objectOutputStrategy = new ObjectOutputStrategy(_differencesTableBuilder, _jsonSectionBuilder, _textDecorator);
             var httpResponseOutputStrategy = new HttpResponseOutputStrategy(_httpCallInfoTableBuilder,
                                                                              _differencesTableBuilder,
                                                                              _jsonSectionBuilder,
@@ -199,9 +199,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static ICurlBuilder _curlBuilder = new CurlBuilder();
 
         // Output strategies for AssertService
-        private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new();
+        private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new(_plainTextDecorator);
 
-        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(_differencesTableBuilder, _jsonSectionBuilder);
+        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(_differencesTableBuilder, _jsonSectionBuilder, _plainTextDecorator);
 
         private static readonly HttpResponseOutputStrategy HttpResponseOutputStrategy = new(_httpCallInfoTableBuilder,
                                                                                             _differencesTableBuilder,

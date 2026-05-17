@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
+using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             // Register dependencies - builders needed for Object report
             services.AddDifferencesTableBuilder();
             services.AddJsonSectionBuilder();
+            // Note: ITextDecorator is registered separately based on build configuration
 
             // Register service itself
             services.AddSingletonIfNotExists<IAssertOutputStrategy, ObjectOutputStrategy>();
@@ -23,9 +25,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
     /// Builds comprehensive object assertion failure output including test info,
     /// differences, and JSON comparison with Expected/Current labels.
     /// </summary>
-#pragma warning disable IDE0060 // Remove unused parameter
+#pragma warning disable IDE0060 // Remove unused parameter - jsonSectionBuilder kept for future use
     internal sealed class ObjectOutputStrategy(IDifferencesTableBuilder differencesTableBuilder,
-                                               IJsonSectionBuilder jsonSectionBuilder) : IAssertOutputStrategy
+                                               IJsonSectionBuilder jsonSectionBuilder,
+                                               ITextDecorator textDecorator) : IAssertOutputStrategy
 #pragma warning restore IDE0060
     {
         public bool CanHandle(IObjectAssertContext context)
@@ -63,12 +66,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine();
 
             // Section 2: Differences Table (if any)
-            // For object context, we need to build a simple differences table
-            // We can't use the HTTP-based differencesTableBuilder as it expects IHttpResponseContext
-            // So we build a simple table here
             if (differences.Any())
             {
-                BuildDifferencesTable(stringBuilder, context, differences);
+                BuildDifferencesSection(stringBuilder, context, differences);
                 stringBuilder.AppendLine();
             }
 
@@ -84,78 +84,79 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             return stringBuilder.ToString();
         }
 
-        private static void BuildHeader(StringBuilder stringBuilder,
-                                        IObjectAssertContext context,
-                                        ImmutableList<Difference> differences)
+        private void BuildHeader(StringBuilder stringBuilder,
+                                 IObjectAssertContext context,
+                                 ImmutableList<Difference> differences)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var classPath = BuildClassPath(context);
-            var expectedName = GetExpectedName(context);
-            var errorCount = differences.Count;
-            var errorTypes = differences.Select(d => d.MismatchType).Distinct().ToList();
+            var className = ExtractClassName(context);
+            var methodName = context.CallerMemberName;
 
-            stringBuilder.AppendLine("══════════════════════════════════════════════════════════════════════════════");
-            stringBuilder.AppendLine("OBJECT COMPARISON FAILED");
-            stringBuilder.AppendLine("══════════════════════════════════════════════════════════════════════════════");
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine($"Project    : {projectName}");
-            stringBuilder.AppendLine($"Class      : {classPath}");
-            stringBuilder.AppendLine($"LineNumber : {context.CallerLineNumber}");
-            stringBuilder.AppendLine($"Expected   : {expectedName}");
-            stringBuilder.AppendLine($"Current    : N/A");
-            stringBuilder.AppendLine($"Errors     : {errorCount}");
-
-            if (errorTypes.Any())
-            {
-                var errorTypesStr = string.Join(", ", errorTypes);
-                stringBuilder.AppendLine($"ErrorTypes: {errorTypesStr}");
-            }
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            stringBuilder.AppendLine(textDecorator.Error("❌ OBJECT COMPARISON FAILED"));
+            stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine($"{"Project",-10} : {projectName}");
+            stringBuilder.AppendLine($"{"Class",-10} : {className}");
+            stringBuilder.AppendLine($"{"Method",-10} : {methodName}");
+            stringBuilder.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
         }
 
-        private void BuildDifferencesTable(StringBuilder stringBuilder,
-                                           IObjectAssertContext context,
-                                           ImmutableList<Difference> differences)
+        private static string ExtractClassName(IObjectAssertContext context)
+        {
+            var callerFilePath = context.CallerFilePath;
+            var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
+            return fileName.Replace(".cs", string.Empty);
+        }
+
+        private void BuildDifferencesSection(StringBuilder stringBuilder,
+                                             IObjectAssertContext context,
+                                             ImmutableList<Difference> differences)
         {
             var expectedName = GetExpectedName(context);
 
-            // Suppress unused parameter warning by referencing it
-            _ = differencesTableBuilder;
-
-            stringBuilder.AppendLine("DIFFERENCES");
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(textDecorator.SectionTitle($"🔍 Differences (Count {differences.Count})"));
+            stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
 
-            // Build simple table format
-            foreach (var difference in differences)
-            {
-                stringBuilder.AppendLine($"  Path       : {difference.MemberPath ?? "N/A"}");
-                stringBuilder.AppendLine($"  {expectedName,-10} : {difference.Value1 ?? "null"}");
-                stringBuilder.AppendLine($"  Current    : {difference.Value2 ?? "null"}");
-                stringBuilder.AppendLine($"  Type       : {difference.MismatchType}");
-                stringBuilder.AppendLine();
-            }
+            // Use the proper table builder with character-level diff
+            var table = differencesTableBuilder.BuildObjectDifferencesTable(expectedName, differences);
+            stringBuilder.Append(table);
         }
 
         private string BuildExpectedSection(IObjectAssertContext context,
                                             string expectedJson)
         {
-            // For object context, we can't use jsonSectionBuilder.BuildExpected because it expects IHttpResponseContext
-            // So we build it manually here
-            var expectedName = GetExpectedName(context);
-            var label = $"EXPECTED RESULT ({expectedName})";
-
-            // Suppress unused parameter warning by referencing it
+            // Suppress unused parameter warning
             _ = jsonSectionBuilder;
 
-            return $"{label}:\n\n{expectedJson}";
+            var expectedName = GetExpectedName(context);
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(textDecorator.SectionTitle($"📄 Expected ({expectedName})"));
+            stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            stringBuilder.AppendLine();
+            stringBuilder.Append(expectedJson);
+
+            return stringBuilder.ToString();
         }
 
         private string BuildCurrentSection(string currentJson)
         {
-            // For object context, we use simple formatting
-            // Suppress unused parameter warning by referencing it
-            _ = jsonSectionBuilder;
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(textDecorator.SectionTitle("📄 Current"));
+            stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            stringBuilder.AppendLine();
+            stringBuilder.Append(currentJson);
 
-            return $"CURRENT RESULT:\n\n{currentJson}";
+            return stringBuilder.ToString();
         }
 
         private static string GetExpectedName(IObjectAssertContext context)

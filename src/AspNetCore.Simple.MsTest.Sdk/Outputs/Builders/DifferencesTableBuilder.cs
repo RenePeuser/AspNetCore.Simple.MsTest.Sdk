@@ -30,6 +30,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         string Build(IHttpResponseContext context,
                      ImmutableList<Difference> differences);
+
+        /// <summary>
+        /// Builds differences table for object comparison (non-HTTP context).
+        /// </summary>
+        string BuildObjectDifferencesTable(string expectedName,
+                                           ImmutableList<Difference> differences);
     }
 
     internal sealed class DifferencesTableBuilder(ITableBuilder tableBuilder,
@@ -93,6 +99,46 @@ namespace AspNetCore.Simple.MsTest.Sdk
             stringBuilder.Append(table.TrimEnd());
 
             return stringBuilder.ToString();
+        }
+
+        public string BuildObjectDifferencesTable(string expectedName,
+                                                  ImmutableList<Difference> differences)
+        {
+            if (differences.IsEmpty)
+            {
+                return string.Empty;
+            }
+
+            // Build columns
+            var columns = new[] { "MemberPath", expectedName, "Current", "MismatchType" };
+
+            // Build data rows with character-level diff
+            var rows = new List<object[]>();
+
+            foreach (var difference in differences)
+            {
+                var value1 = CompressWhitespace(difference.Value1);
+                var value2 = CompressWhitespace(difference.Value2);
+
+                // Apply character-level diff highlighting for ValueDifference
+                if (difference.MismatchType == MismatchType.ValueDifference)
+                {
+                    var (decoratedExpected, decoratedActual) = _characterDiff.HighlightDifferences(value1, value2);
+                    value1 = decoratedExpected;
+                    value2 = decoratedActual;
+                }
+
+                rows.Add(new object[]
+                         {
+                             difference.MemberPath ?? "N/A",
+                             value1,
+                             value2,
+                             difference.MismatchType.ToString()
+                         });
+            }
+
+            // Build table
+            return tableBuilder.BuildTable(columns, rows, enableCount: false);
         }
 
         private static string GetResponseFileName(IHttpResponseContext context)

@@ -104,10 +104,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Project")} : {projectName}");
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Class")}   : {className}");
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Method")}  : {methodName}");
-            stringBuilder.AppendLine($"{textDecorator.Highlight("Line")}    : {context.CallerLineNumber}");
+            stringBuilder.AppendLine($"{"Project",-10} : {projectName}");
+            stringBuilder.AppendLine($"{"Class",-10} : {className}");
+            stringBuilder.AppendLine($"{"Method",-10} : {methodName}");
+            stringBuilder.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
         }
 
         private static string GetRequestName(IHttpResponseContext context)

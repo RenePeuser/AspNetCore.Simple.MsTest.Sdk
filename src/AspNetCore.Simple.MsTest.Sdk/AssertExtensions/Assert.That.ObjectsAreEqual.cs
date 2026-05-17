@@ -59,9 +59,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static readonly JsonSectionBuilder JsonSectionBuilder = new(TextDecorator);
 
         // Output strategies for AssertService
-        private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new();
+        private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new(TextDecorator);
 
-        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(DifferencesTableBuilder, JsonSectionBuilder);
+        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(DifferencesTableBuilder, JsonSectionBuilder, TextDecorator);
 
         private static readonly IAssertOutputStrategy[] OutputStrategies =
         [
@@ -682,10 +682,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var tableBuilder = new TableBuilder();
                 var debugDifferencesTableBuilder = new DifferencesTableBuilder(tableBuilder, plainTextDecorator);
                 var debugJsonSectionBuilder = new JsonSectionBuilder(plainTextDecorator);
-                var debugObjectOutputStrategy = new ObjectOutputStrategy(debugDifferencesTableBuilder, debugJsonSectionBuilder);
+                var debugPrimitiveOutputStrategy = new PrimitiveOutputStrategy(plainTextDecorator);
+                var debugObjectOutputStrategy = new ObjectOutputStrategy(debugDifferencesTableBuilder, debugJsonSectionBuilder, plainTextDecorator);
                 var debugOutputStrategies = new IAssertOutputStrategy[]
                 {
-                    PrimitiveOutputStrategy,
+                    debugPrimitiveOutputStrategy,
                     debugObjectOutputStrategy
                 };
                 var debugOutputBuilder = new AssertOutputBuilder(debugOutputStrategies);
