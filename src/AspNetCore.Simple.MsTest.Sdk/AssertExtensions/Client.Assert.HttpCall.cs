@@ -56,7 +56,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _differencesTableBuilder = new DifferencesTableBuilder(tableBuilder, _textDecorator);
             _jsonSectionBuilder = new JsonSectionBuilder(_textDecorator);
             _curlBuilder = serviceProvider.GetRequiredService<ICurlBuilder>();
-            _curlFormatter = serviceProvider.GetRequiredService<ICurlFormatter>();
+            _curlFormatter = new CurlFormatter(_textDecorator);
 
             // 4. Rebuild output strategies with the correct decorator
             var primitiveOutputStrategy = new PrimitiveOutputStrategy(_textDecorator);
