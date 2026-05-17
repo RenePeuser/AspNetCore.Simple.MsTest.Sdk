@@ -20,7 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 settings = new TestCreatorSettings();
             }
 
-            services.AddSingleton(settings);
+            services.AddSingletonIfNotExists(settings);
         }
     }
 

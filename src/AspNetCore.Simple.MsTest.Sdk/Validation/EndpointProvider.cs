@@ -173,12 +173,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             if (matches.Any())
             {
-                return matches;
+                // If we have multiple matches, apply route specificity ordering
+                // More specific routes (with fewer route parameters) should win
+                return OrderByRouteSpecificity(matches);
             }
 
             // Fallback for error scenarios where invalid route parameter values like "-1"
             // should still resolve to the matching endpoint template "{id:guid}".
-            return candidateEndpoints.Where(processed =>
+            var fallbackMatches = candidateEndpoints.Where(processed =>
                                      {
                                          var urlMatches = UrlMatchesOptimized(normalizedUrl,
                                                                               requestSegments,
@@ -190,6 +192,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                      })
                                      .Select(p => p.Endpoint)
                                      .ToImmutableList();
+
+            return OrderByRouteSpecificity(fallbackMatches);
         }
 
         private static bool UrlMatchesOptimized(string requestUrl,
@@ -307,6 +311,67 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Orders endpoints by route specificity following ASP.NET Core routing rules.
+        /// More specific routes (fewer route parameters) come first.
+        /// If there's a clear winner (most specific route), returns only that one.
+        /// This ensures /v1/users/current wins over /v1/users/{externalUserId}.
+        /// </summary>
+        private static ImmutableList<EndpointInfo> OrderByRouteSpecificity(ImmutableList<EndpointInfo> endpoints)
+        {
+            if (endpoints.Count <= 1)
+            {
+                return endpoints;
+            }
+
+            // Group by parameter count to find the most specific route(s)
+            var groupedBySpecificity = endpoints.GroupBy(endpoint => CountRouteParameters(endpoint.Url))
+                                               .OrderBy(group => group.Key) // Lower count = more specific
+                                               .ToList();
+
+            // If the most specific group has fewer parameters than the next group,
+            // return only the most specific routes
+            if (groupedBySpecificity.Count > 1)
+            {
+                var mostSpecific = groupedBySpecificity[0];
+                var nextMostSpecific = groupedBySpecificity[1];
+
+                if (mostSpecific.Key < nextMostSpecific.Key)
+                {
+                    // Clear winner - return only most specific route(s)
+                    return mostSpecific.ToImmutableList();
+                }
+            }
+
+            // All routes have the same specificity - return all ordered
+            return endpoints.OrderBy(endpoint => CountRouteParameters(endpoint.Url))
+                           .ToImmutableList();
+        }
+
+        /// <summary>
+        /// Counts the number of route parameters (segments like {id}, {name:string}, etc.) in a URL.
+        /// </summary>
+        private static int CountRouteParameters(string url)
+        {
+            var count = 0;
+            var inParameter = false;
+
+            foreach (var ch in url)
+            {
+                if (ch == '{')
+                {
+                    inParameter = true;
+                }
+                else if (ch == '}' && inParameter)
+                {
+                    count++;
+                    inParameter = false;
+                }
+            }
+
+            return count;
         }
 
         private static int? FindVersionSegmentIndexInSegments(string[] segments)
