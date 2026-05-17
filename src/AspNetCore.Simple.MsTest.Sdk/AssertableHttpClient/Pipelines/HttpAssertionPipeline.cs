@@ -16,6 +16,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             services.AddContentTypeHeaderValidationStep(); // 2. Content-Type header must be application/json
             services.AddContentFormatValidationStep(); // 3. Content body must be valid JSON structure
             services.AddJsonComparisonStep(); // 4. JSON comparison (schema + values)
+            services.AddSuccessfulTestCurlPrinter(); // 5. Print curl command for successful tests
 
             // Register the pipeline itself
             services.AddSingletonIfNotExists<IHttpAssertionPipeline, HttpAssertionPipeline>();

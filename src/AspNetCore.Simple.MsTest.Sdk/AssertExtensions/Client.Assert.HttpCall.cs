@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -98,7 +98,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                       _assertService,
                                       _parameterReplacer,
                                       _writeResponseService,
-                                      _jsonSerializerOptions)
+                                      _jsonSerializerOptions),
+                new SuccessfulTestCurlPrinter(_curlBuilder, _curlFormatter)
             });
 
             // 8. Resolve validation services

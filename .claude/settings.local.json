@@ -27,7 +27,11 @@
       "Read(//d//**)",
       "Bash(rm src/MinimalApi.Test/DiagnosticTest.cs)",
       "Bash(dotnet list *)",
-      "Bash(dotnet remove *)"
+      "Bash(dotnet remove *)",
+      "Bash(tee /tmp/test_output.txt)",
+      "Read(//tmp/**)",
+      "Bash(git mv *)",
+      "Bash(mv OkStatusCodeCurlPrinter.cs SuccessfulTestCurlPrinter.cs)"
     ]
   }
 }

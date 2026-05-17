@@ -138,6 +138,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // Pipeline returns context.CurrentResult (the original deserialized response)
             var result = httpAssertionPipeline.Execute(responseContext);
 
+
             return result;
         }
     }
