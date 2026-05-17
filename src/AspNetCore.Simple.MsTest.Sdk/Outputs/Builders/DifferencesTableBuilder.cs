@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
+using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
@@ -34,6 +35,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class DifferencesTableBuilder(ITableBuilder tableBuilder,
                                                    ITextDecorator textDecorator) : IDifferencesTableBuilder
     {
+        private readonly CharacterDiff _characterDiff = new CharacterDiff(textDecorator);
         public string Build(IHttpResponseContext context,
                             ImmutableList<Difference> differences)
         {
@@ -62,6 +64,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 var value1 = CompressWhitespace(difference.Value1);
                 var value2 = CompressWhitespace(difference.Value2);
+
+                // Apply character-level diff highlighting for ValueDifference
+                if (difference.MismatchType == MismatchType.ValueDifference)
+                {
+                    var (decoratedExpected, decoratedActual) = _characterDiff.HighlightDifferences(value1, value2);
+                    value1 = decoratedExpected;
+                    value2 = decoratedActual;
+                }
 
                 rows.Add(new object[]
                          {

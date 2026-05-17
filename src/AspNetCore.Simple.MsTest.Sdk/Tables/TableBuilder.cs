@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -38,8 +39,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
         string BuildTableFrom<T>(IEnumerable<T> objects, bool enableCount = true);
     }
 
-    internal sealed class TableBuilder : ITableBuilder
+    internal sealed partial class TableBuilder : ITableBuilder
     {
+        // Regex to match ANSI escape codes
+        [GeneratedRegex(@"\x1b\[[0-9;]*m", RegexOptions.Compiled)]
+        private static partial Regex AnsiEscapeCodeRegex();
         public string BuildTable(string[] columns, IReadOnlyList<object[]> rows, bool enableCount = true)
         {
             if (columns.IsNullOrEmpty())
@@ -120,7 +124,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
             // Initialize with column header widths
             for (var i = 0; i < columnCount; i++)
             {
-                widths[i] = columns[i]?.Length ?? 0;
+                widths[i] = GetVisibleLength(columns[i] ?? string.Empty);
             }
 
             // Update with data row widths
@@ -129,7 +133,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
                 for (var i = 0; i < Math.Min(columnCount, row.Length); i++)
                 {
                     var cellValue = row[i]?.ToString() ?? string.Empty;
-                    widths[i] = Math.Max(widths[i], cellValue.Length);
+                    var visibleLength = GetVisibleLength(cellValue);
+                    widths[i] = Math.Max(widths[i], visibleLength);
                 }
             }
 
@@ -140,6 +145,22 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
             }
 
             return widths;
+        }
+
+        /// <summary>
+        /// Gets the visible length of a string, excluding ANSI escape codes.
+        /// ANSI codes like \x1b[31m (red) are invisible in terminal but count in string length.
+        /// </summary>
+        private static int GetVisibleLength(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return 0;
+            }
+
+            // Remove ANSI escape codes and get length
+            var withoutAnsi = AnsiEscapeCodeRegex().Replace(text, string.Empty);
+            return withoutAnsi.Length;
         }
 
         private static string BuildTopBorder(int[] columnWidths)
@@ -207,8 +228,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
             for (var i = 0; i < columnWidths.Length; i++)
             {
                 var cellValue = i < cells.Length ? (cells[i]?.ToString() ?? string.Empty) : string.Empty;
-                var padding = columnWidths[i] - 2; // Subtract 2 for the padding we added
-                stringBuilder.Append(cellValue.PadRight(padding));
+                var targetWidth = columnWidths[i] - 2; // Subtract 2 for the padding we added
+                var visibleLength = GetVisibleLength(cellValue);
+                var paddingNeeded = targetWidth - visibleLength;
+
+                // Append cell value with padding based on visible length
+                stringBuilder.Append(cellValue);
+
+                if (paddingNeeded > 0)
+                {
+                    stringBuilder.Append(new string(' ', paddingNeeded));
+                }
 
                 if (i < columnWidths.Length - 1)
                 {
