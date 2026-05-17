@@ -210,53 +210,65 @@ Run the test and you get:
 This is where the SDK earns its place.
 
 ```plaintext
-══════════════════════════════════════════════════════════════════════════════
-SNAPSHOT TEST FAILED
-══════════════════════════════════════════════════════════════════════════════
+══════════════════════════════════════════════════════════════
+❌ SNAPSHOT TEST FAILED
+══════════════════════════════════════════════════════════════
 
-Project    : Controllers.Test
-Class      : Controllers.Test.Api.Persons.PersonController.cs
-Method     : Should_Be_Able_To_Post_A_Person_By_Json_1
-LineNumber : 145
+📦 Test Information
+──────────────────────────────────────────────────────────────
 
-Request   : Controllers.Test.Api.Persons.Requests.SonGoku.json
-Response  : Controllers.Test.Api.Persons.Responses.SonGoku.json
+Project    : MinimalApi.Test
+Class      : PersonEndpointsTests
+Method     : Should_Be_Able_To_Post_A_Person_Object
+Line       : 65
 
-Errors    : 1
-ErrorTypes: ValueDifference
 
-HTTP CALL
- ----------------------------------------------------------------------- 
- | HttpMethod | Url                                   | HttpStatusCode |
- ----------------------------------------------------------------------- 
- | POST       | http://localhost/api/tests/v1/persons | 200 OK         |
- -----------------------------------------------------------------------
+🌍 HTTP
+──────────────────────────────────────────────────────────────
 
-DIFFERENCES
- ----------------------------------------------------------------------- 
- | MemberPath         | SonGoku.json | CurrentResult | MismatchType    |
- ----------------------------------------------------------------------- 
- | content.value.name | Son Invalid  | Son           | ValueDifference |
- -----------------------------------------------------------------------
+Method   : POST
+Url      : http://localhost/api/v1/persons
+Status   : 201 Created
+Body     : {"id":1,"name":"Son","firstName":"Goku","age":42,"emails":[]}
+Response : NewPerson.json
 
-EXPECTED RESULT (SonGoku.json):
 
-{"content":{"headers":[{"key":"Content-Type","value":["application/json; charset=utf-8"]}],"value":{"id":1,"name":"Son Invalid","firstName":"Goku","age":99,"emails":[{"emailAddress":"alf@gmx.de","type":"GMX"},{"emailAddress":"abc@hotmail.de","type":"Microsoft"}]}},"statusCode":"OK","headers":[],"trailingHeaders":[],"isSuccessStatusCode":true}
+🔍 Differences (Count 1)
+──────────────────────────────────────────────────────────────
 
-CURRENT RESULT:
+┌────────────────────┬────────────────┬───────────────┬─────────────────┐
+│ MemberPath         │ NewPerson.json │ CurrentResult │ MismatchType    │
+├────────────────────┼────────────────┼───────────────┼─────────────────┤
+│ content.value.name │ Son Test       │ Son           │ ValueDifference │
+└────────────────────┴────────────────┴───────────────┴─────────────────┘
 
-{"content":{"headers":[{"key":"Content-Type","value":["application/json; charset=utf-8"]}],"value":{"id":1,"name":"Son","firstName":"Goku","age":99,"emails":[{"emailAddress":"alf@gmx.de","type":"GMX"},{"emailAddress":"abc@hotmail.de","type":"Microsoft"}]}},"statusCode":"OK","headers":[],"trailingHeaders":[],"isSuccessStatusCode":true}
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Http call as curl
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+📄 Expected Snapshot
+──────────────────────────────────────────────────────────────
+
+{"content":{"headers":[{"key":"Content-Type","value":["application/json; charset=utf-8"]}],"value":{"id":1,"name":"Son Test","firstName":"Goku","age":42,"emails":[]
+}},"statusCode":"Created","headers":[{"key":"Location","value":["persons/1"]},{"key":"api-supported-versions","value":["1"]}],"trailingHeaders":[],"isSuccessStatusC
+ode":true}
+
+
+📄 Current Result
+──────────────────────────────────────────────────────────────
+
+{"content":{"headers":[{"key":"Content-Type","value":["application/json; charset=utf-8"]}],"value":{"id":1,"name":"Son","firstName":"Goku","age":42,"emails":[]}},"s
+tatusCode":"Created","headers":[{"key":"Location","value":["persons/1"]},{"key":"api-supported-versions","value":["1"]}],"trailingHeaders":[],"isSuccessStatusCode":
+true}
+
+
+🔁 Reproduce Locally
+──────────────────────────────────────────────────────────────
+
 curl \
 --location \
---request POST 'http://localhost/api/tests/v1/persons' \
+--request POST 'http://localhost/api/v1/persons' \
 --header 'Content-Type: application/json' \
---data-raw '{"Id":1,"Name":"Son","FirstName":"Goku","Age":99,"Emails":[{"EmailAddress":"alf@gmx.de","Type":"GMX"},{"EmailAddress":"abc@hotmail.de","Type":"Microsoft"}]}'
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--data-raw '{"id":1,"name":"Son","firstName":"Goku","age":42,"emails":[]}'
 
+══════════════════════════════════════════════════════════════
 ```
 
 You immediately see:
@@ -285,57 +297,66 @@ This SDK does not just tell you that something failed. It tells you **where**, *
 
 ### Response types not matching
 ```
-══════════════════════════════════════════════════════════════════════════════
-HTTP RESPONSE TYPE MISMATCH
-══════════════════════════════════════════════════════════════════════════════
+══════════════════════════════════════════════════════════════
+❌ HTTP RESPONSE TYPE MISMATCH
+══════════════════════════════════════════════════════════════
 
-Project      : Controllers.Test
-Class        : Controllers.Test.Api.Persons.PersonController.cs
-Method       : Invalid_Response_Type_Json_Exception
-LineNumber   : 29
+📦 Test Information
+──────────────────────────────────────────────────────────────
 
-ASSERT CALL
+Project    : MinimalApi.Test
+Class      : PersonEndpointsTests
+Method     : Should_Be_Able_To_Post_A_Person_Object
+Line       : 65
 
----------------------------------------------------------------------------
-return Client.AssertGetAsync<UnknownResponse>("/api/tests/v1/persons",
-                                              "GetPersonResponse.json");
----------------------------------------------------------------------------
+🌍 HTTP
+──────────────────────────────────────────────────────────────
 
-SUGGESTED FIX
+Method     : POST
+Url        : http://localhost/api/v1/persons
+Status     : Type Mismatch
 
----------------------------------------------------------------------------
-return Client.AssertGetAsync<IEnumerable<Person>>("/api/tests/v1/persons",
-                                              "GetPersonResponse.json");
----------------------------------------------------------------------------
+🔍 Type Validation
+──────────────────────────────────────────────────────────────
 
-TYPE VALIDATION
-
- --------------------------------------------------------------------- 
- | Status Code | Endpoint Response Type | Declared Test Type | Match |
- --------------------------------------------------------------------- 
- | 200         | IEnumerable<Person>    | UnknownResponse    | ✗     |
- ---------------------------------------------------------------------
-
-SUMMARY
+┌─────────────┬────────────────────────┬────────────────────┬───────┐
+│ Status Code │ Endpoint Response Type │ Declared Test Type │ Match │
+├─────────────┼────────────────────────┼────────────────────┼───────┤
+│ 201         │ Person                 │ UnknownResponse    │ ✗     │
+└─────────────┴────────────────────────┴────────────────────┴───────┘
 
 The test is a success (2xx) test and declares response type 'UnknownResponse',
 but none of the endpoint's success (2xx) status codes return this type.
 
-Endpoint defines: 200 → IEnumerable<Person>
+Endpoint defines: 201 → Person
 
-Suggested action:
-- Update the test response type to 'IEnumerable<Person>' to match one of the status codes above
+📝 Assert Call
+──────────────────────────────────────────────────────────────
 
-Alternative:
-- If the endpoint contract is wrong, update the endpoint's ProducesResponseType attributes
+return Client.AssertPostAsync<UnknownResponse>("api/v1/persons",
+                                               new Person(1, "Son", "Goku",
+                                                          42, ImmutableList<Email>.Empty),
+                                               "NewPerson.json");
 
--------------------------------------------------------------------------
-Http call as curl
--------------------------------------------------------------------------
+✅ Suggested Fix
+──────────────────────────────────────────────────────────────
+
+return Client.AssertPostAsync<Person>("api/v1/persons",
+                                               new Person(1, "Son", "Goku",
+                                                          42, ImmutableList<Email>.Empty),
+                                               "NewPerson.json");
+
+
+🔁 Reproduce Locally
+──────────────────────────────────────────────────────────────
+
 curl \
 --location \
---request GET 'http://localhost/api/tests/v1/persons'
--------------------------------------------------------------------------
+--request POST 'http://localhost/api/v1/persons' \
+--header 'Content-Type: application/json' \
+--data-raw '{"id":1,"name":"Son","firstName":"Goku","age":42,"emails":[]}'
+
+══════════════════════════════════════════════════════════════
 ```
 
 ### Smart endpoint validation with fallback
