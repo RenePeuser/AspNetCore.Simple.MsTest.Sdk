@@ -272,7 +272,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             }
 
             var indent = new string(' ', spaces);
-            var lines = json.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = json.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
             return string.Join(Environment.NewLine, lines.Select(line => indent + line));
         }
 

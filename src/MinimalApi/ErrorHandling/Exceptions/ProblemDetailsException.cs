@@ -60,9 +60,5 @@ namespace MinimalApi.ErrorHandling.Exceptions
         }
 
         public ProblemDetails ProblemDetails { get; }
-
-        public ProblemDetailsException()
-        {
-        }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 
+#pragma warning disable CA1032 // Implement standard exception constructors
 namespace MinimalApi.ErrorHandling.Exceptions
 {
     public class SecurityProblemException : ProblemDetailsException
@@ -17,9 +18,6 @@ namespace MinimalApi.ErrorHandling.Exceptions
                                                                                                 extensions)
         {
         }
-
-        public SecurityProblemException()
-        {
-        }
     }
 }
+#pragma warning restore CA1032 // Implement standard exception constructors

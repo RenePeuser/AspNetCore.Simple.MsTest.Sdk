@@ -1,3 +1,4 @@
+#pragma warning disable CA1032 // Implement standard exception constructors
 namespace AspNetCore.Simple.MsTest.Sdk
 {
     public class InvalidJsonException : Exception
@@ -6,8 +7,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
         }
 
-        public InvalidJsonException()
+        public InvalidJsonException(string message,
+                                    Exception innerException) : base(message, innerException)
         {
         }
     }
 }
+#pragma warning restore CA1032 // Implement standard exception constructors

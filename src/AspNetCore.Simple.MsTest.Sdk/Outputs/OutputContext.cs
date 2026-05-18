@@ -122,7 +122,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Can be shown in output for debugging parameterized tests.
         /// Empty array if no parameters.
         /// </summary>
-        public (string Key, object? Value)[] Parameters { get; init; } = [];
+        public ImmutableList<(string Key, object? Value)> Parameters { get; init; } = [];
 
         /// <summary>
         /// Any additional context-specific data that might be useful.

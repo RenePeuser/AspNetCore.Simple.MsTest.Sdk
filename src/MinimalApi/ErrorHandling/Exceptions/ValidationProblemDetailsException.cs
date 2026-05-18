@@ -68,9 +68,5 @@ namespace MinimalApi.ErrorHandling.Exceptions
         }
 
         public ValidationProblemDetails ValidationProblemDetails { get; }
-
-        public ValidationProblemDetailsException()
-        {
-        }
     }
 }

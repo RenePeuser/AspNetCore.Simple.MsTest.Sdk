@@ -62,9 +62,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public ProblemDetails ProblemDetails { get; }
-
-        public TestSdkProblemDetailsException()
-        {
-        }
     }
 }

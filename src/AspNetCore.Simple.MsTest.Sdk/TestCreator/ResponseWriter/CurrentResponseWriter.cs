@@ -29,7 +29,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public required EmbeddedFileInfo ExpectedResult { get; init; }
 
-        public required (string key, object? Value)[] Parameters { get; init; }
+        public required ImmutableList<(string key, object? Value)> Parameters { get; init; }
 
         public required Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; init; }
 
