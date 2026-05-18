@@ -71,7 +71,7 @@ def fix_file(filepath):
         new_content = '\n'.join(result)
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(new_content)
-        print(f"✓ {filepath.name}: {fixes} fixes")
+        print(f"[OK] {filepath.name}: {fixes} fixes")
         return fixes
     else:
         return 0
@@ -97,7 +97,7 @@ def main():
             fixes = fix_file(filepath)
             total_fixes += fixes
         else:
-            print(f"✗ {filename}: not found")
+            print(f"[ERROR] {filename}: not found")
 
     print(f"\nTotal fixes: {total_fixes}")
 

@@ -37,7 +37,9 @@
       "Bash(python fix_skip_validation.py)",
       "Bash(git checkout *)",
       "Bash(awk ' *)",
-      "Bash(python fix_skip_endpoint_validation.py)"
+      "Bash(python fix_skip_endpoint_validation.py)",
+      "Bash(python fix_remaining_skip.py)",
+      "Bash(awk '/skipEndpointValidation: skipEndpointValidation,/{if\\(prev~/skipEndpointValidation: skipEndpointValidation,/\\){print \"DUPLIKAT Zeile \" NR-1 \" und \" NR}} {prev=$0}' Client.Assert.Post.cs)"
     ]
   }
 }

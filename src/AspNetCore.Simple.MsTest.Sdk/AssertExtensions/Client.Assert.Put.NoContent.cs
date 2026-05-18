@@ -363,26 +363,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             Assert.AreEqual(expected: HttpStatusCode.Unauthorized, actual: result.StatusCode, message: errorOutput);
         }
-
-        // ============================================================
-        // Complete Context API (Level 3) - NoContent variant
-        // ============================================================
-
-        /// <summary>
-        /// Level 3: Complete Context API - All parameters in context (cleanest API).
-        /// </summary>
-        public static Task AssertPutAsync(HttpAssertContext<string> context)
-        {
-            return context.Client.AssertHttpCallAsync(url: context.Url,
-                                                      payloadAsJson: context.PayloadAsJson ?? string.Empty,
-                                                      httpMethod: HttpMethod.Put,
-                                                      parameters: context.Parameters,
-                                                      callingAssembly: context.CallingAssembly,
-                                                      payloadAsJsonParameterName: context.PayloadParameterName,
-                                                      callerFilePath: context.CallerFilePath,
-                                                      isSuccessStatusCode: true,
-                                                      writeResponse: context.WriteResponse,
-                                                      callerLineNumber: context.CallerLineNumber);
-        }
     }
 }
