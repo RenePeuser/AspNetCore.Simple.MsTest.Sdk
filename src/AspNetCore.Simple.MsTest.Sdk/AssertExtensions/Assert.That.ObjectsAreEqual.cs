@@ -685,6 +685,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             catch (Exception exception)
 #pragma warning restore CA1031
             {
+                // ToDo: Error handler as well
                 // GLOBAL EXCEPTION HANDLER FOR OBJECT ASSERTIONS
                 // Build a simple error message since we don't have HTTP context here
                 var errorOutput = BuildObjectAssertionError(context, exception);

@@ -7,6 +7,7 @@ using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
+using AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
@@ -70,7 +71,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                             _curlFormatter,
                                                                             _textDecorator);
 
-            var outputStrategies = new IAssertOutputStrategy[] { primitiveOutputStrategy, objectOutputStrategy, httpResponseOutputStrategy };
+            var outputStrategies = new IAssertOutputStrategy[]
+            {
+                primitiveOutputStrategy,
+                objectOutputStrategy,
+                httpResponseOutputStrategy
+            };
 
             // 5. Create output builder and assert service with rebuilt strategies
             _outputBuilder = new AssertOutputBuilder(outputStrategies);
@@ -87,16 +93,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _httpCallHandler = (HttpCallHandler)httpCallHandler;
 
             // 7. Rebuild pipeline with the updated components
-            _httpAssertionPipeline = new HttpAssertionPipeline(new IHttpAssertionStep[]
-                                                               {
-                                                                   new StatusCodeValidationStep(_outputBuilder), new ContentTypeHeaderValidationStep(_outputBuilder), new ContentFormatValidationStep(_outputBuilder),
+            _httpAssertionPipeline = new HttpAssertionPipeline([
+                                                                   new StatusCodeValidationStep(_outputBuilder),
+                                                                   new ContentTypeHeaderValidationStep(_outputBuilder),
+                                                                   new ContentFormatValidationStep(_outputBuilder),
                                                                    new JsonComparisonStep(_primitiveTypeConverter,
                                                                                           _assertService,
                                                                                           _parameterReplacer,
                                                                                           _writeResponseService,
                                                                                           _jsonSerializerOptions),
                                                                    new SuccessfulTestCurlPrinter(_curlBuilder, _curlFormatter)
-                                                               });
+                                                               ]);
 
             // 8. Resolve validation services
             _apiVersionResolver = serviceProvider.GetRequiredService<IApiVersionResolver>();
@@ -110,7 +117,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 
             // 9. Resolve error handling strategy
-            var testErrorHandlingStrategy = serviceProvider.GetRequiredService<ITestErrorHandlingStrategy>();
+            _testErrorHandlingStrategy = serviceProvider.GetRequiredService<ITestErrorHandlingStrategy>();
 
             // 10. Most important: Rebuild AssertableHttpClient with all updated components
             _assertableHttpClientDefault = new AssertableHttpClient.AssertableHttpClient(_httpCallHandler,
@@ -119,7 +126,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                          _primitiveTypeConverter,
                                                                                          _jsonSerializerOptions,
                                                                                          _endpointValidator,
-                                                                                         testErrorHandlingStrategy);
+                                                                                         _testErrorHandlingStrategy);
 
             CustomAssertableHttpClient = _assertableHttpClientDefault;
 
@@ -129,6 +136,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     public static partial class HttpClientAssertExtensions
     {
+        // Quickfix to hold the whole api compatible
+        private const string IgnoreResponseComparison = "IgnoreResponse";
+
         private static ITextDecorator _textDecorator = new PlainTextDecorator();
 
         private static IPrimitiveTypeConverter _primitiveTypeConverter = new PrimitiveTypeConverter();
@@ -144,28 +154,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static IWriteResponseService _writeResponseService = new WriteResponseService();
 
-        // You have the possible to set and pass the api settings specific json options
-        public static JsonSerializerOptions JsonSerializerOptions
-        {
-            get => _jsonSerializerOptions;
-
-            set
-            {
-                _jsonSerializerOptions = value;
-                _httpCallHandler = new HttpCallHandler(new HttpRequestMessageBuilder(new JsonSerializer(_jsonSerializerOptions)));
-            }
-        }
-
         private static HttpCallHandler _httpCallHandler = new(new HttpRequestMessageBuilder(new JsonSerializer(JsonSerializerOptions)));
-
-        // Output function
-        public static Action<string> LogAction { get; set; } = Console.WriteLine;
-
-        // Here you can control the visibility of the token in the curl outputs.
-        public static bool ShowTokenInCurl { get; set; }
-
-        // Quickfix to hold the whole api compatible
-        private const string IgnoreResponseComparison = "IgnoreResponse";
 
         private static JsonSerializerOptions _jsonSerializerOptions = new()
         {
@@ -173,7 +162,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
             NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters = { new JsonStringEnumConverter() }
+            Converters =
+            {
+                new JsonStringEnumConverter()
+            }
         };
 
         private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions);
@@ -236,14 +228,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // Pipeline (contains all steps internally)
         private static IHttpAssertionPipeline _httpAssertionPipeline = new HttpAssertionPipeline(new IHttpAssertionStep[]
-                                                                                                 {
-                                                                                                     new StatusCodeValidationStep(_outputBuilder), new ContentTypeHeaderValidationStep(_outputBuilder), new ContentFormatValidationStep(_outputBuilder),
-                                                                                                     new JsonComparisonStep(_primitiveTypeConverter,
-                                                                                                                            _assertService,
-                                                                                                                            _parameterReplacer,
-                                                                                                                            _writeResponseService,
-                                                                                                                            JsonSerializerOptions)
-                                                                                                 });
+        {
+            new StatusCodeValidationStep(_outputBuilder),
+            new ContentTypeHeaderValidationStep(_outputBuilder),
+            new ContentFormatValidationStep(_outputBuilder),
+            new JsonComparisonStep(_primitiveTypeConverter,
+                                   _assertService,
+                                   _parameterReplacer,
+                                   _writeResponseService,
+                                   JsonSerializerOptions)
+        });
 
         private static IApiVersionResolver _apiVersionResolver = new ApiVersionResolver();
 
@@ -259,7 +253,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // Error handling strategy - will be properly initialized in Setup()
         // Default implementation for static initialization
-        private static readonly ITestErrorHandlingStrategy TestErrorHandlingStrategy = CreateDefaultErrorHandlingStrategy();
+        internal static ITestErrorHandlingStrategy _testErrorHandlingStrategy = CreateDefaultErrorHandlingStrategy();
 
         private static IAssertableHttpClient _assertableHttpClientDefault = new AssertableHttpClient.AssertableHttpClient(_httpCallHandler,
                                                                                                                           _parameterReplacer,
@@ -267,11 +261,37 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                                                           _primitiveTypeConverter,
                                                                                                                           JsonSerializerOptions,
                                                                                                                           _endpointValidator,
-                                                                                                                          TestErrorHandlingStrategy);
+                                                                                                                          _testErrorHandlingStrategy);
+
+        // You have the possible to set and pass the api settings specific json options
+        public static JsonSerializerOptions JsonSerializerOptions
+        {
+            get => _jsonSerializerOptions;
+
+            set
+            {
+                _jsonSerializerOptions = value;
+                _httpCallHandler = new HttpCallHandler(new HttpRequestMessageBuilder(new JsonSerializer(_jsonSerializerOptions)));
+            }
+        }
+
+        // Output function
+        public static Action<string> LogAction { get; set; } = Console.WriteLine;
+
+        // Here you can control the visibility of the token in the curl outputs.
+        public static bool ShowTokenInCurl { get; set; }
 
         /// <summary>
-        /// Creates a default error handling strategy for static initialization.
-        /// This will be replaced with the proper DI-based strategy in Setup().
+        ///     Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.
+        ///     Allows developers to plug in their own assertion logic while maintaining type safety.
+        ///     Defaults to the standard AssertableHttpClient implementation.
+        /// </summary>
+        public static IAssertableHttpClient CustomAssertableHttpClient { get; set; } = _assertableHttpClientDefault;
+
+
+        /// <summary>
+        ///     Creates a default error handling strategy for static initialization.
+        ///     This will be replaced with the proper DI-based strategy in Setup().
         /// </summary>
         private static TestErrorHandlingStrategy CreateDefaultErrorHandlingStrategy()
         {
@@ -280,23 +300,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var curlBuilder = new CurlBuilder();
             var curlFormatter = new CurlFormatter(_plainTextDecorator);
             var sourceCodeExtractor = new SourceCodeExtractor();
-            var problemDetailsOutputBuilder = new ProblemDetailsOutputBuilder(tableBuilder, curlBuilder, curlFormatter, sourceCodeExtractor, _plainTextDecorator);
+
+            var problemDetailsOutputBuilder = new ProblemDetailsOutputBuilder(tableBuilder, curlBuilder, curlFormatter,
+                                                                              sourceCodeExtractor, _plainTextDecorator);
 
             var handlers = new ITestErrorHandler[]
             {
-                new ErrorHandling.Handlers.ProblemDetailsErrorHandler(problemDetailsOutputBuilder),
-                new ErrorHandling.Handlers.DefaultErrorHandler()
+                new ProblemDetailsErrorHandler(problemDetailsOutputBuilder),
+                new DefaultErrorHandler()
             };
 
             return new TestErrorHandlingStrategy(handlers);
         }
-
-        /// <summary>
-        ///     Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.
-        ///     Allows developers to plug in their own assertion logic while maintaining type safety.
-        ///     Defaults to the standard AssertableHttpClient implementation.
-        /// </summary>
-        public static IAssertableHttpClient CustomAssertableHttpClient { get; set; } = _assertableHttpClientDefault;
 
 #pragma warning disable CA1859
         private static async Task AssertHttpCallAsync(this HttpClient client,
