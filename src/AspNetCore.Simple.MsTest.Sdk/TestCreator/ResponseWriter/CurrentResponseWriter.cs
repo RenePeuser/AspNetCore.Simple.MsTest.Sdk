@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Reflection;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -88,14 +88,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                           ResponseWriteMode mode = ResponseWriteMode.DifferencesOnly)
         {
             var request = new WriteResponseRequest
-                          {
-                              CallingAssembly = context.CallingAssembly,
-                              DifferenceFunc = context.DifferenceFunc,
-                              CurrentResponseAsString = currentResponseAsString,
-                              ExpectedResult = expectedResult,
-                              Parameters = context.Parameters,
-                              Mode = mode
-                          };
+            {
+                CallingAssembly = context.CallingAssembly,
+                DifferenceFunc = context.DifferenceFunc,
+                CurrentResponseAsString = currentResponseAsString,
+                ExpectedResult = expectedResult,
+                Parameters = context.Parameters,
+                Mode = mode
+            };
 
             Write(request);
         }

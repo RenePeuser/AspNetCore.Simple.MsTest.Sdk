@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mime;
@@ -6,8 +6,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Argument.Check;
-using Extensions.Pack;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
+using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {

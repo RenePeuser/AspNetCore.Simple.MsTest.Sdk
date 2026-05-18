@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -41,16 +41,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       configurationBuilder.AddJsonFile(testSettingsFile.FullName, true);
                                                   }
 
-                                                   configurationBuilder.AddUserSecrets(CallingAssembly);
+                                                  configurationBuilder.AddUserSecrets(CallingAssembly);
                                                   configurationBuilder.AddEnvironmentVariables();
 
                                                   configuration = configurationBuilder.Build();
                                               });
 
-            builder.ConfigureServices(services =>
-                                      {
-                                          registerServices(services, configuration);
-                                      });
+            builder.ConfigureServices(services => registerServices(services, configuration));
 
             builder.UseEnvironment(EnvironmentName);
         }

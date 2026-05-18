@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk

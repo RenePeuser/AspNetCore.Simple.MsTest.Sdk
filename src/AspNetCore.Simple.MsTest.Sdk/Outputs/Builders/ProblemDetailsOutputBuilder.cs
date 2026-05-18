@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using AspNetCore.Simple.MsTest.Sdk.Validation;

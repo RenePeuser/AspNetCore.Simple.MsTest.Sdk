@@ -1,4 +1,4 @@
-﻿namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Strategy interface for context-specific output formatting.

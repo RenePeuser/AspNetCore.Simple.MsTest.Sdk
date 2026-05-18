@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +35,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public string BuildExpected(IHttpResponseContext context,
                                     string expectedJson)
         {
-            var responseFileName = GetResponseFileName(context);
+            _ = GetResponseFileName(context);
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(textDecorator.SectionTitle("📄 Expected Snapshot"));

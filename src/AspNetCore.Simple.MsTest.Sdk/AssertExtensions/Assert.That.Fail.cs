@@ -1,4 +1,4 @@
-﻿namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Provides assertion methods with cleaner output compared to standard Assert.Fail().

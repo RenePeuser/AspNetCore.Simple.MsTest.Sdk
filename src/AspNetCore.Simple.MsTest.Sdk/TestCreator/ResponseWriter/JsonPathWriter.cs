@@ -1,4 +1,4 @@
-﻿using Extensions.Pack;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 
@@ -150,9 +150,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           string? PropertyName,
                                           int Index)
         {
-            public static PathSegment Property(string name) => new(false, name, -1);
+            public static PathSegment Property(string name)
+            {
+                return new(false, name, -1);
+            }
 
-            public static PathSegment Array(int index) => new(true, null, index);
+            public static PathSegment Array(int index)
+            {
+                return new(true, null, index);
+            }
         }
     }
 }

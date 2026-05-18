@@ -1,4 +1,4 @@
-﻿namespace MinimalApi.Api.NativeTypes.V1
+namespace MinimalApi.Api.NativeTypes.V1
 {
     internal static class Startup
     {

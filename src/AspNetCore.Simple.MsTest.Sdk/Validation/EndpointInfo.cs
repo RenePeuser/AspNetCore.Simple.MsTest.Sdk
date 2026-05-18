@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using Asp.Versioning;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation

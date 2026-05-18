@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Text;
 using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
@@ -134,12 +133,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 foreach (var key in allKeys)
                 {
                     yield return new Difference
-                                 {
-                                     MemberPath = $"{path}.{key}",
-                                     Value1 = obj1.TryGetValue(key, out var v1) ? v1 : "Property missing",
-                                     Value2 = obj2.TryGetValue(key, out var v2) ? v2 : "Property missing",
-                                     MismatchType = ResolveMismatchType(v1, v2)
-                                 };
+                    {
+                        MemberPath = $"{path}.{key}",
+                        Value1 = obj1.TryGetValue(key, out var v1) ? v1 : "Property missing",
+                        Value2 = obj2.TryGetValue(key, out var v2) ? v2 : "Property missing",
+                        MismatchType = ResolveMismatchType(v1, v2)
+                    };
                 }
             }
             else

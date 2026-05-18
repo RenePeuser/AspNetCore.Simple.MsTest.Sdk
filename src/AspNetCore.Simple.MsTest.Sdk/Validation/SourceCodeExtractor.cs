@@ -1,4 +1,4 @@
-﻿using Extensions.Pack;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
@@ -119,7 +119,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             for (var i = 0; i < line.Length && removed < count; i++)
             {
-                if (line[i] == ' ' || line[i] == '\t')
+                if (line[i] is ' ' or '\t')
                 {
                     removed++;
                 }

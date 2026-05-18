@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Strategies
 {
@@ -42,7 +42,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
         /// <summary>
         /// Type-checks if the context matches TContext.
         /// </summary>
-        public bool CanHandle(IObjectAssertContext context) => context is TContext;
+        public bool CanHandle(IObjectAssertContext context)
+        {
+            return context is TContext;
+        }
 
         /// <summary>
         /// Casts context to TContext and delegates to the type-safe abstract method.

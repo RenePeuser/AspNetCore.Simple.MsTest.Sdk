@@ -1,10 +1,10 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Extensions.Pack;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
+using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -247,11 +247,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-                                {
-                                    Request = $"DELETE {url}",
-                                    Expected = HttpStatusCode.Unauthorized,
-                                    Current = result.StatusCode
-                                }.ToIList();
+            {
+                Request = $"DELETE {url}",
+                Expected = HttpStatusCode.Unauthorized,
+                Current = result.StatusCode
+            }.ToIList();
 
             var table = TableFormatter.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
@@ -287,7 +287,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         public static Task<TResult> AssertDeleteAsync<TResult>(HttpAssertContext<TResult> context)
         {
-            return context.Client.AssertHttpCallAsync<TResult>(url: context.Url,
+            return context.Client.AssertHttpCallAsync(url: context.Url,
                                                                payloadAsJson: string.Empty,
                                                                expectedResult: context.ExpectedObjectAsJson,
                                                                filterFunc: context.OrderFunc,

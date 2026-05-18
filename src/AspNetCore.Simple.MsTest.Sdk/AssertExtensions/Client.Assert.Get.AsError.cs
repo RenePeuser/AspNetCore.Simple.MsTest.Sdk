@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -114,7 +114,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertGetAsErrorAsync<TResult>(url: url,
+            return client.AssertGetAsErrorAsync(url: url,
                                                          expectedResult: expectedResult,
                                                          filterFunc: filterFunc,
                                                          parameters: [],
@@ -140,7 +140,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertGetAsErrorAsync<TResult>(url: url,
+            return client.AssertGetAsErrorAsync(url: url,
                                                          expectedResult: expectedResult,
                                                          filterFunc: filterFunc,
                                                          parameters: parameters,
@@ -166,7 +166,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertGetAsErrorAsync<TResult>(url: url,
+            return client.AssertGetAsErrorAsync(url: url,
                                                          expectedResult: expectedResult,
                                                          filterFunc: filterFunc,
                                                          differenceFunc: differenceFunc,
@@ -194,7 +194,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertGetAsErrorAsync<TResult>(url: url,
+            return client.AssertGetAsErrorAsync(url: url,
                                                          expectedResult: expectedResult,
                                                          filterFunc: filterFunc,
                                                          differenceFunc: differenceFunc,
@@ -329,7 +329,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertGetAsErrorAsync<TResult>(url: url,
+            return client.AssertGetAsErrorAsync(url: url,
                                                          expectedResult: expectedResult,
                                                          filterFunc: filterFunc,
                                                          differenceFunc: difference => difference,
@@ -357,7 +357,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertGetAsErrorAsync<TResult>(url: url,
+            return client.AssertGetAsErrorAsync(url: url,
                                                          expectedResult: expectedResult,
                                                          filterFunc: filterFunc,
                                                          differenceFunc: difference => difference,
@@ -385,7 +385,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertGetAsErrorAsync<TResult>(url: url,
+            return client.AssertGetAsErrorAsync(url: url,
                                                          expectedResult: expectedResult,
                                                          filterFunc: filterFunc,
                                                          differenceFunc: differenceFunc,

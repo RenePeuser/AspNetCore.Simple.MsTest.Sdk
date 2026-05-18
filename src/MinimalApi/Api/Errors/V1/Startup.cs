@@ -1,4 +1,3 @@
-﻿using MinimalApi.Api.Errors.V1.NotImplemented;
 using MinimalApi.Api.Errors.V1.NotImplemented.Endpoint;
 
 namespace MinimalApi.Api.Errors.V1

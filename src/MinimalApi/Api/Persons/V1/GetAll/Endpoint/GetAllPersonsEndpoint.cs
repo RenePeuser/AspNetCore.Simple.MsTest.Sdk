@@ -1,4 +1,4 @@
-﻿using Extensions.Pack;
+using Extensions.Pack;
 using Microsoft.AspNetCore.Mvc;
 using MinimalApi.Endpoints;
 

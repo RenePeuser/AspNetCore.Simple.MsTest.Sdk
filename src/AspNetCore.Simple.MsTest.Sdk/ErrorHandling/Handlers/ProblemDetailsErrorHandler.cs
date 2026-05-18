@@ -1,4 +1,4 @@
-﻿using Extensions.Pack;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers

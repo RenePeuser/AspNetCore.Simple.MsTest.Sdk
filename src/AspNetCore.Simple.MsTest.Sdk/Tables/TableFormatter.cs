@@ -1,5 +1,3 @@
-using System.Collections;
-
 namespace AspNetCore.Simple.MsTest.Sdk.Tables
 {
     /// <summary>

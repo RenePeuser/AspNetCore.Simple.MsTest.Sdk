@@ -1,4 +1,4 @@
-﻿using Extensions.Pack;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Decorators
@@ -30,14 +30,29 @@ namespace AspNetCore.Simple.MsTest.Sdk.Decorators
 
         private const string Green = "\x1b[32m";
 
-        public string Error(string text) => $"{BoldRed}{text}{Reset}";
+        public string Error(string text)
+        {
+            return $"{BoldRed}{text}{Reset}";
+        }
 
-        public string SectionTitle(string text) => $"{BoldCyan}{text}{Reset}";
+        public string SectionTitle(string text)
+        {
+            return $"{BoldCyan}{text}{Reset}";
+        }
 
-        public string Highlight(string text) => $"{BoldWhite}{text}{Reset}";
+        public string Highlight(string text)
+        {
+            return $"{BoldWhite}{text}{Reset}";
+        }
 
-        public string Dim(string text) => $"{Gray}{text}{Reset}";
+        public string Dim(string text)
+        {
+            return $"{Gray}{text}{Reset}";
+        }
 
-        public string Success(string text) => $"{Green}{text}{Reset}";
+        public string Success(string text)
+        {
+            return $"{Green}{text}{Reset}";
+        }
     }
 }

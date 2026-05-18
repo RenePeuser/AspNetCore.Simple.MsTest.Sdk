@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Net;
 using Extensions.Pack;
 using Microsoft.AspNetCore.Mvc;
@@ -62,5 +62,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public ProblemDetails ProblemDetails { get; }
+
+        public TestSdkProblemDetailsException()
+        {
+        }
     }
 }

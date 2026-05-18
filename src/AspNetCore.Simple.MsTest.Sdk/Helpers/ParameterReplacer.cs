@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;

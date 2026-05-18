@@ -1,5 +1,3 @@
-﻿using AspNetCore.Simple.MsTest.Sdk.Validation;
-
 namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
 {
     /// <summary>

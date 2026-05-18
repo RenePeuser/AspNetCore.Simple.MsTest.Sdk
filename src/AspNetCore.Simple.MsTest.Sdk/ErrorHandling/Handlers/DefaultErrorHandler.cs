@@ -1,5 +1,4 @@
-﻿using System.Text;
-using AspNetCore.Simple.MsTest.Sdk.Validation;
+using System.Text;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 

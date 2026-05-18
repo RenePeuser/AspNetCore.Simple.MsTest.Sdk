@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -1,4 +1,4 @@
-﻿using Extensions.Pack;
+using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {

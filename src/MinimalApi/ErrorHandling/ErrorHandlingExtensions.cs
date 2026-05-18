@@ -1,5 +1,3 @@
-﻿using Extensions.Pack;
-using MinimalApi.ErrorHandling.Strategies;
 using MinimalApi.ErrorHandling.Strategies.Specific;
 
 namespace MinimalApi.ErrorHandling

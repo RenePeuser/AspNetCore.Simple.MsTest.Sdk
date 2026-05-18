@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MinimalApi.Endpoints;
 
 namespace MinimalApi.Api.NativeTypes.V1
@@ -18,10 +18,7 @@ namespace MinimalApi.Api.NativeTypes.V1
     {
         public void Map(IEndpointRouteBuilder routeBuilder)
         {
-            routeBuilder.MapGet("native-types/string", () =>
-                                                       {
-                                                           return Results.Ok("String only");
-                                                       })
+            routeBuilder.MapGet("native-types/string", () => Results.Ok("String only"))
                         .WithName("getStringV1")
                         .WithSummary("Returns a simple string")
                         .WithTags("NativeTypes")

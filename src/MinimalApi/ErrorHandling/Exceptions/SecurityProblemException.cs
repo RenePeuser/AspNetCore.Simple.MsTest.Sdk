@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 
 namespace MinimalApi.ErrorHandling.Exceptions
 {
@@ -15,6 +15,10 @@ namespace MinimalApi.ErrorHandling.Exceptions
                                         string details,
                                         IImmutableDictionary<string, object> extensions) : base(StatusCodes.Status400BadRequest, title, details,
                                                                                                 extensions)
+        {
+        }
+
+        public SecurityProblemException()
         {
         }
     }

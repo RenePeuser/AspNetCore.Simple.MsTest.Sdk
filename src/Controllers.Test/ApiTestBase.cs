@@ -1,4 +1,4 @@
-﻿using AspNetCore.Simple.MsTest.Sdk;
+using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using Microsoft.Extensions.DependencyInjection;
 [assembly: Parallelize(Scope = ExecutionScope.ClassLevel)]
@@ -29,10 +29,7 @@ namespace Controllers.Test
             // 1. Super simple just use the provided API test base class and you are ready to go
             _apiTestBase = new ApiTestBase<Startup>("Development", // The environment name
                                                     (services,
-                                                     configuration) =>
-                                                    {
-                                                        services.AddAssertableHttpClient(configuration);
-                                                    }); // Configure environment variables
+                                                     configuration) => services.AddAssertableHttpClient(configuration)); // Configure environment variables
 
             Client = _apiTestBase.CreateClient();
             AssertableHttpClient = _apiTestBase.Services.GetRequiredService<IAssertableHttpClient>();

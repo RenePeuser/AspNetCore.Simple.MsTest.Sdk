@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Mime;
 using System.Security.Authentication;
@@ -33,11 +33,11 @@ namespace MinimalApi.ErrorHandling.Strategies.Specific
             context.Response.StatusCode = GetErrorCode(exception).Cast<int>();
 
             var problemDetails = new ProblemDetails()
-                                 {
-                                     Title = $"{exception.GetType().Name} was thrown.",
-                                     Detail = exception.Message,
-                                     Status = context.Response.StatusCode
-                                 };
+            {
+                Title = $"{exception.GetType().Name} was thrown.",
+                Detail = exception.Message,
+                Status = context.Response.StatusCode
+            };
 
             var problemDetailsSerialized = JsonSerializer.Serialize(problemDetails);
 

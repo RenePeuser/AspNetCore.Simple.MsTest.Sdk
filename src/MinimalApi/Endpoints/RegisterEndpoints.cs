@@ -1,4 +1,4 @@
-﻿namespace MinimalApi.Endpoints
+namespace MinimalApi.Endpoints
 {
     // ═══════════════════════════════════════════════════════════════════════════════════════
     // 🎯 STRATEGY PATTERN: Endpoint Registration

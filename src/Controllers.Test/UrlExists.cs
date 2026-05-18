@@ -1,4 +1,4 @@
-﻿using AspNetCore.Simple.MsTest.Sdk;
+using AspNetCore.Simple.MsTest.Sdk;
 using Extensions.Pack;
 
 namespace Controllers.Test

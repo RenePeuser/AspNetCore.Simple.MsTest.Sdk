@@ -1,4 +1,4 @@
-﻿namespace MinimalApi.ErrorHandling.Strategies.Specific
+namespace MinimalApi.ErrorHandling.Strategies.Specific
 {
     public interface ISpecificErrorHandler
     {

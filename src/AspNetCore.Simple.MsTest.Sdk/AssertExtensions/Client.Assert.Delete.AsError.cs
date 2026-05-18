@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -22,8 +22,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             writeResponse: writeResponse,
                                                             expectedResultParameterName: expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
                                                             skipEndpointValidation: skipEndpointValidation,
-                                                            callerFilePath: callerFilePath, 
-                                                            callerMemberName: callerMemberName, 
+                                                            callerFilePath: callerFilePath,
+                                                            callerMemberName: callerMemberName,
                                                             callerLineNumber: callerLineNumber);
         }
 
@@ -98,9 +98,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             callingAssembly: callingAssembly,
                                                             writeResponse: writeResponse,
                                                             skipEndpointValidation: skipEndpointValidation,
-                                                            expectedResultParameterName:expectedResultParameterName,
+                                                            expectedResultParameterName: expectedResultParameterName,
                                                             callerFilePath: callerFilePath,
-                                                            callerMemberName:callerMemberName,
+                                                            callerMemberName: callerMemberName,
                                                             callerLineNumber: callerLineNumber);
         }
 
@@ -124,7 +124,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             writeResponse: writeResponse,
                                                             skipEndpointValidation: skipEndpointValidation,
                                                             expectedResultParameterName: expectedResultParameterName,
-                                                            callerFilePath:callerFilePath,
+                                                            callerFilePath: callerFilePath,
                                                             callerMemberName: callerMemberName,
                                                             callerLineNumber: callerLineNumber);
         }

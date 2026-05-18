@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;

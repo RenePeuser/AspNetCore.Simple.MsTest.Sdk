@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using MinimalApi.Api.Errors;
 using MinimalApi.Api.NativeTypes;
 using MinimalApi.Api.Persons;

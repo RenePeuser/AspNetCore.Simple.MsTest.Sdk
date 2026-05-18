@@ -1,4 +1,4 @@
-﻿using Argument.Check;
+using Argument.Check;
 using Extensions.Pack;
 
 namespace MinimalApi.ErrorHandling.Strategies.Specific

@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Net.Mime;
 using System.Text;
 using Extensions.Pack;

@@ -1,4 +1,4 @@
-﻿using AspNetCore.Simple.Sdk.Startups;
+using AspNetCore.Simple.Sdk.Startups;
 
 namespace Controllers
 {

@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using Extensions.Pack;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,12 +45,12 @@ namespace MinimalApi.ErrorHandling.Exceptions
                                                  IImmutableDictionary<string, string> extensions) : base(title)
         {
             var problemDetails = new ValidationProblemDetails()
-                                 {
-                                     Title = title.IsEmpty() ? null : "One or more validation errors occurred.",
-                                     Detail = details.IsEmpty() ? null : details,
-                                     Status = StatusCodes.Status400BadRequest,
-                                     Type = type.IsEmpty() ? "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1" : type
-                                 };
+            {
+                Title = title.IsEmpty() ? null : "One or more validation errors occurred.",
+                Detail = details.IsEmpty() ? null : details,
+                Status = StatusCodes.Status400BadRequest,
+                Type = type.IsEmpty() ? "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1" : type
+            };
 
             extensions.OrderBy(item => item.Key).ForEach(keyValue =>
                                                          {
@@ -68,5 +68,9 @@ namespace MinimalApi.ErrorHandling.Exceptions
         }
 
         public ValidationProblemDetails ValidationProblemDetails { get; }
+
+        public ValidationProblemDetailsException()
+        {
+        }
     }
 }

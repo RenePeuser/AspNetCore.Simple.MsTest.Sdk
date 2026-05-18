@@ -1,4 +1,4 @@
-﻿namespace MinimalApi.Api.Persons.V1
+namespace MinimalApi.Api.Persons.V1
 {
     internal static class Startup
     {

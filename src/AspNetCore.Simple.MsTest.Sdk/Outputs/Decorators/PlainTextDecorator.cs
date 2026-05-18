@@ -1,4 +1,4 @@
-﻿using Extensions.Pack;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Decorators
@@ -18,14 +18,29 @@ namespace AspNetCore.Simple.MsTest.Sdk.Decorators
     /// </summary>
     internal sealed class PlainTextDecorator : ITextDecorator
     {
-        public string Error(string text) => text;
+        public string Error(string text)
+        {
+            return text;
+        }
 
-        public string SectionTitle(string text) => text;
+        public string SectionTitle(string text)
+        {
+            return text;
+        }
 
-        public string Highlight(string text) => text;
+        public string Highlight(string text)
+        {
+            return text;
+        }
 
-        public string Dim(string text) => text;
+        public string Dim(string text)
+        {
+            return text;
+        }
 
-        public string Success(string text) => text;
+        public string Success(string text)
+        {
+            return text;
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using AspNetCore.Simple.MsTest.Sdk;
+using AspNetCore.Simple.MsTest.Sdk;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 

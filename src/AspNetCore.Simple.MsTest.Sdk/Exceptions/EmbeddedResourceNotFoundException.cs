@@ -1,4 +1,9 @@
-﻿namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public class EmbeddedResourceNotFoundException(string message) : Exception(message);
+    public class EmbeddedResourceNotFoundException(string message) : Exception(message)
+    {
+        public EmbeddedResourceNotFoundException()
+        {
+        }
+    }
 }

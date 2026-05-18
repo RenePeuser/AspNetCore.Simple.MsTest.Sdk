@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using Extensions.Pack;
 
 namespace MinimalApi.Extensionmethods

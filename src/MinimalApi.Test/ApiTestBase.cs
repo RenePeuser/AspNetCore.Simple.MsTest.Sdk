@@ -1,4 +1,4 @@
-﻿using AspNetCore.Simple.MsTest.Sdk;
+using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 
 namespace MinimalApi.Test
@@ -14,10 +14,7 @@ namespace MinimalApi.Test
             // Use TestStartup instead of Program for proper WebApplicationFactory support
             _apiTestBase = new ApiTestBase<Program>("Development",
                                                     (services,
-                                                     configuration) =>
-                                                    {
-                                                        services.AddAssertableHttpClient(configuration);
-                                                    });
+                                                     configuration) => services.AddAssertableHttpClient(configuration));
 
             Client = _apiTestBase.CreateClient();
             HttpClientAssertExtensions.Setup(_apiTestBase.Services);

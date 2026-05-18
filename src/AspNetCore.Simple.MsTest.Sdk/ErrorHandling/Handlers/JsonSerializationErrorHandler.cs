@@ -1,6 +1,5 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
-using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;

@@ -1,4 +1,4 @@
-﻿using System.Net.Mime;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using MinimalApi.Endpoints;
 
@@ -19,10 +19,7 @@ namespace MinimalApi.Api.Persons.V1
     {
         public void Map(IEndpointRouteBuilder routeBuilder)
         {
-            routeBuilder.MapPatch("persons", (Person person) =>
-                                             {
-                                                 return Results.Ok(person);
-                                             })
+            routeBuilder.MapPatch("persons", (Person person) => Results.Ok(person))
                         .WithName("patchPersonV1")
                         .WithSummary("Partially updates a person")
                         .WithTags("Persons")

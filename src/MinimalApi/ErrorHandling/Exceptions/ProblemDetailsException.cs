@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Net;
 using Extensions.Pack;
 using Microsoft.AspNetCore.Mvc;
@@ -44,21 +44,25 @@ namespace MinimalApi.ErrorHandling.Exceptions
                                        IImmutableDictionary<string, object> errorDetails) : base(title)
         {
             var problemDetails = new ProblemDetails()
-                                 {
-                                     Title = title.IsEmpty() ? null : title,
-                                     Detail = details.IsEmpty() ? null : details,
-                                     Status = statusCode
-                                 };
+            {
+                Title = title.IsEmpty() ? null : title,
+                Detail = details.IsEmpty() ? null : details,
+                Status = statusCode
+            };
 
             errorDetails.OrderBy(item => item.Key).ForEach(keyValue =>
-                                                           {
-                                                               var key = keyValue.Key.Split(" ").Select(value => value.FirstCharToUpper()).Flatten().FirstCharToLower();
-                                                               problemDetails.Extensions.Add(key, keyValue.Value);
-                                                           });
+            {
+                var key = keyValue.Key.Split(" ").Select(value => value.FirstCharToUpper()).Flatten().FirstCharToLower();
+                problemDetails.Extensions.Add(key, keyValue.Value);
+            });
 
             ProblemDetails = problemDetails;
         }
 
         public ProblemDetails ProblemDetails { get; }
+
+        public ProblemDetailsException()
+        {
+        }
     }
 }

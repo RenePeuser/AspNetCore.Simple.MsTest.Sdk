@@ -1,11 +1,11 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Argument.Check;
-using Extensions.Pack;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
+using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -524,11 +524,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-                                {
-                                    Request = $"GET {url}",
-                                    Expected = HttpStatusCode.Unauthorized,
-                                    Current = result.StatusCode
-                                }.ToIList();
+            {
+                Request = $"GET {url}",
+                Expected = HttpStatusCode.Unauthorized,
+                Current = result.StatusCode
+            }.ToIList();
 
             var table = TableFormatter.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";

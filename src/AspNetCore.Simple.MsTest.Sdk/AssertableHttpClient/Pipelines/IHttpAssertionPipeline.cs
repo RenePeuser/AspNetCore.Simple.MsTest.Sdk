@@ -1,4 +1,4 @@
-﻿namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
+namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 {
     /// <summary>
     /// Represents a pipeline of HTTP assertion steps.

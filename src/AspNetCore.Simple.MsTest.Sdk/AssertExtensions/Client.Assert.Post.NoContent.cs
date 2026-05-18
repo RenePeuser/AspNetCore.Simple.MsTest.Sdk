@@ -95,7 +95,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            [CallerMemberName] string callerMemberName = "",
                                            [CallerLineNumber] int callerLineNumber = 0)
         {
-            var callingAssembly = Assembly.GetCallingAssembly();
+            _ = Assembly.GetCallingAssembly();
 
             return client.AssertPostAsync(url: url,
                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
@@ -120,7 +120,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            [CallerMemberName] string callerMemberName = "",
                                            [CallerLineNumber] int callerLineNumber = 0)
         {
-            var callingAssembly = Assembly.GetCallingAssembly();
+            _ = Assembly.GetCallingAssembly();
 
             return client.AssertPostAsync(url: url,
                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),

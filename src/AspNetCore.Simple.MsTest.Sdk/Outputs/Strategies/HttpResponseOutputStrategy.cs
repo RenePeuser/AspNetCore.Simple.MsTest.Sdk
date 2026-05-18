@@ -91,9 +91,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var className = ExtractClassName(context);
             var methodName = context.CallerMemberName;
-            var requestName = GetRequestName(context);
-            var responseName = GetResponseName(context);
-            var errorCount = differences.Count;
+            _ = GetRequestName(context);
+            _ = GetResponseName(context);
+            _ = differences.Count;
 
             stringBuilder.AppendLine();
             stringBuilder.AppendLine();
@@ -152,32 +152,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
 
             // Remove .cs extension if present
             return fileName.Replace(".cs", string.Empty);
-        }
-
-        private static string BuildClassPath(IObjectAssertContext context)
-        {
-            var assemblyName = context.CallingAssembly.GetName().Name;
-            var callerFilePath = context.CallerFilePath;
-
-            if (assemblyName.IsNullOrWhiteSpace())
-            {
-                return Path.GetFileName(callerFilePath);
-            }
-
-            // Try to find assembly name in path
-            var assemblyIndex = callerFilePath.IndexOf(assemblyName, StringComparison.OrdinalIgnoreCase);
-
-            if (assemblyIndex >= 0)
-            {
-                // Found! Build namespace-style path
-                var relativePath = callerFilePath.Substring(assemblyIndex + assemblyName.Length)
-                                                 .TrimStart('\\', '/');
-
-                return $"{assemblyName}.{relativePath.Replace('\\', '.').Replace('/', '.')}";
-            }
-
-            // Fallback: Original path
-            return callerFilePath;
         }
     }
 }

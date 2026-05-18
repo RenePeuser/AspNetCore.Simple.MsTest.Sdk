@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk

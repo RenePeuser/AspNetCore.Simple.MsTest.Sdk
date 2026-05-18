@@ -1,4 +1,4 @@
-﻿namespace AspNetCore.Simple.MsTest.Sdk
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public abstract class DisposableObject : IDisposable
     {

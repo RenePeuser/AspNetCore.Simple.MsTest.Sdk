@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
 using AspNetCore.Simple.MsTest.Sdk.Validation;

@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
@@ -205,12 +205,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     var value2 = currentLength == 0 ? "[] (0 items)" : $"[{currentLength} item(s)]";
 
                     consolidated.Add(new Difference
-                                     {
-                                         MemberPath = arrayPath,
-                                         Value1 = value1,
-                                         Value2 = value2,
-                                         MismatchType = mismatchType
-                                     });
+                    {
+                        MemberPath = arrayPath,
+                        Value1 = value1,
+                        Value2 = value2,
+                        MismatchType = mismatchType
+                    });
                 }
                 else
                 {

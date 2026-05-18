@@ -1,5 +1,4 @@
-﻿using AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers;
-using AspNetCore.Simple.MsTest.Sdk.Validation;
+using AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 

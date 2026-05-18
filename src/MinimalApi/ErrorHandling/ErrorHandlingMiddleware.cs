@@ -1,4 +1,4 @@
-﻿using Extensions.Pack;
+using Extensions.Pack;
 using MinimalApi.ErrorHandling.Strategies;
 
 namespace MinimalApi.ErrorHandling

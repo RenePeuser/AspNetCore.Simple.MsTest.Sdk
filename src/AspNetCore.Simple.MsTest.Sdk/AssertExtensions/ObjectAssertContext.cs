@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Reflection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -86,7 +86,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// This is the ready-to-use JSON that can be directly deserialized or compared.
         /// All data preparation happens before context creation - the service receives only processed data.
         /// </summary>
-        public string? ResolvedExpectedJson { get; init; }
+        string? ResolvedExpectedJson { get; init; }
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿using AspNetCore.Simple.MsTest.Sdk;
+using AspNetCore.Simple.MsTest.Sdk;
 
 namespace Controllers.Test.Api.NativTypes
 {

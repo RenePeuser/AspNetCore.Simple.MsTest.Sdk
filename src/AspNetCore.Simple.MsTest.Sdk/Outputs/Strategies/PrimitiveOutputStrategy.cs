@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
@@ -98,44 +98,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             var callerFilePath = context.CallerFilePath;
             var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
             return fileName.Replace(".cs", string.Empty);
-        }
-
-        private static string GetExpectedName(IObjectAssertContext context)
-        {
-            var expectedFileName = context.ExpectedResultFile.EmbeddedFile?.Name;
-
-            if (expectedFileName.IsNotNullOrWhiteSpace())
-            {
-                return expectedFileName;
-            }
-
-            return "Expected";
-        }
-
-        private static string BuildClassPath(IObjectAssertContext context)
-        {
-            var assemblyName = context.CallingAssembly.GetName().Name;
-            var callerFilePath = context.CallerFilePath;
-
-            if (assemblyName.IsNullOrWhiteSpace())
-            {
-                return Path.GetFileName(callerFilePath);
-            }
-
-            // Try to find assembly name in path
-            var assemblyIndex = callerFilePath.IndexOf(assemblyName, StringComparison.OrdinalIgnoreCase);
-
-            if (assemblyIndex >= 0)
-            {
-                // Found! Build namespace-style path
-                var relativePath = callerFilePath.Substring(assemblyIndex + assemblyName.Length)
-                                                 .TrimStart('\\', '/');
-
-                return $"{assemblyName}.{relativePath.Replace('\\', '.').Replace('/', '.')}";
-            }
-
-            // Fallback: Original path
-            return callerFilePath;
         }
     }
 }

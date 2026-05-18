@@ -1,6 +1,5 @@
-﻿using AspNetCore.Simple.Sdk.ErrorHandling;
+using AspNetCore.Simple.Sdk.ErrorHandling;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Controllers.Api.Errors

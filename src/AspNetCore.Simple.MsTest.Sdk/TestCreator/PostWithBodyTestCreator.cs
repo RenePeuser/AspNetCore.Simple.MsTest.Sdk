@@ -1,4 +1,4 @@
-﻿using System.CodeDom;
+using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Globalization;
 using Extensions.Pack;
