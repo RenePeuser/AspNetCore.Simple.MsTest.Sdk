@@ -3,6 +3,7 @@ using System.Net;
 using Extensions.Pack;
 using Microsoft.AspNetCore.Mvc;
 
+#pragma warning disable CA1032 // Implement standard exception constructors
 namespace MinimalApi.ErrorHandling.Exceptions
 {
     public class ProblemDetailsException : Exception
@@ -62,3 +63,4 @@ namespace MinimalApi.ErrorHandling.Exceptions
         public ProblemDetails ProblemDetails { get; }
     }
 }
+#pragma warning restore CA1032 // Implement standard exception constructors

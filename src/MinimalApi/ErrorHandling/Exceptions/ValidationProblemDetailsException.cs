@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Extensions.Pack;
 using Microsoft.AspNetCore.Mvc;
 
+#pragma warning disable CA1032 // Implement standard exception constructors
 namespace MinimalApi.ErrorHandling.Exceptions
 {
     public class ValidationProblemDetailsException : Exception
@@ -70,3 +71,4 @@ namespace MinimalApi.ErrorHandling.Exceptions
         public ValidationProblemDetails ValidationProblemDetails { get; }
     }
 }
+#pragma warning restore CA1032 // Implement standard exception constructors

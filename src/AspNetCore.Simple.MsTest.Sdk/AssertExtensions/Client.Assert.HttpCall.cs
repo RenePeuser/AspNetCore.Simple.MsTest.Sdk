@@ -71,12 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                             _curlFormatter,
                                                                             _textDecorator);
 
-            var outputStrategies = new IAssertOutputStrategy[]
-            {
-                primitiveOutputStrategy,
-                objectOutputStrategy,
-                httpResponseOutputStrategy
-            };
+            var outputStrategies = new IAssertOutputStrategy[] { primitiveOutputStrategy, objectOutputStrategy, httpResponseOutputStrategy };
 
             // 5. Create output builder and assert service with rebuilt strategies
             _outputBuilder = new AssertOutputBuilder(outputStrategies);
@@ -162,10 +157,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
             NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters =
-            {
-                new JsonStringEnumConverter()
-            }
+            Converters = { new JsonStringEnumConverter() }
         };
 
         private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions);
@@ -228,16 +220,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // Pipeline (contains all steps internally)
         private static IHttpAssertionPipeline _httpAssertionPipeline = new HttpAssertionPipeline(new IHttpAssertionStep[]
-        {
-            new StatusCodeValidationStep(_outputBuilder),
-            new ContentTypeHeaderValidationStep(_outputBuilder),
-            new ContentFormatValidationStep(_outputBuilder),
-            new JsonComparisonStep(_primitiveTypeConverter,
-                                   _assertService,
-                                   _parameterReplacer,
-                                   _writeResponseService,
-                                   JsonSerializerOptions)
-        });
+                                                                                                 {
+                                                                                                     new StatusCodeValidationStep(_outputBuilder), new ContentTypeHeaderValidationStep(_outputBuilder), new ContentFormatValidationStep(_outputBuilder),
+                                                                                                     new JsonComparisonStep(_primitiveTypeConverter,
+                                                                                                                            _assertService,
+                                                                                                                            _parameterReplacer,
+                                                                                                                            _writeResponseService,
+                                                                                                                            JsonSerializerOptions)
+                                                                                                 });
 
         private static IApiVersionResolver _apiVersionResolver = new ApiVersionResolver();
 
@@ -288,7 +278,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         public static IAssertableHttpClient CustomAssertableHttpClient { get; set; } = _assertableHttpClientDefault;
 
-
         /// <summary>
         ///     Creates a default error handling strategy for static initialization.
         ///     This will be replaced with the proper DI-based strategy in Setup().
@@ -305,12 +294,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                               sourceCodeExtractor, _plainTextDecorator);
 
             var handlers = new ITestErrorHandler[]
-            {
-                new ProblemDetailsErrorHandler(problemDetailsOutputBuilder),
-                new InvalidJsonErrorHandler(curlBuilder, curlFormatter, sourceCodeExtractor),
-                new JsonSerializationErrorHandler(curlBuilder, curlFormatter, sourceCodeExtractor),
-                new DefaultErrorHandler()
-            };
+                           {
+                               new ProblemDetailsErrorHandler(problemDetailsOutputBuilder), new InvalidJsonErrorHandler(curlBuilder, curlFormatter, sourceCodeExtractor), new JsonSerializationErrorHandler(curlBuilder, curlFormatter, sourceCodeExtractor),
+                               new DefaultErrorHandler()
+                           };
 
             return new TestErrorHandlingStrategy(handlers);
         }
@@ -356,7 +343,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 CallerLineNumber = callerLineNumber,
                 CallingAssembly = callingAssembly,
                 Client = client,
-                Current = default,
+                Current = null,
                 CurrentObject = null,
                 CurrentResultParameterName = "Current response",
                 DifferenceFunc = difference => difference,

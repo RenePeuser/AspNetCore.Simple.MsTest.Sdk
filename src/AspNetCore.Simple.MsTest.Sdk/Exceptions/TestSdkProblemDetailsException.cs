@@ -3,11 +3,10 @@ using System.Net;
 using Extensions.Pack;
 using Microsoft.AspNetCore.Mvc;
 
+#pragma warning disable CA1032 // Implement standard exception constructors
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-#pragma warning disable CA1064
     public sealed class TestSdkProblemDetailsException : Exception
-#pragma warning restore CA1064
     {
         public TestSdkProblemDetailsException(string title,
                                               params (string key, string value)[] extensions) : this(HttpStatusCode.InternalServerError, title, string.Empty,
@@ -64,3 +63,4 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public ProblemDetails ProblemDetails { get; }
     }
 }
+#pragma warning restore CA1032 // Implement standard exception constructors

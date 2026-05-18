@@ -42,7 +42,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Parameters to replace in JSON strings during comparison.
         /// Format: (Key, Value) tuples where Key is the placeholder and Value is the replacement.
         /// </summary>
-        ImmutableList<(string Key, object? Value)> Parameters { get; init; }
+#pragma warning disable CA1819
+        (string Key, object? Value)[] Parameters { get; init; }
+#pragma warning restore CA1819
 
         /// <summary>
         /// The calling assembly. If not provided, will be automatically determined.
@@ -133,7 +135,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Parameters to replace in JSON strings during comparison.
         /// Format: (Key, Value) tuples where Key is the placeholder and Value is the replacement.
         /// </summary>
-        public required ImmutableList<(string Key, object? Value)> Parameters { get; init; } = [];
+#pragma warning disable CA1819
+        public required (string Key, object? Value)[] Parameters { get; init; } = [];
+#pragma warning restore CA1819
 
         /// <summary>
         /// The calling assembly. If not provided, will be automatically determined.

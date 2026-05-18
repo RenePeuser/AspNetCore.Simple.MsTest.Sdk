@@ -29,7 +29,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public required EmbeddedFileInfo ExpectedResult { get; init; }
 
-        public required ImmutableList<(string key, object? Value)> Parameters { get; init; }
+#pragma warning disable CA1819
+        public required (string key, object? Value)[] Parameters { get; init; }
+#pragma warning restore CA1819
 
         public required Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; init; }
 

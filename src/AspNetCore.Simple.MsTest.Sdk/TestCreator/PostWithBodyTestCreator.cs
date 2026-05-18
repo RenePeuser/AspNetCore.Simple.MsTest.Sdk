@@ -24,6 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
+#pragma warning disable CA1819 // Properties should not return arrays
     public record TestCreatorSettings
     {
         public string TestMethodAttribute { get; init; } = "[TestMethod]";
@@ -36,6 +37,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public string[] LegacyRequestFolderName { get; init; } = ["Payloads", "Payload", "Requests", "Request"];
     }
+#pragma warning restore CA1819 // Properties should not return arrays
 
     internal static class AddPostWithBodyTestCreatorExtension
     {
