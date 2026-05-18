@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
+using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -120,6 +121,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             };
 
             // Delegate to AssertService - it handles schema checks, value comparison, diff finding, and output building
+            // Note: Exception handling (including TestSdkProblemDetailsException) is now done globally in AssertableHttpClient.AssertAsync
             assertService.ObjectsAreEqual(objectAssertContext);
         }
 

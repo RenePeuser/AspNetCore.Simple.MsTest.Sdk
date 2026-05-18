@@ -672,6 +672,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void ObjectsAreEqual<T>(this Assert _,
                                               ObjectAssertContext<T> context)
         {
+            try
+            {
+                ObjectsAreEqualInternal(context);
+            }
+            catch (AssertFailedException)
+            {
+                // If assert failed, that's expected - rethrow
+                throw;
+            }
+#pragma warning disable CA1031
+            catch (Exception exception)
+#pragma warning restore CA1031
+            {
+                // GLOBAL EXCEPTION HANDLER FOR OBJECT ASSERTIONS
+                // Build a simple error message since we don't have HTTP context here
+                var errorOutput = BuildObjectAssertionError(context, exception);
+                Assert.That.Fail(errorOutput);
+                throw; // Never reached, but required for compiler
+            }
+        }
+
+        private static void ObjectsAreEqualInternal<T>(ObjectAssertContext<T> context)
+        {
             // Check if calling assembly is in debug mode - if so, use PlainTextDecorator
             var useDebugDecorator = context.CallingAssembly.IsCompiledInDebug();
 
@@ -700,6 +723,85 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // Use the default (release) service
                 AssertService.ObjectsAreEqual(context);
             }
+        }
+
+        /// <summary>
+        /// Builds a formatted error message for unexpected exceptions in object assertions.
+        /// Simpler than HTTP assertions since we don't have HTTP context.
+        /// </summary>
+        private static string BuildObjectAssertionError<T>(ObjectAssertContext<T> context, Exception exception)
+        {
+            var sb = new System.Text.StringBuilder();
+
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine("══════════════════════════════════════════════════════════════");
+            sb.AppendLine("❌ UNEXPECTED ASSERTION ERROR");
+            sb.AppendLine("══════════════════════════════════════════════════════════════");
+            sb.AppendLine();
+
+            // Test Information
+            sb.AppendLine("📦 Test Information");
+            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine();
+            var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
+            var className = Path.GetFileNameWithoutExtension(context.CallerFilePath).Replace(".cs", string.Empty);
+            sb.AppendLine($"{"Project",-10} : {projectName}");
+            sb.AppendLine($"{"Class",-10} : {className}");
+            sb.AppendLine($"{"Method",-10} : {context.CallerMemberName}");
+            sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
+            sb.AppendLine();
+
+            // Assert Information
+            sb.AppendLine("🔍 Assert Details");
+            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine();
+            sb.AppendLine($"{"Type",-10} : {typeof(T).Name}");
+            sb.AppendLine($"{"Expected",-10} : {context.ExpectedResultParameterName}");
+            sb.AppendLine($"{"Current",-10} : {context.CurrentResultParameterName}");
+            sb.AppendLine();
+
+            // Exception Details
+            sb.AppendLine("⚠️ Exception Details");
+            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine();
+            sb.AppendLine($"{"Type",-10} : {exception.GetType().FullName}");
+            sb.AppendLine($"{"Message",-10} : {exception.Message}");
+
+            if (exception.InnerException != null)
+            {
+                sb.AppendLine();
+                sb.AppendLine("Inner Exception:");
+                sb.AppendLine($"{"Type",-10} : {exception.InnerException.GetType().FullName}");
+                sb.AppendLine($"{"Message",-10} : {exception.InnerException.Message}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(exception.StackTrace))
+            {
+                sb.AppendLine();
+                sb.AppendLine("Stack Trace:");
+                sb.AppendLine(exception.StackTrace);
+            }
+
+            sb.AppendLine();
+
+            // Explanation
+            sb.AppendLine("💡 What This Means");
+            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine();
+            sb.AppendLine("An unexpected error occurred during object comparison. This could indicate:");
+            sb.AppendLine();
+            sb.AppendLine("  • A bug in the Test SDK assertion logic");
+            sb.AppendLine("  • Serialization/deserialization issues");
+            sb.AppendLine("  • Invalid object structure");
+            sb.AppendLine("  • Type mismatch between expected and actual objects");
+            sb.AppendLine();
+            sb.AppendLine("If this appears to be a Test SDK bug, please report it with the");
+            sb.AppendLine("exception details and stack trace shown above.");
+            sb.AppendLine();
+            sb.AppendLine("══════════════════════════════════════════════════════════════");
+
+            return sb.ToString();
         }
     }
 #pragma warning restore IDE0060 // Remove unused parameter

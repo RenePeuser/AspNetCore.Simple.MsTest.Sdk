@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +33,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             services.AddApiVersionResolver();
             services.AddEndpointValidator();
 
-            // 2. Register the service itself
+            // 2. Register error handling strategy (with all specific handlers)
+            services.AddTestErrorHandlingStrategy();
+
+            // 3. Register the service itself
             services.AddSingletonIfNotExists<IAssertableHttpClient, AssertableHttpClient>();
         }
     }
@@ -65,11 +69,39 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                                IHttpAssertionPipeline httpAssertionPipeline,
                                                IPrimitiveTypeConverter primitiveTypeConverter,
                                                JsonSerializerOptions jsonSerializerOptions,
-                                               IEndpointValidator endpointValidator) : IAssertableHttpClient
+                                               IEndpointValidator endpointValidator,
+                                               ITestErrorHandlingStrategy testErrorHandlingStrategy) : IAssertableHttpClient
 #pragma warning restore IDE0060 // Remove unused parameter
     {
         /// <inheritdoc />
         public async Task<TResult> AssertAsync<TResult>(HttpAssertContext<TResult> context)
+        {
+            try
+            {
+                var result = await AssertInternalAsync(context).ConfigureAwait(false);
+
+                return result;
+            }
+            catch (AssertFailedException) // If assert failed that is fine
+            {
+                throw;
+            }
+#pragma warning disable CA1031
+            catch (Exception exception)
+#pragma warning restore CA1031
+            {
+                // GLOBAL EXCEPTION HANDLER USING STRATEGY PATTERN
+                // Delegate exception handling to the error handling strategy
+                // The strategy will find the appropriate handler (ProblemDetailsErrorHandler, DefaultErrorHandler, etc.)
+                // and return a formatted error message
+                var errorOutput = await testErrorHandlingStrategy.HandleAsync(context, exception).ConfigureAwait(false);
+
+                Assert.That.Fail(errorOutput);
+                throw; // Never reached, but required for compiler
+            }
+        }
+
+        private async Task<TResult> AssertInternalAsync<TResult>(HttpAssertContext<TResult> context)
         {
             // 1. Validate endpoint request to real world
             endpointValidator.Validate<TResult>(context);
@@ -95,49 +127,48 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Build context with deserialized result - HttpResponseMessage stays alive until pipeline completes
             var responseContext = new HttpResponseContext<TResult>
-                                  {
-                                      AbsoluteUrl = absoluteUrl,
-                                      ApiVersion = context.ApiVersion,
-                                      CallerFilePath = context.CallerFilePath,
-                                      CallerLineNumber = context.CallerLineNumber,
-                                      CallerMemberName = context.CallerMemberName,
-                                      CallingAssembly = context.CallingAssembly,
-                                      Client = context.Client,
-                                      ContentAsString = contentAsString,
-                                      ContentAsStringParameterized = resolvedParametersJsonString,
-                                      Current = currentResult,
-                                      CurrentObject = currentResult,
-                                      CurrentResult = currentResult,
-                                      CurrentResultParameterName = context.CurrentResultParameterName,
-                                      DifferenceFunc = context.DifferenceFunc,
-                                      ExpectedType = context.ExpectedType,
-                                      ExpectedObjectAsJson = context.ExpectedObjectAsJson,
-                                      ExpectedResultFile = context.ExpectedResultFile,
-                                      ExpectedResultParameterName = context.ExpectedResultParameterName,
-                                      HttpMethod = context.HttpMethod,
-                                      IgnoreResponse = context.IgnoreResponse,
-                                      HttpResponseMessage = httpResponseMessage,
-                                      HttpStatusCode = httpResponseMessage.StatusCode,
-                                      IsExpectedStatusCode = isExpectedStatusCode,
-                                      IsSuccessStatusCode = context.IsSuccessStatusCode,
-                                      OrderFunc = context.OrderFunc,
-                                      Parameters = context.Parameters,
-                                      PayloadAsJson = context.PayloadAsJson,
-                                      PayloadFile = context.PayloadFile,
-                                      PayloadParameterName = context.PayloadParameterName,
-                                      ResolvedExpectedJson = context.ResolvedExpectedJson,
-                                      ResolvedPayload = context.ResolvedPayload,
-                                      ShowTokenInCurl = context.ShowTokenInCurl,
-                                      TypeIsPrimitiveType = targetIsPrimitiveType,
-                                      Url = context.Url,
-                                      WriteResponse = context.WriteResponse,
-                                      SkipEndpointValidation = context.SkipEndpointValidation
+            {
+                AbsoluteUrl = absoluteUrl,
+                ApiVersion = context.ApiVersion,
+                CallerFilePath = context.CallerFilePath,
+                CallerLineNumber = context.CallerLineNumber,
+                CallerMemberName = context.CallerMemberName,
+                CallingAssembly = context.CallingAssembly,
+                Client = context.Client,
+                ContentAsString = contentAsString,
+                ContentAsStringParameterized = resolvedParametersJsonString,
+                Current = currentResult,
+                CurrentObject = currentResult,
+                CurrentResult = currentResult,
+                CurrentResultParameterName = context.CurrentResultParameterName,
+                DifferenceFunc = context.DifferenceFunc,
+                ExpectedType = context.ExpectedType,
+                ExpectedObjectAsJson = context.ExpectedObjectAsJson,
+                ExpectedResultFile = context.ExpectedResultFile,
+                ExpectedResultParameterName = context.ExpectedResultParameterName,
+                HttpMethod = context.HttpMethod,
+                IgnoreResponse = context.IgnoreResponse,
+                HttpResponseMessage = httpResponseMessage,
+                HttpStatusCode = httpResponseMessage.StatusCode,
+                IsExpectedStatusCode = isExpectedStatusCode,
+                IsSuccessStatusCode = context.IsSuccessStatusCode,
+                OrderFunc = context.OrderFunc,
+                Parameters = context.Parameters,
+                PayloadAsJson = context.PayloadAsJson,
+                PayloadFile = context.PayloadFile,
+                PayloadParameterName = context.PayloadParameterName,
+                ResolvedExpectedJson = context.ResolvedExpectedJson,
+                ResolvedPayload = context.ResolvedPayload,
+                ShowTokenInCurl = context.ShowTokenInCurl,
+                TypeIsPrimitiveType = targetIsPrimitiveType,
+                Url = context.Url,
+                WriteResponse = context.WriteResponse,
+                SkipEndpointValidation = context.SkipEndpointValidation
             };
 
             // Delegate to pipeline - steps only validate, never modify the result
             // Pipeline returns context.CurrentResult (the original deserialized response)
             var result = httpAssertionPipeline.Execute(responseContext);
-
 
             return result;
         }

@@ -12,13 +12,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
             serviceCollection.AddSingletonIfNotExists<JsonSerializer>();
 
             var serializeOptions = new JsonSerializerOptions
-                                   {
-                                       PropertyNameCaseInsensitive = true,
-                                       PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                                       DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                                       NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                                       Converters = { new JsonStringEnumConverter() }
-                                   };
+            {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                Converters =
+                {
+                    new JsonStringEnumConverter()
+                }
+            };
 
             serviceCollection.AddSingletonIfNotExists(serializeOptions);
         }
@@ -61,12 +64,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
 
             if (deserializeResult.IsNull())
             {
-                throw new ProblemDetailsException("Could not deserialize your json string into expected type",
-                                                  $"Could not deserialize your json string into expected type: {typeof(T).Name}",
-                                                  ("Exception", errorMessage),
-                                                  ("JsonString", json),
-                                                  ("Type", typeof(T).Name),
-                                                  ("TypeFullName", typeof(T).FullName ?? string.Empty));
+                throw new TestSdkProblemDetailsException("Could not deserialize your json string into expected type",
+                                                         $"Could not deserialize your json string into expected type: {typeof(T).Name}",
+                                                         ("Exception", errorMessage),
+                                                         ("JsonString", json),
+                                                         ("Type", typeof(T).Name),
+                                                         ("TypeFullName", typeof(T).FullName ?? string.Empty));
             }
 
             return deserializeResult;
@@ -104,12 +107,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
 
             if (deserializeResult.IsNull())
             {
-                throw new ProblemDetailsException("Could not deserialize your json string into expected type",
-                                                  $"Could not deserialize your json string into expected type: {typeof(T).Name}",
-                                                  ("Exception", errorMessage),
-                                                  ("JsonString", json),
-                                                  ("Type", typeof(T).Name),
-                                                  ("TypeFullName", typeof(T).FullName ?? string.Empty));
+                throw new TestSdkProblemDetailsException("Could not deserialize your json string into expected type",
+                                                         $"Could not deserialize your json string into expected type: {typeof(T).Name}",
+                                                         ("Exception", errorMessage),
+                                                         ("JsonString", json),
+                                                         ("Type", typeof(T).Name),
+                                                         ("TypeFullName", typeof(T).FullName ?? string.Empty));
             }
 
             return deserializeResult;

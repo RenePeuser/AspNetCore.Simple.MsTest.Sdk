@@ -84,12 +84,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
                 {
                     expectedObject = jsonSerializer.Deserialize<T>(expectedJson);
                 }
-                catch (ProblemDetailsException problemDetailsException)
+                catch (TestSdkProblemDetailsException)
                 {
-                    Console.WriteLine(problemDetailsException.Message);
-                    expectedObject = default(T);
-
-                    Assert.Fail("aaaa");
+                    // This is handled by the caller - rethrow to let proper error formatting happen
+                    throw;
                 }
 #pragma warning disable CA1031
                 catch (Exception)
