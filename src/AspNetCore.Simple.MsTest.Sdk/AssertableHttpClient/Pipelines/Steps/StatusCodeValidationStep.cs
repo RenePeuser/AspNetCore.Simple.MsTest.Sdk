@@ -40,7 +40,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // Get expected result for comparison (simplified, no complex processing)
             var expectedJson = context.ExpectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(context.ContentAsString,
                                                                                                       context.CallingAssembly,
-                                                                                                      string.Empty,
                                                                                                       context.ExpectedResultParameterName) ?? string.Empty;
 
             var currentJson = context.ContentAsString;

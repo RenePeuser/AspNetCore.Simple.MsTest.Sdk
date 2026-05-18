@@ -123,7 +123,7 @@ namespace MinimalApi.Test.Api.Persons
         [DataRow("I am not a valid json}")]
         public async Task Should_Throw_Exception_If_Json_Is_Invalid(string invalidJson)
         {
-            var exception = await Assert.ThrowsExactlyAsync<InvalidJsonException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons", invalidJson)).ConfigureAwait(false);
+            var exception = await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons", invalidJson)).ConfigureAwait(false);
             Assert.Contains(invalidJson, exception.Message);
         }
 

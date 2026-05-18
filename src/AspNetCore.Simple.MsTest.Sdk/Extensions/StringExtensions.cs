@@ -25,7 +25,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static string GetJsonStringFrom<T>(this string expectedObjectAsJson,
                                                   string currentObject,
                                                   Assembly callingAssembly,
-                                                  string curl,
                                                   [CallerArgumentExpression(nameof(expectedObjectAsJson))]
                                                   string expectedResultParameterName = "")
         {
@@ -116,7 +115,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static string? GetJsonStringOrDefaultFrom<T>(this string expectedObjectAsJson,
                                                             string currentObject,
                                                             Assembly callingAssembly,
-                                                            string curl,
                                                             [CallerArgumentExpression(nameof(expectedObjectAsJson))]
                                                             string expectedResultParameterName = "")
         {

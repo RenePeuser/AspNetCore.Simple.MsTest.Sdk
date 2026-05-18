@@ -307,6 +307,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var handlers = new ITestErrorHandler[]
             {
                 new ProblemDetailsErrorHandler(problemDetailsOutputBuilder),
+                new InvalidJsonErrorHandler(curlBuilder, curlFormatter, sourceCodeExtractor),
+                new JsonSerializationErrorHandler(curlBuilder, curlFormatter, sourceCodeExtractor),
                 new DefaultErrorHandler()
             };
 
