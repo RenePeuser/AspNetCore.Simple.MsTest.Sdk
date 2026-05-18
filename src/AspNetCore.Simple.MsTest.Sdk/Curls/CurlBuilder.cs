@@ -89,8 +89,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (payloadAsJson.IsNotNullOrWhiteSpace())
             {
-                var token = JToken.Parse(payloadAsJson);
-                var flattenedJson = token.ToString(Formatting.None);
+                string flattenedJson;
+                try
+                {
+                    var token = JToken.Parse(payloadAsJson);
+                    flattenedJson = token.ToString(Formatting.None);
+                }
+                catch (JsonReaderException)
+                {
+                    // If JSON parsing fails (e.g., invalid JSON like "[}"), use the raw payload
+                    flattenedJson = payloadAsJson;
+                }
 
                 yield return "--header 'Content-Type: application/json'";
                 yield return $"--data-raw '{flattenedJson}'";
@@ -124,8 +133,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Add payload if present
             if (payloadAsJson.IsNotNullOrWhiteSpace())
             {
-                var token = JToken.Parse(payloadAsJson);
-                var flattenedJson = token.ToString(Formatting.None);
+                string flattenedJson;
+                try
+                {
+                    var token = JToken.Parse(payloadAsJson);
+                    flattenedJson = token.ToString(Formatting.None);
+                }
+                catch (JsonReaderException)
+                {
+                    // If JSON parsing fails (e.g., invalid JSON like "[}"), use the raw payload
+                    flattenedJson = payloadAsJson;
+                }
 
                 yield return "--header 'Content-Type: application/json'";
                 yield return $"--data-raw '{flattenedJson}'";
