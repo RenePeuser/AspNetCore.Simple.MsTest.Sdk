@@ -8,9 +8,9 @@
         <Copyright>Copyright 2021 (c) Rene Peuser. All rights reserved.</Copyright>
         <PackageProjectUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
-        <PackageTags>C#;.NetCore;Asp.NetCore;NetCore;ASPNetCore;Test;MsTest;</PackageTags>
+        <PackageTags>aspnetcore;testing;snapshot-testing;snapshot;mstest;api-testing;integration-testing;http-testing;test-framework;regression-testing;web-api;rest-api;test-automation;test-sdk;aspnetcore-testing;api-snapshots;http-assertions;minimal-api;webapi-testing;contract-testing;response-validation;csharp;dotnet;json;json-comparison;diff;approval-testing;unit-testing;curl;http-client;testhost;</PackageTags>
         <PackageReleaseNotes>
-            MAJOR RELEASE v2.0 - Complete Core Rewrite
+            MAJOR RELEASE  - Complete Core Rewrite
 
             CORE (New Architecture):
             - AssertService as central orchestrator
