@@ -31,7 +31,13 @@
       "Bash(tee /tmp/test_output.txt)",
       "Read(//tmp/**)",
       "Bash(git mv *)",
-      "Bash(mv OkStatusCodeCurlPrinter.cs SuccessfulTestCurlPrinter.cs)"
+      "Bash(mv OkStatusCodeCurlPrinter.cs SuccessfulTestCurlPrinter.cs)",
+      "Bash(awk '/bool skipEndpointValidation = false/{getline; p=1} p{print NR\": \"$0; if\\(/return.*Assert/ && !/skipEndpointValidation: skipEndpointValidation/\\){print \">>> MISSING at line \"NR}}; /^        \\\\{$/{p=0}' Client.Assert.Put.cs)",
+      "Bash(cat)",
+      "Bash(python fix_skip_validation.py)",
+      "Bash(git checkout *)",
+      "Bash(awk ' *)",
+      "Bash(python fix_skip_endpoint_validation.py)"
     ]
   }
 }

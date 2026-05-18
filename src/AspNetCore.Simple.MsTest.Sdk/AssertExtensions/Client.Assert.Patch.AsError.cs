@@ -22,6 +22,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            callingAssembly: Assembly.GetCallingAssembly(),
                                                            writeResponse: writeResponse,
                                                            expectedResultParameterName: expectedResult.Contains(value: ".json") ? expectedResult : nameof(expectedResult),
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -45,6 +46,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            callingAssembly: Assembly.GetCallingAssembly(),
                                                            writeResponse: writeResponse,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -69,6 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            callingAssembly: Assembly.GetCallingAssembly(),
                                                            writeResponse: writeResponse,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -94,6 +97,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            callingAssembly: Assembly.GetCallingAssembly(),
                                                            writeResponse: writeResponse,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -121,6 +125,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: string.Empty,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -149,6 +154,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: string.Empty,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -177,6 +183,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: string.Empty,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -206,6 +213,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: string.Empty,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -233,6 +241,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsObjectParameterName: payloadAsObjectParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -261,6 +270,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsObjectParameterName: payloadAsObjectParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -290,6 +300,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsObjectParameterName: payloadAsObjectParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -320,6 +331,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsObjectParameterName: payloadAsObjectParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -347,6 +359,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsJsonParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -375,6 +388,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsJsonParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -404,6 +418,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsJsonParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -434,6 +449,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsJsonParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -464,6 +480,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsObjectParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -495,6 +512,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsObjectParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -526,6 +544,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsObjectParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -558,6 +577,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsObjectParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -588,6 +608,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsJsonParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -619,6 +640,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsJsonParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -650,6 +672,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsJsonParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
@@ -682,6 +705,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsJsonParameterName,
                                                            expectedResultParameterName: expectedResultParameterName,
+                                                           skipEndpointValidation: skipEndpointValidation,
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber);
