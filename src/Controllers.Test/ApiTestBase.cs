@@ -28,8 +28,11 @@ namespace Controllers.Test
         {
             // 1. Super simple just use the provided API test base class and you are ready to go
             _apiTestBase = new ApiTestBase<Startup>("Development", // The environment name
-                                                    (services,
-                                                     configuration) => services.AddAssertableHttpClient(configuration)); // Configure environment variables
+                                                    (services, configuration) =>
+                                                    {
+
+                                                        services.AddAssertableHttpClient(configuration);
+                                                    }); // Configure environment variables
 
             Client = _apiTestBase.CreateClient();
             AssertableHttpClient = _apiTestBase.Services.GetRequiredService<IAssertableHttpClient>();
