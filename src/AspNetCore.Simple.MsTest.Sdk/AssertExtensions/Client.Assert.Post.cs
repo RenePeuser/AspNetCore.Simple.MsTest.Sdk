@@ -17,6 +17,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // POST with Response (TResult) - All overloads
         // ============================================================
 
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             string payloadAsJson,
+                                                             bool writeResponse = false,
+                                                             bool skipEndpointValidation = false,
+                                                             [CallerFilePath] string callerFilePath = "",
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                             [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
+            return client.AssertPostAsync<TResult>(url: url,
+                                                   payloadAsJson: payloadAsJson,
+                                                   expectedResult: string.Empty,
+                                                   parameters: [],
+                                                   callingAssembly: callingAssembly,
+                                                   writeResponse: writeResponse,
+                                                   ignoreResponse: true,
+                                                   payloadAsJsonParameterName: string.Empty,
+                                                   expectedResultParameterName: string.Empty,
+                                                   callerFilePath: callerFilePath,
+                                                   skipEndpointValidation: skipEndpointValidation,
+                                                   callerMemberName: callerMemberName,
+                                                   callerLineNumber: callerLineNumber);
+        }
+
         /// <summary>
         /// Clean API: POST with type parameter, no expectedResult - validates endpoint and ignores response.
         /// Useful when you only care about endpoint validation (correct response type) without comparing response content.
