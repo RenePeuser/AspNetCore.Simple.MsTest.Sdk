@@ -74,6 +74,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             BuildHttpCallTable(sb, context, "404 NotFound");
             sb.AppendLine();
 
+            // Endpoint registration status
+            BuildEndpointRegistrationInfo(sb, availableEndpoints.Count);
+            sb.AppendLine();
+
             // Curl command
             var curl = curlBuilder.BuildFrom(context);
             var curlFormatted = curlFormatter.GetCurlAsFormattedString(curl);
@@ -410,6 +414,58 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var callerFilePath = context.CallerFilePath;
             var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
             return fileName.Replace(".cs", string.Empty);
+        }
+
+        private void BuildEndpointRegistrationInfo(StringBuilder sb,
+                                                   int endpointCount)
+        {
+            sb.AppendLine(textDecorator.SectionTitle("🔧 Endpoint Registration"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+
+            if (endpointCount == 0)
+            {
+                sb.AppendLine($"{"Status",-15} : {textDecorator.Error("No endpoints registered")}");
+                sb.AppendLine($"{"Count",-15} : {textDecorator.Error("0")}");
+                sb.AppendLine();
+                sb.AppendLine(textDecorator.Highlight("⚠️  MISSING REGISTRATION"));
+                sb.AppendLine();
+                sb.AppendLine("The AssertableHttpClient requires endpoint registration to validate HTTP calls.");
+                sb.AppendLine("Please ensure the following registration exists in your test setup:");
+                sb.AppendLine();
+                sb.AppendLine(textDecorator.Success("    services.AddAssertableHttpClient(configuration);"));
+                sb.AppendLine();
+                sb.AppendLine("This registration should be added in your:");
+                sb.AppendLine("  • Test startup class (e.g., WebApplicationFactory<TEntryPoint>)");
+                sb.AppendLine("  • Program.cs or Startup.cs configuration");
+                sb.AppendLine("  • Test service collection setup");
+                sb.AppendLine();
+                sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+                sb.AppendLine();
+                sb.AppendLine(textDecorator.Highlight("🌐 External API?"));
+                sb.AppendLine();
+                sb.AppendLine("If you're testing an external API that cannot be started via WebApplicationFactory,");
+                sb.AppendLine("you can skip endpoint validation using:");
+                sb.AppendLine();
+                sb.AppendLine("  Per call:");
+                sb.AppendLine(textDecorator.Success("    .AssertGetAsync<MyType>(url, skipEndpointValidation: true)"));
+                sb.AppendLine();
+                sb.AppendLine("  Globally:");
+                sb.AppendLine(textDecorator.Success("    services.AddAssertableHttpClient(configuration, skipEndpointValidation: true);"));
+                sb.AppendLine();
+                sb.AppendLine(textDecorator.Error("    ⚠️  Use with caution! Skipping validation disables type-safety checks."));
+            }
+            else
+            {
+                sb.AppendLine($"{"Status",-15} : {textDecorator.Success("Endpoints registered")}");
+                sb.AppendLine($"{"Count",-15} : {textDecorator.Success(endpointCount.ToString())}");
+                sb.AppendLine();
+                sb.AppendLine("The requested endpoint was not found among the registered endpoints.");
+                sb.AppendLine("Please verify:");
+                sb.AppendLine("  • URL pattern matches endpoint route");
+                sb.AppendLine("  • HTTP method is correct");
+                sb.AppendLine("  • API version (if used) is correct");
+            }
         }
 
         private void BuildHttpCallTable(StringBuilder sb,
