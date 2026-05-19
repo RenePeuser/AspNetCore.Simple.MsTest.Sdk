@@ -196,7 +196,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Build expected type
             var expectedType = targetIsPrimitiveType
-                                   ? primitiveTypeConverter.ConvertTo<TResult>(context.ContentAsString)
+                                   ? primitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParameterized)
                                    : expectedResultAsJsonParameterized.FromJsonStringOrDefault<TResult>(jsonSerializerOptions);
 
             var filteredExpectedType = expectedType.IsNotNull() ? context.OrderFunc(expectedType) : expectedType;

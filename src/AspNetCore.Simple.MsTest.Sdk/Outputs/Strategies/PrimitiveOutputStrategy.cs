@@ -26,6 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
         public bool CanHandle(IObjectAssertContext context)
         {
             // Exclude HTTP response contexts - they have their own specialized strategy
+            // This prevents strategy collision when HTTP responses return primitive types
             if (context is IHttpResponseContext)
             {
                 return false;

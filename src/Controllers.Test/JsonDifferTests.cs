@@ -99,6 +99,19 @@ namespace Controllers.Test
         }
 
         [TestMethod]
+        public void FindDifferencesShouldDetectPrimitiveIntegerDifferences()
+        {
+            // Test for bug fix: Primitive values should be detected as differences
+            var diffs = _jsonDiffer.FindDifferences("69", "42");
+
+            Assert.HasCount(1, diffs);
+            Assert.AreEqual("", diffs[0].MemberPath); // Root level primitive
+            Assert.AreEqual("69", diffs[0].Value1);
+            Assert.AreEqual("42", diffs[0].Value2);
+            Assert.AreEqual(MismatchType.ValueDifference, diffs[0].MismatchType);
+        }
+
+        [TestMethod]
         public void FindDifferencesShouldHandleComplexNestedStructures()
         {
             var left = JToken.Parse("""

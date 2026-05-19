@@ -6,6 +6,8 @@ namespace MinimalApi.Api.NativeTypes.V1
         {
             serviceCollection.AddGetStringEndpoint();
             serviceCollection.AddGetIntEndpoint();
+            serviceCollection.AddGetAnotherStringEndpoint();
+            serviceCollection.AddGetAnotherIntEndpoint();
         }
     }
 }
