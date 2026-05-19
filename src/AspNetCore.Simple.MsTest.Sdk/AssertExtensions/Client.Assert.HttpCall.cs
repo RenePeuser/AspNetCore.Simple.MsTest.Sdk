@@ -131,6 +131,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     public static partial class HttpClientAssertExtensions
     {
+        public static bool SkipEndpointValidation { get; set; }
+
         // Quickfix to hold the whole api compatible
         private const string IgnoreResponseComparison = "IgnoreResponse";
 

@@ -34,8 +34,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     {
         public void Validate<TResult>(IHttpAssertContext context)
         {
-            if (context.SkipEndpointValidation)
+            // Scope or global skip endpoint validation
+            if (context.SkipEndpointValidation ||
+                HttpClientAssertExtensions.SkipEndpointValidation)
             {
+                HttpClientAssertExtensions.LogAction($"Endpoint validation skipped for this test. Context.SkipEndpointValidation: {context.SkipEndpointValidation}, HttpClientAssertExtensions.SkipEndpointValidation: {HttpClientAssertExtensions.SkipEndpointValidation}");
                 return;
             }
 
