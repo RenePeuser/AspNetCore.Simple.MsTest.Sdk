@@ -142,7 +142,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine(textDecorator.SectionTitle($"📄 Expected ({expectedName})"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
-            stringBuilder.Append(expectedJson);
+            stringBuilder.Append(NormalizeJsonToSingleLine(expectedJson));
 
             return stringBuilder.ToString();
         }
@@ -154,9 +154,31 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine(textDecorator.SectionTitle("📄 Current"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
-            stringBuilder.Append(currentJson);
+            stringBuilder.Append(NormalizeJsonToSingleLine(currentJson));
 
             return stringBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Normalizes JSON to single-line format (removes indentation and newlines).
+        /// </summary>
+        private static string NormalizeJsonToSingleLine(string json)
+        {
+            if (json.IsNullOrWhiteSpace())
+            {
+                return json;
+            }
+
+            try
+            {
+                return Newtonsoft.Json.Linq.JToken.Parse(json).ToString(Newtonsoft.Json.Formatting.None);
+            }
+#pragma warning disable CA1031
+            catch (Exception)
+#pragma warning restore CA1031
+            {
+                return json;
+            }
         }
 
         private static string GetExpectedName(IObjectAssertContext context)

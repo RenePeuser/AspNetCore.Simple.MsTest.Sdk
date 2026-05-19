@@ -35,39 +35,52 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public string BuildExpected(IHttpResponseContext context,
                                     string expectedJson)
         {
-            _ = GetResponseFileName(context);
+            var normalizeJsonToSingleLine = NormalizeJsonToSingleLine(expectedJson);
+
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(textDecorator.SectionTitle("📄 Expected Snapshot"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
-            stringBuilder.Append(expectedJson);
+            stringBuilder.Append(normalizeJsonToSingleLine);
 
             return stringBuilder.ToString();
         }
 
         public string BuildCurrent(string currentJson)
         {
+            var normalizeJsonToSingleLine = NormalizeJsonToSingleLine(currentJson);
+
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(textDecorator.SectionTitle("📄 Current Result"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
-            stringBuilder.Append(currentJson);
+            stringBuilder.Append(normalizeJsonToSingleLine);
 
             return stringBuilder.ToString();
         }
 
-        private static string GetResponseFileName(IHttpResponseContext context)
+        /// <summary>
+        /// Normalizes JSON to single-line format (removes indentation and newlines).
+        /// </summary>
+        private static string NormalizeJsonToSingleLine(string json)
         {
-            var expectedFileName = context.ExpectedResultFile.EmbeddedFile?.Name;
-
-            if (expectedFileName.IsNotNullOrWhiteSpace())
+            if (json.IsNullOrWhiteSpace())
             {
-                return expectedFileName;
+                return json;
             }
 
-            return "Expected";
+            try
+            {
+                return Newtonsoft.Json.Linq.JToken.Parse(json).ToString(Newtonsoft.Json.Formatting.None);
+            }
+#pragma warning disable CA1031
+            catch (Exception)
+#pragma warning restore CA1031
+            {
+                return json;
+            }
         }
     }
 }

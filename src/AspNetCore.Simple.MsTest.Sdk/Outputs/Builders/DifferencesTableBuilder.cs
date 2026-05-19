@@ -39,9 +39,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
     }
 
     internal sealed class DifferencesTableBuilder(ITableBuilder tableBuilder,
-                                                   ITextDecorator textDecorator) : IDifferencesTableBuilder
+                                                  ITextDecorator textDecorator) : IDifferencesTableBuilder
     {
         private readonly CharacterDiff _characterDiff = new CharacterDiff(textDecorator);
+
         public string Build(IHttpResponseContext context,
                             ImmutableList<Difference> differences)
         {
@@ -79,13 +80,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     value2 = decoratedActual;
                 }
 
-                rows.Add(new object[]
-                         {
-                             difference.MemberPath,
-                             value1,
-                             value2,
-                             difference.MismatchType.ToString()
-                         });
+                var objects = new object[]
+                              {
+                                  difference.MemberPath, value1, value2,
+                                  difference.MismatchType.ToString()
+                              };
+
+                rows.Add(objects);
             }
 
             // Build table
@@ -110,7 +111,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // Build columns
-            var columns = new[] { "MemberPath", expectedName, "Current", "MismatchType" };
+            var columns = new[]
+                          {
+                              "MemberPath", expectedName, "Current",
+                              "MismatchType"
+                          };
 
             // Build data rows with character-level diff
             var rows = new List<object[]>();
@@ -130,9 +135,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 rows.Add(new object[]
                          {
-                             difference.MemberPath ?? "N/A",
-                             value1,
-                             value2,
+                             difference.MemberPath ?? "N/A", value1, value2,
                              difference.MismatchType.ToString()
                          });
             }
