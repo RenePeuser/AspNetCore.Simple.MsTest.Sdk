@@ -448,7 +448,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine(textDecorator.Success("    .AssertGetAsync<MyType>(url, skipEndpointValidation: true)"));
                 sb.AppendLine();
                 sb.AppendLine("  Globally:");
-                sb.AppendLine(textDecorator.Success("    services.AddAssertableHttpClient(configuration, skipEndpointValidation: true);"));
+                sb.AppendLine(textDecorator.Success("    HttpClientAssertExtensions.SkipEndpointValidation = true;"));
                 sb.AppendLine();
                 sb.AppendLine(textDecorator.Error("    ⚠️  Use with caution! Skipping validation disables type-safety checks."));
             }

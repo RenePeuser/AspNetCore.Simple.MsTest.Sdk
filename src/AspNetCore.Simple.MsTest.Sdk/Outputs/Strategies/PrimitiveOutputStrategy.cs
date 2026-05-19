@@ -25,6 +25,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
         private readonly CharacterDiff _characterDiff = new CharacterDiff(textDecorator);
         public bool CanHandle(IObjectAssertContext context)
         {
+            // Exclude HTTP response contexts - they have their own specialized strategy
+            if (context is IHttpResponseContext)
+            {
+                return false;
+            }
+
             // Handle contexts where CurrentObject is a primitive type or string
             var currentObject = context.CurrentObject;
 
