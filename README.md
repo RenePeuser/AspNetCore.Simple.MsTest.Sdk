@@ -105,20 +105,32 @@ dotnet add package AspNetCore.Simple.MsTest.Sdk
 [TestClass]
 public abstract class ApiTestBase
 {
-    private static ApiTestBase<Startup> _testBase = null!;
-    protected static HttpClient Client { get; private set; } = null!;
+    private static ApiTestBase<Program> _apiTestBase = null!;
 
     [AssemblyInitialize]
-    public static void Init(TestContext _)
+    public static void AssemblyInitialize(TestContext _)
     {
-        _testBase = new ApiTestBase<Startup>("Development");
-        Client = _testBase.CreateClient();
+        // Use Program as entry point for proper WebApplicationFactory support
+        _apiTestBase = new ApiTestBase<Program>("Development",
+                                                (services,
+                                                 configuration) =>
+                                                {
+                                                    // IMPORTANT: Required for endpoint validation and assertable HTTP client features
+                                                    services.AddAssertableHttpClient(configuration);
+                                                });
+
+        Client = _apiTestBase.CreateClient();
+
+        // IMPORTANT: Required to make all HttpClientAssertExtensions 100% functional
+        HttpClientAssertExtensions.Setup(_apiTestBase.Services);
     }
 
+    protected static HttpClient Client { get; private set; } = null!;
+
     [AssemblyCleanup]
-    public static void Cleanup()
+    public static void AssemblyCleanup()
     {
-        _testBase.Dispose();
+        _apiTestBase.Dispose();
         Client.Dispose();
     }
 }
@@ -1067,19 +1079,27 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
     [TestClass]
     public abstract class ApiTestBase
     {
-        private static ApiTestBase<Startup> _apiTestBase = null!;
-        protected static HttpClient Client { get; private set; } = null!;
+        private static ApiTestBase<Program> _apiTestBase = null!;
 
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext _)
         {
-            _apiTestBase = new ApiTestBase<Startup>(
-                "Development",
-                (_, _) => { },
-                []);
+            // Use Program as entry point for proper WebApplicationFactory support
+            _apiTestBase = new ApiTestBase<Program>("Development",
+                                                    (services,
+                                                     configuration) =>
+                                                    {
+                                                        // IMPORTANT: Required for endpoint validation and assertable HTTP client features
+                                                        services.AddAssertableHttpClient(configuration);
+                                                    });
 
             Client = _apiTestBase.CreateClient();
+
+            // IMPORTANT: Required to make all HttpClientAssertExtensions 100% functional
+            HttpClientAssertExtensions.Setup(_apiTestBase.Services);
         }
+
+        protected static HttpClient Client { get; private set; } = null!;
 
         [AssemblyCleanup]
         public static void AssemblyCleanup()
