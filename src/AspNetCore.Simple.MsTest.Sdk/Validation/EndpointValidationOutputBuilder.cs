@@ -431,14 +431,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine(textDecorator.Highlight("⚠️  MISSING REGISTRATION"));
                 sb.AppendLine();
                 sb.AppendLine("The AssertableHttpClient requires endpoint registration to validate HTTP calls.");
-                sb.AppendLine("Please ensure the following registration exists in your test setup:");
+                sb.AppendLine("Please ensure the following registrations exist in your test setup:");
                 sb.AppendLine();
-                sb.AppendLine(textDecorator.Success("    services.AddAssertableHttpClient(configuration);"));
+                sb.AppendLine(textDecorator.Success("  1. services.AddAssertableHttpClient(configuration);"));
+                sb.AppendLine(textDecorator.Success("  2. HttpClientAssertExtensions.Setup(_apiTestBase.Services);"));
                 sb.AppendLine();
-                sb.AppendLine("This registration should be added in your:");
-                sb.AppendLine("  • Test startup class (e.g., WebApplicationFactory<TEntryPoint>)");
-                sb.AppendLine("  • Program.cs or Startup.cs configuration");
-                sb.AppendLine("  • Test service collection setup");
                 sb.AppendLine();
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
