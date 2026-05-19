@@ -11,7 +11,7 @@ namespace MinimalApi.Test.Api.Persons
         [TestMethod]
         public Task Should_Return_Expected_Result_For_Given_Payload_Ignore_Id()
         {
-            return Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons111",
+            return Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons",
                                                               "GetPersonResponse.json",
                                                               DifferenceFunc);
         }
