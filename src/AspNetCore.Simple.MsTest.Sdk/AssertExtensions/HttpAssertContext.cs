@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace AspNetCore.Simple.MsTest.Sdk
 {
     public interface IHttpAssertContext : IObjectAssertContext
@@ -76,6 +78,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// or when intentionally using a different response type than defined in the endpoint.
         /// </summary>
         bool SkipEndpointValidation { get; init; }
+
+        /// <summary>
+        /// The expected HTTP status code for the request.
+        /// Used to validate that the endpoint returns the correct status code.
+        /// Defaults to OK (200) for success scenarios and BadRequest (400) for error scenarios.
+        /// </summary>
+        HttpStatusCode ExpectedHttpStatusCode { get; init; }
     }
 
     /// <summary>
@@ -160,5 +169,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// or when intentionally using a different response type than defined in the endpoint.
         /// </summary>
         public required bool SkipEndpointValidation { get; init; }
+
+        /// <summary>
+        /// The expected HTTP status code for the request.
+        /// Used to validate that the endpoint returns the correct status code.
+        /// Defaults to OK (200) for success scenarios and BadRequest (400) for error scenarios.
+        /// </summary>
+        public required HttpStatusCode ExpectedHttpStatusCode { get; init; } = HttpStatusCode.OK;
     }
 }

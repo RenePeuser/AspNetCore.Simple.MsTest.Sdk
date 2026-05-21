@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -348,6 +349,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       bool isSuccessStatusCode = true,
                                                       bool writeResponse = false,
                                                       bool skipEndpointValidation = false,
+                                                      HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
                                                       [CallerMemberName] string callerMemberName = "",
                                                       [CallerLineNumber] int callerLineNumber = 0)
 #pragma warning restore CA1859
@@ -399,7 +401,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 WriteResponse = writeResponse,
                 ApiVersion = apiVersion,
                 IgnoreResponse = false,
-                SkipEndpointValidation = skipEndpointValidation
+                SkipEndpointValidation = skipEndpointValidation,
+                ExpectedHttpStatusCode = expectedStatusCode
             };
 
             await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
@@ -417,6 +420,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   bool writeResponse = false,
                                                                   bool ignoreResponse = false,
                                                                   bool skipEndpointValidation = false,
+                                                                  HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
                                                                   [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                   string payloadAsJsonParameterName = "",
                                                                   [CallerArgumentExpression(nameof(expectedResult))]
@@ -440,6 +444,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               writeResponse: writeResponse,
                                               ignoreResponse: ignoreResponse,
                                               skipEndpointValidation: skipEndpointValidation,
+                                              expectedStatusCode: expectedStatusCode,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }
@@ -457,6 +462,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                         bool writeResponse = false,
                                                                         bool ignoreResponse = false,
                                                                         bool skipEndpointValidation = false,
+                                                                        HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
                                                                         [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                         string payloadAsJsonParameterName = "",
                                                                         [CallerArgumentExpression(nameof(expectedResult))]
@@ -513,7 +519,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 WriteResponse = writeResponse,
                 ApiVersion = apiVersion,
                 IgnoreResponse = ignoreResponse,
-                SkipEndpointValidation = skipEndpointValidation
+                SkipEndpointValidation = skipEndpointValidation,
+                ExpectedHttpStatusCode = expectedStatusCode
             };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
