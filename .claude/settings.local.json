@@ -20,26 +20,7 @@
       "Bash(gh repo:*)",
       "Bash(gh api:*)",
       "Bash(dotnet clean:*)",
-      "Bash(dotnet run:*)",
-      "Bash(awk '{print $2}')",
-      "Bash(xargs kill:*)",
-      "Bash(taskkill //F //PID 32280)",
-      "Read(//d//**)",
-      "Bash(rm src/MinimalApi.Test/DiagnosticTest.cs)",
-      "Bash(dotnet list *)",
-      "Bash(dotnet remove *)",
-      "Bash(tee /tmp/test_output.txt)",
-      "Read(//tmp/**)",
-      "Bash(git mv *)",
-      "Bash(mv OkStatusCodeCurlPrinter.cs SuccessfulTestCurlPrinter.cs)",
-      "Bash(awk '/bool skipEndpointValidation = false/{getline; p=1} p{print NR\": \"$0; if\\(/return.*Assert/ && !/skipEndpointValidation: skipEndpointValidation/\\){print \">>> MISSING at line \"NR}}; /^        \\\\{$/{p=0}' Client.Assert.Put.cs)",
-      "Bash(cat)",
-      "Bash(python fix_skip_validation.py)",
-      "Bash(git checkout *)",
-      "Bash(awk ' *)",
-      "Bash(python fix_skip_endpoint_validation.py)",
-      "Bash(python fix_remaining_skip.py)",
-      "Bash(awk '/skipEndpointValidation: skipEndpointValidation,/{if\\(prev~/skipEndpointValidation: skipEndpointValidation,/\\){print \"DUPLIKAT Zeile \" NR-1 \" und \" NR}} {prev=$0}' Client.Assert.Post.cs)"
+      "Bash(dotnet run:*)"
     ]
   }
 }
