@@ -486,12 +486,51 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine($"{"Url",-10} : {fullUrl}");
             sb.AppendLine($"{"Status",-10} : {DecorateStatusCode(statusCode)}");
 
+            // Add request body if available (from PayloadFile or PayloadAsJson)
+            var requestBody = GetRequestBody(context);
+
+            if (requestBody.IsNotNullOrWhiteSpace())
+            {
+                sb.AppendLine($"{"Request",-10} : {requestBody}");
+            }
+
             if (endpoint?.SourceLocation.IsNotNullOrWhiteSpace() ?? false)
             {
-                sb.AppendLine($"{"Source",-10} : {endpoint.SourceLocation}");
+                var clickableSource = SourceLocationHelper.ToClickableUri(endpoint.SourceLocation, context.CallingAssembly);
+                sb.AppendLine($"{"Source",-10} : {clickableSource}");
             }
         }
 
+
+        private static string GetRequestBody(IHttpAssertContext context)
+        {
+            // If we have a payload file, use the file name
+            if (context.PayloadFile?.EmbeddedFile.IsNotNull() ?? false)
+            {
+                var fileName = context.PayloadFile.EmbeddedFileName;
+
+                if (fileName.IsNotNullOrWhiteSpace())
+                {
+                    return fileName;
+                }
+            }
+
+            // Otherwise, try to show the JSON content (truncated if too long)
+            if (context.PayloadAsJson.IsNotNullOrWhiteSpace())
+            {
+                var json = context.PayloadAsJson;
+
+                // Truncate if too long
+                if (json.Length > 100)
+                {
+                    return string.Concat(json.AsSpan(0, 100), "...");
+                }
+
+                return json;
+            }
+
+            return string.Empty;
+        }
 
         private string DecorateStatusCode(string statusCode)
         {

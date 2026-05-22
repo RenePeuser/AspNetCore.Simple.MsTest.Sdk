@@ -477,7 +477,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             return EndpointParsingHelpers.UnwrapTaskType(controllerReturnType);
         }
 
-        private static string? ExtractSourceLocation(ControllerActionDescriptor controllerActionDescriptor)
+        private static string ExtractSourceLocation(ControllerActionDescriptor controllerActionDescriptor)
         {
             var controllerName = controllerActionDescriptor.ControllerTypeInfo.FullName;
             var actionName = controllerActionDescriptor.ActionName;

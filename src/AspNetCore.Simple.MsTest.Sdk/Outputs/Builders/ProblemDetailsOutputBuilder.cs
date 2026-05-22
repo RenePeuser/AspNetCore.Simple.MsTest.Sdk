@@ -122,7 +122,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (endpoint?.SourceLocation.IsNotNullOrWhiteSpace() ?? false)
             {
-                sb.AppendLine($"{"Source",-10} : {endpoint.SourceLocation}");
+                var clickableSource = SourceLocationHelper.ToClickableUri(endpoint.SourceLocation, context.CallingAssembly);
+                sb.AppendLine($"{"Source",-10} : {clickableSource}");
             }
         }
 
