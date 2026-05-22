@@ -66,6 +66,9 @@ Api
 
 - Full HTTP response snapshots: status, headers, body, trailing headers
 - Precise structured diffs with deep `MemberPath` paths
+- Context-specific error headers (Snapshot Mismatch, Schema Mismatch, Status Code, etc.)
+- **Clickable file links** in error output - jump directly to failing test line in your IDE
+- **Fully qualified class names** - see complete namespace path in test information
 - Ready-to-run `curl` output on failures
 - Convention-based test discovery with `DynamicRequestLocator`
 - Snapshot generation from live traffic
@@ -232,6 +235,8 @@ The SDK provides **context-specific error outputs** that make debugging fast and
 
 All errors follow the same structure: Header → Failure Details → Test Info → HTTP Context → Problem Details → Suggested Fix → Curl Command
 
+**Note:** The `File` field in Test Information contains a clickable `file://` URI that works in most IDEs (Rider, VS Code, Visual Studio). Click it to jump directly to the failing test line.
+
 ### Snapshot Mismatch (Value Differences)
 
 When JSON values differ from the expected snapshot:
@@ -251,9 +256,10 @@ All properties exist but have different values.
 ──────────────────────────────────────────────────────────────
 
 Project    : MinimalApi.Test
-Class      : PersonEndpointsTests
+Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
 Method     : Should_Be_Able_To_Post_A_Person_Object
 Line       : 65
+File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:65
 
 🌍 HTTP
 ──────────────────────────────────────────────────────────────
@@ -314,9 +320,10 @@ Properties missing, extra properties, or type mismatches detected.
 ──────────────────────────────────────────────────────────────
 
 Project    : MinimalApi.Test
-Class      : PersonEndpointsTests
+Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
 Method     : Should_Get_Person_By_Id
 Line       : 42
+File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:42
 
 🌍 HTTP
 ──────────────────────────────────────────────────────────────
@@ -358,9 +365,10 @@ When using success assertion (`AssertPostAsync`) with error status code:
 ──────────────────────────────────────────────────────────────
 
 Project    : MinimalApi.Test
-Class      : PersonEndpointsTests
+Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
 Method     : Should_Create_Person
 Line       : 88
+File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:88
 
 🌍 HTTP
 ──────────────────────────────────────────────────────────────
@@ -413,9 +421,10 @@ Actual     : 400 (Bad Request)
 ──────────────────────────────────────────────────────────────
 
 Project    : MinimalApi.Test
-Class      : PersonEndpointsTests
+Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
 Method     : Should_Create_Person
 Line       : 65
+File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:65
 
 🌍 HTTP
 ──────────────────────────────────────────────────────────────
@@ -469,9 +478,10 @@ When test's response type doesn't match endpoint contract:
 ──────────────────────────────────────────────────────────────
 
 Project    : MinimalApi.Test
-Class      : PersonEndpointsTests
+Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
 Method     : Should_Create_Person
 Line       : 65
+File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:65
 
 🌍 HTTP
 ──────────────────────────────────────────────────────────────
@@ -571,9 +581,10 @@ The SDK catches when the assertion method doesn't align with the expected status
 ──────────────────────────────────────────────────────────────
 
 Project    : MinimalApi.Test
-Class      : PersonEndpointsTests
+Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
 Method     : Should_Create_Person
 Line       : 88
+File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:88
 
 🌍 HTTP
 ──────────────────────────────────────────────────────────────

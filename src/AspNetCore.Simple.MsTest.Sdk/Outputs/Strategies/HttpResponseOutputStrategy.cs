@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -89,7 +90,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
                                  ImmutableList<Difference> differences)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var className = ExtractClassName(context);
+            var className = TestContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
             var methodName = context.CallerMemberName;
 
             // Build context-specific header based on failure type
@@ -115,10 +116,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
+            var fileUri = $"file:///{context.CallerFilePath.Replace('\\', '/')}:{context.CallerLineNumber}";
             stringBuilder.AppendLine($"{"Project",-10} : {projectName}");
             stringBuilder.AppendLine($"{"Class",-10} : {className}");
             stringBuilder.AppendLine($"{"Method",-10} : {methodName}");
             stringBuilder.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
+            stringBuilder.AppendLine($"{"File",-10} : {fileUri}");
         }
 
         private static (string Icon, string Title, string? FailureInfo) GetHeaderInfo(IHttpResponseContext context)
@@ -226,13 +229,5 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             return context.ExpectedResultFile.EmbeddedFileName;
         }
 
-        private static string ExtractClassName(IObjectAssertContext context)
-        {
-            var callerFilePath = context.CallerFilePath;
-            var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
-
-            // Remove .cs extension if present
-            return fileName.Replace(".cs", string.Empty);
-        }
     }
 }

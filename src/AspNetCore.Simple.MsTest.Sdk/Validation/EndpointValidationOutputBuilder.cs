@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -404,24 +405,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                    IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var className = ExtractClassName(context);
+            var className = TestContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
             var methodName = context.CallerMemberName;
 
             sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
+            var fileUri = $"file:///{context.CallerFilePath.Replace('\\', '/')}:{context.CallerLineNumber}";
             sb.AppendLine($"{"Project",-10} : {projectName}");
             sb.AppendLine($"{"Class",-10} : {className}");
             sb.AppendLine($"{"Method",-10} : {methodName}");
             sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
+            sb.AppendLine($"{"File",-10} : {fileUri}");
         }
 
-        private static string ExtractClassName(IHttpAssertContext context)
-        {
-            var callerFilePath = context.CallerFilePath;
-            var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
-            return fileName.Replace(".cs", string.Empty);
-        }
 
         private void BuildEndpointRegistrationInfo(StringBuilder sb,
                                                    int endpointCount)

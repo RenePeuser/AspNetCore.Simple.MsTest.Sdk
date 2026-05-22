@@ -746,9 +746,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine("──────────────────────────────────────────────────────────────");
             sb.AppendLine();
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var className = Path.GetFileNameWithoutExtension(context.CallerFilePath).Replace(".cs", string.Empty);
+            var fullClassName = GetFullClassName(context.CallerFilePath, projectName);
             sb.AppendLine($"{"Project",-10} : {projectName}");
-            sb.AppendLine($"{"Class",-10} : {className}");
+            sb.AppendLine($"{"Class",-10} : {fullClassName}");
             sb.AppendLine($"{"Method",-10} : {context.CallerMemberName}");
             sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
             sb.AppendLine();
@@ -803,6 +803,45 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine("══════════════════════════════════════════════════════════════");
 
             return sb.ToString();
+        }
+
+        private static string GetFullClassName(string callerFilePath, string projectName)
+        {
+            try
+            {
+                // Get the file name without extension
+                var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
+
+                // Find the project root by looking for the project name in the path
+                var pathSegments = callerFilePath.Replace("\\", "/").Split('/');
+                var projectIndex = Array.FindIndex(pathSegments, s => s.Equals(projectName, StringComparison.OrdinalIgnoreCase));
+
+                if (projectIndex >= 0 && projectIndex < pathSegments.Length - 1)
+                {
+                    // Take segments after the project name up to (but not including) the file name
+                    var namespaceParts = pathSegments.Skip(projectIndex + 1).Take(pathSegments.Length - projectIndex - 2).ToList();
+
+                    if (namespaceParts.Count > 0)
+                    {
+                        // Build namespace.ClassName
+                        var namespaceStr = string.Join(".", namespaceParts.Select(s => s.Replace(" ", "")));
+                        return $"{projectName}.{namespaceStr}.{fileName}";
+                    }
+
+                    // File is directly in project root
+                    return $"{projectName}.{fileName}";
+                }
+
+                // Fallback to just the file name
+                return fileName;
+            }
+#pragma warning disable CA1031
+            catch
+#pragma warning restore CA1031
+            {
+                // Fallback to full caller file path on any error
+                return callerFilePath;
+            }
         }
     }
 #pragma warning restore IDE0060 // Remove unused parameter

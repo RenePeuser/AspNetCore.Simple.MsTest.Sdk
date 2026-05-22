@@ -1,5 +1,6 @@
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
@@ -86,16 +87,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private void BuildTestInfo(StringBuilder sb, IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var className = ExtractClassName(context);
+            var className = TestContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
             var methodName = context.CallerMemberName;
 
             sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
+            var fileUri = $"file:///{context.CallerFilePath.Replace('\\', '/')}:{context.CallerLineNumber}";
             sb.AppendLine($"{"Project",-10} : {projectName}");
             sb.AppendLine($"{"Class",-10} : {className}");
             sb.AppendLine($"{"Method",-10} : {methodName}");
             sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
+            sb.AppendLine($"{"File",-10} : {fileUri}");
         }
 
         private void BuildHttpInfo(StringBuilder sb,
@@ -207,12 +210,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine(sourceCode);
         }
 
-        private static string ExtractClassName(IHttpAssertContext context)
-        {
-            var callerFilePath = context.CallerFilePath;
-            var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
-            return fileName.Replace(".cs", string.Empty);
-        }
 
         private string DecorateStatusCode(int statusCode, string statusText)
         {

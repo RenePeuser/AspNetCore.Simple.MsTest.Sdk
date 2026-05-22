@@ -86,15 +86,47 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         private static void BuildTestInfo(StringBuilder sb, IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var className = Path.GetFileNameWithoutExtension(context.CallerFilePath).Replace(".cs", string.Empty);
+            var fullClassName = GetFullClassName(context.CallerFilePath, projectName);
 
             sb.AppendLine("📦 Test Information");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
             sb.AppendLine();
             sb.AppendLine($"{"Project",-15} : {projectName}");
-            sb.AppendLine($"{"Class",-15} : {className}");
+            sb.AppendLine($"{"Class",-15} : {fullClassName}");
             sb.AppendLine($"{"Method",-15} : {context.CallerMemberName}");
             sb.AppendLine($"{"Line",-15} : {context.CallerLineNumber}");
+        }
+
+        private static string GetFullClassName(string callerFilePath, string projectName)
+        {
+            try
+            {
+                var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
+                var pathSegments = callerFilePath.Replace("\\", "/").Split('/');
+                var projectIndex = Array.FindIndex(pathSegments, s => s.Equals(projectName, StringComparison.OrdinalIgnoreCase));
+
+                if (projectIndex >= 0 && projectIndex < pathSegments.Length - 1)
+                {
+                    var namespaceParts = pathSegments.Skip(projectIndex + 1).Take(pathSegments.Length - projectIndex - 2).ToList();
+
+                    if (namespaceParts.Count > 0)
+                    {
+                        var namespaceStr = string.Join(".", namespaceParts.Select(s => s.Replace(" ", "")));
+                        return $"{projectName}.{namespaceStr}.{fileName}";
+                    }
+
+                    return $"{projectName}.{fileName}";
+                }
+
+                return fileName;
+            }
+#pragma warning disable CA1031
+            catch
+#pragma warning restore CA1031
+            {
+                // Fallback to full caller file path on any error
+                return callerFilePath;
+            }
         }
 
         private static void BuildHttpInfo(StringBuilder sb, IHttpAssertContext context)
