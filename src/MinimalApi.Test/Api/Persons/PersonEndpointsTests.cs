@@ -83,7 +83,7 @@ namespace MinimalApi.Test.Api.Persons
         [TestMethod]
         public Task Should_Be_Able_To_Post_A_Person_Parameterized_With_Absolute_Embedded_Filepath()
         {
-            return Client.AssertPostAsync<UnknownResponse>("api/v1/persons",
+            return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   "AnyFolder.P.NewPersonParameter.json",
                                                   "AnyFolder.R.NewPersonParameter.json",
                                                   parameters: [("$Name$", "Son"), ("$Age$", 42)],

@@ -78,6 +78,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             BuildTestInfo(sb, context);
             sb.AppendLine();
 
+            // Failure Details
+            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine("The requested endpoint was not found.");
+            sb.AppendLine();
+
             // HTTP Call Table
             BuildHttpCallTable(sb, context, "404 NotFound");
             sb.AppendLine();
@@ -107,6 +114,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             BuildTestInfo(sb, context);
+            sb.AppendLine();
+
+            // Failure Details
+            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine($"Multiple endpoints match the request. Found {matchingEndpoints.Count} matching endpoints.");
             sb.AppendLine();
 
             // HTTP Call Table
@@ -156,8 +170,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             BuildTestInfo(sb, context);
             sb.AppendLine();
 
-            // HTTP Call Table - validation happens before HTTP call, so status is pending
-            BuildHttpCallTable(sb, context, "Type Mismatch", endpoint);
+            // Failure reason
+            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine("HTTP Response Type Mismatch");
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Dim("Note: No HTTP call was made. Validation failed before executing the request."));
+            sb.AppendLine();
+
+            // HTTP Call Table - validation happens before HTTP call
+            BuildHttpCallTable(sb, context, "Endpoint Validation Failed", endpoint);
             sb.AppendLine();
 
             // TYPE VALIDATION Table - Show problem first
@@ -270,8 +293,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             BuildTestInfo(sb, context);
             sb.AppendLine();
 
-            // HTTP Call Table - validation happens before HTTP call, so status is pending
-            BuildHttpCallTable(sb, context, "Type Mismatch", endpoint);
+            // Failure reason
+            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine("HTTP Response Type Mismatch");
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Dim("Note: No HTTP call was made. Validation failed before executing the request."));
+            sb.AppendLine();
+
+            // HTTP Call Table - validation happens before HTTP call
+            BuildHttpCallTable(sb, context, "Endpoint Validation Failed", endpoint);
             sb.AppendLine();
 
             // TYPE VALIDATION Table - Show all relevant status codes
@@ -577,8 +609,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             BuildTestInfo(sb, context);
             sb.AppendLine();
 
+            // Failure reason
+            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine($"Assert Method Mismatch - {headerSuffix}");
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Dim("Note: No HTTP call was made. Validation failed before executing the request."));
+            sb.AppendLine();
+
             // HTTP Call Table
-            BuildHttpCallTable(sb, context, "Test Type Mismatch");
+            BuildHttpCallTable(sb, context, "Validation Failed - No HTTP call made");
             sb.AppendLine();
 
             // Problem explanation
@@ -614,30 +655,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine($"{"Status Range",-20} : {statusRange}");
             sb.AppendLine();
 
-            // Suggested fix
-            sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
-            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
-            sb.AppendLine();
-
-            if (isSuccessTest)
-            {
-                sb.AppendLine("Option 1: Use error assertion method instead");
-                sb.AppendLine(textDecorator.Success("  - Use AssertPostAsErrorAsync() or similar error assertion method"));
-                sb.AppendLine();
-                sb.AppendLine("Option 2: Update expected response status code");
-                sb.AppendLine(textDecorator.Success("  - Change the expected response to have a success status code (200, 201, etc.)"));
-            }
-            else
-            {
-                sb.AppendLine("Option 1: Use success assertion method instead");
-                sb.AppendLine(textDecorator.Success("  - Use AssertPostAsync() or similar success assertion method"));
-                sb.AppendLine();
-                sb.AppendLine("Option 2: Update expected response status code");
-                sb.AppendLine(textDecorator.Success("  - Change the expected response to have an error status code (400, 404, 500, etc.)"));
-            }
-
-            sb.AppendLine();
-
             // Assert call source code
             var sourceCode = sourceCodeExtractor.ExtractCallCode(context.CallerFilePath, context.CallerLineNumber);
 
@@ -647,6 +664,67 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine(sourceCode);
+                sb.AppendLine();
+            }
+
+            // Suggested fix with actual code
+            if (sourceCode.IsNotNullOrWhiteSpace())
+            {
+                string suggestedFix = sourceCode;
+
+                if (isSuccessTest)
+                {
+                    // Success test but status code is error → Add "AsError"
+                    // Example: AssertPostAsync → AssertPostAsErrorAsync
+                    // Replace all Assert*Async patterns with Assert*AsErrorAsync
+                    suggestedFix = suggestedFix.Replace("AssertGetAsync", "AssertGetAsErrorAsync")
+                                               .Replace("AssertPostAsync", "AssertPostAsErrorAsync")
+                                               .Replace("AssertPutAsync", "AssertPutAsErrorAsync")
+                                               .Replace("AssertPatchAsync", "AssertPatchAsErrorAsync")
+                                               .Replace("AssertDeleteAsync", "AssertDeleteAsErrorAsync");
+                }
+                else
+                {
+                    // Error test but status code is success → Remove "AsError"
+                    // Example: AssertPostAsErrorAsync → AssertPostAsync
+                    // Replace all Assert*AsErrorAsync patterns with Assert*Async
+                    suggestedFix = suggestedFix.Replace("AssertGetAsErrorAsync", "AssertGetAsync")
+                                               .Replace("AssertPostAsErrorAsync", "AssertPostAsync")
+                                               .Replace("AssertPutAsErrorAsync", "AssertPutAsync")
+                                               .Replace("AssertPatchAsErrorAsync", "AssertPatchAsync")
+                                               .Replace("AssertDeleteAsErrorAsync", "AssertDeleteAsync");
+                }
+
+                sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+                sb.AppendLine();
+                sb.AppendLine(textDecorator.Success(suggestedFix));
+                sb.AppendLine();
+            }
+            else
+            {
+                // Fallback if no source code is available
+                sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+                sb.AppendLine();
+
+                if (isSuccessTest)
+                {
+                    sb.AppendLine("Option 1: Use error assertion method instead");
+                    sb.AppendLine(textDecorator.Success("  - Use AssertPostAsErrorAsync() or similar error assertion method"));
+                    sb.AppendLine();
+                    sb.AppendLine("Option 2: Update expected response status code");
+                    sb.AppendLine(textDecorator.Success("  - Change the expected response to have a success status code (200, 201, etc.)"));
+                }
+                else
+                {
+                    sb.AppendLine("Option 1: Use success assertion method instead");
+                    sb.AppendLine(textDecorator.Success("  - Use AssertPostAsync() or similar success assertion method"));
+                    sb.AppendLine();
+                    sb.AppendLine("Option 2: Update expected response status code");
+                    sb.AppendLine(textDecorator.Success("  - Change the expected response to have an error status code (400, 404, 500, etc.)"));
+                }
+
                 sb.AppendLine();
             }
 

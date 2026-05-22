@@ -45,9 +45,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
         {
             var stringBuilder = new StringBuilder();
 
-            // Section 1: Header + Test Info
+            // Section 1: Title + Test Information + Failure Details
             BuildHeader(stringBuilder, context, differences);
-            stringBuilder.AppendLine();
 
             // Section 2: HTTP Call Table
             var httpCallInfo = httpCallInfoTableBuilder.Build(context);
@@ -96,6 +95,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             // Build context-specific header based on failure type
             var (icon, title, failureInfo) = GetHeaderInfo(context);
 
+            // 1. Title / Failure Type
             stringBuilder.AppendLine();
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
@@ -103,16 +103,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             stringBuilder.AppendLine();
 
-            // Add failure-specific information if available
-            if (failureInfo.IsNotNullOrWhiteSpace())
-            {
-                stringBuilder.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
-                stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
-                stringBuilder.AppendLine();
-                stringBuilder.AppendLine(failureInfo);
-                stringBuilder.AppendLine();
-            }
-
+            // 2. Test Information
             stringBuilder.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
@@ -122,6 +113,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine($"{"Method",-10} : {methodName}");
             stringBuilder.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
             stringBuilder.AppendLine($"{"File",-10} : {fileUri}");
+            stringBuilder.AppendLine();
+
+            // 3. Failure Details (if available)
+            if (failureInfo.IsNotNullOrWhiteSpace())
+            {
+                stringBuilder.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+                stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine(failureInfo);
+            }
         }
 
         private static (string Icon, string Title, string? FailureInfo) GetHeaderInfo(IHttpResponseContext context)

@@ -53,37 +53,27 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
             if (type != null)
             {
                 string? filePath = null;
-                string? errorMessage = null;
 
                 try
                 {
                     filePath = TryResolveFilePathFromType(type, callingAssembly);
                 }
 #pragma warning disable CA1031
-                catch (Exception ex)
+                catch (Exception)
 #pragma warning restore CA1031
                 {
-                    errorMessage = ex.Message;
+                    // Ignore errors during file path resolution
                 }
 
                 if (filePath.IsNotNullOrWhiteSpace())
                 {
                     var uri = $"file:///{filePath.Replace('\\', '/')}";
-
                     return uri;
                 }
-
-                // Debug: show what we found with error details
-                if (errorMessage.IsNotNullOrWhiteSpace())
-                {
-                    return $"{sourceLocation} (Type found, Error: {errorMessage})";
-                }
-
-                return $"{sourceLocation} (Type found: {type.FullName}, but no source file)";
             }
 
-            // Fallback: return original source location (with debug info)
-            return $"{sourceLocation} (Type not found)";
+            // Fallback: return original source location (class name)
+            return sourceLocation;
         }
 
         private static Type? TryGetType(string typeName,
@@ -199,15 +189,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
                     return foundFile;
                 }
 
-                // Fallback: build path from namespace (might not match folder structure)
-                var directories = pathParts.Take(pathParts.Length - 1).ToArray();
-                var expectedPath = Path.Combine(projectRoot, Path.Combine(directories), fileName);
-
-                // Debug: include attempted path
-                var attemptedPaths = $"Searched recursively for {fileName} in {projectRoot}, also tried namespace-based path: {expectedPath}";
-
-                // Return debug info in exception
-                throw new InvalidOperationException($"File not found. {attemptedPaths}");
+                // File not found
+                return null;
             }
 #pragma warning disable CA1031
             catch (Exception)
@@ -360,16 +343,5 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
             }
         }
 
-        private static int TryGetLineNumber(Type type)
-        {
-            // Getting the actual line number requires reading PDB (debug symbols) files
-            // which is complex and requires additional libraries like System.Reflection.Metadata
-            //
-            // For now, we return 0 to omit the line number from the URI
-            // The file:/// link will still work and open the file in the IDE
-            //
-            // Future enhancement: Use System.Reflection.Metadata to read PDB and get actual line numbers
-            return 0;
-        }
     }
 }
