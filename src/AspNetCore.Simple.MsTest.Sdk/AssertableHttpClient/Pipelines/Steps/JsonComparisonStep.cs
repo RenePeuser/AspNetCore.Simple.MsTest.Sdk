@@ -116,7 +116,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 TypeIsPrimitiveType = targetIsPrimitiveType,
                 Url = context.Url,
                 WriteResponse = context.WriteResponse,
-                SkipEndpointValidation = context.SkipEndpointValidation
+                SkipEndpointValidation = context.SkipEndpointValidation,
+                // Copy failure type from original context (if already set by earlier pipeline steps)
+                FailureType = context.FailureType,
+                ExpectedStatusCode = context.ExpectedStatusCode,
+                ActualStatusCode = context.ActualStatusCode
             };
 
             // Delegate to AssertService - it handles schema checks, value comparison, diff finding, and output building

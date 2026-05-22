@@ -216,7 +216,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// <summary>
         /// Validates that the test type (success vs error) matches the expected status code.
         /// </summary>
-        private void ValidateTestTypeMatchesStatusCode(IHttpAssertContext _,
+        private void ValidateTestTypeMatchesStatusCode(IHttpAssertContext context,
                                                        int expectedStatusCode,
                                                        bool isSuccessTest)
         {
@@ -226,46 +226,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             if (isSuccessTest && !isSuccessStatusCode)
             {
                 // Success test but expected status code is error (4xx/5xx)
-                var error = $"""
-
-                             ══════════════════════════════════════════════════════════════════════════════
-                             TEST TYPE MISMATCH
-                             ══════════════════════════════════════════════════════════════════════════════
-
-                             The test is declared as a SUCCESS test (AssertPostAsync, AssertGetAsync, etc.)
-                             but the expected response has status code {expectedStatusCode} which is an ERROR status.
-
-                             Expected Status Code: {expectedStatusCode} ({(HttpStatusCode)expectedStatusCode})
-                             Test Type: Success (expects 2xx status codes)
-
-                             SUGGESTED FIX:
-                             - Use AssertPostAsErrorAsync() or similar error assertion method instead
-                             - Or update the expected response to have a success status code (200, 201, etc.)
-
-                             """;
+                var error = outputBuilder.BuildTestTypeMismatch(context,
+                                                                expectedStatusCode,
+                                                                isSuccessTest: true);
 
                 Assert.That.Fail(error);
             }
             else if (!isSuccessTest && isSuccessStatusCode)
             {
                 // Error test but expected status code is success (2xx)
-                var error = $"""
-
-                             ══════════════════════════════════════════════════════════════════════════════
-                             TEST TYPE MISMATCH
-                             ══════════════════════════════════════════════════════════════════════════════
-
-                             The test is declared as an ERROR test (AssertPostAsErrorAsync, AssertGetAsErrorAsync, etc.)
-                             but the expected response has status code {expectedStatusCode} which is a SUCCESS status.
-
-                             Expected Status Code: {expectedStatusCode} ({(HttpStatusCode)expectedStatusCode})
-                             Test Type: Error (expects 4xx/5xx status codes)
-
-                             SUGGESTED FIX:
-                             - Use AssertPostAsync() or similar success assertion method instead
-                             - Or update the expected response to have an error status code (400, 404, 500, etc.)
-
-                             """;
+                var error = outputBuilder.BuildTestTypeMismatch(context,
+                                                                expectedStatusCode,
+                                                                isSuccessTest: false);
 
                 Assert.That.Fail(error);
             }

@@ -91,16 +91,27 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var className = ExtractClassName(context);
             var methodName = context.CallerMemberName;
-            _ = GetRequestName(context);
-            _ = GetResponseName(context);
-            _ = differences.Count;
+
+            // Build context-specific header based on failure type
+            var (icon, title, failureInfo) = GetHeaderInfo(context);
 
             stringBuilder.AppendLine();
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            stringBuilder.AppendLine(textDecorator.Error("❌ SNAPSHOT TEST FAILED"));
+            stringBuilder.AppendLine(textDecorator.Error($"{icon} {title}"));
             stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             stringBuilder.AppendLine();
+
+            // Add failure-specific information if available
+            if (failureInfo.IsNotNullOrWhiteSpace())
+            {
+                stringBuilder.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+                stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine(failureInfo);
+                stringBuilder.AppendLine();
+            }
+
             stringBuilder.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
@@ -108,6 +119,76 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine($"{"Class",-10} : {className}");
             stringBuilder.AppendLine($"{"Method",-10} : {methodName}");
             stringBuilder.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
+        }
+
+        private static (string Icon, string Title, string? FailureInfo) GetHeaderInfo(IHttpResponseContext context)
+        {
+            return context.FailureType switch
+            {
+                HttpAssertionFailureType.SchemaMismatch => (
+                    "📋",
+                    "SCHEMA MISMATCH",
+                    "Structure doesn't match expected type schema.\nProperties missing, extra properties, or type mismatches detected."
+                ),
+
+                HttpAssertionFailureType.StatusCodeMismatch => (
+                    "🚫",
+                    "UNEXPECTED STATUS CODE",
+                    context.ExpectedStatusCode.HasValue && context.ActualStatusCode.HasValue
+                        ? $"{"Expected",-10} : {context.ExpectedStatusCode} ({GetStatusCodeRange(context.ExpectedStatusCode.Value)})\n{"Actual",-10} : {context.ActualStatusCode} ({GetStatusText(context.ActualStatusCode.Value)})"
+                        : "Status code doesn't match expected value."
+                ),
+
+                HttpAssertionFailureType.ContentTypeMismatch => (
+                    "📄",
+                    "CONTENT TYPE MISMATCH",
+                    "The Content-Type header indicates non-JSON content (text/html, image/*, etc.)."
+                ),
+
+                HttpAssertionFailureType.SnapshotMismatch => (
+                    "📸",
+                    "SNAPSHOT MISMATCH",
+                    "JSON values differ from the expected snapshot.\nAll properties exist but have different values."
+                ),
+
+                _ => (
+                    "❌",
+                    "API CONTRACT TEST FAILED",
+                    null
+                )
+            };
+        }
+
+        private static string GetStatusCodeRange(int statusCode)
+        {
+            return statusCode switch
+            {
+                >= 200 and < 300 => "Success",
+                >= 400 and < 500 => "Client Error",
+                >= 500 => "Server Error",
+                _ => "Unknown"
+            };
+        }
+
+        private static string GetStatusText(int statusCode)
+        {
+            return statusCode switch
+            {
+                200 => "OK",
+                201 => "Created",
+                204 => "No Content",
+                400 => "Bad Request",
+                401 => "Unauthorized",
+                403 => "Forbidden",
+                404 => "Not Found",
+                405 => "Method Not Allowed",
+                409 => "Conflict",
+                422 => "Unprocessable Entity",
+                500 => "Internal Server Error",
+                502 => "Bad Gateway",
+                503 => "Service Unavailable",
+                _ => string.Empty
+            };
         }
 
         private static string GetRequestName(IHttpResponseContext context)

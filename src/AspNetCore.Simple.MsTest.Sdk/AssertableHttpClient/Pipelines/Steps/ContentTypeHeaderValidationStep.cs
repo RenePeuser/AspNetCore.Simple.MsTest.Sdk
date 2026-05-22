@@ -66,7 +66,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 return;
             }
 
-            // Content-Type header indicates non-JSON content - fail early to avoid parsing binary data
+            // Content-Type header indicates non-JSON content - set failure type and fail early
+            context.FailureType = HttpAssertionFailureType.ContentTypeMismatch;
+
             var expectedJson = expectedResultFile.Content;
             var currentJson = $"Content-Type: {contentTypeHeader}";
             var differences = ImmutableList<Difference>.Empty;

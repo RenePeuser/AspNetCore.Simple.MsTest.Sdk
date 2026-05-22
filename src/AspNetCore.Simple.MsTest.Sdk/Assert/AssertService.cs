@@ -94,6 +94,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 5. Assert schema matches or values match
             if (result.HasSchemaMismatch || result.Differences.Any())
             {
+                // Set failure type for HTTP response contexts (if not already set)
+                if (context is IHttpResponseContext httpContext && httpContext.FailureType == HttpAssertionFailureType.None)
+                {
+                    httpContext.FailureType = result.HasSchemaMismatch
+                                                  ? HttpAssertionFailureType.SchemaMismatch
+                                                  : HttpAssertionFailureType.SnapshotMismatch;
+                }
+
                 // Build comprehensive output using the comparison result
                 var error = outputBuilder.BuildOutput(context,
                                                       result.Differences,

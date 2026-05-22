@@ -47,6 +47,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                          EndpointInfo endpoint,
                                          Type expectedType,
                                          ImmutableDictionary<int, Type> relevantStatusCodes);
+
+        /// <summary>
+        /// Builds error message for test type mismatch (success vs error).
+        /// </summary>
+        string BuildTestTypeMismatch(IHttpAssertContext context,
+                                     int expectedStatusCode,
+                                     bool isSuccessTest);
     }
 
     internal sealed class EndpointValidationOutputBuilder(ITableBuilder tableBuilder,
@@ -512,6 +519,107 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             return textDecorator.Highlight(statusCode);
+        }
+
+        public string BuildTestTypeMismatch(IHttpAssertContext context,
+                                            int expectedStatusCode,
+                                            bool isSuccessTest)
+        {
+            var sb = new StringBuilder();
+            var statusCodeName = Enum.GetName(typeof(System.Net.HttpStatusCode), expectedStatusCode) ?? expectedStatusCode.ToString();
+
+            // Build dynamic header based on what the test expected
+            var headerSuffix = isSuccessTest ? "SUCCESS EXPECTED" : "ERROR EXPECTED";
+
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine(textDecorator.Error($"❌ ASSERT METHOD MISMATCH - {headerSuffix}"));
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine();
+
+            BuildTestInfo(sb, context);
+            sb.AppendLine();
+
+            // HTTP Call Table
+            BuildHttpCallTable(sb, context, "Test Type Mismatch");
+            sb.AppendLine();
+
+            // Problem explanation
+            sb.AppendLine(textDecorator.SectionTitle("⚠️ Problem"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+
+            if (isSuccessTest)
+            {
+                // Success test but expected status code is error (4xx/5xx)
+                sb.AppendLine("The test is declared as a SUCCESS test (AssertPostAsync, AssertGetAsync, etc.)");
+                sb.AppendLine($"but the expected response has status code {textDecorator.Error($"{expectedStatusCode} ({statusCodeName})")} which is an ERROR status.");
+            }
+            else
+            {
+                // Error test but expected status code is success (2xx)
+                sb.AppendLine("The test is declared as an ERROR test (AssertPostAsErrorAsync, AssertGetAsErrorAsync, etc.)");
+                sb.AppendLine($"but the expected response has status code {textDecorator.Success($"{expectedStatusCode} ({statusCodeName})")} which is a SUCCESS status.");
+            }
+
+            sb.AppendLine();
+
+            // Details table
+            sb.AppendLine(textDecorator.SectionTitle("📊 Details"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+
+            var testTypeText = isSuccessTest ? "Success (expects 2xx)" : "Error (expects 4xx/5xx)";
+            var statusRange = expectedStatusCode >= 200 && expectedStatusCode < 300 ? "Success (2xx)" : "Error (4xx/5xx)";
+
+            sb.AppendLine($"{"Test Type",-20} : {testTypeText}");
+            sb.AppendLine($"{"Expected Status",-20} : {expectedStatusCode} ({statusCodeName})");
+            sb.AppendLine($"{"Status Range",-20} : {statusRange}");
+            sb.AppendLine();
+
+            // Suggested fix
+            sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+
+            if (isSuccessTest)
+            {
+                sb.AppendLine("Option 1: Use error assertion method instead");
+                sb.AppendLine(textDecorator.Success("  - Use AssertPostAsErrorAsync() or similar error assertion method"));
+                sb.AppendLine();
+                sb.AppendLine("Option 2: Update expected response status code");
+                sb.AppendLine(textDecorator.Success("  - Change the expected response to have a success status code (200, 201, etc.)"));
+            }
+            else
+            {
+                sb.AppendLine("Option 1: Use success assertion method instead");
+                sb.AppendLine(textDecorator.Success("  - Use AssertPostAsync() or similar success assertion method"));
+                sb.AppendLine();
+                sb.AppendLine("Option 2: Update expected response status code");
+                sb.AppendLine(textDecorator.Success("  - Change the expected response to have an error status code (400, 404, 500, etc.)"));
+            }
+
+            sb.AppendLine();
+
+            // Assert call source code
+            var sourceCode = sourceCodeExtractor.ExtractCallCode(context.CallerFilePath, context.CallerLineNumber);
+
+            if (sourceCode.IsNotNullOrWhiteSpace())
+            {
+                sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+                sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+                sb.AppendLine();
+                sb.AppendLine(sourceCode);
+                sb.AppendLine();
+            }
+
+            // Curl command
+            var curl = curlBuilder.BuildFrom(context);
+            var curlFormatted = curlFormatter.GetCurlAsFormattedString(curl);
+            sb.AppendLine(curlFormatted);
+
+            return sb.ToString();
         }
 
         private static string FormatTypeName(Type type)

@@ -48,5 +48,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #pragma warning disable CA1056 // URI properties should not be strings - kept as string for compatibility with existing formatters
         string AbsoluteUrl { get; }
 #pragma warning restore CA1056
+
+        /// <summary>
+        /// The type of HTTP assertion failure (set by pipeline steps).
+        /// Used to generate context-specific error messages in output strategies.
+        /// </summary>
+        HttpAssertionFailureType FailureType { get; set; }
+
+        /// <summary>
+        /// Expected HTTP status code (optional, set by validation steps).
+        /// Used for detailed error reporting in status code mismatch scenarios.
+        /// </summary>
+        int? ExpectedStatusCode { get; set; }
+
+        /// <summary>
+        /// Actual HTTP status code (optional, set by validation steps).
+        /// Used for detailed error reporting in status code mismatch scenarios.
+        /// </summary>
+        int? ActualStatusCode { get; set; }
     }
 }

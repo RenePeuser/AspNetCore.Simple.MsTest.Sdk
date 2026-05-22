@@ -36,6 +36,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 return;
             }
 
+            // Status code mismatch - set failure type and status codes for detailed reporting
+            context.FailureType = HttpAssertionFailureType.StatusCodeMismatch;
+            context.ExpectedStatusCode = context.IsSuccessStatusCode ? 200 : 400; // Simplified: 2xx vs 4xx/5xx
+            context.ActualStatusCode = (int)context.HttpStatusCode;
+
             // Status code mismatch - build error message and fail fast
             // Get expected result for comparison (simplified, no complex processing)
             var expectedJson = context.ExpectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(context.ContentAsString,
