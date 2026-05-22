@@ -226,5 +226,306 @@ namespace Controllers.Test
 
             Assert.HasCount(5, diffs);
         }
+
+        [TestMethod]
+        public void FindDifferencesShouldIgnoreDifferentPropertyOrder()
+        {
+            // Same properties, different order - should report no differences
+            var left = JToken.Parse("""
+                                    {
+                                        "name": "test",
+                                        "age": 25,
+                                        "city": "Berlin"
+                                    }
+                                    """);
+
+            var right = JToken.Parse("""
+                                     {
+                                         "city": "Berlin",
+                                         "name": "test",
+                                         "age": 25
+                                     }
+                                     """);
+
+            var diffs = _jsonDiffer.FindDifferences(left, right);
+
+            Assert.HasCount(0, diffs, "Property order should not affect comparison");
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldIgnoreDifferentWhitespaceFormatting()
+        {
+            // Same content, different formatting - should report no differences
+            var leftCompact = /*lang=json,strict*/ """{"name":"test","nested":{"value":42}}""";
+
+            var rightFormatted = /*lang=json,strict*/ """
+                                                      {
+                                                        "name": "test",
+                                                        "nested": {
+                                                          "value": 42
+                                                        }
+                                                      }
+                                                      """;
+
+            var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
+
+            Assert.HasCount(0, diffs, "Whitespace formatting should not affect comparison");
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldIgnorePropertyOrderInNestedObjects()
+        {
+            // Nested objects with different property orders
+            var left = JToken.Parse("""
+                                    {
+                                        "user": {
+                                            "name": "Alice",
+                                            "address": {
+                                                "city": "Berlin",
+                                                "street": "Main St",
+                                                "zip": "10115"
+                                            },
+                                            "age": 30
+                                        }
+                                    }
+                                    """);
+
+            var right = JToken.Parse("""
+                                     {
+                                         "user": {
+                                             "age": 30,
+                                             "address": {
+                                                 "zip": "10115",
+                                                 "city": "Berlin",
+                                                 "street": "Main St"
+                                             },
+                                             "name": "Alice"
+                                         }
+                                     }
+                                     """);
+
+            var diffs = _jsonDiffer.FindDifferences(left, right);
+
+            Assert.HasCount(0, diffs, "Property order in nested objects should not affect comparison");
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldDetectActualDifferencesRegardlessOfFormatting()
+        {
+            // Different values with different formatting - should detect the value difference
+            var leftCompact = /*lang=json,strict*/ """{"name":"Alice","age":25}""";
+
+            var rightFormatted = /*lang=json,strict*/ """
+                                                      {
+                                                        "name": "Bob",
+                                                        "age": 25
+                                                      }
+                                                      """;
+
+            var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
+
+            Assert.HasCount(1, diffs);
+            Assert.AreEqual("name", diffs[0].MemberPath);
+            Assert.AreEqual("Alice", diffs[0].Value1);
+            Assert.AreEqual("Bob", diffs[0].Value2);
+            Assert.AreEqual(MismatchType.ValueDifference, diffs[0].MismatchType);
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldIgnoreArrayFormattingWhenContentIsIdentical()
+        {
+            // Note: Arrays are order-sensitive by design, so this test verifies
+            // that identical arrays (same order) are treated as equal regardless of formatting
+            var leftCompact = /*lang=json,strict*/ """{"items":[1,2,3]}""";
+
+            var rightFormatted = /*lang=json,strict*/ """
+                                                      {
+                                                        "items": [
+                                                          1,
+                                                          2,
+                                                          3
+                                                        ]
+                                                      }
+                                                      """;
+
+            var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
+
+            Assert.HasCount(0, diffs, "Array formatting should not affect comparison when order is same");
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldDetectArrayOrderDifferences()
+        {
+            // Arrays with different order should be detected as different
+            var left = JToken.Parse("""{"items":[1,2,3]}""");
+            var right = JToken.Parse("""{"items":[3,2,1]}""");
+
+            var diffs = _jsonDiffer.FindDifferences(left, right);
+
+            // Should detect differences at index 0 and 2
+            Assert.IsTrue(diffs.Count >= 2, "Array order differences should be detected");
+            Assert.IsTrue(diffs.Any(d => d.MemberPath.Contains("[0]")));
+            Assert.IsTrue(diffs.Any(d => d.MemberPath.Contains("[2]")));
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldIgnoreArrayWhitespaceVariations()
+        {
+            // Compact array vs. array with newlines and spaces
+            var leftCompact = """[1]""";
+
+            var rightFormatted = """
+                                 [
+                                   1
+                                 ]
+                                 """;
+
+            var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
+
+            Assert.HasCount(0, diffs, "Array whitespace variations should not affect comparison");
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldIgnoreMultipleArrayElementWhitespace()
+        {
+            // Multiple elements with different whitespace
+            var leftCompact = """[1,2,3]""";
+
+            var rightFormatted = """
+                                 [
+                                   1,
+                                   2,
+                                   3
+                                 ]
+                                 """;
+
+            var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
+
+            Assert.HasCount(0, diffs, "Array element whitespace should not affect comparison");
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldIgnoreArrayOfObjectsWhitespace()
+        {
+            // Array of objects with different whitespace
+            var leftCompact = /*lang=json,strict*/ """[{"id":1,"name":"test"},{"id":2,"name":"demo"}]""";
+
+            var rightFormatted = /*lang=json,strict*/ """
+                                                      [
+                                                        {
+                                                          "id": 1,
+                                                          "name": "test"
+                                                        },
+                                                        {
+                                                          "id": 2,
+                                                          "name": "demo"
+                                                        }
+                                                      ]
+                                                      """;
+
+            var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
+
+            Assert.HasCount(0, diffs, "Array of objects whitespace should not affect comparison");
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldIgnoreEmptyArrayWhitespace()
+        {
+            // Empty arrays with different whitespace
+            var leftCompact = /*lang=json,strict*/ """{"items":[]}""";
+            var rightWithSpace = /*lang=json,strict*/ """{"items":[ ]}""";
+
+            var rightWithNewline = /*lang=json,strict*/ """
+                                                        {
+                                                          "items": [
+
+                                                          ]
+                                                        }
+                                                        """;
+
+            var diffs1 = _jsonDiffer.FindDifferences(leftCompact, rightWithSpace);
+            var diffs2 = _jsonDiffer.FindDifferences(leftCompact, rightWithNewline);
+
+            Assert.HasCount(0, diffs1, "Empty array with space should not affect comparison");
+            Assert.HasCount(0, diffs2, "Empty array with newline should not affect comparison");
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldIgnoreNestedArrayWhitespace()
+        {
+            // Nested arrays with different whitespace
+            var leftCompact = /*lang=json,strict*/ """{"matrix":[[1,2],[3,4]]}""";
+
+            var rightFormatted = /*lang=json,strict*/ """
+                                                      {
+                                                        "matrix": [
+                                                          [
+                                                            1,
+                                                            2
+                                                          ],
+                                                          [
+                                                            3,
+                                                            4
+                                                          ]
+                                                        ]
+                                                      }
+                                                      """;
+
+            var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
+
+            Assert.HasCount(0, diffs, "Nested array whitespace should not affect comparison");
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldDetectActualArrayValueDifferencesRegardlessOfWhitespace()
+        {
+            // Different values with different whitespace - should detect the difference
+            var leftCompact = """[1,2,3]""";
+
+            var rightFormatted = """
+                                 [
+                                   1,
+                                   99,
+                                   3
+                                 ]
+                                 """;
+
+            var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
+
+            Assert.HasCount(1, diffs);
+            Assert.AreEqual("[1]", diffs[0].MemberPath);
+            Assert.AreEqual("2", diffs[0].Value1);
+            Assert.AreEqual("99", diffs[0].Value2);
+            Assert.AreEqual(MismatchType.ValueDifference, diffs[0].MismatchType);
+        }
+
+        [TestMethod]
+        public void FindDifferencesShouldIgnoreMixedWhitespaceInComplexStructure()
+        {
+            // Complex structure with mixed whitespace styles
+            var leftMixed = /*lang=json,strict*/ """
+                                                 {
+                                                   "user": {"name":"Alice","age":30},
+                                                   "items":[1,2,3],
+                                                   "nested": {
+                                                     "values": [
+                                                       {"id":1},{"id":2}
+                                                     ]
+                                                   }
+                                                 }
+                                                 """;
+
+            var rightMixed = /*lang=json,strict*/ """
+                                                  {"user":{"name":"Alice","age":30},"items":[
+                                                    1,
+                                                    2,
+                                                    3
+                                                  ],"nested":{"values":[{"id":1},{"id":2}]}}
+                                                  """;
+
+            var diffs = _jsonDiffer.FindDifferences(leftMixed, rightMixed);
+
+            Assert.HasCount(0, diffs, "Mixed whitespace styles should not affect comparison");
+        }
     }
 }
