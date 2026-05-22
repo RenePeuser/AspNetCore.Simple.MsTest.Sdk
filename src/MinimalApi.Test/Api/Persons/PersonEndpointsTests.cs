@@ -62,7 +62,7 @@ namespace MinimalApi.Test.Api.Persons
         [TestMethod]
         public Task Should_Be_Able_To_Post_A_Person_Object()
         {
-            return Client.AssertPostAsErrorAsync<Person>("api/v1/persons",
+            return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   new Person(1, "Son", "Goku",
                                                              42, ImmutableList<Email>.Empty),
                                                   "NewPerson.json");
@@ -95,8 +95,8 @@ namespace MinimalApi.Test.Api.Persons
         public Task Should_Be_Able_To_Post_A_Person_By_Json()
         {
             return Client.AssertPostAsErrorAsync<Person>("api/v1/persons",
-                                                  "Payloads.SonGoku.json",
-                                                  "Results.SonGoku.json");
+                                                         "Payloads.SonGoku.json",
+                                                         "Results.SonGoku.json");
         }
 
         [TestMethod]
