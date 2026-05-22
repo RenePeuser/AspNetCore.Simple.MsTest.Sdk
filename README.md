@@ -217,14 +217,35 @@ Run the test and you get:
 
 ## What a failure looks like
 
+The SDK provides **context-specific error outputs** that make debugging fast and intuitive. Each failure type has a dedicated format with actionable information.
 
-### Value differences
-This is where the SDK earns its place.
+### All Failure Types at a Glance
+
+| Icon | Failure Type | When It Occurs | What It Means |
+|------|--------------|----------------|---------------|
+| 📸 | **SNAPSHOT MISMATCH** | JSON values differ | Business logic produces different values |
+| 📋 | **SCHEMA MISMATCH** | Structure differs | API contract changed (breaking change) |
+| 🚫 | **UNEXPECTED STATUS CODE** | Wrong HTTP status | Status code doesn't match expectation |
+| 📄 | **CONTENT TYPE MISMATCH** | Wrong Content-Type | Response is not JSON (HTML, XML, etc.) |
+| ❌ | **ASSERT METHOD MISMATCH** | Wrong assertion type | Using success assert with error status (or vice versa) |
+| ❌ | **HTTP RESPONSE TYPE MISMATCH** | Wrong response type | Test type doesn't match endpoint contract |
+
+All errors follow the same structure: Header → Failure Details → Test Info → HTTP Context → Problem Details → Suggested Fix → Curl Command
+
+### Snapshot Mismatch (Value Differences)
+
+When JSON values differ from the expected snapshot:
 
 ```plaintext
 ══════════════════════════════════════════════════════════════
-❌ SNAPSHOT TEST FAILED
+📸 SNAPSHOT MISMATCH
 ══════════════════════════════════════════════════════════════
+
+⚠️ Failure Details
+──────────────────────────────────────────────────────────────
+
+JSON values differ from the expected snapshot.
+All properties exist but have different values.
 
 📦 Test Information
 ──────────────────────────────────────────────────────────────
@@ -233,7 +254,6 @@ Project    : MinimalApi.Test
 Class      : PersonEndpointsTests
 Method     : Should_Be_Able_To_Post_A_Person_Object
 Line       : 65
-
 
 🌍 HTTP
 ──────────────────────────────────────────────────────────────
@@ -244,7 +264,6 @@ Status   : 201 Created
 Body     : {"id":1,"name":"Son","firstName":"Goku","age":42,"emails":[]}
 Response : NewPerson.json
 
-
 🔍 Differences (Count 1)
 ──────────────────────────────────────────────────────────────
 
@@ -254,22 +273,15 @@ Response : NewPerson.json
 │ content.value.name │ Son Test       │ Son           │ ValueDifference │
 └────────────────────┴────────────────┴───────────────┴─────────────────┘
 
-
 📄 Expected Snapshot
 ──────────────────────────────────────────────────────────────
 
-{"content":{"headers":[{"key":"Content-Type","value":["application/json; charset=utf-8"]}],"value":{"id":1,"name":"Son Test","firstName":"Goku","age":42,"emails":[]
-}},"statusCode":"Created","headers":[{"key":"Location","value":["persons/1"]},{"key":"api-supported-versions","value":["1"]}],"trailingHeaders":[],"isSuccessStatusC
-ode":true}
-
+{"content":{"headers":[...],"value":{"id":1,"name":"Son Test","firstName":"Goku",...}}}
 
 📄 Current Result
 ──────────────────────────────────────────────────────────────
 
-{"content":{"headers":[{"key":"Content-Type","value":["application/json; charset=utf-8"]}],"value":{"id":1,"name":"Son","firstName":"Goku","age":42,"emails":[]}},"s
-tatusCode":"Created","headers":[{"key":"Location","value":["persons/1"]},{"key":"api-supported-versions","value":["1"]}],"trailingHeaders":[],"isSuccessStatusCode":
-true}
-
+{"content":{"headers":[...],"value":{"id":1,"name":"Son","firstName":"Goku",...}}}
 
 🔁 Reproduce Locally
 ──────────────────────────────────────────────────────────────
@@ -283,32 +295,172 @@ curl \
 ══════════════════════════════════════════════════════════════
 ```
 
-You immediately see:
+### Schema Mismatch (Structural Differences)
 
-1. **Exact failure location**: `content.value.name`
-2. **Expected vs actual**: `Son 1` vs `Son`
-3. **HTTP context**: method, URL, status code
-4. **Reproduction command**: generated `curl`
+When the response structure doesn't match (missing properties, type mismatches):
 
-```sh
+```plaintext
+══════════════════════════════════════════════════════════════
+📋 SCHEMA MISMATCH
+══════════════════════════════════════════════════════════════
+
+⚠️ Failure Details
+──────────────────────────────────────────────────────────────
+
+Structure doesn't match expected type schema.
+Properties missing, extra properties, or type mismatches detected.
+
+📦 Test Information
+──────────────────────────────────────────────────────────────
+
+Project    : MinimalApi.Test
+Class      : PersonEndpointsTests
+Method     : Should_Get_Person_By_Id
+Line       : 42
+
+🌍 HTTP
+──────────────────────────────────────────────────────────────
+
+Method   : GET
+Url      : http://localhost/api/v1/persons/1
+Status   : 200 OK
+
+🔍 Differences (Count 2)
+──────────────────────────────────────────────────────────────
+
+┌──────────────────────┬──────────────────┬───────────────┬────────────────┐
+│ MemberPath           │ Expected         │ Current       │ MismatchType   │
+├──────────────────────┼──────────────────┼───────────────┼────────────────┤
+│ content.value.emails │ [email array]    │ null          │ MissingInFirst │
+│ content.value.age    │ 42               │ null          │ MissingInFirst │
+└──────────────────────┴──────────────────┴───────────────┴────────────────┘
+
+🔁 Reproduce Locally
+──────────────────────────────────────────────────────────────
+
 curl \
 --location \
---request PUT 'http://localhost/api/tests/v1/persons' \
---header 'Content-Type: application/json' \
---data-raw '{"Id":1,"Name":"Son","FirstName":"Goku","Age":99,"Emails":[{"EmailAddress":"alf@gmx.de","Type":"GMX"},{"EmailAddress":"abc@hotmail.de","Type":"Microsoft"}]}'
+--request GET 'http://localhost/api/v1/persons/1'
+
+══════════════════════════════════════════════════════════════
 ```
+
+### Assert Method Mismatch
+
+When using success assertion (`AssertPostAsync`) with error status code:
+
+```plaintext
+══════════════════════════════════════════════════════════════
+❌ ASSERT METHOD MISMATCH - SUCCESS EXPECTED
+══════════════════════════════════════════════════════════════
+
+📦 Test Information
+──────────────────────────────────────────────────────────────
+
+Project    : MinimalApi.Test
+Class      : PersonEndpointsTests
+Method     : Should_Create_Person
+Line       : 88
+
+🌍 HTTP
+──────────────────────────────────────────────────────────────
+
+Method     : POST
+Url        : http://localhost/api/v1/persons
+Status     : Test Type Mismatch
+
+⚠️ Problem
+──────────────────────────────────────────────────────────────
+
+The test is declared as a SUCCESS test (AssertPostAsync, AssertGetAsync, etc.)
+but the expected response has status code 500 (InternalServerError) which is an ERROR status.
+
+📊 Details
+──────────────────────────────────────────────────────────────
+
+Test Type            : Success (expects 2xx)
+Expected Status      : 500 (InternalServerError)
+Status Range         : Error (4xx/5xx)
+
+✅ Suggested Fix
+──────────────────────────────────────────────────────────────
+
+Option 1: Use error assertion method instead
+  - Use AssertPostAsErrorAsync() or similar error assertion method
+
+Option 2: Update expected response status code
+  - Change the expected response to have a success status code (200, 201, etc.)
+
+══════════════════════════════════════════════════════════════
+```
+
+### Unexpected Status Code
+
+When the HTTP status code doesn't match expectations:
+
+```plaintext
+══════════════════════════════════════════════════════════════
+🚫 UNEXPECTED STATUS CODE
+══════════════════════════════════════════════════════════════
+
+⚠️ Failure Details
+──────────────────────────────────────────────────────────────
+
+Expected   : 200 (Success)
+Actual     : 400 (Bad Request)
+
+📦 Test Information
+──────────────────────────────────────────────────────────────
+
+Project    : MinimalApi.Test
+Class      : PersonEndpointsTests
+Method     : Should_Create_Person
+Line       : 65
+
+🌍 HTTP
+──────────────────────────────────────────────────────────────
+
+Method   : POST
+Url      : http://localhost/api/v1/persons
+Status   : 400 Bad Request
+
+🔁 Reproduce Locally
+──────────────────────────────────────────────────────────────
+
+curl \
+--location \
+--request POST 'http://localhost/api/v1/persons' \
+--header 'Content-Type: application/json' \
+--data-raw '{"name":"Invalid"}'
+
+══════════════════════════════════════════════════════════════
+```
+
+### Why This Matters
+
+You immediately see:
+
+1. **Failure type**: Snapshot mismatch vs Schema mismatch vs Assert method issue
+2. **Exact location**: `content.value.name` with deep path precision
+3. **Expected vs actual**: Side-by-side comparison
+4. **HTTP context**: Method, URL, status code, request body
+5. **Reproduction command**: Ready-to-run `curl`
+6. **Suggested fixes**: Actionable guidance
 
 That is a completely different debugging experience from:
 
 ```csharp
-Assert.AreEqual("Son 1", response.Name);
+Assert.AreEqual("Son", response.Name);  // ❌ No context, no curl, no path
 ```
 
-This SDK does not just tell you that something failed. It tells you **where**, **what**, **under which HTTP call**, and **how to replay it now**.
+This SDK does not just tell you that something failed. It tells you **what kind of failure**, **where**, **what changed**, **under which HTTP call**, and **how to replay it now**.
 
 
-### Response types not matching
-```
+### Response Type Mismatch
+
+When test's response type doesn't match endpoint contract:
+
+```plaintext
 ══════════════════════════════════════════════════════════════
 ❌ HTTP RESPONSE TYPE MISMATCH
 ══════════════════════════════════════════════════════════════
@@ -318,7 +470,7 @@ This SDK does not just tell you that something failed. It tells you **where**, *
 
 Project    : MinimalApi.Test
 Class      : PersonEndpointsTests
-Method     : Should_Be_Able_To_Post_A_Person_Object
+Method     : Should_Create_Person
 Line       : 65
 
 🌍 HTTP
@@ -327,6 +479,7 @@ Line       : 65
 Method     : POST
 Url        : http://localhost/api/v1/persons
 Status     : Type Mismatch
+Source     : MinimalApi.Api.Persons.V1.CreatePersonEndpoint
 
 🔍 Type Validation
 ──────────────────────────────────────────────────────────────
@@ -354,10 +507,9 @@ return Client.AssertPostAsync<UnknownResponse>("api/v1/persons",
 ──────────────────────────────────────────────────────────────
 
 return Client.AssertPostAsync<Person>("api/v1/persons",
-                                               new Person(1, "Son", "Goku",
-                                                          42, ImmutableList<Email>.Empty),
-                                               "NewPerson.json");
-
+                                      new Person(1, "Son", "Goku",
+                                                 42, ImmutableList<Email>.Empty),
+                                      "NewPerson.json");
 
 🔁 Reproduce Locally
 ──────────────────────────────────────────────────────────────
@@ -406,27 +558,56 @@ If no `[ProducesResponseType]` attributes exist, the SDK extracts the status cod
 
 This enables validation even when developers forget to add attributes. The SDK parses both numeric (`500`) and enum string (`"InternalServerError"`) formats.
 
-**Tier 3: Test type mismatch detection**
+**Tier 3: Assert method validation**
 
-The SDK catches when test type doesn't align with the expected status code:
+The SDK catches when the assertion method doesn't align with the expected status code. This uses the same standardized error format as other failures:
 
 ```plaintext
-══════════════════════════════════════════════════════════════════════════════
-TEST TYPE MISMATCH
-══════════════════════════════════════════════════════════════════════════════
+══════════════════════════════════════════════════════════════
+❌ ASSERT METHOD MISMATCH - SUCCESS EXPECTED
+══════════════════════════════════════════════════════════════
+
+📦 Test Information
+──────────────────────────────────────────────────────────────
+
+Project    : MinimalApi.Test
+Class      : PersonEndpointsTests
+Method     : Should_Create_Person
+Line       : 88
+
+🌍 HTTP
+──────────────────────────────────────────────────────────────
+
+Method     : POST
+Url        : http://localhost/api/v1/persons
+Status     : Test Type Mismatch
+
+⚠️ Problem
+──────────────────────────────────────────────────────────────
 
 The test is declared as a SUCCESS test (AssertPostAsync, AssertGetAsync, etc.)
-but the expected response has status code 500 which is an ERROR status.
+but the expected response has status code 500 (InternalServerError) which is an ERROR status.
 
-Expected Status Code: 500 (InternalServerError)
-Test Type: Success (expects 2xx status codes)
+📊 Details
+──────────────────────────────────────────────────────────────
 
-SUGGESTED FIX:
-- Use AssertPostAsErrorAsync() or similar error assertion method instead
-- Or update the expected response to have a success status code (200, 201, etc.)
+Test Type            : Success (expects 2xx)
+Expected Status      : 500 (InternalServerError)
+Status Range         : Error (4xx/5xx)
+
+✅ Suggested Fix
+──────────────────────────────────────────────────────────────
+
+Option 1: Use error assertion method instead
+  - Use AssertPostAsErrorAsync() or similar error assertion method
+
+Option 2: Update expected response status code
+  - Change the expected response to have a success status code (200, 201, etc.)
+
+══════════════════════════════════════════════════════════════
 ```
 
-This catches common mistakes like using `AssertPostAsync` when you meant `AssertPostAsErrorAsync`, or vice versa.
+This catches common mistakes like using `AssertPostAsync` when you meant `AssertPostAsErrorAsync`, or vice versa. The header clearly shows whether the test expected SUCCESS or ERROR.
 
 **Why this matters:**
 
