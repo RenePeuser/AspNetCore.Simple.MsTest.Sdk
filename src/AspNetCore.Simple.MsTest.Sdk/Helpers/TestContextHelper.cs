@@ -15,7 +15,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
         /// <param name="callerFilePath">Full file path of the test class</param>
         /// <param name="callingAssembly">Assembly containing the test</param>
         /// <returns>Fully qualified class name (namespace + class name)</returns>
-        public static string ExtractFullyQualifiedClassName(string callerFilePath, Assembly callingAssembly)
+        public static string ExtractFullyQualifiedClassName(string callerFilePath,
+                                                            Assembly callingAssembly)
         {
             var assemblyName = callingAssembly.GetName().Name ?? "Unknown";
             var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
@@ -31,11 +32,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 
             // Find where the assembly name appears in the path
             var assemblyIndex = -1;
+
             for (var i = pathParts.Length - 1; i >= 0; i--)
             {
                 if (pathParts[i].Equals(assemblyName, StringComparison.OrdinalIgnoreCase))
                 {
                     assemblyIndex = i;
+
                     break;
                 }
             }
@@ -64,6 +67,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
                 }
 
                 namespaceParts.Add(fileName);
+
                 return string.Join(".", namespaceParts);
             }
 

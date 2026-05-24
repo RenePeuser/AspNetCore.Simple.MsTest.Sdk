@@ -35,17 +35,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             builder.ConfigureAppConfiguration((_,
                                                configurationBuilder) =>
-                                              {
-                                                  foreach (var testSettingsFile in settingsToRegister)
-                                                  {
-                                                      configurationBuilder.AddJsonFile(testSettingsFile.FullName, true);
-                                                  }
+            {
+                foreach (var testSettingsFile in settingsToRegister)
+                {
+                    configurationBuilder.AddJsonFile(testSettingsFile.FullName, true);
+                }
 
-                                                  configurationBuilder.AddUserSecrets(CallingAssembly);
-                                                  configurationBuilder.AddEnvironmentVariables();
+                configurationBuilder.AddUserSecrets(CallingAssembly);
+                configurationBuilder.AddEnvironmentVariables();
 
-                                                  configuration = configurationBuilder.Build();
-                                              });
+                configuration = configurationBuilder.Build();
+            });
 
             builder.ConfigureServices(services => registerServices(services, configuration));
 

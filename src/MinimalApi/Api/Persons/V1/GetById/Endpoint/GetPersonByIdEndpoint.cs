@@ -21,28 +21,28 @@ namespace MinimalApi.Api.Persons.V1
         public void Map(IEndpointRouteBuilder routeBuilder)
         {
             routeBuilder.MapGet("persons/{id:long}", (long id) =>
-                                                     {
-                                                         var persons = new List<Person>
-                                                                       {
-                                                                           new(1, "Son", "Goku",
-                                                                               99,
-                                                                               [new Email("alf@gmx.de", "GMX"), new Email("abc@hotmail.de", "Microsoft")]),
-                                                                           new(2, "Vegeta", "Unknown",
-                                                                               77,
-                                                                               [new Email("abc@gmx.de", "GMX"), new Email("maxmustermann@hotmail.de", "Microsoft")])
-                                                                       };
+                        {
+                            var persons = new List<Person>
+                                          {
+                                              new(1, "Son", "Goku",
+                                                  99,
+                                                  [new Email("alf@gmx.de", "GMX"), new Email("abc@hotmail.de", "Microsoft")]),
+                                              new(2, "Vegeta", "Unknown",
+                                                  77,
+                                                  [new Email("abc@gmx.de", "GMX"), new Email("maxmustermann@hotmail.de", "Microsoft")])
+                                          };
 
-                                                         var person = persons.FirstOrDefault(x => x.Id == id);
+                            var person = persons.FirstOrDefault(x => x.Id == id);
 
-                                                         if (person.IsNull())
-                                                         {
-                                                             throw new ProblemDetailsException("Person for given Id does not exist",
-                                                                                               $"The person with the Id: {id} does not exist",
-                                                                                               ("Id", id));
-                                                         }
+                            if (person.IsNull())
+                            {
+                                throw new ProblemDetailsException("Person for given Id does not exist",
+                                                                  $"The person with the Id: {id} does not exist",
+                                                                  ("Id", id));
+                            }
 
-                                                         return Results.Ok(person);
-                                                     })
+                            return Results.Ok(person);
+                        })
                         .WithName("getPersonByIdV1")
                         .WithSummary("Returns a person by ID")
                         .WithTags("Persons")

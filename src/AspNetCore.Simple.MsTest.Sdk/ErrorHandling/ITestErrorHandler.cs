@@ -38,6 +38,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
 
             // Base type check
             var baseCheck = typeof(TException).IsAssignableFrom(exception.GetType());
+
             if (!baseCheck)
             {
                 return baseCheck;
@@ -45,6 +46,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
 
             // Allow derived classes to add additional checks
             var specificCheck = CanHandle((TException)exception);
+
             return specificCheck;
         }
 

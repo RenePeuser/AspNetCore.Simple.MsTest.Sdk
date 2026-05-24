@@ -24,6 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
     internal sealed class PrimitiveOutputStrategy(ITextDecorator textDecorator) : IAssertOutputStrategy
     {
         private readonly CharacterDiff _characterDiff = new CharacterDiff(textDecorator);
+
         public bool CanHandle(IObjectAssertContext context)
         {
             // Exclude HTTP response contexts - they have their own specialized strategy
@@ -65,7 +66,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             return stringBuilder.ToString();
         }
 
-        private void BuildComparison(StringBuilder stringBuilder, string expectedJson, string currentJson)
+        private void BuildComparison(StringBuilder stringBuilder,
+                                     string expectedJson,
+                                     string currentJson)
         {
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(textDecorator.SectionTitle("📊 Comparison"));
@@ -102,6 +105,5 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
             stringBuilder.AppendLine($"{"File",-10} : {fileUri}");
         }
-
     }
 }

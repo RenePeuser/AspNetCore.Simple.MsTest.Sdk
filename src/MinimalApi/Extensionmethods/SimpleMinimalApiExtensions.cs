@@ -15,14 +15,14 @@ namespace MinimalApi.Extensionmethods
 
             // Add API versioning
             services.AddApiVersioning(apiVersion =>
-                                      {
-                                          apiVersion.DefaultApiVersion = new ApiVersion(1, 0);
-                                          apiVersion.ApiVersionReader = new UrlSegmentApiVersionReader();
-                                      }).AddApiExplorer(apiExplorer =>
-                                                        {
-                                                            apiExplorer.GroupNameFormat = "'v'V";
-                                                            apiExplorer.SubstituteApiVersionInUrl = true;
-                                                        });
+            {
+                apiVersion.DefaultApiVersion = new ApiVersion(1, 0);
+                apiVersion.ApiVersionReader = new UrlSegmentApiVersionReader();
+            }).AddApiExplorer(apiExplorer =>
+            {
+                apiExplorer.GroupNameFormat = "'v'V";
+                apiExplorer.SubstituteApiVersionInUrl = true;
+            });
         }
 
         internal static void UseSimpleMinimalApiEnvironment(this WebApplication webApplication,

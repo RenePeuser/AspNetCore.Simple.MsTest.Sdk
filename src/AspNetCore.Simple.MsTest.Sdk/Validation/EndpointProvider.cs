@@ -154,7 +154,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // Filter candidates by HTTP method and version first
             var candidateEndpoints = processedEndpoints.Where(ep =>
                                                                   ep.Endpoint.HttpMethod.Equals(httpMethod, StringComparison.OrdinalIgnoreCase) &&
-                                                                   (requestedVersion.IsNullOrWhiteSpace() || ep.VersionString == requestedVersion || ep.VersionString.IsNullOrWhiteSpace())).ToImmutableList();
+                                                                  (requestedVersion.IsNullOrWhiteSpace() || ep.VersionString == requestedVersion || ep.VersionString.IsNullOrWhiteSpace())).ToImmutableList();
 
             // Now match URL patterns only for filtered candidates
             var matches = candidateEndpoints.Where(processed =>
@@ -181,17 +181,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // Fallback for error scenarios where invalid route parameter values like "-1"
             // should still resolve to the matching endpoint template "{id:guid}".
             var fallbackMatches = candidateEndpoints.Where(processed =>
-                                     {
-                                         var urlMatches = UrlMatchesOptimized(normalizedUrl,
-                                                                              requestSegments,
-                                                                              requestVersionIndex,
-                                                                              processed,
-                                                                              validateRouteConstraints: false);
+                                                    {
+                                                        var urlMatches = UrlMatchesOptimized(normalizedUrl,
+                                                                                             requestSegments,
+                                                                                             requestVersionIndex,
+                                                                                             processed,
+                                                                                             validateRouteConstraints: false);
 
-                                         return urlMatches;
-                                     })
-                                     .Select(p => p.Endpoint)
-                                     .ToImmutableList();
+                                                        return urlMatches;
+                                                    })
+                                                    .Select(p => p.Endpoint)
+                                                    .ToImmutableList();
 
             return OrderByRouteSpecificity(fallbackMatches);
         }
@@ -296,6 +296,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                 return false;
                             }
                         }
+
                         // For other constraints, we accept any value (conservative approach)
                     }
 
@@ -328,8 +329,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             // Group by parameter count to find the most specific route(s)
             var groupedBySpecificity = endpoints.GroupBy(endpoint => CountRouteParameters(endpoint.Url))
-                                               .OrderBy(group => group.Key) // Lower count = more specific
-                                               .ToList();
+                                                .OrderBy(group => group.Key) // Lower count = more specific
+                                                .ToList();
 
             // If the most specific group has fewer parameters than the next group,
             // return only the most specific routes
@@ -347,7 +348,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             // All routes have the same specificity - return all ordered
             return endpoints.OrderBy(endpoint => CountRouteParameters(endpoint.Url))
-                           .ToImmutableList();
+                            .ToImmutableList();
         }
 
         /// <summary>

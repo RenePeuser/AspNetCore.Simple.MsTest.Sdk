@@ -48,12 +48,13 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             Assert.HasCount(1, diffs, "Should detect one extra property in current");
+
             Assert.IsTrue(diffs.Any(d =>
-                d.MemberPath == "email" &&
-                d.MismatchType == MismatchType.MissingInFirst &&
-                d.Value1 == null &&
-                d.Value2 != null),
-                "Should detect 'email' as MissingInFirst (present in current, missing in expected)");
+                                        d.MemberPath == "email" &&
+                                        d.MismatchType == MismatchType.MissingInFirst &&
+                                        d.Value1 == null &&
+                                        d.Value2 != null),
+                          "Should detect 'email' as MissingInFirst (present in current, missing in expected)");
         }
 
         [TestMethod]
@@ -80,14 +81,20 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             Assert.HasCount(4, diffs, "Should detect 4 extra properties in current");
-            Assert.IsTrue(diffs.All(d => d.MismatchType == MismatchType.MissingInFirst),
-                "All should be MissingInFirst");
 
-            var extraProps = new[] { "name", "email", "age", "isActive" };
+            Assert.IsTrue(diffs.All(d => d.MismatchType == MismatchType.MissingInFirst),
+                          "All should be MissingInFirst");
+
+            var extraProps = new[]
+                             {
+                                 "name", "email", "age",
+                                 "isActive"
+                             };
+
             foreach (var prop in extraProps)
             {
                 Assert.IsTrue(diffs.Any(d => d.MemberPath == prop),
-                    $"Should detect '{prop}' as extra property");
+                              $"Should detect '{prop}' as extra property");
             }
         }
 
@@ -116,10 +123,11 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             Assert.HasCount(1, diffs, "Should detect one extra nested property");
+
             Assert.IsTrue(diffs.Any(d =>
-                d.MemberPath == "user.city" &&
-                d.MismatchType == MismatchType.MissingInFirst),
-                "Should detect 'user.city' as MissingInFirst");
+                                        d.MemberPath == "user.city" &&
+                                        d.MismatchType == MismatchType.MissingInFirst),
+                          "Should detect 'user.city' as MissingInFirst");
         }
 
         [TestMethod]
@@ -153,10 +161,11 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             Assert.HasCount(1, diffs, "Should detect one extra property in array element");
+
             Assert.IsTrue(diffs.Any(d =>
-                d.MemberPath == "items[0].status" &&
-                d.MismatchType == MismatchType.MissingInFirst),
-                "Should detect 'items[0].status' as MissingInFirst");
+                                        d.MemberPath == "items[0].status" &&
+                                        d.MismatchType == MismatchType.MissingInFirst),
+                          "Should detect 'items[0].status' as MissingInFirst");
         }
 
         #endregion
@@ -186,12 +195,13 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             Assert.HasCount(1, diffs, "Should detect one missing property in current");
+
             Assert.IsTrue(diffs.Any(d =>
-                d.MemberPath == "email" &&
-                d.MismatchType == MismatchType.MissingInSecond &&
-                d.Value1 != null &&
-                d.Value2 == null),
-                "Should detect 'email' as MissingInSecond (present in expected, missing in current)");
+                                        d.MemberPath == "email" &&
+                                        d.MismatchType == MismatchType.MissingInSecond &&
+                                        d.Value1 != null &&
+                                        d.Value2 == null),
+                          "Should detect 'email' as MissingInSecond (present in expected, missing in current)");
         }
 
         [TestMethod]
@@ -218,14 +228,20 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             Assert.HasCount(4, diffs, "Should detect 4 missing properties in current");
-            Assert.IsTrue(diffs.All(d => d.MismatchType == MismatchType.MissingInSecond),
-                "All should be MissingInSecond");
 
-            var missingProps = new[] { "name", "email", "age", "isActive" };
+            Assert.IsTrue(diffs.All(d => d.MismatchType == MismatchType.MissingInSecond),
+                          "All should be MissingInSecond");
+
+            var missingProps = new[]
+                               {
+                                   "name", "email", "age",
+                                   "isActive"
+                               };
+
             foreach (var prop in missingProps)
             {
                 Assert.IsTrue(diffs.Any(d => d.MemberPath == prop),
-                    $"Should detect '{prop}' as missing property");
+                              $"Should detect '{prop}' as missing property");
             }
         }
 
@@ -254,10 +270,11 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             Assert.HasCount(1, diffs, "Should detect one missing nested property");
+
             Assert.IsTrue(diffs.Any(d =>
-                d.MemberPath == "user.city" &&
-                d.MismatchType == MismatchType.MissingInSecond),
-                "Should detect 'user.city' as MissingInSecond");
+                                        d.MemberPath == "user.city" &&
+                                        d.MismatchType == MismatchType.MissingInSecond),
+                          "Should detect 'user.city' as MissingInSecond");
         }
 
         [TestMethod]
@@ -291,10 +308,11 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             Assert.HasCount(1, diffs, "Should detect one missing property in array element");
+
             Assert.IsTrue(diffs.Any(d =>
-                d.MemberPath == "items[0].status" &&
-                d.MismatchType == MismatchType.MissingInSecond),
-                "Should detect 'items[0].status' as MissingInSecond");
+                                        d.MemberPath == "items[0].status" &&
+                                        d.MismatchType == MismatchType.MissingInSecond),
+                          "Should detect 'items[0].status' as MissingInSecond");
         }
 
         #endregion
@@ -325,14 +343,14 @@ namespace Controllers.Test
             Assert.HasCount(2, diffs, "Should detect both missing and extra properties");
 
             Assert.IsTrue(diffs.Any(d =>
-                d.MemberPath == "name" &&
-                d.MismatchType == MismatchType.MissingInSecond),
-                "Should detect 'name' as MissingInSecond");
+                                        d.MemberPath == "name" &&
+                                        d.MismatchType == MismatchType.MissingInSecond),
+                          "Should detect 'name' as MissingInSecond");
 
             Assert.IsTrue(diffs.Any(d =>
-                d.MemberPath == "email" &&
-                d.MismatchType == MismatchType.MissingInFirst),
-                "Should detect 'email' as MissingInFirst");
+                                        d.MemberPath == "email" &&
+                                        d.MismatchType == MismatchType.MissingInFirst),
+                          "Should detect 'email' as MissingInFirst");
         }
 
         [TestMethod]
@@ -456,12 +474,14 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             Assert.HasCount(2, diffs, "Should detect 2 nested differences");
+
             Assert.IsTrue(diffs.Any(d =>
-                d.MemberPath == "level1.level2.level3.expectedProp" &&
-                d.MismatchType == MismatchType.MissingInSecond));
+                                        d.MemberPath == "level1.level2.level3.expectedProp" &&
+                                        d.MismatchType == MismatchType.MissingInSecond));
+
             Assert.IsTrue(diffs.Any(d =>
-                d.MemberPath == "level1.level2.level3.currentProp" &&
-                d.MismatchType == MismatchType.MissingInFirst));
+                                        d.MemberPath == "level1.level2.level3.currentProp" &&
+                                        d.MismatchType == MismatchType.MissingInFirst));
         }
 
         #endregion

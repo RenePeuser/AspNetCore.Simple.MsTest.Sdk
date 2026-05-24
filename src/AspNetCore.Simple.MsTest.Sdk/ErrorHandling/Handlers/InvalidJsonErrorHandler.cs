@@ -98,7 +98,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine($"{"Line",-15} : {context.CallerLineNumber}");
         }
 
-        private static string GetFullClassName(string callerFilePath, string projectName)
+        private static string GetFullClassName(string callerFilePath,
+                                               string projectName)
         {
             try
             {
@@ -113,6 +114,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                     if (namespaceParts.Count > 0)
                     {
                         var namespaceStr = string.Join(".", namespaceParts.Select(s => s.Replace(" ", "")));
+
                         return $"{projectName}.{namespaceStr}.{fileName}";
                     }
 

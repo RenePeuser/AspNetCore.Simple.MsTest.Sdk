@@ -20,24 +20,24 @@ namespace MinimalApi.Api.Persons.V1
         public void Map(IEndpointRouteBuilder routeBuilder)
         {
             routeBuilder.MapGet("persons", ([FromQuery] string name = "") =>
-                                           {
-                                               var persons = new List<Person>
-                                                             {
-                                                                 new(1, "Son", "Goku",
-                                                                     99,
-                                                                     [new Email("alf@gmx.de", "GMX"), new Email("abc@hotmail.de", "Microsoft")]),
-                                                                 new(2, "Vegeta", "Unknown",
-                                                                     77,
-                                                                     [new Email("abc@gmx.de", "GMX"), new Email("maxmustermann@hotmail.de", "Microsoft")])
-                                                             };
+                        {
+                            var persons = new List<Person>
+                                          {
+                                              new(1, "Son", "Goku",
+                                                  99,
+                                                  [new Email("alf@gmx.de", "GMX"), new Email("abc@hotmail.de", "Microsoft")]),
+                                              new(2, "Vegeta", "Unknown",
+                                                  77,
+                                                  [new Email("abc@gmx.de", "GMX"), new Email("maxmustermann@hotmail.de", "Microsoft")])
+                                          };
 
-                                               if (name.IsNotNullOrWhiteSpace())
-                                               {
-                                                   persons = persons.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
-                                               }
+                            if (name.IsNotNullOrWhiteSpace())
+                            {
+                                persons = persons.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+                            }
 
-                                               return Results.Ok(persons);
-                                           })
+                            return Results.Ok(persons);
+                        })
                         .WithName("getAllPersonsV1")
                         .WithSummary("Returns all available persons")
                         .WithTags("Persons")

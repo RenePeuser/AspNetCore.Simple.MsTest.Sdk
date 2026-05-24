@@ -39,6 +39,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 HttpClientAssertExtensions.SkipEndpointValidation)
             {
                 HttpClientAssertExtensions.LogAction($"Endpoint validation skipped for this test. Context.SkipEndpointValidation: {context.SkipEndpointValidation}, HttpClientAssertExtensions.SkipEndpointValidation: {HttpClientAssertExtensions.SkipEndpointValidation}");
+
                 return;
             }
 

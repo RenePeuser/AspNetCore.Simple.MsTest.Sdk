@@ -15,9 +15,9 @@ namespace Controllers.Test
                                                configurationBuilder) => configurationBuilder.AddJsonFile(testAppsettingsJson, true));
 
             builder.ConfigureServices(services =>
-                                      {
-                                          // if we need to switch between services we have to do it here
-                                      });
+            {
+                // if we need to switch between services we have to do it here
+            });
         }
     }
 

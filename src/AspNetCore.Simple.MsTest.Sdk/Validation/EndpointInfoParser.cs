@@ -291,29 +291,29 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 {
                     // Complex segment with multiple parts
                     var segmentText = string.Join(string.Empty, segment.Parts.Select(p =>
-                                                                                     {
-                                                                                         if (p is RoutePatternLiteralPart lit)
-                                                                                         {
-                                                                                             return lit.Content;
-                                                                                         }
+                    {
+                        if (p is RoutePatternLiteralPart lit)
+                        {
+                            return lit.Content;
+                        }
 
-                                                                                         if (p is RoutePatternParameterPart param)
-                                                                                         {
-                                                                                             var paramName = "{" + param.Name;
+                        if (p is RoutePatternParameterPart param)
+                        {
+                            var paramName = "{" + param.Name;
 
-                                                                                             if (param.ParameterPolicies.Count > 0)
-                                                                                             {
-                                                                                                 var policyNames = string.Join(":", param.ParameterPolicies.Select(pp => pp.Content));
-                                                                                                 paramName += ":" + policyNames;
-                                                                                             }
+                            if (param.ParameterPolicies.Count > 0)
+                            {
+                                var policyNames = string.Join(":", param.ParameterPolicies.Select(pp => pp.Content));
+                                paramName += ":" + policyNames;
+                            }
 
-                                                                                             paramName += "}";
+                            paramName += "}";
 
-                                                                                             return paramName;
-                                                                                         }
+                            return paramName;
+                        }
 
-                                                                                         return string.Empty;
-                                                                                     }));
+                        return string.Empty;
+                    }));
 
                     segments.Add(segmentText);
                 }
@@ -406,18 +406,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             // Create EndpointInfo for each HTTP method
             var endpointInfos = httpMethods.Select(httpMethod => new EndpointInfo
-            {
-                HttpMethod = httpMethod,
-                Url = resolvedUrl,
-                ApiVersion = apiVersion,
-                ResponseType = responseType,
-                ResponseTypesByStatusCode = responseTypesByStatusCode,
-                Tags = tags,
-                Name = name,
-                Description = description,
-                Summary = summary,
-                SourceLocation = sourceLocation
-            }).ToImmutableList();
+                                                                 {
+                                                                     HttpMethod = httpMethod,
+                                                                     Url = resolvedUrl,
+                                                                     ApiVersion = apiVersion,
+                                                                     ResponseType = responseType,
+                                                                     ResponseTypesByStatusCode = responseTypesByStatusCode,
+                                                                     Tags = tags,
+                                                                     Name = name,
+                                                                     Description = description,
+                                                                     Summary = summary,
+                                                                     SourceLocation = sourceLocation
+                                                                 }).ToImmutableList();
 
             return endpointInfos;
         }
@@ -488,7 +488,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         }
 
         private static ImmutableDictionary<int, Type> ExtractResponseTypesByStatusCodeFromController(RouteEndpoint routeEndpoint,
-                                                                                                      ControllerActionDescriptor controllerActionDescriptor)
+                                                                                                     ControllerActionDescriptor controllerActionDescriptor)
         {
             var builder = ImmutableDictionary.CreateBuilder<int, Type>();
 
@@ -590,18 +590,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             // Create EndpointInfo for each HTTP method
             var endpointInfos = httpMethods.Select(httpMethod => new EndpointInfo
-            {
-                HttpMethod = httpMethod,
-                Url = resolvedUrl,
-                ApiVersion = apiVersion,
-                ResponseType = responseType,
-                ResponseTypesByStatusCode = responseTypesByStatusCode,
-                Tags = tags,
-                Name = name,
-                Description = description,
-                Summary = summary,
-                SourceLocation = sourceLocation
-            }).ToImmutableList();
+                                                                 {
+                                                                     HttpMethod = httpMethod,
+                                                                     Url = resolvedUrl,
+                                                                     ApiVersion = apiVersion,
+                                                                     ResponseType = responseType,
+                                                                     ResponseTypesByStatusCode = responseTypesByStatusCode,
+                                                                     Tags = tags,
+                                                                     Name = name,
+                                                                     Description = description,
+                                                                     Summary = summary,
+                                                                     SourceLocation = sourceLocation
+                                                                 }).ToImmutableList();
 
             return endpointInfos;
         }
@@ -643,10 +643,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var producesAttributes = EndpointParsingHelpers.GetProducesResponseMetadata(routeEndpoint)
                                                            .Select(metadata => EndpointParsingHelpers.TryGetStatusCodeAndType(metadata, out var statusCode, out var responseType)
                                                                                    ? new
-                                                                                   {
-                                                                                       StatusCode = statusCode,
-                                                                                       Type = responseType
-                                                                                   }
+                                                                                     {
+                                                                                         StatusCode = statusCode,
+                                                                                         Type = responseType
+                                                                                     }
                                                                                    : null)
                                                            .Where(x => x.IsNotNull())
                                                            .Select(x => x!)
@@ -710,6 +710,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 // Minimal API endpoints often have display names like:
                 // "HTTP: POST api/v1/persons => MapPersonEndpoints"
                 var arrowIndex = displayName.IndexOf(" => ", StringComparison.Ordinal);
+
                 if (arrowIndex > 0)
                 {
                     var sourceLocation = displayName.Substring(arrowIndex + 4).Trim();

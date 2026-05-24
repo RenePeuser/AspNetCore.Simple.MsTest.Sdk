@@ -26,13 +26,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                                                              Exception exception)
         {
             var errorOutput = BuildUnexpectedSdkError(context, exception);
+
             return Task.FromResult(errorOutput);
         }
 
         /// <summary>
         /// Builds a formatted error message for unexpected SDK errors (bugs, network issues, etc.)
         /// </summary>
-        private static string BuildUnexpectedSdkError(IHttpAssertContext context, Exception exception)
+        private static string BuildUnexpectedSdkError(IHttpAssertContext context,
+                                                      Exception exception)
         {
             var sb = new StringBuilder();
 
@@ -60,7 +62,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             return sb.ToString();
         }
 
-        private static void BuildTestInfo(StringBuilder sb, IHttpAssertContext context)
+        private static void BuildTestInfo(StringBuilder sb,
+                                          IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var fullClassName = GetFullClassName(context.CallerFilePath, projectName);
@@ -74,7 +77,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
         }
 
-        private static string GetFullClassName(string callerFilePath, string projectName)
+        private static string GetFullClassName(string callerFilePath,
+                                               string projectName)
         {
             try
             {
@@ -89,6 +93,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                     if (namespaceParts.Count > 0)
                     {
                         var namespaceStr = string.Join(".", namespaceParts.Select(s => s.Replace(" ", "")));
+
                         return $"{projectName}.{namespaceStr}.{fileName}";
                     }
 
@@ -106,7 +111,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             }
         }
 
-        private static void BuildHttpInfo(StringBuilder sb, IHttpAssertContext context)
+        private static void BuildHttpInfo(StringBuilder sb,
+                                          IHttpAssertContext context)
         {
             sb.AppendLine("🌍 HTTP Request");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
@@ -120,7 +126,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine($"{"Url",-10} : {fullUrl}");
         }
 
-        private static void BuildExceptionDetails(StringBuilder sb, Exception exception)
+        private static void BuildExceptionDetails(StringBuilder sb,
+                                                  Exception exception)
         {
             sb.AppendLine("⚠️ Exception Details");
             sb.AppendLine("──────────────────────────────────────────────────────────────");

@@ -131,7 +131,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
-            var columns = new[] { "Method", "URL", "API Version", "Response Type" };
+            var columns = new[]
+                          {
+                              "Method", "URL", "API Version",
+                              "Response Type"
+                          };
+
             var rows = new List<object[]>();
 
             foreach (var endpoint in matchingEndpoints)
@@ -139,7 +144,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 var version = endpoint.ApiVersion?.ToString() ?? "N/A";
                 var responseType = endpoint.ResponseType?.Name ?? "N/A";
 
-                rows.Add(new object[] { endpoint.HttpMethod, endpoint.Url, version, responseType });
+                rows.Add(new object[]
+                         {
+                             endpoint.HttpMethod, endpoint.Url, version,
+                             responseType
+                         });
             }
 
             var table = tableBuilder.BuildTable(columns, rows, enableCount: false);
@@ -180,7 +189,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // HTTP Call Table - validation happens before HTTP call
-            BuildHttpCallTable(sb, context, "Endpoint Validation Failed", endpoint);
+            BuildHttpCallTable(sb, context, "Endpoint Validation Failed",
+                               endpoint);
+
             sb.AppendLine();
 
             // TYPE VALIDATION Table - Show problem first
@@ -189,10 +200,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var endpointReturnsVoid = endpoint.ResponseType.IsNull();
 
             var typeColumns = new[] { "Source", "Actual Endpoint Type", "Declared Test Type" };
-            var typeRows = new List<object[]>
-                           {
-                               new object[] { "ResponseType", actualEndpointTypeName, declaredTestTypeName }
-                           };
+            var typeRows = new List<object[]> { new object[] { "ResponseType", actualEndpointTypeName, declaredTestTypeName } };
 
             var typeTable = tableBuilder.BuildTable(typeColumns, typeRows, enableCount: false);
 
@@ -249,6 +257,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                         // Non-generic call - need to add type parameter
                         // Find method name (AssertGetAsync, AssertPostAsync, etc.)
                         var methodMatch = GlobalRegex.AssertMethodPattern().Match(sourceCode);
+
                         if (methodMatch.Success)
                         {
                             var methodName = methodMatch.Groups[1].Value;
@@ -303,7 +312,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // HTTP Call Table - validation happens before HTTP call
-            BuildHttpCallTable(sb, context, "Endpoint Validation Failed", endpoint);
+            BuildHttpCallTable(sb, context, "Endpoint Validation Failed",
+                               endpoint);
+
             sb.AppendLine();
 
             // TYPE VALIDATION Table - Show all relevant status codes
@@ -319,7 +330,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
-            var typeColumns = new[] { "Status Code", "Endpoint Response Type", "Declared Test Type", "Match" };
+            var typeColumns = new[]
+                              {
+                                  "Status Code", "Endpoint Response Type", "Declared Test Type",
+                                  "Match"
+                              };
+
             var typeRows = new List<object[]>();
 
             foreach (var statusCode in relevantStatusCodes.OrderBy(kvp => kvp.Key))
@@ -329,9 +345,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
                 typeRows.Add(new object[]
                              {
-                                 statusCode.Key.ToString(),
-                                 actualTypeName,
-                                 declaredTestTypeName,
+                                 statusCode.Key.ToString(), actualTypeName, declaredTestTypeName,
                                  isMatch
                              });
             }
@@ -406,6 +420,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                         // Non-generic call - need to add type parameter
                         // Find method name (AssertGetAsync, AssertPostAsync, etc.)
                         var methodMatch = GlobalRegex.AssertMethodPattern().Match(sourceCode);
+
                         if (methodMatch.Success)
                         {
                             var methodName = methodMatch.Groups[1].Value;
@@ -450,7 +465,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
             sb.AppendLine($"{"File",-10} : {fileUri}");
         }
-
 
         private void BuildEndpointRegistrationInfo(StringBuilder sb,
                                                    int endpointCount)
@@ -532,7 +546,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine($"{"Source",-10} : {clickableSource}");
             }
         }
-
 
         private static string GetRequestBody(IHttpAssertContext context)
         {
@@ -757,6 +770,5 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             return $"{typeName}<{genericArgNames}>";
         }
-
     }
 }

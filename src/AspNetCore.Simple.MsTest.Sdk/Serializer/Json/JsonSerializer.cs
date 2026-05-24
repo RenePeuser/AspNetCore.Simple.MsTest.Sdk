@@ -12,16 +12,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
             serviceCollection.AddSingletonIfNotExists<JsonSerializer>();
 
             var serializeOptions = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                Converters =
-                {
-                    new JsonStringEnumConverter()
-                }
-            };
+                                   {
+                                       PropertyNameCaseInsensitive = true,
+                                       PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                       DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                                       NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                                       Converters = { new JsonStringEnumConverter() }
+                                   };
 
             serviceCollection.AddSingletonIfNotExists(serializeOptions);
         }

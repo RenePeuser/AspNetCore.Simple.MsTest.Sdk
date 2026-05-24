@@ -69,7 +69,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertGetAsync<TResult>(url: url,
                                                   expectedResult: string.Empty,
                                                   writeResponse: writeResponse,
-                                                  ignoreResponse: true,  // Automatically ignore response when no expectedResult provided
+                                                  ignoreResponse: true, // Automatically ignore response when no expectedResult provided
                                                   skipEndpointValidation: skipEndpointValidation,
                                                   callerFilePath: callerFilePath,
                                                   callerMemberName: callerMemberName,
@@ -119,7 +119,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   expectedResult: string.Empty,
                                                   parameters: parameters,
                                                   writeResponse: writeResponse,
-                                                  ignoreResponse: true,  // Automatically ignore response when no expectedResult provided
+                                                  ignoreResponse: true, // Automatically ignore response when no expectedResult provided
                                                   expectedResultParameterName: string.Empty,
                                                   skipEndpointValidation: skipEndpointValidation,
                                                   callerFilePath: callerFilePath,
@@ -524,11 +524,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-            {
-                Request = $"GET {url}",
-                Expected = HttpStatusCode.Unauthorized,
-                Current = result.StatusCode
-            }.ToIList();
+                                {
+                                    Request = $"GET {url}",
+                                    Expected = HttpStatusCode.Unauthorized,
+                                    Current = result.StatusCode
+                                }.ToIList();
 
             var table = TableFormatter.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";

@@ -247,11 +247,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-            {
-                Request = $"DELETE {url}",
-                Expected = HttpStatusCode.Unauthorized,
-                Current = result.StatusCode
-            }.ToIList();
+                                {
+                                    Request = $"DELETE {url}",
+                                    Expected = HttpStatusCode.Unauthorized,
+                                    Current = result.StatusCode
+                                }.ToIList();
 
             var table = TableFormatter.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
@@ -288,21 +288,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Task<TResult> AssertDeleteAsync<TResult>(HttpAssertContext<TResult> context)
         {
             return context.Client.AssertHttpCallAsync(url: context.Url,
-                                                               payloadAsJson: string.Empty,
-                                                               expectedResult: context.ExpectedObjectAsJson,
-                                                               filterFunc: context.OrderFunc,
-                                                               httpMethod: HttpMethod.Delete,
-                                                               differenceFunc: context.DifferenceFunc,
-                                                               parameters: context.Parameters,
-                                                               callingAssembly: context.CallingAssembly,
-                                                               payloadAsJsonParameterName: string.Empty,
-                                                               expectedResultParameterName: context.ExpectedResultParameterName,
-                                                               callerFilePath: context.CallerFilePath,
-                                                               isSuccessStatusCode: context.IsSuccessStatusCode,
-                                                               writeResponse: context.WriteResponse,
-                                                               skipEndpointValidation: context.SkipEndpointValidation,
-                                                               callerMemberName: context.CallerMemberName,
-                                                               callerLineNumber: context.CallerLineNumber);
+                                                      payloadAsJson: string.Empty,
+                                                      expectedResult: context.ExpectedObjectAsJson,
+                                                      filterFunc: context.OrderFunc,
+                                                      httpMethod: HttpMethod.Delete,
+                                                      differenceFunc: context.DifferenceFunc,
+                                                      parameters: context.Parameters,
+                                                      callingAssembly: context.CallingAssembly,
+                                                      payloadAsJsonParameterName: string.Empty,
+                                                      expectedResultParameterName: context.ExpectedResultParameterName,
+                                                      callerFilePath: context.CallerFilePath,
+                                                      isSuccessStatusCode: context.IsSuccessStatusCode,
+                                                      writeResponse: context.WriteResponse,
+                                                      skipEndpointValidation: context.SkipEndpointValidation,
+                                                      callerMemberName: context.CallerMemberName,
+                                                      callerLineNumber: context.CallerLineNumber);
         }
     }
 }

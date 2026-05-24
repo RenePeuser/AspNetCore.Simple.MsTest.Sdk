@@ -27,16 +27,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters =
-            {
-                new JsonStringEnumConverter()
-            }
-        };
+                                                                                  {
+                                                                                      PropertyNameCaseInsensitive = true,
+                                                                                      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                                                                      DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                                                                                      NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                                                                                      Converters = { new JsonStringEnumConverter() }
+                                                                                  };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
@@ -642,26 +639,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with the expected object directly - avoids serialization roundtrip
             var context = new ObjectAssertContext<T>
-            {
-                CallerFilePath = callerFilePath,
-                CallerLineNumber = callerLineNumber,
-                CallerMemberName = callerMemberName,
-                CallingAssembly = callingAssembly,
-                Current = currentObject,
-                CurrentObject = currentObject,
-                CurrentResultParameterName = currentResultParameterName,
-                DifferenceFunc = differenceFunc,
-                Expected = expectedObject, // Direct object reference - no serialization needed
-                ExpectedType = typeof(T),
-                ExpectedObjectAsJson = expectedObjectAsJson,
-                ExpectedResultFile = expectedFile,
-                ExpectedResultParameterName = expectedResultParameterName,
-                OrderFunc = comparisonFunc,
-                Parameters = parameters,
-                ResolvedExpectedJson = resolvedExpectedJson,
-                TypeIsPrimitiveType = targetIsPrimitiveType,
-                WriteResponse = writeResponse,
-            };
+                          {
+                              CallerFilePath = callerFilePath,
+                              CallerLineNumber = callerLineNumber,
+                              CallerMemberName = callerMemberName,
+                              CallingAssembly = callingAssembly,
+                              Current = currentObject,
+                              CurrentObject = currentObject,
+                              CurrentResultParameterName = currentResultParameterName,
+                              DifferenceFunc = differenceFunc,
+                              Expected = expectedObject, // Direct object reference - no serialization needed
+                              ExpectedType = typeof(T),
+                              ExpectedObjectAsJson = expectedObjectAsJson,
+                              ExpectedResultFile = expectedFile,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              OrderFunc = comparisonFunc,
+                              Parameters = parameters,
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              TypeIsPrimitiveType = targetIsPrimitiveType,
+                              WriteResponse = writeResponse,
+                          };
 
             ObjectsAreEqual(assert, context);
         }
@@ -690,6 +687,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // Build a simple error message since we don't have HTTP context here
                 var errorOutput = BuildObjectAssertionError(context, exception);
                 Assert.That.Fail(errorOutput);
+
                 throw; // Never reached, but required for compiler
             }
         }
@@ -708,13 +706,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var debugJsonSectionBuilder = new JsonSectionBuilder(plainTextDecorator);
                 var debugPrimitiveOutputStrategy = new PrimitiveOutputStrategy(plainTextDecorator);
                 var debugObjectOutputStrategy = new ObjectOutputStrategy(debugDifferencesTableBuilder, debugJsonSectionBuilder, plainTextDecorator);
-                var debugOutputStrategies = new IAssertOutputStrategy[]
-                {
-                    debugPrimitiveOutputStrategy,
-                    debugObjectOutputStrategy
-                };
+                var debugOutputStrategies = new IAssertOutputStrategy[] { debugPrimitiveOutputStrategy, debugObjectOutputStrategy };
                 var debugOutputBuilder = new AssertOutputBuilder(debugOutputStrategies);
-                var debugAssertService = new AssertService(ComparisonStrategy, ResponseWriter, WriteResponseService, debugOutputBuilder);
+
+                var debugAssertService = new AssertService(ComparisonStrategy, ResponseWriter, WriteResponseService,
+                                                           debugOutputBuilder);
 
                 // Use debug service
                 debugAssertService.ObjectsAreEqual(context);
@@ -730,7 +726,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Builds a formatted error message for unexpected exceptions in object assertions.
         /// Simpler than HTTP assertions since we don't have HTTP context.
         /// </summary>
-        private static string BuildObjectAssertionError<T>(ObjectAssertContext<T> context, Exception exception)
+        private static string BuildObjectAssertionError<T>(ObjectAssertContext<T> context,
+                                                           Exception exception)
         {
             var sb = new System.Text.StringBuilder();
 
@@ -805,7 +802,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return sb.ToString();
         }
 
-        private static string GetFullClassName(string callerFilePath, string projectName)
+        private static string GetFullClassName(string callerFilePath,
+                                               string projectName)
         {
             try
             {
@@ -825,6 +823,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     {
                         // Build namespace.ClassName
                         var namespaceStr = string.Join(".", namespaceParts.Select(s => s.Replace(" ", "")));
+
                         return $"{projectName}.{namespaceStr}.{fileName}";
                     }
 

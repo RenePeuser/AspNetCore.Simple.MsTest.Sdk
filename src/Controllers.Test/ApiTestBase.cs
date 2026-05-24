@@ -30,9 +30,9 @@ namespace Controllers.Test
             // - Program: for minimal API / top-level statements (Program.cs)
             // - Startup: for traditional Startup.cs class
             _apiTestBase = new ApiTestBase<Startup>("Development", // The environment name
-                                                    (services, configuration) =>
+                                                    (services,
+                                                     configuration) =>
                                                     {
-
                                                         services.AddAssertableHttpClient(configuration);
                                                     }); // Configure environment variables
 

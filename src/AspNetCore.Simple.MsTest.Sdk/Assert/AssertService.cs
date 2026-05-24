@@ -80,6 +80,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 3. Write response if configured
             var shouldWriteResponse = writeResponseService.ShouldWriteResponse(context);
+
             if (shouldWriteResponse)
             {
                 responseWriter.Write(context, currentFormatted, context.ExpectedResultFile);

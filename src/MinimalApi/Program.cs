@@ -30,14 +30,14 @@ builder.Services.AddProblemDetails();
 
 // Add API versioning
 builder.Services.AddApiVersioning(apiVersion =>
-                                  {
-                                      apiVersion.DefaultApiVersion = new ApiVersion(1, 0);
-                                      apiVersion.ApiVersionReader = new UrlSegmentApiVersionReader();
-                                  }).AddApiExplorer(apiExplorer =>
-                                                    {
-                                                        apiExplorer.GroupNameFormat = "'v'V";
-                                                        apiExplorer.SubstituteApiVersionInUrl = true;
-                                                    });
+{
+    apiVersion.DefaultApiVersion = new ApiVersion(1, 0);
+    apiVersion.ApiVersionReader = new UrlSegmentApiVersionReader();
+}).AddApiExplorer(apiExplorer =>
+{
+    apiExplorer.GroupNameFormat = "'v'V";
+    apiExplorer.SubstituteApiVersionInUrl = true;
+});
 
 var app = builder.Build();
 

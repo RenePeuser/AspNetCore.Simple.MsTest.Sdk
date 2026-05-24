@@ -15,12 +15,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
         /// <param name="expected">Expected string value</param>
         /// <param name="actual">Actual string value</param>
         /// <returns>Tuple with decorated expected and actual strings</returns>
-        (string decoratedExpected, string decoratedActual) HighlightDifferences(string? expected, string? actual);
+        (string decoratedExpected, string decoratedActual) HighlightDifferences(string? expected,
+                                                                                string? actual);
     }
 
     internal sealed class CharacterDiff(ITextDecorator textDecorator) : ICharacterDiff
     {
-        public (string decoratedExpected, string decoratedActual) HighlightDifferences(string? expected, string? actual)
+        public (string decoratedExpected, string decoratedActual) HighlightDifferences(string? expected,
+                                                                                       string? actual)
         {
             // Handle null cases
             if (expected.IsNullOrEmpty() && actual.IsNullOrEmpty())
@@ -46,7 +48,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             return (decoratedExpected, decoratedActual);
         }
 
-        private string BuildDecoratedString(string source, string compare, bool isExpected)
+        private string BuildDecoratedString(string source,
+                                            string compare,
+                                            bool isExpected)
         {
             // For PoC: Simple approach - find common prefix and highlight differences
             var minLength = Math.Min(source.Length, compare.Length);

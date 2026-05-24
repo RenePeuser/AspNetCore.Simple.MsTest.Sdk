@@ -52,7 +52,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             BuildTestInfo(sb, context);
             sb.AppendLine();
 
-            BuildHttpInfo(sb, context, exception, endpoint);
+            BuildHttpInfo(sb, context, exception,
+                          endpoint);
+
             sb.AppendLine();
 
             BuildProblemDetailsInfo(sb, exception);
@@ -70,6 +72,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Show the assert call if available
             var sourceCode = sourceCodeExtractor.ExtractCallCode(context.CallerFilePath, context.CallerLineNumber);
+
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
                 BuildAssertCall(sb, sourceCode);
@@ -84,7 +87,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return sb.ToString();
         }
 
-        private void BuildTestInfo(StringBuilder sb, IHttpAssertContext context)
+        private void BuildTestInfo(StringBuilder sb,
+                                   IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var className = TestContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
@@ -127,7 +131,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private void BuildProblemDetailsInfo(StringBuilder sb, TestSdkProblemDetailsException exception)
+        private void BuildProblemDetailsInfo(StringBuilder sb,
+                                             TestSdkProblemDetailsException exception)
         {
             var problemDetails = exception.ProblemDetails;
 
@@ -150,6 +155,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // Word wrap the detail if it's long
                 var detailLines = WrapText(problemDetails.Detail, 60);
                 sb.AppendLine($"{"Detail",-10} : {detailLines[0]}");
+
                 for (var i = 1; i < detailLines.Count; i++)
                 {
                     sb.AppendLine($"{"",-10}   {detailLines[i]}");
@@ -168,7 +174,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private void BuildExtensionData(StringBuilder sb, TestSdkProblemDetailsException exception)
+        private void BuildExtensionData(StringBuilder sb,
+                                        TestSdkProblemDetailsException exception)
         {
             var extensions = exception.ProblemDetails.Extensions;
 
@@ -203,7 +210,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine("  • There may be a validation or server-side processing issue");
         }
 
-        private void BuildAssertCall(StringBuilder sb, string sourceCode)
+        private void BuildAssertCall(StringBuilder sb,
+                                     string sourceCode)
         {
             sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
@@ -211,8 +219,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine(sourceCode);
         }
 
-
-        private string DecorateStatusCode(int statusCode, string statusText)
+        private string DecorateStatusCode(int statusCode,
+                                          string statusText)
         {
             var fullText = $"{statusCode} {statusText}";
 
@@ -254,9 +262,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             };
         }
 
-        private static List<string> WrapText(string text, int maxLength)
+        private static List<string> WrapText(string text,
+                                             int maxLength)
         {
             var lines = new List<string>();
+
             if (text.IsNullOrWhiteSpace())
             {
                 return lines;

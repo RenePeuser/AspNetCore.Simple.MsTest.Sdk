@@ -62,8 +62,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
         {
             // 1. Find all handlers that can handle this exception type
             var compatibleHandlers = testErrorHandlers
-                .Where(handler => handler.CanHandle(exception))
-                .ToList();
+                                     .Where(handler => handler.CanHandle(exception))
+                                     .ToList();
 
             // 2. Take the first compatible handler (or null if none found)
             //    Note: The default handler should always be last in registration,
@@ -91,7 +91,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
         /// Builds a minimal error message when no handler can process the exception.
         /// This should never be called if the handlers are registered correctly.
         /// </summary>
-        private static string BuildFallbackError(IHttpAssertContext context, Exception exception)
+        private static string BuildFallbackError(IHttpAssertContext context,
+                                                 Exception exception)
         {
             return $"""
 

@@ -35,13 +35,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                                                              JsonException exception)
         {
             var errorOutput = BuildJsonSerializationError(context, exception);
+
             return Task.FromResult(errorOutput);
         }
 
         /// <summary>
         /// Builds a comprehensive error message for JSON serialization failures.
         /// </summary>
-        private string BuildJsonSerializationError(IHttpAssertContext context, JsonException exception)
+        private string BuildJsonSerializationError(IHttpAssertContext context,
+                                                   JsonException exception)
         {
             var sb = new StringBuilder();
 
@@ -69,6 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
 
             // Show the assert call if available
             var sourceCode = sourceCodeExtractor.ExtractCallCode(context.CallerFilePath, context.CallerLineNumber);
+
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
                 BuildAssertCall(sb, sourceCode);
@@ -83,7 +86,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             return sb.ToString();
         }
 
-        private static void BuildTestInfo(StringBuilder sb, IHttpAssertContext context)
+        private static void BuildTestInfo(StringBuilder sb,
+                                          IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var fullClassName = GetFullClassName(context.CallerFilePath, projectName);
@@ -97,7 +101,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine($"{"Line",-15} : {context.CallerLineNumber}");
         }
 
-        private static string GetFullClassName(string callerFilePath, string projectName)
+        private static string GetFullClassName(string callerFilePath,
+                                               string projectName)
         {
             try
             {
@@ -112,6 +117,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                     if (namespaceParts.Count > 0)
                     {
                         var namespaceStr = string.Join(".", namespaceParts.Select(s => s.Replace(" ", "")));
+
                         return $"{projectName}.{namespaceStr}.{fileName}";
                     }
 
@@ -129,7 +135,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             }
         }
 
-        private static void BuildHttpInfo(StringBuilder sb, IHttpAssertContext context)
+        private static void BuildHttpInfo(StringBuilder sb,
+                                          IHttpAssertContext context)
         {
             var fullUrl = context.Client.BaseAddress.IsNotNull()
                               ? new Uri(context.Client.BaseAddress, context.Url).ToString()
@@ -143,7 +150,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine($"{"Expected Type",-15} : {context.ExpectedType?.Name ?? "Unknown"}");
         }
 
-        private static void BuildJsonErrorDetails(StringBuilder sb, JsonException exception)
+        private static void BuildJsonErrorDetails(StringBuilder sb,
+                                                  JsonException exception)
         {
             sb.AppendLine("⚠️ JSON Error Details");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
@@ -152,6 +160,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
 
             // Try to extract JSON path from exception message
             var jsonPath = ExtractJsonPath(exception.Message);
+
             if (jsonPath.IsNotNullOrWhiteSpace())
             {
                 sb.AppendLine($"{"JSON Path",-15} : {jsonPath}");
@@ -159,6 +168,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
 
             // Try to extract line/position info
             var lineInfo = ExtractLineInfo(exception);
+
             if (lineInfo.IsNotNullOrWhiteSpace())
             {
                 sb.AppendLine($"{"Position",-15} : {lineInfo}");
@@ -173,7 +183,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             }
         }
 
-        private void BuildJsonContent(StringBuilder sb, IHttpAssertContext context)
+        private void BuildJsonContent(StringBuilder sb,
+                                      IHttpAssertContext context)
         {
             sb.AppendLine("📄 JSON Content");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
@@ -192,6 +203,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             if (context is IHttpResponseContext httpResponseContext)
             {
                 var responseContent = httpResponseContext.ContentAsString;
+
                 if (responseContent.IsNotNullOrWhiteSpace())
                 {
                     sb.AppendLine("Response Content:");
@@ -210,7 +222,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             }
         }
 
-        private static void BuildExplanation(StringBuilder sb, JsonException exception)
+        private static void BuildExplanation(StringBuilder sb,
+                                             JsonException exception)
         {
             sb.AppendLine("💡 What This Means");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
@@ -256,7 +269,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine("  4. Use a JSON validator to check the response format");
         }
 
-        private static void BuildAssertCall(StringBuilder sb, string sourceCode)
+        private static void BuildAssertCall(StringBuilder sb,
+                                            string sourceCode)
         {
             sb.AppendLine("📝 Assert Call");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
@@ -282,6 +296,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                 using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
                 doc.WriteTo(writer);
                 writer.Flush();
+
                 return Encoding.UTF8.GetString(stream.ToArray());
             }
 #pragma warning disable CA1031
@@ -296,7 +311,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         /// <summary>
         /// Indents each line of the JSON string.
         /// </summary>
-        private static string IndentJson(string json, int spaces)
+        private static string IndentJson(string json,
+                                         int spaces)
         {
             if (json.IsNullOrWhiteSpace())
             {
@@ -305,6 +321,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
 
             var indent = new string(' ', spaces);
             var lines = json.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+
             return string.Join(Environment.NewLine, lines.Select(line => indent + line));
         }
 
@@ -321,16 +338,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
 
             // Common patterns in JsonException messages
             var patterns = new[]
-            {
-                @"Path: ([\$\.\[\]\w]+)",           // "Path: $.data.items[0]"
-                @"at path '([^']+)'",                // "at path '$.data.items[0]'"
-                @"JSON path ([\$\.\[\]\w]+)",        // "JSON path $.data.items[0]"
-                @"\$[\.\[\]\w]+"                     // Just the path itself: $.data.items[0]
-            };
+                           {
+                               @"Path: ([\$\.\[\]\w]+)", // "Path: $.data.items[0]"
+                               @"at path '([^']+)'", // "at path '$.data.items[0]'"
+                               @"JSON path ([\$\.\[\]\w]+)", // "JSON path $.data.items[0]"
+                               @"\$[\.\[\]\w]+" // Just the path itself: $.data.items[0]
+                           };
 
             foreach (var pattern in patterns)
             {
                 var match = System.Text.RegularExpressions.Regex.Match(message, pattern);
+
                 if (match.Success)
                 {
                     return match.Groups[1].Success ? match.Groups[1].Value : match.Value;
@@ -350,6 +368,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             {
                 var line = exception.LineNumber.Value;
                 var pos = exception.BytePositionInLine ?? 0;
+
                 return $"Line {line}, Position {pos}";
             }
 

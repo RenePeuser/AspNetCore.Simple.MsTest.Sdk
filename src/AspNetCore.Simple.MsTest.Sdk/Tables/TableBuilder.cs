@@ -26,7 +26,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
         /// <param name="rows">Data rows (each row must have same number of items as columns)</param>
         /// <param name="enableCount">Whether to show row count (default: true)</param>
         /// <returns>Formatted ASCII table string</returns>
-        string BuildTable(string[] columns, IReadOnlyList<object[]> rows, bool enableCount = true);
+        string BuildTable(string[] columns,
+                          IReadOnlyList<object[]> rows,
+                          bool enableCount = true);
 
         /// <summary>
         /// Builds an ASCII table from a collection of objects.
@@ -36,7 +38,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
         /// <param name="objects">Collection of objects to display</param>
         /// <param name="enableCount">Whether to show row count (default: true)</param>
         /// <returns>Formatted ASCII table string</returns>
-        string BuildTableFrom<T>(IEnumerable<T> objects, bool enableCount = true);
+        string BuildTableFrom<T>(IEnumerable<T> objects,
+                                 bool enableCount = true);
     }
 
     internal sealed partial class TableBuilder : ITableBuilder
@@ -44,7 +47,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
         // Regex to match ANSI escape codes
         [GeneratedRegex(@"\x1b\[[0-9;]*m", RegexOptions.Compiled)]
         private static partial Regex AnsiEscapeCodeRegex();
-        public string BuildTable(string[] columns, IReadOnlyList<object[]> rows, bool enableCount = true)
+
+        public string BuildTable(string[] columns,
+                                 IReadOnlyList<object[]> rows,
+                                 bool enableCount = true)
         {
             if (columns.IsNullOrEmpty())
             {
@@ -84,7 +90,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
             return stringBuilder.ToString();
         }
 
-        public string BuildTableFrom<T>(IEnumerable<T> objects, bool enableCount = true)
+        public string BuildTableFrom<T>(IEnumerable<T> objects,
+                                        bool enableCount = true)
         {
             var objectList = objects.ToList();
 
@@ -116,7 +123,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
             return BuildTable(columns, rows, enableCount);
         }
 
-        private static int[] CalculateColumnWidths(string[] columns, IReadOnlyList<object[]> rows)
+        private static int[] CalculateColumnWidths(string[] columns,
+                                                   IReadOnlyList<object[]> rows)
         {
             var columnCount = columns.Length;
             var widths = new int[columnCount];
@@ -160,6 +168,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
 
             // Remove ANSI escape codes and get length
             var withoutAnsi = AnsiEscapeCodeRegex().Replace(text, string.Empty);
+
             return withoutAnsi.Length;
         }
 
@@ -179,6 +188,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
             }
 
             stringBuilder.Append('┐');
+
             return stringBuilder.ToString();
         }
 
@@ -198,6 +208,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
             }
 
             stringBuilder.Append('┤');
+
             return stringBuilder.ToString();
         }
 
@@ -217,10 +228,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
             }
 
             stringBuilder.Append('┘');
+
             return stringBuilder.ToString();
         }
 
-        private static string BuildRow(object[] cells, int[] columnWidths)
+        private static string BuildRow(object[] cells,
+                                       int[] columnWidths)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.Append("│ ");

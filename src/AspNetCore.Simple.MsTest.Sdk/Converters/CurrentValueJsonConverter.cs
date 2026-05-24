@@ -68,6 +68,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Converters
                     try
                     {
                         var parsed = JsonConvert.DeserializeObject(stringValue);
+
                         if (parsed != null)
                         {
                             // Check if it's a simple JSON value that was stringified

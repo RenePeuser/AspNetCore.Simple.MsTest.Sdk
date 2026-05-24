@@ -14,6 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             // Register dependencies - builders needed for Object report
             services.AddDifferencesTableBuilder();
             services.AddJsonSectionBuilder();
+
             // Note: ITextDecorator is registered separately based on build configuration
 
             // Register service itself
@@ -109,7 +110,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
             stringBuilder.AppendLine($"{"File",-10} : {fileUri}");
         }
-
 
         private void BuildDifferencesSection(StringBuilder stringBuilder,
                                              IObjectAssertContext context,

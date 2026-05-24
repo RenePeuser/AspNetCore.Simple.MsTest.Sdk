@@ -16,6 +16,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
         public static string From<T>(IEnumerable<T> objects)
         {
             var tableBuilder = new TableBuilder();
+
             return tableBuilder.BuildTableFrom(objects, enableCount: false);
         }
     }

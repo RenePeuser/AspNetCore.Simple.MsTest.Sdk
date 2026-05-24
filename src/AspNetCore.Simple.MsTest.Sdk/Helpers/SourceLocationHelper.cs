@@ -68,6 +68,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
                 if (filePath.IsNotNullOrWhiteSpace())
                 {
                     var uri = $"file:///{filePath.Replace('\\', '/')}";
+
                     return uri;
                 }
             }
@@ -282,7 +283,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
             return null;
         }
 
-        private static string? FindProjectDirectory(string solutionRoot, string assemblyName)
+        private static string? FindProjectDirectory(string solutionRoot,
+                                                    string assemblyName)
         {
             try
             {
@@ -306,18 +308,19 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
             }
         }
 
-        private static string? SearchForFile(string rootDirectory, string fileName)
+        private static string? SearchForFile(string rootDirectory,
+                                             string fileName)
         {
             try
             {
                 // Search recursively for the file
                 // Skip common folders that shouldn't contain source files
                 var files = Directory.EnumerateFiles(rootDirectory, fileName, new EnumerationOptions
-                {
-                    RecurseSubdirectories = true,
-                    MatchCasing = MatchCasing.CaseInsensitive,
-                    IgnoreInaccessible = true
-                });
+                                                                              {
+                                                                                  RecurseSubdirectories = true,
+                                                                                  MatchCasing = MatchCasing.CaseInsensitive,
+                                                                                  IgnoreInaccessible = true
+                                                                              });
 
                 foreach (var file in files)
                 {
@@ -342,6 +345,5 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
                 return null;
             }
         }
-
     }
 }

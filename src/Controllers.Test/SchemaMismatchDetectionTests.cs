@@ -40,8 +40,9 @@ namespace Controllers.Test
 
             var emailDiff = diffs.FirstOrDefault(d => d.MemberPath == "email");
             Assert.IsNotNull(emailDiff, "Should detect 'email' difference");
+
             Assert.AreEqual(MismatchType.MissingInFirst, emailDiff.MismatchType,
-                "Property in current but not in expected should be MissingInFirst");
+                            "Property in current but not in expected should be MissingInFirst");
         }
 
         [TestMethod]
@@ -59,8 +60,9 @@ namespace Controllers.Test
 
             var emailDiff = diffs.FirstOrDefault(d => d.MemberPath == "email");
             Assert.IsNotNull(emailDiff, "Should detect 'email' difference");
+
             Assert.AreEqual(MismatchType.MissingInSecond, emailDiff.MismatchType,
-                "Property in expected but not in current should be MissingInSecond");
+                            "Property in expected but not in current should be MissingInSecond");
         }
 
         [TestMethod]
@@ -78,8 +80,9 @@ namespace Controllers.Test
 
             var nameDiff = diffs.FirstOrDefault(d => d.MemberPath == "name");
             Assert.IsNotNull(nameDiff, "Should detect 'name' difference");
+
             Assert.AreEqual(MismatchType.ValueDifference, nameDiff.MismatchType,
-                "Same property with different values should be ValueDifference");
+                            "Same property with different values should be ValueDifference");
         }
 
         #endregion
@@ -101,11 +104,11 @@ namespace Controllers.Test
 
             // Verify the condition for schema mismatch
             var hasSchemaMismatch = diffs.Any(item =>
-                item.MismatchType != MismatchType.ValueDifference &&
-                !item.MemberPath.EndsWith(']'));
+                                                  item.MismatchType != MismatchType.ValueDifference &&
+                                                  !item.MemberPath.EndsWith(']'));
 
             Assert.IsTrue(hasSchemaMismatch,
-                "MissingInFirst (not array index) should trigger schema mismatch");
+                          "MissingInFirst (not array index) should trigger schema mismatch");
         }
 
         [TestMethod]
@@ -118,11 +121,11 @@ namespace Controllers.Test
 
             // Verify the condition for schema mismatch
             var hasSchemaMismatch = diffs.Any(item =>
-                item.MismatchType != MismatchType.ValueDifference &&
-                !item.MemberPath.EndsWith(']'));
+                                                  item.MismatchType != MismatchType.ValueDifference &&
+                                                  !item.MemberPath.EndsWith(']'));
 
             Assert.IsTrue(hasSchemaMismatch,
-                "MissingInSecond (not array index) should trigger schema mismatch");
+                          "MissingInSecond (not array index) should trigger schema mismatch");
         }
 
         [TestMethod]
@@ -135,11 +138,11 @@ namespace Controllers.Test
 
             // Verify the condition for schema mismatch
             var hasSchemaMismatch = diffs.Any(item =>
-                item.MismatchType != MismatchType.ValueDifference &&
-                !item.MemberPath.EndsWith(']'));
+                                                  item.MismatchType != MismatchType.ValueDifference &&
+                                                  !item.MemberPath.EndsWith(']'));
 
             Assert.IsFalse(hasSchemaMismatch,
-                "Only ValueDifference should NOT trigger schema mismatch");
+                           "Only ValueDifference should NOT trigger schema mismatch");
         }
 
         [TestMethod]
@@ -152,8 +155,8 @@ namespace Controllers.Test
 
             // Verify the condition for schema mismatch
             var hasSchemaMismatch = diffs.Any(item =>
-                item.MismatchType != MismatchType.ValueDifference &&
-                !item.MemberPath.EndsWith(']'));
+                                                  item.MismatchType != MismatchType.ValueDifference &&
+                                                  !item.MemberPath.EndsWith(']'));
 
             Assert.IsFalse(hasSchemaMismatch, "No differences means no schema mismatch");
             Assert.AreEqual(0, diffs.Count, "Should have no differences");
@@ -179,11 +182,11 @@ namespace Controllers.Test
 
             // Verify the schema mismatch logic excludes array indexes
             var hasSchemaMismatch = diffs.Any(item =>
-                item.MismatchType != MismatchType.ValueDifference &&
-                !item.MemberPath.EndsWith(']'));
+                                                  item.MismatchType != MismatchType.ValueDifference &&
+                                                  !item.MemberPath.EndsWith(']'));
 
             Assert.IsFalse(hasSchemaMismatch,
-                "Array length differences (paths ending with ']') should NOT trigger schema mismatch");
+                           "Array length differences (paths ending with ']') should NOT trigger schema mismatch");
         }
 
         [TestMethod]
@@ -207,16 +210,17 @@ namespace Controllers.Test
 
             // Verify we have property difference in array element
             var propertyDiff = diffs.FirstOrDefault(d =>
-                d.MemberPath.Contains('[') && !d.MemberPath.EndsWith(']'));
+                                                        d.MemberPath.Contains('[') && !d.MemberPath.EndsWith(']'));
+
             Assert.IsNotNull(propertyDiff, "Should have property difference in array element");
 
             // Verify the schema mismatch logic includes this
             var hasSchemaMismatch = diffs.Any(item =>
-                item.MismatchType != MismatchType.ValueDifference &&
-                !item.MemberPath.EndsWith(']'));
+                                                  item.MismatchType != MismatchType.ValueDifference &&
+                                                  !item.MemberPath.EndsWith(']'));
 
             Assert.IsTrue(hasSchemaMismatch,
-                "Property differences in array elements (not ending with ']') should trigger schema mismatch");
+                          "Property differences in array elements (not ending with ']') should trigger schema mismatch");
         }
 
         #endregion
@@ -244,16 +248,17 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             Assert.IsTrue(diffs.Any(d => d.MismatchType == MismatchType.MissingInFirst),
-                "Should have MissingInFirst");
+                          "Should have MissingInFirst");
+
             Assert.IsTrue(diffs.Any(d => d.MismatchType == MismatchType.MissingInSecond),
-                "Should have MissingInSecond");
+                          "Should have MissingInSecond");
 
             var hasSchemaMismatch = diffs.Any(item =>
-                item.MismatchType != MismatchType.ValueDifference &&
-                !item.MemberPath.EndsWith(']'));
+                                                  item.MismatchType != MismatchType.ValueDifference &&
+                                                  !item.MemberPath.EndsWith(']'));
 
             Assert.IsTrue(hasSchemaMismatch,
-                "Combined missing properties should trigger schema mismatch");
+                          "Combined missing properties should trigger schema mismatch");
         }
 
         [TestMethod]
@@ -277,11 +282,11 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             var hasSchemaMismatch = diffs.Any(item =>
-                item.MismatchType != MismatchType.ValueDifference &&
-                !item.MemberPath.EndsWith(']'));
+                                                  item.MismatchType != MismatchType.ValueDifference &&
+                                                  !item.MemberPath.EndsWith(']'));
 
             Assert.IsFalse(hasSchemaMismatch,
-                "Only value differences should NOT trigger schema mismatch");
+                           "Only value differences should NOT trigger schema mismatch");
         }
 
         [TestMethod]
@@ -293,37 +298,29 @@ namespace Controllers.Test
             //     item.MemberPath.EndsWith(']').IsFalse());
 
             // Test cases that should trigger schema mismatch
-            var testCases = new[]
-            {
-                (Expected: """{"a":1}""", Current: """{"a":1,"b":2}""", Reason: "Extra property in current"),
-                (Expected: """{"a":1,"b":2}""", Current: """{"a":1}""", Reason: "Missing property in current"),
-                (Expected: """{"x":{"y":1}}""", Current: """{"x":{"y":1,"z":2}}""", Reason: "Extra nested property")
-            };
+            var testCases = new[] { (Expected: """{"a":1}""", Current: """{"a":1,"b":2}""", Reason: "Extra property in current"), (Expected: """{"a":1,"b":2}""", Current: """{"a":1}""", Reason: "Missing property in current"), (Expected: """{"x":{"y":1}}""", Current: """{"x":{"y":1,"z":2}}""", Reason: "Extra nested property") };
 
             foreach (var testCase in testCases)
             {
                 var diffs = _jsonDiffer.FindDifferences(testCase.Expected, testCase.Current);
+
                 var hasSchemaMismatch = diffs.Any(item =>
-                    item.MismatchType != MismatchType.ValueDifference &&
-                    !item.MemberPath.EndsWith(']'));
+                                                      item.MismatchType != MismatchType.ValueDifference &&
+                                                      !item.MemberPath.EndsWith(']'));
 
                 Assert.IsTrue(hasSchemaMismatch, $"Should detect schema mismatch for: {testCase.Reason}");
             }
 
             // Test cases that should NOT trigger schema mismatch
-            var noSchemaMismatchCases = new[]
-            {
-                (Expected: """{"a":1}""", Current: """{"a":2}""", Reason: "Only value differs"),
-                (Expected: """{"a":1,"b":2}""", Current: """{"a":1,"b":2}""", Reason: "Identical"),
-                (Expected: """{"items":[1,2]}""", Current: """{"items":[1,2,3]}""", Reason: "Array length differs")
-            };
+            var noSchemaMismatchCases = new[] { (Expected: """{"a":1}""", Current: """{"a":2}""", Reason: "Only value differs"), (Expected: """{"a":1,"b":2}""", Current: """{"a":1,"b":2}""", Reason: "Identical"), (Expected: """{"items":[1,2]}""", Current: """{"items":[1,2,3]}""", Reason: "Array length differs") };
 
             foreach (var testCase in noSchemaMismatchCases)
             {
                 var diffs = _jsonDiffer.FindDifferences(testCase.Expected, testCase.Current);
+
                 var hasSchemaMismatch = diffs.Any(item =>
-                    item.MismatchType != MismatchType.ValueDifference &&
-                    !item.MemberPath.EndsWith(']'));
+                                                      item.MismatchType != MismatchType.ValueDifference &&
+                                                      !item.MemberPath.EndsWith(']'));
 
                 Assert.IsFalse(hasSchemaMismatch, $"Should NOT detect schema mismatch for: {testCase.Reason}");
             }

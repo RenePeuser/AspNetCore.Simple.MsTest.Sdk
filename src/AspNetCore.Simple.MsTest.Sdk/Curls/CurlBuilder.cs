@@ -72,6 +72,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                     // Parse scheme and token from "Bearer <token>" format
                     var parts = authValue.Split(' ', 2);
+
                     if (parts.Length == 2 && !showTokenInCurl)
                     {
                         yield return $"--header 'Authorization: {parts[0]} Sorry i am secret :)'";
@@ -90,6 +91,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (payloadAsJson.IsNotNullOrWhiteSpace())
             {
                 string flattenedJson;
+
                 try
                 {
                     var token = JToken.Parse(payloadAsJson);
@@ -134,6 +136,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (payloadAsJson.IsNotNullOrWhiteSpace())
             {
                 string flattenedJson;
+
                 try
                 {
                     var token = JToken.Parse(payloadAsJson);
