@@ -129,7 +129,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 }
             }
 
-            return removed > 0 ? line.Substring(removed) : line;
+            return removed > 0 ? line[removed..] : line;
         }
     }
 }

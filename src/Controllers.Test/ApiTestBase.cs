@@ -26,7 +26,9 @@ namespace Controllers.Test
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext _)
         {
-            // 1. Super simple just use the provided API test base class and you are ready to go
+            // Use Program or Startup as entry point for proper WebApplicationFactory support
+            // - Program: for minimal API / top-level statements (Program.cs)
+            // - Startup: for traditional Startup.cs class
             _apiTestBase = new ApiTestBase<Startup>("Development", // The environment name
                                                     (services, configuration) =>
                                                     {

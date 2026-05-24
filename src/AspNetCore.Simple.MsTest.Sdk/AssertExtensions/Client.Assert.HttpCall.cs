@@ -59,6 +59,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _jsonSectionBuilder = new JsonSectionBuilder(_textDecorator);
             _curlBuilder = serviceProvider.GetRequiredService<ICurlBuilder>();
             _curlFormatter = new CurlFormatter(_textDecorator);
+            _curlPrinter = serviceProvider.GetRequiredService<ICurlPrinter>();
 
             // 4. Rebuild output strategies with the correct decorator
             var primitiveOutputStrategy = new PrimitiveOutputStrategy(_textDecorator);
@@ -97,7 +98,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                           _parameterReplacer,
                                                                                           _writeResponseService,
                                                                                           _jsonSerializerOptions),
-                                                                   new SuccessfulTestCurlPrinter(_curlBuilder, _curlFormatter)
+                                                                   new SuccessfulTestCurlPrinter(_curlPrinter)
                                                                ]);
 
             // 8. Resolve validation services
@@ -180,6 +181,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static IJsonSectionBuilder _jsonSectionBuilder = new JsonSectionBuilder(_textDecorator);
 
         private static ICurlBuilder _curlBuilder = new CurlBuilder();
+
+        private static ICurlPrinter _curlPrinter = new CurlPrinter(_curlFormatter, _curlBuilder);
 
         // Output strategies for AssertService
         private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new(_plainTextDecorator);

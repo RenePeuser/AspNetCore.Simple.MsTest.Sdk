@@ -11,7 +11,9 @@ namespace MinimalApi.Test
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext _)
         {
-            // Use TestStartup instead of Program for proper WebApplicationFactory support
+            // Use Program or Startup as entry point for proper WebApplicationFactory support
+            // - Program: for minimal API / top-level statements (Program.cs)
+            // - Startup: for traditional Startup.cs class
             _apiTestBase = new ApiTestBase<Program>("Development",
                                                     (services,
                                                      configuration) =>

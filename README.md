@@ -113,7 +113,9 @@ public abstract class ApiTestBase
     [AssemblyInitialize]
     public static void AssemblyInitialize(TestContext _)
     {
-        // Use Program as entry point for proper WebApplicationFactory support
+        // Use Program or Startup as entry point for proper WebApplicationFactory support
+        // - Program: for minimal API / top-level statements (Program.cs)
+        // - Startup: for traditional Startup.cs class
         _apiTestBase = new ApiTestBase<Program>("Development",
                                                 (services,
                                                  configuration) =>
@@ -1276,7 +1278,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Test
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext _)
         {
-            // Use Program as entry point for proper WebApplicationFactory support
+            // Use Program or Startup as entry point for proper WebApplicationFactory support
+            // - Program: for minimal API / top-level statements (Program.cs)
+            // - Startup: for traditional Startup.cs class
             _apiTestBase = new ApiTestBase<Program>("Development",
                                                     (services,
                                                      configuration) =>
