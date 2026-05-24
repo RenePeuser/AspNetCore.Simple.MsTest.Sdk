@@ -22,78 +22,6 @@ public Task Should_Create_User(string useCase)
 
 ---
 
-## File conventions and folder structure
-
-### Use file names, not full resource paths
-
-Prefer this:
-
-```
-"NewUser.json"
-```
-
-Not this:
-
-```
-"Users.V1.Payloads.NewUser.json"
-```
-
-The SDK uses **context-aware resolution** to find the right file automatically. If multiple files with the same name exist, it prefers the one in your test's namespace. See the [context-aware disambiguation section](#context-aware-disambiguation) for details.
-
-### Recommended structure
-
-```plaintext
-Api
-└─ Users
-   └─ V1
-      └─ Create
-         └─ Status_200_Ok
-            ├─ Requests
-            │  ├─ ValidUser.json
-            │  ├─ AdminUser.json
-            │  └─ GuestUser.json
-            ├─ Responses
-            │  ├─ ValidUser.json
-            │  ├─ AdminUser.json
-            │  └─ GuestUser.json
-            └─ CreateUser_Status_200_OK_Test.cs
-```
----
-
-**Add a JSON file. A new test appears.**
-
-## What you get
-
-- Full HTTP response snapshots: status, headers, body, trailing headers
-- Precise structured diffs with deep `MemberPath` paths
-- Context-specific error headers (Snapshot Mismatch, Schema Mismatch, Status Code, etc.)
-- **Clickable file links** in error output - jump directly to failing test line in your IDE
-- **Fully qualified class names** - see complete namespace path in test information
-- Ready-to-run `curl` output on failures
-- Convention-based test discovery with `DynamicRequestLocator`
-- Snapshot generation from live traffic
-- Snapshot auto-update and ignore strategies
-- Drastically less boilerplate than traditional API tests
-
----
-
-## Why this feels different
-
-Most API testing tools make you choose between speed, coverage, and debuggability.
-
-This SDK does not.
-
-It is built around a simple idea:
-
-- **One snapshot validates the whole HTTP response**, not just the body
-- **One failure tells you exactly what changed**, down to `content.value.emails[1].type`
-- **One pasted `curl` reproduces the problem immediately**
-- **One added JSON file creates a new test case automatically**
-
-That combination changes how API testing feels in practice. Less plumbing. More coverage. Faster debugging.
-
----
-
 ## Quick Start
 
 ### Install
@@ -217,6 +145,141 @@ Run the test and you get:
 - structured diffs on mismatch
 - HTTP context in the failure output
 - generated `curl` for instant reproduction
+
+---
+
+## What you get
+
+- Full HTTP response snapshots: status, headers, body, trailing headers
+- Precise structured diffs with deep `MemberPath` paths
+- Context-specific error headers (Snapshot Mismatch, Schema Mismatch, Status Code, etc.)
+- **Clickable file links** in error output - jump directly to failing test line in your IDE
+- **Fully qualified class names** - see complete namespace path in test information
+- Ready-to-run `curl` output on failures
+- Convention-based test discovery with `DynamicRequestLocator`
+- Snapshot generation from live traffic
+- Snapshot auto-update and ignore strategies
+- Drastically less boilerplate than traditional API tests
+
+---
+
+## Why this feels different
+
+Most API testing tools make you choose between speed, coverage, and debuggability.
+
+This SDK does not.
+
+It is built around a simple idea:
+
+- **One snapshot validates the whole HTTP response**, not just the body
+- **One failure tells you exactly what changed**, down to `content.value.emails[1].type`
+- **One pasted `curl` reproduces the problem immediately**
+- **One added JSON file creates a new test case automatically**
+
+That combination changes how API testing feels in practice. Less plumbing. More coverage. Faster debugging.
+
+---
+
+## File conventions and folder structure
+
+### Use file names, not full resource paths
+
+Prefer this:
+
+```csharp
+"NewUser.json"
+```
+
+Not this:
+
+```csharp
+"Users.V1.Payloads.NewUser.json"
+```
+
+### Context-aware disambiguation
+
+If multiple files with the same name exist in different folders, the SDK prefers the file in the **same namespace** as your test.
+
+Example structure:
+
+```plaintext
+Api/
+├─ Persons/
+│  └─ Requests/SonGoku.json      ← Test in Persons namespace uses this
+├─ Errors/
+│  └─ Requests/SonGoku.json
+└─ NativeTypes/
+   └─ Requests/SonGoku.json
+```
+
+When you reference `"Requests.SonGoku.json"` from a test in the `Api.Persons` namespace, the SDK automatically picks `Api.Persons.Requests.SonGoku.json`.
+
+If needed, you can be more specific:
+
+```csharp
+"Api.Persons.Requests.SonGoku.json"  // Fully qualified
+"Persons.Requests.SonGoku.json"       // Partial namespace
+```
+
+The SDK uses **segment-based matching** to avoid false positives. `"Requests.SonGoku.json"` will not match `"ErrorRequests.SonGoku.json"` because the dot boundary matters.
+
+This means you get:
+
+- short, readable file references in tests
+- automatic disambiguation by context
+- explicit paths when you need them
+- predictable resolution behavior
+
+### Recommended structure
+
+```plaintext
+Api
+└─ Users
+   └─ V1
+      └─ Create
+         └─ Status_200_Ok
+            ├─ Requests
+            │  ├─ ValidUser.json
+            │  ├─ AdminUser.json
+            │  └─ GuestUser.json
+            ├─ Responses
+            │  ├─ ValidUser.json
+            │  ├─ AdminUser.json
+            │  └─ GuestUser.json
+            └─ CreateUser_Status_200_OK_Test.cs
+```
+
+### Why this structure works well
+
+- `Requests` contains input payloads
+- `Responses` contains expected snapshots
+- namespace mirrors folder structure
+- `DynamicRequestLocator` can discover request files automatically
+- adding scenarios stays simple and predictable
+
+Example:
+
+```csharp
+namespace Api.Users.V1.Create.Status_200_Ok;
+
+[TestClass]
+public class CreateUser_Status_200_OK_Test : ApiTestBase
+{
+    [DataTestMethod]
+    [DynamicRequestLocator]
+    public Task Should_Create_User(string requestFileName)
+    {
+        return Client.AssertPostAsync<UserResponse>(
+            "api/v1/users",
+            requestFileName,
+            requestFileName);
+    }
+}
+```
+
+---
+
+**Add a JSON file. A new test appears.**
 
 ---
 
@@ -1161,153 +1224,6 @@ Useful for:
 - eventual consistency
 - async propagation delays
 - snapshot creation flows that need retries before settling
-
----
-
-## File conventions and folder structure
-
-### Use file names, not full resource paths
-
-Prefer this:
-
-```csharp
-"NewUser.json"
-```
-
-Not this:
-
-```csharp
-"Users.V1.Payloads.NewUser.json"
-```
-
-### Context-aware disambiguation
-
-If multiple files with the same name exist in different folders, the SDK prefers the file in the **same namespace** as your test.
-
-Example structure:
-
-```plaintext
-Api/
-├─ Persons/
-│  └─ Requests/SonGoku.json      ← Test in Persons namespace uses this
-├─ Errors/
-│  └─ Requests/SonGoku.json
-└─ NativeTypes/
-   └─ Requests/SonGoku.json
-```
-
-When you reference `"Requests.SonGoku.json"` from a test in the `Api.Persons` namespace, the SDK automatically picks `Api.Persons.Requests.SonGoku.json`.
-
-If needed, you can be more specific:
-
-```csharp
-"Api.Persons.Requests.SonGoku.json"  // Fully qualified
-"Persons.Requests.SonGoku.json"       // Partial namespace
-```
-
-The SDK uses **segment-based matching** to avoid false positives. `"Requests.SonGoku.json"` will not match `"ErrorRequests.SonGoku.json"` because the dot boundary matters.
-
-This means you get:
-
-- short, readable file references in tests
-- automatic disambiguation by context
-- explicit paths when you need them
-- predictable resolution behavior
-
-### Recommended structure
-
-```plaintext
-Api
-└─ Users
-   └─ V1
-      └─ Create
-         └─ Status_200_Ok
-            ├─ Requests
-            │  ├─ ValidUser.json
-            │  ├─ AdminUser.json
-            │  └─ GuestUser.json
-            ├─ Responses
-            │  ├─ ValidUser.json
-            │  ├─ AdminUser.json
-            │  └─ GuestUser.json
-            └─ CreateUser_Status_200_OK_Test.cs
-```
-
-### Why this structure works well
-
-- `Requests` contains input payloads
-- `Responses` contains expected snapshots
-- namespace mirrors folder structure
-- `DynamicRequestLocator` can discover request files automatically
-- adding scenarios stays simple and predictable
-
-Example:
-
-```csharp
-namespace Api.Users.V1.Create.Status_200_Ok;
-
-[TestClass]
-public class CreateUser_Status_200_OK_Test : ApiTestBase
-{
-    [DataTestMethod]
-    [DynamicRequestLocator]
-    public Task Should_Create_User(string requestFileName)
-    {
-        return Client.AssertPostAsync<UserResponse>(
-            "api/v1/users",
-            requestFileName,
-            requestFileName);
-    }
-}
-```
-
----
-
-## Setup test base
-
-The SDK provides a very simple out-of-the-box setup pattern.
-
-```csharp
-namespace AspNetCore.Simple.MsTest.Sdk.Test
-{
-    [TestClass]
-    public abstract class ApiTestBase
-    {
-        private static ApiTestBase<Program> _apiTestBase = null!;
-
-        [AssemblyInitialize]
-        public static void AssemblyInitialize(TestContext _)
-        {
-            // Use Program or Startup as entry point for proper WebApplicationFactory support
-            // - Program: for minimal API / top-level statements (Program.cs)
-            // - Startup: for traditional Startup.cs class
-            _apiTestBase = new ApiTestBase<Program>("Development",
-                                                    (services,
-                                                     configuration) =>
-                                                    {
-                                                        // IMPORTANT: Required for endpoint validation and assertable HTTP client features
-                                                        services.AddAssertableHttpClient(configuration);
-                                                    });
-
-            Client = _apiTestBase.CreateClient();
-
-            // IMPORTANT: Required to make all HttpClientAssertExtensions 100% functional
-            HttpClientAssertExtensions.Setup(_apiTestBase.Services);
-        }
-
-        protected static HttpClient Client { get; private set; } = null!;
-
-        [AssemblyCleanup]
-        public static void AssemblyCleanup()
-        {
-            _apiTestBase.Dispose();
-            Client.Dispose();
-        }
-    }
-}
-```
-
-You can also use your own custom setup. The point is that the default path is intentionally small.
 
 ---
 
