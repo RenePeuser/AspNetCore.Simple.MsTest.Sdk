@@ -59,6 +59,14 @@ namespace Controllers.Test.Api.Persons
         }
 
         [TestMethod]
+        public Task Should_Return_Expected_Result_For_Given_Payload_By_Embedded_File_With_Expected_Status_Code()
+        {
+            return Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons",
+                                                              "GetPersonResponse.json",
+                                                              expectedStatusCode: System.Net.HttpStatusCode.OK);
+        }
+
+        [TestMethod]
         public Task Should_Filter_Persons_By_Name_Query_Parameter()
         {
             return Client.AssertGetAsync<IEnumerable<Person>>("api/tests/v1/persons?name=Son",
@@ -114,11 +122,29 @@ namespace Controllers.Test.Api.Persons
         }
 
         [TestMethod]
+        public Task Should_Be_Able_To_Put_A_Person_By_Json_With_Expected_Status_Code()
+        {
+            return Client.AssertPatchAsync<Person>("api/tests/v1/persons",
+                                                   "SonGoku.json",
+                                                   "SonGoku.json",
+                                                   expectedStatusCode: System.Net.HttpStatusCode.OK);
+        }
+
+        [TestMethod]
         public Task Should_Be_Able_To_Put_A_Patch_By_Json()
         {
             return Client.AssertPutAsync<Person>("api/tests/v1/persons",
                                                  "SonGoku.json",
                                                  "SonGokuNewResponse.json");
+        }
+
+        [TestMethod]
+        public Task Should_Be_Able_To_Put_A_Patch_By_Json_With_Expected_Status_Code()
+        {
+            return Client.AssertPutAsync<Person>("api/tests/v1/persons",
+                                                 "SonGoku.json",
+                                                 "SonGokuNewResponse.json",
+                                                 expectedStatusCode: System.Net.HttpStatusCode.OK);
         }
 
         [TestMethod]
@@ -157,6 +183,15 @@ namespace Controllers.Test.Api.Persons
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
                                                   "Requests.SonGoku.json",
                                                   "Responses.SonGoku.json");
+        }
+
+        [TestMethod]
+        public Task Should_Be_Able_To_Post_A_Person_By_Json_With_Expected_Status_Code()
+        {
+            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+                                                  "Requests.SonGoku.json",
+                                                  "Responses.SonGoku.json",
+                                                  expectedStatusCode: System.Net.HttpStatusCode.OK);
         }
 
         [Ignore("Not supported ! if path is not correct it fails !")]
