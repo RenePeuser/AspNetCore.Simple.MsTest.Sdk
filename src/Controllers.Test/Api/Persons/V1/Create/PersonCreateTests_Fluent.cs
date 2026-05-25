@@ -90,6 +90,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task FluentEndpoint_Should_Create_Person_Ignore_Id()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/tests/v1/persons")
                          .Accepts(person)
                          .Produces<Person>("CreatePerson.json")

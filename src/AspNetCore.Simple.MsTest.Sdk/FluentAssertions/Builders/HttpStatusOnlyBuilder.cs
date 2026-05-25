@@ -55,7 +55,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             AssertStatusCode(response);
         }
 
-        public TaskAwaiter GetAwaiter() => ExecuteAsync().GetAwaiter();
+        public TaskAwaiter GetAwaiter()
+        {
+            return ExecuteAsync().GetAwaiter();
+        }
 
         // ============================================================
         // Private Execution Logic
