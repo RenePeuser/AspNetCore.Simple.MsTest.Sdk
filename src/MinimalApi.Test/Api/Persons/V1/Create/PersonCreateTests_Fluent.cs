@@ -22,6 +22,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         public Task Fluent_Should_Create_Person_With_Object()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json")
@@ -35,6 +36,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         public Task Fluent_Should_Create_Person_With_Emails()
         {
             var person = TestHelpers.CreatePersonWithEmails();
+
             return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePersonFull.json")
@@ -60,6 +62,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         public Task Fluent_Should_Create_Person_Ignore_Id()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json")
@@ -74,6 +77,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         public Task Fluent_Should_Create_Person_With_Type_Safe_Property_Ignore()
         {
             var person = TestHelpers.CreatePersonWithEmails();
+
             return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePersonFull.json")
@@ -92,6 +96,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         public Task FluentEndpoint_Should_Create_Person_With_Object()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
                          .Produces<Person>("CreatePerson.json")
@@ -105,6 +110,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         public Task FluentEndpoint_Should_Create_Person_With_Emails()
         {
             var person = TestHelpers.CreatePersonWithEmails();
+
             return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
                          .Produces<Person>("CreatePersonFull.json")
@@ -130,6 +136,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         public Task FluentEndpoint_Should_Create_Person_Ignore_Id()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
                          .Produces<Person>("CreatePerson.json")
@@ -144,6 +151,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         public Task FluentEndpoint_Should_Create_Person_With_Type_Safe_Property_Ignore()
         {
             var person = TestHelpers.CreatePersonWithEmails();
+
             return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
                          .Produces<Person>("CreatePersonFull.json")

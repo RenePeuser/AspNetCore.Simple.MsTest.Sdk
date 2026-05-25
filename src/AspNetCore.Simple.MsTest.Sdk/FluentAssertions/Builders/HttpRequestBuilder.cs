@@ -78,7 +78,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         // IHttpRequestConfiguring - Response Configuration Transition
         // ============================================================
 
-        public IHttpResponseConfiguring<TResult>
+        public IHttpResponseConfiguring<TResult> WithResponse<TResult>(string expectedJson)
         {
             return new HttpResponseBuilder<TResult>(_client,
                                                     _method,
