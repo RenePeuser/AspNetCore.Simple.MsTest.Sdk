@@ -45,7 +45,7 @@ namespace MinimalApi.ErrorHandling.Exceptions
                                                  IImmutableDictionary<string, string[]> errors,
                                                  IImmutableDictionary<string, string> extensions) : base(title)
         {
-            var problemDetails = new ValidationProblemDetails()
+            var problemDetails = new ValidationProblemDetails
             {
                 Title = title.IsEmpty() ? null : "One or more validation errors occurred.",
                 Detail = details.IsEmpty() ? null : details,

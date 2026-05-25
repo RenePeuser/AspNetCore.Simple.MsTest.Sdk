@@ -32,7 +32,7 @@ namespace MinimalApi.ErrorHandling.Strategies.Specific
             // If there is no specific exception error handling then internal server error.
             context.Response.StatusCode = GetErrorCode(exception).Cast<int>();
 
-            var problemDetails = new ProblemDetails()
+            var problemDetails = new ProblemDetails
             {
                 Title = $"{exception.GetType().Name} was thrown.",
                 Detail = exception.Message,

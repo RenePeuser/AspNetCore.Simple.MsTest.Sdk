@@ -87,6 +87,7 @@
 
     <ItemGroup>
       <Folder Include="ErrorHandling\" />
+      <Folder Include="FluentAssertions\" />
     </ItemGroup>
 
 </Project>

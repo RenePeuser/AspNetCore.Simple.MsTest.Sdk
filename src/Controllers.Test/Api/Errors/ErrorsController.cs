@@ -49,10 +49,10 @@ namespace Controllers.Test.Api.Errors
             // The endpoint returns 500 (InternalServerError)
             // We don't provide an expected JSON file, so only the status code is checked
             await Assert.ThrowsExactlyAsync<AssertFailedException>(() =>
-                Client.AssertPostAsync<ProblemDetails>("api/tests/v1/errors/not-implemented",
-                                                       writeResponse: false,
-                                                       skipEndpointValidation: true,
-                                                       expectedStatusCode: System.Net.HttpStatusCode.NotFound))
+                                                                       Client.AssertPostAsync<ProblemDetails>("api/tests/v1/errors/not-implemented",
+                                                                                                              writeResponse: false,
+                                                                                                              skipEndpointValidation: true,
+                                                                                                              expectedStatusCode: System.Net.HttpStatusCode.NotFound))
                         .ConfigureAwait(false);
         }
 

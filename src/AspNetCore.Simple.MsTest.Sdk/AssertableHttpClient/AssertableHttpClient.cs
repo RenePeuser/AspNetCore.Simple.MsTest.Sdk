@@ -121,8 +121,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             var actualStatusCode = (int)httpResponseMessage.StatusCode;
 
             var isExpectedStatusCode = context.ExpectedHttpStatusCode.HasValue
-                                          ? actualStatusCode == (int)context.ExpectedHttpStatusCode.Value
-                                          : httpResponseMessage.IsSuccessStatusCode == context.IsSuccessStatusCode;
+                                           ? actualStatusCode == (int)context.ExpectedHttpStatusCode.Value
+                                           : httpResponseMessage.IsSuccessStatusCode == context.IsSuccessStatusCode;
 
             // 4. Deserialize the response to TResult (this is what the user gets back - never modified!)
             var targetType = typeof(TResult);
@@ -136,49 +136,49 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Build context with deserialized result - HttpResponseMessage stays alive until pipeline completes
             var responseContext = new HttpResponseContext<TResult>
-            {
-                AbsoluteUrl = absoluteUrl,
-                ApiVersion = context.ApiVersion,
-                CallerFilePath = context.CallerFilePath,
-                CallerLineNumber = context.CallerLineNumber,
-                CallerMemberName = context.CallerMemberName,
-                CallingAssembly = context.CallingAssembly,
-                Client = context.Client,
-                ContentAsString = contentAsString,
-                ContentAsStringParameterized = resolvedParametersJsonString,
-                Current = currentResult,
-                CurrentObject = currentResult,
-                CurrentResult = currentResult,
-                CurrentResultParameterName = context.CurrentResultParameterName,
-                DifferenceFunc = context.DifferenceFunc,
-                ExpectedType = context.ExpectedType,
-                ExpectedObjectAsJson = context.ExpectedObjectAsJson,
-                ExpectedResultFile = context.ExpectedResultFile,
-                ExpectedResultParameterName = context.ExpectedResultParameterName,
-                HttpMethod = context.HttpMethod,
-                IgnoreResponse = context.IgnoreResponse,
-                HttpResponseMessage = httpResponseMessage,
-                HttpStatusCode = httpResponseMessage.StatusCode,
-                IsExpectedStatusCode = isExpectedStatusCode,
-                IsSuccessStatusCode = context.IsSuccessStatusCode,
-                OrderFunc = context.OrderFunc,
-                Parameters = context.Parameters,
-                PayloadAsJson = context.PayloadAsJson,
-                PayloadFile = context.PayloadFile,
-                PayloadParameterName = context.PayloadParameterName,
-                ResolvedExpectedJson = context.ResolvedExpectedJson,
-                ResolvedPayload = context.ResolvedPayload,
-                ShowTokenInCurl = context.ShowTokenInCurl,
-                TypeIsPrimitiveType = targetIsPrimitiveType,
-                Url = context.Url,
-                WriteResponse = context.WriteResponse,
-                SkipEndpointValidation = context.SkipEndpointValidation,
-                ExpectedHttpStatusCode = context.ExpectedHttpStatusCode,
-                FailureType = HttpAssertionFailureType.None,
-                ExpectedStatusCode = (int?)context.ExpectedHttpStatusCode,
-                ActualStatusCode = null,
-                Expected = context.Expected
-            };
+                                  {
+                                      AbsoluteUrl = absoluteUrl,
+                                      ApiVersion = context.ApiVersion,
+                                      CallerFilePath = context.CallerFilePath,
+                                      CallerLineNumber = context.CallerLineNumber,
+                                      CallerMemberName = context.CallerMemberName,
+                                      CallingAssembly = context.CallingAssembly,
+                                      Client = context.Client,
+                                      ContentAsString = contentAsString,
+                                      ContentAsStringParameterized = resolvedParametersJsonString,
+                                      Current = currentResult,
+                                      CurrentObject = currentResult,
+                                      CurrentResult = currentResult,
+                                      CurrentResultParameterName = context.CurrentResultParameterName,
+                                      DifferenceFunc = context.DifferenceFunc,
+                                      ExpectedType = context.ExpectedType,
+                                      ExpectedObjectAsJson = context.ExpectedObjectAsJson,
+                                      ExpectedResultFile = context.ExpectedResultFile,
+                                      ExpectedResultParameterName = context.ExpectedResultParameterName,
+                                      HttpMethod = context.HttpMethod,
+                                      IgnoreResponse = context.IgnoreResponse,
+                                      HttpResponseMessage = httpResponseMessage,
+                                      HttpStatusCode = httpResponseMessage.StatusCode,
+                                      IsExpectedStatusCode = isExpectedStatusCode,
+                                      IsSuccessStatusCode = context.IsSuccessStatusCode,
+                                      OrderFunc = context.OrderFunc,
+                                      Parameters = context.Parameters,
+                                      PayloadAsJson = context.PayloadAsJson,
+                                      PayloadFile = context.PayloadFile,
+                                      PayloadParameterName = context.PayloadParameterName,
+                                      ResolvedExpectedJson = context.ResolvedExpectedJson,
+                                      ResolvedPayload = context.ResolvedPayload,
+                                      ShowTokenInCurl = context.ShowTokenInCurl,
+                                      TypeIsPrimitiveType = targetIsPrimitiveType,
+                                      Url = context.Url,
+                                      WriteResponse = context.WriteResponse,
+                                      SkipEndpointValidation = context.SkipEndpointValidation,
+                                      ExpectedHttpStatusCode = context.ExpectedHttpStatusCode,
+                                      FailureType = HttpAssertionFailureType.None,
+                                      ExpectedStatusCode = (int?)context.ExpectedHttpStatusCode,
+                                      ActualStatusCode = null,
+                                      Expected = context.Expected
+                                  };
 
             // Delegate to pipeline - steps only validate, never modify the result
             // Pipeline returns context.CurrentResult (the original deserialized response)

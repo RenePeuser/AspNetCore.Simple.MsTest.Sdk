@@ -44,7 +44,7 @@ namespace MinimalApi.ErrorHandling.Exceptions
                                        string details,
                                        IImmutableDictionary<string, object> errorDetails) : base(title)
         {
-            var problemDetails = new ProblemDetails()
+            var problemDetails = new ProblemDetails
             {
                 Title = title.IsEmpty() ? null : title,
                 Detail = details.IsEmpty() ? null : details,
