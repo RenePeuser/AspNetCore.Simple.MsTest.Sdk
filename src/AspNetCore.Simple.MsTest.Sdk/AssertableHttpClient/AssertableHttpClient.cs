@@ -165,7 +165,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 Url = context.Url,
                 WriteResponse = context.WriteResponse,
                 SkipEndpointValidation = context.SkipEndpointValidation,
-                ExpectedHttpStatusCode = context.ExpectedHttpStatusCode
+                ExpectedHttpStatusCode = context.ExpectedHttpStatusCode,
+                FailureType = HttpAssertionFailureType.None,
+                ExpectedStatusCode = (int?)context.ExpectedHttpStatusCode,
+                ActualStatusCode = null,
+                Expected = context.Expected
             };
 
             // Delegate to pipeline - steps only validate, never modify the result

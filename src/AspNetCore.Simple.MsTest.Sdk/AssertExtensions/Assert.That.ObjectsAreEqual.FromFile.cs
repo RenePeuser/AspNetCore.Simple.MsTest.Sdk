@@ -522,25 +522,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with preprocessed data - no further logic needed in AssertService
             var context = new ObjectAssertContext<T>
-            {
-                CallerFilePath = callerFilePath,
-                CallerLineNumber = callerLineNumber,
-                CallerMemberName = callerMemberName,
-                CallingAssembly = callingAssembly,
-                Current = currentObject,
-                CurrentObject = currentObject,
-                CurrentResultParameterName = currentResultParameterName,
-                DifferenceFunc = differenceFunc,
-                ExpectedType = typeof(T),
-                ExpectedObjectAsJson = expectedObjectAsJson,
-                ExpectedResultFile = expectedFile,
-                ExpectedResultParameterName = expectedResultParameterName,
-                OrderFunc = orderFunc,
-                Parameters = parameters,
-                ResolvedExpectedJson = resolvedExpectedJson,
-                TypeIsPrimitiveType = targetIsPrimitiveType,
-                WriteResponse = writeResponse,
-            };
+                          {
+                              CallerFilePath = callerFilePath,
+                              CallerLineNumber = callerLineNumber,
+                              CallerMemberName = callerMemberName,
+                              CallingAssembly = callingAssembly,
+                              Current = currentObject,
+                              CurrentObject = currentObject,
+                              CurrentResultParameterName = currentResultParameterName,
+                              DifferenceFunc = differenceFunc,
+                              ExpectedType = typeof(T),
+                              ExpectedObjectAsJson = expectedObjectAsJson,
+                              ExpectedResultFile = expectedFile,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              OrderFunc = orderFunc,
+                              Parameters = parameters,
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              TypeIsPrimitiveType = targetIsPrimitiveType,
+                              WriteResponse = writeResponse,
+                              Expected = default,
+                          };
 
             ObjectsAreEqual(assert, context);
         }

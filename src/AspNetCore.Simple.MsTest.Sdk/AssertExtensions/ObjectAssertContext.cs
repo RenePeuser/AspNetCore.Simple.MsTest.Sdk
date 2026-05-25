@@ -199,7 +199,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// When available, this avoids unnecessary JSON serialization → deserialization → serialization cycles.
         /// If null, the comparison strategy will deserialize from ResolvedExpectedJson.
         /// </summary>
-        public T? Expected { get; init; }
+        public required T? Expected { get; init; }
 
         /// <summary>
         /// The current/actual object to compare against the expected object (strongly-typed).

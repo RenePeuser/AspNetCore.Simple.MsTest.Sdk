@@ -117,8 +117,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 Url = context.Url,
                 WriteResponse = context.WriteResponse,
                 SkipEndpointValidation = context.SkipEndpointValidation,
-                ExpectedHttpStatusCode = context.ExpectedHttpStatusCode
-                                          SkipEndpointValidation = context.SkipEndpointValidation,
+                ExpectedHttpStatusCode = context.ExpectedHttpStatusCode,
 
                 // Copy failure type from original context (if already set by earlier pipeline steps)
                 FailureType = context.FailureType,

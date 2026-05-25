@@ -60,18 +60,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         /// The type of HTTP assertion failure (set by pipeline steps).
         /// Used to generate context-specific error messages in output strategies.
         /// </summary>
-        public HttpAssertionFailureType FailureType { get; set; } = HttpAssertionFailureType.None;
+        public required HttpAssertionFailureType FailureType { get; set; } = HttpAssertionFailureType.None;
 
         /// <summary>
         /// Expected HTTP status code (optional, set by validation steps).
         /// Used for detailed error reporting in status code mismatch scenarios.
         /// </summary>
-        public int? ExpectedStatusCode { get; set; }
+        public required int? ExpectedStatusCode { get; set; }
 
         /// <summary>
         /// Actual HTTP status code (optional, set by validation steps).
         /// Used for detailed error reporting in status code mismatch scenarios.
         /// </summary>
-        public int? ActualStatusCode { get; set; }
+        public required int? ActualStatusCode { get; set; }
     }
 }

@@ -403,7 +403,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 ApiVersion = apiVersion,
                 IgnoreResponse = false,
                 SkipEndpointValidation = skipEndpointValidation,
-                ExpectedHttpStatusCode = expectedStatusCode
+                ExpectedHttpStatusCode = expectedStatusCode,
+                Expected = null
             };
 
             await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
@@ -521,7 +522,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 ApiVersion = apiVersion,
                 IgnoreResponse = ignoreResponse,
                 SkipEndpointValidation = skipEndpointValidation,
-                ExpectedHttpStatusCode = expectedStatusCode
+                ExpectedHttpStatusCode = expectedStatusCode,
+                Expected = default
             };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
