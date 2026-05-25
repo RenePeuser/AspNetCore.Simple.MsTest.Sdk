@@ -1,14 +1,29 @@
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
+    public static class AddSchemaMismatchOutputStrategyExtension
+    {
+        /// <summary>
+        /// Registers the schema mismatch output strategy.
+        /// </summary>
+        public static void AddSchemaMismatchOutputStrategy(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<IHttpFailureOutputStrategy, SchemaMismatchOutputStrategy>();
+        }
+    }
+
     /// <summary>
     /// Strategy for handling schema mismatch failures.
     /// Indicates that the response structure doesn't match the expected type schema
     /// (missing properties, extra properties, or type mismatches).
     /// </summary>
-    internal sealed class SchemaMismatchOutputStrategy(ITextDecorator textDecorator) : IHttpFailureOutputStrategy
+    internal sealed class SchemaMismatchOutputStrategy(
+        ITextDecorator textDecorator,
+        IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
     {
         public bool CanHandle(HttpAssertionFailureType failureType)
         {
@@ -25,7 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
-            HttpFailureOutputHelper.BuildTestInfoSection(sb, context, textDecorator);
+            outputHelper.BuildTestInfoSection(sb, context, textDecorator);
 
             sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));

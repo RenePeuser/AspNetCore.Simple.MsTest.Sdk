@@ -1,22 +1,55 @@
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Helpers;
+using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
+    public static class AddHttpFailureOutputHelperExtension
+    {
+        /// <summary>
+        /// Registers the HTTP failure output helper service.
+        /// </summary>
+        public static void AddHttpFailureOutputHelper(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<IHttpFailureOutputHelper, HttpFailureOutputHelper>();
+        }
+    }
+
     /// <summary>
-    /// Shared helper methods for building HTTP failure output.
-    /// Provides common formatting and utility functions used across all failure strategies.
+    /// Provides helper methods for building HTTP failure output.
+    /// This interface allows customers to override default formatting behavior.
     /// </summary>
-    internal static class HttpFailureOutputHelper
+    public interface IHttpFailureOutputHelper
     {
         /// <summary>
         /// Builds the standard Test Information section with project, class, method, line, file, and failure type.
         /// </summary>
-        public static void BuildTestInfoSection(
-            StringBuilder sb,
-            IHttpResponseContext context,
-            ITextDecorator textDecorator)
+        void BuildTestInfoSection(StringBuilder sb,
+                                  IHttpResponseContext context,
+                                  ITextDecorator textDecorator);
+
+        /// <summary>
+        /// Gets the status code range category (Success, Client Error, Server Error).
+        /// </summary>
+        string GetStatusCodeRange(int statusCode);
+
+        /// <summary>
+        /// Gets the human-readable status text for common HTTP status codes.
+        /// </summary>
+        string GetStatusText(int statusCode);
+    }
+
+    /// <summary>
+    /// Default implementation of HTTP failure output helper.
+    /// Provides common formatting and utility functions used across all failure strategies.
+    /// </summary>
+    internal sealed class HttpFailureOutputHelper : IHttpFailureOutputHelper
+    {
+        public void BuildTestInfoSection(StringBuilder sb,
+                                         IHttpResponseContext context,
+                                         ITextDecorator textDecorator)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var className = TestContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
@@ -35,26 +68,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
             sb.AppendLine();
         }
 
-        /// <summary>
-        /// Converts HttpAssertionFailureType enum to human-readable text.
-        /// </summary>
-        public static string GetFailureTypeText(HttpAssertionFailureType failureType)
-        {
-            return failureType switch
-            {
-                HttpAssertionFailureType.None => "None",
-                HttpAssertionFailureType.SchemaMismatch => "Schema Mismatch",
-                HttpAssertionFailureType.StatusCodeMismatch => "Status Code Mismatch",
-                HttpAssertionFailureType.SnapshotMismatch => "Snapshot Mismatch",
-                HttpAssertionFailureType.ContentTypeMismatch => "Content Type Mismatch",
-                _ => failureType.ToString()
-            };
-        }
-
-        /// <summary>
-        /// Gets the status code range category (Success, Client Error, Server Error).
-        /// </summary>
-        public static string GetStatusCodeRange(int statusCode)
+        public string GetStatusCodeRange(int statusCode)
         {
             return statusCode switch
             {
@@ -65,10 +79,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
             };
         }
 
-        /// <summary>
-        /// Gets the human-readable status text for common HTTP status codes.
-        /// </summary>
-        public static string GetStatusText(int statusCode)
+        public string GetStatusText(int statusCode)
         {
             return statusCode switch
             {
@@ -86,6 +97,19 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
                 502 => "Bad Gateway",
                 503 => "Service Unavailable",
                 _ => string.Empty
+            };
+        }
+
+        private static string GetFailureTypeText(HttpAssertionFailureType failureType)
+        {
+            return failureType switch
+            {
+                HttpAssertionFailureType.None => "None",
+                HttpAssertionFailureType.SchemaMismatch => "Schema Mismatch",
+                HttpAssertionFailureType.StatusCodeMismatch => "Status Code Mismatch",
+                HttpAssertionFailureType.SnapshotMismatch => "Snapshot Mismatch",
+                HttpAssertionFailureType.ContentTypeMismatch => "Content Type Mismatch",
+                _ => failureType.ToString()
             };
         }
     }

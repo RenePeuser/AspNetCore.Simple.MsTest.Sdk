@@ -31,8 +31,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
                 return sourceLocation; // Already a readable location
             }
 
-            // Try to extract type name (remove method name if present)
-            var typeName = sourceLocation;
             var lastDotIndex = sourceLocation.LastIndexOf('.');
 
             Type? type = null;
@@ -44,8 +42,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 
                 if (type == null)
                 {
+                    // Try to extract type name (remove method name if present)
                     // Try without the last segment (might be a method name)
-                    typeName = sourceLocation.Substring(0, lastDotIndex);
+                    var typeName = sourceLocation.Substring(0, lastDotIndex);
                     type = TryGetType(typeName, callingAssembly);
                 }
             }
@@ -316,11 +315,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
                 // Search recursively for the file
                 // Skip common folders that shouldn't contain source files
                 var files = Directory.EnumerateFiles(rootDirectory, fileName, new EnumerationOptions
-                                                                              {
-                                                                                  RecurseSubdirectories = true,
-                                                                                  MatchCasing = MatchCasing.CaseInsensitive,
-                                                                                  IgnoreInaccessible = true
-                                                                              });
+                {
+                    RecurseSubdirectories = true,
+                    MatchCasing = MatchCasing.CaseInsensitive,
+                    IgnoreInaccessible = true
+                });
 
                 foreach (var file in files)
                 {

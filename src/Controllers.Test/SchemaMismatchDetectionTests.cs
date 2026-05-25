@@ -298,7 +298,7 @@ namespace Controllers.Test
             //     item.MemberPath.EndsWith(']').IsFalse());
 
             // Test cases that should trigger schema mismatch
-            var testCases = new[] { (Expected: """{"a":1}""", Current: """{"a":1,"b":2}""", Reason: "Extra property in current"), (Expected: """{"a":1,"b":2}""", Current: """{"a":1}""", Reason: "Missing property in current"), (Expected: """{"x":{"y":1}}""", Current: """{"x":{"y":1,"z":2}}""", Reason: "Extra nested property") };
+            var testCases = new[] { (Expected: /*lang=json,strict*/ """{"a":1}""", Current: /*lang=json,strict*/ """{"a":1,"b":2}""", Reason: "Extra property in current"), (Expected: /*lang=json,strict*/ """{"a":1,"b":2}""", Current: /*lang=json,strict*/ """{"a":1}""", Reason: "Missing property in current"), (Expected: /*lang=json,strict*/ """{"x":{"y":1}}""", Current: /*lang=json,strict*/ """{"x":{"y":1,"z":2}}""", Reason: "Extra nested property") };
 
             foreach (var testCase in testCases)
             {
@@ -312,7 +312,7 @@ namespace Controllers.Test
             }
 
             // Test cases that should NOT trigger schema mismatch
-            var noSchemaMismatchCases = new[] { (Expected: """{"a":1}""", Current: """{"a":2}""", Reason: "Only value differs"), (Expected: """{"a":1,"b":2}""", Current: """{"a":1,"b":2}""", Reason: "Identical"), (Expected: """{"items":[1,2]}""", Current: """{"items":[1,2,3]}""", Reason: "Array length differs") };
+            var noSchemaMismatchCases = new[] { (Expected: /*lang=json,strict*/ """{"a":1}""", Current: /*lang=json,strict*/ """{"a":2}""", Reason: "Only value differs"), (Expected: /*lang=json,strict*/ """{"a":1,"b":2}""", Current: /*lang=json,strict*/ """{"a":1,"b":2}""", Reason: "Identical"), (Expected: /*lang=json,strict*/ """{"items":[1,2]}""", Current: /*lang=json,strict*/ """{"items":[1,2,3]}""", Reason: "Array length differs") };
 
             foreach (var testCase in noSchemaMismatchCases)
             {

@@ -1,7 +1,20 @@
 using System.Text;
+using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
+    public static class AddHttpFailureOutputBuilderExtension
+    {
+        /// <summary>
+        /// Registers the HTTP failure output builder service.
+        /// </summary>
+        public static void AddHttpFailureOutputBuilder(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<IHttpFailureOutputBuilder, HttpFailureOutputBuilder>();
+        }
+    }
+
     /// <summary>
     /// Orchestrator implementation that coordinates HTTP failure output strategies.
     /// Uses chain-of-responsibility pattern to find the right strategy for each failure type.

@@ -1,14 +1,29 @@
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
+    public static class AddSnapshotMismatchOutputStrategyExtension
+    {
+        /// <summary>
+        /// Registers the snapshot mismatch output strategy.
+        /// </summary>
+        public static void AddSnapshotMismatchOutputStrategy(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<IHttpFailureOutputStrategy, SnapshotMismatchOutputStrategy>();
+        }
+    }
+
     /// <summary>
     /// Strategy for handling snapshot mismatch failures.
     /// Indicates that JSON values differ from the expected snapshot
     /// (all properties exist but have different values).
     /// </summary>
-    internal sealed class SnapshotMismatchOutputStrategy(ITextDecorator textDecorator) : IHttpFailureOutputStrategy
+    internal sealed class SnapshotMismatchOutputStrategy(
+        ITextDecorator textDecorator,
+        IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
     {
         public bool CanHandle(HttpAssertionFailureType failureType)
         {
@@ -25,7 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
-            HttpFailureOutputHelper.BuildTestInfoSection(sb, context, textDecorator);
+            outputHelper.BuildTestInfoSection(sb, context, textDecorator);
 
             sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));

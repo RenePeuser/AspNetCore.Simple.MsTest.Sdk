@@ -63,13 +63,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _curlPrinter = serviceProvider.GetRequiredService<ICurlPrinter>();
 
             // 3.1. Create HTTP failure strategies
+            var httpFailureOutputHelper = new HttpFailureOutputHelper();
             var httpFailureStrategies = new IHttpFailureOutputStrategy[]
                                         {
-                                            new StatusCodeMismatchOutputStrategy(_textDecorator), new SchemaMismatchOutputStrategy(_textDecorator), new SnapshotMismatchOutputStrategy(_textDecorator),
-                                            new ContentTypeMismatchOutputStrategy(_textDecorator)
+                                            new StatusCodeMismatchOutputStrategy(_textDecorator, httpFailureOutputHelper), new SchemaMismatchOutputStrategy(_textDecorator, httpFailureOutputHelper), new SnapshotMismatchOutputStrategy(_textDecorator, httpFailureOutputHelper),
+                                            new ContentTypeMismatchOutputStrategy(_textDecorator, httpFailureOutputHelper)
                                         };
 
-            var defaultHttpFailureStrategy = new DefaultHttpFailureOutputStrategy(_textDecorator);
+            var defaultHttpFailureStrategy = new DefaultHttpFailureOutputStrategy(_textDecorator, httpFailureOutputHelper);
             var httpFailureOutputBuilder = new HttpFailureOutputBuilder(httpFailureStrategies, defaultHttpFailureStrategy);
 
             // 4. Rebuild output strategies with the correct decorator
@@ -166,13 +167,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static HttpCallHandler _httpCallHandler = new(new HttpRequestMessageBuilder(new JsonSerializer(JsonSerializerOptions)));
 
         private static JsonSerializerOptions _jsonSerializerOptions = new()
-                                                                      {
-                                                                          PropertyNameCaseInsensitive = true,
-                                                                          PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                                                                          DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                                                                          NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                                                                          Converters = { new JsonStringEnumConverter() }
-                                                                      };
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+            Converters = { new JsonStringEnumConverter() }
+        };
 
         private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions);
 
@@ -195,16 +196,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static ICurlPrinter _curlPrinter = new CurlPrinter(_curlFormatter, _curlBuilder);
 
+        // HTTP failure output helper (default plain text decorator)
+        private static readonly IHttpFailureOutputHelper _httpFailureOutputHelper = new HttpFailureOutputHelper();
+
         // HTTP failure strategies (default plain text decorator)
         private static readonly IHttpFailureOutputStrategy[] _httpFailureStrategies =
         [
-            new StatusCodeMismatchOutputStrategy(_plainTextDecorator),
-            new SchemaMismatchOutputStrategy(_plainTextDecorator),
-            new SnapshotMismatchOutputStrategy(_plainTextDecorator),
-            new ContentTypeMismatchOutputStrategy(_plainTextDecorator)
+            new StatusCodeMismatchOutputStrategy(_plainTextDecorator, _httpFailureOutputHelper),
+            new SchemaMismatchOutputStrategy(_plainTextDecorator, _httpFailureOutputHelper),
+            new SnapshotMismatchOutputStrategy(_plainTextDecorator, _httpFailureOutputHelper),
+            new ContentTypeMismatchOutputStrategy(_plainTextDecorator, _httpFailureOutputHelper)
         ];
 
-        private static readonly DefaultHttpFailureOutputStrategy _defaultHttpFailureStrategy = new(_plainTextDecorator);
+        private static readonly DefaultHttpFailureOutputStrategy _defaultHttpFailureStrategy = new(_plainTextDecorator, _httpFailureOutputHelper);
 
         private static readonly HttpFailureOutputBuilder _httpFailureOutputBuilder = new(_httpFailureStrategies, _defaultHttpFailureStrategy);
 
@@ -366,37 +370,37 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with ExpectedType = typeof(void) for NoContent scenarios
             var context = new HttpAssertContext<string>
-                          {
-                              CallerFilePath = callerFilePath,
-                              CallerMemberName = callerMemberName,
-                              CallerLineNumber = callerLineNumber,
-                              CallingAssembly = callingAssembly,
-                              Client = client,
-                              Current = null,
-                              CurrentObject = null,
-                              CurrentResultParameterName = "Current response",
-                              DifferenceFunc = difference => difference,
-                              ExpectedType = typeof(void), // <-- Key difference: void for NoContent
-                              ExpectedObjectAsJson = IgnoreResponseComparison,
-                              ExpectedResultFile = expectedResultFile,
-                              ExpectedResultParameterName = string.Empty,
-                              HttpMethod = httpMethod,
-                              IsSuccessStatusCode = isSuccessStatusCode,
-                              OrderFunc = item => item,
-                              Parameters = parameters,
-                              PayloadAsJson = payloadAsJson,
-                              PayloadFile = payloadFile,
-                              PayloadParameterName = payloadAsJsonParameterName,
-                              ResolvedExpectedJson = resolvedExpectedJson,
-                              ResolvedPayload = resolvedPayload,
-                              ShowTokenInCurl = ShowTokenInCurl,
-                              TypeIsPrimitiveType = true,
-                              Url = resolvedUrl,
-                              WriteResponse = writeResponse,
-                              ApiVersion = apiVersion,
-                              IgnoreResponse = false,
-                              SkipEndpointValidation = skipEndpointValidation
-                          };
+            {
+                CallerFilePath = callerFilePath,
+                CallerMemberName = callerMemberName,
+                CallerLineNumber = callerLineNumber,
+                CallingAssembly = callingAssembly,
+                Client = client,
+                Current = null,
+                CurrentObject = null,
+                CurrentResultParameterName = "Current response",
+                DifferenceFunc = difference => difference,
+                ExpectedType = typeof(void), // <-- Key difference: void for NoContent
+                ExpectedObjectAsJson = IgnoreResponseComparison,
+                ExpectedResultFile = expectedResultFile,
+                ExpectedResultParameterName = string.Empty,
+                HttpMethod = httpMethod,
+                IsSuccessStatusCode = isSuccessStatusCode,
+                OrderFunc = item => item,
+                Parameters = parameters,
+                PayloadAsJson = payloadAsJson,
+                PayloadFile = payloadFile,
+                PayloadParameterName = payloadAsJsonParameterName,
+                ResolvedExpectedJson = resolvedExpectedJson,
+                ResolvedPayload = resolvedPayload,
+                ShowTokenInCurl = ShowTokenInCurl,
+                TypeIsPrimitiveType = true,
+                Url = resolvedUrl,
+                WriteResponse = writeResponse,
+                ApiVersion = apiVersion,
+                IgnoreResponse = false,
+                SkipEndpointValidation = skipEndpointValidation
+            };
 
             await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
         }
@@ -480,37 +484,37 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create public context directly - no need for internal context
             var context = new HttpAssertContext<TResult>
-                          {
-                              CallerFilePath = callerFilePath,
-                              CallerMemberName = callerMemberName,
-                              CallerLineNumber = callerLineNumber,
-                              CallingAssembly = callingAssembly,
-                              Client = client,
-                              Current = default,
-                              CurrentObject = null,
-                              CurrentResultParameterName = "Current response",
-                              DifferenceFunc = differenceFunc,
-                              ExpectedType = typeof(TResult),
-                              ExpectedObjectAsJson = expectedResult,
-                              ExpectedResultFile = expectedResultFile,
-                              ExpectedResultParameterName = expectedResultParameterName,
-                              HttpMethod = httpMethod,
-                              IsSuccessStatusCode = isSuccessStatusCode,
-                              OrderFunc = filterFunc,
-                              Parameters = parameters,
-                              PayloadAsJson = payloadAsJson,
-                              PayloadFile = payloadFile,
-                              PayloadParameterName = payloadAsJsonParameterName,
-                              ResolvedExpectedJson = resolvedExpectedJson,
-                              ResolvedPayload = resolvedPayload,
-                              ShowTokenInCurl = ShowTokenInCurl,
-                              TypeIsPrimitiveType = targetIsPrimitiveType,
-                              Url = resolvedUrl,
-                              WriteResponse = writeResponse,
-                              ApiVersion = apiVersion,
-                              IgnoreResponse = ignoreResponse,
-                              SkipEndpointValidation = skipEndpointValidation
-                          };
+            {
+                CallerFilePath = callerFilePath,
+                CallerMemberName = callerMemberName,
+                CallerLineNumber = callerLineNumber,
+                CallingAssembly = callingAssembly,
+                Client = client,
+                Current = default,
+                CurrentObject = null,
+                CurrentResultParameterName = "Current response",
+                DifferenceFunc = differenceFunc,
+                ExpectedType = typeof(TResult),
+                ExpectedObjectAsJson = expectedResult,
+                ExpectedResultFile = expectedResultFile,
+                ExpectedResultParameterName = expectedResultParameterName,
+                HttpMethod = httpMethod,
+                IsSuccessStatusCode = isSuccessStatusCode,
+                OrderFunc = filterFunc,
+                Parameters = parameters,
+                PayloadAsJson = payloadAsJson,
+                PayloadFile = payloadFile,
+                PayloadParameterName = payloadAsJsonParameterName,
+                ResolvedExpectedJson = resolvedExpectedJson,
+                ResolvedPayload = resolvedPayload,
+                ShowTokenInCurl = ShowTokenInCurl,
+                TypeIsPrimitiveType = targetIsPrimitiveType,
+                Url = resolvedUrl,
+                WriteResponse = writeResponse,
+                ApiVersion = apiVersion,
+                IgnoreResponse = ignoreResponse,
+                SkipEndpointValidation = skipEndpointValidation
+            };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
 

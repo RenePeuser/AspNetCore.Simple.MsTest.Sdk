@@ -661,7 +661,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             var testTypeText = isSuccessTest ? "Success (expects 2xx)" : "Error (expects 4xx/5xx)";
-            var statusRange = expectedStatusCode >= 200 && expectedStatusCode < 300 ? "Success (2xx)" : "Error (4xx/5xx)";
+            var statusRange = expectedStatusCode is >= 200 and < 300 ? "Success (2xx)" : "Error (4xx/5xx)";
 
             sb.AppendLine($"{"Test Type",-20} : {testTypeText}");
             sb.AppendLine($"{"Expected Status",-20} : {expectedStatusCode} ({statusCodeName})");
@@ -683,7 +683,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // Suggested fix with actual code
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                string suggestedFix = sourceCode;
+                var suggestedFix = sourceCode;
 
                 if (isSuccessTest)
                 {

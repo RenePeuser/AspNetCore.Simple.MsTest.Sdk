@@ -1,13 +1,28 @@
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
+    public static class AddStatusCodeMismatchOutputStrategyExtension
+    {
+        /// <summary>
+        /// Registers the status code mismatch output strategy.
+        /// </summary>
+        public static void AddStatusCodeMismatchOutputStrategy(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<IHttpFailureOutputStrategy, StatusCodeMismatchOutputStrategy>();
+        }
+    }
+
     /// <summary>
     /// Strategy for handling HTTP status code mismatch failures.
     /// Displays expected vs actual status codes with helpful categorization (Success, Client Error, Server Error).
     /// </summary>
-    internal sealed class StatusCodeMismatchOutputStrategy(ITextDecorator textDecorator) : IHttpFailureOutputStrategy
+    internal sealed class StatusCodeMismatchOutputStrategy(
+        ITextDecorator textDecorator,
+        IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
     {
         public bool CanHandle(HttpAssertionFailureType failureType)
         {
@@ -24,7 +39,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
-            HttpFailureOutputHelper.BuildTestInfoSection(sb, context, textDecorator);
+            outputHelper.BuildTestInfoSection(sb, context, textDecorator);
 
             // Failure Details section with expected vs actual
             if (context.ExpectedStatusCode.HasValue && context.ActualStatusCode.HasValue)
@@ -33,8 +48,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
 
-                var expectedRange = HttpFailureOutputHelper.GetStatusCodeRange(context.ExpectedStatusCode.Value);
-                var actualText = HttpFailureOutputHelper.GetStatusText(context.ActualStatusCode.Value);
+                var expectedRange = outputHelper.GetStatusCodeRange(context.ExpectedStatusCode.Value);
+                var actualText = outputHelper.GetStatusText(context.ActualStatusCode.Value);
 
                 sb.AppendLine($"{"Expected",-10} : {context.ExpectedStatusCode} ({expectedRange})");
                 sb.AppendLine($"{"Actual",-10} : {context.ActualStatusCode} ({actualText})");

@@ -1,4 +1,3 @@
-using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
@@ -10,17 +9,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
     {
         public static void AddHttpFailureOutputStrategy(this IServiceCollection services)
         {
-            // Register all specific failure strategies
-            services.AddSingletonIfNotExists<IHttpFailureOutputStrategy, StatusCodeMismatchOutputStrategy>();
-            services.AddSingletonIfNotExists<IHttpFailureOutputStrategy, SchemaMismatchOutputStrategy>();
-            services.AddSingletonIfNotExists<IHttpFailureOutputStrategy, SnapshotMismatchOutputStrategy>();
-            services.AddSingletonIfNotExists<IHttpFailureOutputStrategy, ContentTypeMismatchOutputStrategy>();
+            // Register the helper
+            services.AddHttpFailureOutputHelper();
 
-            // Register the default fallback strategy (injected separately, not via IEnumerable<T>)
-            services.AddSingletonIfNotExists<DefaultHttpFailureOutputStrategy>();
+            // Register all specific failure strategies
+            services.AddStatusCodeMismatchOutputStrategy();
+            services.AddSchemaMismatchOutputStrategy();
+            services.AddSnapshotMismatchOutputStrategy();
+            services.AddContentTypeMismatchOutputStrategy();
+
+            // Register the default fallback strategy
+            services.AddDefaultHttpFailureOutputStrategy();
 
             // Register the orchestrator builder
-            services.AddSingletonIfNotExists<IHttpFailureOutputBuilder, HttpFailureOutputBuilder>();
+            services.AddHttpFailureOutputBuilder();
         }
     }
 }
