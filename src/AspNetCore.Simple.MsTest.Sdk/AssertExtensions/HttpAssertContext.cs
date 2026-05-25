@@ -82,9 +82,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <summary>
         /// The expected HTTP status code for the request.
         /// Used to validate that the endpoint returns the correct status code.
-        /// Defaults to OK (200) for success scenarios and BadRequest (400) for error scenarios.
+        /// When null (default), the status code is determined by:
+        /// 1. The StatusCode field in the expected JSON file (if present)
+        /// 2. The test type (OK/200 for success tests, BadRequest/400 for error tests)
         /// </summary>
-        HttpStatusCode ExpectedHttpStatusCode { get; init; }
+        HttpStatusCode? ExpectedHttpStatusCode { get; init; }
     }
 
     /// <summary>
@@ -173,8 +175,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <summary>
         /// The expected HTTP status code for the request.
         /// Used to validate that the endpoint returns the correct status code.
-        /// Defaults to OK (200) for success scenarios and BadRequest (400) for error scenarios.
+        /// When null (default), the status code is determined by:
+        /// 1. The StatusCode field in the expected JSON file (if present)
+        /// 2. The test type (OK/200 for success tests, BadRequest/400 for error tests)
         /// </summary>
-        public required HttpStatusCode ExpectedHttpStatusCode { get; init; } = HttpStatusCode.OK;
+        public required HttpStatusCode? ExpectedHttpStatusCode { get; init; }
     }
 }

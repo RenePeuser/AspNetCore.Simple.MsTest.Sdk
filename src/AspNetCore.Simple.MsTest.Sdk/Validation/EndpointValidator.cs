@@ -94,7 +94,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         {
             // Determine which status codes to check based on test type
             var isSuccessTest = context.IsSuccessStatusCode;
-            var expectedStatusCode = TryExtractStatusCodeFromExpectedResponse(context);
+
+            // Priority: Use explicit ExpectedHttpStatusCode parameter first, then try to extract from JSON
+            var expectedStatusCode = TryExtractStatusCodeFromContext(context);
 
             if (expectedStatusCode.HasValue)
             {
@@ -156,6 +158,25 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                     Assert.That.Fail(typeMismatchError);
                 }
             }
+        }
+
+        /// <summary>
+        /// Extracts the expected status code from the context.
+        /// Priority:
+        /// 1. ExpectedHttpStatusCode parameter (if explicitly set, i.e., not null)
+        /// 2. Status code from expected JSON file
+        /// This allows explicit parameter to override JSON file, maintaining backward compatibility.
+        /// </summary>
+        private static int? TryExtractStatusCodeFromContext(IHttpAssertContext context)
+        {
+            // Priority 1: Check if ExpectedHttpStatusCode was explicitly set (not null)
+            if (context.ExpectedHttpStatusCode.HasValue)
+            {
+                return (int)context.ExpectedHttpStatusCode.Value;
+            }
+
+            // Priority 2: Try to extract from expected JSON file (backward compatibility)
+            return TryExtractStatusCodeFromExpectedResponse(context);
         }
 
         /// <summary>

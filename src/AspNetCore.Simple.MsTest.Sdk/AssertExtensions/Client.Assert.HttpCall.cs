@@ -350,7 +350,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       bool isSuccessStatusCode = true,
                                                       bool writeResponse = false,
                                                       bool skipEndpointValidation = false,
-                                                      HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+                                                      HttpStatusCode? expectedStatusCode = null,
                                                       [CallerMemberName] string callerMemberName = "",
                                                       [CallerLineNumber] int callerLineNumber = 0)
 #pragma warning restore CA1859
@@ -422,7 +422,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   bool writeResponse = false,
                                                                   bool ignoreResponse = false,
                                                                   bool skipEndpointValidation = false,
-                                                                  HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+                                                                  HttpStatusCode? expectedStatusCode = null,
                                                                   [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                   string payloadAsJsonParameterName = "",
                                                                   [CallerArgumentExpression(nameof(expectedResult))]
@@ -464,7 +464,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                         bool writeResponse = false,
                                                                         bool ignoreResponse = false,
                                                                         bool skipEndpointValidation = false,
-                                                                        HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+                                                                        HttpStatusCode? expectedStatusCode = null,
                                                                         [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                         string payloadAsJsonParameterName = "",
                                                                         [CallerArgumentExpression(nameof(expectedResult))]

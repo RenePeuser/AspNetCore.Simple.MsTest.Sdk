@@ -13,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    string expectedResult,
                                                                    bool writeResponse = false,
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -42,7 +42,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -71,7 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -100,7 +100,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -130,7 +130,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -160,7 +160,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -193,7 +193,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -227,7 +227,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -261,7 +261,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -295,7 +295,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -330,7 +330,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -365,7 +365,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -399,7 +399,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -434,7 +434,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -466,7 +466,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -500,7 +500,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -534,7 +534,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -568,7 +568,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -602,7 +602,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
@@ -638,7 +638,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerArgumentExpression(nameof(expectedResult))]
                                                                    string expectedResultParameterName = "",
                                                                    bool skipEndpointValidation = false,
-                                                                   HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest,
+                                                                   HttpStatusCode? expectedStatusCode = null,
                                                                    [CallerFilePath] string callerFilePath = "",
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)

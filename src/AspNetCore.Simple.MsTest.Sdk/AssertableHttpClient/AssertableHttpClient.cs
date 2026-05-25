@@ -114,7 +114,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             var contentAsString = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             var resolvedParametersJsonString = parameterReplacementService.ResolveParameters(contentAsString, context.Parameters);
             var absoluteUrl = httpResponseMessage.RequestMessage?.RequestUri?.AbsoluteUri ?? string.Empty;
-            var isExpectedStatusCode = httpResponseMessage.IsSuccessStatusCode == context.IsSuccessStatusCode;
+
+            // Check if status code matches expectations:
+            // 1. If ExpectedHttpStatusCode is explicitly set (not null), check exact match
+            // 2. Otherwise, fallback to category check (2xx vs 4xx/5xx) for backward compatibility
+            var actualStatusCode = (int)httpResponseMessage.StatusCode;
+
+            var isExpectedStatusCode = context.ExpectedHttpStatusCode.HasValue
+                                          ? actualStatusCode == (int)context.ExpectedHttpStatusCode.Value
+                                          : httpResponseMessage.IsSuccessStatusCode == context.IsSuccessStatusCode;
 
             // 4. Deserialize the response to TResult (this is what the user gets back - never modified!)
             var targetType = typeof(TResult);
