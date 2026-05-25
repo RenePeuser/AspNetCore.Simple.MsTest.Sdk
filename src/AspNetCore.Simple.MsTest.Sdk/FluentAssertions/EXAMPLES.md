@@ -15,32 +15,42 @@ Comprehensive examples demonstrating both neutral and endpoint-style APIs.
 
 ### Simple GET Request
 ```csharp
-// Neutral style
+// Neutral style (classic)
 await Client.AssertGet("api/persons")
     .WithResponse<List<Person>>("Expected.json")
     .ExpectSuccess();
 
-// Endpoint style
+// Neutral style (terminal - shorter!)
+await Client.AssertGet("api/persons")
+    .WithResponse<List<Person>>("Expected.json", expectSuccess: true);
+
+// Endpoint style with status code (terminal)
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle;
+using Microsoft.AspNetCore.Http;
 
 await Client.AssertGet("api/persons")
-    .Produces<List<Person>>("Expected.json")
-    .ExpectSuccess();
+    .WithResponseType<List<Person>>()
+    .Produces(StatusCodes.Status200OK, "Expected.json");
 ```
 
 ### Simple POST Request
 ```csharp
-// Neutral style
+// Neutral style (classic)
 await Client.AssertPost("api/persons")
     .WithBody(person)
     .WithResponse<Person>("Expected.json")
     .ExpectSuccess();
 
-// Endpoint style
+// Neutral style (terminal with status code)
 await Client.AssertPost("api/persons")
-    .Accepts<Person>(person)
-    .Produces<Person>("Expected.json")
-    .ExpectSuccess();
+    .WithBody(person)
+    .WithResponse<Person>("Expected.json", HttpStatusCode.Created);
+
+// Endpoint style with status code (terminal)
+await Client.AssertPost("api/persons")
+    .Accepts(person)
+    .WithResponseType<Person>()
+    .Produces(StatusCodes.Status201Created, "Expected.json");
 ```
 
 ### DELETE with No Content

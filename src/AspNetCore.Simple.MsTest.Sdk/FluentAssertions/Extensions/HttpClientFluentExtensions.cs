@@ -1,3 +1,4 @@
+using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders;
@@ -150,6 +151,98 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
 
             return new HttpRequestBuilder(client, HttpMethod.Delete, url,
                                           callingAssembly, callerFilePath);
+        }
+
+        // ============================================================
+        // TERMINAL OVERLOADS - WithResponse with automatic status code expectation
+        // ============================================================
+
+        /// <summary>
+        /// Configures the expected response and immediately expects success (2xx status).
+        /// This is a terminal operation that executes the request.
+        /// </summary>
+        /// <typeparam name="TResult">Expected response type</typeparam>
+        /// <param name="config">Request configuration</param>
+        /// <param name="expectedJson">JSON string or embedded resource path for expected response</param>
+        /// <param name="expectSuccess">Must be true to use this overload</param>
+        /// <returns>Task that resolves to the validated response</returns>
+        /// <example>
+        /// <code>
+        /// // Short form - no ExpectSuccess() needed
+        /// await Client.AssertPost("api/persons")
+        ///     .WithBody(person)
+        ///     .WithResponse&lt;Person&gt;("Expected.json", expectSuccess: true);
+        /// </code>
+        /// </example>
+        public static Task<TResult> WithResponse<TResult>(
+            this IHttpRequestConfiguring config,
+            string expectedJson,
+            bool expectSuccess)
+        {
+            if (!expectSuccess)
+            {
+                throw new ArgumentException(
+                    "expectSuccess must be true for this overload. " +
+                    "Use .WithResponse<T>(json).Expect() for explicit status code control.",
+                    nameof(expectSuccess));
+            }
+
+            return config.WithResponse<TResult>(expectedJson).ExpectSuccess();
+        }
+
+        /// <summary>
+        /// Configures the expected response and immediately expects the specified status code.
+        /// This is a terminal operation that executes the request.
+        /// </summary>
+        /// <typeparam name="TResult">Expected response type</typeparam>
+        /// <param name="config">Request configuration</param>
+        /// <param name="expectedJson">JSON string or embedded resource path for expected response</param>
+        /// <param name="statusCode">Expected HTTP status code</param>
+        /// <returns>Task that resolves to the validated response</returns>
+        /// <example>
+        /// <code>
+        /// // With explicit status code
+        /// await Client.AssertPost("api/persons")
+        ///     .WithBody(person)
+        ///     .WithResponse&lt;Person&gt;("Expected.json", HttpStatusCode.Created);
+        /// </code>
+        /// </example>
+        public static Task<TResult> WithResponse<TResult>(
+            this IHttpRequestConfiguring config,
+            string expectedJson,
+            HttpStatusCode statusCode)
+        {
+            return config.WithResponse<TResult>(expectedJson).ExpectStatus(statusCode);
+        }
+
+        /// <summary>
+        /// Configures the expected response and immediately expects one of the specified status codes.
+        /// This is a terminal operation that executes the request.
+        /// </summary>
+        /// <typeparam name="TResult">Expected response type</typeparam>
+        /// <param name="config">Request configuration</param>
+        /// <param name="expectedJson">JSON string or embedded resource path for expected response</param>
+        /// <param name="statusCodes">Accepted HTTP status codes</param>
+        /// <returns>Task that resolves to the validated response</returns>
+        /// <example>
+        /// <code>
+        /// // Accept multiple status codes
+        /// await Client.AssertPost("api/persons")
+        ///     .WithBody(person)
+        ///     .WithResponse&lt;Person&gt;("Expected.json", HttpStatusCode.OK, HttpStatusCode.Created);
+        /// </code>
+        /// </example>
+        public static Task<TResult> WithResponse<TResult>(
+            this IHttpRequestConfiguring config,
+            string expectedJson,
+            params HttpStatusCode[] statusCodes)
+        {
+            if (statusCodes.Length == 0)
+            {
+                throw new ArgumentException("At least one status code must be provided.", nameof(statusCodes));
+            }
+
+            return config.WithResponse<TResult>(expectedJson).Expect(statusCodes);
         }
     }
 }

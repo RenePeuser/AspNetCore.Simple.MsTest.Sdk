@@ -1,3 +1,5 @@
+using System.Net;
+using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle
@@ -93,6 +95,33 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle
         }
 
         // ============================================================
+        // RESPONSE TYPE DECLARATION - Declare expected response type without content
+        // ============================================================
+
+        /// <summary>
+        /// Declares the expected response type without specifying the expected content yet.
+        /// Transitions to response configuration state where filtering and transformation can be applied.
+        /// </summary>
+        /// <typeparam name="TResult">Expected response type</typeparam>
+        /// <param name="config">Request configuration</param>
+        /// <returns>Response configuration builder</returns>
+        /// <example>
+        /// <code>
+        /// await Client.AssertPost("api/persons")
+        ///     .Accepts(person)
+        ///     .WithResponseType&lt;Person&gt;()
+        ///     .FilterResponse(p => p with { Id = 0 })
+        ///     .Produces(StatusCodes.Status201Created, "Expected.json");
+        /// </code>
+        /// </example>
+        public static IHttpResponseConfiguring<TResult> WithResponseType<TResult>(
+            this IHttpRequestConfiguring config)
+        {
+            // Use empty string as placeholder - will be replaced by Produces()
+            return config.WithResponse<TResult>(string.Empty);
+        }
+
+        // ============================================================
         // PRODUCES - Aliases for WithResponse (Response Configuration)
         // ============================================================
 
@@ -134,21 +163,49 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle
         }
 
         // ============================================================
-        // NOTE: We intentionally do NOT provide ProducesOk, ProducesCreated,
-        // ProducesBadRequest, etc. convenience methods.
-        //
-        // Reason: Consistency and clarity. All tests should explicitly state
-        // their expected status code using .Expect() or .ExpectSuccess().
-        //
-        // Example:
-        //   .Produces<Person>("response.json")
-        //   .ExpectSuccess()
-        //
-        //   .Produces<Person>("response.json")
-        //   .Expect(HttpStatusCode.Created)
-        //
-        // This makes it crystal clear what status code is expected, and keeps
-        // the API simple with fewer methods to learn.
+        // PRODUCES WITH STATUS CODE - Terminal operation combining status code and expected content
         // ============================================================
+
+        /// <summary>
+        /// Configures expected response content and status code in one call.
+        /// Mirrors ASP.NET Core's .Produces&lt;T&gt;(statusCode) endpoint configuration.
+        /// This is a terminal operation that executes the request.
+        /// </summary>
+        /// <typeparam name="TResult">Expected response type</typeparam>
+        /// <param name="config">Response configuration</param>
+        /// <param name="statusCode">Expected HTTP status code</param>
+        /// <param name="expectedJson">JSON string or embedded resource path for expected response</param>
+        /// <returns>Task that resolves to the validated response</returns>
+        /// <example>
+        /// <code>
+        /// // Simple case
+        /// await Client.AssertPost("api/persons")
+        ///     .Accepts(person)
+        ///     .WithResponseType&lt;Person&gt;()
+        ///     .Produces(StatusCodes.Status201Created, "Expected.json");
+        ///
+        /// // With filtering
+        /// await Client.AssertPost("api/persons")
+        ///     .Accepts(person)
+        ///     .WithResponseType&lt;Person&gt;()
+        ///     .FilterResponse(p => p with { Id = 0 })
+        ///     .Produces(StatusCodes.Status201Created, "Expected.json");
+        /// </code>
+        /// </example>
+        public static Task<TResult> Produces<TResult>(
+            this IHttpResponseConfiguring<TResult> config,
+            int statusCode,
+            string expectedJson)
+        {
+            // Cast to concrete builder and use internal method
+            if (config is HttpResponseBuilder<TResult> builder)
+            {
+                return builder.SetExpectedJsonAndExecute(expectedJson, (HttpStatusCode)statusCode);
+            }
+
+            throw new InvalidOperationException(
+                "Produces with status code can only be called on the built-in fluent API builder. " +
+                "This is an internal error - please report it.");
+        }
     }
 }

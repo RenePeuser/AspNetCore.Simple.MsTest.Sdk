@@ -1,7 +1,9 @@
+using System.Net;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle;
 using Controllers.Api.Persons;
 using Controllers.Test.Api.Persons.V1.Shared;
+using Microsoft.AspNetCore.Http;
 
 namespace Controllers.Test.Api.Persons.V1.Create
 {
@@ -96,6 +98,98 @@ namespace Controllers.Test.Api.Persons.V1.Create
                          .Produces<Person>("CreatePerson.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExpectSuccess();
+        }
+
+        // ============================================================
+        // FLUENT API TESTS - NEW ENDPOINT STYLE WITH STATUS CODE
+        // ============================================================
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("Fluent.EndpointStyle")]
+        [TestCategory("Fluent.StatusCode")]
+        [TestCategory("POST")]
+        public Task FluentEndpoint_Should_Create_Person_With_StatusCode_Terminal()
+        {
+            var person = TestHelpers.CreateValidPerson();
+            return Client.AssertPost("api/tests/v1/persons")
+                         .Accepts(person)
+                         .WithResponseType<Person>()
+                         .Produces(StatusCodes.Status200OK, "CreatePerson.json");
+        }
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("Fluent.EndpointStyle")]
+        [TestCategory("Fluent.StatusCode")]
+        [TestCategory("POST")]
+        public Task FluentEndpoint_Should_Create_Person_With_StatusCode_And_Filtering()
+        {
+            var person = TestHelpers.CreateValidPerson();
+            return Client.AssertPost("api/tests/v1/persons")
+                         .Accepts(person)
+                         .WithResponseType<Person>()
+                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .Produces(StatusCodes.Status200OK, "CreatePerson.json");
+        }
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("Fluent.EndpointStyle")]
+        [TestCategory("Fluent.StatusCode")]
+        [TestCategory("POST")]
+        public Task FluentEndpoint_Should_Create_Person_With_HttpStatusCode_Enum()
+        {
+            var person = TestHelpers.CreateValidPerson();
+            return Client.AssertPost("api/tests/v1/persons")
+                         .Accepts(person)
+                         .WithResponseType<Person>()
+                         .Produces((int)HttpStatusCode.OK, "CreatePerson.json");
+        }
+
+        // ============================================================
+        // FLUENT API TESTS - TERMINAL WithResponse OVERLOADS
+        // ============================================================
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("Fluent.Neutral")]
+        [TestCategory("Fluent.Terminal")]
+        [TestCategory("POST")]
+        public Task Fluent_Should_Create_Person_WithResponse_ExpectSuccess_Terminal()
+        {
+            var person = TestHelpers.CreateValidPerson();
+            return Client.AssertPost("api/tests/v1/persons")
+                         .WithBody(person)
+                         .WithResponse<Person>("CreatePerson.json", expectSuccess: true);
+        }
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("Fluent.Neutral")]
+        [TestCategory("Fluent.Terminal")]
+        [TestCategory("POST")]
+        public Task Fluent_Should_Create_Person_WithResponse_StatusCode_Terminal()
+        {
+            var person = TestHelpers.CreateValidPerson();
+            return Client.AssertPost("api/tests/v1/persons")
+                         .WithBody(person)
+                         .WithResponse<Person>("CreatePerson.json", HttpStatusCode.OK);
+        }
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("Fluent.Neutral")]
+        [TestCategory("Fluent.Terminal")]
+        [TestCategory("POST")]
+        public Task Fluent_Should_Create_Person_WithResponse_MultiStatus_Terminal()
+        {
+            var person = TestHelpers.CreateValidPerson();
+            return Client.AssertPost("api/tests/v1/persons")
+                         .WithBody(person)
+                         .WithResponse<Person>("CreatePerson.json",
+                                              HttpStatusCode.OK,
+                                              HttpStatusCode.Created);
         }
     }
 }

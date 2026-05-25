@@ -31,7 +31,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         private readonly string _callerFilePath;
 
-        private readonly string _expectedJson;
+        private string _expectedJson;
 
         private Func<TResult?, TResult?>? _filterFunc;
 
@@ -142,6 +142,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             // Merge request and expected parameters
             var allParameters = _requestParameters.Concat(_expectedParameters).ToArray();
 
+            // Determine if this is a success test
+            // If no status codes specified (null), it's a success test
+            // If status codes are specified, check if the first one is in 2xx range
+            bool isSuccessTest = expectedStatusCodes == null ||
+                                (expectedStatusCodes.Length > 0 && (int)expectedStatusCodes[0] >= 200 && (int)expectedStatusCodes[0] < 300);
+
             // Call existing extension method
             return _client.AssertHttpCallAsync<TResult>(url: _url,
                                                         payloadAsJson: _body ?? string.Empty,
@@ -155,11 +161,25 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                                         expectedResultParameterName: string.Empty,
                                                         skipEndpointValidation: false,
                                                         callerFilePath: _callerFilePath,
-                                                        isSuccessStatusCode: expectedStatusCodes == null,
+                                                        isSuccessStatusCode: isSuccessTest,
                                                         writeResponse: _writeSnapshot,
                                                         expectedStatusCode: expectedStatusCodes?.FirstOrDefault(),
                                                         callerMemberName: string.Empty,
                                                         callerLineNumber: 0);
+        }
+
+        // ============================================================
+        // Internal Methods for Extensions
+        // ============================================================
+
+        /// <summary>
+        /// Internal method used by extension methods to set expected JSON and execute with status code.
+        /// This allows Produces(statusCode, json) to work on IHttpResponseConfiguring.
+        /// </summary>
+        internal Task<TResult> SetExpectedJsonAndExecute(string expectedJson, HttpStatusCode statusCode)
+        {
+            _expectedJson = expectedJson;
+            return ExpectStatus(statusCode);
         }
 
         // ============================================================

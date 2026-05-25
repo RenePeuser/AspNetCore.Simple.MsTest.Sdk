@@ -29,13 +29,28 @@ Clean, framework-agnostic API:
 ```csharp
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 
-// Simple POST with response validation
+// Simple POST with response validation (classic)
 await Client.AssertPost("api/persons")
     .WithBody(person)
     .WithResponse<Person>("Expected.json")
     .ExpectSuccess();
 
-// With filtering and transformation
+// Simple POST with response validation (terminal - shorter!)
+await Client.AssertPost("api/persons")
+    .WithBody(person)
+    .WithResponse<Person>("Expected.json", expectSuccess: true);
+
+// With explicit status code (terminal)
+await Client.AssertPost("api/persons")
+    .WithBody(person)
+    .WithResponse<Person>("Expected.json", HttpStatusCode.Created);
+
+// Multiple accepted status codes (terminal)
+await Client.AssertPost("api/persons")
+    .WithBody(person)
+    .WithResponse<Person>("Expected.json", HttpStatusCode.OK, HttpStatusCode.Created);
+
+// With filtering and transformation (classic style required)
 await Client.AssertGet("api/persons")
     .WithResponse<List<Person>>("Expected.json")
     .FilterResponse(list => list.OrderBy(p => p.Id).ToList())
@@ -45,12 +60,6 @@ await Client.AssertGet("api/persons")
 // Status code only (no response body check)
 await Client.AssertDelete($"api/persons/{id}")
     .ExpectNoContent();
-
-// Multiple accepted status codes
-await Client.AssertPost("api/persons")
-    .WithBody(person)
-    .WithResponse<Person>("Expected.json")
-    .Expect(HttpStatusCode.OK, HttpStatusCode.Created);
 ```
 
 ### Endpoint Style (Opt-In)
@@ -60,24 +69,32 @@ Mirrors ASP.NET Core endpoint definitions for maximum symmetry:
 ```csharp
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle;
+using Microsoft.AspNetCore.Http;
 
-// Happy path - mirrors endpoint definition
+// Happy path - mirrors endpoint definition with status code
 await Client.AssertPost("nodes")
     .Accepts<CreateNodeRequest>(request)
-    .Produces<CreateNodeResponse>("Expected.json")
-    .ExpectSuccess();
+    .WithResponseType<CreateNodeResponse>()
+    .Produces(StatusCodes.Status201Created, "Expected.json");
+
+// With filtering
+await Client.AssertPost("nodes")
+    .Accepts<CreateNodeRequest>(request)
+    .WithResponseType<CreateNodeResponse>()
+    .FilterResponse(r => r with { Id = 0 })
+    .Produces(StatusCodes.Status201Created, "Expected.json");
 
 // Validation error
 await Client.AssertPost("nodes")
     .Accepts<CreateNodeRequest>(invalidRequest)
-    .ProducesBadRequest<ValidationProblemDetails>("Error.json")
-    .ExpectError(HttpStatusCode.BadRequest);
+    .WithResponseType<ValidationProblemDetails>()
+    .Produces(StatusCodes.Status400BadRequest, "Error.json");
 
-// Conflict
+// Or using classic style with separate Expect
 await Client.AssertPost("nodes")
-    .Accepts<CreateNodeRequest>(duplicateRequest)
-    .ProducesConflict<ProblemDetails>("Conflict.json")
-    .ExpectError(HttpStatusCode.Conflict);
+    .Accepts<CreateNodeRequest>(invalidRequest)
+    .Produces<ValidationProblemDetails>("Error.json")
+    .ExpectError(HttpStatusCode.BadRequest);
 ```
 
 ## State Machine
@@ -112,11 +129,12 @@ IHttpStatusAssertable (Terminal State)
 
 ## Design Principles
 
-1. **Expect Last**: All `Expect*` methods are terminal operations, coming last in the chain
+1. **Terminal Flexibility**: Methods can be terminal (WithResponse with status code) or non-terminal (classic with .Expect()) depending on your needs
 2. **Type Safety**: Compiler enforces correct chain order through interfaces
 3. **No Overload Explosion**: Fluent API avoids the combinatorial explosion of extension method overloads
 4. **Opt-In Styles**: Core API is neutral; endpoint-symmetric style requires explicit namespace import
 5. **Discoverable**: IntelliSense guides you through the available options at each step
+6. **Backward Compatible**: All existing tests continue to work - new terminal overloads are additive
 
 ## Examples
 
@@ -170,13 +188,25 @@ await Client.AssertPostAsync<Person>(
     expectedStatusCode: HttpStatusCode.Created);
 ```
 
-### After (Fluent API)
+### After (Fluent API - Neutral Style)
 ```csharp
 await Client.AssertPost("api/persons")
     .WithBody(person)
     .WithParameters(("$Id$", 0))
     .WithResponse<Person>("Expected.json")
     .Expect(HttpStatusCode.Created);
+```
+
+### After (Fluent API - Endpoint Style with StatusCode)
+```csharp
+using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle;
+using Microsoft.AspNetCore.Http;
+
+await Client.AssertPost("api/persons")
+    .Accepts(person)
+    .WithParameters(("$Id$", 0))
+    .WithResponseType<Person>()
+    .Produces(StatusCodes.Status201Created, "Expected.json");
 ```
 
 ## Migration Path
