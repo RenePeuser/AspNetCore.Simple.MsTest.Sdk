@@ -21,9 +21,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
     /// Indicates that the Content-Type header doesn't match expected JSON
     /// (e.g., received text/html, image/*, etc. instead of application/json).
     /// </summary>
-    internal sealed class ContentTypeMismatchOutputStrategy(
-        ITextDecorator textDecorator,
-        IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
+    internal sealed class ContentTypeMismatchOutputStrategy(ITextDecorator textDecorator,
+                                                            IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
     {
         public bool CanHandle(HttpAssertionFailureType failureType)
         {
