@@ -21,9 +21,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
     /// Provides a minimal but complete header as a safe default.
     /// This strategy is never selected via CanHandle() but is injected separately to guarantee a result.
     /// </summary>
-    internal sealed class DefaultHttpFailureOutputStrategy(
-        ITextDecorator textDecorator,
-        IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
+    internal sealed class DefaultHttpFailureOutputStrategy(ITextDecorator textDecorator,
+                                                           IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
     {
         /// <summary>
         /// Always returns false - this strategy is used as explicit fallback, not via CanHandle().

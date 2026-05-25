@@ -65,6 +65,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // 3.1. Create HTTP failure strategies
             var httpFailureOutputHelper = new HttpFailureOutputHelper();
+
             var httpFailureStrategies = new IHttpFailureOutputStrategy[]
                                         {
                                             new StatusCodeMismatchOutputStrategy(_textDecorator, httpFailureOutputHelper), new SchemaMismatchOutputStrategy(_textDecorator, httpFailureOutputHelper), new SnapshotMismatchOutputStrategy(_textDecorator, httpFailureOutputHelper),

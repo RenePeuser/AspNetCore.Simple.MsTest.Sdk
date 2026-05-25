@@ -20,9 +20,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
     /// Strategy for handling HTTP status code mismatch failures.
     /// Displays expected vs actual status codes with helpful categorization (Success, Client Error, Server Error).
     /// </summary>
-    internal sealed class StatusCodeMismatchOutputStrategy(
-        ITextDecorator textDecorator,
-        IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
+    internal sealed class StatusCodeMismatchOutputStrategy(ITextDecorator textDecorator,
+                                                           IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
     {
         public bool CanHandle(HttpAssertionFailureType failureType)
         {

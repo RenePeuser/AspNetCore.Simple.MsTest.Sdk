@@ -21,9 +21,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
     /// Indicates that JSON values differ from the expected snapshot
     /// (all properties exist but have different values).
     /// </summary>
-    internal sealed class SnapshotMismatchOutputStrategy(
-        ITextDecorator textDecorator,
-        IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
+    internal sealed class SnapshotMismatchOutputStrategy(ITextDecorator textDecorator,
+                                                         IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
     {
         public bool CanHandle(HttpAssertionFailureType failureType)
         {

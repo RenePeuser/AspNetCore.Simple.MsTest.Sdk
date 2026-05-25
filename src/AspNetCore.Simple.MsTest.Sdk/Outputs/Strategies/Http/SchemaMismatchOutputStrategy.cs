@@ -21,9 +21,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
     /// Indicates that the response structure doesn't match the expected type schema
     /// (missing properties, extra properties, or type mismatches).
     /// </summary>
-    internal sealed class SchemaMismatchOutputStrategy(
-        ITextDecorator textDecorator,
-        IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
+    internal sealed class SchemaMismatchOutputStrategy(ITextDecorator textDecorator,
+                                                       IHttpFailureOutputHelper outputHelper) : IHttpFailureOutputStrategy
     {
         public bool CanHandle(HttpAssertionFailureType failureType)
         {
