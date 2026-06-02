@@ -28,6 +28,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                          expectedResultParameterName: expectedResult.Contains(".json") ? expectedResult : nameof(expectedResult),
                                                          callerFilePath: callerFilePath,
                                                          skipEndpointValidation: skipEndpointValidation,
+                                                         expectedStatusCode: expectedStatusCode,
                                                          callerMemberName: callerMemberName,
                                                          callerLineNumber: callerLineNumber);
         }
@@ -59,6 +60,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                          expectedResultParameterName: expectedResultParameterName,
                                                          callerFilePath: callerFilePath,
                                                          skipEndpointValidation: skipEndpointValidation,
+                                                         expectedStatusCode: expectedStatusCode,
                                                          callerMemberName: callerMemberName,
                                                          callerLineNumber: callerLineNumber);
         }
@@ -447,9 +449,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                          parameters: parameters,
                                                          callingAssembly: callingAssembly,
                                                          writeResponse: writeResponse,
-                                                         skipEndpointValidation: skipEndpointValidation,
                                                          payloadAsJsonParameterName: payloadAsJsonParameterName,
                                                          expectedResultParameterName: expectedResultParameterName,
+                                                         skipEndpointValidation: skipEndpointValidation,
                                                          expectedStatusCode: expectedStatusCode,
                                                          callerFilePath: callerFilePath,
                                                          callerMemberName: callerMemberName,
