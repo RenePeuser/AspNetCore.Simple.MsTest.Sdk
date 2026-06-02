@@ -35,14 +35,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public string BuildExpected(IHttpResponseContext context,
                                     string expectedJson)
         {
-            var normalizeJsonToSingleLine = NormalizeJsonToSingleLine(expectedJson);
-
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(textDecorator.SectionTitle("📄 Expected Snapshot"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
-            stringBuilder.Append(normalizeJsonToSingleLine);
+
+            // Check if expected file doesn't exist or is empty
+            if (expectedJson.IsNullOrWhiteSpace())
+            {
+                var fileName = context.ExpectedResultFile?.EmbeddedFileName ?? "expected.json";
+                var fileExists = context.ExpectedResultFile?.EmbeddedFile?.Exists ?? false;
+
+                if (!fileExists)
+                {
+                    stringBuilder.Append(textDecorator.Dim($"{fileName} (not exist)"));
+                }
+                else
+                {
+                    stringBuilder.Append(textDecorator.Dim($"{fileName} (empty)"));
+                }
+            }
+            else
+            {
+                var normalizeJsonToSingleLine = NormalizeJsonToSingleLine(expectedJson);
+                stringBuilder.Append(normalizeJsonToSingleLine);
+            }
 
             return stringBuilder.ToString();
         }
