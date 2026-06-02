@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <PackageLicenseFile>License.txt</PackageLicenseFile>
@@ -10,42 +10,14 @@
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>aspnetcore;testing;snapshot-testing;snapshot;mstest;api-testing;integration-testing;http-testing;test-framework;regression-testing;web-api;rest-api;test-automation;test-sdk;aspnetcore-testing;api-snapshots;http-assertions;minimal-api;webapi-testing;contract-testing;response-validation;csharp;dotnet;json;json-comparison;diff;approval-testing;unit-testing;curl;http-client;testhost;</PackageTags>
         <PackageReleaseNotes>
-            MAJOR RELEASE  - Complete Core Rewrite
-
-            CORE (New Architecture):
-            - AssertService as central orchestrator
-            - HttpAssertContext for type-safe HTTP assertion pipelines
-            - ObjectAssertContext for type-safe object comparison pipelines
-            - AssertAbleClient with full DI support
-            - HttpAssertExtensions.Setup for backwards compatibility
-
-            ARCHITECTURE (Design Patterns):
-            - Pipeline-based execution flow
-            - Strategy Pattern for outputs/comparisons
-            - Builder Pattern for all formatters
-            - Feature-based DI registration (AddXxx per component)
-
             NEW FEATURES:
-            - Smart endpoint validation with multi-tier fallback
-            - Type mismatch detection with suggested fixes
-            - Consolidated array diff reporting
-            - Endpoint-only validation mode
-            - Skip validation option
+            - Expected Status Code validation: All Assert methods now support optional expectedStatusCode parameter
+              Example: Client.AssertPostAsync&lt;T&gt;("api/endpoint", "Request.json", "Response.json", expectedStatusCode: HttpStatusCode.Created)
+              Allows explicit status code validation (200, 201, etc.) instead of just 2xx success range
 
-            OUTPUTS:
-            - Unified ASCII formatting with emoji sections
-            - Enhanced HTTP context display
-            - Context→Problem→Solution→Reproduction flow
-
-            QUALITY:
-            - SOLID principles throughout
-            - Single responsibility per component
-            - Full extensibility built-in
-            - Clean architecture patterns
-
-            COMPATIBILITY:
-            - Existing tests continue to work via extension method bridge
-              HttpClientAssertExtensions.Setup(_apiTestBase.Services);
+            INTERNAL IMPROVEMENTS:
+            - InternalsVisibleTo: Test projects can now access internal fluent API for testing purposes
+                                  Coming soon feature fluent assert api with roslyn analyzers
         </PackageReleaseNotes>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <PackageId>AspNetCore.Simple.MsTest.Sdk</PackageId>

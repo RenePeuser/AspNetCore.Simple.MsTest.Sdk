@@ -9,6 +9,8 @@ namespace MinimalApi.Api.Persons.V1
             serviceCollection.AddCreatePersonEndpoint();
             serviceCollection.AddUpdatePersonEndpoint();
             serviceCollection.AddPatchPersonEndpoint();
+            serviceCollection.AddDeletePersonEndpoint();
+            serviceCollection.AddDeletePersonWithResponseEndpoint();
         }
     }
 }

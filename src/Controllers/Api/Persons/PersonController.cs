@@ -68,5 +68,29 @@ namespace Controllers.Api.Persons
         {
             return Task.FromResult(person);
         }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        public IActionResult Delete(long id)
+        {
+            // Simple test implementation - always succeeds
+            Console.WriteLine(id);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}/with-response")]
+        [ProducesResponseType(typeof(DeletePersonResponse), 200)]
+        public IActionResult DeleteWithResponse(long id)
+        {
+            // Simple test implementation - always returns success response
+            return Ok(new DeletePersonResponse(id, "Son", "Goku",
+                                               true, DateTime.UtcNow));
+        }
     }
+
+    public record DeletePersonResponse(long Id,
+                                       string Name,
+                                       string FirstName,
+                                       bool Deleted,
+                                       DateTime DeletedAt);
 }

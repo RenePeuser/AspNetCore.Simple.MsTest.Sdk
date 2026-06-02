@@ -6,7 +6,7 @@ using Controllers.Test.Api.Persons.V1.Shared;
 namespace Controllers.Test.Api.Persons.V1.Update
 {
     /// <summary>
-    /// Fluent API tests for PUT/PATCH /api/tests/v1/persons endpoint.
+    /// Fluent API tests for PUT/PATCH /api/v1/persons endpoint.
     /// Contains both Neutral and Endpoint Style variations.
     /// </summary>
     public partial class PersonUpdateTests
@@ -21,7 +21,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PATCH")]
         public Task Fluent_Should_Patch_Person()
         {
-            return Client.AssertPatch("api/tests/v1/persons")
+            return Client.AssertPatch("api/v1/persons")
                          .WithBody("UpdatePerson.json")
                          .WithResponse<Person>("UpdatePerson.json")
                          .ExpectSuccess();
@@ -33,7 +33,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PATCH")]
         public Task Fluent_Should_Patch_Person_Ignore_Id()
         {
-            return Client.AssertPatch("api/tests/v1/persons")
+            return Client.AssertPatch("api/v1/persons")
                          .WithBody("UpdatePerson.json")
                          .WithResponse<Person>("UpdatePerson.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -50,7 +50,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task Fluent_Should_Put_Person()
         {
-            return Client.AssertPut("api/tests/v1/persons")
+            return Client.AssertPut("api/v1/persons")
                          .WithBody("UpdatePerson.json")
                          .WithResponse<Person>("UpdatePersonNew.json")
                          .ExpectSuccess();
@@ -62,7 +62,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task Fluent_Should_Put_Person_Ignore_Id()
         {
-            return Client.AssertPut("api/tests/v1/persons")
+            return Client.AssertPut("api/v1/persons")
                          .WithBody("UpdatePerson.json")
                          .WithResponse<Person>("UpdatePersonNew.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -79,7 +79,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PATCH")]
         public Task FluentEndpoint_Should_Patch_Person()
         {
-            return Client.AssertPatch("api/tests/v1/persons")
+            return Client.AssertPatch("api/v1/persons")
                          .Accepts("UpdatePerson.json")
                          .Produces<Person>("UpdatePerson.json")
                          .ExpectSuccess();
@@ -91,7 +91,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PATCH")]
         public Task FluentEndpoint_Should_Patch_Person_Ignore_Id()
         {
-            return Client.AssertPatch("api/tests/v1/persons")
+            return Client.AssertPatch("api/v1/persons")
                          .Accepts("UpdatePerson.json")
                          .Produces<Person>("UpdatePerson.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -108,7 +108,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task FluentEndpoint_Should_Put_Person()
         {
-            return Client.AssertPut("api/tests/v1/persons")
+            return Client.AssertPut("api/v1/persons")
                          .Accepts("UpdatePerson.json")
                          .Produces<Person>("UpdatePersonNew.json")
                          .ExpectSuccess();
@@ -120,7 +120,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task FluentEndpoint_Should_Put_Person_Ignore_Id()
         {
-            return Client.AssertPut("api/tests/v1/persons")
+            return Client.AssertPut("api/v1/persons")
                          .Accepts("UpdatePerson.json")
                          .Produces<Person>("UpdatePersonNew.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)

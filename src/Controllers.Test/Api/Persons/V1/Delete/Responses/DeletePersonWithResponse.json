@@ -1,0 +1,23 @@
+{
+  "Content": {
+    "Headers": [
+      {
+        "Key": "Content-Type",
+        "Value": [
+          "application/json; charset=utf-8"
+        ]
+      }
+    ],
+    "Value": {
+      "id": 1,
+      "name": "Son",
+      "firstName": "Goku",
+      "deleted": true,
+      "deletedAt": "$DeletedAt$"
+    }
+  },
+  "StatusCode": "OK",
+  "Headers": [],
+  "TrailingHeaders": [],
+  "IsSuccessStatusCode": true
+}

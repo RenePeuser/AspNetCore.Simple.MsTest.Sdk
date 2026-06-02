@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 namespace Controllers.Test.Api.Persons.V1.Create
 {
     /// <summary>
-    /// Fluent API tests for POST /api/tests/v1/persons endpoint.
+    /// Fluent API tests for POST /api/v1/persons endpoint.
     /// Contains both Neutral and Endpoint Style variations.
     /// </summary>
     public partial class PersonCreateTests
@@ -25,7 +25,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json")
                          .ExpectSuccess();
@@ -37,7 +37,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         [TestCategory("POST")]
         public Task Fluent_Should_Create_Person_With_Json()
         {
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody("CreatePersonFull.json")
                          .WithResponse<Person>("CreatePersonFull.json")
                          .ExpectSuccess();
@@ -51,7 +51,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -70,7 +70,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
                          .Produces<Person>("CreatePerson.json")
                          .ExpectSuccess();
@@ -82,7 +82,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         [TestCategory("POST")]
         public Task FluentEndpoint_Should_Create_Person_With_Json()
         {
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .Accepts("CreatePersonFull.json")
                          .Produces<Person>("CreatePersonFull.json")
                          .ExpectSuccess();
@@ -96,7 +96,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
                          .Produces<Person>("CreatePerson.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -116,7 +116,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
                          .WithResponseType<Person>()
                          .Produces(StatusCodes.Status200OK, "CreatePerson.json");
@@ -131,7 +131,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
                          .WithResponseType<Person>()
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -147,7 +147,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
                          .WithResponseType<Person>()
                          .Produces((int)HttpStatusCode.OK, "CreatePerson.json");
@@ -166,7 +166,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json", expectSuccess: true);
         }
@@ -180,7 +180,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json", HttpStatusCode.OK);
         }
@@ -194,7 +194,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.AssertPost("api/tests/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json",
                                                HttpStatusCode.OK,

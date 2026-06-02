@@ -5,7 +5,7 @@ using Controllers.Test.Api.Persons.V1.Shared;
 namespace Controllers.Test.Api.Persons.V1.Create
 {
     /// <summary>
-    /// Native API tests for POST /api/tests/v1/persons endpoint.
+    /// Native API tests for POST /api/v1/persons endpoint.
     /// Uses the classic AssertPostAsync extension methods.
     /// </summary>
     [TestClass]
@@ -23,7 +23,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+            return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   person,
                                                   "CreatePerson.json");
         }
@@ -33,7 +33,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         [TestCategory("POST")]
         public Task Native_Should_Create_Person_With_Json_Files()
         {
-            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+            return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   "CreatePersonFull.json",
                                                   "CreatePersonFull.json");
         }
@@ -43,7 +43,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         [TestCategory("POST")]
         public Task Native_Should_Create_Person_With_Status_Code()
         {
-            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+            return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   "CreatePersonFull.json",
                                                   "CreatePersonFull.json",
                                                   expectedStatusCode: System.Net.HttpStatusCode.OK);
@@ -54,7 +54,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         [TestCategory("POST")]
         public Task Native_Should_Create_Person_Parameterized()
         {
-            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+            return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   "CreatePersonParameterized.json",
                                                   "CreatePersonParameterized.json",
                                                   [
@@ -68,7 +68,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         [TestCategory("POST")]
         public Task Native_Should_Create_Person_Parameterized_Ignore_Id()
         {
-            return Client.AssertPostAsync<Person>("api/tests/v1/persons",
+            return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   "CreatePersonParameterized.json",
                                                   "CreatePersonParameterized.json",
                                                   parameters: [("$Name$", "Son"), ("$Age$", 42)],

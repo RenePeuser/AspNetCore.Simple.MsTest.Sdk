@@ -4,7 +4,7 @@ using Controllers.Api.Persons;
 namespace Controllers.Test.Api.Persons.V1.Update
 {
     /// <summary>
-    /// Native API tests for PUT/PATCH /api/tests/v1/persons endpoint.
+    /// Native API tests for PUT/PATCH /api/v1/persons endpoint.
     /// Uses the classic AssertPutAsync and AssertPatchAsync extension methods.
     /// </summary>
     [TestClass]
@@ -20,7 +20,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PATCH")]
         public Task Native_Should_Patch_Person()
         {
-            return Client.AssertPatchAsync<Person>("api/tests/v1/persons",
+            return Client.AssertPatchAsync<Person>("api/v1/persons",
                                                    "UpdatePerson.json",
                                                    "UpdatePerson.json");
         }
@@ -30,7 +30,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PATCH")]
         public Task Native_Should_Patch_Person_With_Status_Code()
         {
-            return Client.AssertPatchAsync<Person>("api/tests/v1/persons",
+            return Client.AssertPatchAsync<Person>("api/v1/persons",
                                                    "UpdatePerson.json",
                                                    "UpdatePerson.json",
                                                    expectedStatusCode: System.Net.HttpStatusCode.OK);
@@ -45,7 +45,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task Native_Should_Put_Person()
         {
-            return Client.AssertPutAsync<Person>("api/tests/v1/persons",
+            return Client.AssertPutAsync<Person>("api/v1/persons",
                                                  "UpdatePerson.json",
                                                  "UpdatePersonNew.json");
         }
@@ -55,7 +55,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task Native_Should_Put_Person_With_Status_Code()
         {
-            return Client.AssertPutAsync<Person>("api/tests/v1/persons",
+            return Client.AssertPutAsync<Person>("api/v1/persons",
                                                  "UpdatePerson.json",
                                                  "UpdatePersonNew.json",
                                                  expectedStatusCode: System.Net.HttpStatusCode.OK);
@@ -66,7 +66,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task Native_Should_Put_Person_With_Inline_Json()
         {
-            return Client.AssertPutAsync<Person?>("api/tests/v1/persons",
+            return Client.AssertPutAsync<Person?>("api/v1/persons",
                                                   /*lang=json,strict*/
                                                   "{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]}",
                                                   /*lang=json,strict*/

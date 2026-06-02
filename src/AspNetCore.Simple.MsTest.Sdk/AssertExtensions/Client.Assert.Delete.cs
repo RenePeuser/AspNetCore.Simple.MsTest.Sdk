@@ -71,6 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string url,
                                                                bool writeResponse = false,
                                                                bool skipEndpointValidation = false,
+                                                               HttpStatusCode? expectedStatusCode = null,
                                                                [CallerFilePath] string callerFilePath = "",
                                                                [CallerMemberName] string callerMemberName = "",
                                                                [CallerLineNumber] int callerLineNumber = 0)
@@ -92,6 +93,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        writeResponse: writeResponse,
                                                        ignoreResponse: true,
                                                        skipEndpointValidation: skipEndpointValidation,
+                                                       expectedStatusCode: expectedStatusCode,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
         }
@@ -101,6 +103,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string expectedResult,
                                                                bool writeResponse = false,
                                                                bool skipEndpointValidation = false,
+                                                               HttpStatusCode? expectedStatusCode = null,
                                                                [CallerFilePath] string callerFilePath = "",
                                                                [CallerMemberName] string callerMemberName = "",
                                                                [CallerLineNumber] int callerLineNumber = 0)
