@@ -34,10 +34,10 @@ namespace MinimalApi.Test.Api.Errors
         [TestMethod]
         public Task Should_Return_500_When_Expected_Status_Code_Is_Specified()
         {
-            // Test with explicit expectedStatusCode parameter (500 InternalServerError)
+            // Test with explicit expectedHttpStatusCode parameter (500 InternalServerError)
             return Client.AssertPostAsErrorAsync<ProblemDetails>("api/v1/errors/not-implemented",
                                                                  "ErrorResponse.json",
-                                                                 expectedStatusCode: System.Net.HttpStatusCode.InternalServerError);
+                                                                 expectedHttpStatusCode: System.Net.HttpStatusCode.InternalServerError);
         }
 
         [TestMethod]
@@ -50,7 +50,7 @@ namespace MinimalApi.Test.Api.Errors
                                                                        Client.AssertPostAsync<ProblemDetails>("api/v1/errors/not-implemented",
                                                                                                               writeResponse: false,
                                                                                                               skipEndpointValidation: true,
-                                                                                                              expectedStatusCode: System.Net.HttpStatusCode.NotFound))
+                                                                                                              expectedHttpStatusCode: System.Net.HttpStatusCode.NotFound))
                         .ConfigureAwait(false);
         }
 
@@ -61,7 +61,7 @@ namespace MinimalApi.Test.Api.Errors
             // and the endpoint returns 500 (InternalServerError)
             return Client.AssertPostAsErrorAsync<ProblemDetails>("api/v1/errors/not-implemented",
                                                                  "ErrorResponse.json",
-                                                                 expectedStatusCode: System.Net.HttpStatusCode.InternalServerError);
+                                                                 expectedHttpStatusCode: System.Net.HttpStatusCode.InternalServerError);
         }
     }
 }

@@ -46,7 +46,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
             return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   "CreatePersonFull.json",
                                                   "CreatePersonFull.json",
-                                                  expectedStatusCode: System.Net.HttpStatusCode.OK);
+                                                  expectedHttpStatusCode: System.Net.HttpStatusCode.OK);
         }
 
         [TestMethod]

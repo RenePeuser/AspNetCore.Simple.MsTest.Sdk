@@ -163,7 +163,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                                         callerFilePath: _callerFilePath,
                                                         isSuccessStatusCode: isSuccessTest,
                                                         writeResponse: _writeSnapshot,
-                                                        expectedStatusCode: expectedStatusCodes?.FirstOrDefault(),
+                                                        expectedHttpStatusCode: expectedStatusCodes?.FirstOrDefault(),
                                                         callerMemberName: string.Empty,
                                                         callerLineNumber: 0);
         }

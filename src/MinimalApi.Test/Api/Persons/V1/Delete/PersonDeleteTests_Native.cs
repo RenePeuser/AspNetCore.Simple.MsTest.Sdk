@@ -32,7 +32,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Delete
         {
             // Explicit 204 validation
             return Client.AssertDeleteAsync("api/v1/persons/1",
-                                            expectedStatusCode: HttpStatusCode.NoContent);
+                                            expectedHttpStatusCode: HttpStatusCode.NoContent);
         }
 
         // ============================================================
@@ -63,7 +63,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Delete
         {
             // Validate endpoint + explicit status code, ignore response content
             return Client.AssertDeleteAsync<DeletePersonResponse>("api/v1/persons/1/with-response",
-                                                                  expectedStatusCode: HttpStatusCode.OK);
+                                                                  expectedHttpStatusCode: HttpStatusCode.OK);
         }
     }
 }

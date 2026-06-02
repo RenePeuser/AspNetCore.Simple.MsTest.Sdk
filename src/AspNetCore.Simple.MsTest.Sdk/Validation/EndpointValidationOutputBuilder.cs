@@ -53,7 +53,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// Builds error message for test type mismatch (success vs error).
         /// </summary>
         string BuildTestTypeMismatch(IHttpAssertContext context,
-                                     int expectedStatusCode,
+                                     int expectedHttpStatusCode,
                                      bool isSuccessTest);
     }
 
@@ -603,11 +603,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         }
 
         public string BuildTestTypeMismatch(IHttpAssertContext context,
-                                            int expectedStatusCode,
+                                            int expectedHttpStatusCode,
                                             bool isSuccessTest)
         {
             var sb = new StringBuilder();
-            var statusCodeName = Enum.GetName(typeof(System.Net.HttpStatusCode), expectedStatusCode) ?? expectedStatusCode.ToString();
+            var statusCodeName = Enum.GetName(typeof(System.Net.HttpStatusCode), expectedHttpStatusCode) ?? expectedHttpStatusCode.ToString();
 
             // Build dynamic header based on what the test expected
             var headerSuffix = isSuccessTest ? "SUCCESS EXPECTED" : "ERROR EXPECTED";
@@ -644,13 +644,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             {
                 // Success test but expected status code is error (4xx/5xx)
                 sb.AppendLine("The test is declared as a SUCCESS test (AssertPostAsync, AssertGetAsync, etc.)");
-                sb.AppendLine($"but the expected response has status code {textDecorator.Error($"{expectedStatusCode} ({statusCodeName})")} which is an ERROR status.");
+                sb.AppendLine($"but the expected response has status code {textDecorator.Error($"{expectedHttpStatusCode} ({statusCodeName})")} which is an ERROR status.");
             }
             else
             {
                 // Error test but expected status code is success (2xx)
                 sb.AppendLine("The test is declared as an ERROR test (AssertPostAsErrorAsync, AssertGetAsErrorAsync, etc.)");
-                sb.AppendLine($"but the expected response has status code {textDecorator.Success($"{expectedStatusCode} ({statusCodeName})")} which is a SUCCESS status.");
+                sb.AppendLine($"but the expected response has status code {textDecorator.Success($"{expectedHttpStatusCode} ({statusCodeName})")} which is a SUCCESS status.");
             }
 
             sb.AppendLine();
@@ -661,10 +661,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             var testTypeText = isSuccessTest ? "Success (expects 2xx)" : "Error (expects 4xx/5xx)";
-            var statusRange = expectedStatusCode is >= 200 and < 300 ? "Success (2xx)" : "Error (4xx/5xx)";
+            var statusRange = expectedHttpStatusCode is >= 200 and < 300 ? "Success (2xx)" : "Error (4xx/5xx)";
 
             sb.AppendLine($"{"Test Type",-20} : {testTypeText}");
-            sb.AppendLine($"{"Expected Status",-20} : {expectedStatusCode} ({statusCodeName})");
+            sb.AppendLine($"{"Expected Status",-20} : {expectedHttpStatusCode} ({statusCodeName})");
             sb.AppendLine($"{"Status Range",-20} : {statusRange}");
             sb.AppendLine();
 

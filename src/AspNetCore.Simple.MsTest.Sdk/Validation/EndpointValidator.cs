@@ -96,16 +96,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var isSuccessTest = context.IsSuccessStatusCode;
 
             // Priority: Use explicit ExpectedHttpStatusCode parameter first, then try to extract from JSON
-            var expectedStatusCode = TryExtractStatusCodeFromContext(context);
+            var expectedHttpStatusCode = TryExtractStatusCodeFromContext(context);
 
-            if (expectedStatusCode.HasValue)
+            if (expectedHttpStatusCode.HasValue)
             {
-                ValidateTestTypeMatchesStatusCode(context, expectedStatusCode.Value, isSuccessTest);
+                ValidateTestTypeMatchesStatusCode(context, expectedHttpStatusCode.Value, isSuccessTest);
             }
 
             var statusCodesToCheck = GetStatusCodesToCheck(endpoint.ResponseTypesByStatusCode,
                                                            isSuccessTest,
-                                                           expectedStatusCode);
+                                                           expectedHttpStatusCode);
 
             // If we have explicit status code mappings, validate against them
             if (statusCodesToCheck.Any())
@@ -142,7 +142,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             // Fallback 1: Try to extract status code from Expected Response JSON
-            if (expectedStatusCode.HasValue)
+            if (expectedHttpStatusCode.HasValue)
             {
                 // Success: Expected status code aligns with test type
                 return;
@@ -239,17 +239,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// Validates that the test type (success vs error) matches the expected status code.
         /// </summary>
         private void ValidateTestTypeMatchesStatusCode(IHttpAssertContext context,
-                                                       int expectedStatusCode,
+                                                       int expectedHttpStatusCode,
                                                        bool isSuccessTest)
         {
-            var isSuccessStatusCode = expectedStatusCode is >= 200 and < 300;
+            var isSuccessStatusCode = expectedHttpStatusCode is >= 200 and < 300;
 
             // Test type should match the expected status code range
             if (isSuccessTest && !isSuccessStatusCode)
             {
                 // Success test but expected status code is error (4xx/5xx)
                 var error = outputBuilder.BuildTestTypeMismatch(context,
-                                                                expectedStatusCode,
+                                                                expectedHttpStatusCode,
                                                                 isSuccessTest: true);
 
                 Assert.That.Fail(error);
@@ -258,7 +258,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             {
                 // Error test but expected status code is success (2xx)
                 var error = outputBuilder.BuildTestTypeMismatch(context,
-                                                                expectedStatusCode,
+                                                                expectedHttpStatusCode,
                                                                 isSuccessTest: false);
 
                 Assert.That.Fail(error);
@@ -297,11 +297,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         private static ImmutableDictionary<int, Type> GetStatusCodesToCheck(
             ImmutableDictionary<int, Type> responseTypes,
             bool isSuccessTest,
-            int? expectedStatusCode)
+            int? expectedHttpStatusCode)
         {
-            if (expectedStatusCode.HasValue && responseTypes.TryGetValue(expectedStatusCode.Value, out var responseType))
+            if (expectedHttpStatusCode.HasValue && responseTypes.TryGetValue(expectedHttpStatusCode.Value, out var responseType))
             {
-                return ImmutableDictionary<int, Type>.Empty.Add(expectedStatusCode.Value, responseType);
+                return ImmutableDictionary<int, Type>.Empty.Add(expectedHttpStatusCode.Value, responseType);
             }
 
             return GetRelevantStatusCodes(responseTypes, isSuccessTest);

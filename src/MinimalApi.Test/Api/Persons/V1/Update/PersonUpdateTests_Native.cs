@@ -34,7 +34,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
             return Client.AssertPatchAsync<Person>("api/v1/persons",
                                                    "UpdatePerson.json",
                                                    "UpdatePerson.json",
-                                                   expectedStatusCode: System.Net.HttpStatusCode.OK);
+                                                   expectedHttpStatusCode: System.Net.HttpStatusCode.OK);
         }
 
         // ============================================================
@@ -59,7 +59,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
             return Client.AssertPutAsync<Person>("api/v1/persons",
                                                  "UpdatePerson.json",
                                                  "UpdatePersonNew.json",
-                                                 expectedStatusCode: System.Net.HttpStatusCode.OK);
+                                                 expectedHttpStatusCode: System.Net.HttpStatusCode.OK);
         }
 
         [TestMethod]

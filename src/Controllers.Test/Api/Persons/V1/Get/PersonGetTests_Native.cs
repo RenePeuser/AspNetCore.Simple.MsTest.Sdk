@@ -52,7 +52,7 @@ namespace Controllers.Test.Api.Persons.V1.Get
         {
             return Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons",
                                                               "GetAllPersons.json",
-                                                              expectedStatusCode: System.Net.HttpStatusCode.OK);
+                                                              expectedHttpStatusCode: System.Net.HttpStatusCode.OK);
         }
 
         [TestMethod]

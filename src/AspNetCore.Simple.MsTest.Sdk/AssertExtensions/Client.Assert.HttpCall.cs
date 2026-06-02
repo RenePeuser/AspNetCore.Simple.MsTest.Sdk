@@ -350,7 +350,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       bool isSuccessStatusCode = true,
                                                       bool writeResponse = false,
                                                       bool skipEndpointValidation = false,
-                                                      HttpStatusCode? expectedStatusCode = null,
+                                                      HttpStatusCode? expectedHttpStatusCode = null,
                                                       [CallerMemberName] string callerMemberName = "",
                                                       [CallerLineNumber] int callerLineNumber = 0)
 #pragma warning restore CA1859
@@ -403,7 +403,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 ApiVersion = apiVersion,
                 IgnoreResponse = false,
                 SkipEndpointValidation = skipEndpointValidation,
-                ExpectedHttpStatusCode = expectedStatusCode,
+                ExpectedHttpStatusCode = expectedHttpStatusCode,
                 Expected = null
             };
 
@@ -422,7 +422,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   bool writeResponse = false,
                                                                   bool ignoreResponse = false,
                                                                   bool skipEndpointValidation = false,
-                                                                  HttpStatusCode? expectedStatusCode = null,
+                                                                  HttpStatusCode? expectedHttpStatusCode = null,
                                                                   [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                   string payloadAsJsonParameterName = "",
                                                                   [CallerArgumentExpression(nameof(expectedResult))]
@@ -446,7 +446,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               writeResponse: writeResponse,
                                               ignoreResponse: ignoreResponse,
                                               skipEndpointValidation: skipEndpointValidation,
-                                              expectedStatusCode: expectedStatusCode,
+                                              expectedHttpStatusCode: expectedHttpStatusCode,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }
@@ -464,7 +464,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          bool writeResponse = false,
                                                                          bool ignoreResponse = false,
                                                                          bool skipEndpointValidation = false,
-                                                                         HttpStatusCode? expectedStatusCode = null,
+                                                                         HttpStatusCode? expectedHttpStatusCode = null,
                                                                          [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                          string payloadAsJsonParameterName = "",
                                                                          [CallerArgumentExpression(nameof(expectedResult))]
@@ -522,7 +522,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 ApiVersion = apiVersion,
                 IgnoreResponse = ignoreResponse,
                 SkipEndpointValidation = skipEndpointValidation,
-                ExpectedHttpStatusCode = expectedStatusCode,
+                ExpectedHttpStatusCode = expectedHttpStatusCode,
                 Expected = default
             };
 
