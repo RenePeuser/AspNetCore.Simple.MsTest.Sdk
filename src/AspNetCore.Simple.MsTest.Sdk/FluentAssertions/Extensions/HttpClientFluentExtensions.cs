@@ -24,6 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
     /// </code>
     /// </example>
     /// </summary>
+
     // ToDo: internal still under construction !
     internal static class HttpClientFluentExtensions
     {

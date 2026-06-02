@@ -1,5 +1,5 @@
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle;
+using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 using MinimalApi.Api.Persons.V1;
 using MinimalApi.Test.Api.Persons.V1.Shared;
 

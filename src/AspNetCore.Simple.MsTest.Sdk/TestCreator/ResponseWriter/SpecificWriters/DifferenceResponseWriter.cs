@@ -87,10 +87,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Use custom serializer settings to handle currentValue un-escaping
             var serializerSettings = new JsonSerializerSettings
-                                     {
-                                         Formatting = Formatting.Indented,
-                                         Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
-                                     };
+            {
+                Formatting = Formatting.Indented,
+                Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
+            };
 
             var output = JsonConvert.SerializeObject(resultRoot, serializerSettings);
 

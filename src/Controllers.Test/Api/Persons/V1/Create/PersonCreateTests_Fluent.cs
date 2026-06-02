@@ -1,6 +1,6 @@
 using System.Net;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle;
+using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 using Controllers.Api.Persons;
 using Controllers.Test.Api.Persons.V1.Shared;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +24,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task Fluent_Should_Create_Person_With_Object()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/tests/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json")
@@ -49,6 +50,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task Fluent_Should_Create_Person_Ignore_Id()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/tests/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json")
@@ -67,6 +69,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task FluentEndpoint_Should_Create_Person_With_Object()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/tests/v1/persons")
                          .Accepts(person)
                          .Produces<Person>("CreatePerson.json")
@@ -112,6 +115,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task FluentEndpoint_Should_Create_Person_With_StatusCode_Terminal()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/tests/v1/persons")
                          .Accepts(person)
                          .WithResponseType<Person>()
@@ -126,6 +130,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task FluentEndpoint_Should_Create_Person_With_StatusCode_And_Filtering()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/tests/v1/persons")
                          .Accepts(person)
                          .WithResponseType<Person>()
@@ -141,6 +146,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task FluentEndpoint_Should_Create_Person_With_HttpStatusCode_Enum()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/tests/v1/persons")
                          .Accepts(person)
                          .WithResponseType<Person>()
@@ -159,6 +165,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task Fluent_Should_Create_Person_WithResponse_ExpectSuccess_Terminal()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/tests/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json", expectSuccess: true);
@@ -172,6 +179,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task Fluent_Should_Create_Person_WithResponse_StatusCode_Terminal()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/tests/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json", HttpStatusCode.OK);
@@ -185,11 +193,12 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task Fluent_Should_Create_Person_WithResponse_MultiStatus_Terminal()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPost("api/tests/v1/persons")
                          .WithBody(person)
                          .WithResponse<Person>("CreatePerson.json",
-                                              HttpStatusCode.OK,
-                                              HttpStatusCode.Created);
+                                               HttpStatusCode.OK,
+                                               HttpStatusCode.Created);
         }
     }
 }

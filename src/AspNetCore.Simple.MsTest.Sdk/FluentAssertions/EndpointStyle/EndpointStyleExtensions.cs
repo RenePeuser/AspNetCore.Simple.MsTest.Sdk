@@ -203,9 +203,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle
                 return builder.SetExpectedJsonAndExecute(expectedJson, (HttpStatusCode)statusCode);
             }
 
-            throw new InvalidOperationException(
-                "Produces with status code can only be called on the built-in fluent API builder. " +
-                "This is an internal error - please report it.");
+            throw new InvalidOperationException("Produces with status code can only be called on the built-in fluent API builder. " +
+                                                "This is an internal error - please report it.");
         }
     }
 }

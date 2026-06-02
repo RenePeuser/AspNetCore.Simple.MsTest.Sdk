@@ -90,4 +90,10 @@
       <Folder Include="FluentAssertions\" />
     </ItemGroup>
 
+    <!-- Make internal classes visible to test projects -->
+    <ItemGroup>
+        <InternalsVisibleTo Include="Controllers.Test" />
+        <InternalsVisibleTo Include="MinimalApi.Test" />
+    </ItemGroup>
+
 </Project>

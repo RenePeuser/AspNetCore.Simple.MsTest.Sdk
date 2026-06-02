@@ -22,6 +22,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         public Task Native_Should_Create_Person_With_Object()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   person,
                                                   "CreatePerson.json");
@@ -33,6 +34,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         public Task Native_Should_Create_Person_With_Emails()
         {
             var person = TestHelpers.CreatePersonWithEmails();
+
             return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   person,
                                                   "CreatePersonFull.json");

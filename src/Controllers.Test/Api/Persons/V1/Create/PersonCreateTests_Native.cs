@@ -22,6 +22,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task Native_Should_Create_Person_With_Object()
         {
             var person = TestHelpers.CreateValidPerson();
+
             return Client.AssertPostAsync<Person>("api/tests/v1/persons",
                                                   person,
                                                   "CreatePerson.json");

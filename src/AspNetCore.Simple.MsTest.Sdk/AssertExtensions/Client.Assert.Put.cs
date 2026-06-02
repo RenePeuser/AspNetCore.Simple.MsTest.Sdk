@@ -630,7 +630,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            writeResponse: writeResponse,
                                            payloadAsJsonParameterName: payloadAsObjectParameterName,
                                            expectedResultParameterName: expectedResultParameterName,
-                                           skipEndpointValidation: skipEndpointValidation, 
+                                           skipEndpointValidation: skipEndpointValidation,
                                            expectedStatusCode: expectedStatusCode,
                                            callerFilePath: callerFilePath,
                                            callerMemberName: callerMemberName,
