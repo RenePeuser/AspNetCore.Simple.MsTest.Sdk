@@ -30,8 +30,7 @@ namespace MinimalApi.Api.Errors.V1.NotImplemented.Endpoint
                         .WithSummary("Throws a not implemented exception")
                         .WithTags("Errors")
                         .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
-                        .MapToApiVersion(1)
-                        .WithOpenApi();
+                        .MapToApiVersion(1);
         }
     }
 }

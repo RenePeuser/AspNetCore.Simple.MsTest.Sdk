@@ -25,8 +25,7 @@ namespace MinimalApi.Api.NativeTypes.V1
                         .Produces<string>(StatusCodes.Status200OK)
                         .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
                         .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
-                        .MapToApiVersion(1)
-                        .WithOpenApi();
+                        .MapToApiVersion(1);
         }
     }
 }
