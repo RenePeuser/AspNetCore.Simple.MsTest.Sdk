@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Extensions.Pack;

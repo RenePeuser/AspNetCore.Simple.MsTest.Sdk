@@ -1,6 +1,9 @@
+using System;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 

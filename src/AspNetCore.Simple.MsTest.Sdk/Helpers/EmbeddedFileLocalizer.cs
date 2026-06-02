@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -252,7 +256,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // NEW: When you are in snapshot mode, you are writing the json which are at that moment
             //      are not in the assembly
-            var embeddedResourceExist = assembly.GetManifestResourceNames().Contains(embeddedResource.EmbeddedFile);
+            var embeddedResourceExist = Enumerable.Contains(assembly.GetManifestResourceNames(), embeddedResource.EmbeddedFile);
 
             if (embeddedResourceExist.IsFalse())
             {

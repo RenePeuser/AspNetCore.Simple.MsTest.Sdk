@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 using AspNetCore.Simple.MsTest.Sdk.Converters;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -87,10 +91,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Use custom serializer settings to handle currentValue un-escaping
             var serializerSettings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
-            };
+                                     {
+                                         Formatting = Formatting.Indented,
+                                         Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
+                                     };
 
             var output = JsonConvert.SerializeObject(resultRoot, serializerSettings);
 

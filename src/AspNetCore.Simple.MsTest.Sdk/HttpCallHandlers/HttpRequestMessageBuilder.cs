@@ -1,4 +1,6 @@
+using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using Extensions.Pack;
@@ -39,11 +41,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var content = payload.IsNotNull() ? GetContent() : null;
 
             var httpRequestMessage = new HttpRequestMessage(method, uri)
-            {
-                Version = HttpVersion.Version11,
-                VersionPolicy = HttpVersionPolicy.RequestVersionOrLower,
-                Content = content
-            };
+                                     {
+                                         Version = HttpVersion.Version11,
+                                         VersionPolicy = HttpVersionPolicy.RequestVersionOrLower,
+                                         Content = content
+                                     };
 
             return httpRequestMessage;
 

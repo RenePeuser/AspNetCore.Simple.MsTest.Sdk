@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 {

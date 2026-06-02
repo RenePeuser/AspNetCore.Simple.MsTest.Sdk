@@ -1,4 +1,6 @@
+using System;
 using System.Net;
+using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 

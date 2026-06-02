@@ -1,7 +1,11 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {

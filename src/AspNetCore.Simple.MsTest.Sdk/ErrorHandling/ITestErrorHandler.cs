@@ -1,3 +1,6 @@
+using System;
+using System.Threading.Tasks;
+
 namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
 {
     /// <summary>

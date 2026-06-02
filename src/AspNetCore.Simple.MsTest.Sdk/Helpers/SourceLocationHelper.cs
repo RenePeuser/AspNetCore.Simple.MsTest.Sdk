@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Reflection;
 using Extensions.Pack;
 
@@ -315,11 +317,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
                 // Search recursively for the file
                 // Skip common folders that shouldn't contain source files
                 var files = Directory.EnumerateFiles(rootDirectory, fileName, new EnumerationOptions
-                {
-                    RecurseSubdirectories = true,
-                    MatchCasing = MatchCasing.CaseInsensitive,
-                    IgnoreInaccessible = true
-                });
+                                                                              {
+                                                                                  RecurseSubdirectories = true,
+                                                                                  MatchCasing = MatchCasing.CaseInsensitive,
+                                                                                  IgnoreInaccessible = true
+                                                                              });
 
                 foreach (var file in files)
                 {

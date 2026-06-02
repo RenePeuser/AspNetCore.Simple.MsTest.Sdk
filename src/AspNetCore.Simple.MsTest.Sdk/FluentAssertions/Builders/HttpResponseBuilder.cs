@@ -1,7 +1,12 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
+using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 
 // Import to access AssertHttpCallAsync extension method
@@ -146,26 +151,26 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             // If no status codes specified (null), it's a success test
             // If status codes are specified, check if the first one is in 2xx range
             var isSuccessTest = expectedStatusCodes == null ||
-                                 (expectedStatusCodes.Length > 0 && (int)expectedStatusCodes[0] >= 200 && (int)expectedStatusCodes[0] < 300);
+                                (expectedStatusCodes.Length > 0 && (int)expectedStatusCodes[0] >= 200 && (int)expectedStatusCodes[0] < 300);
 
             // Call existing extension method
             return _client.AssertHttpCallAsync(url: _url,
-                                                        payloadAsJson: _body ?? string.Empty,
-                                                        expectedResult: _expectedJson,
-                                                        filterFunc: _filterFunc ?? (x => x),
-                                                        httpMethod: _method,
-                                                        differenceFunc: _differenceFunc ?? (d => d),
-                                                        parameters: allParameters,
-                                                        callingAssembly: _callingAssembly,
-                                                        payloadAsJsonParameterName: string.Empty,
-                                                        expectedResultParameterName: string.Empty,
-                                                        skipEndpointValidation: false,
-                                                        callerFilePath: _callerFilePath,
-                                                        isSuccessStatusCode: isSuccessTest,
-                                                        writeResponse: _writeSnapshot,
-                                                        expectedHttpStatusCode: expectedStatusCodes?.FirstOrDefault(),
-                                                        callerMemberName: string.Empty,
-                                                        callerLineNumber: 0);
+                                               payloadAsJson: _body ?? string.Empty,
+                                               expectedResult: _expectedJson,
+                                               filterFunc: _filterFunc ?? (x => x),
+                                               httpMethod: _method,
+                                               differenceFunc: _differenceFunc ?? (d => d),
+                                               parameters: allParameters,
+                                               callingAssembly: _callingAssembly,
+                                               payloadAsJsonParameterName: string.Empty,
+                                               expectedResultParameterName: string.Empty,
+                                               skipEndpointValidation: false,
+                                               callerFilePath: _callerFilePath,
+                                               isSuccessStatusCode: isSuccessTest,
+                                               writeResponse: _writeSnapshot,
+                                               expectedHttpStatusCode: expectedStatusCodes?.FirstOrDefault(),
+                                               callerMemberName: string.Empty,
+                                               callerLineNumber: 0);
         }
 
         // ============================================================

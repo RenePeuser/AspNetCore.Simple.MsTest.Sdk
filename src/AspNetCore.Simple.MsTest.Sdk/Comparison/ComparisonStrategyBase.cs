@@ -1,3 +1,4 @@
+using System;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Comparison

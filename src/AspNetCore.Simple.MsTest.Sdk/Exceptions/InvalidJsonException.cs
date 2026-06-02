@@ -1,3 +1,4 @@
+using System;
 #pragma warning disable CA1032 // Implement standard exception constructors
 namespace AspNetCore.Simple.MsTest.Sdk
 {

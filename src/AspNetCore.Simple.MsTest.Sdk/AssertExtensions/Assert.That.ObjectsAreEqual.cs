@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -8,6 +12,7 @@ using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -27,13 +32,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters = { new JsonStringEnumConverter() }
-        };
+                                                                                  {
+                                                                                      PropertyNameCaseInsensitive = true,
+                                                                                      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                                                                      DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                                                                                      NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                                                                                      Converters = { new JsonStringEnumConverter() }
+                                                                                  };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
@@ -639,26 +644,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with the expected object directly - avoids serialization roundtrip
             var context = new ObjectAssertContext<T>
-            {
-                CallerFilePath = callerFilePath,
-                CallerLineNumber = callerLineNumber,
-                CallerMemberName = callerMemberName,
-                CallingAssembly = callingAssembly,
-                Current = currentObject,
-                CurrentObject = currentObject,
-                CurrentResultParameterName = currentResultParameterName,
-                DifferenceFunc = differenceFunc,
-                Expected = expectedObject, // Direct object reference - no serialization needed
-                ExpectedType = typeof(T),
-                ExpectedObjectAsJson = expectedObjectAsJson,
-                ExpectedResultFile = expectedFile,
-                ExpectedResultParameterName = expectedResultParameterName,
-                OrderFunc = comparisonFunc,
-                Parameters = parameters,
-                ResolvedExpectedJson = resolvedExpectedJson,
-                TypeIsPrimitiveType = targetIsPrimitiveType,
-                WriteResponse = writeResponse,
-            };
+                          {
+                              CallerFilePath = callerFilePath,
+                              CallerLineNumber = callerLineNumber,
+                              CallerMemberName = callerMemberName,
+                              CallingAssembly = callingAssembly,
+                              Current = currentObject,
+                              CurrentObject = currentObject,
+                              CurrentResultParameterName = currentResultParameterName,
+                              DifferenceFunc = differenceFunc,
+                              Expected = expectedObject, // Direct object reference - no serialization needed
+                              ExpectedType = typeof(T),
+                              ExpectedObjectAsJson = expectedObjectAsJson,
+                              ExpectedResultFile = expectedFile,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              OrderFunc = comparisonFunc,
+                              Parameters = parameters,
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              TypeIsPrimitiveType = targetIsPrimitiveType,
+                              WriteResponse = writeResponse,
+                          };
 
             ObjectsAreEqual(assert, context);
         }
@@ -757,6 +762,30 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine($"{"Type",-10} : {typeof(T).Name}");
             sb.AppendLine($"{"Expected",-10} : {context.ExpectedResultParameterName}");
             sb.AppendLine($"{"Current",-10} : {context.CurrentResultParameterName}");
+
+            // If this is a TestSdkProblemDetailsException, extract additional details
+            if (exception is TestSdkProblemDetailsException sdkException && sdkException.ProblemDetails?.Extensions != null)
+            {
+                // Extract target type if available
+                if (sdkException.ProblemDetails.Extensions.TryGetValue("type", out var targetType) && targetType != null)
+                {
+                    sb.AppendLine($"{"TargetType",-10} : {targetType}");
+                }
+
+                if (sdkException.ProblemDetails.Extensions.TryGetValue("typeFullName", out var targetTypeFullName) && targetTypeFullName != null)
+                {
+                    sb.AppendLine($"{"FullName",-10} : {targetTypeFullName}");
+                }
+
+                // Extract JSON string if available
+                if (sdkException.ProblemDetails.Extensions.TryGetValue("jsonString", out var jsonString) && jsonString != null)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine($"{"JSON",-10} :");
+                    sb.AppendLine(jsonString.ToString());
+                }
+            }
+
             sb.AppendLine();
 
             // Exception Details

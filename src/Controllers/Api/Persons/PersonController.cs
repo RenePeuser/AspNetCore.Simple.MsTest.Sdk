@@ -75,6 +75,7 @@ namespace Controllers.Api.Persons
         {
             // Simple test implementation - always succeeds
             Console.WriteLine(id);
+
             return NoContent();
         }
 

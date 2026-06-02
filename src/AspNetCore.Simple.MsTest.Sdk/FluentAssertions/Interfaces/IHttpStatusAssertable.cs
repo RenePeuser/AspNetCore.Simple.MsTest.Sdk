@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
 {

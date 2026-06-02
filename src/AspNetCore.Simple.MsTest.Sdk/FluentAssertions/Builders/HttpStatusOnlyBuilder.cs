@@ -1,8 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 {
@@ -116,7 +122,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             else
             {
                 // Expect one of multiple status codes
-                if (!_expectedStatusCodes.Contains(response.StatusCode))
+                if (!Enumerable.Contains(_expectedStatusCodes, response.StatusCode))
                 {
                     var expectedList = string.Join(" or ", _expectedStatusCodes.Select(c => $"{(int)c} {c}"));
 

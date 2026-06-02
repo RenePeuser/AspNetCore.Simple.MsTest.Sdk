@@ -21,12 +21,11 @@ namespace MinimalApi.Api.Persons.V1
         {
             routeBuilder.MapDelete("persons/{id:long}/with-response", (long id) =>
                         {
-                            var response = new DeletePersonResponse(
-                                id,
-                                "Son",
-                                "Goku",
-                                true,
-                                DateTime.UtcNow);
+                            var response = new DeletePersonResponse(id,
+                                                                    "Son",
+                                                                    "Goku",
+                                                                    true,
+                                                                    DateTime.UtcNow);
 
                             return Results.Ok(response);
                         })
@@ -39,5 +38,9 @@ namespace MinimalApi.Api.Persons.V1
         }
     }
 
-    public record DeletePersonResponse(long Id, string Name, string FirstName, bool Deleted, DateTime DeletedAt);
+    public record DeletePersonResponse(long Id,
+                                       string Name,
+                                       string FirstName,
+                                       bool Deleted,
+                                       DateTime DeletedAt);
 }
