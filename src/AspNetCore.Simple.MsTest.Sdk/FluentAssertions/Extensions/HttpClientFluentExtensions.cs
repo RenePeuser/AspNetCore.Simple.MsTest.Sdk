@@ -24,7 +24,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
     /// </code>
     /// </example>
     /// </summary>
-    public static class HttpClientFluentExtensions
+    // ToDo: internal still under construction !
+    internal static class HttpClientFluentExtensions
     {
         /// <summary>
         /// Initiates a fluent HTTP POST assertion chain.
@@ -41,10 +42,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         ///     .ExpectSuccess();
         /// </code>
         /// </example>
-        public static IHttpRequestConfiguring AssertPost(
-            this HttpClient client,
-            string url,
-            [CallerFilePath] string callerFilePath = "")
+        public static IHttpRequestConfiguring AssertPost(this HttpClient client,
+                                                         string url,
+                                                         [CallerFilePath] string callerFilePath = "")
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
@@ -66,10 +66,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         ///     .ExpectSuccess();
         /// </code>
         /// </example>
-        public static IHttpRequestConfiguring AssertGet(
-            this HttpClient client,
-            string url,
-            [CallerFilePath] string callerFilePath = "")
+        public static IHttpRequestConfiguring AssertGet(this HttpClient client,
+                                                        string url,
+                                                        [CallerFilePath] string callerFilePath = "")
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
@@ -92,10 +91,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         ///     .ExpectSuccess();
         /// </code>
         /// </example>
-        public static IHttpRequestConfiguring AssertPut(
-            this HttpClient client,
-            string url,
-            [CallerFilePath] string callerFilePath = "")
+        public static IHttpRequestConfiguring AssertPut(this HttpClient client,
+                                                        string url,
+                                                        [CallerFilePath] string callerFilePath = "")
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
@@ -118,10 +116,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         ///     .ExpectSuccess();
         /// </code>
         /// </example>
-        public static IHttpRequestConfiguring AssertPatch(
-            this HttpClient client,
-            string url,
-            [CallerFilePath] string callerFilePath = "")
+        public static IHttpRequestConfiguring AssertPatch(this HttpClient client,
+                                                          string url,
+                                                          [CallerFilePath] string callerFilePath = "")
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
@@ -142,10 +139,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         ///     .ExpectNoContent();
         /// </code>
         /// </example>
-        public static IHttpRequestConfiguring AssertDelete(
-            this HttpClient client,
-            string url,
-            [CallerFilePath] string callerFilePath = "")
+        public static IHttpRequestConfiguring AssertDelete(this HttpClient client,
+                                                           string url,
+                                                           [CallerFilePath] string callerFilePath = "")
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
@@ -174,17 +170,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         ///     .WithResponse&lt;Person&gt;("Expected.json", expectSuccess: true);
         /// </code>
         /// </example>
-        public static Task<TResult> WithResponse<TResult>(
-            this IHttpRequestConfiguring config,
-            string expectedJson,
-            bool expectSuccess)
+        public static Task<TResult> WithResponse<TResult>(this IHttpRequestConfiguring config,
+                                                          string expectedJson,
+                                                          bool expectSuccess)
         {
             if (!expectSuccess)
             {
-                throw new ArgumentException(
-                    "expectSuccess must be true for this overload. " +
-                    "Use .WithResponse<T>(json).Expect() for explicit status code control.",
-                    nameof(expectSuccess));
+                throw new ArgumentException("expectSuccess must be true for this overload. " +
+                                            "Use .WithResponse<T>(json).Expect() for explicit status code control.",
+                                            nameof(expectSuccess));
             }
 
             return config.WithResponse<TResult>(expectedJson).ExpectSuccess();
@@ -207,10 +201,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         ///     .WithResponse&lt;Person&gt;("Expected.json", HttpStatusCode.Created);
         /// </code>
         /// </example>
-        public static Task<TResult> WithResponse<TResult>(
-            this IHttpRequestConfiguring config,
-            string expectedJson,
-            HttpStatusCode statusCode)
+        public static Task<TResult> WithResponse<TResult>(this IHttpRequestConfiguring config,
+                                                          string expectedJson,
+                                                          HttpStatusCode statusCode)
         {
             return config.WithResponse<TResult>(expectedJson).ExpectStatus(statusCode);
         }
@@ -232,10 +225,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         ///     .WithResponse&lt;Person&gt;("Expected.json", HttpStatusCode.OK, HttpStatusCode.Created);
         /// </code>
         /// </example>
-        public static Task<TResult> WithResponse<TResult>(
-            this IHttpRequestConfiguring config,
-            string expectedJson,
-            params HttpStatusCode[] statusCodes)
+        public static Task<TResult> WithResponse<TResult>(this IHttpRequestConfiguring config,
+                                                          string expectedJson,
+                                                          params HttpStatusCode[] statusCodes)
         {
             if (statusCodes.Length == 0)
             {
