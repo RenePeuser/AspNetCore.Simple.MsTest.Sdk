@@ -637,20 +637,36 @@ namespace Core.Test.Core
 
             public string? Email { get; set; }
 
-            public override string ToString() => $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            public override string ToString()
+            {
+                return $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            }
 
             // Implement value equality for AreEqual tests
             public bool Equals(TestUser? other)
             {
-                if (other is null) return false;
-                if (ReferenceEquals(this, other)) return true;
+                if (other is null)
+                {
+                    return false;
+                }
+
+                if (ReferenceEquals(this, other))
+                {
+                    return true;
+                }
 
                 return Id == other.Id && Name == other.Name && Email == other.Email;
             }
 
-            public override bool Equals(object? obj) => obj is TestUser other && Equals(other);
+            public override bool Equals(object? obj)
+            {
+                return obj is TestUser other && Equals(other);
+            }
 
-            public override int GetHashCode() => HashCode.Combine(Id, Name, Email);
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(Id, Name, Email);
+            }
         }
     }
 }

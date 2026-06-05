@@ -114,7 +114,7 @@ namespace Core.Test.ExceptionAssertions
         public void DoesNotThrow_WhenActionWithComplexException_ShouldShowInnerException()
         {
             // Arrange
-            Action action = () =>
+            var action = () =>
             {
                 try
                 {
@@ -172,7 +172,7 @@ namespace Core.Test.ExceptionAssertions
         {
             // Arrange
             var list = new List<string>();
-            Action action = () => list.Add("item");
+            var action = () => list.Add("item");
 
             // Act & Assert - Should NOT throw
             Assert.That.DoesNotThrow(action,
@@ -192,7 +192,7 @@ namespace Core.Test.ExceptionAssertions
             // Arrange
             var counter = 0;
 
-            Func<Task> action = async () =>
+            var action = async () =>
             {
                 await Task.Delay(1);
                 counter++;
@@ -211,7 +211,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task DoesNotThrowAsync_WhenActionThrowsException_ShouldFail()
         {
             // Arrange
-            Func<Task> action = async () =>
+            var action = async () =>
             {
                 await Task.Delay(1);
 
@@ -241,7 +241,7 @@ namespace Core.Test.ExceptionAssertions
         {
             // Arrange
             var service = new TestAsyncService();
-            Func<Task> action = async () => await service.ProcessDataAsync(null!);
+            var action = async () => await service.ProcessDataAsync(null!);
 
             // Act
             try
@@ -298,7 +298,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task DoesNotThrowAsync_WhenActionWithTaskCanceledException_ShouldFail()
         {
             // Arrange
-            Func<Task> action = async () =>
+            var action = async () =>
             {
                 var cts = new CancellationTokenSource();
                 cts.Cancel();
@@ -345,7 +345,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task DoesNotThrowAsync_WithHttpClientOperation_ShouldPass()
         {
             // Arrange
-            Func<Task> action = async () =>
+            var action = async () =>
             {
                 await Task.Delay(10); // Simulate async HTTP call
                 var result = "OK";
@@ -362,7 +362,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task DoesNotThrowAsync_WithInnerException_ShouldShowFullExceptionChain()
         {
             // Arrange
-            Func<Task> action = async () =>
+            var action = async () =>
             {
                 await Task.Delay(1);
 
@@ -411,7 +411,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task DoesNotThrowAsync_WithAggregateException_ShouldShowExceptionDetails()
         {
             // Arrange
-            Func<Task> action = async () =>
+            var action = async () =>
             {
                 var tasks = new[] { Task.Run(() => throw new InvalidOperationException("Task 1 failed")), Task.Run(() => throw new ArgumentException("Task 2 failed")) };
 

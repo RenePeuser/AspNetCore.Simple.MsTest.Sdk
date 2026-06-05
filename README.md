@@ -6,6 +6,9 @@
 
 > **API snapshot testing so productive it feels like cheating.**  
 > Add a JSON file. A test appears. When it fails, you get the exact diff, full HTTP context, and a ready-to-run `curl`.
+>
+> **AI-friendly assertions that let your AI assistant fix your tests.**  
+> Every failure includes context (`because`), guidance (`fix`), and structured output. Human-readable. AI-parseable.
 
 ---
 
@@ -1535,6 +1538,91 @@ The live traffic capture feature exists because good API tests often start with 
 - pure unit tests
 - performance benchmarks
 - load testing
+
+---
+
+## Assert.That - AI-Friendly Assertions
+
+The SDK includes a modern assertion library designed for both human readability and AI debuggability.
+
+### Why `Assert.That.*`?
+
+Traditional assertions give you a line number and a brief message. `Assert.That.*` gives you **structured failure context** that makes debugging instant for humans and enables AI tools to understand test failures without guessing.
+
+### Key features
+
+- **Mandatory context**: Every assertion requires `because` (why) and `fix` (how to resolve) parameters
+- **Rich structured output**: Failures include test location, problem description, details, context, and suggested fixes
+- **Automatic variable capture**: Uses `CallerArgumentExpression` to show actual code expressions
+- **Organized by category**: Boolean, Numeric, String, Collection, DateTime, Exception assertions
+- **Human-first, AI-ready**: Beautiful console output with optional JSON serialization for tooling
+
+### Example
+
+```csharp
+Assert.That.IsTrue(user.IsActive && user.IsVerified,
+    because: "Active and verified users should have full access",
+    fix: "Activate the user account in the admin panel");
+```
+
+### Failure output
+
+```plaintext
+══════════════════════════════════════════════════════════════
+⚠️  CONDITION FAILED - EXPECTED TRUE
+══════════════════════════════════════════════════════════════
+
+📦 Test Information
+──────────────────────────────────────────────────────────────
+File     : UserTests.cs:42
+Method   : Should_Grant_Access_To_Active_Users
+Condition: user.IsActive && user.IsVerified
+
+⚠️ Problem
+──────────────────────────────────────────────────────────────
+Expected condition to be TRUE but it was FALSE.
+
+📊 Details
+──────────────────────────────────────────────────────────────
+Condition  : user.IsActive && user.IsVerified
+Result     : False
+Expected   : True
+
+💭 Context (Why)
+──────────────────────────────────────────────────────────────
+Active and verified users should have full access
+
+✅ Suggested Fix (How)
+──────────────────────────────────────────────────────────────
+Activate the user account in the admin panel
+
+Additional suggestions:
+  • Review the logic in 'user.IsActive && user.IsVerified' to ensure it returns true
+  • Check the values being compared in the condition
+  • Verify that prerequisites for this condition are met
+
+══════════════════════════════════════════════════════════════
+```
+
+### Available assertions
+
+| Category | Methods | Use For |
+|----------|---------|---------|
+| **Boolean** | `IsTrue`, `IsFalse` | Condition checks |
+| **Null** | `IsNull`, `IsNotNull` | Null reference validation |
+| **Equality** | `AreEqual`, `AreNotEqual`, `AreSame`, `AreNotSame` | Value and reference comparison |
+| **Type** | `IsInstanceOfType`, `IsNotInstanceOfType` | Type checking |
+| **Numeric** | `IsGreaterThan`, `IsLessThan`, `IsInRange`, `IsPositive`, `IsNegative` | Number validation |
+| **String** | `IsEmpty`, `IsNotEmpty`, `Contains`, `StartsWith`, `EndsWith`, `Matches` | String validation |
+| **Collection** | `IsEmpty`, `IsNotEmpty`, `Contains`, `DoesNotContain`, `AllMatch` | Collection validation |
+| **Exception** | `Throws`, `DoesNotThrow` | Exception behavior |
+| **DateTime** | `IsAfter`, `IsBefore`, `IsBetween` | Date/time validation |
+
+### Why not `AiAssert.*`?
+
+The `because` and `fix` parameters make assertions self-documenting. The structured output format is already AI-parseable. Creating a separate `AiAssert` namespace would fragment the API and create confusion about when to use which.
+
+**Single API, dual benefit**: Write once, debug easily (human), parse reliably (AI).
 
 ---
 

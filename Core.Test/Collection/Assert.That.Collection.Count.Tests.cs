@@ -902,7 +902,10 @@ namespace Core.Test.Collection
 
             public string Name { get; set; } = string.Empty;
 
-            public override string ToString() => $"User(Id={Id}, Name={Name})";
+            public override string ToString()
+            {
+                return $"User(Id={Id}, Name={Name})";
+            }
         }
     }
 }

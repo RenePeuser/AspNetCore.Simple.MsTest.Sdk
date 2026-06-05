@@ -923,24 +923,37 @@ namespace Core.Test.Collection
 
             public string Name { get; set; } = string.Empty;
 
-            public override string ToString() => $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            public override string ToString()
+            {
+                return $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            }
 
             public bool Equals(TestUser? other)
             {
                 if (other is null)
+                {
                     return false;
+                }
 
                 return Id == other.Id && Name == other.Name;
             }
 
-            public override bool Equals(object? obj) => Equals(obj as TestUser);
+            public override bool Equals(object? obj)
+            {
+                return Equals(obj as TestUser);
+            }
 
-            public override int GetHashCode() => HashCode.Combine(Id, Name);
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(Id, Name);
+            }
 
             public int CompareTo(TestUser? other)
             {
                 if (other is null)
+                {
                     return 1;
+                }
 
                 var idComparison = Id.CompareTo(other.Id);
 

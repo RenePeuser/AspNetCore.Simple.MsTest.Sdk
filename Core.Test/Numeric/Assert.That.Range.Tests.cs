@@ -17,9 +17,9 @@ namespace Core.Test.Numeric
         public void IsInRange_WhenValueIsWithinRange_ShouldPass()
         {
             // Arrange
-            int value = 50;
-            int min = 0;
-            int max = 100;
+            var value = 50;
+            var min = 0;
+            var max = 100;
 
             // Act & Assert - Should NOT throw
             Assert.That.IsInRange(value, min, max,
@@ -31,9 +31,9 @@ namespace Core.Test.Numeric
         public void IsInRange_WhenValueIsAtMinBoundary_ShouldPass()
         {
             // Arrange
-            int value = 0;
-            int min = 0;
-            int max = 100;
+            var value = 0;
+            var min = 0;
+            var max = 100;
 
             // Act & Assert - Should NOT throw
             Assert.That.IsInRange(value, min, max,
@@ -45,9 +45,9 @@ namespace Core.Test.Numeric
         public void IsInRange_WhenValueIsAtMaxBoundary_ShouldPass()
         {
             // Arrange
-            int value = 100;
-            int min = 0;
-            int max = 100;
+            var value = 100;
+            var min = 0;
+            var max = 100;
 
             // Act & Assert - Should NOT throw
             Assert.That.IsInRange(value, min, max,
@@ -59,9 +59,9 @@ namespace Core.Test.Numeric
         public void IsInRange_WhenValueIsBelowRange_ShouldFail()
         {
             // Arrange
-            int value = -10;
-            int min = 0;
-            int max = 100;
+            var value = -10;
+            var min = 0;
+            var max = 100;
             var threw = false;
 
             // Act
@@ -84,9 +84,9 @@ namespace Core.Test.Numeric
         public void IsInRange_WhenValueIsAboveRange_ShouldFail()
         {
             // Arrange
-            int value = 150;
-            int min = 0;
-            int max = 100;
+            var value = 150;
+            var min = 0;
+            var max = 100;
             var threw = false;
 
             // Act
@@ -109,9 +109,9 @@ namespace Core.Test.Numeric
         public void IsInRange_WhenValueIsOutOfRange_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            int age = 150;
-            int minAge = 0;
-            int maxAge = 120;
+            var age = 150;
+            var minAge = 0;
+            var maxAge = 120;
 
             // Act
             try
@@ -155,9 +155,9 @@ namespace Core.Test.Numeric
         public void IsInRange_WithDoubleValues_WhenValueIsWithinRange_ShouldPass()
         {
             // Arrange
-            double temperature = 22.5;
-            double min = -40.0;
-            double max = 50.0;
+            var temperature = 22.5;
+            var min = -40.0;
+            var max = 50.0;
 
             // Act & Assert - Should NOT throw
             Assert.That.IsInRange(temperature, min, max,
@@ -169,9 +169,9 @@ namespace Core.Test.Numeric
         public void IsInRange_WithDoubleValues_WhenValueIsOutOfRange_ShouldFail()
         {
             // Arrange
-            double temperature = 75.0;
-            double min = -40.0;
-            double max = 50.0;
+            var temperature = 75.0;
+            var min = -40.0;
+            var max = 50.0;
             var threw = false;
 
             // Act
@@ -194,9 +194,9 @@ namespace Core.Test.Numeric
         public void IsInRange_WithDoubleValues_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            double price = 1500.99;
-            double minPrice = 0.01;
-            double maxPrice = 999.99;
+            var price = 1500.99;
+            var minPrice = 0.01;
+            var maxPrice = 999.99;
 
             // Act
             try
@@ -309,9 +309,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WhenValueIsOutOfRange_ShouldPass()
         {
             // Arrange
-            int value = 150;
-            int min = 0;
-            int max = 100;
+            var value = 150;
+            var min = 0;
+            var max = 100;
 
             // Act & Assert - Should NOT throw
             Assert.That.IsOutOfRange(value, min, max,
@@ -323,9 +323,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WhenValueIsBelowRange_ShouldPass()
         {
             // Arrange
-            int value = -10;
-            int min = 0;
-            int max = 100;
+            var value = -10;
+            var min = 0;
+            var max = 100;
 
             // Act & Assert - Should NOT throw
             Assert.That.IsOutOfRange(value, min, max,
@@ -337,9 +337,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WhenValueIsWithinRange_ShouldFail()
         {
             // Arrange
-            int value = 50;
-            int min = 0;
-            int max = 100;
+            var value = 50;
+            var min = 0;
+            var max = 100;
             var threw = false;
 
             // Act
@@ -362,9 +362,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WhenValueIsAtMinBoundary_ShouldFail()
         {
             // Arrange
-            int value = 0;
-            int min = 0;
-            int max = 100;
+            var value = 0;
+            var min = 0;
+            var max = 100;
             var threw = false;
 
             // Act
@@ -387,9 +387,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WhenValueIsAtMaxBoundary_ShouldFail()
         {
             // Arrange
-            int value = 100;
-            int min = 0;
-            int max = 100;
+            var value = 100;
+            var min = 0;
+            var max = 100;
             var threw = false;
 
             // Act
@@ -412,9 +412,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WhenValueIsInRange_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            int port = 8080;
-            int reservedMin = 8000;
-            int reservedMax = 9000;
+            var port = 8080;
+            var reservedMin = 8000;
+            var reservedMax = 9000;
 
             // Act
             try
@@ -458,9 +458,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WithDoubleValues_WhenValueIsOutOfRange_ShouldPass()
         {
             // Arrange
-            double value = 150.5;
-            double min = 0.0;
-            double max = 100.0;
+            var value = 150.5;
+            var min = 0.0;
+            var max = 100.0;
 
             // Act & Assert - Should NOT throw
             Assert.That.IsOutOfRange(value, min, max,
@@ -472,9 +472,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WithDoubleValues_WhenValueIsInRange_ShouldFail()
         {
             // Arrange
-            double value = 50.5;
-            double min = 0.0;
-            double max = 100.0;
+            var value = 50.5;
+            var min = 0.0;
+            var max = 100.0;
             var threw = false;
 
             // Act
@@ -497,9 +497,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WithDoubleValues_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            double frequency = 50.0;
-            double forbiddenMin = 45.0;
-            double forbiddenMax = 55.0;
+            var frequency = 50.0;
+            var forbiddenMin = 45.0;
+            var forbiddenMax = 55.0;
 
             // Act
             try
@@ -612,9 +612,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WithStringValues_WhenValueIsOutOfRange_ShouldPass()
         {
             // Arrange
-            string value = "Zulu";
-            string min = "Alpha";
-            string max = "Charlie";
+            var value = "Zulu";
+            var min = "Alpha";
+            var max = "Charlie";
 
             // Act & Assert - Should NOT throw
             Assert.That.IsOutOfRange(value, min, max,
@@ -626,9 +626,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WithStringValues_WhenValueIsInRange_ShouldFail()
         {
             // Arrange
-            string value = "Bravo";
-            string min = "Alpha";
-            string max = "Charlie";
+            var value = "Bravo";
+            var min = "Alpha";
+            var max = "Charlie";
             var threw = false;
 
             // Act
@@ -651,9 +651,9 @@ namespace Core.Test.Numeric
         public void IsOutOfRange_WithStringValues_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            string username = "Mike";
-            string reservedMin = "Admin";
-            string reservedMax = "System";
+            var username = "Mike";
+            var reservedMin = "Admin";
+            var reservedMax = "System";
 
             // Act
             try

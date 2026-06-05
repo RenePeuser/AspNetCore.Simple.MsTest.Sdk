@@ -29,7 +29,7 @@ namespace Core.Test.ExceptionAssertions
         public void Throws_WhenActionDoesNotThrow_ShouldFail()
         {
             // Arrange
-            Action action = () => { }; // Does nothing
+            var action = () => { }; // Does nothing
             var threw = false;
 
             // Act
@@ -75,7 +75,7 @@ namespace Core.Test.ExceptionAssertions
         public void Throws_WhenNoExceptionThrown_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            Action action = () =>
+            var action = () =>
             {
                 // Simulating a method that should throw but doesn't
                 var result = 10 / 2; // No exception
@@ -164,7 +164,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task ThrowsAsync_WhenActionThrowsExpectedException_ShouldPass()
         {
             // Arrange
-            Func<Task> action = async () =>
+            var action = async () =>
             {
                 await Task.Delay(1);
 
@@ -181,7 +181,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task ThrowsAsync_WhenActionDoesNotThrow_ShouldFail()
         {
             // Arrange
-            Func<Task> action = async () => await Task.CompletedTask;
+            var action = async () => await Task.CompletedTask;
             var threw = false;
 
             // Act
@@ -204,7 +204,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task ThrowsAsync_WhenActionThrowsWrongException_ShouldFail()
         {
             // Arrange
-            Func<Task> action = async () =>
+            var action = async () =>
             {
                 await Task.Delay(1);
 
@@ -233,7 +233,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task ThrowsAsync_WhenNoExceptionThrown_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            Func<Task> action = async () =>
+            var action = async () =>
             {
                 await Task.Delay(10);
 
@@ -271,7 +271,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task ThrowsAsync_WhenWrongExceptionThrown_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            Func<Task> action = async () =>
+            var action = async () =>
             {
                 await Task.Delay(1);
 
@@ -312,7 +312,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task ThrowsAsync_WithTaskException_ShouldPass()
         {
             // Arrange
-            Func<Task> action = () => Task.FromException(new TaskCanceledException());
+            var action = () => Task.FromException(new TaskCanceledException());
 
             // Act & Assert - Should NOT throw
             await Assert.That.ThrowsAsync<TaskCanceledException>(action,
@@ -366,7 +366,7 @@ namespace Core.Test.ExceptionAssertions
         public void ThrowsWithMessage_WhenNoExceptionThrown_ShouldFail()
         {
             // Arrange
-            Action action = () => { }; // Does nothing
+            var action = () => { }; // Does nothing
             var threw = false;
 
             // Act
@@ -453,7 +453,7 @@ namespace Core.Test.ExceptionAssertions
         public void ThrowsWithMessage_WhenNoException_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            Action action = () =>
+            var action = () =>
             {
                 // Simulating a validation method that should throw but doesn't
                 var email = "user@example.com";
@@ -563,7 +563,7 @@ namespace Core.Test.ExceptionAssertions
         public void Throws_WithNestedException_ShouldCatchOuterException()
         {
             // Arrange
-            Action action = () =>
+            var action = () =>
             {
                 try
                 {
@@ -585,7 +585,7 @@ namespace Core.Test.ExceptionAssertions
         public async Task ThrowsAsync_WithAggregateException_ShouldPass()
         {
             // Arrange
-            Func<Task> action = async () =>
+            var action = async () =>
             {
                 await Task.Run(() => throw new InvalidOperationException("Inner exception"));
             };

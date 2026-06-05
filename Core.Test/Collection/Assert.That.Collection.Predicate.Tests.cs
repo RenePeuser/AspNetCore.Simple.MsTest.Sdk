@@ -294,11 +294,11 @@ namespace Core.Test.Collection
             int[]? numbers = null;
 
             // Act & Assert
-            Action testAction = () => Assert.That.Any(numbers,
-                                                      predicate: (int x) => x > 0,
-                                                      predicateDescription: "is positive",
-                                                      because: "Testing null collection",
-                                                      fix: "N/A");
+            var testAction = () => Assert.That.Any(numbers,
+                                                   predicate: (int x) => x > 0,
+                                                   predicateDescription: "is positive",
+                                                   because: "Testing null collection",
+                                                   fix: "N/A");
 
             Assert.That.Throws<ArgumentNullException>(testAction,
                                                       because: "Null collection should throw",
@@ -444,11 +444,11 @@ namespace Core.Test.Collection
             int[]? numbers = null;
 
             // Act & Assert
-            Action testAction = () => Assert.That.None(numbers,
-                                                       predicate: (int x) => x < 0,
-                                                       predicateDescription: "is negative",
-                                                       because: "Testing null collection",
-                                                       fix: "N/A");
+            var testAction = () => Assert.That.None(numbers,
+                                                    predicate: (int x) => x < 0,
+                                                    predicateDescription: "is negative",
+                                                    because: "Testing null collection",
+                                                    fix: "N/A");
 
             Assert.That.Throws<ArgumentNullException>(testAction,
                                                       because: "Null collection should throw",
@@ -690,11 +690,11 @@ namespace Core.Test.Collection
             int[]? numbers = null;
 
             // Act & Assert
-            Action testAction = () => Assert.That.Single(numbers,
-                                                         predicate: (int x) => x == 5,
-                                                         predicateDescription: "equals 5",
-                                                         because: "Testing null collection",
-                                                         fix: "N/A");
+            var testAction = () => Assert.That.Single(numbers,
+                                                      predicate: (int x) => x == 5,
+                                                      predicateDescription: "equals 5",
+                                                      because: "Testing null collection",
+                                                      fix: "N/A");
 
             Assert.That.Throws<ArgumentNullException>(testAction,
                                                       because: "Null collection should throw",
@@ -715,7 +715,10 @@ namespace Core.Test.Collection
 
             public string Role { get; set; } = "User";
 
-            public override string ToString() => $"TestUser {{ Id: {Id}, Name: {Name}, Age: {Age}, Role: {Role} }}";
+            public override string ToString()
+            {
+                return $"TestUser {{ Id: {Id}, Name: {Name}, Age: {Age}, Role: {Role} }}";
+            }
         }
 
         private sealed class TestOrder
@@ -726,7 +729,10 @@ namespace Core.Test.Collection
 
             public decimal Amount { get; set; }
 
-            public override string ToString() => $"TestOrder {{ Id: {Id}, Status: {Status}, Amount: {Amount:C} }}";
+            public override string ToString()
+            {
+                return $"TestOrder {{ Id: {Id}, Status: {Status}, Amount: {Amount:C} }}";
+            }
         }
 
         private sealed class TestProduct
@@ -739,7 +745,10 @@ namespace Core.Test.Collection
 
             public bool IsDiscontinued { get; set; }
 
-            public override string ToString() => $"TestProduct {{ Id: {Id}, Name: {Name}, Price: {Price:C}, IsDiscontinued: {IsDiscontinued} }}";
+            public override string ToString()
+            {
+                return $"TestProduct {{ Id: {Id}, Name: {Name}, Price: {Price:C}, IsDiscontinued: {IsDiscontinued} }}";
+            }
         }
 
         private sealed class TestAccount
@@ -750,7 +759,10 @@ namespace Core.Test.Collection
 
             public bool IsPrimary { get; set; }
 
-            public override string ToString() => $"TestAccount {{ Id: {Id}, Email: {Email}, IsPrimary: {IsPrimary} }}";
+            public override string ToString()
+            {
+                return $"TestAccount {{ Id: {Id}, Email: {Email}, IsPrimary: {IsPrimary} }}";
+            }
         }
     }
 }

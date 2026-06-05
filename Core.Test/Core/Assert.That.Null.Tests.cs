@@ -190,7 +190,10 @@ namespace Core.Test.Core
 
             public string? Email { get; set; }
 
-            public override string ToString() => $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            public override string ToString()
+            {
+                return $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            }
         }
     }
 }

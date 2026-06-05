@@ -446,7 +446,10 @@ namespace Core.Test.Core
 
             public string Name { get; set; } = string.Empty;
 
-            public override string ToString() => $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            public override string ToString()
+            {
+                return $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            }
         }
 
         private sealed class ApiResponse
@@ -455,7 +458,10 @@ namespace Core.Test.Core
 
             public string Message { get; set; } = string.Empty;
 
-            public override string ToString() => $"ApiResponse {{ StatusCode: {StatusCode}, Message: {Message} }}";
+            public override string ToString()
+            {
+                return $"ApiResponse {{ StatusCode: {StatusCode}, Message: {Message} }}";
+            }
         }
 
         private sealed class ErrorResponse
@@ -464,7 +470,10 @@ namespace Core.Test.Core
 
             public string ErrorMessage { get; set; } = string.Empty;
 
-            public override string ToString() => $"ErrorResponse {{ ErrorCode: {ErrorCode}, ErrorMessage: {ErrorMessage} }}";
+            public override string ToString()
+            {
+                return $"ErrorResponse {{ ErrorCode: {ErrorCode}, ErrorMessage: {ErrorMessage} }}";
+            }
         }
 
         private class BaseClass

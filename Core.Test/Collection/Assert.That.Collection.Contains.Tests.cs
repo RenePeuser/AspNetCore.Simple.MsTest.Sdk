@@ -867,7 +867,10 @@ namespace Core.Test.Collection
 
             public string Name { get; set; } = string.Empty;
 
-            public override string ToString() => $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            public override string ToString()
+            {
+                return $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            }
         }
     }
 }

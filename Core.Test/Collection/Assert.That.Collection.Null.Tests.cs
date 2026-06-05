@@ -541,7 +541,7 @@ namespace Core.Test.Collection
         public void IsEmpty_WithIEnumerableType_ShouldPass()
         {
             // Arrange
-            IEnumerable<int> emptyEnumerable = Enumerable.Empty<int>();
+            var emptyEnumerable = Enumerable.Empty<int>();
 
             // Act & Assert - Should NOT throw
             Assert.That.IsEmpty(emptyEnumerable,
@@ -553,7 +553,7 @@ namespace Core.Test.Collection
         public void IsNotEmpty_WithIEnumerableType_ShouldPass()
         {
             // Arrange
-            IEnumerable<int> enumerable = Enumerable.Range(1, 5);
+            var enumerable = Enumerable.Range(1, 5);
 
             // Act & Assert - Should NOT throw
             Assert.That.IsNotEmpty(enumerable,
@@ -573,7 +573,10 @@ namespace Core.Test.Collection
 
             public string? Email { get; set; }
 
-            public override string ToString() => $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            public override string ToString()
+            {
+                return $"TestUser {{ Id: {Id}, Name: {Name} }}";
+            }
         }
 
         private sealed class Product
@@ -584,7 +587,10 @@ namespace Core.Test.Collection
 
             public decimal Price { get; set; }
 
-            public override string ToString() => $"Product {{ Id: {Id}, Name: {Name}, Price: {Price:C} }}";
+            public override string ToString()
+            {
+                return $"Product {{ Id: {Id}, Name: {Name}, Price: {Price:C} }}";
+            }
         }
 
         private sealed class Order
@@ -593,7 +599,10 @@ namespace Core.Test.Collection
 
             public decimal Total { get; set; }
 
-            public override string ToString() => $"Order {{ Id: {Id}, Total: {Total:C} }}";
+            public override string ToString()
+            {
+                return $"Order {{ Id: {Id}, Total: {Total:C} }}";
+            }
         }
     }
 }
