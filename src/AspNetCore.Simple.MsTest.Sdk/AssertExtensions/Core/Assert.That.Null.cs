@@ -108,7 +108,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             int callerLineNumber
         )
         {
-            var textDecorator = GetTextDecorator(callerFilePath);
+            var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
 
             // Header
@@ -153,19 +153,5 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             return sb.ToString();
         }
-
-        // Helper to get appropriate text decorator based on build configuration
-#pragma warning disable CA1859 // Use concrete types when possible for improved performance - interface needed for flexibility
-        private static ITextDecorator GetTextDecorator(string callerFilePath)
-        {
-            // Default to ANSI colors for release builds
-            // Can be enhanced to detect debug mode if needed
-#if DEBUG
-            return new PlainTextDecorator();
-#else
-            return new AnsiColorTextDecorator();
-#endif
-        }
-#pragma warning restore CA1859
     }
 }

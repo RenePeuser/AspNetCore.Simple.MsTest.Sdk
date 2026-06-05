@@ -6,6 +6,7 @@ namespace Core.Test.Core
     /// Tests for Assert.That.IsNull and Assert.That.IsNotNull
     /// </summary>
     [TestClass]
+    [TestCategory("Null")]
     public sealed class AssertThatNullTests
     {
         // ============================================================
@@ -13,7 +14,6 @@ namespace Core.Test.Core
         // ============================================================
 
         [TestMethod]
-        [TestCategory("Assert.That.IsNull")]
         public void IsNull_WhenValueIsNull_ShouldPass()
         {
             // Arrange
@@ -26,7 +26,6 @@ namespace Core.Test.Core
         }
 
         [TestMethod]
-        [TestCategory("Assert.That.IsNull")]
         public void IsNull_WhenValueIsNotNull_ShouldFail()
         {
             // Arrange
@@ -50,7 +49,6 @@ namespace Core.Test.Core
         }
 
         [TestMethod]
-        [TestCategory("Assert.That.IsNull")]
         public void IsNull_WhenObjectIsNotNull_ShouldFailWithBeautifulOutput()
         {
             // Arrange
@@ -91,7 +89,6 @@ namespace Core.Test.Core
         // ============================================================
 
         [TestMethod]
-        [TestCategory("Assert.That.IsNotNull")]
         public void IsNotNull_WhenValueIsNotNull_ShouldPass()
         {
             // Arrange
@@ -104,7 +101,6 @@ namespace Core.Test.Core
         }
 
         [TestMethod]
-        [TestCategory("Assert.That.IsNotNull")]
         public void IsNotNull_WhenValueIsNull_ShouldFail()
         {
             // Arrange
@@ -128,7 +124,6 @@ namespace Core.Test.Core
         }
 
         [TestMethod]
-        [TestCategory("Assert.That.IsNotNull")]
         public void IsNotNull_WhenObjectIsNull_ShouldFailWithBeautifulOutput()
         {
             // Arrange
@@ -167,7 +162,6 @@ namespace Core.Test.Core
         }
 
         [TestMethod]
-        [TestCategory("Assert.That.IsNotNull")]
         public void IsNotNull_WithComplexObject_ShouldPass()
         {
             // Arrange

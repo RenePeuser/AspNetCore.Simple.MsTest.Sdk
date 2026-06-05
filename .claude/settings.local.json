@@ -21,7 +21,9 @@
       "Bash(gh api:*)",
       "Bash(dotnet clean:*)",
       "Bash(dotnet run:*)",
-      "Bash(curl -s -X DELETE http://localhost:5000/api/tests/v1/persons/1 -w \"\\\\nStatus: %{http_code}\\\\n\")"
+      "Bash(curl -s -X DELETE http://localhost:5000/api/tests/v1/persons/1 -w \"\\\\nStatus: %{http_code}\\\\n\")",
+      "Bash(powershell.exe *)",
+      "Bash(xargs -0 grep -h \"TestCategory\")"
     ]
   }
 }
