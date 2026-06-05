@@ -1286,6 +1286,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
                                               writeResponse: writeResponse,
+                                              expectedHttpStatusCode: expectedHttpStatusCode,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }
@@ -1356,6 +1357,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               payloadAsJsonParameterName: payloadAsJsonParameterName,
                                               expectedResultParameterName: expectedResultParameterName,
                                               skipEndpointValidation: skipEndpointValidation,
+                                              expectedHttpStatusCode: expectedHttpStatusCode,
                                               callerFilePath: callerFilePath,
                                               isSuccessStatusCode: true,
                                               writeResponse: writeResponse,

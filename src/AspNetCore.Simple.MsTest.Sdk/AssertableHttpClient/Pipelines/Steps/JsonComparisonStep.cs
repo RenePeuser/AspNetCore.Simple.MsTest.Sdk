@@ -157,7 +157,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             {
                 expectedResultAsJson = expectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(context.ContentAsString,
                                                                                                       context.CallingAssembly,
-                                                                                                      context.ExpectedResultParameterName);
+                                                                                                      context.ExpectedResultParameterName,
+                                                                                                      context.CallerFilePath,
+                                                                                                      context.CallerLineNumber,
+                                                                                                      context.CallerMemberName);
 
                 if (expectedResultAsJson.IsNull())
                 {
@@ -168,7 +171,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             {
                 expectedResultAsJson = expectedResultFile.Content.GetJsonStringFrom<TResult>(context.ContentAsString,
                                                                                              context.CallingAssembly,
-                                                                                             context.ExpectedResultParameterName);
+                                                                                             context.ExpectedResultParameterName,
+                                                                                             context.CallerFilePath,
+                                                                                             context.CallerLineNumber,
+                                                                                             context.CallerMemberName);
             }
 
             return expectedResultAsJson;
