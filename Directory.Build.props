@@ -42,7 +42,9 @@
         <!-- ImplicitUsings
          Enables SDK-provided implicit global using directives.
          Reduces boilerplate while maintaining consistent behavior across projects. -->
-        <ImplicitUsings>enable</ImplicitUsings>
+
+        <!-- Deactivated cause of R# out of process issues -->
+        <ImplicitUsings>disable</ImplicitUsings>
 
         <!-- InvariantGlobalization
          Enables invariant globalization mode.

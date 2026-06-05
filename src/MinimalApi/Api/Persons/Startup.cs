@@ -1,5 +1,3 @@
-using MinimalApi.Api.Persons.V1;
-
 namespace MinimalApi.Api.Persons
 {
     internal static class Startup

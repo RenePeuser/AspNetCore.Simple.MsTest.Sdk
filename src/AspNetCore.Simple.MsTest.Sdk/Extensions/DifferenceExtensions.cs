@@ -49,23 +49,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (differences.Count.EqualsTo(1) && differences[0].MemberPath.IsNullOrWhiteSpace())
             {
-                var columns = new[]
-                {
-                    objectName1,
-                    objectName2,
-                    "MismatchType"
-                };
+                var columns = new[] { objectName1, objectName2, "MismatchType" };
 
                 var rows = new List<object[]>();
 
                 foreach (var dif in differences)
                 {
-                    rows.Add(new object[]
-                    {
-                        dif.Value1 ?? "null",
-                        dif.Value2 ?? "null",
-                        dif.MismatchType
-                    });
+                    rows.Add(new object[] { dif.Value1 ?? "null", dif.Value2 ?? "null", dif.MismatchType });
                 }
 
                 return tableBuilder.BuildTable(columns, rows, enableCount: false);
@@ -74,12 +64,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var flattened = FlattenDifferences(differences).ToImmutableList();
 
             var fullColumns = new[]
-            {
-                nameof(Difference.MemberPath),
-                objectName1,
-                objectName2,
-                "MismatchType"
-            };
+                              {
+                                  nameof(Difference.MemberPath), objectName1, objectName2,
+                                  "MismatchType"
+                              };
 
             var fullRows = new List<object[]>();
 
@@ -89,32 +77,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     case MismatchType.ValueDifference:
                         fullRows.Add(new object[]
-                        {
-                            dif.MemberPath,
-                            dif.Value1 ?? "null",
-                            dif.Value2 ?? "null",
-                            dif.MismatchType
-                        });
+                                     {
+                                         dif.MemberPath, dif.Value1 ?? "null", dif.Value2 ?? "null",
+                                         dif.MismatchType
+                                     });
 
                         break;
                     case MismatchType.MissingInFirst:
                         fullRows.Add(new object[]
-                        {
-                            dif.MemberPath,
-                            "Property missing",
-                            dif.Value2 ?? "null",
-                            dif.MismatchType
-                        });
+                                     {
+                                         dif.MemberPath, "Property missing", dif.Value2 ?? "null",
+                                         dif.MismatchType
+                                     });
 
                         break;
                     case MismatchType.MissingInSecond:
                         fullRows.Add(new object[]
-                        {
-                            dif.MemberPath,
-                            dif.Value1 ?? "null",
-                            "Property missing",
-                            dif.MismatchType
-                        });
+                                     {
+                                         dif.MemberPath, dif.Value1 ?? "null", "Property missing",
+                                         dif.MismatchType
+                                     });
 
                         break;
                 }

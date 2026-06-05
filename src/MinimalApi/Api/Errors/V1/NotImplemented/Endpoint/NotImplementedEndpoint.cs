@@ -19,13 +19,10 @@ namespace MinimalApi.Api.Errors.V1.NotImplemented.Endpoint
     {
         public void Map(IEndpointRouteBuilder routeBuilder)
         {
-            routeBuilder.MapPost("errors/not-implemented", () =>
-                        {
-                            throw new ProblemDetailsException("Implementation is missing",
+            routeBuilder.MapPost("errors/not-implemented", () => throw new ProblemDetailsException("Implementation is missing",
                                                               "Here are error details",
                                                               ("PropertyA", "A"),
-                                                              ("PropertyB", "B"));
-                        })
+                                                              ("PropertyB", "B")))
                         .WithName("throwNotImplementedV1")
                         .WithSummary("Throws a not implemented exception")
                         .WithTags("Errors")

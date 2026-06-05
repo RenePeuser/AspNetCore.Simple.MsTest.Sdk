@@ -137,14 +137,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                         string actual)
         {
             var data = new[]
-            {
-                new
-                {
-                    Request = $"{_method.Method} {_url}",
-                    Expected = expected,
-                    Actual = actual
-                }
-            };
+                       {
+                           new
+                           {
+                               Request = $"{_method.Method} {_url}",
+                               Expected = expected,
+                               Actual = actual
+                           }
+                       };
 
             var table = TableFormatter.From(data);
 

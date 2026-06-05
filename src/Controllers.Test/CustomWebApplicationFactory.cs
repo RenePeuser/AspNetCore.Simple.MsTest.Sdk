@@ -41,8 +41,7 @@ namespace Controllers.Test
         }
     }
 
-    public abstract class IntegrationTestBase<TStartup> : DisposableBase
-        where TStartup : class
+    public abstract class IntegrationTestBase<TStartup> : DisposableBase, System.IDisposable where TStartup : class
     {
         private readonly IntegrationTestWebApplicationFactory<TStartup> _webApplicationFactory;
 
@@ -77,6 +76,11 @@ namespace Controllers.Test
         public virtual void ConfigureServices(IServiceCollection serviceCollection)
         {
             // Gives the possibility to do test environment specific configurations
+        }
+
+        public void Dispose()
+        {
+            throw new System.NotImplementedException();
         }
     }
 

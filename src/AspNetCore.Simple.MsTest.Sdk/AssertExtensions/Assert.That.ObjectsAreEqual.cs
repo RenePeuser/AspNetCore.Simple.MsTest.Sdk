@@ -37,10 +37,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
             NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters =
-            {
-                new JsonStringEnumConverter()
-            }
+            Converters = { new JsonStringEnumConverter() }
         };
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
@@ -715,11 +712,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var debugPrimitiveOutputStrategy = new PrimitiveOutputStrategy(plainTextDecorator);
                 var debugObjectOutputStrategy = new ObjectOutputStrategy(debugDifferencesTableBuilder, debugJsonSectionBuilder, plainTextDecorator);
 
-                var debugOutputStrategies = new IAssertOutputStrategy[]
-                {
-                    debugPrimitiveOutputStrategy,
-                    debugObjectOutputStrategy
-                };
+                var debugOutputStrategies = new IAssertOutputStrategy[] { debugPrimitiveOutputStrategy, debugObjectOutputStrategy };
 
                 var debugOutputBuilder = new AssertOutputBuilder(debugOutputStrategies);
 

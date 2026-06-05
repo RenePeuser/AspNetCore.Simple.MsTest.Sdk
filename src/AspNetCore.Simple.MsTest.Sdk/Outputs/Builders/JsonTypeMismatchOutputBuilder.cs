@@ -192,7 +192,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Builders
                                   : json;
 
             // Try to pretty-print if it looks like valid JSON
-            if ((displayJson.StartsWith('{') || displayJson.StartsWith('[')))
+            if (displayJson.StartsWith('{') || displayJson.StartsWith('['))
             {
 #pragma warning disable CA1031 // Do not catch general exception types - formatting is best-effort
                 try
@@ -234,14 +234,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Builders
 
                     if (!inString)
                     {
-                        if (c == '{' || c == '[')
+                        if (c is '{' or '[')
                         {
                             indented.Append(c);
                             indent++;
                             indented.AppendLine();
                             indented.Append(new string(' ', indent * 2));
                         }
-                        else if (c == '}' || c == ']')
+                        else if (c is '}' or ']')
                         {
                             indent--;
                             indented.AppendLine();
@@ -254,7 +254,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Builders
                             indented.AppendLine();
                             indented.Append(new string(' ', indent * 2));
                         }
-                        else if (c != '\r' && c != '\n')
+                        else if (c is not '\r' and not '\n')
                         {
                             indented.Append(c);
                         }

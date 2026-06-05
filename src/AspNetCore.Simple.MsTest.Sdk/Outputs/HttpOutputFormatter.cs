@@ -32,22 +32,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                       string url,
                                       HttpStatusCode httpStatusCode)
         {
-            var columns = new[]
-            {
-                "HttpMethod",
-                "Url",
-                "HttpStatusCode"
-            };
+            var columns = new[] { "HttpMethod", "Url", "HttpStatusCode" };
 
-            var rows = new List<object[]>
-            {
-                new object[]
-                {
-                    httpMethod.Method,
-                    url,
-                    httpStatusCode
-                }
-            };
+            var rows = new List<object[]> { new object[] { httpMethod.Method, url, httpStatusCode } };
 
             var table = tableBuilder.BuildTable(columns, rows, enableCount: false);
 

@@ -208,7 +208,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Formatters
 
                     if (!inString)
                     {
-                        if (c == '{' || c == '[')
+                        if (c is '{' or '[')
                         {
                             indented.Append(c);
                             indent++;
@@ -219,11 +219,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Formatters
                                 indented.Append(' ', indent * 2);
                             }
                         }
-                        else if (c == '}' || c == ']')
+                        else if (c is '}' or ']')
                         {
                             indent--;
 
-                            if (prevChar != '{' && prevChar != '[')
+                            if (prevChar is not '{' and not '[')
                             {
                                 indented.AppendLine();
                                 indented.Append(' ', indent * 2);
@@ -237,7 +237,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Formatters
                             indented.AppendLine();
                             indented.Append(' ', indent * 2);
                         }
-                        else if (c != '\r' && c != '\n')
+                        else if (c is not '\r' and not '\n')
                         {
                             indented.Append(c);
                         }

@@ -1,4 +1,3 @@
-using AspNetCore.Simple.MsTest.Sdk;
 using MinimalApi.Api.Persons.V1;
 using MinimalApi.Test.Api.Persons.V1.Shared;
 

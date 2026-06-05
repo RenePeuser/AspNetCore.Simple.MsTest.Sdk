@@ -93,10 +93,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var serializerSettings = new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,
-                Converters = new List<JsonConverter>
-                {
-                    new CurrentValueJsonConverter()
-                }
+                Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
             };
 
             var output = JsonConvert.SerializeObject(resultRoot, serializerSettings);

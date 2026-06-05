@@ -180,15 +180,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             return simpleHttpResponseMessage with
             {
                 Content = simpleHttpResponseMessage.Content.IsNull()
-                              ? new SimpleHttpContent()
-                              {
-                                  Value = simpleHttpResponseMessage,
-                                  Headers = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty
-                              }
-                              : simpleHttpResponseMessage.Content with
-                              {
-                                  Value = context.ContentAsString.IsNullOrWhiteSpace() ? "{}" : JsonDocument.Parse(context.ContentAsString).RootElement,
-                              }
+                                     ? new SimpleHttpContent()
+                                     {
+                                         Value = simpleHttpResponseMessage,
+                                         Headers = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty
+                                     }
+                                     : simpleHttpResponseMessage.Content with
+                                     {
+                                         Value = context.ContentAsString.IsNullOrWhiteSpace() ? "{}" : JsonDocument.Parse(context.ContentAsString).RootElement,
+                                     }
             };
         }
 
@@ -224,22 +224,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             }
 
             // Fallback for AssertPostAsync and AssertPostAsErrorAsync
-            expectedResultAsSimpleResponse = expectedResultAsSimpleResponse with
-            {
-                IsSuccessStatusCode = context.IsSuccessStatusCode
-            };
+            expectedResultAsSimpleResponse = expectedResultAsSimpleResponse with { IsSuccessStatusCode = context.IsSuccessStatusCode };
 
             // Quick workaround
             if (expectedResultAsSimpleResponse.Content.Value.IsNull() &&
                 expectedResultAsJsonParameterized.IsNotNullOrWhiteSpace())
             {
-                expectedResultAsSimpleResponse = expectedResultAsSimpleResponse with
-                {
-                    Content = expectedResultAsSimpleResponse.Content with
-                    {
-                        Value = expectedResultAsJsonParameterized
-                    }
-                };
+                expectedResultAsSimpleResponse = expectedResultAsSimpleResponse with { Content = expectedResultAsSimpleResponse.Content with { Value = expectedResultAsJsonParameterized } };
             }
 
             return expectedResultAsSimpleResponse;

@@ -132,10 +132,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                              _body,
                                              _parameters,
                                              _headers,
-                                             expectedStatusCodes: new[]
-                                             {
-                                                 HttpStatusCode.NoContent
-                                             });
+                                             expectedStatusCodes: new[] { HttpStatusCode.NoContent });
         }
 
         public IHttpStatusAssertable ExpectError(HttpStatusCode code)
@@ -146,10 +143,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                              _body,
                                              _parameters,
                                              _headers,
-                                             expectedStatusCodes: new[]
-                                             {
-                                                 code
-                                             });
+                                             expectedStatusCodes: new[] { code });
         }
     }
 }

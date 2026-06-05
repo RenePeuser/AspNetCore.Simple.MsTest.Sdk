@@ -298,10 +298,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                 using var doc = JsonDocument.Parse(json);
                 using var stream = new MemoryStream();
 
-                using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions
-                {
-                    Indented = true
-                });
+                using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
 
                 doc.WriteTo(writer);
                 writer.Flush();
@@ -351,12 +348,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
 
             // Common patterns in JsonException messages
             var patterns = new[]
-            {
-                @"Path: ([\$\.\[\]\w]+)", // "Path: $.data.items[0]"
-                @"at path '([^']+)'", // "at path '$.data.items[0]'"
-                @"JSON path ([\$\.\[\]\w]+)", // "JSON path $.data.items[0]"
-                @"\$[\.\[\]\w]+" // Just the path itself: $.data.items[0]
-            };
+                           {
+                               @"Path: ([\$\.\[\]\w]+)", // "Path: $.data.items[0]"
+                               @"at path '([^']+)'", // "at path '$.data.items[0]'"
+                               @"JSON path ([\$\.\[\]\w]+)", // "JSON path $.data.items[0]"
+                               @"\$[\.\[\]\w]+" // Just the path itself: $.data.items[0]
+                           };
 
             foreach (var pattern in patterns)
             {

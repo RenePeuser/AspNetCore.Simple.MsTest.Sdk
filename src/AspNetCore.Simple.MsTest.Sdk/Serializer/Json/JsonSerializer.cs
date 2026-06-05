@@ -18,10 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
                 NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                Converters =
-                {
-                    new JsonStringEnumConverter()
-                }
+                Converters = { new JsonStringEnumConverter() }
             };
 
             serviceCollection.AddSingletonIfNotExists(serializeOptions);

@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using AspNetCore.Simple.MsTest.Sdk.Outputs.Builders;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

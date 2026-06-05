@@ -128,18 +128,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         public Task<TResult> ExpectStatus(HttpStatusCode code)
         {
-            return ExecuteWithAssertionAsync(expectedStatusCodes: new[]
-            {
-                code
-            });
+            return ExecuteWithAssertionAsync(expectedStatusCodes: new[] { code });
         }
 
         public Task<TResult> ExpectError(HttpStatusCode code)
         {
-            return ExecuteWithAssertionAsync(expectedStatusCodes: new[]
-            {
-                code
-            });
+            return ExecuteWithAssertionAsync(expectedStatusCodes: new[] { code });
         }
 
         // ============================================================

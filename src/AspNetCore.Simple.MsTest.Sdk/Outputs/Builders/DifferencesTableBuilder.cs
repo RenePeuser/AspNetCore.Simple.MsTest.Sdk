@@ -61,12 +61,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Build columns
             var columns = new[]
-            {
-                "MemberPath",
-                responseFileName,
-                "CurrentResult",
-                "MismatchType"
-            };
+                          {
+                              "MemberPath", responseFileName, "CurrentResult",
+                              "MismatchType"
+                          };
 
             // Build data rows
             var rows = new List<object[]>();
@@ -85,12 +83,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 var objects = new object[]
-                {
-                    difference.MemberPath,
-                    value1,
-                    value2,
-                    difference.MismatchType.ToString()
-                };
+                              {
+                                  difference.MemberPath, value1, value2,
+                                  difference.MismatchType.ToString()
+                              };
 
                 rows.Add(objects);
             }
@@ -118,12 +114,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Build columns
             var columns = new[]
-            {
-                "MemberPath",
-                expectedName,
-                "Current",
-                "MismatchType"
-            };
+                          {
+                              "MemberPath", expectedName, "Current",
+                              "MismatchType"
+                          };
 
             // Build data rows with character-level diff
             var rows = new List<object[]>();
@@ -142,12 +136,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 rows.Add(new object[]
-                {
-                    difference.MemberPath ?? "N/A",
-                    value1,
-                    value2,
-                    difference.MismatchType.ToString()
-                });
+                         {
+                             difference.MemberPath ?? "N/A", value1, value2,
+                             difference.MismatchType.ToString()
+                         });
             }
 
             // Build table

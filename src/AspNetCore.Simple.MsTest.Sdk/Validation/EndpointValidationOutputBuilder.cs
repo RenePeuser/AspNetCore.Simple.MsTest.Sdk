@@ -135,12 +135,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             var columns = new[]
-            {
-                "Method",
-                "URL",
-                "API Version",
-                "Response Type"
-            };
+                          {
+                              "Method", "URL", "API Version",
+                              "Response Type"
+                          };
 
             var rows = new List<object[]>();
 
@@ -150,12 +148,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 var responseType = endpoint.ResponseType?.Name ?? "N/A";
 
                 rows.Add(new object[]
-                {
-                    endpoint.HttpMethod,
-                    endpoint.Url,
-                    version,
-                    responseType
-                });
+                         {
+                             endpoint.HttpMethod, endpoint.Url, version,
+                             responseType
+                         });
             }
 
             var table = tableBuilder.BuildTable(columns, rows, enableCount: false);
@@ -206,22 +202,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var declaredTestTypeName = FormatTypeName(expectedType);
             var endpointReturnsVoid = endpoint.ResponseType.IsNull();
 
-            var typeColumns = new[]
-            {
-                "Source",
-                "Actual Endpoint Type",
-                "Declared Test Type"
-            };
+            var typeColumns = new[] { "Source", "Actual Endpoint Type", "Declared Test Type" };
 
-            var typeRows = new List<object[]>
-            {
-                new object[]
-                {
-                    "ResponseType",
-                    actualEndpointTypeName,
-                    declaredTestTypeName
-                }
-            };
+            var typeRows = new List<object[]> { new object[] { "ResponseType", actualEndpointTypeName, declaredTestTypeName } };
 
             var typeTable = tableBuilder.BuildTable(typeColumns, typeRows, enableCount: false);
 
@@ -352,12 +335,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             var typeColumns = new[]
-            {
-                "Status Code",
-                "Endpoint Response Type",
-                "Declared Test Type",
-                "Match"
-            };
+                              {
+                                  "Status Code", "Endpoint Response Type", "Declared Test Type",
+                                  "Match"
+                              };
 
             var typeRows = new List<object[]>();
 
@@ -367,12 +348,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 var isMatch = statusCode.Value == expectedType ? "✓" : "✗";
 
                 typeRows.Add(new object[]
-                {
-                    statusCode.Key.ToString(),
-                    actualTypeName,
-                    declaredTestTypeName,
-                    isMatch
-                });
+                             {
+                                 statusCode.Key.ToString(), actualTypeName, declaredTestTypeName,
+                                 isMatch
+                             });
             }
 
             var typeTable = tableBuilder.BuildTable(typeColumns, typeRows, enableCount: false);
