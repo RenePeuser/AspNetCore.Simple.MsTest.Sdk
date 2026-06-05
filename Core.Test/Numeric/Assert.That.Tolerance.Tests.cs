@@ -272,11 +272,12 @@ namespace Core.Test.Numeric
 
             // Act & Assert
             Action testAction = () => Assert.That.IsCloseTo(actual, expected, tolerance,
-                                      because: "Testing negative tolerance",
-                                      fix: "Use positive tolerance");
+                                                            because: "Testing negative tolerance",
+                                                            fix: "Use positive tolerance");
+
             Assert.That.Throws<ArgumentException>(testAction,
-                                                   because: "Negative tolerance should throw",
-                                                   fix: "N/A");
+                                                  because: "Negative tolerance should throw",
+                                                  fix: "N/A");
         }
 
         [TestMethod]
@@ -435,11 +436,12 @@ namespace Core.Test.Numeric
 
             // Act & Assert
             Action testAction = () => Assert.That.IsCloseTo(actual, expected, tolerance,
-                                      because: "Testing negative tolerance",
-                                      fix: "Use positive tolerance");
+                                                            because: "Testing negative tolerance",
+                                                            fix: "Use positive tolerance");
+
             Assert.That.Throws<ArgumentException>(testAction,
-                                                   because: "Negative tolerance should throw",
-                                                   fix: "N/A");
+                                                  because: "Negative tolerance should throw",
+                                                  fix: "N/A");
         }
 
         [TestMethod]

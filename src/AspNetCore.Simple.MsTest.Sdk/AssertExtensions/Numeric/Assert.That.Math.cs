@@ -2,7 +2,6 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -130,7 +129,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var output = BuildMathPropertyOutput(propertyName: "Positive",
                                                  propertyCheck: "greater than zero",
                                                  valueName: valueName,
-                                                 actualValue: value!,
+                                                 actualValue: value,
                                                  because: because,
                                                  fix: fix,
                                                  callerFilePath: callerFilePath,
@@ -179,7 +178,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var output = BuildMathPropertyOutput(propertyName: "Negative",
                                                  propertyCheck: "less than zero",
                                                  valueName: valueName,
-                                                 actualValue: value!,
+                                                 actualValue: value,
                                                  because: because,
                                                  fix: fix,
                                                  callerFilePath: callerFilePath,
@@ -228,7 +227,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var output = BuildMathPropertyOutput(propertyName: "Zero",
                                                  propertyCheck: "equal to zero",
                                                  valueName: valueName,
-                                                 actualValue: value!,
+                                                 actualValue: value,
                                                  because: because,
                                                  fix: fix,
                                                  callerFilePath: callerFilePath,

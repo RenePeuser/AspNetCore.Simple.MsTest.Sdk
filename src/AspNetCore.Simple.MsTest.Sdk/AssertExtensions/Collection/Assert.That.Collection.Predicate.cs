@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -330,7 +329,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 sb.AppendLine($"{itemLabel}:");
                 var itemsToShow = failingItems.Take(5).ToList();
 
-                for (int i = 0; i < itemsToShow.Count; i++)
+                for (var i = 0; i < itemsToShow.Count; i++)
                 {
                     sb.AppendLine($"  [{i}] {itemsToShow[i]?.ToString() ?? "(null)"}");
                 }

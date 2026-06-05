@@ -21,8 +21,8 @@ namespace Core.Test.ExceptionAssertions
 
             // Act & Assert - Should NOT throw
             Assert.That.Throws<InvalidOperationException>(action,
-                because: "Testing that expected exception is properly caught",
-                fix: "N/A - this should pass");
+                                                          because: "Testing that expected exception is properly caught",
+                                                          fix: "N/A - this should pass");
         }
 
         [TestMethod]
@@ -36,8 +36,8 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 Assert.That.Throws<InvalidOperationException>(action,
-                    because: "Testing that missing exception fails",
-                    fix: "This is expected to fail");
+                                                              because: "Testing that missing exception fails",
+                                                              fix: "This is expected to fail");
             }
             catch (AssertFailedException)
             {
@@ -59,8 +59,8 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 Assert.That.Throws<InvalidOperationException>(action,
-                    because: "Testing that wrong exception type fails",
-                    fix: "This is expected to fail");
+                                                              because: "Testing that wrong exception type fails",
+                                                              fix: "This is expected to fail");
             }
             catch (AssertFailedException)
             {
@@ -85,8 +85,8 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 Assert.That.Throws<DivideByZeroException>(action,
-                    because: "Division by zero should always throw DivideByZeroException",
-                    fix: "Check the divisor value in the calculation - ensure it's actually zero");
+                                                          because: "Division by zero should always throw DivideByZeroException",
+                                                          fix: "Check the divisor value in the calculation - ensure it's actually zero");
 
                 Assert.Fail("Expected AssertFailedException");
             }
@@ -118,8 +118,8 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 Assert.That.Throws<InvalidOperationException>(action,
-                    because: "User service should throw InvalidOperationException for invalid operations",
-                    fix: "Update UserService.GetUser to throw InvalidOperationException instead of ArgumentNullException");
+                                                              because: "User service should throw InvalidOperationException for invalid operations",
+                                                              fix: "Update UserService.GetUser to throw InvalidOperationException instead of ArgumentNullException");
 
                 Assert.Fail("Expected AssertFailedException");
             }
@@ -152,8 +152,8 @@ namespace Core.Test.ExceptionAssertions
 
             // Act & Assert - ArgumentNullException derives from ArgumentException
             Assert.That.Throws<ArgumentException>(action,
-                because: "ArgumentNullException is a derived type of ArgumentException",
-                fix: "N/A - this should pass");
+                                                  because: "ArgumentNullException is a derived type of ArgumentException",
+                                                  fix: "N/A - this should pass");
         }
 
         // ============================================================
@@ -167,13 +167,14 @@ namespace Core.Test.ExceptionAssertions
             Func<Task> action = async () =>
             {
                 await Task.Delay(1);
+
                 throw new InvalidOperationException("Async test exception");
             };
 
             // Act & Assert - Should NOT throw
             await Assert.That.ThrowsAsync<InvalidOperationException>(action,
-                because: "Testing that async exception is properly caught",
-                fix: "N/A - this should pass");
+                                                                     because: "Testing that async exception is properly caught",
+                                                                     fix: "N/A - this should pass");
         }
 
         [TestMethod]
@@ -187,8 +188,8 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 await Assert.That.ThrowsAsync<InvalidOperationException>(action,
-                    because: "Testing that missing async exception fails",
-                    fix: "This is expected to fail");
+                                                                         because: "Testing that missing async exception fails",
+                                                                         fix: "This is expected to fail");
             }
             catch (AssertFailedException)
             {
@@ -206,16 +207,18 @@ namespace Core.Test.ExceptionAssertions
             Func<Task> action = async () =>
             {
                 await Task.Delay(1);
+
                 throw new ArgumentException("Wrong async exception");
             };
+
             var threw = false;
 
             // Act
             try
             {
                 await Assert.That.ThrowsAsync<InvalidOperationException>(action,
-                    because: "Testing that wrong async exception type fails",
-                    fix: "This is expected to fail");
+                                                                         because: "Testing that wrong async exception type fails",
+                                                                         fix: "This is expected to fail");
             }
             catch (AssertFailedException)
             {
@@ -233,6 +236,7 @@ namespace Core.Test.ExceptionAssertions
             Func<Task> action = async () =>
             {
                 await Task.Delay(10);
+
                 // Completes successfully without throwing
             };
 
@@ -240,8 +244,8 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 await Assert.That.ThrowsAsync<TimeoutException>(action,
-                    because: "Long-running operation should timeout after 5ms",
-                    fix: "Add proper timeout handling with CancellationToken to async operations");
+                                                                because: "Long-running operation should timeout after 5ms",
+                                                                fix: "Add proper timeout handling with CancellationToken to async operations");
 
                 Assert.Fail("Expected AssertFailedException");
             }
@@ -270,6 +274,7 @@ namespace Core.Test.ExceptionAssertions
             Func<Task> action = async () =>
             {
                 await Task.Delay(1);
+
                 throw new HttpRequestException("Network error");
             };
 
@@ -277,8 +282,8 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 await Assert.That.ThrowsAsync<TimeoutException>(action,
-                    because: "Network calls should throw TimeoutException when they exceed duration limit",
-                    fix: "Update HttpClient configuration to use proper timeout handling");
+                                                                because: "Network calls should throw TimeoutException when they exceed duration limit",
+                                                                fix: "Update HttpClient configuration to use proper timeout handling");
 
                 Assert.Fail("Expected AssertFailedException");
             }
@@ -311,8 +316,8 @@ namespace Core.Test.ExceptionAssertions
 
             // Act & Assert - Should NOT throw
             await Assert.That.ThrowsAsync<TaskCanceledException>(action,
-                because: "Cancelled tasks should throw TaskCanceledException",
-                fix: "N/A - this should pass");
+                                                                 because: "Cancelled tasks should throw TaskCanceledException",
+                                                                 fix: "N/A - this should pass");
         }
 
         // ============================================================
@@ -328,9 +333,9 @@ namespace Core.Test.ExceptionAssertions
 
             // Act & Assert - Should NOT throw
             Assert.That.ThrowsWithMessage<InvalidOperationException>(action,
-                expectedMessage: expectedMessage,
-                because: "Testing that exception type and message both match",
-                fix: "N/A - this should pass");
+                                                                     expectedMessage: expectedMessage,
+                                                                     because: "Testing that exception type and message both match",
+                                                                     fix: "N/A - this should pass");
         }
 
         [TestMethod]
@@ -344,9 +349,9 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 Assert.That.ThrowsWithMessage<InvalidOperationException>(action,
-                    expectedMessage: "Expected message",
-                    because: "Testing that mismatched message fails",
-                    fix: "This is expected to fail");
+                                                                         expectedMessage: "Expected message",
+                                                                         because: "Testing that mismatched message fails",
+                                                                         fix: "This is expected to fail");
             }
             catch (AssertFailedException)
             {
@@ -368,9 +373,9 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 Assert.That.ThrowsWithMessage<InvalidOperationException>(action,
-                    expectedMessage: "Expected message",
-                    because: "Testing that missing exception fails",
-                    fix: "This is expected to fail");
+                                                                         expectedMessage: "Expected message",
+                                                                         because: "Testing that missing exception fails",
+                                                                         fix: "This is expected to fail");
             }
             catch (AssertFailedException)
             {
@@ -392,9 +397,9 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 Assert.That.ThrowsWithMessage<InvalidOperationException>(action,
-                    expectedMessage: "Test message",
-                    because: "Testing that wrong exception type fails even with correct message",
-                    fix: "This is expected to fail");
+                                                                         expectedMessage: "Test message",
+                                                                         because: "Testing that wrong exception type fails even with correct message",
+                                                                         fix: "This is expected to fail");
             }
             catch (AssertFailedException)
             {
@@ -417,9 +422,9 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 Assert.That.ThrowsWithMessage<InvalidOperationException>(action,
-                    expectedMessage: expectedMessage,
-                    because: "Exception message should match the standardized error format",
-                    fix: "Update UserService.GetUser to use consistent error messages: 'User not found'");
+                                                                         expectedMessage: expectedMessage,
+                                                                         because: "Exception message should match the standardized error format",
+                                                                         fix: "Update UserService.GetUser to use consistent error messages: 'User not found'");
 
                 Assert.Fail("Expected AssertFailedException");
             }
@@ -459,9 +464,9 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 Assert.That.ThrowsWithMessage<ArgumentException>(action,
-                    expectedMessage: "Email address is invalid",
-                    because: "Email validation should throw ArgumentException for invalid formats",
-                    fix: "Add proper email format validation to EmailValidator.Validate method");
+                                                                 expectedMessage: "Email address is invalid",
+                                                                 because: "Email validation should throw ArgumentException for invalid formats",
+                                                                 fix: "Add proper email format validation to EmailValidator.Validate method");
 
                 Assert.Fail("Expected AssertFailedException");
             }
@@ -493,9 +498,9 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 Assert.That.ThrowsWithMessage<InvalidOperationException>(action,
-                    expectedMessage: "User ID is required for this operation",
-                    because: "Business validation should use InvalidOperationException with clear messages",
-                    fix: "Replace ArgumentNullException with InvalidOperationException and update message");
+                                                                         expectedMessage: "User ID is required for this operation",
+                                                                         because: "Business validation should use InvalidOperationException with clear messages",
+                                                                         fix: "Replace ArgumentNullException with InvalidOperationException and update message");
 
                 Assert.Fail("Expected AssertFailedException");
             }
@@ -531,9 +536,9 @@ namespace Core.Test.ExceptionAssertions
 
             // Act & Assert - Should NOT throw
             Assert.That.ThrowsWithMessage<InvalidOperationException>(action,
-                expectedMessage: message,
-                because: "Testing exact message matching for complex error messages",
-                fix: "N/A - this should pass");
+                                                                     expectedMessage: message,
+                                                                     because: "Testing exact message matching for complex error messages",
+                                                                     fix: "N/A - this should pass");
         }
 
         [TestMethod]
@@ -545,9 +550,9 @@ namespace Core.Test.ExceptionAssertions
 
             // Act & Assert - Should NOT throw
             Assert.That.ThrowsWithMessage<InvalidOperationException>(action,
-                expectedMessage: emptyMessage,
-                because: "Testing that empty messages are handled correctly",
-                fix: "N/A - this should pass");
+                                                                     expectedMessage: emptyMessage,
+                                                                     because: "Testing that empty messages are handled correctly",
+                                                                     fix: "N/A - this should pass");
         }
 
         // ============================================================
@@ -572,8 +577,8 @@ namespace Core.Test.ExceptionAssertions
 
             // Act & Assert - Should catch the outer exception
             Assert.That.Throws<InvalidOperationException>(action,
-                because: "Nested exceptions should be caught by their outer type",
-                fix: "N/A - this should pass");
+                                                          because: "Nested exceptions should be caught by their outer type",
+                                                          fix: "N/A - this should pass");
         }
 
         [TestMethod]
@@ -587,8 +592,8 @@ namespace Core.Test.ExceptionAssertions
 
             // Act & Assert - Should catch the InvalidOperationException unwrapped from AggregateException
             await Assert.That.ThrowsAsync<InvalidOperationException>(action,
-                because: "Task exceptions should be unwrapped from AggregateException",
-                fix: "N/A - this should pass");
+                                                                     because: "Task exceptions should be unwrapped from AggregateException",
+                                                                     fix: "N/A - this should pass");
         }
 
         [TestMethod]
@@ -602,9 +607,9 @@ namespace Core.Test.ExceptionAssertions
             try
             {
                 Assert.That.ThrowsWithMessage<InvalidOperationException>(action,
-                    expectedMessage: "user not found",
-                    because: "Message comparison is case-sensitive",
-                    fix: "This is expected to fail");
+                                                                         expectedMessage: "user not found",
+                                                                         because: "Message comparison is case-sensitive",
+                                                                         fix: "This is expected to fail");
             }
             catch (AssertFailedException)
             {

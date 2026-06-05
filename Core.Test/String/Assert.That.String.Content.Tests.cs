@@ -107,7 +107,7 @@ namespace Core.Test.String
             // Act
             try
             {
-                Assert.That.Contains(text!, "test",
+                Assert.That.Contains(text, "test",
                                      because: "Null text should fail contains check",
                                      fix: "Ensure text is not null before assertion");
             }
@@ -203,7 +203,7 @@ namespace Core.Test.String
             string? text = null;
 
             // Act & Assert - Should NOT throw (null doesn't contain anything)
-            Assert.That.DoesNotContain(text!, "test",
+            Assert.That.DoesNotContain(text, "test",
                                        because: "Null text does not contain any substring",
                                        fix: "N/A - this should pass");
         }
@@ -332,7 +332,7 @@ namespace Core.Test.String
             // Act
             try
             {
-                Assert.That.StartsWith(text!, "test",
+                Assert.That.StartsWith(text, "test",
                                        because: "Null text should fail prefix check",
                                        fix: "Ensure text is not null before assertion");
             }
@@ -457,7 +457,7 @@ namespace Core.Test.String
             // Act
             try
             {
-                Assert.That.EndsWith(text!, "test",
+                Assert.That.EndsWith(text, "test",
                                      because: "Null text should fail suffix check",
                                      fix: "Ensure text is not null before assertion");
             }

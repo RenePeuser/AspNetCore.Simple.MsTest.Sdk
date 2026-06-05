@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -595,10 +594,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static string FormatItem<T>(T item)
         {
             if (item == null)
+            {
                 return "null";
+            }
 
             if (item is string str)
+            {
                 return $"\"{str}\"";
+            }
 
             return item.ToString() ?? "(no ToString)";
         }

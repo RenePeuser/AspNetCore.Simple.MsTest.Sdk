@@ -20,11 +20,9 @@ namespace Core.Test.Core
             var condition = true;
 
             // Act & Assert - Should NOT throw
-            Assert.That.IsTrue(
-                condition,
-                because: "Testing that true conditions pass",
-                fix: "N/A - this should pass"
-            );
+            Assert.That.IsTrue(condition,
+                               because: "Testing that true conditions pass",
+                               fix: "N/A - this should pass");
         }
 
         [TestMethod]
@@ -37,11 +35,9 @@ namespace Core.Test.Core
             // Act
             try
             {
-                Assert.That.IsTrue(
-                    condition,
-                    because: "Testing that false conditions fail",
-                    fix: "This is expected to fail"
-                );
+                Assert.That.IsTrue(condition,
+                                   because: "Testing that false conditions fail",
+                                   fix: "This is expected to fail");
             }
             catch (AssertFailedException)
             {
@@ -61,11 +57,9 @@ namespace Core.Test.Core
             // Act
             try
             {
-                Assert.That.IsTrue(
-                    isAuthenticated,
-                    because: "User must be authenticated to access premium features",
-                    fix: "Check authentication middleware configuration"
-                );
+                Assert.That.IsTrue(isAuthenticated,
+                                   because: "User must be authenticated to access premium features",
+                                   fix: "Check authentication middleware configuration");
 
                 Assert.Fail("Expected AssertFailedException");
             }
@@ -93,16 +87,18 @@ namespace Core.Test.Core
         public void IsTrue_WithComplexCondition_ShouldCaptureExpression()
         {
             // Arrange
-            var user = new TestUser { IsActive = false, IsVerified = true };
+            var user = new TestUser
+            {
+                IsActive = false,
+                IsVerified = true
+            };
 
             // Act
             try
             {
-                Assert.That.IsTrue(
-                    user.IsActive && user.IsVerified,
-                    because: "Active and verified users should have full access",
-                    fix: "Activate the user account in the admin panel"
-                );
+                Assert.That.IsTrue(user.IsActive && user.IsVerified,
+                                   because: "Active and verified users should have full access",
+                                   fix: "Activate the user account in the admin panel");
 
                 Assert.Fail("Expected AssertFailedException");
             }
@@ -125,11 +121,9 @@ namespace Core.Test.Core
             var condition = false;
 
             // Act & Assert - Should NOT throw
-            Assert.That.IsFalse(
-                condition,
-                because: "Testing that false conditions pass",
-                fix: "N/A - this should pass"
-            );
+            Assert.That.IsFalse(condition,
+                                because: "Testing that false conditions pass",
+                                fix: "N/A - this should pass");
         }
 
         [TestMethod]
@@ -142,11 +136,9 @@ namespace Core.Test.Core
             // Act
             try
             {
-                Assert.That.IsFalse(
-                    condition,
-                    because: "Testing that true conditions fail",
-                    fix: "This is expected to fail"
-                );
+                Assert.That.IsFalse(condition,
+                                    because: "Testing that true conditions fail",
+                                    fix: "This is expected to fail");
             }
             catch (AssertFailedException)
             {
@@ -166,11 +158,9 @@ namespace Core.Test.Core
             // Act
             try
             {
-                Assert.That.IsFalse(
-                    hasErrors,
-                    because: "System should be in a valid state after initialization",
-                    fix: "Review startup validation logic and ensure all checks pass"
-                );
+                Assert.That.IsFalse(hasErrors,
+                                    because: "System should be in a valid state after initialization",
+                                    fix: "Review startup validation logic and ensure all checks pass");
 
                 Assert.Fail("Expected AssertFailedException");
             }
@@ -198,16 +188,18 @@ namespace Core.Test.Core
         public void IsFalse_WithComplexCondition_ShouldCaptureExpression()
         {
             // Arrange
-            var response = new ApiResponse { IsError = true, StatusCode = 500 };
+            var response = new ApiResponse
+            {
+                IsError = true,
+                StatusCode = 500
+            };
 
             // Act
             try
             {
-                Assert.That.IsFalse(
-                    response.IsError || response.StatusCode >= 400,
-                    because: "API response should indicate success",
-                    fix: "Check the API endpoint implementation for error handling"
-                );
+                Assert.That.IsFalse(response.IsError || response.StatusCode >= 400,
+                                    because: "API response should indicate success",
+                                    fix: "Check the API endpoint implementation for error handling");
 
                 Assert.Fail("Expected AssertFailedException");
             }
@@ -226,12 +218,14 @@ namespace Core.Test.Core
         private sealed class TestUser
         {
             public bool IsActive { get; set; }
+
             public bool IsVerified { get; set; }
         }
 
         private sealed class ApiResponse
         {
             public bool IsError { get; set; }
+
             public int StatusCode { get; set; }
         }
     }

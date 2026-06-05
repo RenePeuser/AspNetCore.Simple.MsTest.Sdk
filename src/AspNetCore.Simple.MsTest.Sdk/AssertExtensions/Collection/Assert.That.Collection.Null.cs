@@ -3,7 +3,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -264,7 +263,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine($"{"Count",-10} : {actualCount}");
             sb.AppendLine($"{"Expected",-10} : {(expectEmpty ? "0 elements" : "At least 1 element")}");
 
-            if (actualCount > 0 && actualCount <= 5)
+            if (actualCount is > 0 and <= 5)
             {
                 sb.AppendLine($"{"Items",-10} : [{string.Join(", ", collection.Take(5).Select(x => x?.ToString() ?? "null"))}]");
             }
@@ -329,7 +328,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine($"{"Count",-10} : {actualCount}");
             sb.AppendLine($"{"Expected",-10} : null or 0 elements");
 
-            if (actualCount > 0 && actualCount <= 5)
+            if (actualCount is > 0 and <= 5)
             {
                 sb.AppendLine($"{"Items",-10} : [{string.Join(", ", collection.Take(5).Select(x => x?.ToString() ?? "null"))}]");
             }

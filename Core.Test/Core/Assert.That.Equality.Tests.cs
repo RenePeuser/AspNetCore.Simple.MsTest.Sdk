@@ -87,8 +87,17 @@ namespace Core.Test.Core
         public void AreEqual_WhenComplexObjectsAreEqual_ShouldPass()
         {
             // Arrange
-            var expected = new TestUser { Id = 1, Name = "Goku" };
-            var actual = new TestUser { Id = 1, Name = "Goku" };
+            var expected = new TestUser
+            {
+                Id = 1,
+                Name = "Goku"
+            };
+
+            var actual = new TestUser
+            {
+                Id = 1,
+                Name = "Goku"
+            };
 
             // Act & Assert - Should NOT throw
             Assert.That.AreEqual(expected, actual,
@@ -100,8 +109,19 @@ namespace Core.Test.Core
         public void AreEqual_WhenComplexObjectsDiffer_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var expected = new TestUser { Id = 1, Name = "Goku", Email = "goku@saiyan.com" };
-            var actual = new TestUser { Id = 2, Name = "Vegeta", Email = "vegeta@saiyan.com" };
+            var expected = new TestUser
+            {
+                Id = 1,
+                Name = "Goku",
+                Email = "goku@saiyan.com"
+            };
+
+            var actual = new TestUser
+            {
+                Id = 2,
+                Name = "Vegeta",
+                Email = "vegeta@saiyan.com"
+            };
 
             // Act
             try
@@ -224,8 +244,17 @@ namespace Core.Test.Core
         public void AreNotEqual_WhenComplexObjectsAreDifferent_ShouldPass()
         {
             // Arrange
-            var expected = new TestUser { Id = 1, Name = "Goku" };
-            var actual = new TestUser { Id = 2, Name = "Vegeta" };
+            var expected = new TestUser
+            {
+                Id = 1,
+                Name = "Goku"
+            };
+
+            var actual = new TestUser
+            {
+                Id = 2,
+                Name = "Vegeta"
+            };
 
             // Act & Assert - Should NOT throw
             Assert.That.AreNotEqual(expected, actual,
@@ -237,8 +266,19 @@ namespace Core.Test.Core
         public void AreNotEqual_WhenComplexObjectsAreEqual_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var expected = new TestUser { Id = 1, Name = "Goku", Email = "goku@saiyan.com" };
-            var actual = new TestUser { Id = 1, Name = "Goku", Email = "goku@saiyan.com" };
+            var expected = new TestUser
+            {
+                Id = 1,
+                Name = "Goku",
+                Email = "goku@saiyan.com"
+            };
+
+            var actual = new TestUser
+            {
+                Id = 1,
+                Name = "Goku",
+                Email = "goku@saiyan.com"
+            };
 
             // Act
             try
@@ -274,7 +314,12 @@ namespace Core.Test.Core
         public void AreSame_WhenReferencesAreSame_ShouldPass()
         {
             // Arrange
-            var expected = new TestUser { Id = 1, Name = "Goku" };
+            var expected = new TestUser
+            {
+                Id = 1,
+                Name = "Goku"
+            };
+
             var actual = expected; // Same reference
 
             // Act & Assert - Should NOT throw
@@ -287,8 +332,18 @@ namespace Core.Test.Core
         public void AreSame_WhenReferencesAreDifferent_ShouldFail()
         {
             // Arrange
-            var expected = new TestUser { Id = 1, Name = "Goku" };
-            var actual = new TestUser { Id = 1, Name = "Goku" }; // Different reference
+            var expected = new TestUser
+            {
+                Id = 1,
+                Name = "Goku"
+            };
+
+            var actual = new TestUser
+            {
+                Id = 1,
+                Name = "Goku"
+            }; // Different reference
+
             var threw = false;
 
             // Act
@@ -311,8 +366,19 @@ namespace Core.Test.Core
         public void AreSame_WhenReferencesAreDifferent_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var expected = new TestUser { Id = 1, Name = "Goku", Email = "goku@saiyan.com" };
-            var actual = new TestUser { Id = 1, Name = "Goku", Email = "goku@saiyan.com" };
+            var expected = new TestUser
+            {
+                Id = 1,
+                Name = "Goku",
+                Email = "goku@saiyan.com"
+            };
+
+            var actual = new TestUser
+            {
+                Id = 1,
+                Name = "Goku",
+                Email = "goku@saiyan.com"
+            };
 
             // Act
             try
@@ -361,8 +427,17 @@ namespace Core.Test.Core
         public void AreSame_WhenStringsAreDifferentInstances_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var expected = new string(new[] { 'G', 'o', 'k', 'u' });
-            var actual = new string(new[] { 'G', 'o', 'k', 'u' });
+            var expected = new string(new[]
+                                      {
+                                          'G', 'o', 'k',
+                                          'u'
+                                      });
+
+            var actual = new string(new[]
+                                    {
+                                        'G', 'o', 'k',
+                                        'u'
+                                    });
 
             // Act
             try
@@ -396,8 +471,17 @@ namespace Core.Test.Core
         public void AreNotSame_WhenReferencesAreDifferent_ShouldPass()
         {
             // Arrange
-            var expected = new TestUser { Id = 1, Name = "Goku" };
-            var actual = new TestUser { Id = 1, Name = "Goku" }; // Different reference
+            var expected = new TestUser
+            {
+                Id = 1,
+                Name = "Goku"
+            };
+
+            var actual = new TestUser
+            {
+                Id = 1,
+                Name = "Goku"
+            }; // Different reference
 
             // Act & Assert - Should NOT throw
             Assert.That.AreNotSame(expected, actual,
@@ -409,7 +493,12 @@ namespace Core.Test.Core
         public void AreNotSame_WhenReferencesAreSame_ShouldFail()
         {
             // Arrange
-            var expected = new TestUser { Id = 1, Name = "Goku" };
+            var expected = new TestUser
+            {
+                Id = 1,
+                Name = "Goku"
+            };
+
             var actual = expected; // Same reference
             var threw = false;
 
@@ -433,7 +522,13 @@ namespace Core.Test.Core
         public void AreNotSame_WhenReferencesAreSame_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var expected = new TestUser { Id = 1, Name = "Goku", Email = "goku@saiyan.com" };
+            var expected = new TestUser
+            {
+                Id = 1,
+                Name = "Goku",
+                Email = "goku@saiyan.com"
+            };
+
             var actual = expected; // Same reference
 
             // Act
@@ -470,8 +565,19 @@ namespace Core.Test.Core
         public void AreNotSame_WhenListsAreDifferentInstances_ShouldPass()
         {
             // Arrange
-            var expected = new List<int> { 1, 2, 3 };
-            var actual = new List<int> { 1, 2, 3 }; // Different list instance
+            var expected = new List<int>
+                           {
+                               1,
+                               2,
+                               3
+                           };
+
+            var actual = new List<int>
+                         {
+                             1,
+                             2,
+                             3
+                         }; // Different list instance
 
             // Act & Assert - Should NOT throw
             Assert.That.AreNotSame(expected, actual,
@@ -483,7 +589,13 @@ namespace Core.Test.Core
         public void AreNotSame_WhenCollectionReturnsCache_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var cachedList = new List<int> { 1, 2, 3 };
+            var cachedList = new List<int>
+                             {
+                                 1,
+                                 2,
+                                 3
+                             };
+
             var expected = cachedList;
             var actual = cachedList; // Same cached instance
 
@@ -532,6 +644,7 @@ namespace Core.Test.Core
             {
                 if (other is null) return false;
                 if (ReferenceEquals(this, other)) return true;
+
                 return Id == other.Id && Name == other.Name && Email == other.Email;
             }
 

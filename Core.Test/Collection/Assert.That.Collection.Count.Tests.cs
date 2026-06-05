@@ -17,7 +17,14 @@ namespace Core.Test.Collection
         public void HasCount_WhenCollectionHasExactCount_ShouldPass()
         {
             // Arrange
-            var numbers = new List<int> { 1, 2, 3, 4, 5 };
+            var numbers = new List<int>
+                          {
+                              1,
+                              2,
+                              3,
+                              4,
+                              5
+                          };
 
             // Act & Assert - Should NOT throw
             Assert.That.HasCount(numbers,
@@ -30,7 +37,12 @@ namespace Core.Test.Collection
         public void HasCount_WhenCollectionCountMismatch_ShouldFail()
         {
             // Arrange
-            var fruits = new List<string> { "apple", "banana" };
+            var fruits = new List<string>
+                         {
+                             "apple",
+                             "banana"
+                         };
+
             var threw = false;
 
             // Act
@@ -54,7 +66,12 @@ namespace Core.Test.Collection
         public void HasCount_WhenCollectionCountMismatch_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var userIds = new List<int> { 1, 2, 3 };
+            var userIds = new List<int>
+                          {
+                              1,
+                              2,
+                              3
+                          };
 
             // Act
             try
@@ -128,7 +145,14 @@ namespace Core.Test.Collection
         public void HasCount_WhenCollectionHasTooMany_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var tags = new List<string> { "urgent", "bug", "frontend", "backend", "critical" };
+            var tags = new List<string>
+                       {
+                           "urgent",
+                           "bug",
+                           "frontend",
+                           "backend",
+                           "critical"
+                       };
 
             // Act
             try
@@ -181,7 +205,12 @@ namespace Core.Test.Collection
         public void HasCountInRange_WhenCollectionIsInRange_ShouldPass()
         {
             // Arrange
-            var numbers = new List<int> { 1, 2, 3 };
+            var numbers = new List<int>
+                          {
+                              1,
+                              2,
+                              3
+                          };
 
             // Act & Assert - Should NOT throw
             Assert.That.HasCountInRange(numbers,
@@ -195,7 +224,11 @@ namespace Core.Test.Collection
         public void HasCountInRange_WhenCollectionIsAtMinimum_ShouldPass()
         {
             // Arrange
-            var items = new List<string> { "a", "b" };
+            var items = new List<string>
+                        {
+                            "a",
+                            "b"
+                        };
 
             // Act & Assert - Should NOT throw
             Assert.That.HasCountInRange(items,
@@ -209,7 +242,14 @@ namespace Core.Test.Collection
         public void HasCountInRange_WhenCollectionIsAtMaximum_ShouldPass()
         {
             // Arrange
-            var items = new List<string> { "a", "b", "c", "d", "e" };
+            var items = new List<string>
+                        {
+                            "a",
+                            "b",
+                            "c",
+                            "d",
+                            "e"
+                        };
 
             // Act & Assert - Should NOT throw
             Assert.That.HasCountInRange(items,
@@ -248,7 +288,16 @@ namespace Core.Test.Collection
         public void HasCountInRange_WhenCollectionAboveMax_ShouldFail()
         {
             // Arrange
-            var items = new List<int> { 1, 2, 3, 4, 5, 6 };
+            var items = new List<int>
+                        {
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6
+                        };
+
             var threw = false;
 
             // Act
@@ -312,7 +361,15 @@ namespace Core.Test.Collection
         public void HasCountInRange_WhenCollectionAboveMax_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var attachments = new List<string> { "file1.pdf", "file2.pdf", "file3.pdf", "file4.pdf", "file5.pdf", "file6.pdf" };
+            var attachments = new List<string>
+                              {
+                                  "file1.pdf",
+                                  "file2.pdf",
+                                  "file3.pdf",
+                                  "file4.pdf",
+                                  "file5.pdf",
+                                  "file6.pdf"
+                              };
 
             // Act
             try
@@ -369,7 +426,14 @@ namespace Core.Test.Collection
         public void HasCountGreaterThan_WhenCollectionIsGreater_ShouldPass()
         {
             // Arrange
-            var items = new List<int> { 1, 2, 3, 4, 5 };
+            var items = new List<int>
+                        {
+                            1,
+                            2,
+                            3,
+                            4,
+                            5
+                        };
 
             // Act & Assert - Should NOT throw
             Assert.That.HasCountGreaterThan(items,
@@ -382,7 +446,13 @@ namespace Core.Test.Collection
         public void HasCountGreaterThan_WhenCollectionEqualToMin_ShouldFail()
         {
             // Arrange
-            var items = new List<string> { "a", "b", "c" };
+            var items = new List<string>
+                        {
+                            "a",
+                            "b",
+                            "c"
+                        };
+
             var threw = false;
 
             // Act
@@ -406,7 +476,12 @@ namespace Core.Test.Collection
         public void HasCountGreaterThan_WhenCollectionLessThanMin_ShouldFail()
         {
             // Arrange
-            var items = new List<int> { 1, 2 };
+            var items = new List<int>
+                        {
+                            1,
+                            2
+                        };
+
             var threw = false;
 
             // Act
@@ -430,7 +505,11 @@ namespace Core.Test.Collection
         public void HasCountGreaterThan_WhenCollectionNotGreater_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var comments = new List<string> { "Great post!", "Thanks!" };
+            var comments = new List<string>
+                           {
+                               "Great post!",
+                               "Thanks!"
+                           };
 
             // Act
             try
@@ -503,7 +582,19 @@ namespace Core.Test.Collection
         public void HasCountGreaterThan_WhenExactlyAtThreshold_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var votes = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            var votes = new List<int>
+                        {
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10
+                        };
 
             // Act
             try
@@ -562,7 +653,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.HasCount(nullCollection!,
+                Assert.That.HasCount(nullCollection,
                                      expectedCount: 5,
                                      because: "Testing null handling",
                                      fix: "Don't pass null");
@@ -586,7 +677,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.HasCountInRange(nullCollection!,
+                Assert.That.HasCountInRange(nullCollection,
                                             minCount: 1,
                                             maxCount: 5,
                                             because: "Testing null handling",
@@ -611,7 +702,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.HasCountGreaterThan(nullCollection!,
+                Assert.That.HasCountGreaterThan(nullCollection,
                                                 minCount: 0,
                                                 because: "Testing null handling",
                                                 fix: "Don't pass null");
@@ -629,7 +720,13 @@ namespace Core.Test.Collection
         public void HasCountInRange_WhenMinCountIsNegative_ShouldThrowArgumentOutOfRangeException()
         {
             // Arrange
-            var items = new List<int> { 1, 2, 3 };
+            var items = new List<int>
+                        {
+                            1,
+                            2,
+                            3
+                        };
+
             var threw = false;
 
             // Act
@@ -654,7 +751,13 @@ namespace Core.Test.Collection
         public void HasCountInRange_WhenMaxLessThanMin_ShouldThrowArgumentOutOfRangeException()
         {
             // Arrange
-            var items = new List<int> { 1, 2, 3 };
+            var items = new List<int>
+                        {
+                            1,
+                            2,
+                            3
+                        };
+
             var threw = false;
 
             // Act
@@ -679,7 +782,13 @@ namespace Core.Test.Collection
         public void HasCountGreaterThan_WhenMinCountIsNegative_ShouldThrowArgumentOutOfRangeException()
         {
             // Arrange
-            var items = new List<int> { 1, 2, 3 };
+            var items = new List<int>
+                        {
+                            1,
+                            2,
+                            3
+                        };
+
             var threw = false;
 
             // Act
@@ -720,7 +829,12 @@ namespace Core.Test.Collection
         public void HasCount_WithHashSet_ShouldWork()
         {
             // Arrange
-            var hashSet = new HashSet<string> { "a", "b", "c" };
+            var hashSet = new HashSet<string>
+                          {
+                              "a",
+                              "b",
+                              "c"
+                          };
 
             // Act & Assert - Should NOT throw
             Assert.That.HasCount(hashSet,
@@ -748,12 +862,28 @@ namespace Core.Test.Collection
         {
             // Arrange
             var users = new List<TestUser>
-            {
-                new TestUser { Id = 1, Name = "Alice" },
-                new TestUser { Id = 2, Name = "Bob" },
-                new TestUser { Id = 3, Name = "Charlie" },
-                new TestUser { Id = 4, Name = "Diana" }
-            };
+                        {
+                            new TestUser
+                            {
+                                Id = 1,
+                                Name = "Alice"
+                            },
+                            new TestUser
+                            {
+                                Id = 2,
+                                Name = "Bob"
+                            },
+                            new TestUser
+                            {
+                                Id = 3,
+                                Name = "Charlie"
+                            },
+                            new TestUser
+                            {
+                                Id = 4,
+                                Name = "Diana"
+                            }
+                        };
 
             // Act & Assert - Should NOT throw
             Assert.That.HasCountGreaterThan(users,
@@ -769,6 +899,7 @@ namespace Core.Test.Collection
         private sealed class TestUser
         {
             public int Id { get; set; }
+
             public string Name { get; set; } = string.Empty;
 
             public override string ToString() => $"User(Id={Id}, Name={Name})";

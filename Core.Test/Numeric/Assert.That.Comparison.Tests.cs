@@ -298,7 +298,7 @@ namespace Core.Test.Numeric
         {
             // Arrange
             var requestSize = 15_000_000; // 15 MB
-            var maxSize = 10_000_000;     // 10 MB
+            var maxSize = 10_000_000; // 10 MB
 
             // Act
             try
@@ -402,7 +402,7 @@ namespace Core.Test.Numeric
         {
             // Arrange
             var responseTime = 2500; // milliseconds
-            var slaLimit = 2000;     // 2 seconds
+            var slaLimit = 2000; // 2 seconds
 
             // Act
             try

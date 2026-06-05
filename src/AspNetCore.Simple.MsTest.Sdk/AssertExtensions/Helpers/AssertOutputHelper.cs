@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Helpers;
-using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
 {
@@ -113,7 +112,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
 
             if (additionalOptions != null && additionalOptions.Length > 0)
             {
-                for (int i = 0; i < additionalOptions.Length; i++)
+                for (var i = 0; i < additionalOptions.Length; i++)
                 {
                     sb.AppendLine();
                     sb.AppendLine($"Option {i + 2}: {additionalOptions[i]}");
@@ -143,7 +142,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
                 var pathSegments = filePath.Replace("\\", "/").Split('/');
 
                 // Look for .csproj pattern or common project folder names
-                for (int i = pathSegments.Length - 1; i >= 0; i--)
+                for (var i = pathSegments.Length - 1; i >= 0; i--)
                 {
                     if (pathSegments[i].EndsWith(".Test", StringComparison.OrdinalIgnoreCase) ||
                         pathSegments[i].EndsWith("Tests", StringComparison.OrdinalIgnoreCase))

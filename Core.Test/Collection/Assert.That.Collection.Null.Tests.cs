@@ -40,7 +40,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.IsEmpty(list!,
+                Assert.That.IsEmpty(list,
                                     because: "Testing that non-empty collections fail",
                                     fix: "This is expected to fail");
             }
@@ -63,7 +63,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.IsEmpty(list!,
+                Assert.That.IsEmpty(list,
                                     because: "Testing that null collections fail IsEmpty",
                                     fix: "Initialize the collection first");
             }
@@ -136,7 +136,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.IsEmpty(numbers!,
+                Assert.That.IsEmpty(numbers,
                                     because: "Numbers collection should be initialized but empty",
                                     fix: "Initialize numbers = new List<int>() in the setup");
 
@@ -214,7 +214,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.IsNotEmpty(numbers!,
+                Assert.That.IsNotEmpty(numbers,
                                        because: "Testing that null collections fail IsNotEmpty",
                                        fix: "Initialize the collection and add elements");
             }
@@ -270,7 +270,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.IsNotEmpty(users!,
+                Assert.That.IsNotEmpty(users,
                                        because: "Active users should exist after application startup",
                                        fix: "Check UserService.GetActiveUsers() - ensure it returns a collection, not null");
 

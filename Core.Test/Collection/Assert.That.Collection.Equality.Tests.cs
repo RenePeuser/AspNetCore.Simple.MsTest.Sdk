@@ -17,8 +17,23 @@ namespace Core.Test.Collection
         public void AreEqual_WhenCollectionsAreEqual_ShouldPass()
         {
             // Arrange
-            var expected = new List<int> { 1, 2, 3, 4, 5 };
-            var actual = new List<int> { 1, 2, 3, 4, 5 };
+            var expected = new List<int>
+                           {
+                               1,
+                               2,
+                               3,
+                               4,
+                               5
+                           };
+
+            var actual = new List<int>
+                         {
+                             1,
+                             2,
+                             3,
+                             4,
+                             5
+                         };
 
             // Act & Assert - Should NOT throw
             Assert.That.AreEqual(expected, actual,
@@ -56,8 +71,20 @@ namespace Core.Test.Collection
         public void AreEqual_WhenOrderDiffers_ShouldFail()
         {
             // Arrange
-            var expected = new List<int> { 1, 2, 3 };
-            var actual = new List<int> { 3, 2, 1 };
+            var expected = new List<int>
+                           {
+                               1,
+                               2,
+                               3
+                           };
+
+            var actual = new List<int>
+                         {
+                             3,
+                             2,
+                             1
+                         };
+
             var threw = false;
 
             // Act
@@ -80,8 +107,22 @@ namespace Core.Test.Collection
         public void AreEqual_WhenCountDiffers_ShouldFail()
         {
             // Arrange
-            var expected = new List<int> { 1, 2, 3 };
-            var actual = new List<int> { 1, 2, 3, 4, 5 };
+            var expected = new List<int>
+                           {
+                               1,
+                               2,
+                               3
+                           };
+
+            var actual = new List<int>
+                         {
+                             1,
+                             2,
+                             3,
+                             4,
+                             5
+                         };
+
             var threw = false;
 
             // Act
@@ -105,7 +146,13 @@ namespace Core.Test.Collection
         {
             // Arrange
             List<string>? expected = null;
-            var actual = new List<string> { "a", "b" };
+
+            var actual = new List<string>
+                         {
+                             "a",
+                             "b"
+                         };
+
             var threw = false;
 
             // Act
@@ -128,7 +175,12 @@ namespace Core.Test.Collection
         public void AreEqual_WhenActualIsNull_ShouldFail()
         {
             // Arrange
-            var expected = new List<string> { "a", "b" };
+            var expected = new List<string>
+                           {
+                               "a",
+                               "b"
+                           };
+
             List<string>? actual = null;
             var threw = false;
 
@@ -152,8 +204,23 @@ namespace Core.Test.Collection
         public void AreEqual_WhenElementsDiffer_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var expectedUserIds = new List<int> { 10, 20, 30, 40, 50 };
-            var actualUserIds = new List<int> { 10, 20, 99, 40, 50 };
+            var expectedUserIds = new List<int>
+                                  {
+                                      10,
+                                      20,
+                                      30,
+                                      40,
+                                      50
+                                  };
+
+            var actualUserIds = new List<int>
+                                {
+                                    10,
+                                    20,
+                                    99,
+                                    40,
+                                    50
+                                };
 
             // Act
             try
@@ -192,8 +259,19 @@ namespace Core.Test.Collection
         public void AreEqual_WhenStringCollectionsDiffer_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var expectedRoles = new List<string> { "Admin", "User", "Guest" };
-            var actualRoles = new List<string> { "Admin", "PowerUser", "Guest" };
+            var expectedRoles = new List<string>
+                                {
+                                    "Admin",
+                                    "User",
+                                    "Guest"
+                                };
+
+            var actualRoles = new List<string>
+                              {
+                                  "Admin",
+                                  "PowerUser",
+                                  "Guest"
+                              };
 
             // Act
             try
@@ -228,8 +306,21 @@ namespace Core.Test.Collection
         public void AreEqual_WhenCountDiffers_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var expectedProducts = new List<string> { "Laptop", "Mouse", "Keyboard" };
-            var actualProducts = new List<string> { "Laptop", "Mouse", "Keyboard", "Monitor", "Webcam" };
+            var expectedProducts = new List<string>
+                                   {
+                                       "Laptop",
+                                       "Mouse",
+                                       "Keyboard"
+                                   };
+
+            var actualProducts = new List<string>
+                                 {
+                                     "Laptop",
+                                     "Mouse",
+                                     "Keyboard",
+                                     "Monitor",
+                                     "Webcam"
+                                 };
 
             // Act
             try
@@ -269,8 +360,23 @@ namespace Core.Test.Collection
         public void AreEquivalent_WhenCollectionsAreEquivalent_ShouldPass()
         {
             // Arrange
-            var expected = new List<int> { 1, 2, 3, 4, 5 };
-            var actual = new List<int> { 5, 4, 3, 2, 1 };
+            var expected = new List<int>
+                           {
+                               1,
+                               2,
+                               3,
+                               4,
+                               5
+                           };
+
+            var actual = new List<int>
+                         {
+                             5,
+                             4,
+                             3,
+                             2,
+                             1
+                         };
 
             // Act & Assert - Should NOT throw
             Assert.That.AreEquivalent(expected, actual,
@@ -308,8 +414,19 @@ namespace Core.Test.Collection
         public void AreEquivalent_WhenOrderDiffers_ShouldPass()
         {
             // Arrange
-            var expected = new List<string> { "apple", "banana", "cherry" };
-            var actual = new List<string> { "cherry", "apple", "banana" };
+            var expected = new List<string>
+                           {
+                               "apple",
+                               "banana",
+                               "cherry"
+                           };
+
+            var actual = new List<string>
+                         {
+                             "cherry",
+                             "apple",
+                             "banana"
+                         };
 
             // Act & Assert - Should NOT throw
             Assert.That.AreEquivalent(expected, actual,
@@ -321,14 +438,28 @@ namespace Core.Test.Collection
         public void AreEquivalent_WhenElementsMissing_ShouldFail()
         {
             // Arrange
-            var expected = new List<int> { 1, 2, 3, 4, 5 };
-            var actual = new List<int> { 1, 2, 3 };
+            var expected = new List<int>
+                           {
+                               1,
+                               2,
+                               3,
+                               4,
+                               5
+                           };
+
+            var actual = new List<int>
+                         {
+                             1,
+                             2,
+                             3
+                         };
+
             var threw = false;
 
             // Act
             try
             {
-                Assert.That.AreEquivalent(expected!, actual!,
+                Assert.That.AreEquivalent(expected, actual,
                                           because: "Testing that missing elements cause failure",
                                           fix: "This is expected to fail");
             }
@@ -345,14 +476,28 @@ namespace Core.Test.Collection
         public void AreEquivalent_WhenExtraElements_ShouldFail()
         {
             // Arrange
-            var expected = new List<int> { 1, 2, 3 };
-            var actual = new List<int> { 1, 2, 3, 4, 5 };
+            var expected = new List<int>
+                           {
+                               1,
+                               2,
+                               3
+                           };
+
+            var actual = new List<int>
+                         {
+                             1,
+                             2,
+                             3,
+                             4,
+                             5
+                         };
+
             var threw = false;
 
             // Act
             try
             {
-                Assert.That.AreEquivalent(expected!, actual!,
+                Assert.That.AreEquivalent(expected, actual,
                                           because: "Testing that extra elements cause failure",
                                           fix: "This is expected to fail");
             }
@@ -369,14 +514,26 @@ namespace Core.Test.Collection
         public void AreEquivalent_WhenDifferentElements_ShouldFail()
         {
             // Arrange
-            var expected = new List<int> { 1, 2, 3 };
-            var actual = new List<int> { 4, 5, 6 };
+            var expected = new List<int>
+                           {
+                               1,
+                               2,
+                               3
+                           };
+
+            var actual = new List<int>
+                         {
+                             4,
+                             5,
+                             6
+                         };
+
             var threw = false;
 
             // Act
             try
             {
-                Assert.That.AreEquivalent(expected!, actual!,
+                Assert.That.AreEquivalent(expected, actual,
                                           because: "Testing that different elements cause failure",
                                           fix: "This is expected to fail");
             }
@@ -394,13 +551,19 @@ namespace Core.Test.Collection
         {
             // Arrange
             List<string>? expected = null;
-            var actual = new List<string> { "a", "b" };
+
+            var actual = new List<string>
+                         {
+                             "a",
+                             "b"
+                         };
+
             var threw = false;
 
             // Act
             try
             {
-                Assert.That.AreEquivalent(expected!, actual!,
+                Assert.That.AreEquivalent(expected, actual,
                                           because: "Expected collection is null but actual is not",
                                           fix: "This is expected to fail");
             }
@@ -417,14 +580,19 @@ namespace Core.Test.Collection
         public void AreEquivalent_WhenActualIsNull_ShouldFail()
         {
             // Arrange
-            var expected = new List<string> { "a", "b" };
+            var expected = new List<string>
+                           {
+                               "a",
+                               "b"
+                           };
+
             List<string>? actual = null;
             var threw = false;
 
             // Act
             try
             {
-                Assert.That.AreEquivalent(expected!, actual!,
+                Assert.That.AreEquivalent(expected, actual,
                                           because: "Actual collection is null but expected is not",
                                           fix: "This is expected to fail");
             }
@@ -441,8 +609,21 @@ namespace Core.Test.Collection
         public void AreEquivalent_WhenMissingElements_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var expectedTags = new List<string> { "csharp", "dotnet", "testing", "mstest", "sdk" };
-            var actualTags = new List<string> { "csharp", "dotnet", "testing" };
+            var expectedTags = new List<string>
+                               {
+                                   "csharp",
+                                   "dotnet",
+                                   "testing",
+                                   "mstest",
+                                   "sdk"
+                               };
+
+            var actualTags = new List<string>
+                             {
+                                 "csharp",
+                                 "dotnet",
+                                 "testing"
+                             };
 
             // Act
             try
@@ -481,8 +662,19 @@ namespace Core.Test.Collection
         public void AreEquivalent_WhenExtraElements_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var expectedPermissions = new List<string> { "read", "write" };
-            var actualPermissions = new List<string> { "read", "write", "delete", "admin" };
+            var expectedPermissions = new List<string>
+                                      {
+                                          "read",
+                                          "write"
+                                      };
+
+            var actualPermissions = new List<string>
+                                    {
+                                        "read",
+                                        "write",
+                                        "delete",
+                                        "admin"
+                                    };
 
             // Act
             try
@@ -521,8 +713,19 @@ namespace Core.Test.Collection
         public void AreEquivalent_WhenCompletelyDifferent_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var expectedFeatures = new List<string> { "feature-a", "feature-b", "feature-c" };
-            var actualFeatures = new List<string> { "feature-x", "feature-y", "feature-z" };
+            var expectedFeatures = new List<string>
+                                   {
+                                       "feature-a",
+                                       "feature-b",
+                                       "feature-c"
+                                   };
+
+            var actualFeatures = new List<string>
+                                 {
+                                     "feature-x",
+                                     "feature-y",
+                                     "feature-z"
+                                 };
 
             // Act
             try
@@ -564,16 +767,40 @@ namespace Core.Test.Collection
             // Arrange
             var expected = new List<TestUser>
                            {
-                               new TestUser { Id = 1, Name = "Goku" },
-                               new TestUser { Id = 2, Name = "Vegeta" },
-                               new TestUser { Id = 3, Name = "Gohan" }
+                               new TestUser
+                               {
+                                   Id = 1,
+                                   Name = "Goku"
+                               },
+                               new TestUser
+                               {
+                                   Id = 2,
+                                   Name = "Vegeta"
+                               },
+                               new TestUser
+                               {
+                                   Id = 3,
+                                   Name = "Gohan"
+                               }
                            };
 
             var actual = new List<TestUser>
                          {
-                             new TestUser { Id = 1, Name = "Goku" },
-                             new TestUser { Id = 2, Name = "Vegeta" },
-                             new TestUser { Id = 3, Name = "Gohan" }
+                             new TestUser
+                             {
+                                 Id = 1,
+                                 Name = "Goku"
+                             },
+                             new TestUser
+                             {
+                                 Id = 2,
+                                 Name = "Vegeta"
+                             },
+                             new TestUser
+                             {
+                                 Id = 3,
+                                 Name = "Gohan"
+                             }
                          };
 
             // Act & Assert - Should NOT throw
@@ -588,16 +815,40 @@ namespace Core.Test.Collection
             // Arrange
             var expected = new List<TestUser>
                            {
-                               new TestUser { Id = 1, Name = "Goku" },
-                               new TestUser { Id = 2, Name = "Vegeta" },
-                               new TestUser { Id = 3, Name = "Gohan" }
+                               new TestUser
+                               {
+                                   Id = 1,
+                                   Name = "Goku"
+                               },
+                               new TestUser
+                               {
+                                   Id = 2,
+                                   Name = "Vegeta"
+                               },
+                               new TestUser
+                               {
+                                   Id = 3,
+                                   Name = "Gohan"
+                               }
                            };
 
             var actual = new List<TestUser>
                          {
-                             new TestUser { Id = 3, Name = "Gohan" },
-                             new TestUser { Id = 1, Name = "Goku" },
-                             new TestUser { Id = 2, Name = "Vegeta" }
+                             new TestUser
+                             {
+                                 Id = 3,
+                                 Name = "Gohan"
+                             },
+                             new TestUser
+                             {
+                                 Id = 1,
+                                 Name = "Goku"
+                             },
+                             new TestUser
+                             {
+                                 Id = 2,
+                                 Name = "Vegeta"
+                             }
                          };
 
             // Act & Assert - Should NOT throw
@@ -640,8 +891,21 @@ namespace Core.Test.Collection
         public void AreEquivalent_WithDuplicates_ShouldHandleCorrectly()
         {
             // Arrange
-            var expected = new List<int> { 1, 2, 2, 3 };
-            var actual = new List<int> { 3, 2, 2, 1 };
+            var expected = new List<int>
+                           {
+                               1,
+                               2,
+                               2,
+                               3
+                           };
+
+            var actual = new List<int>
+                         {
+                             3,
+                             2,
+                             2,
+                             1
+                         };
 
             // Act & Assert - Should NOT throw
             Assert.That.AreEquivalent(expected, actual,
@@ -665,6 +929,7 @@ namespace Core.Test.Collection
             {
                 if (other is null)
                     return false;
+
                 return Id == other.Id && Name == other.Name;
             }
 
@@ -676,7 +941,9 @@ namespace Core.Test.Collection
             {
                 if (other is null)
                     return 1;
+
                 var idComparison = Id.CompareTo(other.Id);
+
                 return idComparison != 0 ? idComparison : string.Compare(Name, other.Name, StringComparison.Ordinal);
             }
         }

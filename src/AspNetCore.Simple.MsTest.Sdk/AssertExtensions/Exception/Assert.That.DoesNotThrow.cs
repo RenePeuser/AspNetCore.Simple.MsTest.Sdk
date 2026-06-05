@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -158,7 +157,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #pragma warning restore CA1861
                 var lineCount = Math.Min(stackLines.Length, 5);
 
-                for (int i = 0; i < lineCount; i++)
+                for (var i = 0; i < lineCount; i++)
                 {
                     sb.AppendLine($"  {stackLines[i].Trim()}");
                 }

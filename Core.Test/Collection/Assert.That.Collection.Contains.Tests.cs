@@ -17,7 +17,12 @@ namespace Core.Test.Collection
         public void Contains_WhenItemExists_ShouldPass()
         {
             // Arrange
-            var collection = new List<string> { "apple", "banana", "cherry" };
+            var collection = new List<string>
+                             {
+                                 "apple",
+                                 "banana",
+                                 "cherry"
+                             };
 
             // Act & Assert - Should NOT throw
             Assert.That.Contains(collection, "banana",
@@ -29,7 +34,13 @@ namespace Core.Test.Collection
         public void Contains_WhenItemDoesNotExist_ShouldFail()
         {
             // Arrange
-            var collection = new List<string> { "apple", "banana", "cherry" };
+            var collection = new List<string>
+                             {
+                                 "apple",
+                                 "banana",
+                                 "cherry"
+                             };
+
             var threw = false;
 
             // Act
@@ -52,7 +63,14 @@ namespace Core.Test.Collection
         public void Contains_WhenItemDoesNotExist_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var fruits = new List<string> { "apple", "banana", "cherry", "date", "elderberry" };
+            var fruits = new List<string>
+                         {
+                             "apple",
+                             "banana",
+                             "cherry",
+                             "date",
+                             "elderberry"
+                         };
 
             // Act
             try
@@ -91,7 +109,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.Contains(collection!, "item",
+                Assert.That.Contains(collection, "item",
                                      because: "Testing null collection handling",
                                      fix: "Initialize collection before checking contents");
 
@@ -120,10 +138,23 @@ namespace Core.Test.Collection
             // Arrange
             var users = new List<TestUser>
                         {
-                            new() { Id = 1, Name = "Alice" },
-                            new() { Id = 2, Name = "Bob" },
-                            new() { Id = 3, Name = "Charlie" }
+                            new()
+                            {
+                                Id = 1,
+                                Name = "Alice"
+                            },
+                            new()
+                            {
+                                Id = 2,
+                                Name = "Bob"
+                            },
+                            new()
+                            {
+                                Id = 3,
+                                Name = "Charlie"
+                            }
                         };
+
             var targetUser = users[1];
 
             // Act & Assert - Should NOT throw
@@ -140,7 +171,12 @@ namespace Core.Test.Collection
         public void DoesNotContain_WhenItemDoesNotExist_ShouldPass()
         {
             // Arrange
-            var collection = new List<string> { "apple", "banana", "cherry" };
+            var collection = new List<string>
+                             {
+                                 "apple",
+                                 "banana",
+                                 "cherry"
+                             };
 
             // Act & Assert - Should NOT throw
             Assert.That.DoesNotContain(collection, "orange",
@@ -152,7 +188,13 @@ namespace Core.Test.Collection
         public void DoesNotContain_WhenItemExists_ShouldFail()
         {
             // Arrange
-            var collection = new List<string> { "apple", "banana", "cherry" };
+            var collection = new List<string>
+                             {
+                                 "apple",
+                                 "banana",
+                                 "cherry"
+                             };
+
             var threw = false;
 
             // Act
@@ -175,7 +217,12 @@ namespace Core.Test.Collection
         public void DoesNotContain_WhenItemExists_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var bannedUsers = new List<string> { "spammer1", "bot2", "abuser3" };
+            var bannedUsers = new List<string>
+                              {
+                                  "spammer1",
+                                  "bot2",
+                                  "abuser3"
+                              };
 
             // Act
             try
@@ -214,7 +261,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.DoesNotContain(numbers!, 42,
+                Assert.That.DoesNotContain(numbers, 42,
                                            because: "Testing null collection handling",
                                            fix: "Initialize collection before checking contents");
 
@@ -245,8 +292,21 @@ namespace Core.Test.Collection
         public void ContainsAll_WhenAllItemsExist_ShouldPass()
         {
             // Arrange
-            var collection = new List<string> { "apple", "banana", "cherry", "date", "elderberry" };
-            var itemsToFind = new List<string> { "banana", "date", "apple" };
+            var collection = new List<string>
+                             {
+                                 "apple",
+                                 "banana",
+                                 "cherry",
+                                 "date",
+                                 "elderberry"
+                             };
+
+            var itemsToFind = new List<string>
+                              {
+                                  "banana",
+                                  "date",
+                                  "apple"
+                              };
 
             // Act & Assert - Should NOT throw
             Assert.That.ContainsAll(collection, itemsToFind,
@@ -258,8 +318,20 @@ namespace Core.Test.Collection
         public void ContainsAll_WhenSomeItemsMissing_ShouldFail()
         {
             // Arrange
-            var collection = new List<string> { "apple", "banana", "cherry" };
-            var itemsToFind = new List<string> { "banana", "orange", "grape" };
+            var collection = new List<string>
+                             {
+                                 "apple",
+                                 "banana",
+                                 "cherry"
+                             };
+
+            var itemsToFind = new List<string>
+                              {
+                                  "banana",
+                                  "orange",
+                                  "grape"
+                              };
+
             var threw = false;
 
             // Act
@@ -282,8 +354,20 @@ namespace Core.Test.Collection
         public void ContainsAll_WhenSomeItemsMissing_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var installedFeatures = new List<string> { "feature-a", "feature-b", "feature-d" };
-            var requiredFeatures = new List<string> { "feature-a", "feature-b", "feature-c", "feature-d" };
+            var installedFeatures = new List<string>
+                                    {
+                                        "feature-a",
+                                        "feature-b",
+                                        "feature-d"
+                                    };
+
+            var requiredFeatures = new List<string>
+                                   {
+                                       "feature-a",
+                                       "feature-b",
+                                       "feature-c",
+                                       "feature-d"
+                                   };
 
             // Act
             try
@@ -318,12 +402,17 @@ namespace Core.Test.Collection
         {
             // Arrange
             List<string>? collection = null;
-            var items = new List<string> { "a", "b" };
+
+            var items = new List<string>
+                        {
+                            "a",
+                            "b"
+                        };
 
             // Act
             try
             {
-                Assert.That.ContainsAll(collection!, items,
+                Assert.That.ContainsAll(collection, items,
                                         because: "Testing null collection handling",
                                         fix: "Initialize collection before checking contents");
 
@@ -350,13 +439,19 @@ namespace Core.Test.Collection
         public void ContainsAll_WithNullItems_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var collection = new List<string> { "a", "b", "c" };
+            var collection = new List<string>
+                             {
+                                 "a",
+                                 "b",
+                                 "c"
+                             };
+
             List<string>? items = null;
 
             // Act
             try
             {
-                Assert.That.ContainsAll(collection, items!,
+                Assert.That.ContainsAll(collection, items,
                                         because: "Testing null items parameter handling",
                                         fix: "Initialize items list before calling ContainsAll");
 
@@ -383,7 +478,13 @@ namespace Core.Test.Collection
         public void ContainsAll_WithEmptyExpectedItems_ShouldPass()
         {
             // Arrange
-            var collection = new List<int> { 1, 2, 3 };
+            var collection = new List<int>
+                             {
+                                 1,
+                                 2,
+                                 3
+                             };
+
             var emptyItems = new List<int>();
 
             // Act & Assert - Should NOT throw (empty set is subset of any set)
@@ -398,10 +499,23 @@ namespace Core.Test.Collection
             // Arrange
             var users = new List<TestUser>
                         {
-                            new() { Id = 1, Name = "Alice" },
-                            new() { Id = 2, Name = "Bob" },
-                            new() { Id = 3, Name = "Charlie" }
+                            new()
+                            {
+                                Id = 1,
+                                Name = "Alice"
+                            },
+                            new()
+                            {
+                                Id = 2,
+                                Name = "Bob"
+                            },
+                            new()
+                            {
+                                Id = 3,
+                                Name = "Charlie"
+                            }
                         };
+
             var expectedUsers = new List<TestUser>
                                 {
                                     users[0],
@@ -422,8 +536,19 @@ namespace Core.Test.Collection
         public void ContainsAny_WhenAtLeastOneItemExists_ShouldPass()
         {
             // Arrange
-            var collection = new List<string> { "apple", "banana", "cherry" };
-            var itemsToFind = new List<string> { "orange", "banana", "grape" };
+            var collection = new List<string>
+                             {
+                                 "apple",
+                                 "banana",
+                                 "cherry"
+                             };
+
+            var itemsToFind = new List<string>
+                              {
+                                  "orange",
+                                  "banana",
+                                  "grape"
+                              };
 
             // Act & Assert - Should NOT throw
             Assert.That.ContainsAny(collection, itemsToFind,
@@ -435,8 +560,20 @@ namespace Core.Test.Collection
         public void ContainsAny_WhenNoItemsExist_ShouldFail()
         {
             // Arrange
-            var collection = new List<string> { "apple", "banana", "cherry" };
-            var itemsToFind = new List<string> { "orange", "grape", "mango" };
+            var collection = new List<string>
+                             {
+                                 "apple",
+                                 "banana",
+                                 "cherry"
+                             };
+
+            var itemsToFind = new List<string>
+                              {
+                                  "orange",
+                                  "grape",
+                                  "mango"
+                              };
+
             var threw = false;
 
             // Act
@@ -459,8 +596,19 @@ namespace Core.Test.Collection
         public void ContainsAny_WhenNoItemsExist_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var supportedFormats = new List<string> { "json", "xml", "csv" };
-            var requestedFormats = new List<string> { "yaml", "toml", "ini" };
+            var supportedFormats = new List<string>
+                                   {
+                                       "json",
+                                       "xml",
+                                       "csv"
+                                   };
+
+            var requestedFormats = new List<string>
+                                   {
+                                       "yaml",
+                                       "toml",
+                                       "ini"
+                                   };
 
             // Act
             try
@@ -495,12 +643,17 @@ namespace Core.Test.Collection
         {
             // Arrange
             List<string>? collection = null;
-            var items = new List<string> { "a", "b" };
+
+            var items = new List<string>
+                        {
+                            "a",
+                            "b"
+                        };
 
             // Act
             try
             {
-                Assert.That.ContainsAny(collection!, items,
+                Assert.That.ContainsAny(collection, items,
                                         because: "Testing null collection handling",
                                         fix: "Initialize collection before checking contents");
 
@@ -527,13 +680,19 @@ namespace Core.Test.Collection
         public void ContainsAny_WithNullItems_ShouldFailWithBeautifulOutput()
         {
             // Arrange
-            var collection = new List<string> { "a", "b", "c" };
+            var collection = new List<string>
+                             {
+                                 "a",
+                                 "b",
+                                 "c"
+                             };
+
             List<string>? items = null;
 
             // Act
             try
             {
-                Assert.That.ContainsAny(collection, items!,
+                Assert.That.ContainsAny(collection, items,
                                         because: "Testing null items parameter handling",
                                         fix: "Initialize items list before calling ContainsAny");
 
@@ -560,8 +719,22 @@ namespace Core.Test.Collection
         public void ContainsAny_WithMultipleMatches_ShouldPass()
         {
             // Arrange
-            var collection = new List<int> { 1, 2, 3, 4, 5 };
-            var itemsToFind = new List<int> { 2, 3, 6, 7 };
+            var collection = new List<int>
+                             {
+                                 1,
+                                 2,
+                                 3,
+                                 4,
+                                 5
+                             };
+
+            var itemsToFind = new List<int>
+                              {
+                                  2,
+                                  3,
+                                  6,
+                                  7
+                              };
 
             // Act & Assert - Should NOT throw (2 and 3 both exist)
             Assert.That.ContainsAny(collection, itemsToFind,
@@ -575,12 +748,25 @@ namespace Core.Test.Collection
             // Arrange
             var users = new List<TestUser>
                         {
-                            new() { Id = 1, Name = "Alice" },
-                            new() { Id = 2, Name = "Bob" }
+                            new()
+                            {
+                                Id = 1,
+                                Name = "Alice"
+                            },
+                            new()
+                            {
+                                Id = 2,
+                                Name = "Bob"
+                            }
                         };
+
             var searchUsers = new List<TestUser>
                               {
-                                  new() { Id = 99, Name = "Unknown" },
+                                  new()
+                                  {
+                                      Id = 99,
+                                      Name = "Unknown"
+                                  },
                                   users[1]
                               };
 
@@ -633,7 +819,12 @@ namespace Core.Test.Collection
         public void Contains_WithNullItem_ShouldPassWhenNullExists()
         {
             // Arrange
-            var collection = new List<string?> { "a", null, "b" };
+            var collection = new List<string?>
+                             {
+                                 "a",
+                                 null,
+                                 "b"
+                             };
 
             // Act & Assert - Should NOT throw
             Assert.That.Contains(collection, null,

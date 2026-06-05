@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -239,7 +238,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 sb.AppendLine($"{"Actual Type",-15} : {caughtException.GetType().Name}");
                 sb.AppendLine($"{"Actual Message",-15} : {caughtException.Message}");
-                sb.AppendLine($"{"Stack Trace",-15} : {(caughtException.StackTrace ?? "(no stack trace)")}");
+                sb.AppendLine($"{"Stack Trace",-15} : {caughtException.StackTrace ?? "(no stack trace)"}");
             }
             else
             {

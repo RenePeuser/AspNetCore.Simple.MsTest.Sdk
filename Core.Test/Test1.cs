@@ -1,4 +1,4 @@
-﻿namespace Core.Test
+namespace Core.Test
 {
     [TestClass]
     public sealed class Test1

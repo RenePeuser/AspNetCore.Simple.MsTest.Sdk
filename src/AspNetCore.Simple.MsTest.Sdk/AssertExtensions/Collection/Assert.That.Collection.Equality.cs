@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -219,7 +218,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 sb.AppendLine($"{"Index",-8} {"Expected",-30} {"Actual",-30} {"Match",-10}");
                 sb.AppendLine(new string('-', 78));
 
-                for (int i = 0; i < maxDisplay; i++)
+                for (var i = 0; i < maxDisplay; i++)
                 {
                     var expectedValue = i < expectedList.Count ? expectedList[i]?.ToString() ?? "null" : "<missing>";
                     var actualValue = i < actualList.Count ? actualList[i]?.ToString() ?? "null" : "<missing>";

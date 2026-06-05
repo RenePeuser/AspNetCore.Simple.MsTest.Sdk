@@ -363,7 +363,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine($"{"Tolerance",-10} : {tolerance.TotalSeconds:F3} seconds");
             sb.AppendLine($"{"Difference",-10} : {actualDifference.TotalSeconds:F3} seconds");
 
-            var percentageOff = (actualDifference.TotalSeconds / tolerance.TotalSeconds * 100);
+            var percentageOff = actualDifference.TotalSeconds / tolerance.TotalSeconds * 100;
             sb.AppendLine($"{"Exceeded By",-10} : {percentageOff:F1}% over tolerance");
             sb.AppendLine();
 

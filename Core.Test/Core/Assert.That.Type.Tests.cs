@@ -76,10 +76,10 @@ namespace Core.Test.Core
         {
             // Arrange
             var response = new ApiResponse
-                           {
-                               StatusCode = 200,
-                               Message = "Success"
-                           };
+            {
+                StatusCode = 200,
+                Message = "Success"
+            };
 
             // Act
             try
@@ -116,10 +116,10 @@ namespace Core.Test.Core
         {
             // Arrange
             var user = new TestUser
-                       {
-                           Id = 1,
-                           Name = "Goku"
-                       };
+            {
+                Id = 1,
+                Name = "Goku"
+            };
 
             // Act & Assert - Should NOT throw
             Assert.That.IsOfType<TestUser>(user,
@@ -210,10 +210,10 @@ namespace Core.Test.Core
         {
             // Arrange
             var error = new ErrorResponse
-                        {
-                            ErrorCode = "ERR_001",
-                            ErrorMessage = "Invalid input"
-                        };
+            {
+                ErrorCode = "ERR_001",
+                ErrorMessage = "Invalid input"
+            };
 
             // Act
             try
@@ -289,10 +289,10 @@ namespace Core.Test.Core
         {
             // Arrange
             var value = new TestUser
-                        {
-                            Id = 1,
-                            Name = "Goku"
-                        };
+            {
+                Id = 1,
+                Name = "Goku"
+            };
 
             // Act & Assert - Should NOT throw
             Assert.That.IsAssignableTo<IEntity>(value,
@@ -351,10 +351,10 @@ namespace Core.Test.Core
         {
             // Arrange
             var data = new DataModel
-                       {
-                           Id = 1,
-                           Value = "Test"
-                       };
+            {
+                Id = 1,
+                Value = "Test"
+            };
 
             // Act
             try

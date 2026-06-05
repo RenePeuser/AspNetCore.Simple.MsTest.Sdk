@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -346,10 +345,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static string FormatValue<T>(T? value)
         {
             if (value is null)
+            {
                 return "null";
+            }
 
             if (value is string str)
+            {
                 return $"\"{str}\"";
+            }
 
             return value.ToString() ?? "(no ToString)";
         }
@@ -358,9 +361,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static string GetReferenceInfo<T>(T? obj) where T : class
         {
             if (obj is null)
+            {
                 return "null";
+            }
 
-            return $"{obj.GetType().Name}@{System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj):X8}";
+            return $"{obj.GetType().Name}@{RuntimeHelpers.GetHashCode(obj):X8}";
         }
     }
 }

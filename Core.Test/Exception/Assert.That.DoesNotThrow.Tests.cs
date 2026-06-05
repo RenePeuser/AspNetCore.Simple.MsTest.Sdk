@@ -73,26 +73,33 @@ namespace Core.Test.ExceptionAssertions
                 // Verify output contains key sections
                 Assert.IsTrue(ex.Message.Contains("EXCEPTION THROWN - EXPECTED NO EXCEPTION"),
                               "Should contain header");
+
                 Assert.IsTrue(ex.Message.Contains("📦 Test Information"),
                               "Should contain Test Information section");
+
                 Assert.IsTrue(ex.Message.Contains("⚠️ Problem"),
                               "Should contain Problem section");
+
                 Assert.IsTrue(ex.Message.Contains("📊 Details"),
                               "Should contain Details section");
+
                 Assert.IsTrue(ex.Message.Contains("💭 Context"),
                               "Should contain Context section");
+
                 Assert.IsTrue(ex.Message.Contains("✅ Suggested Fix"),
                               "Should contain Suggested Fix section");
 
                 // Verify custom because/fix messages appear in output
                 Assert.IsTrue(ex.Message.Contains("Division operation should handle zero divisor gracefully"),
                               "Should contain because message");
+
                 Assert.IsTrue(ex.Message.Contains("Add validation to check for zero divisor before performing division"),
                               "Should contain fix message");
 
                 // Verify exception details
                 Assert.IsTrue(ex.Message.Contains("DivideByZeroException"),
                               "Should contain exception type");
+
                 Assert.IsTrue(ex.Message.Contains("Action"),
                               "Should contain action name");
 
@@ -133,8 +140,10 @@ namespace Core.Test.ExceptionAssertions
                 // Verify inner exception is shown
                 Assert.IsTrue(ex.Message.Contains("Inner Exception"),
                               "Should show inner exception label");
+
                 Assert.IsTrue(ex.Message.Contains("ArgumentException"),
                               "Should show inner exception type");
+
                 Assert.IsTrue(ex.Message.Contains("Inner error"),
                               "Should show inner exception message");
 
@@ -153,9 +162,9 @@ namespace Core.Test.ExceptionAssertions
 
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                Assert.That.DoesNotThrow(action!,
-                                         because: "Testing null action",
-                                         fix: "Provide a valid action"));
+                                                     Assert.That.DoesNotThrow(action,
+                                                                              because: "Testing null action",
+                                                                              fix: "Provide a valid action"));
         }
 
         [TestMethod]
@@ -182,6 +191,7 @@ namespace Core.Test.ExceptionAssertions
         {
             // Arrange
             var counter = 0;
+
             Func<Task> action = async () =>
             {
                 await Task.Delay(1);
@@ -204,8 +214,10 @@ namespace Core.Test.ExceptionAssertions
             Func<Task> action = async () =>
             {
                 await Task.Delay(1);
+
                 throw new InvalidOperationException("Async test exception");
             };
+
             var threw = false;
 
             // Act
@@ -245,26 +257,33 @@ namespace Core.Test.ExceptionAssertions
                 // Verify output contains key sections
                 Assert.IsTrue(ex.Message.Contains("EXCEPTION THROWN - EXPECTED NO EXCEPTION"),
                               "Should contain header");
+
                 Assert.IsTrue(ex.Message.Contains("📦 Test Information"),
                               "Should contain Test Information section");
+
                 Assert.IsTrue(ex.Message.Contains("⚠️ Problem"),
                               "Should contain Problem section");
+
                 Assert.IsTrue(ex.Message.Contains("📊 Details"),
                               "Should contain Details section");
+
                 Assert.IsTrue(ex.Message.Contains("💭 Context"),
                               "Should contain Context section");
+
                 Assert.IsTrue(ex.Message.Contains("✅ Suggested Fix"),
                               "Should contain Suggested Fix section");
 
                 // Verify custom because/fix messages appear in output
                 Assert.IsTrue(ex.Message.Contains("ProcessDataAsync should validate input before processing"),
                               "Should contain because message");
+
                 Assert.IsTrue(ex.Message.Contains("Add null check at the beginning of ProcessDataAsync method"),
                               "Should contain fix message");
 
                 // Verify exception details
                 Assert.IsTrue(ex.Message.Contains("ArgumentNullException"),
                               "Should contain exception type");
+
                 Assert.IsTrue(ex.Message.Contains("Action"),
                               "Should contain action name");
 
@@ -317,9 +336,9 @@ namespace Core.Test.ExceptionAssertions
 
             // Act & Assert
             await Assert.ThrowsAsync<ArgumentNullException>(async () =>
-                await Assert.That.DoesNotThrowAsync(action!,
-                                                    because: "Testing null action",
-                                                    fix: "Provide a valid action"));
+                                                                await Assert.That.DoesNotThrowAsync(action,
+                                                                                                    because: "Testing null action",
+                                                                                                    fix: "Provide a valid action"));
         }
 
         [TestMethod]
@@ -346,6 +365,7 @@ namespace Core.Test.ExceptionAssertions
             Func<Task> action = async () =>
             {
                 await Task.Delay(1);
+
                 try
                 {
                     throw new FormatException("Invalid format detected");
@@ -370,10 +390,13 @@ namespace Core.Test.ExceptionAssertions
                 // Verify both outer and inner exceptions are shown
                 Assert.IsTrue(ex.Message.Contains("ApplicationException"),
                               "Should show outer exception type");
+
                 Assert.IsTrue(ex.Message.Contains("Inner Exception"),
                               "Should show inner exception section");
+
                 Assert.IsTrue(ex.Message.Contains("FormatException"),
                               "Should show inner exception type");
+
                 Assert.IsTrue(ex.Message.Contains("Invalid format detected"),
                               "Should show inner exception message");
 
@@ -390,11 +413,7 @@ namespace Core.Test.ExceptionAssertions
             // Arrange
             Func<Task> action = async () =>
             {
-                var tasks = new[]
-                {
-                    Task.Run(() => throw new InvalidOperationException("Task 1 failed")),
-                    Task.Run(() => throw new ArgumentException("Task 2 failed"))
-                };
+                var tasks = new[] { Task.Run(() => throw new InvalidOperationException("Task 1 failed")), Task.Run(() => throw new ArgumentException("Task 2 failed")) };
 
                 await Task.WhenAll(tasks);
             };
@@ -427,7 +446,8 @@ namespace Core.Test.ExceptionAssertions
 
         private sealed class TestCalculator
         {
-            public int Divide(int numerator, int denominator)
+            public int Divide(int numerator,
+                              int denominator)
             {
                 return numerator / denominator; // Will throw DivideByZeroException if denominator is 0
             }
@@ -443,12 +463,14 @@ namespace Core.Test.ExceptionAssertions
                 }
 
                 await Task.Delay(10);
+
                 // Process data...
             }
 
             public async Task<string> FetchDataAsync()
             {
                 await Task.Delay(10);
+
                 return "Data";
             }
         }
