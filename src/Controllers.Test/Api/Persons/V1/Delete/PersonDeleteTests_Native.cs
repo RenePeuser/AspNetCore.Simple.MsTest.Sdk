@@ -1,6 +1,9 @@
+using System;
 using System.Net;
+using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
 using Controllers.Api.Persons;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Controllers.Test.Api.Persons.V1.Delete
 {

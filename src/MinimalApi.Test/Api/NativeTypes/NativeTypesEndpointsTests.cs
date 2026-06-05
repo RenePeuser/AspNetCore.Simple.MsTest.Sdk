@@ -1,4 +1,6 @@
+using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MinimalApi.Test.Api.NativeTypes
 {

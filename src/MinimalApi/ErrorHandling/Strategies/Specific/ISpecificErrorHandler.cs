@@ -1,3 +1,7 @@
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+
 namespace MinimalApi.ErrorHandling.Strategies.Specific
 {
     public interface ISpecificErrorHandler

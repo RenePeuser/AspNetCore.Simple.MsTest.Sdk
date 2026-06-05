@@ -1,5 +1,7 @@
+using System.Net.Http;
 using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MinimalApi.Test
 {

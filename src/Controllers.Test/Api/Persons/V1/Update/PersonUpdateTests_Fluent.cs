@@ -1,7 +1,9 @@
+using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 using Controllers.Api.Persons;
 using Controllers.Test.Api.Persons.V1.Shared;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Controllers.Test.Api.Persons.V1.Update
 {

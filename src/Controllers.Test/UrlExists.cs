@@ -1,5 +1,6 @@
 using AspNetCore.Simple.MsTest.Sdk;
 using Extensions.Pack;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Controllers.Test
 {

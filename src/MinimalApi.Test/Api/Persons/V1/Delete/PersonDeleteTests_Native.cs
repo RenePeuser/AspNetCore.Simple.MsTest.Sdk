@@ -1,6 +1,9 @@
+using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
 using Extensions.Pack;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MinimalApi.Api.Persons.V1;
 
 namespace MinimalApi.Test.Api.Persons.V1.Delete

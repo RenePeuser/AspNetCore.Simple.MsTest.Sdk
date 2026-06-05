@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MinimalApi.Test.Api.Errors
 {

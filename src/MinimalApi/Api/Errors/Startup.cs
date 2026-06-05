@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using MinimalApi.Api.Errors.V1;
 
 namespace MinimalApi.Api.Errors

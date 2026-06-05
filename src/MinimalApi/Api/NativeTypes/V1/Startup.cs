@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace MinimalApi.Api.NativeTypes.V1
 {
     internal static class Startup

@@ -1,5 +1,10 @@
+using System;
 using Asp.Versioning;
 using Extensions.Pack;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MinimalApi.Extensionmethods
 {

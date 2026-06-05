@@ -1,6 +1,8 @@
+using System.Net.Http;
 using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 [assembly: Parallelize(Scope = ExecutionScope.ClassLevel)]
 
 namespace Controllers.Test
