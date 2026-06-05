@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -41,17 +42,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                        [CallerLineNumber] int callerLineNumber = 0
         )
         {
-            // Special handling for collections - use structural equality not reference equality
-            if (expected is IEnumerable expEnum && actual is IEnumerable actEnum &&
+            // If both are collections (but not strings), use collection comparison logic
+            if (expected is IEnumerable && actual is IEnumerable &&
                 expected is not string && actual is not string)
             {
-                var expList = expEnum.Cast<object?>().ToList();
-                var actList = actEnum.Cast<object?>().ToList();
+                // Try to compare as collections
+                var expList = ((IEnumerable)expected).Cast<object?>().ToList();
+                var actList = ((IEnumerable)actual).Cast<object?>().ToList();
 
                 if (expList.Count == actList.Count && expList.SequenceEqual(actList))
                 {
                     return;
                 }
+                // Fall through to error reporting
             }
             else if (Equals(expected, actual))
             {
@@ -233,10 +236,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
 
+            // Detect if we're comparing collections (but not strings)
+            var isCollectionComparison = expectedValue is IEnumerable && actualValue is IEnumerable &&
+                                         expectedValue is not string && actualValue is not string;
+
             // Header
-            var title = expectEqual
-                            ? "EQUALITY FAILED - VALUES NOT EQUAL"
-                            : "EQUALITY FAILED - VALUES ARE EQUAL";
+            var title = isCollectionComparison
+                            ? (expectEqual
+                                   ? "COLLECTION EQUALITY FAILED - ORDER MATTERS"
+                                   : "COLLECTION EQUALITY FAILED - VALUES ARE EQUAL")
+                            : (expectEqual
+                                   ? "EQUALITY FAILED - VALUES NOT EQUAL"
+                                   : "EQUALITY FAILED - VALUES ARE EQUAL");
 
             AssertOutputHelper.BuildHeader(sb, title, textDecorator);
 
@@ -245,34 +256,103 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     callerLineNumber, textDecorator);
 
             // Problem
-            var problem = expectEqual
-                              ? "Expected values to be equal but they differ."
-                              : "Expected values to be different but they are equal.";
+            var problem = isCollectionComparison
+                              ? (expectEqual
+                                     ? "Expected collections to be equal (same elements in the same order) but they differ."
+                                     : "Expected collections to be different but they are equal.")
+                              : (expectEqual
+                                     ? "Expected values to be equal but they differ."
+                                     : "Expected values to be different but they are equal.");
 
             AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
 
             // Details
             AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
-            sb.AppendLine($"{"Expected",-10} : {expectedName}");
-            sb.AppendLine($"{"Actual",-10} : {actualName}");
-            sb.AppendLine($"{"Type",-10} : {typeof(T).Name}");
-            sb.AppendLine();
-            sb.AppendLine($"{"Expected Value",-15} : {FormatValue(expectedValue)}");
-            sb.AppendLine($"{"Actual Value",-15} : {FormatValue(actualValue)}");
-            sb.AppendLine($"{"Are Equal",-15} : {Equals(expectedValue, actualValue)}");
-            sb.AppendLine();
+
+            if (isCollectionComparison && expectEqual)
+            {
+                // Collection-specific details
+                var expList = ((IEnumerable)expectedValue!).Cast<object?>().ToList();
+                var actList = ((IEnumerable)actualValue!).Cast<object?>().ToList();
+
+                sb.AppendLine($"{"Expected",-15} : {expectedName}");
+                sb.AppendLine($"{"Actual",-15} : {actualName}");
+                sb.AppendLine($"{"Expected Count",-15} : {expList.Count}");
+                sb.AppendLine($"{"Actual Count",-15} : {actList.Count}");
+                sb.AppendLine();
+
+                // Show element comparison
+                var maxDisplay = Math.Min(10, Math.Max(expList.Count, actList.Count));
+
+                if (maxDisplay > 0)
+                {
+                    sb.AppendLine("Element Comparison:");
+                    sb.AppendLine($"{"Index",-8} {"Expected",-30} {"Actual",-30} {"Match",-10}");
+                    sb.AppendLine(new string('-', 78));
+
+                    for (var i = 0; i < maxDisplay; i++)
+                    {
+                        var expectedElem = i < expList.Count ? expList[i]?.ToString() ?? "null" : "<missing>";
+                        var actualElem = i < actList.Count ? actList[i]?.ToString() ?? "null" : "<missing>";
+
+                        var match = i < expList.Count && i < actList.Count &&
+                                    Equals(expList[i], actList[i]);
+
+                        // Truncate long values
+                        if (expectedElem.Length > 25)
+                        {
+                            expectedElem = expectedElem[..25] + "...";
+                        }
+
+                        if (actualElem.Length > 25)
+                        {
+                            actualElem = actualElem[..25] + "...";
+                        }
+
+                        var matchSymbol = match ? "✓" : "✗";
+                        sb.AppendLine($"{i,-8} {expectedElem,-30} {actualElem,-30} {matchSymbol,-10}");
+                    }
+
+                    if (Math.Max(expList.Count, actList.Count) > maxDisplay)
+                    {
+                        sb.AppendLine($"... ({Math.Max(expList.Count, actList.Count) - maxDisplay} more elements)");
+                    }
+                }
+
+                sb.AppendLine();
+            }
+            else
+            {
+                // Standard value details
+                sb.AppendLine($"{"Expected",-10} : {expectedName}");
+                sb.AppendLine($"{"Actual",-10} : {actualName}");
+                sb.AppendLine($"{"Type",-10} : {typeof(T).Name}");
+                sb.AppendLine();
+                sb.AppendLine($"{"Expected Value",-15} : {FormatValue(expectedValue)}");
+                sb.AppendLine($"{"Actual Value",-15} : {FormatValue(actualValue)}");
+                sb.AppendLine($"{"Are Equal",-15} : {Equals(expectedValue, actualValue)}");
+                sb.AppendLine();
+            }
 
             // Context (Why)
             AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
 
             // Fix (How)
-            var additionalOptions = expectEqual
-                                        ? new[]
-                                          {
-                                              $"Verify that '{actualName}' is calculated correctly", $"Check the source of '{actualName}' for incorrect values", $"Ensure '{expectedName}' matches the actual business requirements",
-                                              "Consider if custom equality comparison is needed"
-                                          }
-                                        : new[] { $"Ensure '{actualName}' generates unique values for this scenario", $"Check if '{expectedName}' and '{actualName}' should use different sources", "Verify the logic that differentiates these values" };
+            var additionalOptions = isCollectionComparison
+                                        ? (expectEqual
+                                               ? new[]
+                                                 {
+                                                     $"Verify that '{actualName}' is populated with the correct elements in the correct order", $"Check if the ordering logic for '{actualName}' matches the expected sequence", "Consider using AreEquivalent() if order doesn't matter",
+                                                     "Review the data source or transformation that produces the actual collection"
+                                                 }
+                                               : new[] { $"Ensure '{actualName}' generates unique values for this scenario", $"Check if '{expectedName}' and '{actualName}' should use different sources", "Verify the logic that differentiates these values" })
+                                        : (expectEqual
+                                               ? new[]
+                                                 {
+                                                     $"Verify that '{actualName}' is calculated correctly", $"Check the source of '{actualName}' for incorrect values", $"Ensure '{expectedName}' matches the actual business requirements",
+                                                     "Consider if custom equality comparison is needed"
+                                                 }
+                                               : new[] { $"Ensure '{actualName}' generates unique values for this scenario", $"Check if '{expectedName}' and '{actualName}' should use different sources", "Verify the logic that differentiates these values" });
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

@@ -287,7 +287,7 @@ namespace Core.Test.Numeric
             catch (AssertFailedException ex)
             {
                 // Verify output contains key sections
-                Assert.IsTrue(ex.Message.Contains("RANGE CHECK - VALUE OUT OF RANGE"));
+                Assert.IsTrue(ex.Message.Contains("DATETIME RANGE - VALUE OUT OF RANGE"));
                 Assert.IsTrue(ex.Message.Contains("📦 Test Information"));
                 Assert.IsTrue(ex.Message.Contains("⚠️ Problem"));
                 Assert.IsTrue(ex.Message.Contains("📊 Details"));
