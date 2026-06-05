@@ -652,7 +652,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // Looks like a file reference - must end with .json
-            if (!trimmed.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+            var fileExtension = Path.GetExtension(trimmed);
+            if (fileExtension.IsNotNullOrWhiteSpace())
             {
                 var suggestedFix = $"{trimmed}.json";
                 var errorMessage = BuildMissingJsonExtensionError(trimmed, suggestedFix, callerFilePath, 0);
