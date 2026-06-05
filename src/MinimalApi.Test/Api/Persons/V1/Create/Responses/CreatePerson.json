@@ -14,7 +14,7 @@
       "emails": []
     }
   },
-  "statusCode": "OK",
+  "statusCode": "Created",
   "headers": [],
   "trailingHeaders": [],
   "isSuccessStatusCode": true

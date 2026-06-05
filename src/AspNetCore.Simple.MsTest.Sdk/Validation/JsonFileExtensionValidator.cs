@@ -23,6 +23,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// </summary>
         void ValidatePayloadAndExpectedResult(string payloadAsJson,
                                               string expectedResult,
+                                              bool expectedResultIsPrimitiveType,
                                               string callerFilePath,
                                               int callerLineNumber);
     }
@@ -32,18 +33,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     {
         public void ValidatePayloadAndExpectedResult(string payloadAsJson,
                                                      string expectedResult,
+                                                     bool expectedResultIsPrimitiveType,
                                                      string callerFilePath,
                                                      int callerLineNumber)
         {
             // Validate payload
-            ValidateSingleInput(payloadAsJson, "Payload", callerFilePath, callerLineNumber);
+            ValidateSingleInput(payloadAsJson, "Payload", isPrimitiveType: false, callerFilePath, callerLineNumber);
 
             // Validate expected result
-            ValidateSingleInput(expectedResult, "ExpectedResult", callerFilePath, callerLineNumber);
+            ValidateSingleInput(expectedResult, "ExpectedResult", expectedResultIsPrimitiveType, callerFilePath, callerLineNumber);
         }
 
         private void ValidateSingleInput(string input,
                                          string parameterType,
+                                         bool isPrimitiveType,
                                          string callerFilePath,
                                          int callerLineNumber)
         {
@@ -61,18 +64,67 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 return;
             }
 
-            // Not raw JSON - must end with .json
-            if (!trimmed.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
-            {
-                var suggestedFix = $"{trimmed}.json";
-                var errorMessage = BuildMissingJsonExtensionError(trimmed,
-                                                                  suggestedFix,
-                                                                  parameterType,
-                                                                  callerFilePath,
-                                                                  callerLineNumber);
+            // VALIDATION LOGIC:
+            // - Complex types: ALWAYS require .json (unless raw JSON)
+            // - Primitive types: Allow literal values ONLY if they don't look like file references
 
-                throw new InvalidOperationException(errorMessage);
+            if (isPrimitiveType)
+            {
+                // Primitive type: Allow literal values like "String only" or "42"
+                // But if it looks like a file reference (contains dots/slashes), require .json
+                if (LooksLikeFileReference(trimmed) && !trimmed.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                {
+                    var suggestedFix = $"{trimmed}.json";
+                    var errorMessage = BuildMissingJsonExtensionError(trimmed,
+                                                                      suggestedFix,
+                                                                      parameterType,
+                                                                      callerFilePath,
+                                                                      callerLineNumber);
+                    throw new InvalidOperationException(errorMessage);
+                }
+                // Else: it's a literal value like "String only" - allow it
             }
+            else
+            {
+                // Complex type: MUST have .json extension (we already checked for raw JSON above)
+                if (!trimmed.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                {
+                    var suggestedFix = $"{trimmed}.json";
+                    var errorMessage = BuildMissingJsonExtensionError(trimmed,
+                                                                      suggestedFix,
+                                                                      parameterType,
+                                                                      callerFilePath,
+                                                                      callerLineNumber);
+                    throw new InvalidOperationException(errorMessage);
+                }
+            }
+        }
+
+        private static bool LooksLikeFileReference(string input)
+        {
+            // Contains path separators - definitely a file path
+            if (input.Contains('/') || input.Contains('\\'))
+            {
+                return true;
+            }
+
+            // Contains dots (file extension or dotted path like "Requests.MyPayload")
+            // But exclude simple decimals like "3.14"
+            if (input.Contains('.'))
+            {
+                // If it's a pure number, it's not a file reference
+                if (IsJsonNumber(input))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Contains common file name patterns (PascalCase/camelCase suggesting a filename)
+            // But this is tricky - we don't want false positives
+            // For now, if it contains neither separators nor dots, treat it as a literal value
+            return false;
         }
 
         private string BuildMissingJsonExtensionError(string invalidInput,
@@ -165,7 +217,52 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         private static bool IsRawJson(string input)
         {
             var trimmed = input.TrimStart();
-            return trimmed.StartsWith('{') || trimmed.StartsWith('[');
+
+            // Check for JSON objects and arrays
+            if (trimmed.StartsWith('{') || trimmed.StartsWith('['))
+            {
+                return true;
+            }
+
+            // Check for JSON strings (must start and end with quotes)
+            if (trimmed.StartsWith('"') && trimmed.EndsWith('"') && trimmed.Length >= 2)
+            {
+                return true;
+            }
+
+            // Check for JSON numbers (integers or decimals, positive or negative)
+            if (IsJsonNumber(trimmed))
+            {
+                return true;
+            }
+
+            // Check for JSON booleans and null
+            if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.Equals("false", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.Equals("null", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsJsonNumber(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return false;
+            }
+
+            // Simple check: starts with digit or minus, and contains only valid number characters
+            var firstChar = input[0];
+            if (firstChar != '-' && !char.IsDigit(firstChar))
+            {
+                return false;
+            }
+
+            // Check if it can be parsed as a number
+            return double.TryParse(input, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _);
         }
     }
 }

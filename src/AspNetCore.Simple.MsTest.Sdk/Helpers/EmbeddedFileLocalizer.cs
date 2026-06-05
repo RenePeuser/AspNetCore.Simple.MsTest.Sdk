@@ -644,7 +644,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            // Not raw JSON - must end with .json
+            // Check if it looks like a file reference (contains path separators or dots suggesting a file extension)
+            // If it doesn't look like a file path, assume it's a literal value and skip validation
+            if (!LooksLikeFileReference(trimmed))
+            {
+                return;
+            }
+
+            // Looks like a file reference - must end with .json
             if (!trimmed.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
                 var suggestedFix = $"{trimmed}.json";
@@ -750,7 +757,76 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var trimmed = input.TrimStart();
 
-            return trimmed.StartsWith('{') || trimmed.StartsWith('[');
+            // Check for JSON objects and arrays
+            if (trimmed.StartsWith('{') || trimmed.StartsWith('['))
+            {
+                return true;
+            }
+
+            // Check for JSON strings (must start and end with quotes)
+            if (trimmed.StartsWith('"') && trimmed.EndsWith('"') && trimmed.Length >= 2)
+            {
+                return true;
+            }
+
+            // Check for JSON numbers (integers or decimals, positive or negative)
+            if (IsJsonNumber(trimmed))
+            {
+                return true;
+            }
+
+            // Check for JSON booleans and null
+            if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.Equals("false", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.Equals("null", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool LooksLikeFileReference(string input)
+        {
+            // Contains path separators - definitely a file path
+            if (input.Contains('/') || input.Contains('\\'))
+            {
+                return true;
+            }
+
+            // Contains dots (file extension or dotted path like "Requests.MyPayload")
+            // But exclude simple decimals like "3.14"
+            if (input.Contains('.'))
+            {
+                // If it's a pure number, it's not a file reference
+                if (IsJsonNumber(input))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Contains neither separators nor dots - treat it as a literal value
+            return false;
+        }
+
+        private static bool IsJsonNumber(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return false;
+            }
+
+            // Simple check: starts with digit or minus, and contains only valid number characters
+            var firstChar = input[0];
+            if (firstChar != '-' && !char.IsDigit(firstChar))
+            {
+                return false;
+            }
+
+            // Check if it can be parsed as a number
+            return double.TryParse(input, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _);
         }
     }
 }

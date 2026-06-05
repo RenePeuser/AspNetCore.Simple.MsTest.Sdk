@@ -492,10 +492,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          [CallerMemberName] string callerMemberName = "",
                                                                          [CallerLineNumber] int callerLineNumber = 0)
         {
+            // Determine if the expected result type is primitive (used for validation logic)
+            var targetIsPrimitiveType = typeof(TResult).IsPrimitive || typeof(TResult).EqualsTo(typeof(string));
+
             // EARLY VALIDATION: Check .json extension BEFORE any other processing
             // This provides the best error message with full context and suggested fix
             _jsonFileExtensionValidator.ValidatePayloadAndExpectedResult(payloadAsJson,
                                                                          expectedResult,
+                                                                         targetIsPrimitiveType,
                                                                          callerFilePath,
                                                                          callerLineNumber);
 
@@ -511,8 +515,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // URL parameter replacement - replace placeholders in URL with actual values
             // This is the only preprocessing needed here, all other logic is handled by AssertableHttpClient
             var resolvedUrl = _parameterReplacer.ReplaceInUrl(url, parameters);
-
-            var targetIsPrimitiveType = typeof(TResult).IsPrimitive || typeof(TResult).EqualsTo(typeof(string));
 
             var apiVersion = _apiVersionResolver.Resolve(url, client);
 

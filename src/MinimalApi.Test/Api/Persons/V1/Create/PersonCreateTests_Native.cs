@@ -60,7 +60,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
             return Client.AssertPostAsync<Person>("api/v1/persons",
                                                   "CreatePersonFull.json",
                                                   "CreatePersonFull.json",
-                                                  expectedHttpStatusCode: System.Net.HttpStatusCode.OK);
+                                                  expectedHttpStatusCode: System.Net.HttpStatusCode.Created);
         }
 
         [TestMethod]
@@ -98,7 +98,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                                                   /*lang=json,strict*/
                                                   "{\"Id\":1,\"Name\":\"Son\",\"FirstName\":\"Goku\",\"Age\":99,\"Emails\":[{\"EmailAddress\":\"alf@gmx.de\",\"Type\":\"GMX\"},{\"EmailAddress\":\"abc@hotmail.de\",\"Type\":\"Microsoft\"}]}",
                                                   /*lang=json,strict*/
-                                                  "{\"content\":{\"headers\":[{\"key\":\"Content-Type\",\"value\":[\"application/json; charset=utf-8\"]}],\"value\":{\"id\":1,\"name\":\"Son\",\"firstName\":\"Goku\",\"age\":99,\"emails\":[{\"emailAddress\":\"alf@gmx.de\",\"type\":\"GMX\"},{\"emailAddress\":\"abc@hotmail.de\",\"type\":\"Microsoft\"}]}},\"statusCode\":\"OK\",\"headers\":[],\"trailingHeaders\":[],\"isSuccessStatusCode\":true}");
+                                                  "{\"content\":{\"headers\":[{\"key\":\"Content-Type\",\"value\":[\"application/json; charset=utf-8\"]}],\"value\":{\"id\":1,\"name\":\"Son\",\"firstName\":\"Goku\",\"age\":99,\"emails\":[{\"emailAddress\":\"alf@gmx.de\",\"type\":\"GMX\"},{\"emailAddress\":\"abc@hotmail.de\",\"type\":\"Microsoft\"}]}},\"statusCode\":\"Created\",\"headers\":[],\"trailingHeaders\":[],\"isSuccessStatusCode\":true}");
         }
     }
 }
