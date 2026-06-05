@@ -1,11 +1,7 @@
 using System.Collections.Immutable;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 using Extensions.Pack;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -45,7 +41,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var result = await client.SendAsync(request).ConfigureAwait(false);
             var content = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode, $"Option call to {request.RequestUri?.AbsoluteUri} was not successful. ErrorCode: {result.StatusCode}. Pleae check if your Option-Middleware and your [HttpOptions] attribute was set on your controller for the route: {request.RequestUri!.AbsoluteUri}");
+            Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode,
+                            $"Option call to {request.RequestUri?.AbsoluteUri} was not successful. ErrorCode: {result.StatusCode}. Pleae check if your Option-Middleware and your [HttpOptions] attribute was set on your controller for the route: {request.RequestUri!.AbsoluteUri}");
+
             Assert.IsTrue(content.IsNullOrWhiteSpace(), "Content of options call should be null or empty");
 
             var headers = result.Headers.ToDictionary(item => item.Key, item => item.Value);

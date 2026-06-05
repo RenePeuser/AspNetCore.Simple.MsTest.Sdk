@@ -30,12 +30,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         private readonly Dictionary<string, string> _headers = new();
 
-        internal HttpRequestBuilder(
-            HttpClient client,
-            HttpMethod method,
-            string url,
-            Assembly callingAssembly,
-            string callerFilePath)
+        internal HttpRequestBuilder(HttpClient client,
+                                    HttpMethod method,
+                                    string url,
+                                    Assembly callingAssembly,
+                                    string callerFilePath)
         {
             _client = client;
             _method = method;
@@ -133,7 +132,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                              _body,
                                              _parameters,
                                              _headers,
-                                             expectedStatusCodes: new[] { HttpStatusCode.NoContent });
+                                             expectedStatusCodes: new[]
+                                             {
+                                                 HttpStatusCode.NoContent
+                                             });
         }
 
         public IHttpStatusAssertable ExpectError(HttpStatusCode code)
@@ -144,7 +146,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                              _body,
                                              _parameters,
                                              _headers,
-                                             expectedStatusCodes: new[] { code });
+                                             expectedStatusCodes: new[]
+                                             {
+                                                 code
+                                             });
         }
     }
 }

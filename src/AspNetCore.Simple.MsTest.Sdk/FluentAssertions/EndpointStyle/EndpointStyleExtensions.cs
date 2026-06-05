@@ -53,9 +53,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle
         /// <param name="config">Request configuration</param>
         /// <param name="body">Request body object</param>
         /// <returns>Configuration builder for further setup</returns>
-        public static IHttpRequestConfiguring Accepts<T>(
-            this IHttpRequestConfiguring config,
-            T body)
+        public static IHttpRequestConfiguring Accepts<T>(this IHttpRequestConfiguring config,
+                                                         T body)
         {
             return config.WithBody(body);
         }
@@ -73,10 +72,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle
         /// Content-Type is currently informational only. The request always sends JSON.
         /// Future versions may validate the Content-Type header.
         /// </remarks>
-        public static IHttpRequestConfiguring Accepts<T>(
-            this IHttpRequestConfiguring config,
-            string contentType,
-            T body)
+        public static IHttpRequestConfiguring Accepts<T>(this IHttpRequestConfiguring config,
+                                                         string contentType,
+                                                         T body)
         {
             // TODO: In future, could validate/set Content-Type header
             return config.WithBody(body);
@@ -89,9 +87,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle
         /// <param name="config">Request configuration</param>
         /// <param name="bodyJson">JSON string representing the request body</param>
         /// <returns>Configuration builder for further setup</returns>
-        public static IHttpRequestConfiguring Accepts(
-            this IHttpRequestConfiguring config,
-            string bodyJson)
+        public static IHttpRequestConfiguring Accepts(this IHttpRequestConfiguring config,
+                                                      string bodyJson)
         {
             return config.WithBody(bodyJson);
         }
@@ -116,8 +113,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle
         ///     .Produces(StatusCodes.Status201Created, "Expected.json");
         /// </code>
         /// </example>
-        public static IHttpResponseConfiguring<TResult> WithResponseType<TResult>(
-            this IHttpRequestConfiguring config)
+        public static IHttpResponseConfiguring<TResult> WithResponseType<TResult>(this IHttpRequestConfiguring config)
         {
             // Use empty string as placeholder - will be replaced by Produces()
             return config.WithResponse<TResult>(string.Empty);
@@ -136,9 +132,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle
         /// <param name="config">Request configuration</param>
         /// <param name="expectedJson">JSON string or embedded resource path for expected response</param>
         /// <returns>Response configuration builder</returns>
-        public static IHttpResponseConfiguring<TResult> Produces<TResult>(
-            this IHttpRequestConfiguring config,
-            string expectedJson)
+        public static IHttpResponseConfiguring<TResult> Produces<TResult>(this IHttpRequestConfiguring config,
+                                                                          string expectedJson)
         {
             return config.WithResponse<TResult>(expectedJson);
         }
@@ -155,10 +150,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle
         /// <remarks>
         /// Content-Type is currently informational only. Future versions may validate it.
         /// </remarks>
-        public static IHttpResponseConfiguring<TResult> Produces<TResult>(
-            this IHttpRequestConfiguring config,
-            string contentType,
-            string expectedJson)
+        public static IHttpResponseConfiguring<TResult> Produces<TResult>(this IHttpRequestConfiguring config,
+                                                                          string contentType,
+                                                                          string expectedJson)
         {
             // TODO: In future, could validate Content-Type header
             return config.WithResponse<TResult>(expectedJson);
@@ -194,10 +188,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle
         ///     .Produces(StatusCodes.Status201Created, "Expected.json");
         /// </code>
         /// </example>
-        public static Task<TResult> Produces<TResult>(
-            this IHttpResponseConfiguring<TResult> config,
-            int statusCode,
-            string expectedJson)
+        public static Task<TResult> Produces<TResult>(this IHttpResponseConfiguring<TResult> config,
+                                                      int statusCode,
+                                                      string expectedJson)
         {
             // Cast to concrete builder and use internal method
             if (config is HttpResponseBuilder<TResult> builder)

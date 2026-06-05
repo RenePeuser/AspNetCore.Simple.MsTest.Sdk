@@ -186,13 +186,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
-            var columns = new[] { "Key", "Value" };
+            var columns = new[]
+            {
+                "Key",
+                "Value"
+            };
+
             var rows = new List<object[]>();
 
             foreach (var kvp in extensions.OrderBy(e => e.Key))
             {
                 var value = kvp.Value?.ToString() ?? "null";
-                rows.Add(new object[] { kvp.Key, value });
+
+                rows.Add(new object[]
+                {
+                    kvp.Key,
+                    value
+                });
             }
 
             var table = tableBuilder.BuildTable(columns, rows, enableCount: false);

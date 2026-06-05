@@ -41,7 +41,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             if (context.SkipEndpointValidation ||
                 HttpClientAssertExtensions.SkipEndpointValidation)
             {
-                HttpClientAssertExtensions.LogAction($"Endpoint validation skipped for this test. Context.SkipEndpointValidation: {context.SkipEndpointValidation}, HttpClientAssertExtensions.SkipEndpointValidation: {HttpClientAssertExtensions.SkipEndpointValidation}");
+                HttpClientAssertExtensions
+                    .LogAction($"Endpoint validation skipped for this test. Context.SkipEndpointValidation: {context.SkipEndpointValidation}, HttpClientAssertExtensions.SkipEndpointValidation: {HttpClientAssertExtensions.SkipEndpointValidation}");
 
                 return;
             }
@@ -274,9 +275,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// <param name="responseTypes">All response types by status code</param>
         /// <param name="isSuccessTest">True for success tests (2xx), false for error tests (4xx/5xx)</param>
         /// <returns>Filtered response types</returns>
-        private static ImmutableDictionary<int, Type> GetRelevantStatusCodes(
-            ImmutableDictionary<int, Type> responseTypes,
-            bool isSuccessTest)
+        private static ImmutableDictionary<int, Type> GetRelevantStatusCodes(ImmutableDictionary<int, Type> responseTypes,
+                                                                             bool isSuccessTest)
         {
             if (!responseTypes.Any())
             {
@@ -297,10 +297,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                    .ToImmutableDictionary();
         }
 
-        private static ImmutableDictionary<int, Type> GetStatusCodesToCheck(
-            ImmutableDictionary<int, Type> responseTypes,
-            bool isSuccessTest,
-            int? expectedHttpStatusCode)
+        private static ImmutableDictionary<int, Type> GetStatusCodesToCheck(ImmutableDictionary<int, Type> responseTypes,
+                                                                            bool isSuccessTest,
+                                                                            int? expectedHttpStatusCode)
         {
             if (expectedHttpStatusCode.HasValue && responseTypes.TryGetValue(expectedHttpStatusCode.Value, out var responseType))
             {

@@ -49,7 +49,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
             // If assembly name found in path, extract everything after it (excluding the filename)
             if (assemblyIndex >= 0 && assemblyIndex < pathParts.Length - 1)
             {
-                var namespaceParts = new List<string> { assemblyName };
+                var namespaceParts = new List<string>
+                {
+                    assemblyName
+                };
 
                 // Add path segments between assembly folder and file (these become namespace parts)
                 for (var i = assemblyIndex + 1; i < pathParts.Length - 1; i++)

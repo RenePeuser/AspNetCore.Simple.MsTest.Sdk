@@ -32,14 +32,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         private readonly HttpStatusCode[]? _expectedStatusCodes;
 
-        internal HttpStatusOnlyBuilder(
-            HttpClient client,
-            HttpMethod method,
-            string url,
-            string? body,
-            List<(string Key, object? Value)> parameters,
-            Dictionary<string, string> headers,
-            HttpStatusCode[]? expectedStatusCodes)
+        internal HttpStatusOnlyBuilder(HttpClient client,
+                                       HttpMethod method,
+                                       string url,
+                                       string? body,
+                                       List<(string Key, object? Value)> parameters,
+                                       Dictionary<string, string> headers,
+                                       HttpStatusCode[]? expectedStatusCodes)
         {
             _client = client;
             _method = method;
@@ -138,14 +137,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                         string actual)
         {
             var data = new[]
-                       {
-                           new
-                           {
-                               Request = $"{_method.Method} {_url}",
-                               Expected = expected,
-                               Actual = actual
-                           }
-                       };
+            {
+                new
+                {
+                    Request = $"{_method.Method} {_url}",
+                    Expected = expected,
+                    Actual = actual
+                }
+            };
 
             var table = TableFormatter.From(data);
 

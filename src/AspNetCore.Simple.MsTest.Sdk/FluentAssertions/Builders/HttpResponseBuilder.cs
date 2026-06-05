@@ -46,16 +46,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         private bool _writeSnapshot;
 
-        internal HttpResponseBuilder(
-            HttpClient client,
-            HttpMethod method,
-            string url,
-            string? body,
-            List<(string Key, object? Value)> requestParameters,
-            Dictionary<string, string> headers,
-            Assembly callingAssembly,
-            string callerFilePath,
-            string expectedJson)
+        internal HttpResponseBuilder(HttpClient client,
+                                     HttpMethod method,
+                                     string url,
+                                     string? body,
+                                     List<(string Key, object? Value)> requestParameters,
+                                     Dictionary<string, string> headers,
+                                     Assembly callingAssembly,
+                                     string callerFilePath,
+                                     string expectedJson)
         {
             _client = client;
             _method = method;
@@ -79,8 +78,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             return this;
         }
 
-        public IHttpResponseConfiguring<TResult> IgnoreDifferences(
-            Func<ImmutableList<Difference>, IEnumerable<Difference>> filter)
+        public IHttpResponseConfiguring<TResult> IgnoreDifferences(Func<ImmutableList<Difference>, IEnumerable<Difference>> filter)
         {
             _differenceFunc = filter;
 
@@ -130,12 +128,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         public Task<TResult> ExpectStatus(HttpStatusCode code)
         {
-            return ExecuteWithAssertionAsync(expectedStatusCodes: new[] { code });
+            return ExecuteWithAssertionAsync(expectedStatusCodes: new[]
+            {
+                code
+            });
         }
 
         public Task<TResult> ExpectError(HttpStatusCode code)
         {
-            return ExecuteWithAssertionAsync(expectedStatusCodes: new[] { code });
+            return ExecuteWithAssertionAsync(expectedStatusCodes: new[]
+            {
+                code
+            });
         }
 
         // ============================================================

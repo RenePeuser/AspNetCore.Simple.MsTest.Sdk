@@ -38,9 +38,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public string RequestFolderName { get; init; } = "Requests";
 
-        public string[] LegacyResponseFolderNames { get; init; } = ["Result", "Response", "Results", "Output"];
+        public string[] LegacyResponseFolderNames { get; init; } =
+            [
+                "Result",
+                "Response",
+                "Results",
+                "Output"
+            ];
 
-        public string[] LegacyRequestFolderName { get; init; } = ["Payloads", "Payload", "Requests", "Request"];
+        public string[] LegacyRequestFolderName { get; init; } =
+            [
+                "Payloads",
+                "Payload",
+                "Requests",
+                "Request"
+            ];
     }
 #pragma warning restore CA1819 // Properties should not return arrays
 

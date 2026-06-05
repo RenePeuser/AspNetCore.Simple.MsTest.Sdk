@@ -61,10 +61,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Build columns
             var columns = new[]
-                          {
-                              "MemberPath", responseFileName, "CurrentResult",
-                              "MismatchType"
-                          };
+            {
+                "MemberPath",
+                responseFileName,
+                "CurrentResult",
+                "MismatchType"
+            };
 
             // Build data rows
             var rows = new List<object[]>();
@@ -83,10 +85,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 var objects = new object[]
-                              {
-                                  difference.MemberPath, value1, value2,
-                                  difference.MismatchType.ToString()
-                              };
+                {
+                    difference.MemberPath,
+                    value1,
+                    value2,
+                    difference.MismatchType.ToString()
+                };
 
                 rows.Add(objects);
             }
@@ -114,10 +118,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Build columns
             var columns = new[]
-                          {
-                              "MemberPath", expectedName, "Current",
-                              "MismatchType"
-                          };
+            {
+                "MemberPath",
+                expectedName,
+                "Current",
+                "MismatchType"
+            };
 
             // Build data rows with character-level diff
             var rows = new List<object[]>();
@@ -136,10 +142,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 rows.Add(new object[]
-                         {
-                             difference.MemberPath ?? "N/A", value1, value2,
-                             difference.MismatchType.ToString()
-                         });
+                {
+                    difference.MemberPath ?? "N/A",
+                    value1,
+                    value2,
+                    difference.MismatchType.ToString()
+                });
             }
 
             // Build table
@@ -210,12 +218,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     var value2 = currentLength == 0 ? "[] (0 items)" : $"[{currentLength} item(s)]";
 
                     consolidated.Add(new Difference
-                                     {
-                                         MemberPath = arrayPath,
-                                         Value1 = value1,
-                                         Value2 = value2,
-                                         MismatchType = mismatchType
-                                     });
+                    {
+                        MemberPath = arrayPath,
+                        Value1 = value1,
+                        Value2 = value2,
+                        MismatchType = mismatchType
+                    });
                 }
                 else
                 {
@@ -251,9 +259,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Calculates actual array lengths from differences.
         /// Uses min and max indices to determine where arrays diverge.
         /// </summary>
-        private static (int expectedLength, int currentLength) CalculateArrayLengths(
-            List<Difference> arrayDiffs,
-            bool allMissingInFirst)
+        private static (int expectedLength, int currentLength) CalculateArrayLengths(List<Difference> arrayDiffs,
+                                                                                     bool allMissingInFirst)
         {
             if (arrayDiffs.Count == 0)
             {

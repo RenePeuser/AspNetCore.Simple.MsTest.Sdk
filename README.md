@@ -1,4 +1,4 @@
-﻿# `AspNetCore.Simple.MsTest.Sdk`
+# `AspNetCore.Simple.MsTest.Sdk`
 
 [![NuGet](https://img.shields.io/badge/nuget-AspNetCore.Simple.MsTest.Sdk-blue)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk)
 [![.NET 10](https://img.shields.io/badge/.NET-10-purple)](https://dotnet.microsoft.com/)
@@ -55,7 +55,7 @@ public abstract class ApiTestBase
         Client = _apiTestBase.CreateClient();
 
         // IMPORTANT: Required to make all HttpClientAssertExtensions 100% functional
-        HttpClientAssertExtensions.Setup(_apiTestBase.Services);
+        HHttpClientAssertExtensions.Setup(_apiTestBase.Services);
     }
 
     protected static HttpClient Client { get; private set; } = null!;

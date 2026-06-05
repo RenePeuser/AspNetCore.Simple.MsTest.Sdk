@@ -33,10 +33,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     internal sealed class ApiVersionResolver : IApiVersionResolver
     {
         // Common API version header names
-        private static readonly string[] VersionHeaderNames = ["api-version", "x-api-version", "version"];
+        private static readonly string[] VersionHeaderNames =
+        [
+            "api-version",
+            "x-api-version",
+            "version"
+        ];
 
         // Common query string parameter names
-        private static readonly string[] VersionQueryNames = ["api-version", "version", "v"];
+        private static readonly string[] VersionQueryNames =
+        [
+            "api-version",
+            "version",
+            "v"
+        ];
 
         public string? Resolve(string url,
                                HttpClient httpClient)

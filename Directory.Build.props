@@ -8,7 +8,7 @@
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
 
         <!-- AnalysisLevel
-         Uses the analyzer rule set version shipped with the targeted .NET SDK.
+         Uses the analyzer rule set version shipped with the targeted .NET SDK
          Ensures new analyzer rules and improvements are applied automatically
          without manual configuration changes. -->
         <AnalysisLevel>10.0</AnalysisLevel>

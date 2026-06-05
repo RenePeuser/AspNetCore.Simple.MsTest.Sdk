@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Extensions.Pack;
@@ -82,6 +81,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         /// <summary>
         /// Normalizes JSON to single-line format (removes indentation and newlines).
+        /// Also normalizes line endings within string values (\r\n -> \n).
         /// </summary>
         private static string NormalizeJsonToSingleLine(string json)
         {
@@ -92,13 +92,57 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             try
             {
-                return Newtonsoft.Json.Linq.JToken.Parse(json).ToString(Newtonsoft.Json.Formatting.None);
+                var token = Newtonsoft.Json.Linq.JToken.Parse(json);
+                NormalizeLineEndings(token);
+
+                return token.ToString(Newtonsoft.Json.Formatting.None);
             }
 #pragma warning disable CA1031
             catch (Exception)
 #pragma warning restore CA1031
             {
                 return json;
+            }
+        }
+
+        /// <summary>
+        /// Recursively normalizes line endings in all string values within a JSON token tree.
+        /// Converts \r\n to \n for cross-platform consistency.
+        /// </summary>
+        private static void NormalizeLineEndings(Newtonsoft.Json.Linq.JToken token)
+        {
+            switch (token.Type)
+            {
+                case Newtonsoft.Json.Linq.JTokenType.String:
+                    {
+                        var stringValue = token.ToObject<string>();
+
+                        if (stringValue.IsNotNullOrWhiteSpace() && stringValue.Contains("\r\n"))
+                        {
+                            var jValue = (Newtonsoft.Json.Linq.JValue)token;
+                            jValue.Value = stringValue.Replace("\r\n", "\n");
+                        }
+
+                        break;
+                    }
+                case Newtonsoft.Json.Linq.JTokenType.Object:
+                    {
+                        foreach (var property in ((Newtonsoft.Json.Linq.JObject)token).Properties())
+                        {
+                            NormalizeLineEndings(property.Value);
+                        }
+
+                        break;
+                    }
+                case Newtonsoft.Json.Linq.JTokenType.Array:
+                    {
+                        foreach (var item in (Newtonsoft.Json.Linq.JArray)token)
+                        {
+                            NormalizeLineEndings(item);
+                        }
+
+                        break;
+                    }
             }
         }
     }
