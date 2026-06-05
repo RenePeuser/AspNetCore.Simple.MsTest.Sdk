@@ -11,6 +11,7 @@ using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
+using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -42,7 +43,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
-        private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions);
+        private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions, new PlainTextDecorator(), new SourceCodeExtractor());
 
         private static readonly Serializer.Json.JsonSerializer JsonSerializer = new(JsonSerializerOptions);
 

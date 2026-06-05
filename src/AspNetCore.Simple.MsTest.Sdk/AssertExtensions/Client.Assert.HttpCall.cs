@@ -132,6 +132,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
 
+            // 8.1. Create JSON file extension validator
+            _jsonFileExtensionValidator = new JsonFileExtensionValidator(_sourceCodeExtractor, _textDecorator);
+
             // 9. Resolve error handling strategy
             _testErrorHandlingStrategy = serviceProvider.GetRequiredService<ITestErrorHandlingStrategy>();
 
@@ -191,7 +194,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Converters = { new JsonStringEnumConverter() }
         };
 
-        private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions);
+        private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions, new PlainTextDecorator(), new SourceCodeExtractor());
 
         private static JsonSerializer _jsonSerializerInstance = new(JsonSerializerOptions);
 
@@ -289,6 +292,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                                                                _sourceCodeExtractor, _plainTextDecorator);
 
         private static IEndpointValidator _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
+
+        private static JsonFileExtensionValidator _jsonFileExtensionValidator = new JsonFileExtensionValidator(_sourceCodeExtractor, _plainTextDecorator);
 
         // Error handling strategy - will be properly initialized in Setup()
         // Default implementation for static initialization
@@ -487,6 +492,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          [CallerMemberName] string callerMemberName = "",
                                                                          [CallerLineNumber] int callerLineNumber = 0)
         {
+            // EARLY VALIDATION: Check .json extension BEFORE any other processing
+            // This provides the best error message with full context and suggested fix
+            _jsonFileExtensionValidator.ValidatePayloadAndExpectedResult(payloadAsJson,
+                                                                         expectedResult,
+                                                                         callerFilePath,
+                                                                         callerLineNumber);
+
             // Resolve embedded files once here - this avoids duplicate resolution later in the pipeline
             var payloadFile = _embeddedFileLocalizer.LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
             var expectedResultFile = _embeddedFileLocalizer.LocalizeResponseFile(expectedResult, callerFilePath, callingAssembly);

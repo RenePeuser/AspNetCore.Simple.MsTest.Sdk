@@ -5,7 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
+using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     IConfiguration configuration)
         {
             services.AddTestCreatorSettings(configuration);
+            services.AddSourceCodeExtractor();
 
             services.AddSingletonIfNotExists<IEmbeddedFileLocalizer, EmbeddedFileLocalizer>();
         }
@@ -83,7 +87,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
     }
 
     internal sealed class EmbeddedFileLocalizer(TestCreatorSettings settings,
-                                                JsonSerializerOptions jsonSerializerOptions)
+                                                JsonSerializerOptions jsonSerializerOptions,
+                                                ITextDecorator textDecorator,
+                                                ISourceCodeExtractor sourceCodeExtractor)
         : IEmbeddedFileLocalizer
     {
         // ============================================================
@@ -229,6 +235,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 return new(input, input, null);
             }
+
+            // Validate that file references have .json extension
+            ValidateJsonFileExtension(input, callerFilePath);
 
             var allowedSet = allowedFolders
                              .Where(f => !string.IsNullOrWhiteSpace(f))
@@ -610,6 +619,132 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // ============================================================
         // Validation Helpers
         // ============================================================
+
+        /// <summary>
+        /// Validates that a file reference has a .json extension.
+        /// Rule: If the input is NOT raw JSON, it MUST end with .json
+        /// </summary>
+        /// <param name="input">The input string to validate</param>
+        /// <param name="callerFilePath">The caller file path for error reporting</param>
+        /// <exception cref="InvalidOperationException">Thrown when input is not raw JSON and doesn't end with .json</exception>
+        private void ValidateJsonFileExtension(string input,
+                                              string callerFilePath)
+        {
+            var trimmed = input.Trim().Trim('"');
+
+            // Skip validation if empty
+            if (string.IsNullOrWhiteSpace(trimmed))
+            {
+                return;
+            }
+
+            // Check if it's raw JSON - if yes, validation passes
+            if (IsRawJson(trimmed))
+            {
+                return;
+            }
+
+            // Not raw JSON - must end with .json
+            if (!trimmed.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+            {
+                var suggestedFix = $"{trimmed}.json";
+                var errorMessage = BuildMissingJsonExtensionError(trimmed, suggestedFix, callerFilePath, 0);
+
+                throw new InvalidOperationException(errorMessage);
+            }
+        }
+
+        /// <summary>
+        /// Builds a formatted error message for missing .json extension with suggested fix.
+        /// </summary>
+        private string BuildMissingJsonExtensionError(string invalidInput,
+                                                      string suggestedFix,
+                                                      string callerFilePath,
+                                                      int callerLineNumber)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine(textDecorator.Error("❌ INVALID FILE REFERENCE: MISSING .json EXTENSION"));
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine();
+
+            // File Information (only if we have line number)
+            if (callerLineNumber > 0 && callerFilePath.IsNotNullOrWhiteSpace())
+            {
+                sb.AppendLine(textDecorator.SectionTitle("📦 File Information"));
+                sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+                sb.AppendLine();
+                var fileUri = $"file:///{callerFilePath.Replace('\\', '/')}:{callerLineNumber}";
+                sb.AppendLine($"{"File",-10} : {fileUri}");
+                sb.AppendLine($"{"Line",-10} : {callerLineNumber}");
+                sb.AppendLine();
+            }
+
+            // Failure Details
+            sb.AppendLine(textDecorator.SectionTitle("⚠️ Problem"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine("File references for payloads and expected responses must end with " + textDecorator.Success(".json"));
+            sb.AppendLine();
+            sb.AppendLine($"You provided: {textDecorator.Error($"\"{invalidInput}\"")}");
+            sb.AppendLine($"Expected:     {textDecorator.Success($"\"{suggestedFix}\"")}");
+            sb.AppendLine();
+
+            // What's Valid
+            sb.AppendLine(textDecorator.SectionTitle("✅ Valid Inputs"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Success("  • File reference:  \"MyPayload.json\""));
+            sb.AppendLine(textDecorator.Success("  • Dotted path:     \"Requests.MyPayload.json\""));
+            sb.AppendLine(textDecorator.Success("  • Inline JSON:     \"{}\" or \"[]\""));
+            sb.AppendLine();
+
+            // What's Invalid
+            sb.AppendLine(textDecorator.SectionTitle("❌ Invalid Inputs"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Error("  • Missing .json:   \"MyPayload\""));
+            sb.AppendLine(textDecorator.Error("  • Missing .json:   \"Requests.MyPayload\""));
+            sb.AppendLine();
+
+            // Assert Call - Original source code (only if line number is available)
+            if (callerLineNumber > 0 && callerFilePath.IsNotNullOrWhiteSpace())
+            {
+                var sourceCode = sourceCodeExtractor.ExtractCallCode(callerFilePath, callerLineNumber);
+
+                if (sourceCode.IsNotNullOrWhiteSpace())
+                {
+                    sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+                    sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+                    sb.AppendLine();
+                    sb.AppendLine(sourceCode);
+                    sb.AppendLine();
+
+                    // Suggested Fix - Generate corrected code
+                    var suggestedFixCode = sourceCode.Replace($"\"{invalidInput}\"", $"\"{suggestedFix}\"");
+
+                    sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                    sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+                    sb.AppendLine();
+                    sb.AppendLine(textDecorator.Success(suggestedFixCode));
+                    sb.AppendLine();
+                }
+            }
+            else
+            {
+                // Fallback if no source code is available
+                sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+                sb.AppendLine();
+                sb.AppendLine($"Change {textDecorator.Error($"\"{invalidInput}\"")} to {textDecorator.Success($"\"{suggestedFix}\"")}");
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+        }
 
         private static bool IsRawJson(string input)
         {
