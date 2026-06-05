@@ -38,10 +38,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                                      int callerLineNumber)
         {
             // Validate payload
-            ValidateSingleInput(payloadAsJson, "Payload", isPrimitiveType: false, callerFilePath, callerLineNumber);
+            ValidateSingleInput(payloadAsJson, "Payload", isPrimitiveType: false,
+                                callerFilePath, callerLineNumber);
 
             // Validate expected result
-            ValidateSingleInput(expectedResult, "ExpectedResult", expectedResultIsPrimitiveType, callerFilePath, callerLineNumber);
+            ValidateSingleInput(expectedResult, "ExpectedResult", expectedResultIsPrimitiveType,
+                                callerFilePath, callerLineNumber);
         }
 
         private void ValidateSingleInput(string input,
@@ -75,13 +77,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 if (LooksLikeFileReference(trimmed) && !trimmed.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                 {
                     var suggestedFix = $"{trimmed}.json";
+
                     var errorMessage = BuildMissingJsonExtensionError(trimmed,
                                                                       suggestedFix,
                                                                       parameterType,
                                                                       callerFilePath,
                                                                       callerLineNumber);
+
                     throw new InvalidOperationException(errorMessage);
                 }
+
                 // Else: it's a literal value like "String only" - allow it
             }
             else
@@ -90,11 +95,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 if (!trimmed.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                 {
                     var suggestedFix = $"{trimmed}.json";
+
                     var errorMessage = BuildMissingJsonExtensionError(trimmed,
                                                                       suggestedFix,
                                                                       parameterType,
                                                                       callerFilePath,
                                                                       callerLineNumber);
+
                     throw new InvalidOperationException(errorMessage);
                 }
             }
@@ -256,13 +263,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             // Simple check: starts with digit or minus, and contains only valid number characters
             var firstChar = input[0];
+
             if (firstChar != '-' && !char.IsDigit(firstChar))
             {
                 return false;
             }
 
             // Check if it can be parsed as a number
-            return double.TryParse(input, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _);
+            return double.TryParse(input, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture,
+                                   out _);
         }
     }
 }

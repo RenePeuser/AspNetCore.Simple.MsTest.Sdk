@@ -60,6 +60,7 @@
     <ItemGroup>
       <Folder Include="ErrorHandling\" />
       <Folder Include="FluentAssertions\" />
+      <Folder Include="AssertExtensions\" />
     </ItemGroup>
 
     <!-- Make internal classes visible to test projects -->

@@ -7,7 +7,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// Provides assertion methods with cleaner output compared to standard Assert.Fail().
     /// Throws AssertFailedException directly without the "Assert.Fail failed." prefix.
     /// </summary>
-    public static class AssertThat
+    public static partial class AssertThat
     {
         /// <summary>
         /// Fails the test with the specified message.

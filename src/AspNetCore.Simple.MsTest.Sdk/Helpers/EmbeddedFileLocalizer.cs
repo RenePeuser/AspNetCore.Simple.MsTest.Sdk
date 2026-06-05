@@ -628,7 +628,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="callerFilePath">The caller file path for error reporting</param>
         /// <exception cref="InvalidOperationException">Thrown when input is not raw JSON and doesn't end with .json</exception>
         private void ValidateJsonFileExtension(string input,
-                                              string callerFilePath)
+                                               string callerFilePath)
         {
             var trimmed = input.Trim().Trim('"');
 
@@ -653,10 +653,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Looks like a file reference - must end with .json
             var fileExtension = Path.GetExtension(trimmed);
+
             if (fileExtension.IsNullOrWhiteSpace())
             {
                 var suggestedFix = $"{trimmed}.json";
-                var errorMessage = BuildMissingJsonExtensionError(trimmed, suggestedFix, callerFilePath, 0);
+
+                var errorMessage = BuildMissingJsonExtensionError(trimmed, suggestedFix, callerFilePath,
+                                                                  0);
 
                 throw new InvalidOperationException(errorMessage);
             }
@@ -821,13 +824,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Simple check: starts with digit or minus, and contains only valid number characters
             var firstChar = input[0];
+
             if (firstChar != '-' && !char.IsDigit(firstChar))
             {
                 return false;
             }
 
             // Check if it can be parsed as a number
-            return double.TryParse(input, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _);
+            return double.TryParse(input, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture,
+                                   out _);
         }
     }
 }
