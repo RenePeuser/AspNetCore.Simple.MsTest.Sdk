@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
@@ -39,7 +41,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                        [CallerLineNumber] int callerLineNumber = 0
         )
         {
-            if (Equals(expected, actual))
+            // Special handling for collections - use structural equality not reference equality
+            if (expected is IEnumerable expEnum && actual is IEnumerable actEnum &&
+                expected is not string && actual is not string)
+            {
+                var expList = expEnum.Cast<object?>().ToList();
+                var actList = actEnum.Cast<object?>().ToList();
+
+                if (expList.Count == actList.Count && expList.SequenceEqual(actList))
+                {
+                    return;
+                }
+            }
+            else if (Equals(expected, actual))
             {
                 return;
             }

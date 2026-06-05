@@ -94,7 +94,8 @@ namespace Core.Test.String
             // Act & Assert - Should NOT throw
             Assert.That.Contains(text, "HELLO",
                                  because: "Testing case-insensitive comparison",
-                                 fix: "N/A - this should pass");
+                                 fix: "N/A - this should pass",
+                                 comparison: StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]

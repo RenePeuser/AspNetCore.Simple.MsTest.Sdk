@@ -275,7 +275,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var sb = new StringBuilder();
 
             // Header
-            AssertOutputHelper.BuildHeader(sb, "DATETIME RANGE - VALUE OUT OF RANGE", textDecorator);
+            AssertOutputHelper.BuildHeader(sb, "RANGE CHECK - VALUE OUT OF RANGE", textDecorator);
 
             // Test Information
             AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
