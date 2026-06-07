@@ -424,8 +424,10 @@ namespace Core.Test.DateTimeOffsetAssertions
         [TestMethod]
         public void IsUtc_WhenFails_ShouldHaveBeautifulOutput()
         {
-            // Arrange
-            var timestamp = DateTimeOffset.Now;
+            // Arrange - Use explicit non-UTC offset (works on all systems)
+            var timestamp = new DateTimeOffset(2026, 6, 5,
+                                                      12, 0, 0,
+                                                      TimeSpan.FromHours(2));
 
             // Act
             try
@@ -470,35 +472,17 @@ namespace Core.Test.DateTimeOffsetAssertions
         }
 
         [TestMethod]
-        public void IsLocal_WhenOffsetIsUtc_ShouldFail()
-        {
-            // Arrange
-            var actual = DateTimeOffset.UtcNow;
-            var threw = false;
-
-            // Act
-            try
-            {
-                Assert.That.IsLocal(actual,
-                                    because: "Testing that UTC DateTimeOffset fails IsLocal check",
-                                    fix: "This is expected to fail");
-            }
-            catch (AssertFailedException)
-            {
-                threw = true;
-            }
-
-            // Assert
-            Assert.IsTrue(threw, "Expected AssertFailedException to be thrown");
-        }
-
-        [TestMethod]
         public void IsLocal_WhenOffsetIsDifferent_ShouldFail()
         {
-            // Arrange
+            // Arrange - Create an offset that's definitely not the local offset
+            var localOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+            var differentOffset = localOffset == TimeSpan.FromHours(5)
+                                      ? TimeSpan.FromHours(10)
+                                      : TimeSpan.FromHours(5);
+
             var actual = new DateTimeOffset(2026, 6, 5,
                                                    12, 0, 0,
-                                                   TimeSpan.FromHours(10)); // Some offset that's likely not local
+                                                   differentOffset);
 
             var threw = false;
 
@@ -576,6 +560,33 @@ namespace Core.Test.DateTimeOffsetAssertions
             Assert.That.IsAfter(actual, expected,
                                 because: "Testing that timezone-aware comparison works correctly",
                                 fix: "N/A - this should pass");
+        }
+
+        [TestMethod]
+        public void IsLocal_ShouldWorkRegardlessOfSystemTimezone()
+        {
+            // Arrange - Test works on both UTC and non-UTC systems
+            var localOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+            var localTime = new DateTimeOffset(2026, 6, 5,
+                                                      12, 0, 0,
+                                                      localOffset);
+
+            // Act & Assert - Should NOT throw regardless of system timezone
+            Assert.That.IsLocal(localTime,
+                                because: "Testing timezone-agnostic behavior",
+                                fix: "N/A - this should pass");
+        }
+
+        [TestMethod]
+        public void IsUtc_ShouldWorkOnUtcAndNonUtcSystems()
+        {
+            // Arrange
+            var utcTime = DateTimeOffset.UtcNow;
+
+            // Act & Assert - Should NOT throw on any system (UTC or non-UTC)
+            Assert.That.IsUtc(utcTime,
+                              because: "UTC validation should work on any system timezone",
+                              fix: "N/A - this should pass");
         }
     }
 }
