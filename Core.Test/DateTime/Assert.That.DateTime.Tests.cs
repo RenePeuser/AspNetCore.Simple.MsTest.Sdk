@@ -624,5 +624,229 @@ namespace Core.Test.DateTimeAssertions
                                  because: "Testing large time difference",
                                  fix: "N/A - this should pass");
         }
+
+        // ============================================================
+        // IsUtc Tests
+        // ============================================================
+
+        [TestMethod]
+        public void IsUtc_WhenDateTimeIsUtc_ShouldPass()
+        {
+            // Arrange
+            var actual = DateTime.UtcNow;
+
+            // Act & Assert - Should NOT throw
+            Assert.That.IsUtc(actual,
+                              because: "Testing that UTC DateTime passes IsUtc check",
+                              fix: "N/A - this should pass");
+        }
+
+        [TestMethod]
+        public void IsUtc_WhenDateTimeIsLocal_ShouldFail()
+        {
+            // Arrange
+            var actual = DateTime.Now;
+            var threw = false;
+
+            // Act
+            try
+            {
+                Assert.That.IsUtc(actual,
+                                  because: "Testing that Local DateTime fails IsUtc check",
+                                  fix: "This is expected to fail");
+            }
+            catch (AssertFailedException)
+            {
+                threw = true;
+            }
+
+            // Assert
+            Assert.IsTrue(threw, "Expected AssertFailedException to be thrown");
+        }
+
+        [TestMethod]
+        public void IsUtc_WhenDateTimeIsUnspecified_ShouldFail()
+        {
+            // Arrange
+            var actual = new DateTime(2026, 6, 5,
+                                             12, 0, 0);
+
+            var threw = false;
+
+            // Act
+            try
+            {
+                Assert.That.IsUtc(actual,
+                                  because: "Testing that Unspecified DateTime fails IsUtc check",
+                                  fix: "This is expected to fail");
+            }
+            catch (AssertFailedException)
+            {
+                threw = true;
+            }
+
+            // Assert
+            Assert.IsTrue(threw, "Expected AssertFailedException to be thrown");
+        }
+
+        [TestMethod]
+        public void IsUtc_WhenFails_ShouldHaveBeautifulOutput()
+        {
+            // Arrange
+            var timestamp = DateTime.Now;
+
+            // Act
+            try
+            {
+                Assert.That.IsUtc(timestamp,
+                                  because: "API timestamps must be in UTC for consistent cross-timezone handling",
+                                  fix: "Use DateTime.UtcNow instead of DateTime.Now when creating timestamps");
+
+                Assert.Fail("Expected AssertFailedException");
+            }
+            catch (AssertFailedException ex)
+            {
+                // Verify output contains key sections
+                Assert.IsTrue(ex.Message.Contains("DATETIME KIND - EXPECTED UTC"));
+                Assert.IsTrue(ex.Message.Contains("📦 Test Information"));
+                Assert.IsTrue(ex.Message.Contains("⚠️ Problem"));
+                Assert.IsTrue(ex.Message.Contains("📊 Details"));
+                Assert.IsTrue(ex.Message.Contains("💭 Context"));
+                Assert.IsTrue(ex.Message.Contains("✅ Suggested Fix"));
+                Assert.IsTrue(ex.Message.Contains("API timestamps must be in UTC for consistent cross-timezone handling"));
+                Assert.IsTrue(ex.Message.Contains("Use DateTime.UtcNow instead of DateTime.Now when creating timestamps"));
+                Assert.IsTrue(ex.Message.Contains("timestamp"));
+
+                // Print the beautiful output to console
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        // ============================================================
+        // IsLocal Tests
+        // ============================================================
+
+        [TestMethod]
+        public void IsLocal_WhenDateTimeIsLocal_ShouldPass()
+        {
+            // Arrange
+            var actual = DateTime.Now;
+
+            // Act & Assert - Should NOT throw
+            Assert.That.IsLocal(actual,
+                                because: "Testing that Local DateTime passes IsLocal check",
+                                fix: "N/A - this should pass");
+        }
+
+        [TestMethod]
+        public void IsLocal_WhenDateTimeIsUtc_ShouldFail()
+        {
+            // Arrange
+            var actual = DateTime.UtcNow;
+            var threw = false;
+
+            // Act
+            try
+            {
+                Assert.That.IsLocal(actual,
+                                    because: "Testing that UTC DateTime fails IsLocal check",
+                                    fix: "This is expected to fail");
+            }
+            catch (AssertFailedException)
+            {
+                threw = true;
+            }
+
+            // Assert
+            Assert.IsTrue(threw, "Expected AssertFailedException to be thrown");
+        }
+
+        [TestMethod]
+        public void IsLocal_WhenDateTimeIsUnspecified_ShouldFail()
+        {
+            // Arrange
+            var actual = new DateTime(2026, 6, 5,
+                                             12, 0, 0);
+
+            var threw = false;
+
+            // Act
+            try
+            {
+                Assert.That.IsLocal(actual,
+                                    because: "Testing that Unspecified DateTime fails IsLocal check",
+                                    fix: "This is expected to fail");
+            }
+            catch (AssertFailedException)
+            {
+                threw = true;
+            }
+
+            // Assert
+            Assert.IsTrue(threw, "Expected AssertFailedException to be thrown");
+        }
+
+        // ============================================================
+        // IsUnspecified Tests
+        // ============================================================
+
+        [TestMethod]
+        public void IsUnspecified_WhenDateTimeIsUnspecified_ShouldPass()
+        {
+            // Arrange
+            var actual = new DateTime(2026, 6, 5,
+                                             12, 0, 0);
+
+            // Act & Assert - Should NOT throw
+            Assert.That.IsUnspecified(actual,
+                                      because: "Testing that Unspecified DateTime passes IsUnspecified check",
+                                      fix: "N/A - this should pass");
+        }
+
+        [TestMethod]
+        public void IsUnspecified_WhenDateTimeIsUtc_ShouldFail()
+        {
+            // Arrange
+            var actual = DateTime.UtcNow;
+            var threw = false;
+
+            // Act
+            try
+            {
+                Assert.That.IsUnspecified(actual,
+                                          because: "Testing that UTC DateTime fails IsUnspecified check",
+                                          fix: "This is expected to fail");
+            }
+            catch (AssertFailedException)
+            {
+                threw = true;
+            }
+
+            // Assert
+            Assert.IsTrue(threw, "Expected AssertFailedException to be thrown");
+        }
+
+        [TestMethod]
+        public void IsUnspecified_WhenDateTimeIsLocal_ShouldFail()
+        {
+            // Arrange
+            var actual = DateTime.Now;
+            var threw = false;
+
+            // Act
+            try
+            {
+                Assert.That.IsUnspecified(actual,
+                                          because: "Testing that Local DateTime fails IsUnspecified check",
+                                          fix: "This is expected to fail");
+            }
+            catch (AssertFailedException)
+            {
+                threw = true;
+            }
+
+            // Assert
+            Assert.IsTrue(threw, "Expected AssertFailedException to be thrown");
+        }
     }
 }
