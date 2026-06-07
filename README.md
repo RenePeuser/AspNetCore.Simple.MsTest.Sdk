@@ -1616,7 +1616,8 @@ Additional suggestions:
 | **String** | `IsEmpty`, `IsNotEmpty`, `Contains`, `StartsWith`, `EndsWith`, `Matches` | String validation |
 | **Collection** | `IsEmpty`, `IsNotEmpty`, `Contains`, `DoesNotContain`, `AllMatch` | Collection validation |
 | **Exception** | `Throws`, `DoesNotThrow` | Exception behavior |
-| **DateTime** | `IsAfter`, `IsBefore`, `IsBetween` | Date/time validation |
+| **DateTime** | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `IsUtc`, `IsLocal`, `IsUnspecified` | Date/time validation |
+| **DateTimeOffset** | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `HasOffset`, `IsUtc`, `IsLocal` | Timezone-aware date/time validation |
 
 ### Why not `AiAssert.*`?
 

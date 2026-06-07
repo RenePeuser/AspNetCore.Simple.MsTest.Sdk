@@ -25,7 +25,8 @@ We've added a comprehensive assertion library designed for maximum debuggability
 | **Numeric** | Comparison, Range, Math, Tolerance | `IsGreaterThan`, `IsInRange`, `IsPositive`, `IsWithinTolerance` |
 | **String** | Content, Length, Pattern, Null | `Contains`, `StartsWith`, `Matches`, `IsEmpty` |
 | **Collection** | Count, Contains, Equality, Predicate | `HasCount`, `Contains`, `AllMatch` |
-| **DateTime** | Comparison, Range | `IsAfter`, `IsBefore`, `IsBetween` |
+| **DateTime** | Comparison, Range, Tolerance, Kind | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `IsUtc`, `IsLocal`, `IsUnspecified` |
+| **DateTimeOffset** | Comparison, Range, Tolerance, Offset | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `HasOffset`, `IsUtc`, `IsLocal` |
 | **Exception** | Throws, DoesNotThrow | `Throws<T>`, `DoesNotThrow` |
 
 #### Example usage
@@ -60,6 +61,57 @@ We considered creating a separate `AiAssert.*` namespace but decided against it:
 - ✅ Structured output is easily parseable by tools
 - ✅ Single API = no confusion about when to use what
 - ✅ Human readability comes first, AI parsability follows naturally
+
+#### Enhanced DateTime/DateTimeOffset assertions
+
+**New DateTime Kind assertions:**
+- `IsUtc()` - Validates `DateTime.Kind == DateTimeKind.Utc`
+- `IsLocal()` - Validates `DateTime.Kind == DateTimeKind.Local`
+- `IsUnspecified()` - Validates `DateTime.Kind == DateTimeKind.Unspecified`
+
+These help catch common timezone bugs where APIs mix UTC and local times incorrectly.
+
+**New DateTimeOffset support:**
+
+Complete set of timezone-aware assertions for `DateTimeOffset`:
+- `IsAfter()`, `IsBefore()` - Compare absolute points in time (timezone-aware)
+- `IsInRange()` - Validate DateTimeOffset falls within range
+- `IsCloseTo()` - Check if within tolerance (handles millisecond precision)
+- `HasOffset()` - Validate specific UTC offset (e.g., `TimeSpan.FromHours(2)` for UTC+2)
+- `IsUtc()` - Validates offset is `TimeSpan.Zero`
+- `IsLocal()` - Validates offset matches current local timezone
+
+**Why DateTimeOffset matters:**
+
+`DateTimeOffset` is superior to `DateTime` for distributed systems because it preserves timezone context. These assertions help ensure:
+- API responses include correct timezone offsets
+- Comparisons work across different timezones
+- Database timestamps maintain timezone information
+- Event timestamps from different regions compare correctly
+
+**Example usage:**
+
+```csharp
+// DateTime Kind validation
+Assert.That.IsUtc(createdAt,
+    because: "Database timestamps must be stored in UTC",
+    fix: "Use DateTime.UtcNow instead of DateTime.Now");
+
+// DateTimeOffset timezone validation
+Assert.That.HasOffset(apiTimestamp, TimeSpan.FromHours(2),
+    because: "API must return timestamps in Central European Time (UTC+2)",
+    fix: "Configure the API timezone in appsettings.json");
+
+// Timezone-aware comparison
+Assert.That.IsAfter(eventTime, deadline,
+    because: "Event must occur after the registration deadline",
+    fix: "Adjust event scheduling to respect timezone differences");
+```
+
+**Test coverage:**
+- 10 new tests for DateTime Kind assertions
+- 22 new tests for DateTimeOffset assertions
+- Full coverage of edge cases (negative offsets, millisecond precision, mixed timezones)
 
 ### Breaking changes
 
