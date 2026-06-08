@@ -619,5 +619,292 @@ namespace Core.Test.ExceptionAssertions
             // Assert
             Assert.IsTrue(threw, "Expected AssertFailedException to be thrown due to case mismatch");
         }
+
+        // ============================================================
+        // ThrowsWithMessageAsync Tests
+        // ============================================================
+
+        [TestMethod]
+        public async Task ThrowsWithMessageAsync_WhenExceptionAndMessageMatch_ShouldPass()
+        {
+            // Arrange
+            const string message = "Async operation failed";
+            var action = async () =>
+            {
+                await Task.Delay(1);
+
+                throw new InvalidOperationException(message);
+            };
+
+            // Act & Assert - Should NOT throw
+            await Assert.That.ThrowsWithMessageAsync<InvalidOperationException>(action,
+                                                                                expectedMessage: message,
+                                                                                because: "Testing exact message matching for async exceptions",
+                                                                                fix: "N/A - this should pass");
+        }
+
+        [TestMethod]
+        public async Task ThrowsWithMessageAsync_WhenMessageMismatch_ShouldFail()
+        {
+            // Arrange
+            const string actualMessage = "Database connection failed: timeout after 30 seconds";
+            const string expectedMessage = "Database connection failed";
+            var action = async () =>
+            {
+                await Task.Delay(1);
+
+                throw new InvalidOperationException(actualMessage);
+            };
+
+            var threw = false;
+
+            // Act
+            try
+            {
+                await Assert.That.ThrowsWithMessageAsync<InvalidOperationException>(action,
+                                                                                    expectedMessage: expectedMessage,
+                                                                                    because: "Testing that message mismatch fails in async context",
+                                                                                    fix: "This is expected to fail");
+            }
+            catch (AssertFailedException)
+            {
+                threw = true;
+            }
+
+            // Assert
+            Assert.IsTrue(threw, "Expected AssertFailedException to be thrown");
+        }
+
+        [TestMethod]
+        public async Task ThrowsWithMessageAsync_WhenNoException_ShouldFailWithBeautifulOutput()
+        {
+            // Arrange
+            var action = async () =>
+            {
+                await Task.Delay(1);
+
+                // Simulating a validation method that should throw but doesn't
+                var data = "valid-data";
+            };
+
+            // Act
+            try
+            {
+                await Assert.That.ThrowsWithMessageAsync<ArgumentException>(action,
+                                                                            expectedMessage: "Data validation failed",
+                                                                            because: "Async validation should throw ArgumentException for invalid data",
+                                                                            fix: "Add proper data validation to async ValidateAsync method");
+
+                Assert.Fail("Expected AssertFailedException");
+            }
+            catch (AssertFailedException ex)
+            {
+                // Verify output contains key sections
+                Assert.IsTrue(ex.Message.Contains("EXCEPTION ASSERTION - TYPE AND MESSAGE MISMATCH"));
+                Assert.IsTrue(ex.Message.Contains("📦 Test Information"));
+                Assert.IsTrue(ex.Message.Contains("⚠️ Problem"));
+                Assert.IsTrue(ex.Message.Contains("📊 Details"));
+                Assert.IsTrue(ex.Message.Contains("💭 Context"));
+                Assert.IsTrue(ex.Message.Contains("✅ Suggested Fix"));
+                Assert.IsTrue(ex.Message.Contains("Async validation should throw ArgumentException for invalid data"));
+                Assert.IsTrue(ex.Message.Contains("Add proper data validation to async ValidateAsync method"));
+                Assert.IsTrue(ex.Message.Contains("no exception was thrown"));
+
+                // Print the beautiful output to console
+                Console.WriteLine("=== ThrowsWithMessageAsync - No Exception ===");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("============================================");
+            }
+        }
+
+        [TestMethod]
+        public async Task ThrowsWithMessageAsync_WhenWrongException_ShouldFail()
+        {
+            // Arrange
+            var action = async () =>
+            {
+                await Task.Delay(1);
+
+                throw new ArgumentNullException("userId", "User ID cannot be null");
+            };
+
+            var threw = false;
+
+            // Act
+            try
+            {
+                await Assert.That.ThrowsWithMessageAsync<InvalidOperationException>(action,
+                                                                                    expectedMessage: "User ID cannot be null",
+                                                                                    because: "Testing that wrong exception type fails even with correct message",
+                                                                                    fix: "This is expected to fail");
+            }
+            catch (AssertFailedException)
+            {
+                threw = true;
+            }
+
+            // Assert
+            Assert.IsTrue(threw, "Expected AssertFailedException to be thrown");
+        }
+
+        [TestMethod]
+        public async Task ThrowsWithMessageAsync_WhenMessageMismatch_ShouldFailWithBeautifulOutput()
+        {
+            // Arrange
+            const string actualMessage = "API request failed with status code 404";
+            const string expectedMessage = "API request failed";
+            var action = async () =>
+            {
+                await Task.Delay(1);
+
+                throw new InvalidOperationException(actualMessage);
+            };
+
+            // Act
+            try
+            {
+                await Assert.That.ThrowsWithMessageAsync<InvalidOperationException>(action,
+                                                                                    expectedMessage: expectedMessage,
+                                                                                    because: "Exception message should match the standardized API error format",
+                                                                                    fix: "Update ApiClient to use consistent error messages: 'API request failed'");
+
+                Assert.Fail("Expected AssertFailedException");
+            }
+            catch (AssertFailedException ex)
+            {
+                // Verify output contains key sections
+                Assert.IsTrue(ex.Message.Contains("EXCEPTION ASSERTION - TYPE AND MESSAGE MISMATCH"));
+                Assert.IsTrue(ex.Message.Contains("📦 Test Information"));
+                Assert.IsTrue(ex.Message.Contains("⚠️ Problem"));
+                Assert.IsTrue(ex.Message.Contains("📊 Details"));
+                Assert.IsTrue(ex.Message.Contains("💭 Context"));
+                Assert.IsTrue(ex.Message.Contains("✅ Suggested Fix"));
+                Assert.IsTrue(ex.Message.Contains("Exception message should match the standardized API error format"));
+                Assert.IsTrue(ex.Message.Contains("Update ApiClient to use consistent error messages"));
+                Assert.IsTrue(ex.Message.Contains("Expected Msg"));
+                Assert.IsTrue(ex.Message.Contains(expectedMessage));
+                Assert.IsTrue(ex.Message.Contains("Actual Message"));
+                Assert.IsTrue(ex.Message.Contains(actualMessage));
+
+                // Print the beautiful output to console
+                Console.WriteLine("=== ThrowsWithMessageAsync - Message Mismatch ===");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("================================================");
+            }
+        }
+
+        [TestMethod]
+        public async Task ThrowsWithMessageAsync_WhenTypeAndMessageMismatch_ShouldFailWithBeautifulOutput()
+        {
+            // Arrange
+            var action = async () =>
+            {
+                await Task.Delay(1);
+
+                throw new ArgumentNullException("apiKey", "Value cannot be null. (Parameter 'apiKey')");
+            };
+
+            // Act
+            try
+            {
+                await Assert.That.ThrowsWithMessageAsync<InvalidOperationException>(action,
+                                                                                    expectedMessage: "API key is required",
+                                                                                    because: "Business validation should use InvalidOperationException with clear messages",
+                                                                                    fix: "Replace ArgumentNullException with InvalidOperationException and update message");
+
+                Assert.Fail("Expected AssertFailedException");
+            }
+            catch (AssertFailedException ex)
+            {
+                // Verify output contains key sections
+                Assert.IsTrue(ex.Message.Contains("EXCEPTION ASSERTION - TYPE AND MESSAGE MISMATCH"));
+                Assert.IsTrue(ex.Message.Contains("📦 Test Information"));
+                Assert.IsTrue(ex.Message.Contains("⚠️ Problem"));
+                Assert.IsTrue(ex.Message.Contains("📊 Details"));
+                Assert.IsTrue(ex.Message.Contains("💭 Context"));
+                Assert.IsTrue(ex.Message.Contains("✅ Suggested Fix"));
+                Assert.IsTrue(ex.Message.Contains("Business validation should use InvalidOperationException with clear messages"));
+                Assert.IsTrue(ex.Message.Contains("Replace ArgumentNullException with InvalidOperationException and update message"));
+                Assert.IsTrue(ex.Message.Contains("Expected Type"));
+                Assert.IsTrue(ex.Message.Contains("InvalidOperationException"));
+                Assert.IsTrue(ex.Message.Contains("Actual Type"));
+                Assert.IsTrue(ex.Message.Contains("ArgumentNullException"));
+                Assert.IsTrue(ex.Message.Contains("Expected Msg"));
+                Assert.IsTrue(ex.Message.Contains("Actual Message"));
+
+                // Print the beautiful output to console
+                Console.WriteLine("=== ThrowsWithMessageAsync - Type and Message Mismatch ===");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("=========================================================");
+            }
+        }
+
+        [TestMethod]
+        public async Task ThrowsWithMessageAsync_WithExactMatch_ShouldPass()
+        {
+            // Arrange
+            const string message = "The async operation cannot be completed because the resource is locked";
+            var action = async () =>
+            {
+                await Task.Delay(1);
+
+                throw new InvalidOperationException(message);
+            };
+
+            // Act & Assert - Should NOT throw
+            await Assert.That.ThrowsWithMessageAsync<InvalidOperationException>(action,
+                                                                                expectedMessage: message,
+                                                                                because: "Testing exact message matching for complex async error messages",
+                                                                                fix: "N/A - this should pass");
+        }
+
+        [TestMethod]
+        public async Task ThrowsWithMessageAsync_WithEmptyMessage_ShouldPass()
+        {
+            // Arrange
+            const string emptyMessage = "";
+            var action = async () =>
+            {
+                await Task.Delay(1);
+
+                throw new InvalidOperationException(emptyMessage);
+            };
+
+            // Act & Assert - Should NOT throw
+            await Assert.That.ThrowsWithMessageAsync<InvalidOperationException>(action,
+                                                                                expectedMessage: emptyMessage,
+                                                                                because: "Testing that empty messages are handled correctly in async context",
+                                                                                fix: "N/A - this should pass");
+        }
+
+        [TestMethod]
+        public async Task ThrowsWithMessageAsync_IsCaseSensitive_ShouldFail()
+        {
+            // Arrange
+            var action = async () =>
+            {
+                await Task.Delay(1);
+
+                throw new InvalidOperationException("USER NOT FOUND");
+            };
+
+            var threw = false;
+
+            // Act
+            try
+            {
+                await Assert.That.ThrowsWithMessageAsync<InvalidOperationException>(action,
+                                                                                    expectedMessage: "user not found",
+                                                                                    because: "Async message comparison is case-sensitive",
+                                                                                    fix: "This is expected to fail");
+            }
+            catch (AssertFailedException)
+            {
+                threw = true;
+            }
+
+            // Assert
+            Assert.IsTrue(threw, "Expected AssertFailedException to be thrown due to case mismatch");
+        }
     }
 }

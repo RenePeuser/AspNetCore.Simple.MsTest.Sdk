@@ -1,14 +1,13 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
-    /// EXCEPTION assertions
+    /// EXCEPTION assertions - Throws (Synchronous)
     /// </summary>
     public static partial class AssertThat
     {
@@ -25,7 +24,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="callerMemberName">Auto-captured method name</param>
         /// <param name="callerLineNumber">Auto-captured line number</param>
         /// <exception cref="AssertFailedException">Thrown when action does not throw expected exception</exception>
-        public static void Throws<TException>(this Assert _,
+        /// <returns>The caught exception of type TException for further processing</returns>
+        public static TException Throws<TException>(this Assert _,
                                               Action action,
                                               string because,
                                               string fix,
@@ -49,63 +49,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 #pragma warning restore CA1031
 
-            if (caughtException is TException)
+            if (caughtException is TException typedException)
             {
-                return;
-            }
-
-            var output = BuildThrowsOutput<TException>(actionName: actionName,
-                                                       caughtException: caughtException,
-                                                       expectedMessage: null,
-                                                       because: because,
-                                                       fix: fix,
-                                                       callerFilePath: callerFilePath,
-                                                       callerMemberName: callerMemberName,
-                                                       callerLineNumber: callerLineNumber);
-
-            throw new AssertFailedException(output);
-        }
-
-        /// <summary>
-        /// Asserts that the async action throws an exception of the specified type.
-        /// </summary>
-        /// <typeparam name="TException">The expected exception type</typeparam>
-        /// <param name="_">Extension point (use Assert.That)</param>
-        /// <param name="action">The async action to execute</param>
-        /// <param name="because">Why this exception should be thrown (context)</param>
-        /// <param name="fix">How to fix if assertion fails (guidance)</param>
-        /// <param name="actionName">Auto-captured action expression</param>
-        /// <param name="callerFilePath">Auto-captured file path</param>
-        /// <param name="callerMemberName">Auto-captured method name</param>
-        /// <param name="callerLineNumber">Auto-captured line number</param>
-        /// <exception cref="AssertFailedException">Thrown when action does not throw expected exception</exception>
-        public static async Task ThrowsAsync<TException>(this Assert _,
-                                                         Func<Task> action,
-                                                         string because,
-                                                         string fix,
-                                                         [CallerArgumentExpression(nameof(action))]
-                                                         string actionName = "",
-                                                         [CallerFilePath] string callerFilePath = "",
-                                                         [CallerMemberName] string callerMemberName = "",
-                                                         [CallerLineNumber] int callerLineNumber = 0
-        ) where TException : Exception
-        {
-            Exception? caughtException = null;
-
-            try
-            {
-                await action().ConfigureAwait(false);
-            }
-#pragma warning disable CA1031 // Do not catch general exception types - we need to catch all exceptions to verify the type
-            catch (Exception ex)
-            {
-                caughtException = ex;
-            }
-#pragma warning restore CA1031
-
-            if (caughtException is TException)
-            {
-                return;
+                return typedException;
             }
 
             var output = BuildThrowsOutput<TException>(actionName: actionName,
@@ -134,7 +80,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="callerMemberName">Auto-captured method name</param>
         /// <param name="callerLineNumber">Auto-captured line number</param>
         /// <exception cref="AssertFailedException">Thrown when action does not throw expected exception or message does not match</exception>
-        public static void ThrowsWithMessage<TException>(this Assert _,
+        /// <returns>The caught exception of type TException for further processing</returns>
+        public static TException ThrowsWithMessage<TException>(this Assert _,
                                                          Action action,
                                                          string expectedMessage,
                                                          string because,
@@ -159,9 +106,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 #pragma warning restore CA1031
 
-            if (caughtException is TException && caughtException.Message == expectedMessage)
+            if (caughtException is TException typedException && caughtException.Message == expectedMessage)
             {
-                return;
+                return typedException;
             }
 
             var output = BuildThrowsOutput<TException>(actionName: actionName,
