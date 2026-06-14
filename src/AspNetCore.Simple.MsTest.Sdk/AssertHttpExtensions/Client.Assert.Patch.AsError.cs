@@ -799,7 +799,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               isSuccessStatusCode: false,
                                               writeResponse: writeResponse,
                                               callerMemberName: callerMemberName,
-                                              callerLineNumber: callerLineNumber);
+                                              callerLineNumber: callerLineNumber,
+                                              expectedHttpStatusCode: expectedHttpStatusCode);
         }
     }
 }
