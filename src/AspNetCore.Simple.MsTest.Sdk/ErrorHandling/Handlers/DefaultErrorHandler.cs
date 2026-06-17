@@ -55,6 +55,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             BuildHttpInfo(sb, context);
             sb.AppendLine();
 
+            BuildResponseContent(sb, context);
+            sb.AppendLine();
+
             BuildExceptionDetails(sb, exception);
             sb.AppendLine();
 
@@ -128,6 +131,42 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
 
             sb.AppendLine($"{"Method",-10} : {context.HttpMethod.Method}");
             sb.AppendLine($"{"Url",-10} : {fullUrl}");
+        }
+
+        private static void BuildResponseContent(StringBuilder sb,
+                                                 IHttpAssertContext context)
+        {
+            sb.AppendLine("📄 Response Content");
+            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine();
+
+            // Try to extract response content if available
+            if (context is IHttpResponseContext httpResponseContext)
+            {
+                var responseContent = httpResponseContext.ContentAsString;
+
+                if (responseContent.IsNotNullOrWhiteSpace())
+                {
+                    sb.AppendLine($"{"Length",-10} : {responseContent.Length} characters");
+                    sb.AppendLine();
+
+                    // Show first 200 characters
+                    var preview = responseContent.Length <= 200
+                                      ? responseContent
+                                      : string.Concat(responseContent.AsSpan(0, 200), "...");
+
+                    sb.AppendLine("Preview (first 200 chars):");
+                    sb.AppendLine($"  \"{preview}\"");
+                }
+                else
+                {
+                    sb.AppendLine("  [Empty or null]");
+                }
+            }
+            else
+            {
+                sb.AppendLine("  [Response not available yet]");
+            }
         }
 
         private static void BuildExceptionDetails(StringBuilder sb,

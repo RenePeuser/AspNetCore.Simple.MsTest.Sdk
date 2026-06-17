@@ -44,7 +44,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
             sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
-            sb.AppendLine("The Content-Type header indicates non-JSON content (text/html, image/*, etc.).");
+
+            // Extract actual Content-Type from response
+            var actualContentType = context.HttpResponseMessage.Content.Headers.ContentType?.ToString() ?? "unknown";
+
+            sb.AppendLine("The Content-Type header indicates non-JSON content.");
+            sb.AppendLine();
+            sb.AppendLine($"{"Expected",-10} : application/json");
+            sb.AppendLine($"{"Actual",-10} : {actualContentType}");
             sb.AppendLine();
         }
     }

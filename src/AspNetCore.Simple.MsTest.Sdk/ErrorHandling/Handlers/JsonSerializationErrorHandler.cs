@@ -210,9 +210,42 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
 
                 if (responseContent.IsNotNullOrWhiteSpace())
                 {
-                    sb.AppendLine("Response Content:");
-                    var formattedResponse = TryFormatJson(responseContent);
-                    sb.AppendLine(IndentJson(formattedResponse, 2));
+                    sb.AppendLine("Response Content (Raw):");
+
+                    // Show content length
+                    sb.AppendLine($"  Length: {responseContent.Length} characters");
+                    sb.AppendLine();
+
+                    // Analyze what it looks like
+                    var contentType = AnalyzeContentType(responseContent);
+                    sb.AppendLine($"  Detected Type: {contentType}");
+                    sb.AppendLine();
+
+                    // Show first 100 characters
+                    var firstChars = GetFirstCharacters(responseContent, 100);
+                    sb.AppendLine("  First 100 characters:");
+                    sb.AppendLine($"    \"{firstChars}\"");
+                    sb.AppendLine();
+
+                    // Try to format and show full content (with reasonable limit)
+                    if (responseContent.Length <= 5000)
+                    {
+                        sb.AppendLine("  Full Content:");
+                        var formattedResponse = TryFormatJson(responseContent);
+                        sb.AppendLine(IndentJson(formattedResponse, 4));
+                    }
+                    else
+                    {
+                        sb.AppendLine($"  (Full content too long to display - {responseContent.Length} chars)");
+                        sb.AppendLine("  Use the curl command below to reproduce and inspect the full response");
+                    }
+
+                    sb.AppendLine();
+                }
+                else
+                {
+                    sb.AppendLine("Response Content (Raw):");
+                    sb.AppendLine("  [Empty or null]");
                     sb.AppendLine();
                 }
             }
@@ -383,6 +416,85 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Gets first N characters of content.
+        /// </summary>
+        private static string GetFirstCharacters(string content,
+                                                 int count)
+        {
+            if (content.IsNullOrWhiteSpace())
+            {
+                return "[Empty]";
+            }
+
+            if (content.Length <= count)
+            {
+                return content;
+            }
+
+            var trimmed = content.Trim();
+
+            return trimmed[..count] + "...";
+        }
+
+        /// <summary>
+        /// Analyzes content and detects what type it likely is.
+        /// </summary>
+        private static string AnalyzeContentType(string content)
+        {
+            if (content.IsNullOrWhiteSpace())
+            {
+                return "Empty/Whitespace";
+            }
+
+            var trimmed = content.TrimStart();
+
+            if (trimmed.StartsWith("<!DOCTYPE", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith("<html", StringComparison.OrdinalIgnoreCase))
+            {
+                return "HTML (probably an error page)";
+            }
+
+            if (trimmed.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith('<'))
+            {
+                return "XML";
+            }
+
+            if (trimmed.StartsWith('{'))
+            {
+                return "JSON Object (but parsing failed)";
+            }
+
+            if (trimmed.StartsWith('['))
+            {
+                return "JSON Array (but parsing failed)";
+            }
+
+            if (trimmed.All(char.IsDigit))
+            {
+                return "Numeric value";
+            }
+
+            if (trimmed.StartsWith('\"') && trimmed.EndsWith('\"'))
+            {
+                return "Quoted string";
+            }
+
+            if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.Equals("false", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Boolean value";
+            }
+
+            if (trimmed.Equals("null", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Null value";
+            }
+
+            return "Plain Text / Unknown format";
         }
     }
 }

@@ -72,7 +72,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             context.FailureType = HttpAssertionFailureType.ContentTypeMismatch;
 
             var expectedJson = expectedResultFile.Content;
-            var currentJson = $"Content-Type: {contentTypeHeader}";
+
+            // Show the actual response body (not just the Content-Type header)
+            // This helps users see what was returned (HTML error page, XML, etc.)
+            var currentJson = context.ContentAsString.IsNotNullOrWhiteSpace()
+                                  ? context.ContentAsString
+                                  : $"Content-Type: {contentTypeHeader} (no body)";
+
             var differences = ImmutableList<Difference>.Empty;
 
             var errorOutput = assertOutputBuilder.BuildOutput(context,
