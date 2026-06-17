@@ -190,7 +190,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         private void BuildJsonContent(StringBuilder sb,
                                       IHttpAssertContext context)
         {
-            sb.AppendLine("📄 JSON Content");
+            sb.AppendLine("📄 Request & Response");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
             sb.AppendLine();
 
@@ -198,6 +198,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             if (context.ResolvedPayload.IsNotNullOrWhiteSpace())
             {
                 sb.AppendLine("Request Payload:");
+                sb.AppendLine();
                 var formattedPayload = TryFormatJson(context.ResolvedPayload);
                 sb.AppendLine(IndentJson(formattedPayload, 2));
                 sb.AppendLine();
@@ -211,40 +212,40 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                 if (responseContent.IsNotNullOrWhiteSpace())
                 {
                     sb.AppendLine("Response Content (Raw):");
-
-                    // Show content length
-                    sb.AppendLine($"  Length: {responseContent.Length} characters");
                     sb.AppendLine();
+
+                    // Show metadata first
+                    sb.AppendLine($"{"Length",-15} : {responseContent.Length} characters");
 
                     // Analyze what it looks like
                     var contentType = AnalyzeContentType(responseContent);
-                    sb.AppendLine($"  Detected Type: {contentType}");
+                    sb.AppendLine($"{"Detected Type",-15} : {contentType}");
                     sb.AppendLine();
 
                     // Show first 100 characters
                     var firstChars = GetFirstCharacters(responseContent, 100);
-                    sb.AppendLine("  First 100 characters:");
-                    sb.AppendLine($"    \"{firstChars}\"");
+                    sb.AppendLine("First 100 characters:");
+                    sb.AppendLine($"  \"{firstChars}\"");
                     sb.AppendLine();
 
                     // Try to format and show full content (with reasonable limit)
                     if (responseContent.Length <= 5000)
                     {
-                        sb.AppendLine("  Full Content:");
+                        sb.AppendLine("Full Content:");
                         var formattedResponse = TryFormatJson(responseContent);
-                        sb.AppendLine(IndentJson(formattedResponse, 4));
+                        sb.AppendLine(IndentJson(formattedResponse, 2));
                     }
                     else
                     {
-                        sb.AppendLine($"  (Full content too long to display - {responseContent.Length} chars)");
-                        sb.AppendLine("  Use the curl command below to reproduce and inspect the full response");
+                        sb.AppendLine($"(Content too long - {responseContent.Length} chars total)");
+                        sb.AppendLine("Use the curl command below to reproduce and inspect");
                     }
 
                     sb.AppendLine();
                 }
                 else
                 {
-                    sb.AppendLine("Response Content (Raw):");
+                    sb.AppendLine("Response Content:");
                     sb.AppendLine("  [Empty or null]");
                     sb.AppendLine();
                 }
@@ -254,6 +255,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             if (context.ResolvedExpectedJson.IsNotNullOrWhiteSpace())
             {
                 sb.AppendLine("Expected JSON (from file):");
+                sb.AppendLine();
                 var formattedExpected = TryFormatJson(context.ResolvedExpectedJson);
                 sb.AppendLine(IndentJson(formattedExpected, 2));
             }
