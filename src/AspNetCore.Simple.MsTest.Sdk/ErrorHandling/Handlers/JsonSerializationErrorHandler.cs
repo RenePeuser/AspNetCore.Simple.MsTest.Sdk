@@ -38,7 +38,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         protected override Task<string> HandleExceptionAsync(IHttpAssertContext context,
                                                              JsonException exception)
         {
-            var errorOutput = BuildJsonSerializationError(context, exception);
+            // If this is our wrapper exception with ResponseContext, use that context instead
+            // This allows us to show the response content even when deserialization failed early
+            var effectiveContext = exception is JsonSerializationContextException contextException
+                                       ? contextException.ResponseContext
+                                       : context;
+
+            var errorOutput = BuildJsonSerializationError(effectiveContext, exception);
 
             return Task.FromResult(errorOutput);
         }

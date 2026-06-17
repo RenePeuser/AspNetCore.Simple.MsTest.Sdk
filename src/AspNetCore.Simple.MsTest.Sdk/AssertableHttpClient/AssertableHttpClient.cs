@@ -132,11 +132,68 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             var targetType = typeof(TResult);
             var targetIsPrimitiveType = targetType.IsPrimitive || targetType.EqualsTo(typeof(string));
 
-            var currentResult = targetIsPrimitiveType
-                                    ? primitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString)
-                                    : resolvedParametersJsonString.IsNullOrWhiteSpace()
-                                        ? "{}".FromJsonStringAs<TResult>(jsonSerializerOptions)
-                                        : resolvedParametersJsonString.FromJsonStringAs<TResult>(jsonSerializerOptions);
+            TResult? currentResult;
+
+            try
+            {
+                currentResult = targetIsPrimitiveType
+                                        ? primitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString)
+                                        : resolvedParametersJsonString.IsNullOrWhiteSpace()
+                                            ? "{}".FromJsonStringAs<TResult>(jsonSerializerOptions)
+                                            : resolvedParametersJsonString.FromJsonStringAs<TResult>(jsonSerializerOptions);
+            }
+            catch (JsonException)
+            {
+                // Build a minimal HttpResponseContext with the response content for error reporting
+                // This allows the error handler to show the actual response body that failed to deserialize
+                var minimalResponseContext = new HttpResponseContext<TResult>
+                {
+                    AbsoluteUrl = absoluteUrl,
+                    ApiVersion = context.ApiVersion,
+                    CallerFilePath = context.CallerFilePath,
+                    CallerLineNumber = context.CallerLineNumber,
+                    CallerMemberName = context.CallerMemberName,
+                    CallingAssembly = context.CallingAssembly,
+                    Client = context.Client,
+                    ContentAsString = contentAsString,
+                    ContentAsStringParameterized = resolvedParametersJsonString,
+                    Current = default,
+                    CurrentObject = default,
+                    CurrentResult = default,
+                    CurrentResultParameterName = context.CurrentResultParameterName,
+                    DifferenceFunc = context.DifferenceFunc,
+                    ExpectedType = context.ExpectedType,
+                    ExpectedObjectAsJson = context.ExpectedObjectAsJson,
+                    ExpectedResultFile = context.ExpectedResultFile,
+                    ExpectedResultParameterName = context.ExpectedResultParameterName,
+                    HttpMethod = context.HttpMethod,
+                    IgnoreResponse = context.IgnoreResponse,
+                    HttpResponseMessage = httpResponseMessage,
+                    HttpStatusCode = httpResponseMessage.StatusCode,
+                    IsExpectedStatusCode = isExpectedStatusCode,
+                    IsSuccessStatusCode = context.IsSuccessStatusCode,
+                    OrderFunc = context.OrderFunc,
+                    Parameters = context.Parameters,
+                    PayloadAsJson = context.PayloadAsJson,
+                    PayloadFile = context.PayloadFile,
+                    PayloadParameterName = context.PayloadParameterName,
+                    ResolvedExpectedJson = context.ResolvedExpectedJson,
+                    ResolvedPayload = context.ResolvedPayload,
+                    ShowTokenInCurl = context.ShowTokenInCurl,
+                    TypeIsPrimitiveType = targetIsPrimitiveType,
+                    Url = context.Url,
+                    WriteResponse = context.WriteResponse,
+                    SkipEndpointValidation = context.SkipEndpointValidation,
+                    ExpectedHttpStatusCode = context.ExpectedHttpStatusCode,
+                    FailureType = HttpAssertionFailureType.None,
+                    ExpectedStatusCode = (int?)context.ExpectedHttpStatusCode,
+                    ActualStatusCode = null,
+                    Expected = context.Expected
+                };
+
+                // Re-throw with enriched context (will be caught by outer catch block)
+                throw new JsonSerializationContextException(minimalResponseContext);
+            }
 
             // Build context with deserialized result - HttpResponseMessage stays alive until pipeline completes
             var responseContext = new HttpResponseContext<TResult>
