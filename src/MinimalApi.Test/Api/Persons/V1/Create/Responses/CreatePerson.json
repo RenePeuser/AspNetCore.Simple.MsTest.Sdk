@@ -1,21 +1,3 @@
 {
-  "content": {
-    "headers": [
-      {
-        "key": "Content-Type",
-        "value": [ "application/json; charset=utf-8" ]
-      }
-    ],
-    "value": {
-      "id": 1,
-      "name": "Son",
-      "firstName": "Goku",
-      "age": 42,
-      "emails": []
-    }
-  },
-  "statusCode": "Created",
-  "headers": [],
-  "trailingHeaders": [],
-  "isSuccessStatusCode": true
+
 }

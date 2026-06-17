@@ -154,94 +154,96 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         private static void BuildJsonFormatError(StringBuilder sb,
                                                  InvalidJsonException exception)
         {
-            sb.AppendLine("⚠️ Format Validation Error");
+            sb.AppendLine("⚠️ What Went Wrong");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
             sb.AppendLine();
-            sb.AppendLine("The provided content is not valid JSON format.");
+            sb.AppendLine("The response is not valid JSON format.");
             sb.AppendLine();
             sb.AppendLine("Valid JSON must:");
             sb.AppendLine("  • Start with '{' for objects  OR");
             sb.AppendLine("  • Start with '[' for arrays");
-            sb.AppendLine();
-            sb.AppendLine($"{"Error",-15} : {exception.Message}");
         }
 
         private void BuildJsonContent(StringBuilder sb,
                                       IHttpAssertContext context,
                                       InvalidJsonException exception)
         {
-            sb.AppendLine("📄 Content Analysis");
+            sb.AppendLine();
+            sb.AppendLine("📄 Response Content");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
             sb.AppendLine();
 
-            // Extract the invalid string from the exception message
+            // Extract the invalid string from the exception message (fallback if no HttpResponseContext)
             var invalidString = ExtractInvalidStringFromMessage(exception.Message);
 
-            // Show response content if available
+            // Show response content if available (preferred)
             if (context is IHttpResponseContext httpResponseContext)
             {
                 var responseContent = httpResponseContext.ContentAsString;
 
                 if (responseContent.IsNotNullOrWhiteSpace())
                 {
-                    sb.AppendLine("Response Content (Raw):");
-                    var preview = GetContentPreview(responseContent);
-                    sb.AppendLine($"  {preview}");
-                    sb.AppendLine();
-
                     // Analyze what it looks like
                     var contentType = AnalyzeContentType(responseContent);
                     sb.AppendLine($"{"Detected Type",-15} : {contentType}");
+                    sb.AppendLine($"{"Length",-15} : {responseContent.Length} characters");
                     sb.AppendLine();
 
                     // Show first few characters
-                    var firstChars = GetFirstCharacters(responseContent, 50);
-                    sb.AppendLine("First 50 characters:");
+                    var firstChars = GetFirstCharacters(responseContent, 100);
+                    sb.AppendLine("First 100 characters:");
                     sb.AppendLine($"  \"{firstChars}\"");
                     sb.AppendLine();
+
+                    // Show full preview if short enough
+                    if (responseContent.Length <= 500)
+                    {
+                        sb.AppendLine("Full Content:");
+                        var preview = GetContentPreview(responseContent, 500);
+                        sb.AppendLine($"  {preview}");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"(Content too long - {responseContent.Length} chars total)");
+                    }
+                }
+                else
+                {
+                    sb.AppendLine("[Empty or null]");
                 }
             }
             else if (invalidString.IsNotNullOrWhiteSpace())
             {
-                // Show the invalid string from exception message
-                sb.AppendLine("Invalid Content:");
-                var preview = GetContentPreview(invalidString);
-                sb.AppendLine($"  {preview}");
-                sb.AppendLine();
-
+                // Fallback: Show the invalid string from exception message
                 var contentType = AnalyzeContentType(invalidString);
                 sb.AppendLine($"{"Detected Type",-15} : {contentType}");
                 sb.AppendLine();
-            }
 
-            // Show expected JSON structure if available
-            if (context.ResolvedExpectedJson.IsNotNullOrWhiteSpace())
+                var preview = GetContentPreview(invalidString, 200);
+                sb.AppendLine($"  {preview}");
+            }
+            else
             {
-                sb.AppendLine("Expected JSON structure (from file):");
-                var expectedPreview = GetContentPreview(context.ResolvedExpectedJson);
-                sb.AppendLine($"  {expectedPreview}");
+                sb.AppendLine("[No content available]");
             }
         }
 
         private static void BuildExplanation(StringBuilder sb)
         {
-            sb.AppendLine("💡 What This Means");
+            sb.AppendLine();
+            sb.AppendLine("💡 Common Causes");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
             sb.AppendLine();
-            sb.AppendLine("The response is not in valid JSON format. Common causes:");
-            sb.AppendLine();
             sb.AppendLine("  • The API returned an HTML error page (404, 500, etc.)");
-            sb.AppendLine("  • The response is plain text instead of JSON");
+            sb.AppendLine("  • Wrong endpoint URL or HTTP method");
             sb.AppendLine("  • The endpoint returned XML instead of JSON");
             sb.AppendLine("  • Empty or whitespace-only response");
-            sb.AppendLine("  • The response starts with a BOM (Byte Order Mark)");
+            sb.AppendLine("  • Missing 'Accept: application/json' header");
             sb.AppendLine();
-            sb.AppendLine("Suggestions:");
-            sb.AppendLine("  1. Check the actual HTTP status code (might be an error)");
-            sb.AppendLine("  2. Verify the endpoint URL is correct");
-            sb.AppendLine("  3. Check if the API expects specific headers (Accept: application/json)");
-            sb.AppendLine("  4. Look at the 'Response Content' above - is it HTML/XML/plain text?");
-            sb.AppendLine("  5. Use the curl command below to test the endpoint manually");
+            sb.AppendLine("Next Steps:");
+            sb.AppendLine("  1. Check the 'Detected Type' and 'Response Content' above");
+            sb.AppendLine("  2. Verify the HTTP status code and URL");
+            sb.AppendLine("  3. Use the curl command below to reproduce manually");
         }
 
         private static void BuildAssertCall(StringBuilder sb,
