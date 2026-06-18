@@ -62,6 +62,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             ProblemDetails = problemDetails;
         }
 
+        /// <summary>
+        /// Constructor that accepts a ProblemDetails object directly.
+        /// Used when ProblemDetails is deserialized from HTTP response.
+        /// </summary>
+        public TestSdkProblemDetailsException(ProblemDetails problemDetails) : base(problemDetails?.Title ?? "ProblemDetails")
+        {
+            ProblemDetails = problemDetails ?? throw new ArgumentNullException(nameof(problemDetails));
+        }
+
         public ProblemDetails ProblemDetails { get; }
     }
 }

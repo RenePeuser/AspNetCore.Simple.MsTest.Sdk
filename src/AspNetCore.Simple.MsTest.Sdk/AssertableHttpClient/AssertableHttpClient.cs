@@ -133,6 +133,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             var targetIsPrimitiveType = targetType.IsPrimitive || targetType.EqualsTo(typeof(string));
 
             TResult? currentResult;
+            var deserializationFailed = false;
 
             try
             {
@@ -144,55 +145,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             }
             catch (JsonException)
             {
-                // Build a minimal HttpResponseContext with the response content for error reporting
-                // This allows the error handler to show the actual response body that failed to deserialize
-                var minimalResponseContext = new HttpResponseContext<TResult>
-                {
-                    AbsoluteUrl = absoluteUrl,
-                    ApiVersion = context.ApiVersion,
-                    CallerFilePath = context.CallerFilePath,
-                    CallerLineNumber = context.CallerLineNumber,
-                    CallerMemberName = context.CallerMemberName,
-                    CallingAssembly = context.CallingAssembly,
-                    Client = context.Client,
-                    ContentAsString = contentAsString,
-                    ContentAsStringParameterized = resolvedParametersJsonString,
-                    Current = default,
-                    CurrentObject = default,
-                    CurrentResult = default,
-                    CurrentResultParameterName = context.CurrentResultParameterName,
-                    DifferenceFunc = context.DifferenceFunc,
-                    ExpectedType = context.ExpectedType,
-                    ExpectedObjectAsJson = context.ExpectedObjectAsJson,
-                    ExpectedResultFile = context.ExpectedResultFile,
-                    ExpectedResultParameterName = context.ExpectedResultParameterName,
-                    HttpMethod = context.HttpMethod,
-                    IgnoreResponse = context.IgnoreResponse,
-                    HttpResponseMessage = httpResponseMessage,
-                    HttpStatusCode = httpResponseMessage.StatusCode,
-                    IsExpectedStatusCode = isExpectedStatusCode,
-                    IsSuccessStatusCode = context.IsSuccessStatusCode,
-                    OrderFunc = context.OrderFunc,
-                    Parameters = context.Parameters,
-                    PayloadAsJson = context.PayloadAsJson,
-                    PayloadFile = context.PayloadFile,
-                    PayloadParameterName = context.PayloadParameterName,
-                    ResolvedExpectedJson = context.ResolvedExpectedJson,
-                    ResolvedPayload = context.ResolvedPayload,
-                    ShowTokenInCurl = context.ShowTokenInCurl,
-                    TypeIsPrimitiveType = targetIsPrimitiveType,
-                    Url = context.Url,
-                    WriteResponse = context.WriteResponse,
-                    SkipEndpointValidation = context.SkipEndpointValidation,
-                    ExpectedHttpStatusCode = context.ExpectedHttpStatusCode,
-                    FailureType = HttpAssertionFailureType.None,
-                    ExpectedStatusCode = (int?)context.ExpectedHttpStatusCode,
-                    ActualStatusCode = null,
-                    Expected = context.Expected
-                };
-
-                // Re-throw with enriched context (will be caught by outer catch block)
-                throw new JsonSerializationContextException(minimalResponseContext);
+                // Deserialization failed - set flag and continue with default value
+                // The pipeline (StatusCodeValidationStep) will handle the error if status code is wrong
+                // Otherwise, JsonComparisonStep will catch it
+                deserializationFailed = true;
+                currentResult = default;
             }
 
             // Build context with deserialized result - HttpResponseMessage stays alive until pipeline completes
@@ -242,8 +199,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             };
 
             // Delegate to pipeline - steps only validate, never modify the result
+            // The pipeline will catch status code mismatches and other issues BEFORE we check deserialization
             // Pipeline returns context.CurrentResult (the original deserialized response)
             var result = httpAssertionPipeline.Execute(responseContext);
+
+            // If deserialization failed but we got past the pipeline, throw now with full context
+            // This should only happen if status code was correct but JSON structure was wrong
+            if (deserializationFailed)
+            {
+                throw new JsonSerializationContextException(responseContext);
+            }
 
             return result;
         }
