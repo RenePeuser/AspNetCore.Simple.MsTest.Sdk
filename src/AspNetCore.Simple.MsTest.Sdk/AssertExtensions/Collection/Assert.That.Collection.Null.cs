@@ -33,8 +33,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                       string collectionName = "",
                                       [CallerFilePath] string callerFilePath = "",
                                       [CallerMemberName] string callerMemberName = "",
-                                      [CallerLineNumber] int callerLineNumber = 0
-        )
+                                      [CallerLineNumber] int callerLineNumber = 0)
         {
             if (collection is null)
             {
@@ -89,8 +88,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                          string collectionName = "",
                                          [CallerFilePath] string callerFilePath = "",
                                          [CallerMemberName] string callerMemberName = "",
-                                         [CallerLineNumber] int callerLineNumber = 0
-        )
+                                         [CallerLineNumber] int callerLineNumber = 0)
         {
             if (collection is null)
             {
@@ -145,8 +143,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             string collectionName = "",
                                             [CallerFilePath] string callerFilePath = "",
                                             [CallerMemberName] string callerMemberName = "",
-                                            [CallerLineNumber] int callerLineNumber = 0
-        )
+                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             if (collection is null)
             {
@@ -174,14 +171,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building collection null output
-        private static string BuildCollectionNullOutput(
-            string collectionName,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildCollectionNullOutput(string collectionName,
+                                                        string because,
+                                                        string fix,
+                                                        string callerFilePath,
+                                                        string callerMemberName,
+                                                        int callerLineNumber)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -211,7 +206,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
 
             // Fix (How)
-            var additionalOptions = new[] { $"Verify that '{collectionName}' is properly initialized before this assertion", $"Check for null returns in methods that populate '{collectionName}'", "Add null checks or default empty collection in the code under test" };
+            var additionalOptions = new[]
+            {
+                $"Verify that '{collectionName}' is properly initialized before this assertion",
+                $"Check for null returns in methods that populate '{collectionName}'",
+                "Add null checks or default empty collection in the code under test"
+            };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -223,17 +223,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building collection empty/not empty output
-        private static string BuildCollectionEmptyOutput<T>(
-            bool expectEmpty,
-            string collectionName,
-            int actualCount,
-            IEnumerable<T> collection,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildCollectionEmptyOutput<T>(bool expectEmpty,
+                                                            string collectionName,
+                                                            int actualCount,
+                                                            IEnumerable<T> collection,
+                                                            string because,
+                                                            string fix,
+                                                            string callerFilePath,
+                                                            string callerMemberName,
+                                                            int callerLineNumber)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -279,8 +277,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = expectEmpty
-                                        ? new[] { $"Ensure the code that populates '{collectionName}' does not add elements for this scenario", $"Review the filter or query logic that produces '{collectionName}'", $"Check if elements should be removed before this assertion" }
-                                        : new[] { $"Verify that the data source for '{collectionName}' contains elements", $"Check the filter or query logic that produces '{collectionName}'", $"Ensure the code that populates '{collectionName}' is executed before this assertion" };
+                                        ? new[]
+                                        {
+                                            $"Ensure the code that populates '{collectionName}' does not add elements for this scenario",
+                                            $"Review the filter or query logic that produces '{collectionName}'",
+                                            $"Check if elements should be removed before this assertion"
+                                        }
+                                        : new[]
+                                        {
+                                            $"Verify that the data source for '{collectionName}' contains elements",
+                                            $"Check the filter or query logic that produces '{collectionName}'",
+                                            $"Ensure the code that populates '{collectionName}' is executed before this assertion"
+                                        };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -292,17 +300,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building collection null or empty output
-        private static string BuildCollectionNullOrEmptyOutput<T>(
-            bool expectNullOrEmpty,
-            string collectionName,
-            int actualCount,
-            IEnumerable<T> collection,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildCollectionNullOrEmptyOutput<T>(bool expectNullOrEmpty,
+                                                                  string collectionName,
+                                                                  int actualCount,
+                                                                  IEnumerable<T> collection,
+                                                                  string because,
+                                                                  string fix,
+                                                                  string callerFilePath,
+                                                                  string callerMemberName,
+                                                                  int callerLineNumber)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -343,7 +349,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
 
             // Fix (How)
-            var additionalOptions = new[] { $"Ensure the code that populates '{collectionName}' returns null or an empty collection for this scenario", $"Review the filter or query logic that produces '{collectionName}'", $"Check if '{collectionName}' should be cleared before this assertion" };
+            var additionalOptions = new[]
+            {
+                $"Ensure the code that populates '{collectionName}' returns null or an empty collection for this scenario",
+                $"Review the filter or query logic that produces '{collectionName}'",
+                $"Check if '{collectionName}' should be cleared before this assertion"
+            };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

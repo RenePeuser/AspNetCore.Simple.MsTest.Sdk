@@ -34,8 +34,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    string actualName = "",
                                    [CallerFilePath] string callerFilePath = "",
                                    [CallerMemberName] string callerMemberName = "",
-                                   [CallerLineNumber] int callerLineNumber = 0
-        )
+                                   [CallerLineNumber] int callerLineNumber = 0)
         {
             if (actual > expected)
             {
@@ -43,14 +42,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var output = BuildDateTimeOffsetComparisonOutput(comparisonType: "AFTER",
-                                                            actual: actual,
-                                                            expected: expected,
-                                                            actualName: actualName,
-                                                            because: because,
-                                                            fix: fix,
-                                                            callerFilePath: callerFilePath,
-                                                            callerMemberName: callerMemberName,
-                                                            callerLineNumber: callerLineNumber);
+                                                             actual: actual,
+                                                             expected: expected,
+                                                             actualName: actualName,
+                                                             because: because,
+                                                             fix: fix,
+                                                             callerFilePath: callerFilePath,
+                                                             callerMemberName: callerMemberName,
+                                                             callerLineNumber: callerLineNumber);
 
             throw new AssertFailedException(output);
         }
@@ -77,8 +76,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                     string actualName = "",
                                     [CallerFilePath] string callerFilePath = "",
                                     [CallerMemberName] string callerMemberName = "",
-                                    [CallerLineNumber] int callerLineNumber = 0
-        )
+                                    [CallerLineNumber] int callerLineNumber = 0)
         {
             if (actual < expected)
             {
@@ -86,14 +84,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var output = BuildDateTimeOffsetComparisonOutput(comparisonType: "BEFORE",
-                                                            actual: actual,
-                                                            expected: expected,
-                                                            actualName: actualName,
-                                                            because: because,
-                                                            fix: fix,
-                                                            callerFilePath: callerFilePath,
-                                                            callerMemberName: callerMemberName,
-                                                            callerLineNumber: callerLineNumber);
+                                                             actual: actual,
+                                                             expected: expected,
+                                                             actualName: actualName,
+                                                             because: because,
+                                                             fix: fix,
+                                                             callerFilePath: callerFilePath,
+                                                             callerMemberName: callerMemberName,
+                                                             callerLineNumber: callerLineNumber);
 
             throw new AssertFailedException(output);
         }
@@ -122,8 +120,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string actualName = "",
                                      [CallerFilePath] string callerFilePath = "",
                                      [CallerMemberName] string callerMemberName = "",
-                                     [CallerLineNumber] int callerLineNumber = 0
-        )
+                                     [CallerLineNumber] int callerLineNumber = 0)
         {
             if (actual >= start && actual <= end)
             {
@@ -131,14 +128,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var output = BuildDateTimeOffsetRangeOutput(actual: actual,
-                                                       start: start,
-                                                       end: end,
-                                                       actualName: actualName,
-                                                       because: because,
-                                                       fix: fix,
-                                                       callerFilePath: callerFilePath,
-                                                       callerMemberName: callerMemberName,
-                                                       callerLineNumber: callerLineNumber);
+                                                        start: start,
+                                                        end: end,
+                                                        actualName: actualName,
+                                                        because: because,
+                                                        fix: fix,
+                                                        callerFilePath: callerFilePath,
+                                                        callerMemberName: callerMemberName,
+                                                        callerLineNumber: callerLineNumber);
 
             throw new AssertFailedException(output);
         }
@@ -167,8 +164,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string actualName = "",
                                      [CallerFilePath] string callerFilePath = "",
                                      [CallerMemberName] string callerMemberName = "",
-                                     [CallerLineNumber] int callerLineNumber = 0
-        )
+                                     [CallerLineNumber] int callerLineNumber = 0)
         {
             var difference = actual > expected ? actual - expected : expected - actual;
 
@@ -178,15 +174,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var output = BuildDateTimeOffsetToleranceOutput(actual: actual,
-                                                           expected: expected,
-                                                           tolerance: tolerance,
-                                                           actualDifference: difference,
-                                                           actualName: actualName,
-                                                           because: because,
-                                                           fix: fix,
-                                                           callerFilePath: callerFilePath,
-                                                           callerMemberName: callerMemberName,
-                                                           callerLineNumber: callerLineNumber);
+                                                            expected: expected,
+                                                            tolerance: tolerance,
+                                                            actualDifference: difference,
+                                                            actualName: actualName,
+                                                            because: because,
+                                                            fix: fix,
+                                                            callerFilePath: callerFilePath,
+                                                            callerMemberName: callerMemberName,
+                                                            callerLineNumber: callerLineNumber);
 
             throw new AssertFailedException(output);
         }
@@ -213,8 +209,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string actualName = "",
                                      [CallerFilePath] string callerFilePath = "",
                                      [CallerMemberName] string callerMemberName = "",
-                                     [CallerLineNumber] int callerLineNumber = 0
-        )
+                                     [CallerLineNumber] int callerLineNumber = 0)
         {
             if (actual.Offset == expectedOffset)
             {
@@ -222,13 +217,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var output = BuildDateTimeOffsetOffsetOutput(actual: actual,
-                                                        expectedOffset: expectedOffset,
-                                                        actualName: actualName,
-                                                        because: because,
-                                                        fix: fix,
-                                                        callerFilePath: callerFilePath,
-                                                        callerMemberName: callerMemberName,
-                                                        callerLineNumber: callerLineNumber);
+                                                         expectedOffset: expectedOffset,
+                                                         actualName: actualName,
+                                                         because: because,
+                                                         fix: fix,
+                                                         callerFilePath: callerFilePath,
+                                                         callerMemberName: callerMemberName,
+                                                         callerLineNumber: callerLineNumber);
 
             throw new AssertFailedException(output);
         }
@@ -253,8 +248,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                  string actualName = "",
                                  [CallerFilePath] string callerFilePath = "",
                                  [CallerMemberName] string callerMemberName = "",
-                                 [CallerLineNumber] int callerLineNumber = 0
-        )
+                                 [CallerLineNumber] int callerLineNumber = 0)
         {
             if (actual.Offset == TimeSpan.Zero)
             {
@@ -262,13 +256,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var output = BuildDateTimeOffsetOffsetOutput(actual: actual,
-                                                        expectedOffset: TimeSpan.Zero,
-                                                        actualName: actualName,
-                                                        because: because,
-                                                        fix: fix,
-                                                        callerFilePath: callerFilePath,
-                                                        callerMemberName: callerMemberName,
-                                                        callerLineNumber: callerLineNumber);
+                                                         expectedOffset: TimeSpan.Zero,
+                                                         actualName: actualName,
+                                                         because: because,
+                                                         fix: fix,
+                                                         callerFilePath: callerFilePath,
+                                                         callerMemberName: callerMemberName,
+                                                         callerLineNumber: callerLineNumber);
 
             throw new AssertFailedException(output);
         }
@@ -293,8 +287,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    string actualName = "",
                                    [CallerFilePath] string callerFilePath = "",
                                    [CallerMemberName] string callerMemberName = "",
-                                   [CallerLineNumber] int callerLineNumber = 0
-        )
+                                   [CallerLineNumber] int callerLineNumber = 0)
         {
             var localOffset = TimeZoneInfo.Local.GetUtcOffset(actual.DateTime);
 
@@ -304,30 +297,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var output = BuildDateTimeOffsetOffsetOutput(actual: actual,
-                                                        expectedOffset: localOffset,
-                                                        actualName: actualName,
-                                                        because: because,
-                                                        fix: fix,
-                                                        callerFilePath: callerFilePath,
-                                                        callerMemberName: callerMemberName,
-                                                        callerLineNumber: callerLineNumber,
-                                                        isLocalCheck: true);
+                                                         expectedOffset: localOffset,
+                                                         actualName: actualName,
+                                                         because: because,
+                                                         fix: fix,
+                                                         callerFilePath: callerFilePath,
+                                                         callerMemberName: callerMemberName,
+                                                         callerLineNumber: callerLineNumber,
+                                                         isLocalCheck: true);
 
             throw new AssertFailedException(output);
         }
 
         // Private helper for building DateTimeOffset comparison output
-        private static string BuildDateTimeOffsetComparisonOutput(
-            string comparisonType,
-            DateTimeOffset actual,
-            DateTimeOffset expected,
-            string actualName,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildDateTimeOffsetComparisonOutput(string comparisonType,
+                                                                  DateTimeOffset actual,
+                                                                  DateTimeOffset expected,
+                                                                  string actualName,
+                                                                  string because,
+                                                                  string fix,
+                                                                  string callerFilePath,
+                                                                  string callerMemberName,
+                                                                  int callerLineNumber)
         {
             var textDecorator = GetTextDecoratorForDateTimeOffset(callerFilePath);
             var sb = new StringBuilder();
@@ -367,19 +358,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = comparisonType == "AFTER"
                                         ? new[]
-                                          {
-                                              $"Verify that '{actualName}' is set to a time later than the comparison value",
-                                              "Check if the DateTimeOffset values are using compatible timezones",
-                                              $"Review the logic that sets '{actualName}' to ensure it occurs chronologically after the expected time",
-                                              "DateTimeOffset comparisons are timezone-aware and compare absolute points in time"
-                                          }
+                                        {
+                                            $"Verify that '{actualName}' is set to a time later than the comparison value",
+                                            "Check if the DateTimeOffset values are using compatible timezones",
+                                            $"Review the logic that sets '{actualName}' to ensure it occurs chronologically after the expected time",
+                                            "DateTimeOffset comparisons are timezone-aware and compare absolute points in time"
+                                        }
                                         : new[]
-                                          {
-                                              $"Verify that '{actualName}' is set to a time earlier than the comparison value",
-                                              "Check if the DateTimeOffset values are using compatible timezones",
-                                              $"Review the logic that sets '{actualName}' to ensure it occurs chronologically before the expected time",
-                                              "DateTimeOffset comparisons are timezone-aware and compare absolute points in time"
-                                          };
+                                        {
+                                            $"Verify that '{actualName}' is set to a time earlier than the comparison value",
+                                            "Check if the DateTimeOffset values are using compatible timezones",
+                                            $"Review the logic that sets '{actualName}' to ensure it occurs chronologically before the expected time",
+                                            "DateTimeOffset comparisons are timezone-aware and compare absolute points in time"
+                                        };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -391,17 +382,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building DateTimeOffset range output
-        private static string BuildDateTimeOffsetRangeOutput(
-            DateTimeOffset actual,
-            DateTimeOffset start,
-            DateTimeOffset end,
-            string actualName,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildDateTimeOffsetRangeOutput(DateTimeOffset actual,
+                                                             DateTimeOffset start,
+                                                             DateTimeOffset end,
+                                                             string actualName,
+                                                             string because,
+                                                             string fix,
+                                                             string callerFilePath,
+                                                             string callerMemberName,
+                                                             int callerLineNumber)
         {
             var textDecorator = GetTextDecoratorForDateTimeOffset(callerFilePath);
             var sb = new StringBuilder();
@@ -445,13 +434,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-                                    {
-                                        $"Verify that '{actualName}' falls between {start:O} and {end:O}",
-                                        "DateTimeOffset range comparisons are timezone-aware and compare absolute points in time",
-                                        $"Review the logic that sets '{actualName}' to ensure it produces values within the expected range",
-                                        "Consider widening the acceptable range if edge cases are valid",
-                                        "Verify that the range boundaries (start/end) are correctly defined"
-                                    };
+            {
+                $"Verify that '{actualName}' falls between {start:O} and {end:O}",
+                "DateTimeOffset range comparisons are timezone-aware and compare absolute points in time",
+                $"Review the logic that sets '{actualName}' to ensure it produces values within the expected range",
+                "Consider widening the acceptable range if edge cases are valid",
+                "Verify that the range boundaries (start/end) are correctly defined"
+            };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -463,18 +452,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building DateTimeOffset tolerance output
-        private static string BuildDateTimeOffsetToleranceOutput(
-            DateTimeOffset actual,
-            DateTimeOffset expected,
-            TimeSpan tolerance,
-            TimeSpan actualDifference,
-            string actualName,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildDateTimeOffsetToleranceOutput(DateTimeOffset actual,
+                                                                 DateTimeOffset expected,
+                                                                 TimeSpan tolerance,
+                                                                 TimeSpan actualDifference,
+                                                                 string actualName,
+                                                                 string because,
+                                                                 string fix,
+                                                                 string callerFilePath,
+                                                                 string callerMemberName,
+                                                                 int callerLineNumber)
         {
             var textDecorator = GetTextDecoratorForDateTimeOffset(callerFilePath);
             var sb = new StringBuilder();
@@ -507,13 +494,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-                                    {
-                                        $"Verify that '{actualName}' is set close to {expected:O}",
-                                        $"Consider increasing the tolerance if {tolerance.TotalSeconds:F3} seconds is too strict",
-                                        "Check for timing issues or delays in the code that might cause larger differences",
-                                        "DateTimeOffset comparisons are timezone-aware and compare absolute points in time",
-                                        $"Review the logic that sets '{actualName}' to reduce the time difference"
-                                    };
+            {
+                $"Verify that '{actualName}' is set close to {expected:O}",
+                $"Consider increasing the tolerance if {tolerance.TotalSeconds:F3} seconds is too strict",
+                "Check for timing issues or delays in the code that might cause larger differences",
+                "DateTimeOffset comparisons are timezone-aware and compare absolute points in time",
+                $"Review the logic that sets '{actualName}' to reduce the time difference"
+            };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -525,17 +512,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building DateTimeOffset offset output
-        private static string BuildDateTimeOffsetOffsetOutput(
-            DateTimeOffset actual,
-            TimeSpan expectedOffset,
-            string actualName,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber,
-            bool isLocalCheck = false
-        )
+        private static string BuildDateTimeOffsetOffsetOutput(DateTimeOffset actual,
+                                                              TimeSpan expectedOffset,
+                                                              string actualName,
+                                                              string because,
+                                                              string fix,
+                                                              string callerFilePath,
+                                                              string callerMemberName,
+                                                              int callerLineNumber,
+                                                              bool isLocalCheck = false)
         {
             var textDecorator = GetTextDecoratorForDateTimeOffset(callerFilePath);
             var sb = new StringBuilder();
@@ -575,27 +560,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = expectedOffset == TimeSpan.Zero
                                         ? new[]
-                                          {
-                                              $"Use DateTimeOffset.UtcNow instead of DateTimeOffset.Now when creating '{actualName}'",
-                                              $"Convert '{actualName}' to UTC using .ToUniversalTime()",
-                                              "Ensure API responses or database values return UTC timestamps",
-                                              "Use .ToOffset(TimeSpan.Zero) to convert to UTC offset"
-                                          }
+                                        {
+                                            $"Use DateTimeOffset.UtcNow instead of DateTimeOffset.Now when creating '{actualName}'",
+                                            $"Convert '{actualName}' to UTC using .ToUniversalTime()",
+                                            "Ensure API responses or database values return UTC timestamps",
+                                            "Use .ToOffset(TimeSpan.Zero) to convert to UTC offset"
+                                        }
                                         : isLocalCheck
                                             ? new[]
-                                              {
-                                                  $"Use DateTimeOffset.Now to get current time with local offset",
-                                                  $"Convert '{actualName}' to local offset using .ToLocalTime()",
-                                                  $"Use .ToOffset(TimeZoneInfo.Local.GetUtcOffset(dateTime)) to convert to local offset",
-                                                  "Be aware that local timezone depends on the system timezone settings"
-                                              }
+                                            {
+                                                $"Use DateTimeOffset.Now to get current time with local offset",
+                                                $"Convert '{actualName}' to local offset using .ToLocalTime()",
+                                                $"Use .ToOffset(TimeZoneInfo.Local.GetUtcOffset(dateTime)) to convert to local offset",
+                                                "Be aware that local timezone depends on the system timezone settings"
+                                            }
                                             : new[]
-                                              {
-                                                  $"Use .ToOffset(expectedOffset) to convert '{actualName}' to the correct offset",
-                                                  "Verify the source of the DateTimeOffset and its timezone configuration",
-                                                  $"Ensure '{actualName}' is created with the correct timezone offset",
-                                                  "Check if timezone conversion is happening unexpectedly"
-                                              };
+                                            {
+                                                $"Use .ToOffset(expectedOffset) to convert '{actualName}' to the correct offset",
+                                                "Verify the source of the DateTimeOffset and its timezone configuration",
+                                                $"Ensure '{actualName}' is created with the correct timezone offset",
+                                                "Check if timezone conversion is happening unexpectedly"
+                                            };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

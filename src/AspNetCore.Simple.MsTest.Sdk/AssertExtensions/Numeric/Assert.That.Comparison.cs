@@ -34,8 +34,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             string valueName = "",
                                             [CallerFilePath] string callerFilePath = "",
                                             [CallerMemberName] string callerMemberName = "",
-                                            [CallerLineNumber] int callerLineNumber = 0
-        ) where T : IComparable<T>
+                                            [CallerLineNumber] int callerLineNumber = 0) where T : IComparable<T>
         {
             if (value.CompareTo(threshold) > 0)
             {
@@ -79,8 +78,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    string valueName = "",
                                                    [CallerFilePath] string callerFilePath = "",
                                                    [CallerMemberName] string callerMemberName = "",
-                                                   [CallerLineNumber] int callerLineNumber = 0
-        ) where T : IComparable<T>
+                                                   [CallerLineNumber] int callerLineNumber = 0) where T : IComparable<T>
         {
             if (value.CompareTo(threshold) >= 0)
             {
@@ -124,8 +122,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                          string valueName = "",
                                          [CallerFilePath] string callerFilePath = "",
                                          [CallerMemberName] string callerMemberName = "",
-                                         [CallerLineNumber] int callerLineNumber = 0
-        ) where T : IComparable<T>
+                                         [CallerLineNumber] int callerLineNumber = 0) where T : IComparable<T>
         {
             if (value.CompareTo(threshold) < 0)
             {
@@ -169,8 +166,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                 string valueName = "",
                                                 [CallerFilePath] string callerFilePath = "",
                                                 [CallerMemberName] string callerMemberName = "",
-                                                [CallerLineNumber] int callerLineNumber = 0
-        ) where T : IComparable<T>
+                                                [CallerLineNumber] int callerLineNumber = 0) where T : IComparable<T>
         {
             if (value.CompareTo(threshold) <= 0)
             {
@@ -192,18 +188,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building comparison assertion output
-        private static string BuildComparisonOutput<T>(
-            string comparisonType,
-            string comparisonSymbol,
-            T value,
-            T threshold,
-            string valueName,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        ) where T : IComparable<T>
+        private static string BuildComparisonOutput<T>(string comparisonType,
+                                                       string comparisonSymbol,
+                                                       T value,
+                                                       T threshold,
+                                                       string valueName,
+                                                       string because,
+                                                       string fix,
+                                                       string callerFilePath,
+                                                       string callerMemberName,
+                                                       int callerLineNumber) where T : IComparable<T>
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -235,10 +229,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-                                    {
-                                        $"Verify that '{valueName}' is calculated correctly to meet the condition", $"Check if the threshold value '{threshold}' is appropriate for this scenario", $"Review the logic that produces '{valueName}' to ensure it satisfies {valueName} {comparisonSymbol} {threshold}",
-                                        "Consider boundary conditions and edge cases in the code under test"
-                                    };
+            {
+                $"Verify that '{valueName}' is calculated correctly to meet the condition",
+                $"Check if the threshold value '{threshold}' is appropriate for this scenario",
+                $"Review the logic that produces '{valueName}' to ensure it satisfies {valueName} {comparisonSymbol} {threshold}",
+                "Consider boundary conditions and edge cases in the code under test"
+            };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

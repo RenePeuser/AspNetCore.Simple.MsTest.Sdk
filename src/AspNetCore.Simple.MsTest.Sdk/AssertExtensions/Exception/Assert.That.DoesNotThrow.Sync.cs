@@ -31,8 +31,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         string actionName = "",
                                         [CallerFilePath] string callerFilePath = "",
                                         [CallerMemberName] string callerMemberName = "",
-                                        [CallerLineNumber] int callerLineNumber = 0
-        )
+                                        [CallerLineNumber] int callerLineNumber = 0)
         {
             if (action == null)
             {
@@ -60,15 +59,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building DoesNotThrow assertion output
-        private static string BuildDoesNotThrowOutput(
-            string actionName,
-            Exception thrownException,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildDoesNotThrowOutput(string actionName,
+                                                      Exception thrownException,
+                                                      string because,
+                                                      string fix,
+                                                      string callerFilePath,
+                                                      string callerMemberName,
+                                                      int callerLineNumber)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -104,7 +101,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 // Limit stack trace to first 5 lines for readability
 #pragma warning disable CA1861 // Prefer static readonly fields
-                var stackLines = thrownException.StackTrace.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                var stackLines = thrownException.StackTrace.Split(new[]
+                {
+                    '\r',
+                    '\n'
+                }, StringSplitOptions.RemoveEmptyEntries);
 #pragma warning restore CA1861
                 var lineCount = Math.Min(stackLines.Length, 5);
 
@@ -126,12 +127,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-                                    {
-                                        $"Investigate the root cause of '{thrownException.GetType().Name}' in the action", $"Add proper error handling or validation before executing '{actionName}'", "Review the stack trace above to identify the failing code path",
-                                        "Consider if this exception indicates a bug in the code under test", thrownException.InnerException != null
-                                                                                                                 ? $"Check the inner exception: {thrownException.InnerException.GetType().Name}"
-                                                                                                                 : "Add defensive checks to prevent this exception condition"
-                                    };
+            {
+                $"Investigate the root cause of '{thrownException.GetType().Name}' in the action",
+                $"Add proper error handling or validation before executing '{actionName}'",
+                "Review the stack trace above to identify the failing code path",
+                "Consider if this exception indicates a bug in the code under test",
+                thrownException.InnerException != null
+                    ? $"Check the inner exception: {thrownException.InnerException.GetType().Name}"
+                    : "Add defensive checks to prevent this exception condition"
+            };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

@@ -39,8 +39,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                        string actualName = "",
                                        [CallerFilePath] string callerFilePath = "",
                                        [CallerMemberName] string callerMemberName = "",
-                                       [CallerLineNumber] int callerLineNumber = 0
-        )
+                                       [CallerLineNumber] int callerLineNumber = 0)
         {
             // If both are collections (but not strings), use collection comparison logic
             if (expected is IEnumerable && actual is IEnumerable &&
@@ -54,6 +53,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     return;
                 }
+
                 // Fall through to error reporting
             }
             else if (Equals(expected, actual))
@@ -101,8 +101,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           string actualName = "",
                                           [CallerFilePath] string callerFilePath = "",
                                           [CallerMemberName] string callerMemberName = "",
-                                          [CallerLineNumber] int callerLineNumber = 0
-        )
+                                          [CallerLineNumber] int callerLineNumber = 0)
         {
             if (!Equals(expected, actual))
             {
@@ -149,8 +148,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                       string actualName = "",
                                       [CallerFilePath] string callerFilePath = "",
                                       [CallerMemberName] string callerMemberName = "",
-                                      [CallerLineNumber] int callerLineNumber = 0
-        ) where T : class
+                                      [CallerLineNumber] int callerLineNumber = 0) where T : class
         {
             if (ReferenceEquals(expected, actual))
             {
@@ -197,8 +195,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                          string actualName = "",
                                          [CallerFilePath] string callerFilePath = "",
                                          [CallerMemberName] string callerMemberName = "",
-                                         [CallerLineNumber] int callerLineNumber = 0
-        ) where T : class
+                                         [CallerLineNumber] int callerLineNumber = 0) where T : class
         {
             if (!ReferenceEquals(expected, actual))
             {
@@ -220,18 +217,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building equality assertion output
-        private static string BuildEqualityOutput<T>(
-            bool expectEqual,
-            T expectedValue,
-            T actualValue,
-            string expectedName,
-            string actualName,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildEqualityOutput<T>(bool expectEqual,
+                                                     T expectedValue,
+                                                     T actualValue,
+                                                     string expectedName,
+                                                     string actualName,
+                                                     string because,
+                                                     string fix,
+                                                     string callerFilePath,
+                                                     string callerMemberName,
+                                                     int callerLineNumber)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -341,18 +336,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var additionalOptions = isCollectionComparison
                                         ? (expectEqual
                                                ? new[]
-                                                 {
-                                                     $"Verify that '{actualName}' is populated with the correct elements in the correct order", $"Check if the ordering logic for '{actualName}' matches the expected sequence", "Consider using AreEquivalent() if order doesn't matter",
-                                                     "Review the data source or transformation that produces the actual collection"
-                                                 }
-                                               : new[] { $"Ensure '{actualName}' generates unique values for this scenario", $"Check if '{expectedName}' and '{actualName}' should use different sources", "Verify the logic that differentiates these values" })
+                                               {
+                                                   $"Verify that '{actualName}' is populated with the correct elements in the correct order",
+                                                   $"Check if the ordering logic for '{actualName}' matches the expected sequence",
+                                                   "Consider using AreEquivalent() if order doesn't matter",
+                                                   "Review the data source or transformation that produces the actual collection"
+                                               }
+                                               : new[]
+                                               {
+                                                   $"Ensure '{actualName}' generates unique values for this scenario",
+                                                   $"Check if '{expectedName}' and '{actualName}' should use different sources",
+                                                   "Verify the logic that differentiates these values"
+                                               })
                                         : (expectEqual
                                                ? new[]
-                                                 {
-                                                     $"Verify that '{actualName}' is calculated correctly", $"Check the source of '{actualName}' for incorrect values", $"Ensure '{expectedName}' matches the actual business requirements",
-                                                     "Consider if custom equality comparison is needed"
-                                                 }
-                                               : new[] { $"Ensure '{actualName}' generates unique values for this scenario", $"Check if '{expectedName}' and '{actualName}' should use different sources", "Verify the logic that differentiates these values" });
+                                               {
+                                                   $"Verify that '{actualName}' is calculated correctly",
+                                                   $"Check the source of '{actualName}' for incorrect values",
+                                                   $"Ensure '{expectedName}' matches the actual business requirements",
+                                                   "Consider if custom equality comparison is needed"
+                                               }
+                                               : new[]
+                                               {
+                                                   $"Ensure '{actualName}' generates unique values for this scenario",
+                                                   $"Check if '{expectedName}' and '{actualName}' should use different sources",
+                                                   "Verify the logic that differentiates these values"
+                                               });
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -364,18 +373,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building reference equality assertion output
-        private static string BuildReferenceEqualityOutput<T>(
-            bool expectSame,
-            T expectedValue,
-            T actualValue,
-            string expectedName,
-            string actualName,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        ) where T : class
+        private static string BuildReferenceEqualityOutput<T>(bool expectSame,
+                                                              T expectedValue,
+                                                              T actualValue,
+                                                              string expectedName,
+                                                              string actualName,
+                                                              string because,
+                                                              string fix,
+                                                              string callerFilePath,
+                                                              string callerMemberName,
+                                                              int callerLineNumber) where T : class
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -416,15 +423,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = expectSame
                                         ? new[]
-                                          {
-                                              $"Ensure '{actualName}' returns the same cached/singleton instance as '{expectedName}'", $"Check if '{actualName}' is creating a new instance instead of reusing existing one", "Verify dependency injection lifetime (Singleton vs Transient vs Scoped)",
-                                              "Review object creation logic to ensure proper instance sharing"
-                                          }
+                                        {
+                                            $"Ensure '{actualName}' returns the same cached/singleton instance as '{expectedName}'",
+                                            $"Check if '{actualName}' is creating a new instance instead of reusing existing one",
+                                            "Verify dependency injection lifetime (Singleton vs Transient vs Scoped)",
+                                            "Review object creation logic to ensure proper instance sharing"
+                                        }
                                         : new[]
-                                          {
-                                              $"Ensure '{actualName}' creates a new independent instance", $"Check if '{actualName}' is incorrectly returning a cached instance", "Verify that cloning or copying logic creates deep copies",
-                                              "Review instance creation to ensure independence"
-                                          };
+                                        {
+                                            $"Ensure '{actualName}' creates a new independent instance",
+                                            $"Check if '{actualName}' is incorrectly returning a cached instance",
+                                            "Verify that cloning or copying logic creates deep copies",
+                                            "Review instance creation to ensure independence"
+                                        };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

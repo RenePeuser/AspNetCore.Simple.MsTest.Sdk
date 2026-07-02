@@ -28,16 +28,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="callerLineNumber">Auto-captured line number</param>
         /// <exception cref="AssertFailedException">Thrown when collection count does not match expected</exception>
         public static void HasCount<T>(this Assert _,
-                                       IEnumerable<T> collection,
                                        int expectedCount,
+                                       IEnumerable<T> collection,
                                        string because,
                                        string fix,
                                        [CallerArgumentExpression(nameof(collection))]
                                        string collectionName = "",
                                        [CallerFilePath] string callerFilePath = "",
                                        [CallerMemberName] string callerMemberName = "",
-                                       [CallerLineNumber] int callerLineNumber = 0
-        )
+                                       [CallerLineNumber] int callerLineNumber = 0)
         {
             if (collection == null)
             {
@@ -92,8 +91,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string collectionName = "",
                                               [CallerFilePath] string callerFilePath = "",
                                               [CallerMemberName] string callerMemberName = "",
-                                              [CallerLineNumber] int callerLineNumber = 0
-        )
+                                              [CallerLineNumber] int callerLineNumber = 0)
         {
             if (collection == null)
             {
@@ -156,8 +154,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   string collectionName = "",
                                                   [CallerFilePath] string callerFilePath = "",
                                                   [CallerMemberName] string callerMemberName = "",
-                                                  [CallerLineNumber] int callerLineNumber = 0
-        )
+                                                  [CallerLineNumber] int callerLineNumber = 0)
         {
             if (collection == null)
             {
@@ -193,20 +190,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building collection count assertion output
-        private static string BuildCountAssertionOutput<T>(
-            string collectionName,
-            IEnumerable<T> collection,
-            int actualCount,
-            int? expectedCount,
-            int? minCount,
-            int? maxCount,
-            string assertionType,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildCountAssertionOutput<T>(string collectionName,
+                                                           IEnumerable<T> collection,
+                                                           int actualCount,
+                                                           int? expectedCount,
+                                                           int? minCount,
+                                                           int? maxCount,
+                                                           string assertionType,
+                                                           string because,
+                                                           string fix,
+                                                           string callerFilePath,
+                                                           string callerMemberName,
+                                                           int callerLineNumber)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -285,24 +280,33 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var additionalOptions = assertionType switch
             {
                 "HasCount" => new[]
-                              {
-                                  $"Verify the logic that populates '{collectionName}' adds exactly {expectedCount} item(s)", $"Check if items are being filtered incorrectly before this assertion", actualCount > expectedCount!.Value
-                                                                                                                                                                                                          ? $"Remove {actualCount - expectedCount.Value} extra item(s) or adjust the expected count"
-                                                                                                                                                                                                          : $"Add {expectedCount.Value - actualCount} missing item(s) or adjust the expected count"
-                              },
+                {
+                    $"Verify the logic that populates '{collectionName}' adds exactly {expectedCount} item(s)",
+                    $"Check if items are being filtered incorrectly before this assertion",
+                    actualCount > expectedCount!.Value
+                        ? $"Remove {actualCount - expectedCount.Value} extra item(s) or adjust the expected count"
+                        : $"Add {expectedCount.Value - actualCount} missing item(s) or adjust the expected count"
+                },
                 "HasCountInRange" => new[]
-                                     {
-                                         $"Verify the logic that populates '{collectionName}' produces between {minCount} and {maxCount} items", actualCount < minCount!.Value
-                                                                                                                                                     ? $"Add at least {minCount.Value - actualCount} more item(s)"
-                                                                                                                                                     : $"Remove at least {actualCount - maxCount!.Value} item(s)",
-                                         "Review filtering or query logic that builds this collection"
-                                     },
+                {
+                    $"Verify the logic that populates '{collectionName}' produces between {minCount} and {maxCount} items",
+                    actualCount < minCount!.Value
+                        ? $"Add at least {minCount.Value - actualCount} more item(s)"
+                        : $"Remove at least {actualCount - maxCount!.Value} item(s)",
+                    "Review filtering or query logic that builds this collection"
+                },
                 "HasCountGreaterThan" => new[]
-                                         {
-                                             $"Verify the logic that populates '{collectionName}' produces more than {minCount} item(s)", $"Add at least {minCount!.Value + 1 - actualCount} more item(s)", "Check if the data source has sufficient records",
-                                             "Review any filtering logic that might be reducing the collection size"
-                                         },
-                _ => new[] { $"Review the logic that populates '{collectionName}'", "Check the test data setup" }
+                {
+                    $"Verify the logic that populates '{collectionName}' produces more than {minCount} item(s)",
+                    $"Add at least {minCount!.Value + 1 - actualCount} more item(s)",
+                    "Check if the data source has sufficient records",
+                    "Review any filtering logic that might be reducing the collection size"
+                },
+                _ => new[]
+                {
+                    $"Review the logic that populates '{collectionName}'",
+                    "Check the test data setup"
+                }
             };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,

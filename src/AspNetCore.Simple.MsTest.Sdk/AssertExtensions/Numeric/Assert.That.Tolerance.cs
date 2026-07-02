@@ -25,19 +25,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="callerMemberName">Auto-captured method name</param>
         /// <param name="callerLineNumber">Auto-captured line number</param>
         /// <exception cref="AssertFailedException">Thrown when actual value is not within tolerance of expected</exception>
-        public static void IsCloseTo(
-            this Assert _,
-            double actual,
-            double expected,
-            double tolerance,
-            string because,
-            string fix,
-            [CallerArgumentExpression(nameof(actual))]
-            string actualName = "",
-            [CallerFilePath] string callerFilePath = "",
-            [CallerMemberName] string callerMemberName = "",
-            [CallerLineNumber] int callerLineNumber = 0
-        )
+        public static void IsCloseTo(this Assert _,
+                                     double actual,
+                                     double expected,
+                                     double tolerance,
+                                     string because,
+                                     string fix,
+                                     [CallerArgumentExpression(nameof(actual))]
+                                     string actualName = "",
+                                     [CallerFilePath] string callerFilePath = "",
+                                     [CallerMemberName] string callerMemberName = "",
+                                     [CallerLineNumber] int callerLineNumber = 0)
         {
             if (tolerance < 0)
             {
@@ -80,19 +78,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="callerMemberName">Auto-captured method name</param>
         /// <param name="callerLineNumber">Auto-captured line number</param>
         /// <exception cref="AssertFailedException">Thrown when actual value is not within tolerance of expected</exception>
-        public static void IsCloseTo(
-            this Assert _,
-            decimal actual,
-            decimal expected,
-            decimal tolerance,
-            string because,
-            string fix,
-            [CallerArgumentExpression(nameof(actual))]
-            string actualName = "",
-            [CallerFilePath] string callerFilePath = "",
-            [CallerMemberName] string callerMemberName = "",
-            [CallerLineNumber] int callerLineNumber = 0
-        )
+        public static void IsCloseTo(this Assert _,
+                                     decimal actual,
+                                     decimal expected,
+                                     decimal tolerance,
+                                     string because,
+                                     string fix,
+                                     [CallerArgumentExpression(nameof(actual))]
+                                     string actualName = "",
+                                     [CallerFilePath] string callerFilePath = "",
+                                     [CallerMemberName] string callerMemberName = "",
+                                     [CallerLineNumber] int callerLineNumber = 0)
         {
             if (tolerance < 0)
             {
@@ -135,19 +131,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="callerMemberName">Auto-captured method name</param>
         /// <param name="callerLineNumber">Auto-captured line number</param>
         /// <exception cref="AssertFailedException">Thrown when actual value is not within tolerance of expected</exception>
-        public static void IsCloseTo(
-            this Assert _,
-            float actual,
-            float expected,
-            float tolerance,
-            string because,
-            string fix,
-            [CallerArgumentExpression(nameof(actual))]
-            string actualName = "",
-            [CallerFilePath] string callerFilePath = "",
-            [CallerMemberName] string callerMemberName = "",
-            [CallerLineNumber] int callerLineNumber = 0
-        )
+        public static void IsCloseTo(this Assert _,
+                                     float actual,
+                                     float expected,
+                                     float tolerance,
+                                     string because,
+                                     string fix,
+                                     [CallerArgumentExpression(nameof(actual))]
+                                     string actualName = "",
+                                     [CallerFilePath] string callerFilePath = "",
+                                     [CallerMemberName] string callerMemberName = "",
+                                     [CallerLineNumber] int callerLineNumber = 0)
         {
             if (tolerance < 0)
             {
@@ -177,19 +171,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building tolerance assertion output
-        private static string BuildToleranceOutput(
-            double actual,
-            double expected,
-            double tolerance,
-            double difference,
-            string typeName,
-            string valueName,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildToleranceOutput(double actual,
+                                                   double expected,
+                                                   double tolerance,
+                                                   double difference,
+                                                   string typeName,
+                                                   string valueName,
+                                                   string because,
+                                                   string fix,
+                                                   string callerFilePath,
+                                                   string callerMemberName,
+                                                   int callerLineNumber)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -225,10 +217,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-                                    {
-                                        $"Review the calculation that produces '{valueName}' to ensure it matches the expected formula", $"Check if the tolerance of ±{tolerance:G} is appropriate for this scenario", $"Verify input values used in computing '{valueName}' are correct",
-                                        "Consider if rounding errors or floating-point precision issues are affecting the result"
-                                    };
+            {
+                $"Review the calculation that produces '{valueName}' to ensure it matches the expected formula",
+                $"Check if the tolerance of ±{tolerance:G} is appropriate for this scenario",
+                $"Verify input values used in computing '{valueName}' are correct",
+                "Consider if rounding errors or floating-point precision issues are affecting the result"
+            };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

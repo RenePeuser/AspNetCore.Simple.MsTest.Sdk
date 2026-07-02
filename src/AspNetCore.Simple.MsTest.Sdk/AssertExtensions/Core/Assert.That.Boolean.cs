@@ -22,17 +22,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="callerMemberName">Auto-captured method name</param>
         /// <param name="callerLineNumber">Auto-captured line number</param>
         /// <exception cref="AssertFailedException">Thrown when condition is false</exception>
-        public static void IsTrue(
-            this Assert _,
-            bool condition,
-            string because,
-            string fix,
-            [CallerArgumentExpression(nameof(condition))]
-            string conditionName = "",
-            [CallerFilePath] string callerFilePath = "",
-            [CallerMemberName] string callerMemberName = "",
-            [CallerLineNumber] int callerLineNumber = 0
-        )
+        public static void IsTrue(this Assert _,
+                                  bool condition,
+                                  string because,
+                                  string fix,
+                                  [CallerArgumentExpression(nameof(condition))]
+                                  string conditionName = "",
+                                  [CallerFilePath] string callerFilePath = "",
+                                  [CallerMemberName] string callerMemberName = "",
+                                  [CallerLineNumber] int callerLineNumber = 0)
         {
             if (condition)
             {
@@ -62,17 +60,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="callerMemberName">Auto-captured method name</param>
         /// <param name="callerLineNumber">Auto-captured line number</param>
         /// <exception cref="AssertFailedException">Thrown when condition is true</exception>
-        public static void IsFalse(
-            this Assert _,
-            bool condition,
-            string because,
-            string fix,
-            [CallerArgumentExpression(nameof(condition))]
-            string conditionName = "",
-            [CallerFilePath] string callerFilePath = "",
-            [CallerMemberName] string callerMemberName = "",
-            [CallerLineNumber] int callerLineNumber = 0
-        )
+        public static void IsFalse(this Assert _,
+                                   bool condition,
+                                   string because,
+                                   string fix,
+                                   [CallerArgumentExpression(nameof(condition))]
+                                   string conditionName = "",
+                                   [CallerFilePath] string callerFilePath = "",
+                                   [CallerMemberName] string callerMemberName = "",
+                                   [CallerLineNumber] int callerLineNumber = 0)
         {
             if (!condition)
             {
@@ -91,15 +87,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building boolean assertion output
-        private static string BuildBooleanOutput(
-            bool expectTrue,
-            string conditionName,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildBooleanOutput(bool expectTrue,
+                                                 string conditionName,
+                                                 string because,
+                                                 string fix,
+                                                 string callerFilePath,
+                                                 string callerMemberName,
+                                                 int callerLineNumber)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -134,8 +128,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = expectTrue
-                                        ? new[] { $"Review the logic in '{conditionName}' to ensure it returns true", "Check the values being compared in the condition", "Verify that prerequisites for this condition are met" }
-                                        : new[] { $"Review the logic in '{conditionName}' to ensure it returns false", "Check if the condition should be inverted", "Verify the expected state for this test scenario" };
+                                        ? new[]
+                                        {
+                                            $"Review the logic in '{conditionName}' to ensure it returns true",
+                                            "Check the values being compared in the condition",
+                                            "Verify that prerequisites for this condition are met"
+                                        }
+                                        : new[]
+                                        {
+                                            $"Review the logic in '{conditionName}' to ensure it returns false",
+                                            "Check if the condition should be inverted",
+                                            "Verify the expected state for this test scenario"
+                                        };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

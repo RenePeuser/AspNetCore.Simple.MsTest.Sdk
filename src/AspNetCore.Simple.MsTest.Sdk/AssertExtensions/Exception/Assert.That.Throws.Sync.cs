@@ -26,15 +26,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <exception cref="AssertFailedException">Thrown when action does not throw expected exception</exception>
         /// <returns>The caught exception of type TException for further processing</returns>
         public static TException Throws<TException>(this Assert _,
-                                              Action action,
-                                              string because,
-                                              string fix,
-                                              [CallerArgumentExpression(nameof(action))]
-                                              string actionName = "",
-                                              [CallerFilePath] string callerFilePath = "",
-                                              [CallerMemberName] string callerMemberName = "",
-                                              [CallerLineNumber] int callerLineNumber = 0
-        ) where TException : Exception
+                                                    Action action,
+                                                    string because,
+                                                    string fix,
+                                                    [CallerArgumentExpression(nameof(action))]
+                                                    string actionName = "",
+                                                    [CallerFilePath] string callerFilePath = "",
+                                                    [CallerMemberName] string callerMemberName = "",
+                                                    [CallerLineNumber] int callerLineNumber = 0) where TException : Exception
         {
             Exception? caughtException = null;
 
@@ -82,16 +81,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <exception cref="AssertFailedException">Thrown when action does not throw expected exception or message does not match</exception>
         /// <returns>The caught exception of type TException for further processing</returns>
         public static TException ThrowsWithMessage<TException>(this Assert _,
-                                                         Action action,
-                                                         string expectedMessage,
-                                                         string because,
-                                                         string fix,
-                                                         [CallerArgumentExpression(nameof(action))]
-                                                         string actionName = "",
-                                                         [CallerFilePath] string callerFilePath = "",
-                                                         [CallerMemberName] string callerMemberName = "",
-                                                         [CallerLineNumber] int callerLineNumber = 0
-        ) where TException : Exception
+                                                               Action action,
+                                                               string expectedMessage,
+                                                               string because,
+                                                               string fix,
+                                                               [CallerArgumentExpression(nameof(action))]
+                                                               string actionName = "",
+                                                               [CallerFilePath] string callerFilePath = "",
+                                                               [CallerMemberName] string callerMemberName = "",
+                                                               [CallerLineNumber] int callerLineNumber = 0) where TException : Exception
         {
             Exception? caughtException = null;
 
@@ -124,16 +122,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building throws assertion output
-        private static string BuildThrowsOutput<TException>(
-            string actionName,
-            Exception? caughtException,
-            string? expectedMessage,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        ) where TException : Exception
+        private static string BuildThrowsOutput<TException>(string actionName,
+                                                            Exception? caughtException,
+                                                            string? expectedMessage,
+                                                            string because,
+                                                            string fix,
+                                                            string callerFilePath,
+                                                            string callerMemberName,
+                                                            int callerLineNumber) where TException : Exception
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -203,19 +199,38 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (caughtException == null)
             {
-                additionalOptions = new[] { $"Ensure the code in '{actionName}' throws {typeof(TException).Name}", $"Check if the exception is being caught and suppressed before this assertion", $"Verify that the conditions for throwing {typeof(TException).Name} are met" };
+                additionalOptions = new[]
+                {
+                    $"Ensure the code in '{actionName}' throws {typeof(TException).Name}",
+                    $"Check if the exception is being caught and suppressed before this assertion",
+                    $"Verify that the conditions for throwing {typeof(TException).Name} are met"
+                };
             }
             else if (caughtException is not TException)
             {
-                additionalOptions = new[] { $"Change the expected exception type from {typeof(TException).Name} to {caughtException.GetType().Name}", $"Update the code in '{actionName}' to throw {typeof(TException).Name} instead of {caughtException.GetType().Name}", $"Check if {caughtException.GetType().Name} is wrapped or needs to be unwrapped" };
+                additionalOptions = new[]
+                {
+                    $"Change the expected exception type from {typeof(TException).Name} to {caughtException.GetType().Name}",
+                    $"Update the code in '{actionName}' to throw {typeof(TException).Name} instead of {caughtException.GetType().Name}",
+                    $"Check if {caughtException.GetType().Name} is wrapped or needs to be unwrapped"
+                };
             }
             else if (expectedMessage != null)
             {
-                additionalOptions = new[] { $"Update the expected message to match: \"{caughtException.Message}\"", $"Update the exception message in the code under test to: \"{expectedMessage}\"", "Consider using Contains assertion if exact message match is too strict" };
+                additionalOptions = new[]
+                {
+                    $"Update the expected message to match: \"{caughtException.Message}\"",
+                    $"Update the exception message in the code under test to: \"{expectedMessage}\"",
+                    "Consider using Contains assertion if exact message match is too strict"
+                };
             }
             else
             {
-                additionalOptions = new[] { $"Review the exception handling logic in '{actionName}'", "Check for unexpected exception types or missing throws" };
+                additionalOptions = new[]
+                {
+                    $"Review the exception handling logic in '{actionName}'",
+                    "Check for unexpected exception types or missing throws"
+                };
             }
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,

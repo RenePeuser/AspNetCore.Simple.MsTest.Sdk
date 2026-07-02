@@ -25,15 +25,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <exception cref="AssertFailedException">Thrown when action does not throw expected exception</exception>
         /// <returns>The caught exception of type TException for further processing</returns>
         public static async Task<TException> ThrowsAsync<TException>(this Assert _,
-                                                         Func<Task> action,
-                                                         string because,
-                                                         string fix,
-                                                         [CallerArgumentExpression(nameof(action))]
-                                                         string actionName = "",
-                                                         [CallerFilePath] string callerFilePath = "",
-                                                         [CallerMemberName] string callerMemberName = "",
-                                                         [CallerLineNumber] int callerLineNumber = 0
-        ) where TException : Exception
+                                                                     Func<Task> action,
+                                                                     string because,
+                                                                     string fix,
+                                                                     [CallerArgumentExpression(nameof(action))]
+                                                                     string actionName = "",
+                                                                     [CallerFilePath] string callerFilePath = "",
+                                                                     [CallerMemberName] string callerMemberName = "",
+                                                                     [CallerLineNumber] int callerLineNumber = 0) where TException : Exception
         {
             Exception? caughtException = null;
 
@@ -81,16 +80,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <exception cref="AssertFailedException">Thrown when action does not throw expected exception or message does not match</exception>
         /// <returns>The caught exception of type TException for further processing</returns>
         public static async Task<TException> ThrowsWithMessageAsync<TException>(this Assert _,
-                                                                     Func<Task> action,
-                                                                     string expectedMessage,
-                                                                     string because,
-                                                                     string fix,
-                                                                     [CallerArgumentExpression(nameof(action))]
-                                                                     string actionName = "",
-                                                                     [CallerFilePath] string callerFilePath = "",
-                                                                     [CallerMemberName] string callerMemberName = "",
-                                                                     [CallerLineNumber] int callerLineNumber = 0
-        ) where TException : Exception
+                                                                                Func<Task> action,
+                                                                                string expectedMessage,
+                                                                                string because,
+                                                                                string fix,
+                                                                                [CallerArgumentExpression(nameof(action))]
+                                                                                string actionName = "",
+                                                                                [CallerFilePath] string callerFilePath = "",
+                                                                                [CallerMemberName] string callerMemberName = "",
+                                                                                [CallerLineNumber] int callerLineNumber = 0) where TException : Exception
         {
             Exception? caughtException = null;
 

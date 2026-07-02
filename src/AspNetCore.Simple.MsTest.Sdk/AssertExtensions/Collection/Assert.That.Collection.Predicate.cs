@@ -38,8 +38,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                   string collectionName = "",
                                   [CallerFilePath] string callerFilePath = "",
                                   [CallerMemberName] string callerMemberName = "",
-                                  [CallerLineNumber] int callerLineNumber = 0
-        )
+                                  [CallerLineNumber] int callerLineNumber = 0)
         {
             if (collection is null)
             {
@@ -99,8 +98,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                   string collectionName = "",
                                   [CallerFilePath] string callerFilePath = "",
                                   [CallerMemberName] string callerMemberName = "",
-                                  [CallerLineNumber] int callerLineNumber = 0
-        )
+                                  [CallerLineNumber] int callerLineNumber = 0)
         {
             if (collection is null)
             {
@@ -160,8 +158,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    string collectionName = "",
                                    [CallerFilePath] string callerFilePath = "",
                                    [CallerMemberName] string callerMemberName = "",
-                                   [CallerLineNumber] int callerLineNumber = 0
-        )
+                                   [CallerLineNumber] int callerLineNumber = 0)
         {
             if (collection is null)
             {
@@ -222,8 +219,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string collectionName = "",
                                      [CallerFilePath] string callerFilePath = "",
                                      [CallerMemberName] string callerMemberName = "",
-                                     [CallerLineNumber] int callerLineNumber = 0
-        )
+                                     [CallerLineNumber] int callerLineNumber = 0)
         {
             if (collection is null)
             {
@@ -260,19 +256,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #pragma warning restore CA1720
 
         // Private helper for building collection predicate assertion output
-        private static string BuildCollectionPredicateOutput<T>(
-            string predicateType,
-            string collectionName,
-            string predicateDescription,
-            int totalCount,
-            int matchingCount,
-            List<T> failingItems,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildCollectionPredicateOutput<T>(string predicateType,
+                                                                string collectionName,
+                                                                string predicateDescription,
+                                                                int totalCount,
+                                                                int matchingCount,
+                                                                List<T> failingItems,
+                                                                string because,
+                                                                string fix,
+                                                                string callerFilePath,
+                                                                string callerMemberName,
+                                                                int callerLineNumber)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -348,13 +342,42 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = predicateType switch
             {
-                "All" => new[] { $"Review the items in '{collectionName}' that failed the predicate", $"Verify that the data source for '{collectionName}' produces items matching '{predicateDescription}'", "Check if the predicate logic is correct and matches your requirements" },
-                "Any" => new[] { $"Ensure '{collectionName}' is populated with items matching '{predicateDescription}'", $"Verify the data source for '{collectionName}' is correct", "Check if the collection is empty or if the predicate logic needs adjustment" },
-                "None" => new[] { $"Review the items in '{collectionName}' that unexpectedly match '{predicateDescription}'", $"Verify that '{collectionName}' is filtered correctly before this assertion", "Check if the predicate logic correctly identifies items to exclude" },
+                "All" => new[]
+                {
+                    $"Review the items in '{collectionName}' that failed the predicate",
+                    $"Verify that the data source for '{collectionName}' produces items matching '{predicateDescription}'",
+                    "Check if the predicate logic is correct and matches your requirements"
+                },
+                "Any" => new[]
+                {
+                    $"Ensure '{collectionName}' is populated with items matching '{predicateDescription}'",
+                    $"Verify the data source for '{collectionName}' is correct",
+                    "Check if the collection is empty or if the predicate logic needs adjustment"
+                },
+                "None" => new[]
+                {
+                    $"Review the items in '{collectionName}' that unexpectedly match '{predicateDescription}'",
+                    $"Verify that '{collectionName}' is filtered correctly before this assertion",
+                    "Check if the predicate logic correctly identifies items to exclude"
+                },
                 "Single" => matchingCount == 0
-                                ? new[] { $"Ensure '{collectionName}' contains at least one item matching '{predicateDescription}'", $"Verify the data source for '{collectionName}' includes the expected item", "Check if the predicate is too restrictive" }
-                                : new[] { $"Ensure '{collectionName}' contains exactly one item matching '{predicateDescription}'", $"Remove duplicate items from '{collectionName}' or refine the predicate", "Check if the predicate is too broad and matches multiple items" },
-                _ => new[] { $"Review the items in '{collectionName}'", "Verify the predicate logic is correct" }
+                                ? new[]
+                                {
+                                    $"Ensure '{collectionName}' contains at least one item matching '{predicateDescription}'",
+                                    $"Verify the data source for '{collectionName}' includes the expected item",
+                                    "Check if the predicate is too restrictive"
+                                }
+                                : new[]
+                                {
+                                    $"Ensure '{collectionName}' contains exactly one item matching '{predicateDescription}'",
+                                    $"Remove duplicate items from '{collectionName}' or refine the predicate",
+                                    "Check if the predicate is too broad and matches multiple items"
+                                },
+                _ => new[]
+                {
+                    $"Review the items in '{collectionName}'",
+                    "Verify the predicate logic is correct"
+                }
             };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,

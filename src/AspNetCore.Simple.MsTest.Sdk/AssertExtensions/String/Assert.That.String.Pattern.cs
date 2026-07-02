@@ -35,8 +35,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    string textName = "",
                                    [CallerFilePath] string callerFilePath = "",
                                    [CallerMemberName] string callerMemberName = "",
-                                   [CallerLineNumber] int callerLineNumber = 0
-        )
+                                   [CallerLineNumber] int callerLineNumber = 0)
         {
             if (text is not null && Regex.IsMatch(text, pattern, options))
             {
@@ -81,8 +80,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         string textName = "",
                                         [CallerFilePath] string callerFilePath = "",
                                         [CallerMemberName] string callerMemberName = "",
-                                        [CallerLineNumber] int callerLineNumber = 0
-        )
+                                        [CallerLineNumber] int callerLineNumber = 0)
         {
             if (text is null || !Regex.IsMatch(text, pattern, options))
             {
@@ -104,18 +102,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building pattern match assertion output
-        private static string BuildPatternMatchOutput(
-            bool expectMatch,
-            string? text,
-            string pattern,
-            RegexOptions options,
-            string textName,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildPatternMatchOutput(bool expectMatch,
+                                                      string? text,
+                                                      string pattern,
+                                                      RegexOptions options,
+                                                      string textName,
+                                                      string because,
+                                                      string fix,
+                                                      string callerFilePath,
+                                                      string callerMemberName,
+                                                      int callerLineNumber)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -166,11 +162,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = expectMatch
                                         ? new[]
-                                          {
-                                              $"Verify that '{textName}' contains the expected format or structure", $"Review the regex pattern '{pattern}' to ensure it matches the expected format", "Check if the text needs preprocessing (trimming, normalization, etc.)",
-                                              "Test the pattern at regex101.com to validate it works as expected"
-                                          }
-                                        : new[] { $"Ensure '{textName}' does not contain the pattern '{pattern}'", "Review the regex pattern to ensure it correctly identifies invalid input", $"Verify that validation logic properly sanitizes '{textName}'" };
+                                        {
+                                            $"Verify that '{textName}' contains the expected format or structure",
+                                            $"Review the regex pattern '{pattern}' to ensure it matches the expected format",
+                                            "Check if the text needs preprocessing (trimming, normalization, etc.)",
+                                            "Test the pattern at regex101.com to validate it works as expected"
+                                        }
+                                        : new[]
+                                        {
+                                            $"Ensure '{textName}' does not contain the pattern '{pattern}'",
+                                            "Review the regex pattern to ensure it correctly identifies invalid input",
+                                            $"Verify that validation logic properly sanitizes '{textName}'"
+                                        };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

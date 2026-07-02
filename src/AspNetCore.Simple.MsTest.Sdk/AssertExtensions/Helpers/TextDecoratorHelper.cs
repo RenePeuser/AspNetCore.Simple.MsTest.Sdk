@@ -34,8 +34,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
         private static bool IsAssemblyDebugBuild(Assembly assembly)
         {
             var debuggableAttribute = assembly.GetCustomAttributes(typeof(DebuggableAttribute), false)
-                                             .OfType<DebuggableAttribute>()
-                                             .FirstOrDefault();
+                                              .OfType<DebuggableAttribute>()
+                                              .FirstOrDefault();
 
             if (debuggableAttribute == null)
             {

@@ -31,8 +31,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                   string valueName = "",
                                   [CallerFilePath] string callerFilePath = "",
                                   [CallerMemberName] string callerMemberName = "",
-                                  [CallerLineNumber] int callerLineNumber = 0
-        )
+                                  [CallerLineNumber] int callerLineNumber = 0)
         {
             if (value % 2 == 0)
             {
@@ -48,7 +47,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  callerFilePath: callerFilePath,
                                                  callerMemberName: callerMemberName,
                                                  callerLineNumber: callerLineNumber,
-                                                 additionalOptions: new[] { $"Ensure '{valueName}' is calculated or set to an even number", "Use modulo operation (% 2 == 0) to verify even values before this assertion", $"If '{valueName}' comes from user input, add validation or rounding logic" });
+                                                 additionalOptions: new[]
+                                                 {
+                                                     $"Ensure '{valueName}' is calculated or set to an even number",
+                                                     "Use modulo operation (% 2 == 0) to verify even values before this assertion",
+                                                     $"If '{valueName}' comes from user input, add validation or rounding logic"
+                                                 });
 
             throw new AssertFailedException(output);
         }
@@ -73,8 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                  string valueName = "",
                                  [CallerFilePath] string callerFilePath = "",
                                  [CallerMemberName] string callerMemberName = "",
-                                 [CallerLineNumber] int callerLineNumber = 0
-        )
+                                 [CallerLineNumber] int callerLineNumber = 0)
         {
             if (value % 2 != 0)
             {
@@ -90,7 +93,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  callerFilePath: callerFilePath,
                                                  callerMemberName: callerMemberName,
                                                  callerLineNumber: callerLineNumber,
-                                                 additionalOptions: new[] { $"Ensure '{valueName}' is calculated or set to an odd number", "Use modulo operation (% 2 != 0) to verify odd values before this assertion", $"If '{valueName}' comes from user input, add validation logic" });
+                                                 additionalOptions: new[]
+                                                 {
+                                                     $"Ensure '{valueName}' is calculated or set to an odd number",
+                                                     "Use modulo operation (% 2 != 0) to verify odd values before this assertion",
+                                                     $"If '{valueName}' comes from user input, add validation logic"
+                                                 });
 
             throw new AssertFailedException(output);
         }
@@ -116,8 +124,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                          string valueName = "",
                                          [CallerFilePath] string callerFilePath = "",
                                          [CallerMemberName] string callerMemberName = "",
-                                         [CallerLineNumber] int callerLineNumber = 0
-        ) where T : IComparable<T>
+                                         [CallerLineNumber] int callerLineNumber = 0) where T : IComparable<T>
         {
             dynamic zero = Convert.ChangeType(0, typeof(T));
 
@@ -136,10 +143,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  callerMemberName: callerMemberName,
                                                  callerLineNumber: callerLineNumber,
                                                  additionalOptions: new[]
-                                                                    {
-                                                                        $"Verify that '{valueName}' is set to a value greater than zero", $"Check calculations or operations that produce '{valueName}' for correctness", "Add validation to ensure positive values before this assertion",
-                                                                        $"Consider using Math.Abs() if '{valueName}' should always be positive"
-                                                                    });
+                                                 {
+                                                     $"Verify that '{valueName}' is set to a value greater than zero",
+                                                     $"Check calculations or operations that produce '{valueName}' for correctness",
+                                                     "Add validation to ensure positive values before this assertion",
+                                                     $"Consider using Math.Abs() if '{valueName}' should always be positive"
+                                                 });
 
             throw new AssertFailedException(output);
         }
@@ -165,8 +174,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                          string valueName = "",
                                          [CallerFilePath] string callerFilePath = "",
                                          [CallerMemberName] string callerMemberName = "",
-                                         [CallerLineNumber] int callerLineNumber = 0
-        ) where T : IComparable<T>
+                                         [CallerLineNumber] int callerLineNumber = 0) where T : IComparable<T>
         {
             dynamic zero = Convert.ChangeType(0, typeof(T));
 
@@ -185,10 +193,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  callerMemberName: callerMemberName,
                                                  callerLineNumber: callerLineNumber,
                                                  additionalOptions: new[]
-                                                                    {
-                                                                        $"Verify that '{valueName}' is set to a value less than zero", $"Check calculations or operations that produce '{valueName}' for correctness", "Add validation to ensure negative values before this assertion",
-                                                                        "Review the business logic that should produce negative values"
-                                                                    });
+                                                 {
+                                                     $"Verify that '{valueName}' is set to a value less than zero",
+                                                     $"Check calculations or operations that produce '{valueName}' for correctness",
+                                                     "Add validation to ensure negative values before this assertion",
+                                                     "Review the business logic that should produce negative values"
+                                                 });
 
             throw new AssertFailedException(output);
         }
@@ -214,8 +224,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string valueName = "",
                                      [CallerFilePath] string callerFilePath = "",
                                      [CallerMemberName] string callerMemberName = "",
-                                     [CallerLineNumber] int callerLineNumber = 0
-        ) where T : IComparable<T>
+                                     [CallerLineNumber] int callerLineNumber = 0) where T : IComparable<T>
         {
             dynamic zero = Convert.ChangeType(0, typeof(T));
 
@@ -234,27 +243,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  callerMemberName: callerMemberName,
                                                  callerLineNumber: callerLineNumber,
                                                  additionalOptions: new[]
-                                                                    {
-                                                                        $"Ensure '{valueName}' is explicitly set to zero for this test scenario", $"Check that calculations involving '{valueName}' correctly result in zero", "Review the initialization or reset logic for this value",
-                                                                        "Verify that default values are properly configured to zero"
-                                                                    });
+                                                 {
+                                                     $"Ensure '{valueName}' is explicitly set to zero for this test scenario",
+                                                     $"Check that calculations involving '{valueName}' correctly result in zero",
+                                                     "Review the initialization or reset logic for this value",
+                                                     "Verify that default values are properly configured to zero"
+                                                 });
 
             throw new AssertFailedException(output);
         }
 
         // Private helper for building mathematical property assertion output
-        private static string BuildMathPropertyOutput<T>(
-            string propertyName,
-            string propertyCheck,
-            string valueName,
-            T actualValue,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber,
-            string[] additionalOptions
-        )
+        private static string BuildMathPropertyOutput<T>(string propertyName,
+                                                         string propertyCheck,
+                                                         string valueName,
+                                                         T actualValue,
+                                                         string because,
+                                                         string fix,
+                                                         string callerFilePath,
+                                                         string callerMemberName,
+                                                         int callerLineNumber,
+                                                         string[] additionalOptions)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();

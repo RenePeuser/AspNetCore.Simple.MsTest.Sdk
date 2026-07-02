@@ -31,8 +31,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string valueName = "",
                                      [CallerFilePath] string callerFilePath = "",
                                      [CallerMemberName] string callerMemberName = "",
-                                     [CallerLineNumber] int callerLineNumber = 0
-        ) where T : class
+                                     [CallerLineNumber] int callerLineNumber = 0) where T : class
         {
             if (value is null)
             {
@@ -73,8 +72,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         string valueName = "",
                                         [CallerFilePath] string callerFilePath = "",
                                         [CallerMemberName] string callerMemberName = "",
-                                        [CallerLineNumber] int callerLineNumber = 0
-        ) where T : class
+                                        [CallerLineNumber] int callerLineNumber = 0) where T : class
         {
             if (value is not null)
             {
@@ -95,17 +93,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // Private helper for building null assertion output
-        private static string BuildNullAssertionOutput<T>(
-            bool expectNull,
-            string valueName,
-            T? actualValue,
-            System.Type actualType,
-            string because,
-            string fix,
-            string callerFilePath,
-            string callerMemberName,
-            int callerLineNumber
-        )
+        private static string BuildNullAssertionOutput<T>(bool expectNull,
+                                                          string valueName,
+                                                          T? actualValue,
+                                                          System.Type actualType,
+                                                          string because,
+                                                          string fix,
+                                                          string callerFilePath,
+                                                          string callerMemberName,
+                                                          int callerLineNumber)
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
@@ -141,8 +137,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = expectNull
-                                        ? new[] { $"Ensure the code that sets '{valueName}' returns null for this scenario", $"Review the logic that creates or assigns '{valueName}'" }
-                                        : new[] { $"Verify that '{valueName}' is properly initialized before this assertion", $"Check for null returns in methods that populate '{valueName}'", "Add null checks or default values in the code under test" };
+                                        ? new[]
+                                        {
+                                            $"Ensure the code that sets '{valueName}' returns null for this scenario",
+                                            $"Review the logic that creates or assigns '{valueName}'"
+                                        }
+                                        : new[]
+                                        {
+                                            $"Verify that '{valueName}' is properly initialized before this assertion",
+                                            $"Check for null returns in methods that populate '{valueName}'",
+                                            "Add null checks or default values in the code under test"
+                                        };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
