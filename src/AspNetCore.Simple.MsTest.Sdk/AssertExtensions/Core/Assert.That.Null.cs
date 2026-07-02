@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
@@ -65,7 +66,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="callerLineNumber">Auto-captured line number</param>
         /// <exception cref="AssertFailedException">Thrown when value is null</exception>
         public static void IsNotNull<T>(this Assert _,
-                                        T? value,
+                                        [NotNull] T? value,
                                         string because,
                                         string fix,
                                         [CallerArgumentExpression(nameof(value))]
