@@ -91,6 +91,46 @@ namespace Controllers.Api.Persons
             return Ok(new DeletePersonResponse(id, "Son", "Goku",
                                                true, DateTime.UtcNow));
         }
+
+        [AcceptVerbs("QUERY")]
+        [Route("")]
+        [ProducesResponseType(typeof(IEnumerable<Person>), 200)]
+        public IEnumerable<Person> QueryPersons([FromQuery] string name = "")
+        {
+            if (name.IsNotNullOrWhiteSpace())
+            {
+                return _persons.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return _persons;
+        }
+
+        [AcceptVerbs("QUERY")]
+        [Route("search")]
+        [ProducesResponseType(typeof(IEnumerable<Person>), 200)]
+        public IEnumerable<Person> QueryPersonsWithBody([FromBody] PersonSearchRequest searchRequest)
+        {
+            ArgumentNullException.ThrowIfNull(searchRequest);
+
+            var results = _persons.AsEnumerable();
+
+            if (searchRequest.Name.IsNotNullOrWhiteSpace())
+            {
+                results = results.Where(p => p.Name.Contains(searchRequest.Name, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (searchRequest.MinAge.HasValue)
+            {
+                results = results.Where(p => p.Age >= searchRequest.MinAge.Value);
+            }
+
+            if (searchRequest.MaxAge.HasValue)
+            {
+                results = results.Where(p => p.Age <= searchRequest.MaxAge.Value);
+            }
+
+            return results;
+        }
     }
 
     public record DeletePersonResponse(long Id,
@@ -98,4 +138,8 @@ namespace Controllers.Api.Persons
                                        string FirstName,
                                        bool Deleted,
                                        DateTime DeletedAt);
+
+    public record PersonSearchRequest(string? Name,
+                                      int? MinAge,
+                                      int? MaxAge);
 }

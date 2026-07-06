@@ -2,6 +2,7 @@
 
 [![NuGet](https://img.shields.io/badge/nuget-AspNetCore.Simple.MsTest.Sdk-blue)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk)
 [![.NET 10](https://img.shields.io/badge/.NET-10-purple)](https://dotnet.microsoft.com/)
+[![HTTP QUERY](https://img.shields.io/badge/RFC%2010008-HTTP%20QUERY-green)](https://datatracker.ietf.org/doc/html/rfc10008)
 [![License](https://img.shields.io/badge/license-Proprietary-red)]()
 
 > **API snapshot testing so productive it feels like cheating.**  
@@ -153,6 +154,7 @@ Run the test and you get:
 
 ## What you get
 
+- **HTTP QUERY support** ([RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008)) - Complex queries with request body, GET semantics
 - Full HTTP response snapshots: status, headers, body, trailing headers
 - Precise structured diffs with deep `MemberPath` paths
 - Context-specific error headers (Snapshot Mismatch, Schema Mismatch, Status Code, etc.)
@@ -163,6 +165,110 @@ Run the test and you get:
 - Snapshot generation from live traffic
 - Snapshot auto-update and ignore strategies
 - Drastically less boilerplate than traditional API tests
+
+---
+
+## Supported HTTP Methods & Content Types
+
+Complete feature matrix showing what's supported out of the box:
+
+### HTTP Methods
+
+| Method | With Body | Success Response | Error Response |
+|--------|-----------|------------------|----------------|
+| **GET** | ❌ | ✅ `AssertGetAsync<T>()` | ✅ `AssertGetAsErrorAsync<T>()` |
+| **QUERY** [RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008) | ✅ | ✅ `AssertQueryAsync<T>()` | ✅ `AssertQueryAsErrorAsync<T>()` |
+| **POST** | ✅ | ✅ `AssertPostAsync<T>()` | ✅ `AssertPostAsErrorAsync<T>()` |
+| **PUT** | ✅ | ✅ `AssertPutAsync<T>()` | ✅ `AssertPutAsErrorAsync<T>()` |
+| **PATCH** | ✅ | ✅ `AssertPatchAsync<T>()` | ✅ `AssertPatchAsErrorAsync<T>()` |
+| **DELETE** | ❌ | ✅ `AssertDeleteAsync<T>()` | ✅ `AssertDeleteAsErrorAsync<T>()` |
+| **OPTIONS** | ❌ | ✅ `AssertOptionsAsync()` | ❌ |
+
+**Note**: POST, PUT, PATCH, DELETE also support NoContent (204) variants without `<T>` generic parameter.
+
+### Content Types
+
+| Content Type | Request | Response | Snapshot Format | Status |
+|--------------|---------|----------|-----------------|--------|
+| **application/json** | ✅ | ✅ | `.json` files | ✅ Full support |
+| **application/xml** | ❌ | ❌ | N/A | ⏳ Planned |
+| **multipart/form-data** | ❌ | N/A | N/A | ⏳ Planned |
+| **application/x-www-form-urlencoded** | ❌ | N/A | N/A | ⏳ Planned |
+| **text/plain** | ✅ | ✅ | `.txt` files | ✅ String comparison |
+
+### Features
+
+| Feature | Support | Notes |
+|---------|---------|-------|
+| **Request body validation** | ✅ | JSON snapshots |
+| **Response body validation** | ✅ | Deep object comparison |
+| **Status code validation** | ✅ | Expected vs actual |
+| **Header validation** | ✅ | Full HTTP response snapshots |
+| **Query parameters** | ✅ | URL parameters + parameter replacement |
+| **Dynamic parameters** | ✅ | `$placeholder$` replacement in JSON |
+| **File upload** | ❌ | Multipart not yet supported |
+| **Binary responses** | ❌ | Text/JSON only |
+| **Streaming** | ❌ | Snapshot-based only |
+| **WebSockets** | ❌ | HTTP only |
+
+**Legend:**
+- ✅ = Fully supported
+- ⏳ = Planned for future releases  
+- ❌ = Not supported
+
+**Current focus**: JSON-based REST APIs with full snapshot testing support for all standard HTTP methods including the new QUERY method.
+
+### Example: Complete CRUD workflow with QUERY
+
+```csharp
+[TestClass]
+public class UserApiTests : ApiTestBase
+{
+    [TestMethod]
+    public async Task Complete_User_Lifecycle()
+    {
+        // CREATE - POST with response
+        var created = await Client.AssertPostAsync<User>(
+            "api/v1/users",
+            "CreateUser.json",
+            "CreatedUser.json");
+        
+        // READ - GET single resource
+        await Client.AssertGetAsync<User>(
+            $"api/v1/users/{created.Id}",
+            "UserDetails.json");
+        
+        // QUERY - Complex search with body (new RFC 10008 method!)
+        await Client.AssertQueryAsync<SearchResults>(
+            "api/v1/users/search",
+            "SearchRequest.json",
+            "SearchResults.json");
+        
+        // UPDATE - PUT with response
+        await Client.AssertPutAsync<User>(
+            $"api/v1/users/{created.Id}",
+            "UpdateUser.json",
+            "UpdatedUser.json");
+        
+        // PARTIAL UPDATE - PATCH with response
+        await Client.AssertPatchAsync<User>(
+            $"api/v1/users/{created.Id}",
+            "PatchUser.json",
+            "PatchedUser.json");
+        
+        // DELETE - with NoContent (204)
+        await Client.AssertDeleteAsync(
+            $"api/v1/users/{created.Id}");
+    }
+}
+```
+
+All methods support:
+- ✅ Full response snapshots
+- ✅ Error scenarios with `AsErrorAsync` variants
+- ✅ Dynamic parameter replacement
+- ✅ Ignore strategies for dynamic values
+- ✅ Endpoint validation against `[ProducesResponseType]`
 
 ---
 
@@ -1486,10 +1592,12 @@ await Client.AssertPostAsync<CreateItemResponse>("api/v1/items",
 
 | HTTP Method | NoContent (204) | With Response Body (200/201) |
 |-------------|-----------------|------------------------------|
-| DELETE | `AssertDeleteAsync()` | `AssertDeleteAsync<T>()` |
+| GET | N/A (always has body) | `AssertGetAsync<T>()` |
+| **QUERY** | N/A (always has body) | `AssertQueryAsync<T>()` |
 | POST | `AssertPostAsync()` | `AssertPostAsync<T>()` |
 | PUT | `AssertPutAsync()` | `AssertPutAsync<T>()` |
 | PATCH | `AssertPatchAsync()` | `AssertPatchAsync<T>()` |
+| DELETE | `AssertDeleteAsync()` | `AssertDeleteAsync<T>()` |
 
 **Real-world examples:**
 
@@ -1538,6 +1646,122 @@ The live traffic capture feature exists because good API tests often start with 
 - pure unit tests
 - performance benchmarks
 - load testing
+
+---
+
+## HTTP QUERY Method Support ([RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008))
+
+The SDK supports the new **HTTP QUERY** method standardized in RFC 10008. QUERY is designed for safe, cacheable queries that can include a request body - bridging the gap between GET (no body) and POST (not safe/cacheable).
+
+### Why HTTP QUERY?
+
+The QUERY method addresses a long-standing limitation in HTTP:
+
+- **GET** is perfect for simple queries but has no request body
+- **POST** can send complex queries but isn't safe or cacheable
+- **QUERY** gives you both: request body support with GET semantics
+
+Perfect for complex search queries, GraphQL, database queries, or any scenario where query parameters are too limiting but POST semantics don't fit.
+
+### Query without request body (GET-like)
+
+```csharp
+[TestMethod]
+public Task Should_Query_All_Users()
+{
+    return Client.AssertQueryAsync<IEnumerable<User>>(
+        "api/v1/users",
+        "ExpectedUsers.json");
+}
+```
+
+### Query with request body (the main use case)
+
+```csharp
+[TestMethod]
+public Task Should_Query_Users_With_Complex_Search()
+{
+    return Client.AssertQueryAsync<SearchResults>(
+        "api/v1/users/search",
+        "ComplexSearchRequest.json",
+        "ExpectedResults.json");
+}
+```
+
+Example search request body:
+```json
+{
+  "filters": {
+    "ageRange": { "min": 25, "max": 65 },
+    "roles": ["Admin", "PowerUser"],
+    "active": true
+  },
+  "sort": [
+    { "field": "lastName", "direction": "asc" },
+    { "field": "created", "direction": "desc" }
+  ],
+  "pagination": {
+    "page": 1,
+    "pageSize": 50
+  }
+}
+```
+
+### Error handling for QUERY
+
+```csharp
+[TestMethod]
+public Task Should_Return_Error_For_Invalid_Query()
+{
+    return Client.AssertQueryAsErrorAsync<ProblemDetails>(
+        "api/v1/users/search",
+        "InvalidSearchRequest.json",
+        "ExpectedError.json");
+}
+```
+
+### Implementing QUERY endpoints
+
+**Controller-based:**
+```csharp
+[AcceptVerbs("QUERY")]
+[Route("search")]
+[ProducesResponseType(typeof(IEnumerable<User>), 200)]
+public IEnumerable<User> QueryUsers([FromBody] SearchRequest request)
+{
+    return _users.Where(u => /* search logic */);
+}
+```
+
+**Minimal API:**
+```csharp
+app.MapMethods("api/v1/users/search", new[] { "QUERY" }, 
+    ([FromBody] SearchRequest request) =>
+    {
+        var results = /* search logic */;
+        return Results.Ok(results);
+    })
+    .WithName("queryUsers")
+    .Produces<IEnumerable<User>>(StatusCodes.Status200OK);
+```
+
+### Benefits of QUERY over POST
+
+1. **Semantic clarity**: QUERY signals a read-only operation
+2. **Cacheability**: Responses can be cached like GET
+3. **Safety**: No side effects, idempotent like GET
+4. **Body support**: Complex queries without URL length limits
+5. **Better REST semantics**: Read operations shouldn't use POST
+
+### When to use QUERY vs GET vs POST
+
+| Method | Use When | Body | Safe | Cacheable |
+|--------|----------|------|------|-----------|
+| **GET** | Simple queries (query params) | ❌ No | ✅ Yes | ✅ Yes |
+| **QUERY** | Complex queries (need body) | ✅ Yes | ✅ Yes | ✅ Yes |
+| **POST** | Creating/modifying data | ✅ Yes | ❌ No | ❌ No |
+
+The SDK makes QUERY a first-class citizen with the same full support as GET, POST, PUT, PATCH, and DELETE.
 
 ---
 

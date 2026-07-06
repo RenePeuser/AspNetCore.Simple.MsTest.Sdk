@@ -19,5 +19,16 @@ namespace Controllers.Api.Errors
                                               ("PropertyA", "A"),
                                               ("PropertyB", "B"));
         }
+
+        [AcceptVerbs("QUERY")]
+        [Route("query-not-implemented")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public void ThrowNotImplementedExceptionOnQuery()
+        {
+            throw new ProblemDetailsException("Query implementation is missing",
+                                              "Error details for QUERY method",
+                                              ("QueryPropertyA", "A"),
+                                              ("QueryPropertyB", "B"));
+        }
     }
 }
