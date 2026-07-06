@@ -25,8 +25,4 @@
         <ProjectReference Include="..\MinimalApi\MinimalApi.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Api\" />
-    </ItemGroup>
-
 </Project>
