@@ -20,7 +20,7 @@ namespace Controllers.Test.Api.Persons.V1.Delete
         public Task ObjectResponse_Should_Delete_Person()
         {
             // DeletedAt timestamp is dynamic, so we don't include it in the assertion
-            var expectedResponse = /*lang=csharp*/"""
+            var expectedResponse = /*lang=csharp*//*lang=json,strict*/ """
                                                   {
                                                       "id": 1,
                                                       "name": "Son",
@@ -40,7 +40,7 @@ namespace Controllers.Test.Api.Persons.V1.Delete
         public Task ObjectResponse_Should_Delete_Person_With_Status_Code()
         {
             // DeletedAt timestamp is dynamic, so we don't include it in the assertion
-            var expectedResponse = /*lang=csharp*/"""
+            var expectedResponse = /*lang=csharp*//*lang=json,strict*/ """
                                                   {
                                                       "id": 1,
                                                       "name": "Son",

@@ -25,6 +25,8 @@ namespace Controllers.Api.Persons
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<Person>), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
         public IEnumerable<Person> GetAllPersons([FromQuery] string name = "")
         {
             if (name.IsNotNullOrWhiteSpace())
@@ -37,7 +39,9 @@ namespace Controllers.Api.Persons
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Person), 200)]
-        [ProducesResponseType(typeof(Person), 404)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
         public Task<Person> GetPersonByIdAsync(long id)
         {
             var person = _persons.FirstOrDefault(x => x.Id == id);
@@ -54,6 +58,10 @@ namespace Controllers.Api.Persons
 
         [HttpPut]
         [ProducesResponseType(typeof(Person), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
+        [ProducesResponseType(typeof(ProblemDetails), 409)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
         public Task<Person> UpdateAsync([FromBody] Person person)
         {
             return Task.FromResult(person);
@@ -61,20 +69,27 @@ namespace Controllers.Api.Persons
 
         [HttpPatch]
         [ProducesResponseType(typeof(Person), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
+        [ProducesResponseType(typeof(ProblemDetails), 409)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
         public Task<Person> PatchAsync()
         {
             return Task.FromResult(_persons.First());
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(Person), 200)]
+        [ProducesResponseType(typeof(Person), 201)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
         public Task<Person> AddAsync([FromBody] Person person)
         {
             return Task.FromResult(person);
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(statusCode: 204)]
+        [ProducesResponseType(typeof(ProblemDetails), statusCode: 404)]
         public IActionResult Delete(long id)
         {
             // Simple test implementation - always succeeds
@@ -85,6 +100,7 @@ namespace Controllers.Api.Persons
 
         [HttpDelete("{id}/with-response")]
         [ProducesResponseType(typeof(DeletePersonResponse), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
         public IActionResult DeleteWithResponse(long id)
         {
             // Simple test implementation - always returns success response
@@ -95,6 +111,8 @@ namespace Controllers.Api.Persons
         [AcceptVerbs("QUERY")]
         [Route("")]
         [ProducesResponseType(typeof(IEnumerable<Person>), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
         public IEnumerable<Person> QueryPersons([FromQuery] string name = "")
         {
             if (name.IsNotNullOrWhiteSpace())
@@ -108,6 +126,8 @@ namespace Controllers.Api.Persons
         [AcceptVerbs("QUERY")]
         [Route("search")]
         [ProducesResponseType(typeof(IEnumerable<Person>), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
         public IEnumerable<Person> QueryPersonsWithBody([FromBody] PersonSearchRequest searchRequest)
         {
             ArgumentNullException.ThrowIfNull(searchRequest);

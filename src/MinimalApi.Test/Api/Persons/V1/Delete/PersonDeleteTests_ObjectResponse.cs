@@ -19,7 +19,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Delete
         public Task ObjectResponse_Should_Delete_Person()
         {
             // DeletedAt timestamp is dynamic, so we don't include it in the assertion
-            var expectedResponse = """
+            var expectedResponse = /*lang=json,strict*/ """
                                    {
                                        "id": 1,
                                        "name": "Son",
@@ -38,7 +38,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Delete
         public Task ObjectResponse_Should_Delete_Person_With_Status_Code()
         {
             // DeletedAt timestamp is dynamic, so we don't include it in the assertion
-            var expectedResponse = """
+            var expectedResponse = /*lang=json,strict*/ """
                                    {
                                        "id": 1,
                                        "name": "Son",

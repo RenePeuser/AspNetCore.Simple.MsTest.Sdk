@@ -78,15 +78,11 @@ namespace Controllers.Test.Api.Errors
         [TestCategory("DELETE")]
         public Task ObjectResponse_Should_Handle_NotFound_Error_On_Delete()
         {
-            var expectedError = new
-            {
-                StatusCode = 404,
-                Message = "Person not found"
-            };
+            var problemDetails = new ProblemDetails() { Status = 404 };
 
             return Client.AssertDeleteAsErrorAsync("api/v1/persons/999",
-                                                   expectedError,
-                                                   expectedHttpStatusCode: HttpStatusCode.NotFound);
+                                                                   expectedResponse: problemDetails,
+                                                                   expectedHttpStatusCode: HttpStatusCode.NotFound);
         }
 
         [TestMethod]

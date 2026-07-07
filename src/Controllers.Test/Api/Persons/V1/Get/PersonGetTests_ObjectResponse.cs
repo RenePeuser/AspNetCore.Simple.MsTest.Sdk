@@ -57,17 +57,10 @@ namespace Controllers.Test.Api.Persons.V1.Get
                                             Name: "Son",
                                             FirstName: "Goku",
                                             Age: 99,
-                                            Emails: ImmutableList<Email>.Empty);
+                                            Emails: ImmutableList.Create(new Email("alf@gmx.de", "GMX"), new Email("abc@hotmail.de", "Microsoft")));
 
             return Client.AssertGetAsync("api/v1/persons/1",
-                                         expectedPerson,
-                                         filterFunc: person => person == null
-                                                                   ? null
-                                                                   : new Person(Id: 999,
-                                                                                Name: person.Name,
-                                                                                FirstName: person.FirstName,
-                                                                                Age: person.Age,
-                                                                                Emails: ImmutableList<Email>.Empty));
+                                         expectedPerson);
         }
 
         [TestMethod]
