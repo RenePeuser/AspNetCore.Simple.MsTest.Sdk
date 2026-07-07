@@ -28,7 +28,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      writeResponse: writeResponse,
                                                      expectedResultParameterName: nameof(expectedResponse),
                                                      skipEndpointValidation: skipEndpointValidation,
-                                                     
+                                                     expectedHttpStatusCode: expectedHttpStatusCode,
                                                      callerFilePath: callerFilePath,
                                                      callerMemberName: callerMemberName,
                                                      callerLineNumber: callerLineNumber);
@@ -54,6 +54,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      writeResponse: writeResponse,
                                                      expectedResultParameterName: nameof(expectedResponse),
                                                      skipEndpointValidation: skipEndpointValidation,
+                                                     expectedHttpStatusCode: expectedHttpStatusCode,
                                                      callerFilePath: callerFilePath,
                                                      callerMemberName: callerMemberName,
                                                      callerLineNumber: callerLineNumber);

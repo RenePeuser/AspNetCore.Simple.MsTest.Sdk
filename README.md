@@ -870,6 +870,161 @@ public async Task Complete_User_Registration_Flow()
 
 ---
 
+### Response as C# Objects
+
+Instead of JSON strings, you can use C# objects for both request and response. This gives you compile-time type safety, better IDE support, and eliminates string-based JSON files for simple test cases.
+
+**Traditional JSON-based approach:**
+
+```csharp
+[TestMethod]
+public Task Should_Create_Person()
+{
+    return Client.AssertPostAsync<Person>(
+        "api/v1/persons",
+        "CreatePerson.json",       // Request JSON file
+        "ExpectedPerson.json");    // Expected response JSON file
+}
+```
+
+**New object-based approach:**
+
+```csharp
+[TestMethod]
+public Task Should_Create_Person()
+{
+    var personToCreate = new Person(
+        Id: 0,
+        Name: "Son",
+        FirstName: "Goku",
+        Age: 99,
+        Emails: ImmutableList<Email>.Empty);
+
+    var expectedPerson = new Person(
+        Id: 1,
+        Name: "Son",
+        FirstName: "Goku",
+        Age: 99,
+        Emails: ImmutableList<Email>.Empty);
+
+    return Client.AssertPostAsync("api/v1/persons", 
+                                  personToCreate, 
+                                  expectedPerson);
+}
+```
+
+**Benefits:**
+
+- ✅ **Type safety**: Compiler catches errors before runtime
+- ✅ **Refactoring support**: Rename properties with IDE refactoring tools
+- ✅ **IntelliSense**: Full autocomplete for object properties
+- ✅ **Less boilerplate**: No need to create JSON files for simple cases
+- ✅ **Same validation**: Full HTTP response snapshots, structured diffs, curl generation
+- ✅ **Flexible**: Mix and match with JSON files as needed
+
+**Supported methods:**
+
+All assert methods support object-based responses:
+
+```csharp
+// GET with object response
+await Client.AssertGetAsync("api/v1/persons/1", expectedPerson);
+
+// POST with object request and response
+await Client.AssertPostAsync("api/v1/persons", requestPerson, expectedPerson);
+
+// PUT with object request and response
+await Client.AssertPutAsync("api/v1/persons", requestPerson, expectedPerson);
+
+// PATCH with object request and response
+await Client.AssertPatchAsync("api/v1/persons", requestPerson, expectedPerson);
+
+// QUERY with object request and response
+await Client.AssertQueryAsync("api/v1/persons/search", searchRequest, expectedResults);
+
+// DELETE with object response
+await Client.AssertDeleteAsync<DeleteConfirmation>("api/v1/persons/1", expectedConfirmation);
+```
+
+**Error scenarios with objects:**
+
+```csharp
+[TestMethod]
+public Task Should_Return_NotFound_Error()
+{
+    var expectedError = new
+    {
+        Title = "Person not found",
+        Status = 404,
+        Detail = "The person with the Id: 999 does not exist",
+        Id = 999
+    };
+
+    return Client.AssertGetAsErrorAsync("api/v1/persons/999",
+                                        expectedError,
+                                        skipEndpointValidation: true,
+                                        expectedHttpStatusCode: HttpStatusCode.NotFound);
+}
+```
+
+**Ignoring dynamic fields:**
+
+Use `differenceFunc` to ignore generated IDs or timestamps:
+
+```csharp
+[TestMethod]
+public Task Should_Create_Person_Ignore_Id()
+{
+    var personToCreate = TestHelpers.CreateValidPerson();
+
+    var expectedPerson = new Person(
+        Id: 0,  // Will be ignored
+        Name: personToCreate.Name,
+        FirstName: personToCreate.FirstName,
+        Age: personToCreate.Age,
+        Emails: personToCreate.Emails);
+
+    return Client.AssertPostAsync("api/v1/persons",
+                                  personToCreate,
+                                  expectedPerson,
+                                  differenceFunc: diffs => 
+                                      diffs.Where(d => !d.MemberPath.Contains("id")));
+}
+```
+
+**When to use objects vs JSON files:**
+
+| Scenario | Use |
+|----------|-----|
+| Simple, stable test data | **C# objects** - Type-safe, less overhead |
+| Complex nested structures | **JSON files** - Easier to read and maintain |
+| Dynamic test data generation | **C# objects** - Programmatic control |
+| Snapshot-driven workflows | **JSON files** - File-based test discovery |
+| Shared test data across tests | **JSON files** - Reusable snapshots |
+| Type-checked domain models | **C# objects** - Compile-time safety |
+
+**Mixing approaches:**
+
+You can mix objects and JSON files based on your needs:
+
+```csharp
+// Request as object, expected response from JSON file
+await Client.AssertPostAsync<Person>(
+    "api/v1/persons",
+    personToCreate,
+    "ExpectedPerson.json");
+
+// Request from JSON file, expected response as object
+await Client.AssertPostAsync(
+    "api/v1/persons",
+    "CreatePerson.json",
+    expectedPerson);
+```
+
+The SDK automatically serializes objects to JSON and performs the same deep comparison, structured diff, and HTTP context output as with JSON files.
+
+---
+
 ### Skip endpoint validation
 
 Sometimes you need to test external APIs or use different response types than what the endpoint declares. In these cases, endpoint validation becomes a blocker rather than a helper.
