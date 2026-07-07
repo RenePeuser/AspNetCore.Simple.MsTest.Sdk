@@ -23,7 +23,15 @@ namespace MinimalApi.Api.Persons.V1
     {
         public void Map(IEndpointRouteBuilder routeBuilder)
         {
-            routeBuilder.MapPost("persons", (Person person) => Results.Created($"persons/{person.Id}", person))
+            routeBuilder.MapPost("persons", (Person person) =>
+                        {
+                            if (string.IsNullOrWhiteSpace(person.Name))
+                            {
+                                return Results.BadRequest(new { StatusCode = 400, Message = "Invalid request" });
+                            }
+
+                            return Results.Created($"persons/{person.Id}", person);
+                        })
                         .WithName("createPersonV1")
                         .WithSummary("Creates a new person")
                         .WithTags("Persons")

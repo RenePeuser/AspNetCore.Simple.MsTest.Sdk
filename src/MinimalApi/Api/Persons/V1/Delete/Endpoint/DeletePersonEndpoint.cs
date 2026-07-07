@@ -22,7 +22,15 @@ namespace MinimalApi.Api.Persons.V1
     {
         public void Map(IEndpointRouteBuilder routeBuilder)
         {
-            routeBuilder.MapDelete("persons/{id:long}", (long id) => Results.NoContent())
+            routeBuilder.MapDelete("persons/{id:long}", (long id) =>
+                        {
+                            if (id == 999)
+                            {
+                                return Results.NotFound(new { StatusCode = 404, Message = "Person not found" });
+                            }
+
+                            return Results.NoContent();
+                        })
                         .WithName("deletePersonV1")
                         .WithSummary("Deletes a person by ID")
                         .WithTags("Persons")

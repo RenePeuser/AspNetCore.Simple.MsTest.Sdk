@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
@@ -53,6 +54,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
         [TestCategory("GET")]
         public Task ObjectResponse_Should_Get_Person_With_Filter()
         {
+            // Test uses differenceFunc instead of filterFunc to ignore emails differences
             var expectedPerson = new Person(Id: 999,
                                             Name: "Son",
                                             FirstName: "Goku",
@@ -61,13 +63,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
 
             return Client.AssertGetAsync("api/v1/persons/1",
                                          expectedPerson,
-                                         filterFunc: person => person == null
-                                                                   ? null
-                                                                   : new Person(Id: 999,
-                                                                                Name: person.Name,
-                                                                                FirstName: person.FirstName,
-                                                                                Age: person.Age,
-                                                                                Emails: ImmutableList<Email>.Empty));
+                                         differenceFunc: diffs => diffs.Where(d => !d.MemberPath.Contains("emails") && !d.MemberPath.Contains("id")));
         }
 
         [TestMethod]

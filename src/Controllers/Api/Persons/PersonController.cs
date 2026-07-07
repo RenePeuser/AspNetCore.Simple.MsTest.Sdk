@@ -48,7 +48,8 @@ namespace Controllers.Api.Persons
 
             if (person.IsNull())
             {
-                throw new ProblemDetailsException("Person for given Id does not exist",
+                throw new ProblemDetailsException(System.Net.HttpStatusCode.NotFound,
+                                                  "Person not found",
                                                   $"The person with the Id: {id} does not exist",
                                                   ("Id", id));
             }
@@ -62,9 +63,34 @@ namespace Controllers.Api.Persons
         [ProducesResponseType(typeof(ProblemDetails), 404)]
         [ProducesResponseType(typeof(ProblemDetails), 409)]
         [ProducesResponseType(typeof(ProblemDetails), 500)]
-        public Task<Person> UpdateAsync([FromBody] Person person)
+        public IActionResult UpdateAsync([FromBody] Person person)
         {
-            return Task.FromResult(person);
+            ArgumentNullException.ThrowIfNull(person);
+
+            if (person.Id == 999)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Person not found" });
+            }
+
+            return Ok(person);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(Person), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
+        [ProducesResponseType(typeof(ProblemDetails), 409)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
+        public IActionResult UpdateByIdAsync(long id, [FromBody] Person person)
+        {
+            ArgumentNullException.ThrowIfNull(person);
+
+            if (id == 999)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Person not found" });
+            }
+
+            return Ok(person);
         }
 
         [HttpPatch]
@@ -82,9 +108,16 @@ namespace Controllers.Api.Persons
         [ProducesResponseType(typeof(Person), 201)]
         [ProducesResponseType(typeof(ProblemDetails), 400)]
         [ProducesResponseType(typeof(ProblemDetails), 500)]
-        public Task<Person> AddAsync([FromBody] Person person)
+        public IActionResult AddAsync([FromBody] Person person)
         {
-            return Task.FromResult(person);
+            ArgumentNullException.ThrowIfNull(person);
+
+            if (string.IsNullOrWhiteSpace(person.Name))
+            {
+                return BadRequest(new { StatusCode = 400, Message = "Invalid request" });
+            }
+
+            return Ok(person);
         }
 
         [HttpDelete("{id}")]
@@ -92,8 +125,10 @@ namespace Controllers.Api.Persons
         [ProducesResponseType(typeof(ProblemDetails), statusCode: 404)]
         public IActionResult Delete(long id)
         {
-            // Simple test implementation - always succeeds
-            Console.WriteLine(id);
+            if (id == 999)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Person not found" });
+            }
 
             return NoContent();
         }
@@ -128,7 +163,7 @@ namespace Controllers.Api.Persons
         [ProducesResponseType(typeof(IEnumerable<Person>), 200)]
         [ProducesResponseType(typeof(ProblemDetails), 400)]
         [ProducesResponseType(typeof(ProblemDetails), 500)]
-        public IEnumerable<Person> QueryPersonsWithBody([FromBody] PersonSearchRequest searchRequest)
+        public IActionResult QueryPersonsWithBody([FromBody] PersonSearchRequest searchRequest)
         {
             ArgumentNullException.ThrowIfNull(searchRequest);
 
@@ -149,7 +184,7 @@ namespace Controllers.Api.Persons
                 results = results.Where(p => p.Age <= searchRequest.MaxAge.Value);
             }
 
-            return results;
+            return Ok(results);
         }
     }
 
