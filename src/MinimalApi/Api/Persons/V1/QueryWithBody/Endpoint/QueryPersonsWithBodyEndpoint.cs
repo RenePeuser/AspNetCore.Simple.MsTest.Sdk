@@ -69,5 +69,7 @@ namespace MinimalApi.Api.Persons.V1
         }
     }
 
-    public record PersonSearchRequest(string? Name, int? MinAge, int? MaxAge);
+    public record PersonSearchRequest(string? Name,
+                                      int? MinAge,
+                                      int? MaxAge);
 }

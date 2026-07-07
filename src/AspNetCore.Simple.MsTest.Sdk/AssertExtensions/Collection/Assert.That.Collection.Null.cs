@@ -206,12 +206,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
 
             // Fix (How)
-            var additionalOptions = new[]
-            {
-                $"Verify that '{collectionName}' is properly initialized before this assertion",
-                $"Check for null returns in methods that populate '{collectionName}'",
-                "Add null checks or default empty collection in the code under test"
-            };
+            var additionalOptions = new[] { $"Verify that '{collectionName}' is properly initialized before this assertion", $"Check for null returns in methods that populate '{collectionName}'", "Add null checks or default empty collection in the code under test" };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -277,18 +272,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = expectEmpty
-                                        ? new[]
-                                        {
-                                            $"Ensure the code that populates '{collectionName}' does not add elements for this scenario",
-                                            $"Review the filter or query logic that produces '{collectionName}'",
-                                            $"Check if elements should be removed before this assertion"
-                                        }
-                                        : new[]
-                                        {
-                                            $"Verify that the data source for '{collectionName}' contains elements",
-                                            $"Check the filter or query logic that produces '{collectionName}'",
-                                            $"Ensure the code that populates '{collectionName}' is executed before this assertion"
-                                        };
+                                        ? new[] { $"Ensure the code that populates '{collectionName}' does not add elements for this scenario", $"Review the filter or query logic that produces '{collectionName}'", $"Check if elements should be removed before this assertion" }
+                                        : new[] { $"Verify that the data source for '{collectionName}' contains elements", $"Check the filter or query logic that produces '{collectionName}'", $"Ensure the code that populates '{collectionName}' is executed before this assertion" };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -349,12 +334,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
 
             // Fix (How)
-            var additionalOptions = new[]
-            {
-                $"Ensure the code that populates '{collectionName}' returns null or an empty collection for this scenario",
-                $"Review the filter or query logic that produces '{collectionName}'",
-                $"Check if '{collectionName}' should be cleared before this assertion"
-            };
+            var additionalOptions = new[] { $"Ensure the code that populates '{collectionName}' returns null or an empty collection for this scenario", $"Review the filter or query logic that produces '{collectionName}'", $"Check if '{collectionName}' should be cleared before this assertion" };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

@@ -138,10 +138,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             try
             {
                 currentResult = targetIsPrimitiveType
-                                        ? primitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString)
-                                        : resolvedParametersJsonString.IsNullOrWhiteSpace()
-                                            ? "{}".FromJsonStringAs<TResult>(jsonSerializerOptions)
-                                            : resolvedParametersJsonString.FromJsonStringAs<TResult>(jsonSerializerOptions);
+                                    ? primitiveTypeConverter.ConvertTo<TResult>(resolvedParametersJsonString)
+                                    : resolvedParametersJsonString.IsNullOrWhiteSpace()
+                                        ? "{}".FromJsonStringAs<TResult>(jsonSerializerOptions)
+                                        : resolvedParametersJsonString.FromJsonStringAs<TResult>(jsonSerializerOptions);
             }
             catch (JsonException)
             {

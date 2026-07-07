@@ -229,12 +229,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-            {
-                $"Verify that '{valueName}' is calculated correctly to meet the condition",
-                $"Check if the threshold value '{threshold}' is appropriate for this scenario",
-                $"Review the logic that produces '{valueName}' to ensure it satisfies {valueName} {comparisonSymbol} {threshold}",
-                "Consider boundary conditions and edge cases in the code under test"
-            };
+                                    {
+                                        $"Verify that '{valueName}' is calculated correctly to meet the condition", $"Check if the threshold value '{threshold}' is appropriate for this scenario", $"Review the logic that produces '{valueName}' to ensure it satisfies {valueName} {comparisonSymbol} {threshold}",
+                                        "Consider boundary conditions and edge cases in the code under test"
+                                    };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

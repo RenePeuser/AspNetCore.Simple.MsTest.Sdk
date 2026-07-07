@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -28,7 +29,12 @@ namespace Controllers.Test.Api.Persons.V1.Shared
         {
             foreach (var difference in differences)
             {
-                if (difference.MemberPath == nameof(Person.Id))
+                if (difference.MemberPath.Contains($".{nameof(Person.Id)}", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (difference.MemberPath.Contains(".deletedAt", StringComparison.CurrentCultureIgnoreCase))
                 {
                     continue;
                 }

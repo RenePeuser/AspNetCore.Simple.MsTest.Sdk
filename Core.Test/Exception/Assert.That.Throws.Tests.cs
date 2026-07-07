@@ -629,6 +629,7 @@ namespace Core.Test.ExceptionAssertions
         {
             // Arrange
             const string message = "Async operation failed";
+
             var action = async () =>
             {
                 await Task.Delay(1);
@@ -649,6 +650,7 @@ namespace Core.Test.ExceptionAssertions
             // Arrange
             const string actualMessage = "Database connection failed: timeout after 30 seconds";
             const string expectedMessage = "Database connection failed";
+
             var action = async () =>
             {
                 await Task.Delay(1);
@@ -753,6 +755,7 @@ namespace Core.Test.ExceptionAssertions
             // Arrange
             const string actualMessage = "API request failed with status code 404";
             const string expectedMessage = "API request failed";
+
             var action = async () =>
             {
                 await Task.Delay(1);
@@ -844,6 +847,7 @@ namespace Core.Test.ExceptionAssertions
         {
             // Arrange
             const string message = "The async operation cannot be completed because the resource is locked";
+
             var action = async () =>
             {
                 await Task.Delay(1);
@@ -863,6 +867,7 @@ namespace Core.Test.ExceptionAssertions
         {
             // Arrange
             const string emptyMessage = "";
+
             var action = async () =>
             {
                 await Task.Delay(1);

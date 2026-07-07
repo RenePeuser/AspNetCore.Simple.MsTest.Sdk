@@ -162,18 +162,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = actualLength < expectedLength
-                                        ? new[]
-                                        {
-                                            $"Verify that '{textName}' is being populated with all expected data",
-                                            $"Check if '{textName}' is being truncated or filtered before this assertion",
-                                            $"Review string concatenation or formatting logic for '{textName}'"
-                                        }
-                                        : new[]
-                                        {
-                                            $"Verify that '{textName}' doesn't contain unexpected characters or padding",
-                                            $"Check if '{textName}' has extra whitespace, newlines, or hidden characters",
-                                            $"Review the source data for '{textName}' to ensure it matches expected format"
-                                        };
+                                        ? new[] { $"Verify that '{textName}' is being populated with all expected data", $"Check if '{textName}' is being truncated or filtered before this assertion", $"Review string concatenation or formatting logic for '{textName}'" }
+                                        : new[] { $"Verify that '{textName}' doesn't contain unexpected characters or padding", $"Check if '{textName}' has extra whitespace, newlines, or hidden characters", $"Review the source data for '{textName}' to ensure it matches expected format" };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -255,18 +245,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = actualLength < minLength
-                                        ? new[]
-                                        {
-                                            $"Verify that '{textName}' contains all required content",
-                                            $"Check if '{textName}' is being truncated or filtered before this assertion",
-                                            $"Review the minimum length requirement ({minLength}) to ensure it is correct"
-                                        }
-                                        : new[]
-                                        {
-                                            $"Verify that '{textName}' doesn't contain excessive content or padding",
-                                            $"Check if '{textName}' has duplicate data or unnecessary whitespace",
-                                            $"Review the maximum length requirement ({maxLength}) to ensure it is correct"
-                                        };
+                                        ? new[] { $"Verify that '{textName}' contains all required content", $"Check if '{textName}' is being truncated or filtered before this assertion", $"Review the minimum length requirement ({minLength}) to ensure it is correct" }
+                                        : new[] { $"Verify that '{textName}' doesn't contain excessive content or padding", $"Check if '{textName}' has duplicate data or unnecessary whitespace", $"Review the maximum length requirement ({maxLength}) to ensure it is correct" };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

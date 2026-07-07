@@ -162,18 +162,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = expectMatch
                                         ? new[]
-                                        {
-                                            $"Verify that '{textName}' contains the expected format or structure",
-                                            $"Review the regex pattern '{pattern}' to ensure it matches the expected format",
-                                            "Check if the text needs preprocessing (trimming, normalization, etc.)",
-                                            "Test the pattern at regex101.com to validate it works as expected"
-                                        }
-                                        : new[]
-                                        {
-                                            $"Ensure '{textName}' does not contain the pattern '{pattern}'",
-                                            "Review the regex pattern to ensure it correctly identifies invalid input",
-                                            $"Verify that validation logic properly sanitizes '{textName}'"
-                                        };
+                                          {
+                                              $"Verify that '{textName}' contains the expected format or structure", $"Review the regex pattern '{pattern}' to ensure it matches the expected format", "Check if the text needs preprocessing (trimming, normalization, etc.)",
+                                              "Test the pattern at regex101.com to validate it works as expected"
+                                          }
+                                        : new[] { $"Ensure '{textName}' does not contain the pattern '{pattern}'", "Review the regex pattern to ensure it correctly identifies invalid input", $"Verify that validation logic properly sanitizes '{textName}'" };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

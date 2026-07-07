@@ -280,33 +280,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var additionalOptions = assertionType switch
             {
                 "HasCount" => new[]
-                {
-                    $"Verify the logic that populates '{collectionName}' adds exactly {expectedCount} item(s)",
-                    $"Check if items are being filtered incorrectly before this assertion",
-                    actualCount > expectedCount!.Value
-                        ? $"Remove {actualCount - expectedCount.Value} extra item(s) or adjust the expected count"
-                        : $"Add {expectedCount.Value - actualCount} missing item(s) or adjust the expected count"
-                },
+                              {
+                                  $"Verify the logic that populates '{collectionName}' adds exactly {expectedCount} item(s)", $"Check if items are being filtered incorrectly before this assertion", actualCount > expectedCount!.Value
+                                                                                                                                                                                                          ? $"Remove {actualCount - expectedCount.Value} extra item(s) or adjust the expected count"
+                                                                                                                                                                                                          : $"Add {expectedCount.Value - actualCount} missing item(s) or adjust the expected count"
+                              },
                 "HasCountInRange" => new[]
-                {
-                    $"Verify the logic that populates '{collectionName}' produces between {minCount} and {maxCount} items",
-                    actualCount < minCount!.Value
-                        ? $"Add at least {minCount.Value - actualCount} more item(s)"
-                        : $"Remove at least {actualCount - maxCount!.Value} item(s)",
-                    "Review filtering or query logic that builds this collection"
-                },
+                                     {
+                                         $"Verify the logic that populates '{collectionName}' produces between {minCount} and {maxCount} items", actualCount < minCount!.Value
+                                                                                                                                                     ? $"Add at least {minCount.Value - actualCount} more item(s)"
+                                                                                                                                                     : $"Remove at least {actualCount - maxCount!.Value} item(s)",
+                                         "Review filtering or query logic that builds this collection"
+                                     },
                 "HasCountGreaterThan" => new[]
-                {
-                    $"Verify the logic that populates '{collectionName}' produces more than {minCount} item(s)",
-                    $"Add at least {minCount!.Value + 1 - actualCount} more item(s)",
-                    "Check if the data source has sufficient records",
-                    "Review any filtering logic that might be reducing the collection size"
-                },
-                _ => new[]
-                {
-                    $"Review the logic that populates '{collectionName}'",
-                    "Check the test data setup"
-                }
+                                         {
+                                             $"Verify the logic that populates '{collectionName}' produces more than {minCount} item(s)", $"Add at least {minCount!.Value + 1 - actualCount} more item(s)", "Check if the data source has sufficient records",
+                                             "Review any filtering logic that might be reducing the collection size"
+                                         },
+                _ => new[] { $"Review the logic that populates '{collectionName}'", "Check the test data setup" }
             };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,

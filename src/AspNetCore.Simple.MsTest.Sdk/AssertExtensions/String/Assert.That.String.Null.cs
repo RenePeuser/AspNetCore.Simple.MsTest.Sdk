@@ -260,18 +260,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 // Expected null/empty but got content
                 additionalOptions = checkType == StringNullCheckType.IsNullOrEmpty
-                                        ? new[]
-                                        {
-                                            $"Ensure the code that sets '{valueName}' returns null or empty string for this scenario",
-                                            $"Review the logic that populates '{valueName}' - it may be receiving unexpected data",
-                                            $"Check if '{valueName}' needs to be cleared or reset before this assertion"
-                                        }
-                                        : new[]
-                                        {
-                                            $"Ensure the code that sets '{valueName}' returns null or whitespace for this scenario",
-                                            $"Review the logic that populates '{valueName}' - it may be receiving unexpected content",
-                                            $"Check if '{valueName}' needs to be trimmed or cleared before this assertion"
-                                        };
+                                        ? new[] { $"Ensure the code that sets '{valueName}' returns null or empty string for this scenario", $"Review the logic that populates '{valueName}' - it may be receiving unexpected data", $"Check if '{valueName}' needs to be cleared or reset before this assertion" }
+                                        : new[] { $"Ensure the code that sets '{valueName}' returns null or whitespace for this scenario", $"Review the logic that populates '{valueName}' - it may be receiving unexpected content", $"Check if '{valueName}' needs to be trimmed or cleared before this assertion" };
             }
             else
             {
@@ -279,33 +269,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (actualValue is null)
                 {
                     additionalOptions = new[]
-                    {
-                        $"Verify that '{valueName}' is properly initialized before this assertion",
-                        $"Check for null returns in methods that populate '{valueName}'",
-                        $"Add null checks or default values in the code under test",
-                        $"Review the data source for '{valueName}' - it may not be providing expected values"
-                    };
+                                        {
+                                            $"Verify that '{valueName}' is properly initialized before this assertion", $"Check for null returns in methods that populate '{valueName}'", $"Add null checks or default values in the code under test",
+                                            $"Review the data source for '{valueName}' - it may not be providing expected values"
+                                        };
                 }
                 else if (actualValue.Length == 0)
                 {
                     additionalOptions = new[]
-                    {
-                        $"Verify that '{valueName}' is populated with actual content",
-                        $"Check the data source for '{valueName}' - it may be returning empty strings",
-                        $"Review the logic that sets '{valueName}' to ensure it receives valid data",
-                        $"Add validation to prevent empty strings from being assigned to '{valueName}'"
-                    };
+                                        {
+                                            $"Verify that '{valueName}' is populated with actual content", $"Check the data source for '{valueName}' - it may be returning empty strings", $"Review the logic that sets '{valueName}' to ensure it receives valid data",
+                                            $"Add validation to prevent empty strings from being assigned to '{valueName}'"
+                                        };
                 }
                 else
                 {
                     // Whitespace only
                     additionalOptions = new[]
-                    {
-                        $"Verify that '{valueName}' contains actual content, not just whitespace",
-                        $"Check the data source for '{valueName}' - it may be returning whitespace-only strings",
-                        $"Add .Trim() validation to ensure '{valueName}' has meaningful content",
-                        $"Review input validation for '{valueName}' to reject whitespace-only values"
-                    };
+                                        {
+                                            $"Verify that '{valueName}' contains actual content, not just whitespace", $"Check the data source for '{valueName}' - it may be returning whitespace-only strings", $"Add .Trim() validation to ensure '{valueName}' has meaningful content",
+                                            $"Review input validation for '{valueName}' to reject whitespace-only values"
+                                        };
                 }
             }
 

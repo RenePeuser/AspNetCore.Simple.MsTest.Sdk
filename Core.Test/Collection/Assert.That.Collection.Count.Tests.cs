@@ -114,7 +114,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.HasCount(expectedCount: 3, 
+                Assert.That.HasCount(expectedCount: 3,
                                      items,
                                      because: "Cart should contain items after AddToCart was called",
                                      fix: "Verify AddToCart method is working correctly and items persist");
@@ -157,7 +157,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.HasCount(expectedCount: 2, 
+                Assert.That.HasCount(expectedCount: 2,
                                      tags,
                                      because: "Only 2 tags should be allowed per issue",
                                      fix: "Add validation to reject more than 2 tags");
@@ -191,7 +191,7 @@ namespace Core.Test.Collection
             var empty = new List<int>();
 
             // Act & Assert - Should NOT throw
-            Assert.That.HasCount(expectedCount: 0, 
+            Assert.That.HasCount(expectedCount: 0,
                                  empty,
                                  because: "Testing empty collection with expected zero",
                                  fix: "N/A - this should pass");
@@ -653,7 +653,7 @@ namespace Core.Test.Collection
             // Act
             try
             {
-                Assert.That.HasCount(expectedCount: 5, 
+                Assert.That.HasCount(expectedCount: 5,
                                      nullCollection,
                                      because: "Testing null handling",
                                      fix: "Don't pass null");
@@ -819,7 +819,7 @@ namespace Core.Test.Collection
             var array = new[] { 1, 2, 3 };
 
             // Act & Assert - Should NOT throw
-            Assert.That.HasCount(expectedCount: 3, 
+            Assert.That.HasCount(expectedCount: 3,
                                  array,
                                  because: "Testing arrays work",
                                  fix: "N/A");
@@ -837,7 +837,7 @@ namespace Core.Test.Collection
                           };
 
             // Act & Assert - Should NOT throw
-            Assert.That.HasCount(expectedCount: 3, 
+            Assert.That.HasCount(expectedCount: 3,
                                  hashSet,
                                  because: "Testing HashSet works",
                                  fix: "N/A");

@@ -325,18 +325,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = expectContains
                                         ? new[]
-                                        {
-                                            $"Verify that the item '{FormatItem(item)}' is being added to '{collectionName}'",
-                                            $"Check that the collection is populated before this assertion",
-                                            $"Ensure equality comparison is correctly implemented for type {typeof(T).Name}",
-                                            "Review the logic that builds or filters the collection"
-                                        }
-                                        : new[]
-                                        {
-                                            $"Check why '{FormatItem(item)}' is present in '{collectionName}'",
-                                            $"Review the filtering logic that should exclude this item",
-                                            $"Verify that items are being removed correctly from '{collectionName}'"
-                                        };
+                                          {
+                                              $"Verify that the item '{FormatItem(item)}' is being added to '{collectionName}'", $"Check that the collection is populated before this assertion", $"Ensure equality comparison is correctly implemented for type {typeof(T).Name}",
+                                              "Review the logic that builds or filters the collection"
+                                          }
+                                        : new[] { $"Check why '{FormatItem(item)}' is present in '{collectionName}'", $"Review the filtering logic that should exclude this item", $"Verify that items are being removed correctly from '{collectionName}'" };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -401,13 +394,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-            {
-                $"Verify that all {expectedItems.Count} expected items are being added to '{collectionName}'",
-                $"Check that the collection is fully populated before this assertion",
-                $"Ensure equality comparison is correctly implemented for type {typeof(T).Name}",
-                "Review the logic that builds or filters the collection",
-                $"Check if items are being removed unexpectedly from '{collectionName}'"
-            };
+                                    {
+                                        $"Verify that all {expectedItems.Count} expected items are being added to '{collectionName}'", $"Check that the collection is fully populated before this assertion", $"Ensure equality comparison is correctly implemented for type {typeof(T).Name}",
+                                        "Review the logic that builds or filters the collection", $"Check if items are being removed unexpectedly from '{collectionName}'"
+                                    };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -480,13 +470,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-            {
-                $"Verify that at least one expected item is being added to '{collectionName}'",
-                $"Check that the collection is populated before this assertion",
-                $"Ensure equality comparison is correctly implemented for type {typeof(T).Name}",
-                "Review the logic that builds or filters the collection",
-                "Verify that the expected items list is correct"
-            };
+                                    {
+                                        $"Verify that at least one expected item is being added to '{collectionName}'", $"Check that the collection is populated before this assertion", $"Ensure equality comparison is correctly implemented for type {typeof(T).Name}",
+                                        "Review the logic that builds or filters the collection", "Verify that the expected items list is correct"
+                                    };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -531,12 +518,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-            {
-                $"Verify that '{collectionName}' is properly initialized before this assertion",
-                $"Check for null returns in methods that populate '{collectionName}'",
-                "Add null checks or default values in the code under test",
-                $"Consider using Assert.That.IsNotNull('{collectionName}') before this assertion"
-            };
+                                    {
+                                        $"Verify that '{collectionName}' is properly initialized before this assertion", $"Check for null returns in methods that populate '{collectionName}'", "Add null checks or default values in the code under test",
+                                        $"Consider using Assert.That.IsNotNull('{collectionName}') before this assertion"
+                                    };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -579,12 +564,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
 
             // Fix (How)
-            var additionalOptions = new[]
-            {
-                "Verify that the items parameter is properly initialized before this assertion",
-                "Check for null returns in methods that provide the expected items",
-                "Add null checks or default values in the test code"
-            };
+            var additionalOptions = new[] { "Verify that the items parameter is properly initialized before this assertion", "Check for null returns in methods that provide the expected items", "Add null checks or default values in the test code" };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

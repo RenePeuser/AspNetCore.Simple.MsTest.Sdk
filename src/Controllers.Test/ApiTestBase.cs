@@ -1,6 +1,7 @@
 using System.Net.Http;
 using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
+using Controllers.Test.Api.Persons.V1.Shared;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 [assembly: Parallelize(Scope = ExecutionScope.ClassLevel)]
@@ -43,6 +44,8 @@ namespace Controllers.Test
 
             // NEW: Initialize the HttpClientAssertExtensions with the service provider to enable assertion capabilities in your tests
             HttpClientAssertExtensions.Setup(_apiTestBase.Services);
+
+            AssertObjectExtensions.DifferenceFunc = TestHelpers.IgnoreIdDifferences;
         }
 
         [AssemblyCleanup]

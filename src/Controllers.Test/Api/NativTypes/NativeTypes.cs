@@ -11,7 +11,7 @@ namespace Controllers.Test.Api.NativTypes
         [TestMethod]
         public Task Should_Be_Able_To_Fetch_Native_String_As_Well()
         {
-            return Client.AssertGetAsync<string>("api/v1/native-types/string", "String only");
+            return Client.AssertGetAsync("api/v1/native-types/string", "String only");
         }
 
         [TestMethod]

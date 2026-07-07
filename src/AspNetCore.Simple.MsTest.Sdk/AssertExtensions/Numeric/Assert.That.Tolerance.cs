@@ -217,12 +217,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-            {
-                $"Review the calculation that produces '{valueName}' to ensure it matches the expected formula",
-                $"Check if the tolerance of ±{tolerance:G} is appropriate for this scenario",
-                $"Verify input values used in computing '{valueName}' are correct",
-                "Consider if rounding errors or floating-point precision issues are affecting the result"
-            };
+                                    {
+                                        $"Review the calculation that produces '{valueName}' to ensure it matches the expected formula", $"Check if the tolerance of ±{tolerance:G} is appropriate for this scenario", $"Verify input values used in computing '{valueName}' are correct",
+                                        "Consider if rounding errors or floating-point precision issues are affecting the result"
+                                    };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

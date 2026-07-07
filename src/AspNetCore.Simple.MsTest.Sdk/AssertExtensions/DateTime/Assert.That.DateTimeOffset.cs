@@ -358,19 +358,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = comparisonType == "AFTER"
                                         ? new[]
-                                        {
-                                            $"Verify that '{actualName}' is set to a time later than the comparison value",
-                                            "Check if the DateTimeOffset values are using compatible timezones",
-                                            $"Review the logic that sets '{actualName}' to ensure it occurs chronologically after the expected time",
-                                            "DateTimeOffset comparisons are timezone-aware and compare absolute points in time"
-                                        }
+                                          {
+                                              $"Verify that '{actualName}' is set to a time later than the comparison value", "Check if the DateTimeOffset values are using compatible timezones", $"Review the logic that sets '{actualName}' to ensure it occurs chronologically after the expected time",
+                                              "DateTimeOffset comparisons are timezone-aware and compare absolute points in time"
+                                          }
                                         : new[]
-                                        {
-                                            $"Verify that '{actualName}' is set to a time earlier than the comparison value",
-                                            "Check if the DateTimeOffset values are using compatible timezones",
-                                            $"Review the logic that sets '{actualName}' to ensure it occurs chronologically before the expected time",
-                                            "DateTimeOffset comparisons are timezone-aware and compare absolute points in time"
-                                        };
+                                          {
+                                              $"Verify that '{actualName}' is set to a time earlier than the comparison value", "Check if the DateTimeOffset values are using compatible timezones", $"Review the logic that sets '{actualName}' to ensure it occurs chronologically before the expected time",
+                                              "DateTimeOffset comparisons are timezone-aware and compare absolute points in time"
+                                          };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -434,13 +430,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-            {
-                $"Verify that '{actualName}' falls between {start:O} and {end:O}",
-                "DateTimeOffset range comparisons are timezone-aware and compare absolute points in time",
-                $"Review the logic that sets '{actualName}' to ensure it produces values within the expected range",
-                "Consider widening the acceptable range if edge cases are valid",
-                "Verify that the range boundaries (start/end) are correctly defined"
-            };
+                                    {
+                                        $"Verify that '{actualName}' falls between {start:O} and {end:O}", "DateTimeOffset range comparisons are timezone-aware and compare absolute points in time", $"Review the logic that sets '{actualName}' to ensure it produces values within the expected range",
+                                        "Consider widening the acceptable range if edge cases are valid", "Verify that the range boundaries (start/end) are correctly defined"
+                                    };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -494,13 +487,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-            {
-                $"Verify that '{actualName}' is set close to {expected:O}",
-                $"Consider increasing the tolerance if {tolerance.TotalSeconds:F3} seconds is too strict",
-                "Check for timing issues or delays in the code that might cause larger differences",
-                "DateTimeOffset comparisons are timezone-aware and compare absolute points in time",
-                $"Review the logic that sets '{actualName}' to reduce the time difference"
-            };
+                                    {
+                                        $"Verify that '{actualName}' is set close to {expected:O}", $"Consider increasing the tolerance if {tolerance.TotalSeconds:F3} seconds is too strict", "Check for timing issues or delays in the code that might cause larger differences",
+                                        "DateTimeOffset comparisons are timezone-aware and compare absolute points in time", $"Review the logic that sets '{actualName}' to reduce the time difference"
+                                    };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -560,27 +550,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = expectedOffset == TimeSpan.Zero
                                         ? new[]
-                                        {
-                                            $"Use DateTimeOffset.UtcNow instead of DateTimeOffset.Now when creating '{actualName}'",
-                                            $"Convert '{actualName}' to UTC using .ToUniversalTime()",
-                                            "Ensure API responses or database values return UTC timestamps",
-                                            "Use .ToOffset(TimeSpan.Zero) to convert to UTC offset"
-                                        }
+                                          {
+                                              $"Use DateTimeOffset.UtcNow instead of DateTimeOffset.Now when creating '{actualName}'", $"Convert '{actualName}' to UTC using .ToUniversalTime()", "Ensure API responses or database values return UTC timestamps",
+                                              "Use .ToOffset(TimeSpan.Zero) to convert to UTC offset"
+                                          }
                                         : isLocalCheck
                                             ? new[]
-                                            {
-                                                $"Use DateTimeOffset.Now to get current time with local offset",
-                                                $"Convert '{actualName}' to local offset using .ToLocalTime()",
-                                                $"Use .ToOffset(TimeZoneInfo.Local.GetUtcOffset(dateTime)) to convert to local offset",
-                                                "Be aware that local timezone depends on the system timezone settings"
-                                            }
+                                              {
+                                                  $"Use DateTimeOffset.Now to get current time with local offset", $"Convert '{actualName}' to local offset using .ToLocalTime()", $"Use .ToOffset(TimeZoneInfo.Local.GetUtcOffset(dateTime)) to convert to local offset",
+                                                  "Be aware that local timezone depends on the system timezone settings"
+                                              }
                                             : new[]
-                                            {
-                                                $"Use .ToOffset(expectedOffset) to convert '{actualName}' to the correct offset",
-                                                "Verify the source of the DateTimeOffset and its timezone configuration",
-                                                $"Ensure '{actualName}' is created with the correct timezone offset",
-                                                "Check if timezone conversion is happening unexpectedly"
-                                            };
+                                              {
+                                                  $"Use .ToOffset(expectedOffset) to convert '{actualName}' to the correct offset", "Verify the source of the DateTimeOffset and its timezone configuration", $"Ensure '{actualName}' is created with the correct timezone offset",
+                                                  "Check if timezone conversion is happening unexpectedly"
+                                              };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

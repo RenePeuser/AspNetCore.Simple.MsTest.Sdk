@@ -64,7 +64,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _httpCallInfoTableBuilder = new HttpCallInfoTableBuilder(_textDecorator);
             _differencesTableBuilder = new DifferencesTableBuilder(tableBuilder, _textDecorator);
             _jsonSectionBuilder = new JsonSectionBuilder(_textDecorator);
-            _jsonTypeMismatchOutputBuilder = new JsonTypeMismatchOutputBuilder(_textDecorator);
+            JsonTypeMismatchOutputBuilder = new JsonTypeMismatchOutputBuilder(_textDecorator);
             _curlBuilder = serviceProvider.GetRequiredService<ICurlBuilder>();
             _curlFormatter = new CurlFormatter(_textDecorator);
             _curlPrinter = serviceProvider.GetRequiredService<ICurlPrinter>();
@@ -161,14 +161,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Gets the JSON type mismatch output builder for beautiful error formatting.
         /// Initialized via Setup() method.
         /// </summary>
-        internal static IJsonTypeMismatchOutputBuilder JsonTypeMismatchOutputBuilder => _jsonTypeMismatchOutputBuilder;
+        internal static IJsonTypeMismatchOutputBuilder JsonTypeMismatchOutputBuilder { get; private set; } = new JsonTypeMismatchOutputBuilder(new PlainTextDecorator());
 
         // Quickfix to hold the whole api compatible
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
         private static ITextDecorator _textDecorator = new PlainTextDecorator();
-
-        private static IJsonTypeMismatchOutputBuilder _jsonTypeMismatchOutputBuilder = new JsonTypeMismatchOutputBuilder(new PlainTextDecorator());
 
         private static IPrimitiveTypeConverter _primitiveTypeConverter = new PrimitiveTypeConverter();
 
@@ -537,7 +535,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 ExpectedResultParameterName = expectedResultParameterName,
                 HttpMethod = httpMethod,
                 IsSuccessStatusCode = isSuccessStatusCode,
-                OrderFunc = filterFunc,
+                OrderFunc = filterFunc ?? (item => item),
                 Parameters = parameters,
                 PayloadAsJson = payloadAsJson,
                 PayloadFile = payloadFile,

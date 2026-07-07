@@ -294,19 +294,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = checkOrder
                                         ? new[]
-                                        {
-                                            $"Verify that '{actualName}' is populated with the correct elements in the correct order",
-                                            $"Check if the ordering logic for '{actualName}' matches the expected sequence",
-                                            $"Consider using AreEquivalent() if order doesn't matter",
-                                            "Review the data source or transformation that produces the actual collection"
-                                        }
+                                          {
+                                              $"Verify that '{actualName}' is populated with the correct elements in the correct order", $"Check if the ordering logic for '{actualName}' matches the expected sequence", $"Consider using AreEquivalent() if order doesn't matter",
+                                              "Review the data source or transformation that produces the actual collection"
+                                          }
                                         : new[]
-                                        {
-                                            $"Verify that '{actualName}' contains all expected elements (order is ignored)",
-                                            $"Check if '{actualName}' has extra or missing elements compared to '{expectedName}'",
-                                            "Review the data source or filter logic that produces the actual collection",
-                                            "Ensure no duplicate handling issues affect the comparison"
-                                        };
+                                          {
+                                              $"Verify that '{actualName}' contains all expected elements (order is ignored)", $"Check if '{actualName}' has extra or missing elements compared to '{expectedName}'", "Review the data source or filter logic that produces the actual collection",
+                                              "Ensure no duplicate handling issues affect the comparison"
+                                          };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

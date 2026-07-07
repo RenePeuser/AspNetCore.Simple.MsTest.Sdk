@@ -246,18 +246,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = expectContains
                                         ? new[]
-                                        {
-                                            $"Verify that the code generating '{textName}' includes the expected substring \"{substring}\"",
-                                            $"Check for typos or case sensitivity in the substring (currently using {comparison})",
-                                            $"Ensure the string is fully populated before this assertion",
-                                            $"Consider using a different StringComparison mode if case/culture matters"
-                                        }
-                                        : new[]
-                                        {
-                                            $"Ensure the code generating '{textName}' does not include \"{substring}\"",
-                                            $"Review the string building logic to prevent this substring from appearing",
-                                            $"Check if the substring check is case-sensitive (currently using {comparison})"
-                                        };
+                                          {
+                                              $"Verify that the code generating '{textName}' includes the expected substring \"{substring}\"", $"Check for typos or case sensitivity in the substring (currently using {comparison})", $"Ensure the string is fully populated before this assertion",
+                                              $"Consider using a different StringComparison mode if case/culture matters"
+                                          }
+                                        : new[] { $"Ensure the code generating '{textName}' does not include \"{substring}\"", $"Review the string building logic to prevent this substring from appearing", $"Check if the substring check is case-sensitive (currently using {comparison})" };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -338,19 +331,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = checkType == "StartsWith"
                                         ? new[]
-                                        {
-                                            $"Verify that '{textName}' is generated with the correct prefix \"{expected}\"",
-                                            $"Check for leading whitespace or unexpected characters in '{textName}'",
-                                            $"Ensure the string is not trimmed or modified before this assertion",
-                                            $"Consider using a different StringComparison mode if case/culture matters (currently {comparison})"
-                                        }
+                                          {
+                                              $"Verify that '{textName}' is generated with the correct prefix \"{expected}\"", $"Check for leading whitespace or unexpected characters in '{textName}'", $"Ensure the string is not trimmed or modified before this assertion",
+                                              $"Consider using a different StringComparison mode if case/culture matters (currently {comparison})"
+                                          }
                                         : new[]
-                                        {
-                                            $"Verify that '{textName}' is generated with the correct suffix \"{expected}\"",
-                                            $"Check for trailing whitespace or unexpected characters in '{textName}'",
-                                            $"Ensure the string is not trimmed or modified before this assertion",
-                                            $"Consider using a different StringComparison mode if case/culture matters (currently {comparison})"
-                                        };
+                                          {
+                                              $"Verify that '{textName}' is generated with the correct suffix \"{expected}\"", $"Check for trailing whitespace or unexpected characters in '{textName}'", $"Ensure the string is not trimmed or modified before this assertion",
+                                              $"Consider using a different StringComparison mode if case/culture matters (currently {comparison})"
+                                          };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

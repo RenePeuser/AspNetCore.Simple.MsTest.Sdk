@@ -42,7 +42,8 @@ namespace MinimalApi.Api.Persons.V1
 
                             if (person.IsNull())
                             {
-                                throw new ProblemDetailsException("Person for given Id does not exist",
+                                throw new ProblemDetailsException(System.Net.HttpStatusCode.NotFound,
+                                                                  "Person for given Id does not exist",
                                                                   $"The person with the Id: {id} does not exist",
                                                                   ("Id", id));
                             }

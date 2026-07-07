@@ -18,12 +18,12 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 10,
-                                                   12, 0, 0,
-                                                   TimeSpan.Zero);
+                                            12, 0, 0,
+                                            TimeSpan.Zero);
 
             var expected = new DateTimeOffset(2026, 6, 5,
-                                                     12, 0, 0,
-                                                     TimeSpan.Zero);
+                                              12, 0, 0,
+                                              TimeSpan.Zero);
 
             // Act & Assert - Should NOT throw
             Assert.That.IsAfter(actual, expected,
@@ -36,12 +36,12 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 1,
-                                                   12, 0, 0,
-                                                   TimeSpan.Zero);
+                                            12, 0, 0,
+                                            TimeSpan.Zero);
 
             var expected = new DateTimeOffset(2026, 6, 5,
-                                                     12, 0, 0,
-                                                     TimeSpan.Zero);
+                                              12, 0, 0,
+                                              TimeSpan.Zero);
 
             var threw = false;
 
@@ -66,12 +66,12 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange - Same absolute time, different offsets
             var actual = new DateTimeOffset(2026, 6, 5,
-                                                   14, 0, 0,
-                                                   TimeSpan.FromHours(2)); // 12:00 UTC
+                                            14, 0, 0,
+                                            TimeSpan.FromHours(2)); // 12:00 UTC
 
             var expected = new DateTimeOffset(2026, 6, 5,
-                                                     12, 0, 0,
-                                                     TimeSpan.Zero); // 12:00 UTC
+                                              12, 0, 0,
+                                              TimeSpan.Zero); // 12:00 UTC
 
             var threw = false;
 
@@ -96,12 +96,12 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var eventTime = new DateTimeOffset(2026, 6, 1,
-                                                      10, 30, 0,
-                                                      TimeSpan.FromHours(1));
+                                               10, 30, 0,
+                                               TimeSpan.FromHours(1));
 
             var deadline = new DateTimeOffset(2026, 6, 5,
-                                                     17, 0, 0,
-                                                     TimeSpan.Zero);
+                                              17, 0, 0,
+                                              TimeSpan.Zero);
 
             // Act
             try
@@ -138,12 +138,12 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 1,
-                                                   12, 0, 0,
-                                                   TimeSpan.Zero);
+                                            12, 0, 0,
+                                            TimeSpan.Zero);
 
             var expected = new DateTimeOffset(2026, 6, 5,
-                                                     12, 0, 0,
-                                                     TimeSpan.Zero);
+                                              12, 0, 0,
+                                              TimeSpan.Zero);
 
             // Act & Assert - Should NOT throw
             Assert.That.IsBefore(actual, expected,
@@ -156,12 +156,12 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 10,
-                                                   12, 0, 0,
-                                                   TimeSpan.Zero);
+                                            12, 0, 0,
+                                            TimeSpan.Zero);
 
             var expected = new DateTimeOffset(2026, 6, 5,
-                                                     12, 0, 0,
-                                                     TimeSpan.Zero);
+                                              12, 0, 0,
+                                              TimeSpan.Zero);
 
             var threw = false;
 
@@ -190,16 +190,16 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 5,
-                                                   12, 0, 0,
-                                                   TimeSpan.Zero);
+                                            12, 0, 0,
+                                            TimeSpan.Zero);
 
             var start = new DateTimeOffset(2026, 6, 1,
-                                                  0, 0, 0,
-                                                  TimeSpan.Zero);
+                                           0, 0, 0,
+                                           TimeSpan.Zero);
 
             var end = new DateTimeOffset(2026, 6, 30,
-                                                23, 59, 59,
-                                                TimeSpan.Zero);
+                                         23, 59, 59,
+                                         TimeSpan.Zero);
 
             // Act & Assert - Should NOT throw
             Assert.That.IsInRange(actual, start, end,
@@ -212,16 +212,16 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 5, 31,
-                                                   23, 59, 59,
-                                                   TimeSpan.Zero);
+                                            23, 59, 59,
+                                            TimeSpan.Zero);
 
             var start = new DateTimeOffset(2026, 6, 1,
-                                                  0, 0, 0,
-                                                  TimeSpan.Zero);
+                                           0, 0, 0,
+                                           TimeSpan.Zero);
 
             var end = new DateTimeOffset(2026, 6, 30,
-                                                23, 59, 59,
-                                                TimeSpan.Zero);
+                                         23, 59, 59,
+                                         TimeSpan.Zero);
 
             var threw = false;
 
@@ -250,12 +250,12 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 5,
-                                                   12, 0, 5,
-                                                   TimeSpan.Zero);
+                                            12, 0, 5,
+                                            TimeSpan.Zero);
 
             var expected = new DateTimeOffset(2026, 6, 5,
-                                                     12, 0, 0,
-                                                     TimeSpan.Zero);
+                                              12, 0, 0,
+                                              TimeSpan.Zero);
 
             var tolerance = TimeSpan.FromSeconds(10);
 
@@ -270,12 +270,12 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 5,
-                                                   12, 0, 15,
-                                                   TimeSpan.Zero);
+                                            12, 0, 15,
+                                            TimeSpan.Zero);
 
             var expected = new DateTimeOffset(2026, 6, 5,
-                                                     12, 0, 0,
-                                                     TimeSpan.Zero);
+                                              12, 0, 0,
+                                              TimeSpan.Zero);
 
             var tolerance = TimeSpan.FromSeconds(10);
             var threw = false;
@@ -305,8 +305,8 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 5,
-                                                   12, 0, 0,
-                                                   TimeSpan.FromHours(2));
+                                            12, 0, 0,
+                                            TimeSpan.FromHours(2));
 
             var expectedOffset = TimeSpan.FromHours(2);
 
@@ -321,8 +321,8 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 5,
-                                                   12, 0, 0,
-                                                   TimeSpan.FromHours(1));
+                                            12, 0, 0,
+                                            TimeSpan.FromHours(1));
 
             var expectedOffset = TimeSpan.FromHours(2);
             var threw = false;
@@ -348,8 +348,8 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var timestamp = new DateTimeOffset(2026, 6, 5,
-                                                      12, 0, 0,
-                                                      TimeSpan.FromHours(1));
+                                               12, 0, 0,
+                                               TimeSpan.FromHours(1));
 
             var expectedOffset = TimeSpan.FromHours(2);
 
@@ -400,8 +400,8 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 5,
-                                                   12, 0, 0,
-                                                   TimeSpan.FromHours(2));
+                                            12, 0, 0,
+                                            TimeSpan.FromHours(2));
 
             var threw = false;
 
@@ -426,8 +426,8 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange - Use explicit non-UTC offset (works on all systems)
             var timestamp = new DateTimeOffset(2026, 6, 5,
-                                                      12, 0, 0,
-                                                      TimeSpan.FromHours(2));
+                                               12, 0, 0,
+                                               TimeSpan.FromHours(2));
 
             // Act
             try
@@ -476,13 +476,14 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange - Create an offset that's definitely not the local offset
             var localOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+
             var differentOffset = localOffset == TimeSpan.FromHours(5)
                                       ? TimeSpan.FromHours(10)
                                       : TimeSpan.FromHours(5);
 
             var actual = new DateTimeOffset(2026, 6, 5,
-                                                   12, 0, 0,
-                                                   differentOffset);
+                                            12, 0, 0,
+                                            differentOffset);
 
             var threw = false;
 
@@ -511,14 +512,14 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 5,
-                                                   12, 0, 0,
-                                                   500,
-                                                   TimeSpan.Zero);
+                                            12, 0, 0,
+                                            500,
+                                            TimeSpan.Zero);
 
             var expected = new DateTimeOffset(2026, 6, 5,
-                                                     12, 0, 0,
-                                                     0,
-                                                     TimeSpan.Zero);
+                                              12, 0, 0,
+                                              0,
+                                              TimeSpan.Zero);
 
             var tolerance = TimeSpan.FromMilliseconds(600);
 
@@ -533,8 +534,8 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange
             var actual = new DateTimeOffset(2026, 6, 5,
-                                                   12, 0, 0,
-                                                   TimeSpan.FromHours(-5)); // EST
+                                            12, 0, 0,
+                                            TimeSpan.FromHours(-5)); // EST
 
             var expectedOffset = TimeSpan.FromHours(-5);
 
@@ -549,12 +550,12 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange - Different local times but later absolute time
             var actual = new DateTimeOffset(2026, 6, 5,
-                                                   10, 0, 0,
-                                                   TimeSpan.FromHours(-5)); // 15:00 UTC
+                                            10, 0, 0,
+                                            TimeSpan.FromHours(-5)); // 15:00 UTC
 
             var expected = new DateTimeOffset(2026, 6, 5,
-                                                     12, 0, 0,
-                                                     TimeSpan.Zero); // 12:00 UTC
+                                              12, 0, 0,
+                                              TimeSpan.Zero); // 12:00 UTC
 
             // Act & Assert - Should NOT throw (actual is 3 hours after expected in absolute time)
             Assert.That.IsAfter(actual, expected,
@@ -567,9 +568,10 @@ namespace Core.Test.DateTimeOffsetAssertions
         {
             // Arrange - Test works on both UTC and non-UTC systems
             var localOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+
             var localTime = new DateTimeOffset(2026, 6, 5,
-                                                      12, 0, 0,
-                                                      localOffset);
+                                               12, 0, 0,
+                                               localOffset);
 
             // Act & Assert - Should NOT throw regardless of system timezone
             Assert.That.IsLocal(localTime,

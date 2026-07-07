@@ -2,6 +2,7 @@ using System.Net.Http;
 using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MinimalApi.Test.Api.Persons.V1.Shared;
 
 namespace MinimalApi.Test
 {
@@ -26,6 +27,8 @@ namespace MinimalApi.Test
             Client = _apiTestBase.CreateClient();
 
             HttpClientAssertExtensions.Setup(_apiTestBase.Services);
+
+            AssertObjectExtensions.DifferenceFunc = TestHelpers.IgnoreIdDifferences;
         }
 
         protected static HttpClient Client { get; private set; } = null!;

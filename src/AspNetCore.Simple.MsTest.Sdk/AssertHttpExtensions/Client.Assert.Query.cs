@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Argument.Check;
+using AspNetCore.Simple.MsTest.Sdk.Http;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -253,7 +254,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        payloadAsJson: payloadAsJson,
                                                        expectedResult: expectedResult,
                                                        filterFunc: item => item,
-                                                       httpMethod: HttpMethod.Query,
+                                                       httpMethod: HttpMethodExtensions.Query,
                                                        parameters: parameters,
                                                        callingAssembly: callingAssembly,
                                                        payloadAsJsonParameterName: payloadAsJsonParameterName,
@@ -285,7 +286,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        payloadAsJson: string.Empty,
                                                        expectedResult: expectedResult,
                                                        filterFunc: item => item,
-                                                       httpMethod: HttpMethod.Query,
+                                                       httpMethod: HttpMethodExtensions.Query,
                                                        parameters: [],
                                                        callingAssembly: callingAssembly,
                                                        payloadAsJsonParameterName: string.Empty,
@@ -317,7 +318,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        payloadAsJson: string.Empty,
                                                        expectedResult: expectedResult,
                                                        filterFunc: item => item,
-                                                       httpMethod: HttpMethod.Query,
+                                                       httpMethod: HttpMethodExtensions.Query,
                                                        parameters: parameters,
                                                        callingAssembly: callingAssembly,
                                                        payloadAsJsonParameterName: string.Empty,
@@ -378,7 +379,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        payloadAsJson: string.Empty,
                                                        expectedResult: expectedResult,
                                                        filterFunc: item => item,
-                                                       httpMethod: HttpMethod.Query,
+                                                       httpMethod: HttpMethodExtensions.Query,
                                                        differenceFunc: differenceFunc,
                                                        parameters: parameters,
                                                        callingAssembly: callingAssembly,
@@ -1276,7 +1277,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
                                               expectedResult: expectedResult,
                                               filterFunc: filterFunc,
-                                              httpMethod: HttpMethod.Query,
+                                              httpMethod: HttpMethodExtensions.Query,
                                               differenceFunc: differenceFunc,
                                               parameters: parameters,
                                               callingAssembly: callingAssembly,
@@ -1350,7 +1351,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               payloadAsJson: payloadAsJson,
                                               expectedResult: expectedResult,
                                               filterFunc: filterFunc,
-                                              httpMethod: HttpMethod.Query,
+                                              httpMethod: HttpMethodExtensions.Query,
                                               differenceFunc: differenceFunc,
                                               parameters: parameters,
                                               callingAssembly: callingAssembly,
@@ -1399,6 +1400,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             using var request = new HttpRequestMessage(new HttpMethod("QUERY"), url);
+
             if (body.IsNotNull())
             {
                 request.Content = new StringContent(content: newBody, encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json);
@@ -1410,11 +1412,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-                                {
-                                    Request = $"QUERY {url}",
-                                    Expected = HttpStatusCode.Unauthorized,
-                                    Current = result.StatusCode
-                                }.ToIList();
+            {
+                Request = $"QUERY {url}",
+                Expected = HttpStatusCode.Unauthorized,
+                Current = result.StatusCode
+            }.ToIList();
 
             var table = TableFormatter.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
@@ -1435,7 +1437,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       payloadAsJson: context.PayloadAsJson ?? string.Empty,
                                                       expectedResult: context.ExpectedObjectAsJson,
                                                       filterFunc: context.OrderFunc,
-                                                      httpMethod: HttpMethod.Query,
+                                                      httpMethod: HttpMethodExtensions.Query,
                                                       differenceFunc: context.DifferenceFunc,
                                                       parameters: context.Parameters,
                                                       callingAssembly: context.CallingAssembly,

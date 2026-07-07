@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.Http;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -954,7 +955,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               payloadAsJson: payloadAsJson,
                                               expectedResult: expectedResult,
                                               filterFunc: filterFunc,
-                                              httpMethod: HttpMethod.Query,
+                                              httpMethod: HttpMethodExtensions.Query,
                                               differenceFunc: differenceFunc,
                                               parameters: parameters,
                                               callingAssembly: callingAssembly,

@@ -17,8 +17,8 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         public Task Native_Should_Query_All_Persons()
         {
             return Client.AssertQueryAsync<IEnumerable<Person>>(url: "api/v1/persons",
-                                                               expectedResult: "GetAllPersons.json",
-                                                               parameters: []);
+                                                                expectedResult: "GetAllPersons.json",
+                                                                parameters: []);
         }
 
         [TestMethod]
@@ -27,8 +27,8 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         public Task Native_Should_Query_All_Persons_With_Filtering()
         {
             return Client.AssertQueryAsync<IEnumerable<Person>>("api/v1/persons",
-                                                               "GetAllPersons.json",
-                                                               TestHelpers.OrderByIdFilter);
+                                                                "GetAllPersons.json",
+                                                                TestHelpers.OrderByIdFilter);
         }
 
         [TestMethod]
@@ -37,8 +37,8 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         public Task Native_Should_Query_All_Persons_Ignore_Id()
         {
             return Client.AssertQueryAsync<IEnumerable<Person>>("api/v1/persons",
-                                                               "GetAllPersons.json",
-                                                               TestHelpers.IgnoreIdDifferences);
+                                                                "GetAllPersons.json",
+                                                                TestHelpers.IgnoreIdDifferences);
         }
 
         [TestMethod]

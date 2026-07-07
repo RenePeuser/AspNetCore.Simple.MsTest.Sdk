@@ -138,17 +138,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = expectNull
-                                        ? new[]
-                                        {
-                                            $"Ensure the code that sets '{valueName}' returns null for this scenario",
-                                            $"Review the logic that creates or assigns '{valueName}'"
-                                        }
-                                        : new[]
-                                        {
-                                            $"Verify that '{valueName}' is properly initialized before this assertion",
-                                            $"Check for null returns in methods that populate '{valueName}'",
-                                            "Add null checks or default values in the code under test"
-                                        };
+                                        ? new[] { $"Ensure the code that sets '{valueName}' returns null for this scenario", $"Review the logic that creates or assigns '{valueName}'" }
+                                        : new[] { $"Verify that '{valueName}' is properly initialized before this assertion", $"Check for null returns in methods that populate '{valueName}'", "Add null checks or default values in the code under test" };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

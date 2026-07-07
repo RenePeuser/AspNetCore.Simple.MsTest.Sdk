@@ -342,42 +342,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = predicateType switch
             {
-                "All" => new[]
-                {
-                    $"Review the items in '{collectionName}' that failed the predicate",
-                    $"Verify that the data source for '{collectionName}' produces items matching '{predicateDescription}'",
-                    "Check if the predicate logic is correct and matches your requirements"
-                },
-                "Any" => new[]
-                {
-                    $"Ensure '{collectionName}' is populated with items matching '{predicateDescription}'",
-                    $"Verify the data source for '{collectionName}' is correct",
-                    "Check if the collection is empty or if the predicate logic needs adjustment"
-                },
-                "None" => new[]
-                {
-                    $"Review the items in '{collectionName}' that unexpectedly match '{predicateDescription}'",
-                    $"Verify that '{collectionName}' is filtered correctly before this assertion",
-                    "Check if the predicate logic correctly identifies items to exclude"
-                },
+                "All" => new[] { $"Review the items in '{collectionName}' that failed the predicate", $"Verify that the data source for '{collectionName}' produces items matching '{predicateDescription}'", "Check if the predicate logic is correct and matches your requirements" },
+                "Any" => new[] { $"Ensure '{collectionName}' is populated with items matching '{predicateDescription}'", $"Verify the data source for '{collectionName}' is correct", "Check if the collection is empty or if the predicate logic needs adjustment" },
+                "None" => new[] { $"Review the items in '{collectionName}' that unexpectedly match '{predicateDescription}'", $"Verify that '{collectionName}' is filtered correctly before this assertion", "Check if the predicate logic correctly identifies items to exclude" },
                 "Single" => matchingCount == 0
-                                ? new[]
-                                {
-                                    $"Ensure '{collectionName}' contains at least one item matching '{predicateDescription}'",
-                                    $"Verify the data source for '{collectionName}' includes the expected item",
-                                    "Check if the predicate is too restrictive"
-                                }
-                                : new[]
-                                {
-                                    $"Ensure '{collectionName}' contains exactly one item matching '{predicateDescription}'",
-                                    $"Remove duplicate items from '{collectionName}' or refine the predicate",
-                                    "Check if the predicate is too broad and matches multiple items"
-                                },
-                _ => new[]
-                {
-                    $"Review the items in '{collectionName}'",
-                    "Verify the predicate logic is correct"
-                }
+                                ? new[] { $"Ensure '{collectionName}' contains at least one item matching '{predicateDescription}'", $"Verify the data source for '{collectionName}' includes the expected item", "Check if the predicate is too restrictive" }
+                                : new[] { $"Ensure '{collectionName}' contains exactly one item matching '{predicateDescription}'", $"Remove duplicate items from '{collectionName}' or refine the predicate", "Check if the predicate is too broad and matches multiple items" },
+                _ => new[] { $"Review the items in '{collectionName}'", "Verify the predicate logic is correct" }
             };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,

@@ -18,10 +18,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 10,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0);
+                                        12, 0, 0);
 
             // Act & Assert - Should NOT throw
             Assert.That.IsAfter(actual, expected,
@@ -34,10 +34,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 1,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0);
+                                        12, 0, 0);
 
             var threw = false;
 
@@ -62,10 +62,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0);
+                                        12, 0, 0);
 
             var threw = false;
 
@@ -90,10 +90,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var eventTime = new DateTime(2026, 6, 1,
-                                                10, 30, 0);
+                                         10, 30, 0);
 
             var deadline = new DateTime(2026, 6, 5,
-                                               17, 0, 0);
+                                        17, 0, 0);
 
             // Act
             try
@@ -131,10 +131,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 1,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0);
+                                        12, 0, 0);
 
             // Act & Assert - Should NOT throw
             Assert.That.IsBefore(actual, expected,
@@ -147,10 +147,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 10,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0);
+                                        12, 0, 0);
 
             var threw = false;
 
@@ -175,10 +175,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0);
+                                        12, 0, 0);
 
             var threw = false;
 
@@ -203,10 +203,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var createdAt = new DateTime(2026, 6, 10,
-                                                14, 30, 0);
+                                         14, 30, 0);
 
             var cutoffDate = new DateTime(2026, 6, 5,
-                                                 23, 59, 59);
+                                          23, 59, 59);
 
             // Act
             try
@@ -244,13 +244,13 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             var start = new DateTime(2026, 6, 1,
-                                            0, 0, 0);
+                                     0, 0, 0);
 
             var end = new DateTime(2026, 6, 30,
-                                          23, 59, 59);
+                                   23, 59, 59);
 
             // Act & Assert - Should NOT throw
             Assert.That.IsInRange(actual, start, end,
@@ -263,13 +263,13 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 1,
-                                             0, 0, 0);
+                                      0, 0, 0);
 
             var start = new DateTime(2026, 6, 1,
-                                            0, 0, 0);
+                                     0, 0, 0);
 
             var end = new DateTime(2026, 6, 30,
-                                          23, 59, 59);
+                                   23, 59, 59);
 
             // Act & Assert - Should NOT throw (inclusive boundary)
             Assert.That.IsInRange(actual, start, end,
@@ -282,13 +282,13 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 30,
-                                             23, 59, 59);
+                                      23, 59, 59);
 
             var start = new DateTime(2026, 6, 1,
-                                            0, 0, 0);
+                                     0, 0, 0);
 
             var end = new DateTime(2026, 6, 30,
-                                          23, 59, 59);
+                                   23, 59, 59);
 
             // Act & Assert - Should NOT throw (inclusive boundary)
             Assert.That.IsInRange(actual, start, end,
@@ -301,13 +301,13 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 5, 31,
-                                             23, 59, 59);
+                                      23, 59, 59);
 
             var start = new DateTime(2026, 6, 1,
-                                            0, 0, 0);
+                                     0, 0, 0);
 
             var end = new DateTime(2026, 6, 30,
-                                          23, 59, 59);
+                                   23, 59, 59);
 
             var threw = false;
 
@@ -332,13 +332,13 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 7, 1,
-                                             0, 0, 1);
+                                      0, 0, 1);
 
             var start = new DateTime(2026, 6, 1,
-                                            0, 0, 0);
+                                     0, 0, 0);
 
             var end = new DateTime(2026, 6, 30,
-                                          23, 59, 59);
+                                   23, 59, 59);
 
             var threw = false;
 
@@ -363,13 +363,13 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var appointmentDate = new DateTime(2026, 7, 15,
-                                                      10, 0, 0);
+                                               10, 0, 0);
 
             var periodStart = new DateTime(2026, 6, 1,
-                                                  0, 0, 0);
+                                           0, 0, 0);
 
             var periodEnd = new DateTime(2026, 6, 30,
-                                                23, 59, 59);
+                                         23, 59, 59);
 
             // Act
             try
@@ -407,10 +407,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 5);
+                                      12, 0, 5);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0);
+                                        12, 0, 0);
 
             var tolerance = TimeSpan.FromSeconds(10);
 
@@ -425,10 +425,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 10);
+                                      12, 0, 10);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0);
+                                        12, 0, 0);
 
             var tolerance = TimeSpan.FromSeconds(10);
 
@@ -443,10 +443,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0);
+                                        12, 0, 0);
 
             var tolerance = TimeSpan.FromSeconds(1);
 
@@ -461,10 +461,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 15);
+                                      12, 0, 15);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0);
+                                        12, 0, 0);
 
             var tolerance = TimeSpan.FromSeconds(10);
             var threw = false;
@@ -490,10 +490,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             11, 59, 45);
+                                      11, 59, 45);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0);
+                                        12, 0, 0);
 
             var tolerance = TimeSpan.FromSeconds(10);
             var threw = false;
@@ -519,10 +519,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actualTimestamp = new DateTime(2026, 6, 5,
-                                                      12, 5, 30);
+                                               12, 5, 30);
 
             var expectedTimestamp = new DateTime(2026, 6, 5,
-                                                        12, 0, 0);
+                                                 12, 0, 0);
 
             var tolerance = TimeSpan.FromMinutes(2);
 
@@ -562,12 +562,12 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 0,
-                                             500);
+                                      12, 0, 0,
+                                      500);
 
             var expected = new DateTime(2026, 6, 5,
-                                               12, 0, 0,
-                                               0);
+                                        12, 0, 0,
+                                        0);
 
             var tolerance = TimeSpan.FromMilliseconds(600);
 
@@ -582,13 +582,13 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             var start = new DateTime(2026, 6, 5,
-                                            0, 0, 0);
+                                     0, 0, 0);
 
             var end = new DateTime(2026, 6, 5,
-                                          23, 59, 59);
+                                   23, 59, 59);
 
             // Act & Assert - Should NOT throw
             Assert.That.IsInRange(actual, start, end,
@@ -614,10 +614,10 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2020, 1, 1,
-                                             0, 0, 0);
+                                      0, 0, 0);
 
             var expected = new DateTime(2026, 12, 31,
-                                               23, 59, 59);
+                                        23, 59, 59);
 
             // Act & Assert - Should NOT throw
             Assert.That.IsBefore(actual, expected,
@@ -669,7 +669,7 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             var threw = false;
 
@@ -766,7 +766,7 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             var threw = false;
 
@@ -795,7 +795,7 @@ namespace Core.Test.DateTimeAssertions
         {
             // Arrange
             var actual = new DateTime(2026, 6, 5,
-                                             12, 0, 0);
+                                      12, 0, 0);
 
             // Act & Assert - Should NOT throw
             Assert.That.IsUnspecified(actual,

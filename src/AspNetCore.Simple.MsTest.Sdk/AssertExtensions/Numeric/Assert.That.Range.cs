@@ -155,19 +155,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = expectInRange
                                         ? new[]
-                                        {
-                                            $"Verify that '{valueName}' is calculated correctly to fall within [{minValue}, {maxValue}]",
-                                            $"Check boundary conditions that might push '{valueName}' outside the valid range",
-                                            $"Consider adjusting the range limits if [{minValue}, {maxValue}] is too restrictive",
-                                            $"Review input validation or data transformation logic for '{valueName}'"
-                                        }
+                                          {
+                                              $"Verify that '{valueName}' is calculated correctly to fall within [{minValue}, {maxValue}]", $"Check boundary conditions that might push '{valueName}' outside the valid range", $"Consider adjusting the range limits if [{minValue}, {maxValue}] is too restrictive",
+                                              $"Review input validation or data transformation logic for '{valueName}'"
+                                          }
                                         : new[]
-                                        {
-                                            $"Ensure '{valueName}' is set to a value outside [{minValue}, {maxValue}]",
-                                            $"Review the logic that generates '{valueName}' to avoid the excluded range",
-                                            $"Check if the range boundaries [{minValue}, {maxValue}] are correctly defined",
-                                            $"Verify that edge cases don't accidentally fall within the restricted range"
-                                        };
+                                          {
+                                              $"Ensure '{valueName}' is set to a value outside [{minValue}, {maxValue}]", $"Review the logic that generates '{valueName}' to avoid the excluded range", $"Check if the range boundaries [{minValue}, {maxValue}] are correctly defined",
+                                              $"Verify that edge cases don't accidentally fall within the restricted range"
+                                          };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

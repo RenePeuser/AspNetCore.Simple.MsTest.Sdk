@@ -233,19 +233,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = comparisonType == "AFTER"
                                         ? new[]
-                                        {
-                                            $"Verify that '{actualName}' is set to a time later than the comparison value",
-                                            "Check if the DateTime values are using the same timezone (UTC vs Local)",
-                                            $"Review the logic that sets '{actualName}' to ensure it occurs chronologically after the expected time",
-                                            "Consider if you should be using UTC times for consistent comparisons"
-                                        }
+                                          {
+                                              $"Verify that '{actualName}' is set to a time later than the comparison value", "Check if the DateTime values are using the same timezone (UTC vs Local)", $"Review the logic that sets '{actualName}' to ensure it occurs chronologically after the expected time",
+                                              "Consider if you should be using UTC times for consistent comparisons"
+                                          }
                                         : new[]
-                                        {
-                                            $"Verify that '{actualName}' is set to a time earlier than the comparison value",
-                                            "Check if the DateTime values are using the same timezone (UTC vs Local)",
-                                            $"Review the logic that sets '{actualName}' to ensure it occurs chronologically before the expected time",
-                                            "Consider if you should be using UTC times for consistent comparisons"
-                                        };
+                                          {
+                                              $"Verify that '{actualName}' is set to a time earlier than the comparison value", "Check if the DateTime values are using the same timezone (UTC vs Local)", $"Review the logic that sets '{actualName}' to ensure it occurs chronologically before the expected time",
+                                              "Consider if you should be using UTC times for consistent comparisons"
+                                          };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -309,13 +305,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-            {
-                $"Verify that '{actualName}' falls between {start:O} and {end:O}",
-                "Check if the DateTime values are using the same timezone (UTC vs Local)",
-                $"Review the logic that sets '{actualName}' to ensure it produces values within the expected range",
-                "Consider widening the acceptable range if edge cases are valid",
-                "Verify that the range boundaries (start/end) are correctly defined"
-            };
+                                    {
+                                        $"Verify that '{actualName}' falls between {start:O} and {end:O}", "Check if the DateTime values are using the same timezone (UTC vs Local)", $"Review the logic that sets '{actualName}' to ensure it produces values within the expected range",
+                                        "Consider widening the acceptable range if edge cases are valid", "Verify that the range boundaries (start/end) are correctly defined"
+                                    };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -369,14 +362,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = new[]
-            {
-                $"Verify that '{actualName}' is set close to {expected:O}",
-                $"Consider increasing the tolerance if {tolerance.TotalSeconds:F3} seconds is too strict",
-                "Check for timing issues or delays in the code that might cause larger differences",
-                "Verify that both DateTime values are using the same timezone (UTC vs Local)",
-                $"Review the logic that sets '{actualName}' to reduce the time difference",
-                "Consider using DateTime.UtcNow instead of DateTime.Now for more predictable comparisons"
-            };
+                                    {
+                                        $"Verify that '{actualName}' is set close to {expected:O}", $"Consider increasing the tolerance if {tolerance.TotalSeconds:F3} seconds is too strict", "Check for timing issues or delays in the code that might cause larger differences",
+                                        "Verify that both DateTime values are using the same timezone (UTC vs Local)", $"Review the logic that sets '{actualName}' to reduce the time difference", "Consider using DateTime.UtcNow instead of DateTime.Now for more predictable comparisons"
+                                    };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);
@@ -544,26 +533,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var additionalOptions = expectedKind switch
             {
                 DateTimeKind.Utc => new[]
-                {
-                    $"Use DateTime.UtcNow instead of DateTime.Now when creating '{actualName}'",
-                    $"Convert '{actualName}' to UTC using .ToUniversalTime()",
-                    $"Use DateTime.SpecifyKind({actualName}, DateTimeKind.Utc) if the value is already in UTC",
-                    "Ensure database or API responses return UTC timestamps"
-                },
+                                    {
+                                        $"Use DateTime.UtcNow instead of DateTime.Now when creating '{actualName}'", $"Convert '{actualName}' to UTC using .ToUniversalTime()", $"Use DateTime.SpecifyKind({actualName}, DateTimeKind.Utc) if the value is already in UTC",
+                                        "Ensure database or API responses return UTC timestamps"
+                                    },
                 DateTimeKind.Local => new[]
-                {
-                    $"Use DateTime.Now instead of DateTime.UtcNow when creating '{actualName}'",
-                    $"Convert '{actualName}' to local time using .ToLocalTime()",
-                    $"Use DateTime.SpecifyKind({actualName}, DateTimeKind.Local) if the value is already in local time",
-                    "Consider if local time is appropriate or if UTC would be better for consistency"
-                },
+                                      {
+                                          $"Use DateTime.Now instead of DateTime.UtcNow when creating '{actualName}'", $"Convert '{actualName}' to local time using .ToLocalTime()", $"Use DateTime.SpecifyKind({actualName}, DateTimeKind.Local) if the value is already in local time",
+                                          "Consider if local time is appropriate or if UTC would be better for consistency"
+                                      },
                 DateTimeKind.Unspecified => new[]
-                {
-                    $"Use DateTime.SpecifyKind({actualName}, DateTimeKind.Unspecified) to explicitly set the kind",
-                    $"Create '{actualName}' using the DateTime constructor without timezone information",
-                    "Review if Unspecified is appropriate or if you should use UTC or Local instead",
-                    "Be aware that Unspecified DateTimes can cause timezone-related bugs"
-                },
+                                            {
+                                                $"Use DateTime.SpecifyKind({actualName}, DateTimeKind.Unspecified) to explicitly set the kind", $"Create '{actualName}' using the DateTime constructor without timezone information", "Review if Unspecified is appropriate or if you should use UTC or Local instead",
+                                                "Be aware that Unspecified DateTimes can cause timezone-related bugs"
+                                            },
                 _ => Array.Empty<string>()
             };
 

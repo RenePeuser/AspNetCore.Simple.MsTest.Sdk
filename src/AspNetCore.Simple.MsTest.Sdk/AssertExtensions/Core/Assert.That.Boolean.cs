@@ -128,18 +128,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Fix (How)
             var additionalOptions = expectTrue
-                                        ? new[]
-                                        {
-                                            $"Review the logic in '{conditionName}' to ensure it returns true",
-                                            "Check the values being compared in the condition",
-                                            "Verify that prerequisites for this condition are met"
-                                        }
-                                        : new[]
-                                        {
-                                            $"Review the logic in '{conditionName}' to ensure it returns false",
-                                            "Check if the condition should be inverted",
-                                            "Verify the expected state for this test scenario"
-                                        };
+                                        ? new[] { $"Review the logic in '{conditionName}' to ensure it returns true", "Check the values being compared in the condition", "Verify that prerequisites for this condition are met" }
+                                        : new[] { $"Review the logic in '{conditionName}' to ensure it returns false", "Check if the condition should be inverted", "Verify the expected state for this test scenario" };
 
             AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
                                                additionalOptions);

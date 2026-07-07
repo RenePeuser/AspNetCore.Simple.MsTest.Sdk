@@ -227,24 +227,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Fix (How)
             var additionalOptions = assertionType switch
             {
-                TypeAssertionType.IsOfType => new[]
-                {
-                    $"Ensure '{objName}' is instantiated as '{expectedType.Name}' rather than '{actualType?.Name}'",
-                    $"Check the factory or constructor creating '{objName}'",
-                    $"Verify that '{objName}' is not being cast or converted to a different type"
-                },
-                TypeAssertionType.IsNotOfType => new[]
-                {
-                    $"Change the type of '{objName}' to something other than '{expectedType.Name}'",
-                    $"Review the logic that creates '{objName}' to return a different type",
-                    $"Consider using a derived or different type for '{objName}'"
-                },
-                TypeAssertionType.IsAssignableTo => new[]
-                {
-                    $"Ensure '{actualType?.Name ?? "the type"}' inherits from '{expectedType.Name}' or implements it as an interface",
-                    $"Check that '{objName}' is created with the correct derived type",
-                    $"Verify the class hierarchy and interface implementations for '{actualType?.Name ?? "the type"}'"
-                },
+                TypeAssertionType.IsOfType => new[] { $"Ensure '{objName}' is instantiated as '{expectedType.Name}' rather than '{actualType?.Name}'", $"Check the factory or constructor creating '{objName}'", $"Verify that '{objName}' is not being cast or converted to a different type" },
+                TypeAssertionType.IsNotOfType => new[] { $"Change the type of '{objName}' to something other than '{expectedType.Name}'", $"Review the logic that creates '{objName}' to return a different type", $"Consider using a derived or different type for '{objName}'" },
+                TypeAssertionType.IsAssignableTo => new[] { $"Ensure '{actualType?.Name ?? "the type"}' inherits from '{expectedType.Name}' or implements it as an interface", $"Check that '{objName}' is created with the correct derived type", $"Verify the class hierarchy and interface implementations for '{actualType?.Name ?? "the type"}'" },
                 _ => Array.Empty<string>()
             };
 

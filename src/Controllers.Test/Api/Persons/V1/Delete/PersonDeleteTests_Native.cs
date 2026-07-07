@@ -11,7 +11,6 @@ namespace Controllers.Test.Api.Persons.V1.Delete
     /// Native API tests for DELETE /api/v1/persons endpoints.
     /// Tests both 204 NoContent and 200 OK with response body variants.
     /// </summary>
-    [Ignore("Temp")]
     [TestClass]
     [TestCategory("Controller")]
     [TestCategory("DELETE")]

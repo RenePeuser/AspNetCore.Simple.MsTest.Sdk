@@ -11,7 +11,7 @@ namespace MinimalApi.Test.Api.NativeTypes
         [TestMethod]
         public Task Should_Be_Able_To_Fetch_Native_String_As_Well()
         {
-            return Client.AssertGetAsync<string>("api/v1/native-types/string", "String only");
+            return Client.AssertGetAsync("api/v1/native-types/string", "String only");
         }
 
         [TestMethod]
@@ -39,7 +39,7 @@ namespace MinimalApi.Test.Api.NativeTypes
         public Task Should_Be_Able_To_Fetch_Another_Native_String()
         {
             // Tests different string value to verify comparison works correctly
-            return Client.AssertGetAsync<string>("api/v1/native-types/another-string", "Different text");
+            return Client.AssertGetAsync("api/v1/native-types/another-string", "Different text");
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@ namespace MinimalApi.Test.Api.NativeTypes
         public Task Should_Be_Able_To_Use_String_With_Skip_Endpoint_Validation()
         {
             // Test with skipEndpointValidation flag - no actual endpoint call needed
-            return Client.AssertGetAsync<string>("api/v1/native-types/string", "String only", skipEndpointValidation: true);
+            return Client.AssertGetAsync("api/v1/native-types/string", "String only", skipEndpointValidation: true);
         }
     }
 }
