@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
@@ -85,7 +86,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (shouldWriteResponse)
             {
-                responseWriter.Write(context, currentFormatted, context.ExpectedResultFile);
+                // Determine ResponseWriteMode based on context
+                Console.WriteLine($"[AssertService] IsEmptyAnonymousObjectForCodeGeneration={context.IsEmptyAnonymousObjectForCodeGeneration}, IsDebug={context.CallingAssembly.IsCompiledInDebug()}");
+
+                // NEW LOGIC: If in DEBUG mode, always use GenerateCSharpObject mode
+                // This allows re-generating C# code with actual API response values
+                var isDebugMode = context.CallingAssembly.IsCompiledInDebug();
+                var mode = isDebugMode
+                               ? ResponseWriteMode.GenerateCSharpObject
+                               : (context.ExpectedResultFile.EmbeddedFile?.Exists ?? false)
+                                   ? ResponseWriteMode.DifferencesOnly
+                                   : ResponseWriteMode.OverwriteAll;
+
+                Console.WriteLine($"[AssertService] Determined Mode={mode}");
+
+                responseWriter.Write(context, currentFormatted, context.ExpectedResultFile,
+                                     mode);
             }
 
             // 4. No differences -> means all fine or the dev force to ignore all diffs by difference func

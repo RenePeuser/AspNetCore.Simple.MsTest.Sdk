@@ -26,7 +26,9 @@
       "Bash(xargs -0 grep -h \"TestCategory\")",
       "Bash(git restore *)",
       "Bash(taskkill /F /IM \"Controllers.exe\")",
-      "Bash(taskkill //F //IM \"Controllers.exe\")"
+      "Bash(taskkill //F //IM \"Controllers.exe\")",
+      "Bash(dotnet list *)",
+      "Bash(dotnet nuget *)"
     ]
   }
 }

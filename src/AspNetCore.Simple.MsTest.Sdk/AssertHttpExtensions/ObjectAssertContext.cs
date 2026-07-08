@@ -91,6 +91,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// All data preparation happens before context creation - the service receives only processed data.
         /// </summary>
         string? ResolvedExpectedJson { get; init; }
+
+        /// <summary>
+        /// Indicates whether the expected object is an empty anonymous object that should trigger C# code generation.
+        /// When true, the framework will generate C# code with actual response properties in the test file.
+        /// </summary>
+        bool IsEmptyAnonymousObjectForCodeGeneration { get; init; }
     }
 
     /// <summary>
@@ -186,6 +192,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required string? ResolvedExpectedJson { get; init; }
 
         public required bool TypeIsPrimitiveType { get; init; }
+
+        /// <summary>
+        /// Indicates whether the expected object is an empty anonymous object that should trigger C# code generation.
+        /// When true, the framework will generate C# code with actual response properties in the test file.
+        /// </summary>
+        public bool IsEmptyAnonymousObjectForCodeGeneration { get; init; }
     }
 
     /// <summary>

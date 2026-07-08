@@ -104,7 +104,7 @@ namespace MinimalApi.Test.Api.Errors
             // Note: Invalid fields are ignored by model binding, so we test that it returns success
             // This test verifies the endpoint handles unknown fields gracefully
             return Client.AssertQueryAsync<IEnumerable<Person>>(url: "api/v1/persons/search",
-                                                                payloadAsJson: "{\"name\":\"\",\"minAge\":null,\"maxAge\":null}",
+                                                                payloadAsJson: /*lang=json,strict*/ "{\"name\":\"\",\"minAge\":null,\"maxAge\":null}",
                                                                 writeResponse: false);
         }
     }

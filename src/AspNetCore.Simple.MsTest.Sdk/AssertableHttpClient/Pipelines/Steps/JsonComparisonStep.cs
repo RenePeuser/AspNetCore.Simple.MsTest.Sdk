@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.Json;
@@ -79,6 +80,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Build context for AssertService and delegate all comparison logic
             // Optimization: Pass both expectedResponse object AND expectedJson for flexibility
+            Console.WriteLine($"[JsonComparisonStep] context.IsEmptyAnonymousObjectForCodeGeneration={context.IsEmptyAnonymousObjectForCodeGeneration}");
+
             var objectAssertContext = new HttpResponseContext<SimpleHttpResponseMessage>
             {
                 ApiVersion = context.ApiVersion,
@@ -123,7 +126,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 // Copy failure type from original context (if already set by earlier pipeline steps)
                 FailureType = context.FailureType,
                 ExpectedStatusCode = context.ExpectedStatusCode,
-                ActualStatusCode = context.ActualStatusCode
+                ActualStatusCode = context.ActualStatusCode,
+
+                // PROTOTYPE: Copy code generation flag
+                IsEmptyAnonymousObjectForCodeGeneration = context.IsEmptyAnonymousObjectForCodeGeneration
             };
 
             // Delegate to AssertService - it handles schema checks, value comparison, diff finding, and output building

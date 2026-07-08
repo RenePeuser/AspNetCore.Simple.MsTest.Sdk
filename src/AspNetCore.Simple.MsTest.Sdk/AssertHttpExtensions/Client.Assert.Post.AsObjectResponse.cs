@@ -21,7 +21,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              HttpStatusCode? expectedHttpStatusCode = null,
                                                              [CallerFilePath] string callerFilePath = "",
                                                              [CallerMemberName] string callerMemberName = "",
-                                                             [CallerLineNumber] int callerLineNumber = 0)
+                                                             [CallerLineNumber] int callerLineNumber = 0,
+                                                             [CallerArgumentExpression(nameof(expectedResponse))]
+                                                             string expectedResponseParameterName = "")
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
@@ -30,7 +32,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    parameters: parameters,
                                                    callingAssembly: callingAssembly,
                                                    writeResponse: writeResponse,
-                                                   expectedResultParameterName: nameof(expectedResponse),
+                                                   expectedResultParameterName: expectedResponseParameterName,
                                                    skipEndpointValidation: skipEndpointValidation,
                                                    expectedHttpStatusCode: expectedHttpStatusCode,
                                                    callerFilePath: callerFilePath,
@@ -47,7 +49,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              HttpStatusCode? expectedHttpStatusCode = null,
                                                              [CallerFilePath] string callerFilePath = "",
                                                              [CallerMemberName] string callerMemberName = "",
-                                                             [CallerLineNumber] int callerLineNumber = 0)
+                                                             [CallerLineNumber] int callerLineNumber = 0,
+                                                             [CallerArgumentExpression(nameof(expectedResponse))]
+                                                             string expectedResponseParameterName = "")
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
@@ -59,7 +63,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           callingAssembly: callingAssembly,
                                           writeResponse: writeResponse,
                                           payloadAsJsonParameterName: string.Empty,
-                                          expectedResultParameterName: nameof(expectedResponse),
+                                          expectedResultParameterName: expectedResponseParameterName,
                                           skipEndpointValidation: skipEndpointValidation,
                                           expectedHttpStatusCode: expectedHttpStatusCode,
                                           callerFilePath: callerFilePath,
@@ -77,7 +81,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              HttpStatusCode? expectedHttpStatusCode = null,
                                                              [CallerFilePath] string callerFilePath = "",
                                                              [CallerMemberName] string callerMemberName = "",
-                                                             [CallerLineNumber] int callerLineNumber = 0)
+                                                             [CallerLineNumber] int callerLineNumber = 0,
+                                                             [CallerArgumentExpression(nameof(expectedResponse))]
+                                                             string expectedResponseParameterName = "")
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
@@ -89,7 +95,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           callingAssembly: callingAssembly,
                                           writeResponse: writeResponse,
                                           payloadAsJsonParameterName: string.Empty,
-                                          expectedResultParameterName: nameof(expectedResponse),
+                                          expectedResultParameterName: expectedResponseParameterName,
                                           skipEndpointValidation: skipEndpointValidation,
                                           expectedHttpStatusCode: expectedHttpStatusCode,
                                           callerFilePath: callerFilePath,
@@ -159,6 +165,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              bool writeResponse = false,
                                                              [CallerArgumentExpression(nameof(payloadAsObject))]
                                                              string payloadAsObjectParameterName = "",
+                                                             [CallerArgumentExpression(nameof(expectedResponse))]
+                                                             string expectedResponseParameterName = "",
                                                              bool skipEndpointValidation = false,
                                                              HttpStatusCode? expectedHttpStatusCode = null,
                                                              [CallerFilePath] string callerFilePath = "",
@@ -167,19 +175,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
-            return client.AssertPostAsync<TResult>(url: url,
-                                                   payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
-                                                   expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
-                                                   parameters: [],
-                                                   callingAssembly: callingAssembly,
-                                                   writeResponse: writeResponse,
-                                                   payloadAsJsonParameterName: payloadAsObjectParameterName,
-                                                   expectedResultParameterName: nameof(expectedResponse),
-                                                   skipEndpointValidation: skipEndpointValidation,
-                                                   expectedHttpStatusCode: expectedHttpStatusCode,
-                                                   callerFilePath: callerFilePath,
-                                                   callerMemberName: callerMemberName,
-                                                   callerLineNumber: callerLineNumber);
+            return client.AssertHttpCallAsync(url: url,
+                                              payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                              expectedResponse: expectedResponse,
+                                              expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                              filterFunc: item => item,
+                                              httpMethod: HttpMethod.Post,
+                                              differenceFunc: item => item,
+                                              parameters: [],
+                                              callingAssembly: callingAssembly,
+                                              writeResponse: writeResponse,
+                                              payloadAsJsonParameterName: payloadAsObjectParameterName,
+                                              expectedResponseParameterName: expectedResponseParameterName,
+                                              skipEndpointValidation: skipEndpointValidation,
+                                              expectedHttpStatusCode: expectedHttpStatusCode,
+                                              callerFilePath: callerFilePath,
+                                              callerMemberName: callerMemberName,
+                                              callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,

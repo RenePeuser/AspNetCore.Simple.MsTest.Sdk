@@ -22,7 +22,7 @@
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <PackageId>AspNetCore.Simple.MsTest.Sdk</PackageId>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
-        <NoWarn>CA1515;CA1707;CA1054;CA1062;MSTEST0016;CA2234;IDE0032;IDE0053</NoWarn>
+        <NoWarn>CA1515;CA1707;CA1054;CA1062;MSTEST0016;CA2234;IDE0032;IDE0053;IDE0060;IDE0038;IDE0059;IDE0052</NoWarn>
         <IsPackable>true</IsPackable>
     </PropertyGroup>
 
@@ -52,11 +52,11 @@
         </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
         <PackageReference Include="Microsoft.AspNetCore.TestHost" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
         <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" PrivateAssets="All" />
         <PackageReference Include="MSTest.TestFramework" />
         <PackageReference Include="System.CodeDom" />
     </ItemGroup>
-
     <ItemGroup>
       <Folder Include="ErrorHandling\" />
       <Folder Include="FluentAssertions\" />

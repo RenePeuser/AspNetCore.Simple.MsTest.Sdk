@@ -68,5 +68,20 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                                           expectedPerson,
                                           TestHelpers.IgnoreIdDifferences);
         }
+
+        [TestMethod]
+        [TestCategory("ObjectResponse")]
+        [TestCategory("POST")]
+        public Task Test_CSharp_Response_Creation()
+        {
+            var personToCreate = TestHelpers.CreateValidPerson();
+
+            var expectedPerson = new Person(1, "Son", "Goku", 42, []);
+
+            return Client.AssertPostAsync<Person>("api/v1/persons",
+                                                  personToCreate,
+                                                  expectedPerson,
+                                                  writeResponse: true);
+        }
     }
 }

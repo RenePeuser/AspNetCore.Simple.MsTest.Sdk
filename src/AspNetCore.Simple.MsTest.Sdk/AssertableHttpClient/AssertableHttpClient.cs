@@ -36,6 +36,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             services.AddEmbeddedFileLocalizer(configuration);
             services.AddApiVersionResolver();
             services.AddEndpointValidator();
+            services.AddEmptyAnonymousObjectDetector();
 
             // 2. Register error handling strategy (with all specific handlers)
             services.AddTestErrorHandlingStrategy();
@@ -195,7 +196,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 FailureType = HttpAssertionFailureType.None,
                 ExpectedStatusCode = (int?)context.ExpectedHttpStatusCode,
                 ActualStatusCode = null,
-                Expected = context.Expected
+                Expected = context.Expected,
+                IsEmptyAnonymousObjectForCodeGeneration = context.IsEmptyAnonymousObjectForCodeGeneration
             };
 
             // Delegate to pipeline - steps only validate, never modify the result

@@ -135,6 +135,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 8.1. Create JSON file extension validator
             _jsonFileExtensionValidator = new JsonFileExtensionValidator(_sourceCodeExtractor, _textDecorator);
 
+            // 8.2. Resolve empty anonymous object detector
+            _emptyAnonymousObjectDetector = serviceProvider.GetRequiredService<IEmptyAnonymousObjectDetector>();
+
             // 9. Resolve error handling strategy
             _testErrorHandlingStrategy = serviceProvider.GetRequiredService<ITestErrorHandlingStrategy>();
 
@@ -196,6 +199,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                                  new SourceCodeExtractor());
 
         private static JsonSerializer _jsonSerializerInstance = new(JsonSerializerOptions);
+
+        private static IEmptyAnonymousObjectDetector _emptyAnonymousObjectDetector = new EmptyAnonymousObjectDetector();
 
         private static ITextDecorator _plainTextDecorator = new PlainTextDecorator();
 
@@ -469,6 +474,98 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               callerLineNumber: callerLineNumber);
         }
 
+        internal static Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
+                                                                    string url,
+                                                                    string payloadAsJson,
+                                                                    TResult expectedResponse,
+                                                                    string expectedResult,
+                                                                    Func<TResult?, TResult?> filterFunc,
+                                                                    HttpMethod httpMethod,
+                                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                    (string Key, object? Value)[] parameters,
+                                                                    Assembly callingAssembly,
+                                                                    bool isSuccessStatusCode = true,
+                                                                    bool writeResponse = false,
+                                                                    bool ignoreResponse = false,
+                                                                    bool skipEndpointValidation = false,
+                                                                    HttpStatusCode? expectedHttpStatusCode = null,
+                                                                    [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                                    string payloadAsJsonParameterName = "",
+                                                                    [CallerArgumentExpression(nameof(expectedResponse))]
+                                                                    string expectedResponseParameterName = "",
+                                                                    [CallerFilePath] string callerFilePath = "",
+                                                                    [CallerMemberName] string callerMemberName = "",
+                                                                    [CallerLineNumber] int callerLineNumber = 0)
+        {
+            // Detect if expectedResponse should trigger C# code generation
+            var isEmptyAnonymous = _emptyAnonymousObjectDetector.IsEmptyAnonymousObject(expectedResponse, expectedResponseParameterName);
+            Console.WriteLine($"[HttpCall with object] expectedResponseParameterName='{expectedResponseParameterName}', isEmptyAnonymous={isEmptyAnonymous}");
+
+            return client.AssertHttpCallAsyncWithDetection(url,
+                                                          payloadAsJson,
+                                                          expectedResult,
+                                                          filterFunc,
+                                                          httpMethod,
+                                                          differenceFunc,
+                                                          parameters,
+                                                          callingAssembly,
+                                                          isEmptyAnonymous,
+                                                          payloadAsJsonParameterName: payloadAsJsonParameterName,
+                                                          expectedResultParameterName: expectedResponseParameterName,
+                                                          callerFilePath: callerFilePath,
+                                                          isSuccessStatusCode: isSuccessStatusCode,
+                                                          writeResponse: writeResponse,
+                                                          ignoreResponse: ignoreResponse,
+                                                          skipEndpointValidation: skipEndpointValidation,
+                                                          expectedHttpStatusCode: expectedHttpStatusCode,
+                                                          callerMemberName: callerMemberName,
+                                                          callerLineNumber: callerLineNumber);
+        }
+
+        private static Task<TResult> AssertHttpCallAsyncWithDetection<TResult>(this HttpClient client,
+                                                                               string url,
+                                                                               string payloadAsJson,
+                                                                               string expectedResult,
+                                                                               Func<TResult?, TResult?> filterFunc,
+                                                                               HttpMethod httpMethod,
+                                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                                                               (string Key, object? Value)[] parameters,
+                                                                               Assembly callingAssembly,
+                                                                               bool isEmptyAnonymous,
+                                                                               bool isSuccessStatusCode = true,
+                                                                               bool writeResponse = false,
+                                                                               bool ignoreResponse = false,
+                                                                               bool skipEndpointValidation = false,
+                                                                               HttpStatusCode? expectedHttpStatusCode = null,
+                                                                               [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                                               string payloadAsJsonParameterName = "",
+                                                                               [CallerArgumentExpression(nameof(expectedResult))]
+                                                                               string expectedResultParameterName = "",
+                                                                               [CallerFilePath] string callerFilePath = "",
+                                                                               [CallerMemberName] string callerMemberName = "",
+                                                                               [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertHttpCallAsync(url,
+                                              payloadAsJson,
+                                              expectedResult,
+                                              filterFunc,
+                                              httpMethod,
+                                              differenceFunc,
+                                              parameters,
+                                              callingAssembly,
+                                              isEmptyAnonymous,
+                                              payloadAsJsonParameterName: payloadAsJsonParameterName,
+                                              expectedResultParameterName: expectedResultParameterName,
+                                              callerFilePath: callerFilePath,
+                                              isSuccessStatusCode: isSuccessStatusCode,
+                                              writeResponse: writeResponse,
+                                              ignoreResponse: ignoreResponse,
+                                              skipEndpointValidation: skipEndpointValidation,
+                                              expectedHttpStatusCode: expectedHttpStatusCode,
+                                              callerMemberName: callerMemberName,
+                                              callerLineNumber: callerLineNumber);
+        }
+
         internal static async Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
                                                                          string url,
                                                                          string payloadAsJson,
@@ -478,6 +575,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                                          (string Key, object? Value)[] parameters,
                                                                          Assembly callingAssembly,
+                                                                         bool? isEmptyAnonymous = null,
                                                                          bool isSuccessStatusCode = true,
                                                                          bool writeResponse = false,
                                                                          bool ignoreResponse = false,
@@ -517,6 +615,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var apiVersion = _apiVersionResolver.Resolve(url, client);
 
+            // PROTOTYPE: Detect empty anonymous object for code generation
+            // Use provided detection result or fallback to JSON check
+            var detectedIsEmptyAnonymous = isEmptyAnonymous ?? (resolvedExpectedJson == "{}");
+            Console.WriteLine($"[HttpCall] resolvedExpectedJson='{resolvedExpectedJson}', isEmptyAnonymous={detectedIsEmptyAnonymous} (provided={isEmptyAnonymous})");
+
             // Create public context directly - no need for internal context
             var context = new HttpAssertContext<TResult>
             {
@@ -550,7 +653,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 IgnoreResponse = ignoreResponse,
                 SkipEndpointValidation = skipEndpointValidation,
                 ExpectedHttpStatusCode = expectedHttpStatusCode,
-                Expected = default
+                Expected = default,
+                IsEmptyAnonymousObjectForCodeGeneration = detectedIsEmptyAnonymous
             };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);

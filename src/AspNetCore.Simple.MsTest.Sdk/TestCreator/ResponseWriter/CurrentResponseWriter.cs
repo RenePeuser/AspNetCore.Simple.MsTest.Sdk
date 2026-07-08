@@ -14,6 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             services.AddDifferenceResponseWriter();
             services.AddOverwriteAllResponseWriter();
+            services.AddCSharpObjectResponseWriter();
 
             services.AddSingletonIfNotExists<IResponseWriter, ResponseWriter>();
         }
@@ -23,7 +24,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         DifferencesOnly,
 
-        OverwriteAll
+        OverwriteAll,
+
+        GenerateCSharpObject
     }
 
     public sealed record WriteResponseRequest
@@ -41,6 +44,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required Assembly CallingAssembly { get; init; }
 
         public required ResponseWriteMode Mode { get; init; } = ResponseWriteMode.DifferencesOnly;
+
+        public required string CallerFilePath { get; init; }
+
+        public required int CallerLineNumber { get; init; }
+
+        public required string ExpectedResultParameterName { get; init; }
+
+        public required Type ExpectedType { get; init; }
+
+        public required object? ExpectedObject { get; init; }
     }
 
     public interface ISpecificResponseWriter
@@ -74,8 +87,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var writersCanHandle = specificResponseWriters.Where(w => w.CanHandle(writeResponseRequest)).ToImmutableList();
 
+            Console.WriteLine($"[ResponseWriter.Write] Mode={writeResponseRequest.Mode}, WritersCanHandle={writersCanHandle.Count}");
+
             if (writersCanHandle.IsEmpty())
             {
+                Console.WriteLine("[ResponseWriter.Write] No writers can handle this request");
                 return;
             }
 
@@ -84,6 +100,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 throw new InvalidOperationException($"Multiple ISpecificResponseWriter found for mode '{writeResponseRequest.Mode}'.");
             }
 
+            Console.WriteLine($"[ResponseWriter.Write] Calling Write on {writersCanHandle[0].GetType().Name}");
             writersCanHandle[0].Write(writeResponseRequest);
         }
 
@@ -99,7 +116,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 CurrentResponseAsString = currentResponseAsString,
                 ExpectedResult = expectedResult,
                 Parameters = context.Parameters,
-                Mode = mode
+                Mode = mode,
+                CallerFilePath = context.CallerFilePath,
+                CallerLineNumber = context.CallerLineNumber,
+                ExpectedResultParameterName = context.ExpectedResultParameterName,
+                ExpectedType = context.ExpectedType,
+                ExpectedObject = null // We don't have access to Expected here in the non-generic interface
             };
 
             Write(request);
