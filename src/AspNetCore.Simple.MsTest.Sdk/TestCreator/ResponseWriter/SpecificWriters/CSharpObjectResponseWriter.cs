@@ -167,60 +167,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private static (string typeName, ObjectConstructionType constructionType) ExtractTypeInfoFromSourceCode(string? sourceCode)
-        {
-            if (string.IsNullOrWhiteSpace(sourceCode))
-            {
-                return ("object", ObjectConstructionType.AnonymousObject);
-            }
-
-            // Extract: "new Person(..." -> typeName="Person", constructionType=RecordPositional
-            // Extract: "new Person { ..." -> typeName="Person", constructionType=RecordNominal/ClassNominal
-            // Extract: "new { ..." -> typeName=null, constructionType=AnonymousObject
-
-            var newIndex = sourceCode.IndexOf("new ", StringComparison.Ordinal);
-            if (newIndex < 0)
-            {
-                return ("object", ObjectConstructionType.AnonymousObject);
-            }
-
-            var afterNew = sourceCode.Substring(newIndex + 4).TrimStart();
-
-            // Check for anonymous object: "new { ..."
-            if (afterNew.StartsWith('{'))
-            {
-                return ("object", ObjectConstructionType.AnonymousObject);
-            }
-
-            // Extract type name: "Person(...)" or "Person { ... }"
-            var openParenIndex = afterNew.IndexOf('(');
-            var openBraceIndex = afterNew.IndexOf('{');
-
-            string typeName;
-            ObjectConstructionType constructionType;
-
-            if (openParenIndex >= 0 && (openBraceIndex < 0 || openParenIndex < openBraceIndex))
-            {
-                // Positional constructor: "Person(..."
-                typeName = afterNew.Substring(0, openParenIndex).Trim();
-                constructionType = ObjectConstructionType.RecordPositional;
-            }
-            else if (openBraceIndex >= 0)
-            {
-                // Object initializer: "Person { ..."
-                typeName = afterNew.Substring(0, openBraceIndex).Trim();
-                constructionType = ObjectConstructionType.RecordNominal; // Could also be ClassNominal, but we'll treat them the same
-            }
-            else
-            {
-                // Fallback
-                typeName = "object";
-                constructionType = ObjectConstructionType.AnonymousObject;
-            }
-
-            return (typeName, constructionType);
-        }
-
         private static string ExtractVariableName(string? parameterExpression)
         {
             if (string.IsNullOrWhiteSpace(parameterExpression))
