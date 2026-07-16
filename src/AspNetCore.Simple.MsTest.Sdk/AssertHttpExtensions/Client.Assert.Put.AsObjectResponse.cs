@@ -435,5 +435,147 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                          callerMemberName: callerMemberName,
                                          callerLineNumber: callerLineNumber);
         }
+
+        // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc/filterFunc
+        public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            object payloadAsObject,
+                                                            TResult expectedResponse,
+                                                            Predicate<Difference>? differenceFilter,
+                                                            bool writeResponse = false,
+                                                            [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                            string payloadAsObjectParameterName = "",
+                                                            bool skipEndpointValidation = false,
+                                                            HttpStatusCode? expectedHttpStatusCode = null,
+                                                            [CallerFilePath] string callerFilePath = "",
+                                                            [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
+            return client.AssertPutAsync<TResult>(url: url,
+                                         payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                         filterFunc: item => item,
+                                         differenceFunc: difference => difference,
+                                         parameters: [],
+                                         callingAssembly: callingAssembly,
+                                         writeResponse: writeResponse,
+                                         payloadAsJsonParameterName: payloadAsObjectParameterName,
+                                         expectedResultParameterName: nameof(expectedResponse),
+                                         skipEndpointValidation: skipEndpointValidation,
+                                         expectedHttpStatusCode: expectedHttpStatusCode,
+                                         differenceFilter: differenceFilter,
+                                         callerFilePath: callerFilePath,
+                                         callerMemberName: callerMemberName,
+                                         callerLineNumber: callerLineNumber);
+        }
+
+        // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc/filterFunc
+        public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            object payloadAsObject,
+                                                            TResult expectedResponse,
+                                                            Predicate<Difference>? differenceFilter,
+                                                            (string Key, object? Value)[] parameters,
+                                                            bool writeResponse = false,
+                                                            [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                            string payloadAsObjectParameterName = "",
+                                                            bool skipEndpointValidation = false,
+                                                            HttpStatusCode? expectedHttpStatusCode = null,
+                                                            [CallerFilePath] string callerFilePath = "",
+                                                            [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
+            return client.AssertPutAsync<TResult>(url: url,
+                                         payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                         filterFunc: item => item,
+                                         differenceFunc: difference => difference,
+                                         parameters: parameters,
+                                         callingAssembly: callingAssembly,
+                                         writeResponse: writeResponse,
+                                         payloadAsJsonParameterName: payloadAsObjectParameterName,
+                                         expectedResultParameterName: nameof(expectedResponse),
+                                         skipEndpointValidation: skipEndpointValidation,
+                                         expectedHttpStatusCode: expectedHttpStatusCode,
+                                         differenceFilter: differenceFilter,
+                                         callerFilePath: callerFilePath,
+                                         callerMemberName: callerMemberName,
+                                         callerLineNumber: callerLineNumber);
+        }
+
+        // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc/filterFunc
+        public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string payloadAsJson,
+                                                            TResult expectedResponse,
+                                                            Predicate<Difference>? differenceFilter,
+                                                            bool writeResponse = false,
+                                                            [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                            string payloadAsJsonParameterName = "",
+                                                            bool skipEndpointValidation = false,
+                                                            HttpStatusCode? expectedHttpStatusCode = null,
+                                                            [CallerFilePath] string callerFilePath = "",
+                                                            [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
+            return client.AssertPutAsync<TResult>(url: url,
+                                         payloadAsJson: payloadAsJson,
+                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                         filterFunc: item => item,
+                                         differenceFunc: difference => difference,
+                                         parameters: [],
+                                         callingAssembly: callingAssembly,
+                                         writeResponse: writeResponse,
+                                         payloadAsJsonParameterName: payloadAsJsonParameterName,
+                                         expectedResultParameterName: nameof(expectedResponse),
+                                         skipEndpointValidation: skipEndpointValidation,
+                                         expectedHttpStatusCode: expectedHttpStatusCode,
+                                         differenceFilter: differenceFilter,
+                                         callerFilePath: callerFilePath,
+                                         callerMemberName: callerMemberName,
+                                         callerLineNumber: callerLineNumber);
+        }
+
+        // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc/filterFunc
+        public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
+                                                            string url,
+                                                            string payloadAsJson,
+                                                            TResult expectedResponse,
+                                                            Predicate<Difference>? differenceFilter,
+                                                            (string Key, object? Value)[] parameters,
+                                                            bool writeResponse = false,
+                                                            [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                            string payloadAsJsonParameterName = "",
+                                                            bool skipEndpointValidation = false,
+                                                            HttpStatusCode? expectedHttpStatusCode = null,
+                                                            [CallerFilePath] string callerFilePath = "",
+                                                            [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
+            return client.AssertPutAsync<TResult>(url: url,
+                                         payloadAsJson: payloadAsJson,
+                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                         filterFunc: item => item,
+                                         differenceFunc: difference => difference,
+                                         parameters: parameters,
+                                         callingAssembly: callingAssembly,
+                                         writeResponse: writeResponse,
+                                         payloadAsJsonParameterName: payloadAsJsonParameterName,
+                                         expectedResultParameterName: nameof(expectedResponse),
+                                         skipEndpointValidation: skipEndpointValidation,
+                                         expectedHttpStatusCode: expectedHttpStatusCode,
+                                         differenceFilter: differenceFilter,
+                                         callerFilePath: callerFilePath,
+                                         callerMemberName: callerMemberName,
+                                         callerLineNumber: callerLineNumber);
+        }
     }
 }

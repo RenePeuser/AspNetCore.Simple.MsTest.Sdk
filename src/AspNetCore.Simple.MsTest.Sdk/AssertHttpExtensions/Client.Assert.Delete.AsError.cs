@@ -419,5 +419,62 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }
+
+        // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc
+        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
+                                                                      string url,
+                                                                      string expectedResult,
+                                                                      Predicate<Difference>? differenceFilter,
+                                                                      bool writeResponse = false,
+                                                                      bool skipEndpointValidation = false,
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
+                                                                      [CallerFilePath] string callerFilePath = "",
+                                                                      [CallerMemberName] string callerMemberName = "",
+                                                                      [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertDeleteAsErrorAsync<TResult>(url: url,
+                                                            expectedResult: expectedResult,
+                                                            differenceFunc: difference => difference,
+                                                            parameters: [],
+                                                            callingAssembly: Assembly.GetCallingAssembly(),
+                                                            writeResponse: writeResponse,
+                                                            skipEndpointValidation: skipEndpointValidation,
+                                                            expectedResultParameterName: expectedResultParameterName,
+                                                            differenceFilter: differenceFilter,
+                                                            callerFilePath: callerFilePath,
+                                                            callerMemberName: callerMemberName,
+                                                            callerLineNumber: callerLineNumber);
+        }
+
+        // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc
+        public static Task<TResult> AssertDeleteAsErrorAsync<TResult>(this HttpClient client,
+                                                                      string url,
+                                                                      string expectedResult,
+                                                                      (string Key, object? Value)[] parameters,
+                                                                      Predicate<Difference>? differenceFilter,
+                                                                      bool writeResponse = false,
+                                                                      bool skipEndpointValidation = false,
+                                                                      HttpStatusCode? expectedHttpStatusCode = null,
+                                                                      [CallerArgumentExpression(nameof(expectedResult))]
+                                                                      string expectedResultParameterName = "",
+                                                                      [CallerFilePath] string callerFilePath = "",
+                                                                      [CallerMemberName] string callerMemberName = "",
+                                                                      [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertDeleteAsErrorAsync<TResult>(url: url,
+                                                            expectedResult: expectedResult,
+                                                            differenceFunc: difference => difference,
+                                                            parameters: parameters,
+                                                            callingAssembly: Assembly.GetCallingAssembly(),
+                                                            writeResponse: writeResponse,
+                                                            skipEndpointValidation: skipEndpointValidation,
+                                                            expectedHttpStatusCode: expectedHttpStatusCode,
+                                                            expectedResultParameterName: expectedResultParameterName,
+                                                            differenceFilter: differenceFilter,
+                                                            callerFilePath: callerFilePath,
+                                                            callerMemberName: callerMemberName,
+                                                            callerLineNumber: callerLineNumber);
+        }
     }
 }

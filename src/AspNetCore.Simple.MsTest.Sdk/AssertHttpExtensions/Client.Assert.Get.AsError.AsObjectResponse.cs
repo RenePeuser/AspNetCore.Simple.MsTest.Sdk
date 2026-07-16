@@ -139,5 +139,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                 callerMemberName: callerMemberName,
                                                 callerLineNumber: callerLineNumber);
         }
+
+        // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc
+        public static Task<TResult> AssertGetAsErrorAsync<TResult>(this HttpClient client,
+                                                                   string url,
+                                                                   TResult expectedResponse,
+                                                                   Predicate<Difference>? differenceFilter,
+                                                                   bool writeResponse = false,
+                                                                   bool skipEndpointValidation = false,
+                                                                   HttpStatusCode? expectedHttpStatusCode = null,
+                                                                   [CallerFilePath] string callerFilePath = "",
+                                                                   [CallerMemberName] string callerMemberName = "",
+                                                                   [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertGetAsErrorAsync<TResult>(url: url,
+                                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                         differenceFunc: difference => difference,
+                                                         parameters: [],
+                                                         callingAssembly: Assembly.GetCallingAssembly(),
+                                                         writeResponse: writeResponse,
+                                                         expectedResultParameterName: nameof(expectedResponse),
+                                                         skipEndpointValidation: skipEndpointValidation,
+                                                         expectedHttpStatusCode: expectedHttpStatusCode,
+                                                         differenceFilter: differenceFilter,
+                                                         callerFilePath: callerFilePath,
+                                                         callerMemberName: callerMemberName,
+                                                         callerLineNumber: callerLineNumber);
+        }
     }
 }

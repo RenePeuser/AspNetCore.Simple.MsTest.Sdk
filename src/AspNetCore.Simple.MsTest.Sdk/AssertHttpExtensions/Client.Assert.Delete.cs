@@ -328,5 +328,41 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       callerMemberName: context.CallerMemberName,
                                                       callerLineNumber: context.CallerLineNumber);
         }
+
+        // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc
+        public static Task<TResult> AssertDeleteAsync<TResult>(this HttpClient client,
+                                                               string url,
+                                                               string expectedResult,
+                                                               Predicate<Difference>? differenceFilter,
+                                                               bool writeResponse = false,
+                                                               bool skipEndpointValidation = false,
+                                                               HttpStatusCode? expectedHttpStatusCode = null,
+                                                               [CallerArgumentExpression(nameof(expectedResult))]
+                                                               string expectedResultParameterName = "",
+                                                               [CallerFilePath] string callerFilePath = "",
+                                                               [CallerMemberName] string callerMemberName = "",
+                                                               [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
+            return client.AssertHttpCallAsync<TResult>(url: url,
+                                                       payloadAsJson: string.Empty,
+                                                       expectedResult: expectedResult,
+                                                       filterFunc: item => item,
+                                                       httpMethod: HttpMethod.Delete,
+                                                       differenceFunc: difference => difference,
+                                                       parameters: [],
+                                                       callingAssembly: callingAssembly,
+                                                       payloadAsJsonParameterName: string.Empty,
+                                                       expectedResultParameterName: expectedResultParameterName,
+                                                       callerFilePath: callerFilePath,
+                                                       isSuccessStatusCode: true,
+                                                       writeResponse: writeResponse,
+                                                       skipEndpointValidation: skipEndpointValidation,
+                                                       expectedHttpStatusCode: expectedHttpStatusCode,
+                                                       differenceFilter: differenceFilter,
+                                                       callerMemberName: callerMemberName,
+                                                       callerLineNumber: callerLineNumber);
+        }
     }
 }

@@ -28,7 +28,10 @@
       "Bash(taskkill /F /IM \"Controllers.exe\")",
       "Bash(taskkill //F //IM \"Controllers.exe\")",
       "Bash(dotnet list *)",
-      "Bash(dotnet nuget *)"
+      "Bash(dotnet nuget *)",
+      "Bash(python3 /tmp/gen_twins.py Client.Assert.Put.AsObjectResponse.cs)",
+      "Bash(cd *)",
+      "Bash(python3 -)"
     ]
   }
 }
