@@ -23,6 +23,8 @@
     <ItemGroup>
         <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk\AspNetCore.Simple.MsTest.Sdk.csproj" />
         <ProjectReference Include="..\Controllers\Controllers.csproj" />
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
     <ItemGroup>

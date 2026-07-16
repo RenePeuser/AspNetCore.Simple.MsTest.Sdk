@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- Roslyn analyzers MUST target netstandard2.0 to load into the compiler. -->
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks></TargetFrameworks>
+        <IsPackable>false</IsPackable>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <!-- RS2008: release-tracking file not needed for this internal, under-construction analyzer.
+             CA1062: the Roslyn host never passes a null context to Initialize. -->
+        <NoWarn>$(NoWarn);RS2008;CA1062</NoWarn>
+        <!-- netstandard2.0 lacks some APIs the global AllEnabledByDefault analysis flags; keep it lean. -->
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    </ItemGroup>
+
+</Project>

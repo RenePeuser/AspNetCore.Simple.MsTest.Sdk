@@ -69,4 +69,16 @@
         <InternalsVisibleTo Include="MinimalApi.Test" />
     </ItemGroup>
 
+    <!-- Ship the fluent-API analyzer (MSTESTSDK001) as an analyzer asset inside the NuGet package,
+         so consumers automatically get the dangling-chain diagnostic. -->
+    <ItemGroup>
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\bin\$(Configuration)\netstandard2.0\AspNetCore.Simple.MsTest.Sdk.Analyzers.dll"
+              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+
 </Project>

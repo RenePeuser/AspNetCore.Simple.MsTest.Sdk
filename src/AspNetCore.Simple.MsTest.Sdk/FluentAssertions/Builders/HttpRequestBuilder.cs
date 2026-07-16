@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
@@ -9,8 +7,9 @@ using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 {
     /// <summary>
-    /// Builder for configuring HTTP requests in a fluent API style.
-    /// Implements IHttpRequestConfiguring for the initial request configuration state.
+    /// Builds the request stage of a fluent HTTP assertion chain.
+    /// Body input is explicit (object / raw JSON / embedded file); all three funnel to a single
+    /// <c>payloadAsJson</c> string, and the engine's file localizer resolves file-vs-raw downstream.
     /// </summary>
     internal sealed class HttpRequestBuilder : IHttpRequestConfiguring
     {
@@ -44,19 +43,26 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         }
 
         // ============================================================
-        // IHttpRequestConfiguring - Configuration Methods
+        // Body — explicit, no rate-heuristic.
         // ============================================================
 
-        public IHttpRequestConfiguring WithBody(string bodyJson)
+        public IHttpRequestConfiguring WithBody<T>(T body)
+        {
+            _body = JsonSerializer.Serialize(body, HttpClientAssertExtensions.JsonSerializerOptions);
+
+            return this;
+        }
+
+        public IHttpRequestConfiguring WithJsonString(string bodyJson)
         {
             _body = bodyJson;
 
             return this;
         }
 
-        public IHttpRequestConfiguring WithBody<T>(T body)
+        public IHttpRequestConfiguring WithEmbeddedJson(string embeddedFileName)
         {
-            _body = JsonSerializer.Serialize(body, HttpClientAssertExtensions.JsonSerializerOptions);
+            _body = embeddedFileName;
 
             return this;
         }
@@ -68,8 +74,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             return this;
         }
 
-        public IHttpRequestConfiguring WithHeader(string key,
-                                                  string value)
+        public IHttpRequestConfiguring WithHeader(string key, string value)
         {
             _headers[key] = value;
 
@@ -77,10 +82,36 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         }
 
         // ============================================================
-        // IHttpRequestConfiguring - Response Configuration Transition
+        // Transition to response configuration (expected body). <T> mandatory on all three.
         // ============================================================
 
-        public IHttpResponseConfiguring<TResult> WithResponse<TResult>(string expectedJson)
+        public IHttpResponseConfiguring<TResult> Returns<TResult>(TResult expected)
+        {
+            var expectedJson = JsonSerializer.Serialize(expected, HttpClientAssertExtensions.JsonSerializerOptions);
+
+            return CreateResponseBuilder<TResult>(expectedJson);
+        }
+
+        public IHttpResponseConfiguring<TResult> ReturnsJsonString<TResult>(string expectedJson)
+        {
+            return CreateResponseBuilder<TResult>(expectedJson);
+        }
+
+        public IHttpResponseConfiguring<TResult> ReturnsEmbeddedJson<TResult>(string embeddedFileName)
+        {
+            return CreateResponseBuilder<TResult>(embeddedFileName);
+        }
+
+        // ============================================================
+        // Transition to status-only expectation (no body comparison).
+        // ============================================================
+
+        public IHttpExpectationConfiguring ExpectingResponse()
+        {
+            return new HttpExpectationBuilder(_client, _method, _url, _body, _parameters, _headers);
+        }
+
+        private HttpResponseBuilder<TResult> CreateResponseBuilder<TResult>(string expectedJson)
         {
             return new HttpResponseBuilder<TResult>(_client,
                                                     _method,
@@ -91,59 +122,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                                     _callingAssembly,
                                                     _callerFilePath,
                                                     expectedJson);
-        }
-
-        // ============================================================
-        // IHttpRequestConfiguring - Terminal Operations (Status Only)
-        // ============================================================
-
-        public IHttpStatusAssertable ExpectSuccess()
-        {
-            return new HttpStatusOnlyBuilder(_client,
-                                             _method,
-                                             _url,
-                                             _body,
-                                             _parameters,
-                                             _headers,
-                                             expectedStatusCodes: null); // null = IsSuccessStatusCode
-        }
-
-        public IHttpStatusAssertable Expect(params HttpStatusCode[] codes)
-        {
-            if (codes.Length == 0)
-            {
-                throw new ArgumentException("At least one status code must be provided.", nameof(codes));
-            }
-
-            return new HttpStatusOnlyBuilder(_client,
-                                             _method,
-                                             _url,
-                                             _body,
-                                             _parameters,
-                                             _headers,
-                                             expectedStatusCodes: codes);
-        }
-
-        public IHttpStatusAssertable ExpectNoContent()
-        {
-            return new HttpStatusOnlyBuilder(_client,
-                                             _method,
-                                             _url,
-                                             _body,
-                                             _parameters,
-                                             _headers,
-                                             expectedStatusCodes: new[] { HttpStatusCode.NoContent });
-        }
-
-        public IHttpStatusAssertable ExpectError(HttpStatusCode code)
-        {
-            return new HttpStatusOnlyBuilder(_client,
-                                             _method,
-                                             _url,
-                                             _body,
-                                             _parameters,
-                                             _headers,
-                                             expectedStatusCodes: new[] { code });
         }
     }
 }

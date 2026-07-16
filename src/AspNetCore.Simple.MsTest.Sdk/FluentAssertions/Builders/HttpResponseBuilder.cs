@@ -9,15 +9,14 @@ using System.Reflection;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 
-// Import to access AssertHttpCallAsync extension method
-
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 {
     /// <summary>
-    /// Builder for configuring HTTP response validation and transformation.
-    /// Implements IHttpResponseConfiguring for response-specific configuration.
+    /// Builds the response stage of a fluent HTTP assertion chain (MODEL B).
+    /// <c>Expecting…</c> methods are composable config (return <c>this</c>); the single terminal is
+    /// <see cref="ExecuteAsync"/>. The builder is intentionally NOT awaitable.
     /// </summary>
-    /// <typeparam name="TResult">The expected response type</typeparam>
+    /// <typeparam name="TResult">The expected response type.</typeparam>
     internal sealed class HttpResponseBuilder<TResult> : IHttpResponseConfiguring<TResult>
     {
         private readonly HttpClient _client;
@@ -36,7 +35,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         private readonly string _callerFilePath;
 
-        private string _expectedJson;
+        private readonly string _expectedJson;
 
         private Func<TResult?, TResult?>? _filterFunc;
 
@@ -45,6 +44,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         private readonly List<(string Key, object? Value)> _expectedParameters = new();
 
         private bool _writeSnapshot;
+
+        // Expectation state (Model B — configured, applied on ExecuteAsync).
+        private HttpStatusCode[]? _expectedStatusCodes;
 
         internal HttpResponseBuilder(HttpClient client,
                                      HttpMethod method,
@@ -68,7 +70,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         }
 
         // ============================================================
-        // IHttpResponseConfiguring - Configuration Methods
+        // Response transformation / difference configuration.
         // ============================================================
 
         public IHttpResponseConfiguring<TResult> FilterResponse(Func<TResult?, TResult?> filter)
@@ -108,50 +110,55 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         }
 
         // ============================================================
-        // IHttpResponseConfiguring - Terminal Operations
+        // Expectations — composable config (Model B).
         // ============================================================
 
-        public Task<TResult> ExpectSuccess()
+        public IHttpResponseConfiguring<TResult> ExpectingSuccess()
         {
-            return ExecuteWithAssertionAsync(expectedStatusCodes: null);
+            _expectedStatusCodes = null; // null = any 2xx
+
+            return this;
         }
 
-        public Task<TResult> Expect(params HttpStatusCode[] codes)
+        public IHttpResponseConfiguring<TResult> ExpectingStatus(HttpStatusCode code)
+        {
+            _expectedStatusCodes = new[] { code };
+
+            return this;
+        }
+
+        public IHttpResponseConfiguring<TResult> ExpectingOneOf(params HttpStatusCode[] codes)
         {
             if (codes.Length == 0)
             {
                 throw new ArgumentException("At least one status code must be provided.", nameof(codes));
             }
 
-            return ExecuteWithAssertionAsync(expectedStatusCodes: codes);
+            _expectedStatusCodes = codes;
+
+            return this;
         }
 
-        public Task<TResult> ExpectStatus(HttpStatusCode code)
+        public IHttpResponseConfiguring<TResult> ExpectingError(HttpStatusCode code)
         {
-            return ExecuteWithAssertionAsync(expectedStatusCodes: new[] { code });
-        }
+            _expectedStatusCodes = new[] { code };
 
-        public Task<TResult> ExpectError(HttpStatusCode code)
-        {
-            return ExecuteWithAssertionAsync(expectedStatusCodes: new[] { code });
+            return this;
         }
 
         // ============================================================
-        // Private Execution Logic
+        // THE one terminal.
         // ============================================================
 
-        private Task<TResult> ExecuteWithAssertionAsync(HttpStatusCode[]? expectedStatusCodes)
+        public Task<TResult> ExecuteAsync()
         {
-            // Merge request and expected parameters
             var allParameters = _requestParameters.Concat(_expectedParameters).ToArray();
 
-            // Determine if this is a success test
-            // If no status codes specified (null), it's a success test
-            // If status codes are specified, check if the first one is in 2xx range
-            var isSuccessTest = expectedStatusCodes == null ||
-                                (expectedStatusCodes.Length > 0 && (int)expectedStatusCodes[0] >= 200 && (int)expectedStatusCodes[0] < 300);
+            var isSuccessTest = _expectedStatusCodes == null ||
+                                (_expectedStatusCodes.Length > 0 &&
+                                 (int)_expectedStatusCodes[0] >= 200 &&
+                                 (int)_expectedStatusCodes[0] < 300);
 
-            // Call existing extension method
             return _client.AssertHttpCallAsync(url: _url,
                                                payloadAsJson: _body ?? string.Empty,
                                                expectedResult: _expectedJson,
@@ -160,36 +167,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                                differenceFunc: _differenceFunc ?? (d => d),
                                                parameters: allParameters,
                                                callingAssembly: _callingAssembly,
-                                               payloadAsJsonParameterName: string.Empty,
-                                               expectedResultParameterName: string.Empty,
-                                               skipEndpointValidation: false,
                                                callerFilePath: _callerFilePath,
                                                isSuccessStatusCode: isSuccessTest,
                                                writeResponse: _writeSnapshot,
-                                               expectedHttpStatusCode: expectedStatusCodes?.FirstOrDefault(),
-                                               callerMemberName: string.Empty,
-                                               callerLineNumber: 0);
+                                               expectedHttpStatusCode: _expectedStatusCodes?.FirstOrDefault());
         }
-
-        // ============================================================
-        // Internal Methods for Extensions
-        // ============================================================
-
-        /// <summary>
-        /// Internal method used by extension methods to set expected JSON and execute with status code.
-        /// This allows Produces(statusCode, json) to work on IHttpResponseConfiguring.
-        /// </summary>
-        internal Task<TResult> SetExpectedJsonAndExecute(string expectedJson,
-                                                         HttpStatusCode statusCode)
-        {
-            _expectedJson = expectedJson;
-
-            return ExpectStatus(statusCode);
-        }
-
-        // ============================================================
-        // Helper Methods
-        // ============================================================
 
         private static string ExtractPropertyName<T>(Expression<Func<T, object?>> propertySelector)
         {

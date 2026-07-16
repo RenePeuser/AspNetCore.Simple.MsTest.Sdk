@@ -336,6 +336,48 @@ Offene Kernfragen dazu:
 - [ ] **Methodenname:** `.ForProperty` ist Arbeitsname (`.Verify`, `.Match` verworfen). Alternativen
       erwägen (`.Ensure`, `.Require`, `.Where`; `.Expect…` kollidiert mit Terminals).
 
+### 10.5 Wiederverwendbares Vergleichsprofil (`Settings`-Objekt) — Ideensammlung
+
+Idee (2026-07-16): ein wiederverwendbares Konfig-Objekt, das Ignores UND Matcher bündelt, einmal
+gebaut und an viele Ketten weitergegeben — statt `.IgnoreMember<Person>(p => p.Id)` in jedem Test zu
+wiederholen. `IgnoreMember` ist im Kern eine **deklarative Skip-Anweisung** am Feld selbst (statt
+einer handgeschriebenen `MemberPath.Contains(...)`-Closure).
+
+```csharp
+// einmal (z. B. pro Test-Klasse / Feature) bauen:
+var settings = new CompareSettings()
+    .IgnoreMember<Person>(p => p.Age)              // = IgnoreProperty, aber am Profil
+    .IgnoreMember<Person>(p => p.CreatedDate)
+    .ForProperty<Person>(p => p.Id == Guid.Any()); // Matcher gehört mit rein
+
+// in beliebig vielen Ketten wiederverwenden:
+await Client.Post(...).Returns<Person>(obj).Using(settings).ExecuteAsync();
+await Client.Get(...).Returns<Person>(obj).Using(settings).ExecuteAsync();
+```
+
+**Warum das genau eine Lücke aus §13 schließt:** In den ~1000 Sdc-Tests gibt es heute nur zwei
+Extreme — den EINEN globalen statischen `DifferenceFunc` (`ApiTestBase`, ignoriert
+`CreatedAt`/`Id`/… überall) ODER inline-per-Kette. Das `Settings`-Objekt ist die komponierbare
+**Mitte**: feingranularer als global, wiederverwendbarer als inline. Und es bündelt Ignores +
+Matcher zu EINEM „Vergleichsprofil" statt zwei getrennten Mechanismen.
+
+**Zwei Skip-Stärken, bewusst getrennt:** `IgnoreMember(p => p.Age)` = HARTER Skip (Wert *und* Form
+egal → `Age: null`/`Age: "Müll"` rutscht durch). `ForProperty(p => p.Id == Guid.Any())` = WEICHER
+Skip (Form geprüft, Wert frei → `Id: null` fällt durch). Beide docken an `ApplyDifferenceFiltering`
+an, aber der harte Skip ist die Sorte Anweisung, die zu großzügig gesetzt einen Bug versteckt →
+Matcher ist der Default für server-generierte Felder, `IgnoreMember` nur der „wirklich egal"-Notausgang.
+
+Offene Unterfragen:
+- [ ] **Name:** `CompareSettings` / `AssertProfile` / `ComparisonProfile`. Member-Methode heißt
+      `IgnoreMember` (eigenständig, NICHT `VerifySettings`/`IgnoreProperty` — kein Verify-Klon-Eindruck;
+      idealerweise GLEICHER Name an Profil und Kette).
+- [ ] **Anwenden:** `.Using(settings)` / `.With(settings)` / `.Apply(settings)` als Ketten-Schritt.
+- [ ] **Merge-Semantik:** Profil + zusätzliche Inline-Regeln in derselben Kette → additiv? Und
+      Verhältnis zum globalen `DifferenceFunc` (Reihenfolge global → Profil → inline). Andockpunkt ist
+      wieder `ApplyDifferenceFiltering` (siehe [[project-differencefilter-object-response-gaps]]).
+- [ ] **Fluent + immutable?** `IgnoreMember` gibt neues Profil zurück (record `with`) statt zu mutieren
+      → thread-safe bei parallelen Tests (relevant: Controllers.Test ist `Parallelize(ClassLevel)`).
+
 ---
 
 ## 11. Body-Input: explizit statt „Magic" — Ideensammlung

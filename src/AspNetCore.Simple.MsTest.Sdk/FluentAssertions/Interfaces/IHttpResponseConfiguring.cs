@@ -8,80 +8,59 @@ using System.Threading.Tasks;
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
 {
     /// <summary>
-    /// Fluent interface for configuring response validation and transformation.
-    /// This state is reached after calling WithResponse on IHttpRequestConfiguring.
+    /// Fluent state for configuring response validation. Reached after <c>Returns…&lt;T&gt;()</c>.
+    ///
+    /// <para>
+    /// MODEL B: every <c>Expecting…</c> method is COMPOSABLE CONFIG that returns the builder — you can
+    /// stack several expectations. The chain is executed by exactly one terminal, <see cref="ExecuteAsync"/>.
+    /// The builder is deliberately NOT awaitable (no GetAwaiter): a chain that forgets
+    /// <c>ExecuteAsync()</c> is a dangling <see cref="FluentBuilderAttribute"/> expression → MSTESTSDK001.
+    /// </para>
     /// </summary>
-    /// <typeparam name="TResult">The expected response type</typeparam>
+    /// <typeparam name="TResult">The expected response type.</typeparam>
+    [FluentBuilder]
     public interface IHttpResponseConfiguring<TResult>
     {
-        /// <summary>
-        /// Applies a transformation to the response before comparison.
-        /// Useful for sorting, filtering, or normalizing data.
-        /// </summary>
-        /// <param name="filter">Function to transform the response</param>
-        /// <returns>Configuration builder for further setup</returns>
+        // ============================================================
+        // Response transformation / difference configuration.
+        // ============================================================
+
+        /// <summary>Transforms the deserialized response before comparison (sort/normalize).</summary>
         IHttpResponseConfiguring<TResult> FilterResponse(Func<TResult?, TResult?> filter);
 
-        /// <summary>
-        /// Filters which differences should be considered as assertion failures.
-        /// Useful for ignoring specific fields like timestamps or IDs.
-        /// </summary>
-        /// <param name="filter">Function to filter differences</param>
-        /// <returns>Configuration builder for further setup</returns>
+        /// <summary>Filters which differences count as failures (e.g. ignore timestamps).</summary>
         IHttpResponseConfiguring<TResult> IgnoreDifferences(Func<ImmutableList<Difference>, IEnumerable<Difference>> filter);
 
-        /// <summary>
-        /// Type-safe way to ignore a specific property in the response comparison.
-        /// </summary>
-        /// <typeparam name="T">Type containing the property</typeparam>
-        /// <param name="propertySelector">Expression selecting the property to ignore</param>
-        /// <returns>Configuration builder for further setup</returns>
+        /// <summary>Type-safe way to ignore a property in the comparison (hard skip).</summary>
         IHttpResponseConfiguring<TResult> IgnoreProperty<T>(Expression<Func<T, object?>> propertySelector);
 
-        /// <summary>
-        /// Configures parameters for placeholder substitution in the expected response JSON.
-        /// </summary>
-        /// <param name="parameters">Array of key-value pairs for parameter substitution</param>
-        /// <returns>Configuration builder for further setup</returns>
+        /// <summary>Configures placeholder parameters ($Token$) substituted in the expected JSON.</summary>
         IHttpResponseConfiguring<TResult> WithParameters(params (string Key, object? Value)[] parameters);
 
-        /// <summary>
-        /// Enables writing the actual response to disk as a snapshot file.
-        /// Useful for updating test expectations.
-        /// </summary>
-        /// <param name="write">Whether to write snapshot</param>
-        /// <returns>Configuration builder for further setup</returns>
+        /// <summary>Enables writing the actual response to disk as a snapshot (update expectations).</summary>
         IHttpResponseConfiguring<TResult> WriteSnapshot(bool write = true);
 
-        /// <summary>
-        /// Expects any successful HTTP status code (2xx range) and validates response body.
-        /// This is a terminal operation.
-        /// </summary>
-        /// <returns>Task that resolves to the validated response</returns>
-        Task<TResult> ExpectSuccess();
+        // ============================================================
+        // Expectations — COMPOSABLE CONFIG (return the builder, NOT a Task).
+        // ============================================================
 
-        /// <summary>
-        /// Expects one of the specified HTTP status codes and validates response body.
-        /// This is a terminal operation.
-        /// </summary>
-        /// <param name="codes">Accepted HTTP status codes</param>
-        /// <returns>Task that resolves to the validated response</returns>
-        Task<TResult> Expect(params HttpStatusCode[] codes);
+        /// <summary>Expects any 2xx success status.</summary>
+        IHttpResponseConfiguring<TResult> ExpectingSuccess();
 
-        /// <summary>
-        /// Expects a specific status code and validates response body.
-        /// This is a terminal operation.
-        /// </summary>
-        /// <param name="code">Expected HTTP status code</param>
-        /// <returns>Task that resolves to the validated response</returns>
-        Task<TResult> ExpectStatus(HttpStatusCode code);
+        /// <summary>Expects exactly this status code.</summary>
+        IHttpResponseConfiguring<TResult> ExpectingStatus(HttpStatusCode code);
 
-        /// <summary>
-        /// Expects an error status code (4xx or 5xx) and validates response body.
-        /// This is a terminal operation.
-        /// </summary>
-        /// <param name="code">Expected error status code</param>
-        /// <returns>Task that resolves to the validated response</returns>
-        Task<TResult> ExpectError(HttpStatusCode code);
+        /// <summary>Expects one of the given status codes.</summary>
+        IHttpResponseConfiguring<TResult> ExpectingOneOf(params HttpStatusCode[] codes);
+
+        /// <summary>Expects an error status code (4xx/5xx).</summary>
+        IHttpResponseConfiguring<TResult> ExpectingError(HttpStatusCode code);
+
+        // ============================================================
+        // THE one terminal — the only awaitable, the only Task-returning member.
+        // ============================================================
+
+        /// <summary>Executes the request and runs all configured expectations. The single terminal.</summary>
+        Task<TResult> ExecuteAsync();
     }
 }
