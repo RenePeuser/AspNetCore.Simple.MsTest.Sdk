@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Controllers.Test.Api.Persons.V1.Create
 {
     /// <summary>
-    /// Fluent API tests for POST /api/v1/persons endpoint (Model B: chain ends in ExecuteAsync).
+    /// Fluent API tests for POST /api/v1/persons endpoint (Endpoint-Stil: chain ends in ExecuteAsync).
     /// </summary>
     public partial class PersonCreateTests
     {
@@ -20,9 +20,9 @@ namespace Controllers.Test.Api.Persons.V1.Create
             var person = TestHelpers.CreateValidPerson();
 
             return Client.AssertPost("api/v1/persons")
-                         .WithBody(person)
-                         .ReturnsEmbeddedJson<Person>("CreatePerson.json")
-                         .ExpectingSuccess()
+                         .Accepts(person)
+                         .Produces<Person>(HttpStatusCode.OK)
+                         .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
                          .ExecuteAsync();
         }
 
@@ -32,9 +32,9 @@ namespace Controllers.Test.Api.Persons.V1.Create
         public Task Fluent_Should_Create_Person_With_Json()
         {
             return Client.AssertPost("api/v1/persons")
-                         .WithEmbeddedJson("CreatePersonFull.json")
-                         .ReturnsEmbeddedJson<Person>("CreatePersonFull.json")
-                         .ExpectingSuccess()
+                         .AcceptsFromEmbeddedJson("CreatePersonFull.json")
+                         .Produces<Person>(HttpStatusCode.OK)
+                         .ExpectedResponseFromEmbeddedJson("CreatePersonFull.json")
                          .ExecuteAsync();
         }
 
@@ -46,10 +46,10 @@ namespace Controllers.Test.Api.Persons.V1.Create
             var person = TestHelpers.CreateValidPerson();
 
             return Client.AssertPost("api/v1/persons")
-                         .WithBody(person)
-                         .ReturnsEmbeddedJson<Person>("CreatePerson.json")
-                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
-                         .ExpectingSuccess()
+                         .Accepts(person)
+                         .Produces<Person>(HttpStatusCode.OK)
+                         .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
+                             .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 
@@ -62,9 +62,9 @@ namespace Controllers.Test.Api.Persons.V1.Create
             var person = TestHelpers.CreateValidPerson();
 
             return Client.AssertPost("api/v1/persons")
-                         .WithBody(person)
-                         .ReturnsEmbeddedJson<Person>("CreatePerson.json")
-                         .ExpectingStatus(HttpStatusCode.OK)
+                         .Accepts(person)
+                         .Produces<Person>(HttpStatusCode.OK)
+                         .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
                          .ExecuteAsync();
         }
 
@@ -77,10 +77,10 @@ namespace Controllers.Test.Api.Persons.V1.Create
             var person = TestHelpers.CreateValidPerson();
 
             return Client.AssertPost("api/v1/persons")
-                         .WithBody(person)
-                         .ReturnsEmbeddedJson<Person>("CreatePerson.json")
-                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
-                         .ExpectingStatus(HttpStatusCode.OK)
+                         .Accepts(person)
+                         .Produces<Person>(HttpStatusCode.OK)
+                         .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
+                             .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 
@@ -88,14 +88,14 @@ namespace Controllers.Test.Api.Persons.V1.Create
         [TestCategory("Fluent")]
         [TestCategory("Fluent.StatusCode")]
         [TestCategory("POST")]
-        public Task Fluent_Should_Create_Person_With_OneOf_Status()
+        public Task Fluent_Should_Create_Person_Without_Body_Comparison()
         {
             var person = TestHelpers.CreateValidPerson();
 
+            // Body-less path: only status + typed result, no golden-file comparison (§15.6).
             return Client.AssertPost("api/v1/persons")
-                         .WithBody(person)
-                         .ReturnsEmbeddedJson<Person>("CreatePerson.json")
-                         .ExpectingOneOf(HttpStatusCode.OK, HttpStatusCode.Created)
+                         .Accepts(person)
+                         .Produces<Person>(HttpStatusCode.OK)
                          .ExecuteAsync();
         }
     }

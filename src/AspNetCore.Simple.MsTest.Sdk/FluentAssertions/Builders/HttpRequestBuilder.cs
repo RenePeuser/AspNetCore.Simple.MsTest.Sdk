@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
@@ -7,9 +8,9 @@ using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 {
     /// <summary>
-    /// Builds the request stage of a fluent HTTP assertion chain.
+    /// Builds the request stage of a fluent HTTP assertion chain (Endpoint-Stil, §15.6).
     /// Body input is explicit (object / raw JSON / embedded file); all three funnel to a single
-    /// <c>payloadAsJson</c> string, and the engine's file localizer resolves file-vs-raw downstream.
+    /// <c>_body</c> string, and the engine's file localizer resolves file-vs-raw downstream.
     /// </summary>
     internal sealed class HttpRequestBuilder : IHttpRequestConfiguring
     {
@@ -43,33 +44,57 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         }
 
         // ============================================================
-        // Body — explicit, no rate-heuristic.
+        // Request body — explicit, no rate-heuristic (Schema A).
         // ============================================================
 
-        public IHttpRequestConfiguring WithBody<T>(T body)
+        public IHttpRequestConfiguring Accepts<T>(T body)
         {
             _body = JsonSerializer.Serialize(body, HttpClientAssertExtensions.JsonSerializerOptions);
 
             return this;
         }
 
-        public IHttpRequestConfiguring WithJsonString(string bodyJson)
+        public IHttpRequestConfiguring AcceptsFromJsonString(string bodyJson)
         {
             _body = bodyJson;
 
             return this;
         }
 
-        public IHttpRequestConfiguring WithEmbeddedJson(string embeddedFileName)
+        public IHttpRequestConfiguring AcceptsFromEmbeddedJson(string embeddedFileName)
         {
             _body = embeddedFileName;
 
             return this;
         }
 
+        // ============================================================
+        // Placeholder parameters — naked names, SDK escapes internally (§10.1).
+        // ============================================================
+
+        public IHttpRequestConfiguring WithParameter(string key, object? value)
+        {
+            _parameters.Add((PlaceholderName.Wrap(key), value));
+
+            return this;
+        }
+
         public IHttpRequestConfiguring WithParameters(params (string Key, object? Value)[] parameters)
         {
-            _parameters.AddRange(parameters);
+            foreach (var (key, value) in parameters)
+            {
+                _parameters.Add((PlaceholderName.Wrap(key), value));
+            }
+
+            return this;
+        }
+
+        public IHttpRequestConfiguring WithParameters(object source)
+        {
+            foreach (var property in source.GetType().GetProperties())
+            {
+                _parameters.Add((PlaceholderName.Wrap(property.Name), property.GetValue(source)));
+            }
 
             return this;
         }
@@ -82,46 +107,35 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         }
 
         // ============================================================
-        // Transition to response configuration (expected body). <T> mandatory on all three.
+        // Transition to the response stage. Produces<T>(code) carries type + status + return type.
         // ============================================================
 
-        public IHttpResponseConfiguring<TResult> Returns<TResult>(TResult expected)
+        public IHttpResponseConfiguring<T> Produces<T>(HttpStatusCode statusCode)
         {
-            var expectedJson = JsonSerializer.Serialize(expected, HttpClientAssertExtensions.JsonSerializerOptions);
-
-            return CreateResponseBuilder<TResult>(expectedJson);
+            return new HttpResponseBuilder<T>(_client,
+                                              _method,
+                                              _url,
+                                              _body,
+                                              _parameters,
+                                              _headers,
+                                              _callingAssembly,
+                                              _callerFilePath,
+                                              statusCode);
         }
 
-        public IHttpResponseConfiguring<TResult> ReturnsJsonString<TResult>(string expectedJson)
+        public IHttpResponseConfiguring<T> Produces<T>(int statusCode)
         {
-            return CreateResponseBuilder<TResult>(expectedJson);
+            return Produces<T>((HttpStatusCode)statusCode);
         }
 
-        public IHttpResponseConfiguring<TResult> ReturnsEmbeddedJson<TResult>(string embeddedFileName)
+        public IHttpExpectationConfiguring Produces(HttpStatusCode statusCode)
         {
-            return CreateResponseBuilder<TResult>(embeddedFileName);
+            return new HttpExpectationBuilder(_client, _method, _url, _body, _parameters, _headers, statusCode);
         }
 
-        // ============================================================
-        // Transition to status-only expectation (no body comparison).
-        // ============================================================
-
-        public IHttpExpectationConfiguring ExpectingResponse()
+        public IHttpExpectationConfiguring Produces(int statusCode)
         {
-            return new HttpExpectationBuilder(_client, _method, _url, _body, _parameters, _headers);
-        }
-
-        private HttpResponseBuilder<TResult> CreateResponseBuilder<TResult>(string expectedJson)
-        {
-            return new HttpResponseBuilder<TResult>(_client,
-                                                    _method,
-                                                    _url,
-                                                    _body,
-                                                    _parameters,
-                                                    _headers,
-                                                    _callingAssembly,
-                                                    _callerFilePath,
-                                                    expectedJson);
+            return Produces((HttpStatusCode)statusCode);
         }
     }
 }

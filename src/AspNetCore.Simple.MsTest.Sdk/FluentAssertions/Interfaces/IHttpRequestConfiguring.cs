@@ -1,56 +1,67 @@
+using System.Net;
+
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
 {
     /// <summary>
-    /// Initial fluent state after <c>Client.Post/Get/Put/Patch/Delete(url)</c>.
-    /// Configures the request (body, parameters, headers) and transitions to the
-    /// response/expectation stage.
+    /// Initial fluent state after <c>Client.AssertPost/AssertGet/…(url)</c> (Endpoint-Stil, §15).
+    /// Configures the request (body, parameters, headers) and transitions to the response stage
+    /// via <see cref="Produces{T}(HttpStatusCode)"/>.
     ///
     /// <para>
-    /// Body input is EXPLICIT — no rate-heuristic. Pick the method that matches your intent:
+    /// Body input is EXPLICIT — no rate-heuristic (Schema A, §11). Pick the method that matches intent:
     /// <list type="bullet">
-    /// <item><see cref="WithBody{T}"/> — a C# object (serialized to JSON).</item>
-    /// <item><see cref="WithJsonString"/> — a raw JSON string, verbatim.</item>
-    /// <item><see cref="WithEmbeddedJson"/> — an embedded-resource file name.</item>
+    /// <item><see cref="Accepts{T}"/> — a C# object (serialized to JSON).</item>
+    /// <item><see cref="AcceptsFromJsonString"/> — a raw JSON string, verbatim.</item>
+    /// <item><see cref="AcceptsFromEmbeddedJson"/> — an embedded-resource file name.</item>
     /// </list>
     /// </para>
     /// </summary>
     [FluentBuilder]
     public interface IHttpRequestConfiguring
     {
-        /// <summary>Configures the request body from a C# object (serialized to JSON).</summary>
-        IHttpRequestConfiguring WithBody<T>(T body);
+        // ============================================================
+        // Request body — explicit, no rate-heuristic (Schema A).
+        // ============================================================
 
-        /// <summary>Configures the request body from a raw JSON string (used verbatim).</summary>
-        IHttpRequestConfiguring WithJsonString(string bodyJson);
+        /// <summary>Sets the request body from a C# object (serialized to JSON).</summary>
+        IHttpRequestConfiguring Accepts<T>(T body);
 
-        /// <summary>Configures the request body from an embedded-resource JSON file name.</summary>
-        IHttpRequestConfiguring WithEmbeddedJson(string embeddedFileName);
+        /// <summary>Sets the request body from a raw JSON string (used verbatim).</summary>
+        IHttpRequestConfiguring AcceptsFromJsonString(string bodyJson);
 
-        /// <summary>Configures placeholder parameters ($Token$) substituted in request/response JSON.</summary>
+        /// <summary>Sets the request body from an embedded-resource JSON file name.</summary>
+        IHttpRequestConfiguring AcceptsFromEmbeddedJson(string embeddedFileName);
+
+        // ============================================================
+        // Placeholder parameters ($Token$ substitution). Naked names — SDK escapes internally (§10.1).
+        // ============================================================
+
+        /// <summary>Sets one placeholder parameter. Use the naked name ("Id"); the SDK adds the delimiters.</summary>
+        IHttpRequestConfiguring WithParameter(string key, object? value);
+
+        /// <summary>Sets placeholder parameters as key/value tuples.</summary>
         IHttpRequestConfiguring WithParameters(params (string Key, object? Value)[] parameters);
+
+        /// <summary>Sets placeholder parameters from all public properties of an object (§10.1.1, PascalCase).</summary>
+        IHttpRequestConfiguring WithParameters(object source);
 
         /// <summary>Adds a custom HTTP request header.</summary>
         IHttpRequestConfiguring WithHeader(string key, string value);
 
         // ============================================================
-        // Transition to response configuration (expected body).
-        // The <T> is MANDATORY on all three — it drives deserialization AND the chain state.
+        // Transition to the response stage. Produces<T>(code) carries TYPE + STATUS + RETURN TYPE (§15.6).
         // ============================================================
 
-        /// <summary>Sets the expected response from a C# object (serialized to JSON).</summary>
-        IHttpResponseConfiguring<TResult> Returns<TResult>(TResult expected);
+        /// <summary>Expects this status code with a body of type <typeparamref name="T"/>.</summary>
+        IHttpResponseConfiguring<T> Produces<T>(HttpStatusCode statusCode);
 
-        /// <summary>Sets the expected response from a raw JSON string (used verbatim).</summary>
-        IHttpResponseConfiguring<TResult> ReturnsJsonString<TResult>(string expectedJson);
+        /// <summary>Expects this status code (int, e.g. <c>StatusCodes.Status201Created</c>) with a body of type <typeparamref name="T"/>.</summary>
+        IHttpResponseConfiguring<T> Produces<T>(int statusCode);
 
-        /// <summary>Sets the expected response from an embedded-resource JSON file name.</summary>
-        IHttpResponseConfiguring<TResult> ReturnsEmbeddedJson<TResult>(string embeddedFileName);
+        /// <summary>Expects this status code with no response body (e.g. 204). No <c>ExpectedResponse…</c> reachable (type-state).</summary>
+        IHttpExpectationConfiguring Produces(HttpStatusCode statusCode);
 
-        // ============================================================
-        // Transition to status-only expectation (no response body validation).
-        // ============================================================
-
-        /// <summary>Switches to status-only expectations (no response body comparison).</summary>
-        IHttpExpectationConfiguring ExpectingResponse();
+        /// <summary>Expects this status code (int) with no response body.</summary>
+        IHttpExpectationConfiguring Produces(int statusCode);
     }
 }

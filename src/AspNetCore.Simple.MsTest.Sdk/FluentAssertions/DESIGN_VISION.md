@@ -1,9 +1,15 @@
 # Fluent Assert API — Design-Vision & Ideensammlung
 
 > Arbeitsstand-Dokument. Hier halten wir Ideen, Risiken und Entscheidungen fest,
-> damit wir später nahtlos weitermachen können. **Noch kein Beschluss, nur Vision.**
+> damit wir später nahtlos weitermachen können.
 >
-> Stand: 2026-07-16 · Fokus dieser Runde: **HTTP-Assertions zuerst**, Value-Assertions (`Assert.That.*`) später.
+> Stand: 2026-07-16 · Fokus: **HTTP-Assertions zuerst**, Value-Assertions (`Assert.That.*`) später.
+>
+> **Kanon (entschieden, Details §12-Log):** Ein Stil — der **Endpoint-Stil**. Die funktionale Kette
+> lautet `Client.AssertPost(url)` → `Accepts(…)` → `Produces<T>(code)` → `ExpectedResponse…(…)` →
+> `ExecuteAsync()`. `ExecuteAsync()` ist das einzige Terminal. Der frühere Neutral-Stil
+> (`WithBody`/`Returns…`/`Expecting…`) ist verworfen; wo er unten noch auftaucht, ist er als Historie
+> markiert. Code ist noch `internal`; Namens-Rename + Analyzer stehen vor dem Rollout aus.
 
 ---
 
@@ -42,16 +48,16 @@ Fluent-APIs brauchen einen Terminal-Befehl. Bei einem **Test-SDK** ist das Verge
 gefährlicher als anderswo:
 
 ```csharp
-// Vergisst .ExpectSuccess() → Request wird NIE gesendet → Test ist GRÜN (falsch!)
-Client.AssertPost("api/persons").WithBody(person).WithResponse<Person>("Expected.json");
+// Vergisst .ExecuteAsync() → Request wird NIE gesendet → Test ist GRÜN (falsch!)
+Client.AssertPost("api/persons").Accepts(person).Produces<Person>(Created);
 ```
 
-Weil `IHttpRequestConfiguring` / `IHttpResponseConfiguring<T>` **keine** `Task` sind,
-gibt es **nicht einmal eine `CS4014`-Warnung**. Der Test wird stillschweigend grün.
+Weil die Builder-Interfaces **keine** `Task` sind, gibt es **nicht einmal eine `CS4014`-Warnung**.
+Der Test wird stillschweigend grün.
 
-**Zweite Stufe:** Selbst *mit* Terminal, wenn dieser `Task<TResult>` liefert und man `await`
-vergisst → Fire-and-forget. `IHttpStatusAssertable.GetAwaiter()` ist clever gelöst (direkt
-awaitable), aber die `Task<TResult>`-Terminals der Response-Kette nicht.
+**Zweite Stufe:** Selbst *mit* `ExecuteAsync()`, wenn man das `await` davor vergisst →
+Fire-and-forget. Das `Task<TResult>` des Terminals muss awaited/returned werden (Analyzer
+MSTESTSDK002, §5).
 
 > **Leitsatz:** Ein Test-SDK hat *ein* Alleinstellungsmerkmal zu verlieren — **Vertrauen,
 > dass Grün wirklich Grün heißt.** Die Fluent-API tauscht die (hässliche, aber ehrliche)
@@ -62,19 +68,20 @@ awaitable), aber die `Task<TResult>`-Terminals der Response-Kette nicht.
 
 ## 3. Angestrebte API — „die eine Kette"
 
-Ein Stil, ein Terminal-Präfix, Typ-State erzwingt die Reihenfolge:
+Ein Stil (Endpoint, §15), ein Terminal, Typ-State erzwingt die Reihenfolge:
 
 ```csharp
-await Client.AssertPost("api/persons")    // Entry       → RequestConfig
-    .WithBody(person)                      //               RequestConfig
-    .WithParameters(("$Id$", 0))           //               RequestConfig
-    .Returns<Person>("Expected.json")      // Transition   → ResponseConfig<Person>
-    .IgnoreProperty(p => p.CreatedDate)    //               ResponseConfig<Person>
-    .ExpectingStatus(Created);             // Terminal     → Task<Person>   ← einziger Endpunkt
+var created = await Client.AssertPost("api/persons")  // Entry        → RequestConfig
+    .Accepts(person)                                   //                RequestConfig
+    .WithParameter("Id", 0)                            //                RequestConfig
+    .Produces<Person>(Created)                         // Transition   → ResponseConfig<Person> (Typ+Status)
+    .ExpectedResponseFromEmbeddedJson("Expected.json") //                ResponseConfig<Person>
+        .IgnoreProperty(p => p.CreatedDate)            //                ComparisonConfig<Person>
+    .ExecuteAsync();                                   // Terminal      → Task<Person>  ← einziger Endpunkt
 ```
 
-**Merksatz (in einem Satz lernbar):** *Jede Kette endet mit genau einem `Expecting…`.*
-→ Auge und Analyzer scannen trivial: „Steht am Ende ein `Expecting…`? Nein → Fehler."
+**Merksatz (in einem Satz lernbar):** *Jede Kette endet mit genau einem `ExecuteAsync()`.* Es ist der
+einzige `await`-Punkt → Auge und Analyzer scannen trivial: „Steht am Ende `ExecuteAsync()`? Nein → Fehler."
 
 ### Entry-Naming — `AssertPost` statt `Post` (übersehener Punkt, 2026-07-16)
 
@@ -95,18 +102,16 @@ nicht `Client.Post(…)`. Zwei Gründe:
 `.A.B.C`-Verschachtelung und kein direkter Match zur alten Signatur) und `Assert.Post(client, …)`
 (MSTest-Stil — Client als Parameter bricht den „alles hängt am Client"-Fluss). **Flach + direkt** gewinnt.
 
-### Terminal-Familie (bewusst klein halten)
+### Status + Typ: `Produces<T>(code)` (statt einer `Expecting…`-Familie)
 
-| Terminal | Bedeutung | Erlaubt auf |
+Status **und** Body-Typ **und** Rückgabetyp tragen gemeinsam `Produces<T>(code)` — kein Zoo aus
+`ExpectingSuccess/Status/Error/NoContent`. Details + durchgespielte Fälle in §15.6.
+
+| Aufruf | Bedeutung | Ergebnis |
 |---|---|---|
-| `ExpectingSuccess()` | beliebiger 2xx | Request- & Response-Config |
-| `ExpectingStatus(code)` | genau dieser Code | beide |
-| `ExpectingOneOf(codes)` | einer aus Menge | beide |
-| `ExpectingError(code)` | 4xx/5xx | beide |
-| `ExpectingNoContent()` | 204 | **nur** ohne `Returns<T>` (Typ-State!) |
-
-> Namensschema (`Expecting…`) ist die am schwersten rückgängig zu machende Entscheidung,
-> sobald Tests existieren. Vor Rollout einmal komplett durchdeklinieren.
+| `Produces<T>(code)` | genau dieser Code, Body als `T` | `Task<T>` |
+| `Produces(code)` | genau dieser Code, kein Body (z. B. 204) | `Task` — Typ-State: kein `ExpectedResponse…` |
+| *(exakter Code Pflicht)* | „irgendein 2xx" gibt es bewusst NICHT — Vertragstest nennt den Code | — |
 
 ---
 
@@ -116,8 +121,10 @@ Von „gratis & stark" nach „optional & schwach":
 
 1. **Typ-State (Compiler, gratis, stärkste Linie)**
    Ungültige Kombinationen sollen **Compilerfehler** sein, nicht Runtime-`throw`.
-   - `ExpectingNoContent()` existiert auf `ResponseConfig<T>` gar nicht.
-   - Kein `WithResponse(json, expectSuccess:false)`-throw mehr, kein `Produces`-Cast-throw.
+   - `ExpectedResponse…` existiert nur nach `Produces<T>(code)` (generisch), nicht nach `Produces(code)`
+     ohne Body — 204+Body-Vergleich ist so gar nicht erst tippbar.
+   - `IgnoreProperty`/`ForProperty` hängen am Zustand, den `ExpectedResponse…` zurückgibt — ohne
+     Expected keine Vergleichs-Konfiguration (siehe §15.6).
    - Faustregel: *Je mehr „ungültig" schon der Compiler abfängt, desto weniger muss der Analyzer tragen.*
 
 2. **Roslyn-Analyzer (Compile-Time)**
@@ -139,11 +146,11 @@ Fundament, nicht Beiwerk.
   Typnamen raten.
 - **Diagnostics:**
   - `MSTESTSDK001` (Error): `ExpressionStatementSyntax`, dessen Ergebnistyp ein
-    `[FluentBuilder]`-Interface ist → *„Assertion-Kette nie ausgeführt — Terminal (`Expecting…`)
+    `[FluentBuilder]`-Interface ist → *„Assertion-Kette nie ausgeführt — `ExecuteAsync()`
     fehlt. Test kann fälschlich grün werden."*
-  - `MSTESTSDK002` (Error/Warning): Terminal liefert `Task`, wird nicht awaited/returned
+  - `MSTESTSDK002` (Error/Warning): `ExecuteAsync()` liefert `Task`, wird nicht awaited/returned
     (bessere Message als CS4014).
-  - `MSTESTSDK003` (Info): unerreichbare Konfiguration nach Terminal.
+  - `MSTESTSDK003` (Info): unerreichbare Konfiguration nach `ExecuteAsync()`.
 - **CodeFix:** siehe §5.1 — eigener `CodeFixProvider`, der die Terminals automatisch repariert.
 - **Auslieferung:** als Analyzer-Asset im NuGet-Paket, damit er automatisch mitkommt.
 
@@ -153,13 +160,13 @@ Der Analyzer *findet* die dangling Kette (MSTESTSDK001) — ein `CodeFixProvider
 `ExportCodeFixProvider`) soll sie **per Klick / Bulk-Fixall reparieren**. Das ist die natürliche
 Ergänzung: Diagnose + 1-Klick-Reparatur.
 
-Was der Fix anbietet (auf die reale Model-B-API gemünzt):
+Was der Fix anbietet:
 - **MSTESTSDK001 (dangling chain):** `.ExecuteAsync()` ans Ende anhängen UND `await` davorsetzen —
   in einem Fix. Je nach Kontext:
-  - Ist die Kette schon terminiert bis auf `ExecuteAsync` (endet auf `Expecting…`) → nur
-    `.ExecuteAsync()` + `await` ergänzen.
-  - Fehlt auch eine Erwartung → zusätzlich `.ExpectingSuccess()` einschieben (als Default-Angebot;
-    der Nutzer kann danach präzisieren).
+  - Ist die Kette schon vollständig konfiguriert (endet auf `Produces<T>(code)` bzw.
+    `ExpectedResponse…`) → nur `.ExecuteAsync()` + `await` ergänzen.
+  - Fehlt auch ein `Produces` → nicht blind ergänzen (Status/Typ sind nicht ratbar) → Diagnose
+    stehen lassen, der Nutzer muss den Ausgang benennen.
   - Methoden-Rückgabetyp anpassen: `void`→`async Task` / `Task`→`async Task` falls nötig, damit
     `await` legal ist. (Sonst schlägt der Fix fehl — muss der Provider mitmachen.)
 - **FixAll-Support:** über `WellKnownFixAllProviders.BatchFixer` → ganze Datei/Projekt/Solution auf
@@ -169,15 +176,12 @@ Offene Unterfragen:
 - [ ] **`await` vs. `return`:** In `return Client.AssertPost(...)….ExecuteAsync();`-Tests (unser aktueller
       Stil!) darf der Fix KEIN `await` erzwingen — dort ist `return …ExecuteAsync()` korrekt. Der
       Provider muss Expression-body/`return`-Kontext erkennen und nur `.ExecuteAsync()` anhängen.
-- [ ] **Welche Erwartung als Default?** `.ExpectingSuccess()` ist der sichere Default, aber ein
-      blind eingefügtes Success kann eine andere Absicht überdecken. Evtl. mehrere CodeActions
-      anbieten (Success / Status / Error) statt einer.
 - [ ] **Scope:** erst der einfache „hänge `.ExecuteAsync()` an"-Fix (deckt den häufigsten Fall:
-      Erwartung da, Terminal vergessen). `await`/Signatur-Umbau als Ausbaustufe.
+      `Produces` da, Terminal vergessen). `await`/Signatur-Umbau als Ausbaustufe.
 - [ ] **Weitere Diagnostics mitfixen:** MSTESTSDK002 (Task nicht awaited) → `await` einfügen;
       MSTESTSDK003 (Config nach Terminal) → toten Aufruf entfernen.
 - **Risiko am Analyzer selbst:** Ketten, die in einer Variable gespeichert und *später*
-  terminiert werden (`var chain = Client.AssertPost(...); … await chain.Expecting…();`), dürfen
+  terminiert werden (`var chain = Client.AssertPost(...); … await chain.ExecuteAsync();`), dürfen
   keinen false positive erzeugen. → **Anfangs konservativ**: nur den offensichtlichen
   „dangling expression statement"-Fall melden. Lieber wenige sichere Diagnostics als Fehlalarme.
 - **Warum Analyzer > Runtime:** Compile-Time ist die einzige verlässliche, deterministische
@@ -187,12 +191,12 @@ Offene Unterfragen:
 
 ## 6. Weitere Risiken
 
-| Risiko | Wirkung |
-|---|---|
-| **Zwei Stile** (Neutral vs. Endpoint) | Team-Fragmentierung, doppelte Doku, Drift (bereits eingetreten). |
-| **`Assembly.GetCallingAssembly()` im Entry** | Wird die Kette in eine Test-Helper-Methode gewrappt (bei Fluent-APIs *häufiger*, weil sie zum Extrahieren einladen), zeigt die Assembly aufs Falsche → `Expected.json` wird nicht gefunden. Subtiler Fehler, taucht erst beim Refactoring auf. Bewusste Entscheidung nötig (z. B. `[CallerFilePath]` als primäre Quelle, Assembly nur Fallback). |
-| **`SetExpectedJsonAndExecute` via harten Cast** | `Produces(int, json)` castet auf `HttpResponseBuilder<T>` und wirft sonst → bricht, sobald das Interface anders implementiert wird. |
-| **`params HttpStatusCode[]` + `bool`-Overloads** | Runtime-`throw` bei legalem Aufruf — genau das, was Fluent+Typ-State vermeiden soll. |
+| Risiko | Wirkung | Status |
+|---|---|---|
+| **Zwei Stile** (Neutral vs. Endpoint) | Team-Fragmentierung, doppelte Doku, Drift. | ✅ **entschärft** — Endpoint ist alleiniger Kanon (§15), Neutral verworfen. |
+| **`Assembly.GetCallingAssembly()` im Entry** | Wird die Kette in eine Test-Helper-Methode gewrappt (bei Fluent-APIs *häufiger*, weil sie zum Extrahieren einladen), zeigt die Assembly aufs Falsche → `Expected.json` wird nicht gefunden. Subtiler Fehler, taucht erst beim Refactoring auf. | offen — Entscheidung nötig (z. B. `[CallerFilePath]` primär, Assembly nur Fallback). |
+| **Hart-Cast im Expected-Pfad** | Ein Cast auf `HttpResponseBuilder<T>`, der sonst wirft → bricht, sobald das Interface anders implementiert wird. | offen — beim Umbau auf `Produces<T>` mit auflösen. |
+| **`params HttpStatusCode[]` + `bool`-Overloads** | Runtime-`throw` bei legalem Aufruf — genau das, was Fluent+Typ-State vermeiden soll. | offen. |
 
 ---
 
@@ -216,9 +220,10 @@ benannte Schritte statt positionaler Endparameter (bessere IntelliSense-Führung
 
 ## 8. Empfohlene Reihenfolge (wenn es ans Bauen geht)
 
-1. **Analyzer + Typ-State-Härtung zuerst** (Fundament) — inkl. `[FluentBuilder]`/`[MustTerminate]`-Marker.
-2. **Einen Stil finalisieren** — Neutral als Kanon; Endpoint-Style streichen oder klar als
-   optionalen Alias-Layer im separaten Namespace.
+1. **Analyzer + Typ-State-Härtung zuerst** (Fundament) — inkl. `[FluentBuilder]`-Marker; Terminal-Anker
+   ist `ExecuteAsync()` (§5).
+2. **Stil ist entschieden** (Endpoint, §15) → jetzt umsetzen: `Accepts`/`Produces<T>(code)`/
+   `ExpectedResponse…` bauen, Neutral-Stil (`WithBody`/`Returns…`/`Expecting…`) entfernen.
 3. **Doku-Drift schließen** — dokumentierte `ProducesCreated/Ok/…` entweder bauen oder aus Doku raus.
 4. **`internal` → `public`** schalten (erst wenn 1–3 stehen).
 
@@ -226,15 +231,15 @@ benannte Schritte statt positionaler Endparameter (bessere IntelliSense-Führung
 
 ## 9. Offene Design-Fragen (bewusst noch offen)
 
-- [ ] Terminal-Vokabular final durchdeklinieren (`Expecting…` vs. Alternativen).
+- [x] Terminal-Vokabular → **entschieden:** `ExecuteAsync()` als einziges Terminal, `Produces<T>(code)`
+      trägt Status+Typ (§15.6).
+- [x] Endpoint-Style vs. Neutral → **entschieden:** Endpoint ist alleiniger Kanon (§15).
+- [x] Body-Input explizit statt Heuristik → **entschieden:** Schema A (§11).
+- [x] Rückgabe des Terminals `Task<TResult>` → **verifiziert** (§14): liefert die echte Antwort;
+      „Response fließt in nächsten Request" ist die Kern-UX-Story (CRUD-Lifecycle).
 - [ ] Assembly-/`CallerFilePath`-Strategie für Embedded-Resource-Resolution beim Wrappen.
-- [ ] Rückgabe des Terminals: `Task<TResult>` bleibt — „Response fließt in nächsten Request"
-      als prominente UX-Story (`var created = await …AssertPost…; await …AssertGet($"…/{created.Id}")`),
-      weil sie den Fluent-Ansatz ggü. der Overload-API rechtfertigt.
-- [ ] Endpoint-Style: streichen oder als dünner optionaler Layer behalten?
-- [ ] Wann Value-Assertions angehen — und dann eager oder deferred?
-- [ ] Typisierte Selectors + Matcher/`Any()`-Konzept → siehe Abschnitt 10.
-- [ ] Body-Input: explizite Methoden statt ratender `WithBody`-Heuristik → siehe Abschnitt 11.
+- [ ] Wann Value-Assertions angehen — und dann eager oder deferred? (§7)
+- [ ] Typisierte Selectors + Matcher/`Any()`-Konzept → siehe §10.
 
 ---
 
@@ -259,6 +264,95 @@ Vision: dieselbe Selector-Signatur wie `IgnoreProperty`:
 ```
 
 → Refactoring-fest, IntelliSense-geführt, Tippfehler im Platzhalter werden Compilerfehler.
+
+**Beschluss 2026-07-16 — zwei Overloads unter EINEM Verb `WithParameter`.** Die typisierte Form
+deckt Platzhalter ab, die einer Property entsprechen. Für Platzhalter **ohne** Property-Pendant
+(`UniqueName`, `Timestamp`, `CorrelationId` — real massiv genutzt, §13.1) und URL-Platzhalter gibt es
+die String-Form. Kein Duplikat wie die „zwei Stile" (§6): die Formen decken disjunkte Fälle ab.
+
+```csharp
+.WithParameter(p => p.Id, 0)             // typisiert  — Selektor gegen die Property
+.WithParameter("UniqueName", uniqueName) // string     — Platzhalter OHNE Property-Pendant
+```
+
+**Ein Verb, nicht `With…`/`Add…`:** es ist dieselbe fachliche Operation („setze einen Platzhalter"),
+nur zwei Adressierungen (Selektor vs. Key). Ein Verb + Overload hält sie zusammen; IntelliSense zeigt
+beide Signaturen unter einem Namen. (Im Gegensatz zu Schema A §11, wo `…From…` verschiedene *Quellen*
+unterscheidet — hier ist die Quelle dieselbe.)
+
+**Kein `$…$` im Test-Code — die SDK escapt intern (Beschluss 2026-07-16).** Der Nutzer schreibt den
+**nackten Namen** (`"UniqueName"`), die SDK ergänzt die Delimiter selbst. Das ist mehr als Kosmetik:
+die Platzhalter-Konvention (`$…$` heute, evtl. `{{…}}` morgen) wird zur reinen **Implementierungs-
+Entscheidung** — änderbar, ohne einen einzigen Test anzufassen. `$` im Test-Code wäre ein Leak der
+internen Repräsentation; derselbe Leitgedanke wie „Intention im Namen statt Magic-String" aus §4/§11.
+
+```csharp
+.WithParameter("UniqueName", x)   // ✓ EMPFOHLEN — SDK macht intern "$UniqueName$" (Konvention beliebig)
+.WithParameter("$UniqueName$", x) // ✓ toleriert — SDK erkennt „schon escaped" und lässt es unverändert
+```
+
+**Toleranz gegenüber bereits-escapten Eingaben (Beschluss 2026-07-16, Postel's Law).** Nackt ist die
+*Empfehlung*, aber die SDK **erkennt bereits gesetzte Delimiter und behält sie bei** (kein doppeltes
+`$$UniqueName$$`). Zwei Gründe:
+1. **Migration:** die ~1000 Bestands-Tests nutzen `("$Id$", 0)` → der Sweep muss die `$` NICHT strippen,
+   bleibt ein reiner Signatur-Umbau (vgl. [[feedback-mechanical-signature-sweep]]).
+2. **Robustheit:** Copy-Paste aus JSON-Dateien (wo `$…$` wörtlich steht) knallt nicht.
+
+Bewusster Trade-off: „beide Formen erlaubt" weicht die *eine kanonische Form* leicht auf — akzeptiert,
+weil der Migrationsnutzen überwiegt und die Erkennungsregel trivial ist (Name in bekannten Delimitern
+gewrappt → unverändert; sonst → wrappen). Doku/Analyzer dürfen die nackte Form als Stil empfehlen.
+
+Offene Unterfrage:
+- [ ] **Kollision/Doppelung:** Wenn derselbe Platzhalter typisiert UND per String gesetzt wird — Fehler
+      oder „letzter gewinnt"? Tendenz: früh und laut fehlschlagen (still-grün vermeiden, §2).
+
+### 10.1.1 Objekt-Bulk: `WithParameters(obj)` — alle Properties auf einmal (Ideensammlung 2026-07-16)
+
+Statt N Einzelaufrufe ein ganzes Objekt reingeben; jede Property wird zu einem Platzhalter:
+
+```csharp
+// statt:
+.WithParameter("Name", user.Name)
+.WithParameter("Age", user.Age)
+.WithParameter("Email", user.Email)
+
+// ein Objekt, alle Properties → Parameter:
+.WithParameters(user)   // Name→$Name$, Age→$Age$, Email→$Email$
+```
+
+Real nützlich beim Arrange-Muster aus §13.1, wo oft ein ganzes Objekt in `$…$`-Platzhalter fließt
+(Request- UND Expected-Dateien UND URL).
+
+**Zwei Design-Entscheidungen (2026-07-16, bewusst die einfachen/vorhersehbaren Varianten):**
+
+1. **Property-Name = C#-Name (PascalCase).** `user.CreatedAt → $CreatedAt$`, 1:1 wie im Test-Code
+   lesbar. Bewusst NICHT durch die `JsonSerializerOptions`-CamelCase-Policy geschickt.
+   > ⚠️ **Falle:** Wenn Platzhalter aus JSON-Templates stammen und dort `$createdAt$` heißen (camelCase,
+   > wie serialisiert), matcht `$CreatedAt$` **nicht** → Platzhalter bleibt als Literal stehen →
+   > still-grüner Fehler (§2). Muss laut dokumentiert werden; ggf. später eine Diagnose „Platzhalter
+   > nach Substitution noch vorhanden" als Sicherung.
+
+2. **Alle Properties, auch `default`/`null`/`0`.** Vorhersehbar (kein „mal ist die Property da, mal
+   nicht"), aber:
+   > ⚠️ **Falle:** `WithParameters(user)` mit `Age = 0` setzt `$Age$ = "0"`, auch wenn „nicht gesetzt"
+   > gemeint war — das value-type-Problem aus §10.3. Der User muss wissen: das befüllt **jedes** Feld.
+   > Wer selektiv will, nimmt die Einzel-`WithParameter`-Form.
+
+**Naming:** `WithParameters` (Plural) = Objekt-Bulk, `WithParameter` (Singular) = ein Platzhalter →
+trennt die Overloads natürlich. Koexistiert mit dem bestehenden `WithParameters(params (string,object)[])`
+(Tupel-Array) — Overload-Set bewusst ordnen.
+
+**Abgrenzung zu `Accepts(obj)` (wichtig, sonst Verwirrung):** Beide nehmen dasselbe Objekt und zerlegen
+es — aber `Accepts(user)` → Request-**Body** (ganzer Payload), `WithParameters(user)` → **Platzhalter-Werte**
+für `$…$` in Template-Dateien/URL. Anderes Ziel, klar dokumentieren.
+
+Offene Unterfragen:
+- [ ] **Verschachtelung:** `user.Address.City` → `$City$` / `$Address.City$` / gar nicht? Tendenz:
+      **nur top-level flach**, Verschachtelung NICHT automatisch (sonst unvorhersehbar + `City`-Kollision
+      aus mehreren Sub-Objekten).
+- [ ] **Kollision `WithParameters(obj)` + Einzel-`WithParameter`:** hier eher „letzter gewinnt"
+      (Bulk + bewusstes Override), NICHT laut fehlschlagen — sonst ist „Objekt + eine Ausnahme"
+      unmöglich. (Steht im Spannungsverhältnis zur Einzel-Kollisionsregel oben — bewusst getrennt.)
 
 ### 10.2 Matcher / `Any()` — die dritte Stufe zwischen „ignorieren" und „exakt"
 
@@ -313,10 +407,10 @@ Der wirklich knifflige Teil ist **nicht** der einzelne Matcher, sondern wie alle
 Zwei Achsen kreuzen sich:
 
 **Achse A — Woher kommt das Expected?**
-- **C# Objekt** (`Returns<Person>(expectedObject)`): typisiert, aber wird intern serialisiert, um
+- **C# Objekt** (`ExpectedResponse(expectedObject)`): typisiert, aber wird intern serialisiert, um
   gegen die JSON-Response zu diffen.
-- **JSON** (`Returns<Person>("Expected.json")` / Roh-String): kein typisiertes Objekt, evtl. mit
-  `$Platzhalter$` und `filterFunc`/`differenceFunc`-Vorverarbeitung.
+- **JSON** (`ExpectedResponseFromEmbeddedJson("Expected.json")` / Roh-String): kein typisiertes Objekt,
+  evtl. mit `$Platzhalter$` und `filterFunc`/`differenceFunc`-Vorverarbeitung.
 
 **Achse B — Wie wird verglichen?**
 - exakter Diff (heute) · `IgnoreProperty` (Diff verwerfen) · **Matcher** (Form prüfen, Wert frei).
@@ -331,7 +425,7 @@ arbeitet aber auf **`MemberPath`-Strings** (`"Id"`, `"Emails[0].CreatedDate"`). 
 allein* fast unbrauchbar, weil ungesetzte Felder `null`/`default`/`0` sind:
 
 ```csharp
-.Returns<Person>(new Person { Name = "Son Goku" })   // Id/Age/CreatedDate sind null/0/default
+.ExpectedResponse(new Person { Name = "Son Goku" })   // Id/Age/CreatedDate sind null/0/default
 ```
 
 Exakter Vergleich würde `Id: null`, `Age: 0` verlangen — fast nie gewollt. Und „nur gesetzte Felder
@@ -340,10 +434,11 @@ types). **Die Matcher lösen genau das:**
 
 ```csharp
 await Client.AssertPost(...)
-    .Returns<Person>(new Person { Name = "Son Goku" })  // exakte Felder: Name
-    .ForProperty(p => p.Id == Guid.Any())               // server-generiert: irgendeine Guid
-    .ForProperty(p => p.CreatedDate == Date.Any())      // server-generiert: irgendein Datum
-    .ExpectingStatus(Accepted)
+    .Accepts(request)
+    .Produces<Person>(Accepted)
+    .ExpectedResponse(new Person { Name = "Son Goku" })  // exakte Felder: Name
+        .ForProperty(p => p.Id == Guid.Any())            // server-generiert: irgendeine Guid
+        .ForProperty(p => p.CreatedDate == Date.Any())   // server-generiert: irgendein Datum
     .ExecuteAsync();
 ```
 
@@ -377,7 +472,7 @@ Offene Kernfragen dazu:
       Prädikat als Zucker, Zwei-Argument als Basis.
 - [ ] **Matcher-Namespace/Vokabular:** `Guid.Any()` / `Date.Any()` / `Value.NotNull()` vs. ein
       einheitliches `Match.Guid()` / `Match.AnyDate()` / `Match.NotNull()`. Einheitliches Präfix
-      erleichtert Discovery (wie beim `Expecting…`-Leitsatz).
+      erleichtert Discovery (wie das scanbare `Produces…`/`ExpectedResponse…`-Vokabular).
 - [ ] **Integration mit der Diff-Engine:** Matcher als spezielle `Difference`-Behandlung
       (`ApplyDifferenceFiltering`) modellieren — ein Matcher, der die Form prüft und die Difference
       nur dann verwirft, wenn die Form stimmt. Verhältnis zu `differenceFilter`/`differenceFunc` klären.
@@ -400,8 +495,8 @@ var settings = new CompareSettings()
     .ForProperty<Person>(p => p.Id == Guid.Any()); // Matcher gehört mit rein
 
 // in beliebig vielen Ketten wiederverwenden:
-await Client.AssertPost(...).Returns<Person>(obj).Using(settings).ExecuteAsync();
-await Client.AssertGet(...).Returns<Person>(obj).Using(settings).ExecuteAsync();
+await Client.AssertPost(...).Accepts(req).Produces<Person>(Created).ExpectedResponse(obj).Using(settings).ExecuteAsync();
+await Client.AssertGet(...).Produces<Person>(OK).ExpectedResponse(obj).Using(settings).ExecuteAsync();
 ```
 
 **Warum das genau eine Lücke aus §13 schließt:** In den ~1000 Sdc-Tests gibt es heute nur zwei
@@ -429,9 +524,16 @@ Offene Unterfragen:
 
 ---
 
-## 11. Body-Input: explizit statt „Magic" — Ideensammlung
+## 11. Body-Input: explizit statt „Magic" (Schema A)
 
-### 11.1 Das Problem mit dem heutigen `WithBody`
+> **Namen aktualisiert:** Der Abschnitt entstand am Neutral-Stil (`WithBody`/`Returns…`). Das
+> **Prinzip Schema A** (gemeinsames Präfix, Objekt kurz, `…From…` für indirekte Quellen) gilt
+> unverändert — es wurde nur auf die kanonischen Endpoint-Namen übertragen: **`Accepts…`** (Request)
+> und **`ExpectedResponse…`** (Response). Konkret: `Accepts(obj)` / `AcceptsFromJsonString` /
+> `AcceptsFromEmbeddedJson` und `ExpectedResponse(obj)` / `ExpectedResponseFromJsonString` /
+> `ExpectedResponseFromEmbeddedJson`. Die `WithBody`/`Returns`-Beispiele unten zeigen die Herleitung.
+
+### 11.1 Das Problem mit der `WithBody`-Heuristik (historisch)
 
 Der Prototyp hat **schon heute versteckte Magic**: `WithBody(string)` nimmt Datei*name*, Roh-JSON
 und (via Generic-Overload) C#-Objekt entgegen und rät per `IsRawJson`-Heuristik, was gemeint ist
@@ -501,14 +603,17 @@ nicht → dort **muss** es explizit stehen, sonst kein Typ.
 
 ### 11.3 Offene Unterfragen
 
-- [x] **Namensschema final:** **entschieden 2026-07-16 → Schema A** (`WithBody` /
-      `WithBodyFromJsonString` / `WithBodyFromEmbeddedJson` und `Returns` / `ReturnsFromJsonString` /
-      `ReturnsFromEmbeddedJson`). Gemeinsames Präfix + Objekt kurz, indirekte Quellen mit `…From…`.
-      Begründung + verworfene Schemata B/C/D siehe §11.2. **Code noch nicht umbenannt** (heute:
-      `WithJsonString`/`WithEmbeddedJson`/`ReturnsJsonString`/`ReturnsEmbeddedJson`) → mechanischer
-      Rename-Sweep offen, vgl. [[feedback-mechanical-signature-sweep]].
-- [ ] **`WithEmbeddedJson` + Parameter:** Zusammenspiel mit `$Platzhalter$`-Substitution und der
-      `CallerFilePath`/Assembly-Auflösung (Abschnitt 9) klar definieren.
+- [x] **Namensschema final:** **entschieden 2026-07-16 → Schema A**, angewandt auf die Endpoint-Namen:
+      `Accepts` / `AcceptsFromJsonString` / `AcceptsFromEmbeddedJson` (Request) und `ExpectedResponse` /
+      `ExpectedResponseFromJsonString` / `ExpectedResponseFromEmbeddedJson` (Response). Gemeinsames
+      Präfix + Objekt kurz, indirekte Quellen mit `…From…`. Begründung + verworfene Schemata B/C/D §11.2.
+      **Code noch nicht umbenannt** (heute: `WithBody`/`WithJsonString`/`WithEmbeddedJson`/`Returns…`) →
+      mechanischer Rename-Sweep offen, vgl. [[feedback-mechanical-signature-sweep]].
+- [ ] **`…FromEmbeddedJson` + Parameter:** Zusammenspiel mit Platzhalter-Substitution und der
+      `CallerFilePath`/Assembly-Auflösung (§9) klar definieren.
+- [ ] **`Accepts`-Verb vs. `ExpectedResponse`-Substantiv:** die `…From…`-Anhängung liest sich
+      unterschiedlich (`AcceptsFromEmbeddedJson` vs. `ExpectedResponseFromEmbeddedJson`) — offen, ob
+      `Accepts` ein Substantiv-Pendant braucht (siehe §15.7).
 
 ---
 
@@ -537,13 +642,14 @@ auf der Overload-API + einer handgeschriebenen Domain-Wrapper-Schicht (`SdcTestC
       `.AsUnauthorized()` / `.WithHeader(k, v)`. **Echte neue Fähigkeit, nicht nur Zucker.**
       Verzahnt sich mit den `AsUnauthorizedAsync`-Terminals (siehe unten).
 
-- [ ] **Error-Terminals als Teil der EINEN Kette.** Heute getrennte Methoden-Familien pro Ausgang:
+- [x] **Error-Ausgänge als Teil der EINEN Kette.** Heute getrennte Methoden-Familien pro Ausgang:
       `AssertXAsErrorAsync<T>("NotFound.json")`, `AssertXAsUnauthorizedAsync()`,
       `AssertXAsValidationErrorAsync<ValidationProblemDetailsExtended>()`, `AsForbidden` — mal ×Verb.
-      Vision: dieselbe Kette, nur anderes Terminal → `.ExpectingError<ProblemDetails>(NotFound, "NotFound.json")`,
-      `.ExpectingUnauthorized()`, `.ExpectingValidationError<T>(...)`. Passt exakt zur „kleine
-      Terminal-Familie"-Idee (§3). Fehler-Response hat eigenen Typ (`ProblemDetails` /
-      `ValidationProblemDetailsExtended`) → Terminal ist generisch über den Fehlertyp.
+      **Gelöst durch `Produces<T>(code)` (§15.6):** derselbe Übergang, nur anderer Typ + Code →
+      `.Produces<ProblemDetails>(NotFound).ExpectedResponseFromEmbeddedJson("NotFound.json")`,
+      `.Produces<ProblemDetails>(Unauthorized)`, `.Produces<ValidationProblemDetailsExtended>(BadRequest)`.
+      Fehler-Response hat eigenen Typ → `<T>` ist generisch über den Fehlertyp (der `504 → string`-Fund
+      aus §15.3 beweist: nicht auf `ProblemDetails` festnageln).
 
 - [ ] **Snapshot-/Golden-File-Modus** (`writeResponse: true`). Real genutzt, um Expected-`.json`
       neu zu schreiben. Vision: `.WriteSnapshot()` existiert im Prototyp schon — als bewusstes Feature
@@ -568,8 +674,8 @@ auf der Overload-API + einer handgeschriebenen Domain-Wrapper-Schicht (`SdcTestC
 - [ ] **Data-driven / Endpoint-Katalog** (`[DynamicRequestLocator]`, `[EnumTestCase<T>]`,
       OpenAPI-`AllEndpointsClient` „mach X gegen JEDEN Endpoint"). Wahrscheinlich AUSSERHALB der
       Fluent-Assert-Kette (MSTest-Attribut-Ebene), aber die Kette muss sich sauber in solche Loops
-      einsetzen lassen (z. B. `.ForAllEndpoints().ExpectingRejected()` als denkbare Erweiterung). Nur
-      als Fernziel notieren, nicht Kern-Scope.
+      einsetzen lassen (z. B. `.ForAllEndpoints().Produces<ProblemDetails>(…)` als denkbare Erweiterung).
+      Nur als Fernziel notieren, nicht Kern-Scope.
 
 - [ ] **AppSync-/Event-Assertions** (`AppSyncMessagesClient` — „wurde Event X publiziert?"). Eigene
       Domäne (nicht HTTP-Response), aber dieselbe Diff-/Expected-Philosophie. Fern; nur erwähnt.
@@ -588,131 +694,58 @@ auf der Overload-API + einer handgeschriebenen Domain-Wrapper-Schicht (`SdcTestC
 
 ## 14. Das Rückgabewert-Problem — `ExecuteAsync()` liefert die ECHTE Antwort
 
-> Aufgeworfen 2026-07-16. **Am Code verifiziert 2026-07-16 → gelöst für den Hauptfall, kein Umbau
-> nötig.** Es entscheidet, was `<T>` in der Kette bedeutet — und die Antwort ist: `<T>` ist EIN
-> gemeinsamer generischer Faden für Vergleich UND Rückgabe, und das ist ein Feature, kein Konflikt.
+> Aufgeworfen + am Code verifiziert 2026-07-16. **Gelöst, kein Umbau nötig.** `<T>` ist EIN
+> gemeinsamer generischer Faden für Vergleich UND Rückgabe — ein Feature, kein Konflikt.
 
-### 14.0 Verifiziert: Der Rückgabewert ist bereits die echte Antwort (kein Bug, kein Breaking Change)
+### 14.1 Verifiziert: Der Rückgabewert ist bereits die echte Antwort (kein Breaking Change)
 
-Am Code nachgewiesen (2026-07-16) — die aktuelle Signatur liefert das Gewünschte schon:
+Am Code nachgewiesen — die Pipeline gibt die **echte, deserialisierte HTTP-Antwort** zurück, NICHT das
+Expected:
 
-- `HttpResponseBuilder<T>.ExecuteAsync()` → `Task<T>` ruft `AssertHttpCallAsync<TResult>` (`HttpResponseBuilder.cs:153`).
-- Dort wird ein `HttpAssertContext<TResult>` gebaut, die **echte HTTP-Antwort in `T` deserialisiert**
-  und via Pipeline zurückgereicht (`Client.Assert.HttpCall.cs:666-668`).
-- `HttpAssertionPipeline.Execute` gibt `context.CurrentResult` zurück — Kommentar dort wörtlich:
-  *„All assertions passed — return the original deserialized result"* (`HttpAssertionPipeline.cs:45-46`);
-  *„Steps are validators only — they don't modify or return results"* (`:39`).
-- `AssertableHttpClient.AssertAsync` reicht denselben `result` durch (`AssertableHttpClient.cs:206-216`).
+- `HttpResponseBuilder<T>.ExecuteAsync()` → `Task<T>` → `AssertHttpCallAsync<TResult>` (`HttpResponseBuilder.cs:153`),
+  baut `HttpAssertContext<TResult>`, deserialisiert die echte Antwort in `T` (`Client.Assert.HttpCall.cs:666-668`).
+- `HttpAssertionPipeline.Execute` gibt `context.CurrentResult` zurück — wörtlich: *„All assertions
+  passed — return the original deserialized result"* (`HttpAssertionPipeline.cs:45-46`), *„Steps are
+  validators only"* (`:39`); `AssertableHttpClient.AssertAsync` reicht denselben `result` durch (`:206-216`).
 
-**Fazit:** `var person = await …ReturnsEmbeddedJson<Person>("Expected.json").ExpectingSuccess().ExecuteAsync();`
-gibt HEUTE schon das **echte, deserialisierte `Person`** zurück (mit server-generierter `Id`/`CreatedDate`) —
-NICHT den Inhalt von `Expected.json`. Das Expected fließt nur als Vergleichs-Vorlage in die Pipeline, wird
-nie als Rückgabewert ausgegeben. Das eine `<T>` an `Returns…<T>` bindet den kompletten generischen Kanal
-`HttpResponseBuilder<T> → AssertHttpCallAsync<T> → HttpAssertContext<T> → Task<T>` — **Vergleichstyp und
-Rückgabetyp sind bewusst dasselbe `T`**.
+Also gibt `ExecuteAsync()` das **echte, deserialisierte Objekt** zurück (mit server-generierter
+`Id`/`CreatedDate`) — das Expected fließt nur als Vergleichs-Vorlage in die Pipeline. Das eine `<T>`
+bindet den kompletten Kanal `Builder<T> → HttpAssertContext<T> → Task<T>`: **Vergleichstyp und
+Rückgabetyp sind bewusst dasselbe `T`** (gleiche Fehlerklasse wie [[bug-primitive-type-comparison]] wäre
+es, das Expected zurückzugeben — passiert aber nicht).
 
-> **Kein Breaking Change.** Für den Hauptfall (Vergleich + typisiertes Ergebnis) ist NICHTS zu ändern —
-> die Rückgabe steht. Die Lücken aus §14.2 werden **rein additiv** geschlossen (neue Methoden, keine
-> geänderten Signaturen). Zudem ist die Fluent-API noch `internal` → selbst additiv-inkompatible
-> Schritte hätten keinen Enduser-Impact.
+### 14.2 Die zwei Rollen von `<T>` — im Endpoint-Stil sauber getrennt
 
-### 14.1 Das Symptom
+`<T>` trägt zwei Rollen: **Rückgabetyp** und (optionale) **Vergleichs-Vorlage**. Der Endpoint-Stil
+(§15.6) trennt sie im Vokabular:
 
-### 14.1 Das Symptom
+- **Rückgabetyp** = `Produces<T>(code)` (Pflicht) → immer `Task<T>`, immer die echte Antwort.
+- **Vergleich** = `ExpectedResponse…` (optional) → weglassen = body-loser Ergebnis-Pfad. **Das ersetzt
+  das früher hier geplante `Reading<T>()`** — das Weglassen *ist* der body-lose Pfad.
+- **Fehler mit anderem Typ** = `Produces<ProblemDetails>(400)` → eigenes `<T>`, kein Sonderterminal.
+- **Collection vs. Element** (§10.4): `Produces<List<Person>>(…)` fürs Ergebnis, Selector-Overload mit
+  explizitem `<Person>` fürs Element.
 
-```csharp
-var result = await Client.AssertPost("api/v1/persons")
-    .WithBody(person)
-    .ReturnsEmbeddedJson<Person>("CreatePersonFull.json")  // ← das <Person> tut ZWEI Jobs
-    .ExpectingSuccess()
-    .ExecuteAsync();                                        // → Task<Person>
-```
+Offen (klein, nicht blockierend):
+- [ ] **Rückgabewert vor/nach `FilterResponse`?** Diff und Rückgabe operieren auf demselben
+      deserialisierten Objekt — sicherstellen, dass der zurückgegebene Wert nicht von einer
+      `FilterResponse`-Normalisierung „verbogen" ist (oder bewusst roh vs. normalisiert entscheiden).
 
-`result` **muss die echte, deserialisierte Server-Antwort sein** — NICHT der Inhalt von
-`CreatePersonFull.json`. Sonst ist der Rückgabewert wertlos: die server-generierte `Id`/`CreatedDate`
-sind ja genau das, was der CRUD-Lifecycle in den Folge-Request fädeln will (§9, §13.2 „Response-Objekt
-fließt in Folge-Requests"). Bekäme man das Expected zurück, hätte man nur, was man ohnehin schon
-hatte. (Gleiche Fehlerklasse wie [[bug-primitive-type-comparison]]: *actual* vs. *expected*
-verwechselt — hier auf Ebene des Rückgabewerts.)
+### 14.3 Leitplanke
 
-### 14.2 Das eine `<T>` trägt zwei Rollen — bewusst, und für den Hauptfall gelöst
-
-Das `<T>` an `ReturnsEmbeddedJson<Person>` trägt **gleichzeitig zwei Rollen**:
-
-1. **Vergleichs-Vorlage** — „diffe die Antwort gegen `CreatePersonFull.json`, interpretiert als `Person`".
-2. **Rückgabetyp** — „`ExecuteAsync()` gibt mir ein `Person` zurück".
-
-Solange beide Rollen dasselbe `T` teilen, ist die Kette elegant — und **das ist der Normalfall, der
-laut §14.0 bereits funktioniert.** Es bleiben genau **drei** Fälle, in denen die Rollen auseinanderfallen —
-alle **rein additiv** lösbar (neue Methode/Terminal, keine geänderte Signatur):
-
-- **Ergebnis OHNE Body-Vergleich** ist heute nicht ausdrückbar. Um `result: Person` zu bekommen, MUSS
-  man ein Expected liefern und diffen. Der häufige CRUD-Fall „create, assert 201, gib mir das erzeugte
-  Objekt — ohne Golden-File" hat heute nur den body-losen Pfad `ExpectingResponse()` → `Task` (also
-  GAR kein Ergebnis). **→ additiver neuer Übergang `Reading<T>()` (siehe §14.3).**
-- **Fehler-Response hat einen anderen Typ.** `.ExpectingError<ProblemDetails>(NotFound)` (§13.2) will
-  ein `ProblemDetails` zurück, nicht den `Person`-Typ der Erfolgs-Kette. **→ additives generisches
-  Fehler-Terminal, eigenes `T`.**
-- **Collection vs. Element** (§10.4): `TResult = List<Person>` fürs Ergebnis, aber der Selector-`p`
-  soll auf `Person` zeigen. **→ zwei Selector-Overloads (schon für `IgnoreProperty` vorgemerkt).**
-
-### 14.3 Beschluss: additiver body-loser Pfad `Reading<T>()`
-
-**Entschieden 2026-07-16.** Der Hauptfall bleibt unangetastet (`Returns…<T>` = Vergleich UND Rückgabe,
-ein `T`). Für „Ergebnis ohne Vergleich" kommt ein **neuer, dritter Übergang** auf `IHttpRequestConfiguring`
-dazu — er führt `<T>` ein (für Deserialisierung + Ketten-Zustand + `Task<T>`), difft aber nichts:
-
-```csharp
-// Hauptfall (unverändert): Vergleich + typisiertes Ergebnis
-var person = await Client.AssertPost("api/v1/persons")
-    .WithBody(create)
-    .ReturnsFromEmbeddedJson<Person>("Expected.json")  // T: Vergleich + Rückgabe
-    .ExpectingSuccess()
-    .ExecuteAsync();                                    // Task<Person> ✓ (echte Antwort)
-
-// NEU (additiv): nur deserialisieren & zurückgeben, KEIN Body-Diff
-var person = await Client.AssertPost("api/v1/persons")
-    .WithBody(create)
-    .Reading<Person>()          // T: nur Rückgabetyp — kein Vergleich
-    .ExpectingStatus(Created)
-    .ExecuteAsync();            // Task<Person> ✓ (echte Antwort, kein Golden-File nötig)
-```
-
-Damit schließt sich die Lücke zwischen `ExpectingResponse()` (Task, kein Ergebnis) und `Returns…<T>`
-(Ergebnis, aber Diff-Zwang) — ohne die bestehende Signatur zu brechen.
-
-Offene Unterfragen (klein, nicht blockierend):
-- [ ] **Name des body-losen Übergangs:** `Reading<T>()` (Arbeitsname) vs. `Deserializes<T>()` /
-      `ReadingBody<T>()` / `Returning<T>()`. Konsistenz mit dem `Returns…`/`Expecting…`-Vokabular prüfen.
-- [ ] **Fehler-Terminal generisch:** `ExpectingError<ProblemDetails>(NotFound)` als eigener Übergang mit
-      eigenem `T` (nicht mit der Erfolgs-`Returns…`-Familie kollidierend) — Detaildesign siehe §13.2.
-- [ ] **Intern:** `Reading<T>()` erzeugt denselben `HttpResponseBuilder<T>`-Kanal wie `Returns…<T>`, nur
-      mit „kein Expected" (analog zum vorhandenen `IgnoreResponse`/`ExpectedObjectAsJson = IgnoreResponse`-
-      Pfad in `Client.Assert.HttpCall.cs`). Kein neuer Engine-Pfad nötig — nur Fassade.
-- [ ] **Fehler-Terminals mit eigenem Typ** (`ExpectingError<ProblemDetails>`) müssen konsistent in
-      dasselbe Modell passen — sonst hat die Kette zwei widersprüchliche `<T>`-Quellen.
-- [ ] **Verhältnis zu Matcher/Objekt-Expected (§10.3):** Objekt-Expected liefert bekannte Felder,
-      Matcher die server-generierten. Der Rückgabewert ist die *ungefilterte* echte Antwort — Diff und
-      Rückgabe operieren also auf demselben deserialisierten Objekt, aber mit unterschiedlichem Zweck.
-      Sicherstellen, dass der zurückgegebene Wert vor keiner `FilterResponse`-Normalisierung „verbogen"
-      ist (oder bewusst entscheiden, welchen der beiden man zurückgibt: roh vs. normalisiert).
-
-### 14.4 Leitplanke
-
-Der Rückgabewert ist laut §9 die **Kern-Rechtfertigung** der Fluent-API gegenüber der Overload-Welt
-(`var created = await …AssertPost…; await …AssertGet($"…/{created.Id}")`). Wenn `ExecuteAsync()` nicht
-zuverlässig die *echte* Antwort liefert — oder ein Ergebnis nur um den Preis eines erzwungenen
-Body-Diffs zu haben ist — verliert die ganze Kette ihr stärkstes Argument. Diese Frage gehört
-**vor** den breiten Rollout und den Namens-Rename geklärt.
+Der Rückgabewert ist die **Kern-Rechtfertigung** der Fluent-API ggü. der Overload-Welt
+(`var created = await …AssertPost…; await …AssertGet($"…/{created.Id}")`). Er ist verifiziert — die
+Story trägt.
 
 ---
 
 ## 15. Endpoint-Contract als Test-Surface — zwei getrennte Assert-Ebenen
 
-> Aufgeworfen 2026-07-16. Ausgangspunkt war ein „Super-Endpoint" mit voller Vertragsdeklaration
-> (Minimal-API `MapPost` + `Accepts` + 10× `Produces` + 5× `With…`-Metadata). Er ist der ideale
-> Stresstest, weil er **die komplette Oberfläche eines Endpoints in einer Kette** zeigt.
-> (Beispiel neutral auf `User` gehalten, damit direkt kopierbar.)
+> Ausgangspunkt war ein „Super-Endpoint" mit voller Vertragsdeklaration (Minimal-API `MapPost` +
+> `Accepts` + 10× `Produces` + 5× `With…`-Metadata) — der ideale Stresstest, weil er **die komplette
+> Oberfläche eines Endpoints in einer Kette** zeigt. Ergebnis: der **Endpoint-Stil ist der alleinige
+> Kanon** (§15.6), funktionale Kette `Accepts` → `Produces<T>(code)` → `ExpectedResponse…` →
+> `ExecuteAsync()`. Das durchgespielte finale Modell steht in **§15.6**.
 
 ### 15.0 Der Referenz-Endpoint
 
@@ -743,12 +776,12 @@ trennen — sonst entsteht genau die „zwei Stile"-Fragmentierung aus §6:
 
 | Ebene | Frage | Braucht echten HTTP-Call? | Assert-Familie |
 |---|---|---|---|
-| **Funktional** (Request/Response) | „Was passiert, wenn ich den Endpoint *wirklich* aufrufe?" | **Ja** | die EINE Kette `Client.AssertPost(…)…Expecting…().ExecuteAsync()` |
+| **Funktional** (Request/Response) | „Was passiert, wenn ich den Endpoint *wirklich* aufrufe?" | **Ja** | die EINE Kette `Client.AssertPost(…).Produces<T>(code)….ExecuteAsync()` |
 | **Meta** (Contract/Doku) | „Ist der Endpoint *so deklariert*, wie er soll?" | **Nein** — liest Endpoint-Metadaten / OpenAPI | eigene Familie `Client.AssertEndpoint(…).Has…()` |
 
-> **Leitsatz:** Funktional = Verhalten (Runtime, ein Terminal je Ausgang). Meta = Deklaration
-> (statisch, kein Terminal-Risiko). Ein `Produces<T>(code)` erzeugt *funktional* genau einen
-> möglichen Ausgang UND ist *meta* Teil des dokumentierten Contracts — dieselbe Zeile, zwei Blickwinkel.
+> **Leitsatz:** Funktional = Verhalten (Runtime, ein `Produces` je Ausgang, Terminal `ExecuteAsync()`).
+> Meta = Deklaration (statisch, kein Terminal-Risiko). Ein `Produces<T>(code)` assertet *funktional*
+> genau einen Ausgang UND spiegelt *meta* den dokumentierten Contract — dieselbe Zeile, zwei Blickwinkel.
 
 ### 15.2 Der Endpoint, Zeile für Zeile
 
@@ -772,28 +805,10 @@ trennen — sonst entsteht genau die „zwei Stile"-Fragmentierung aus §6:
 | 16 | `WithDescriptionFromFile` | `"Description.md"` | — | — | **meta** |
 | 17 | `WithSummaryFromFile` | `"Summary.md"` | — | — | **meta** |
 
-### 15.3 Funktionale Assertions — die Response-Familie (`Produces` ×10)
+### 15.3 Funktionale Assertions — jeder Ausgang wird ein `Produces<T>(code)`
 
-Jedes `Produces<T>(code)` ⇒ genau ein Terminal auf der EINEN Kette. Body-Typ hängt am Code:
-
-| `Produces`-Deklaration | Fluent-Terminal (Vorschlag) | Body-`<T>` |
-|---|---|---|
-| `Produces<CreateUserResponse>()` (200) | `.Returns<CreateUserResponse>(exp).ExpectingSuccess()` · Kurzform `.ExpectingOk<CreateUserResponse>()` | `CreateUserResponse` |
-| `Produces<ValidationProblemDetailsExtended>(400)` | `.ExpectingValidationError<ValidationProblemDetailsExtended>(BadRequest, exp)` | `ValidationProblemDetailsExtended` |
-| `Produces<ProblemDetails>(401)` | `.ExpectingUnauthorized()` | `ProblemDetails` (implizit) |
-| `Produces<ProblemDetails>(403)` | `.ExpectingForbidden()` | `ProblemDetails` (implizit) |
-| `Produces<ProblemDetails>(404)` | `.ExpectingNotFound()` · generisch `.ExpectingError<ProblemDetails>(NotFound, exp)` | `ProblemDetails` |
-| `Produces<ProblemDetails>(409)` | `.ExpectingConflict()` | `ProblemDetails` (implizit) |
-| `Produces<ValidationProblemDetailsExtended>(422)` | `.ExpectingValidationError<…>(UnprocessableEntity, exp)` | `ValidationProblemDetailsExtended` |
-| `Produces<ProblemDetails>(500)` | `.ExpectingServerError()` · `.ExpectingError<ProblemDetails>(InternalServerError)` | `ProblemDetails` |
-| `Produces<ProblemDetails>(503)` | `.ExpectingError<ProblemDetails>(ServiceUnavailable)` | `ProblemDetails` |
-| `Produces<string>(504)` | `.ExpectingError<string>(GatewayTimeout, exp)` | **`string`** |
-
-**Wichtigster Fund — jeder Code hat seinen eigenen Body-Typ**, und `504 → string` beweist: das
-Fehler-Terminal **muss generisch über den Fehlertyp** sein (`ExpectingError<T>`), darf NICHT auf
-`ProblemDetails` festgenagelt werden. Das bestätigt hart §13.2 und §14.2.
-
-Body-Typen nach Häufigkeit (der Beweis fürs generische Terminal):
+Jeder Endpoint-`Produces` spiegelt 1:1 auf einen Test-`Produces<T>(code)` (je ein eigener Test, §15.6).
+Der Body-Typ hängt am Code — **jeder Code hat seinen eigenen `<T>`**:
 
 | Body-Typ | Codes | Häufigkeit |
 |---|---|---|
@@ -802,14 +817,14 @@ Body-Typen nach Häufigkeit (der Beweis fürs generische Terminal):
 | `CreateUserResponse` | 200 | 1× |
 | `string` | 504 | 1× |
 
-**Terminal-Familie klein halten (Verfeinerung zu §3):** Der Reflex „für jeden Code ein `Expecting…`"
-führt zurück in die Overload-Explosion, vor der wir fliehen. Stattdessen:
-- **Generischer Kern:** `ExpectingStatus(code)`, `ExpectingError<T>(code, expected?)`, `ExpectingSuccess()`.
-- **Benannte Aliase nur für die Alltags-Codes:** `ExpectingNotFound / Unauthorized / Forbidden /
-  Conflict / ValidationError<T>` — reine Abkürzungen auf den Kern (impliziter `ProblemDetails`-Typ),
-  kein neuer Engine-Pfad.
-- `ExpectingValidationError<T>` verdient einen eigenen Namen: 400+422 mit
-  `ValidationProblemDetailsExtended` sind hier 2 von 11 Ausgängen und real der häufigste Fehlerfall.
+**Wichtigster Fund:** `504 → string` beweist, dass `Produces<T>(code)` **generisch über den Body-Typ**
+sein muss — NICHT auf `ProblemDetails` festgenagelt. Genau deshalb trägt `Produces<T>(code)` den Typ
+als `<T>` (ein Übergang für Erfolg UND Fehler), statt einer `Expecting…`-Familie pro Code. Bestätigt
+§13.2 und §14.2.
+
+**Optionale benannte Aliase** (Ausbaustufe, §15.7): `.ProducesOk<T>()` / `.ProducesNotFound()` als
+reine Abkürzungen auf `Produces<T>(code)` — kein neuer Engine-Pfad. Achtung: genau diese Namen sind die
+bereits eingetretene Doku-Drift (§1) → erst bauen, dann dokumentieren.
 
 ### 15.4 Meta-Assertions — die Contract-Familie (`With…` ×5)
 
@@ -825,16 +840,16 @@ funktional und meta nicht vermischen. Einstiegs-Selektor ist oft der `WithName` 
 | `.WithDescriptionFromFile("Description.md")` | `…HasDescriptionFromEmbedded("Description.md")` |
 | *(gesamter `Produces`-Block)* | `…DeclaresStatuses(200,400,401,403,404,409,422,500,503,504)` — Contract-Snapshot der dokumentierten Ausgänge |
 
-**Namensschema meta:** durchgängig `Has…` / `Maps…` / `Declares…` — bewusst NICHT `Expecting…`,
-damit Auge und Analyzer die beiden Familien sofort trennen (funktional endet auf `Expecting…` +
-`ExecuteAsync()`, meta auf `Has…`). Ob die Meta-Kette ein eigenes Terminal braucht oder eager prüft,
+**Namensschema meta:** durchgängig `Has…` / `Maps…` / `Declares…` — bewusst anders als funktional,
+damit Auge und Analyzer die beiden Familien sofort trennen (funktional: `Produces…` + `ExecuteAsync()`;
+meta: `Has…`, kein `ExecuteAsync`). Ob die Meta-Kette ein eigenes Terminal braucht oder eager prüft,
 ist offen (§15.5).
 
 ### 15.5 Offene Fragen zu §15
 
 - [ ] **Meta-Familie eager oder terminiert?** `AssertEndpoint(…).HasTag(…)` könnte eager werfen
-      (kein Terminal-Risiko, kein Analyzer nötig) oder derselben `Expecting…/ExecuteAsync`-Disziplin
-      folgen. Tendenz: eager — Meta hat keinen Request, das Terminal-Argument aus §2 greift hier nicht.
+      (kein Terminal-Risiko, kein Analyzer nötig) oder derselben `ExecuteAsync`-Disziplin folgen.
+      Tendenz: eager — Meta hat keinen Request, das Terminal-Argument aus §2 greift hier nicht.
 - [ ] **Woher die Metadaten?** `EndpointDataSource` (In-Process, `WebApplicationFactory`) vs.
       generiertes OpenAPI-Dokument. Ersteres ist näher an der Deklaration, Letzteres testet das,
       was der Client wirklich sieht.
@@ -842,11 +857,104 @@ ist offen (§15.5).
       funktional (Request-Seite), aber selten explizit gebraucht — als optionaler Request-Schritt halten.
 - [ ] **Data-driven Contract-Katalog (Fernziel):** Der `Produces`-Block ist maschinenlesbar → ein
       Test könnte „ruf jeden deklarierten Ausgang ab, Body-Typ aus der Deklaration" fahren
-      (`ExpectingDeclaredStatus(code)`). Passt zum `[DynamicRequestLocator]`-Katalog (§13.2). Nur Fernziel.
+      (ein `Produces<T>(code)` pro deklariertem Ausgang, generiert). Passt zum
+      `[DynamicRequestLocator]`-Katalog (§13.2). Nur Fernziel.
+
+### 15.6 Das finale funktionale Modell — durchgespielt (KANONISCH, 2026-07-16)
+
+Vier Entscheidungen fixiert (Details in §15.7). Die eine funktionale Kette:
+
+```csharp
+var created = await Client.AssertPost("api/v1/users")
+    .Accepts(user)                                     // Request-Body (echte Instanz)
+    .Produces<User>(StatusCodes.Status201Created)      // Typ + Status + RÜCKGABETYP in einem
+    .ExpectedResponseFromEmbeddedJson("CreateUser.json") // optionale Body-Vergleichsvorlage
+    .ExecuteAsync();                                   // EINZIGES Terminal → Task<User> (echte Antwort)
+```
+
+**Line-by-line-Spiegelung Endpoint ↔ Test** (der pädagogische Kern):
+
+| Endpoint-Deklaration | Test-DSL | Rolle |
+|---|---|---|
+| `.Accepts<User>(Application.Json)` | `.Accepts(user)` | Vertrag *beschreibt* Request ↔ Test *sendet* echten Body |
+| `.Produces<User>(201)` | `.Produces<User>(201)` | Vertrag *deklariert* Ausgang ↔ Test *assertet diesen* Ausgang |
+| `.Produces<ProblemDetails>(400)` | `.Produces<ProblemDetails>(400)` | dito, anderer Ausgang → eigener Test |
+
+**Vier Entscheidungen (durchgespielt an allen §13-Fällen):**
+
+1. **`Produces<T>(code)` trägt Typ + Status + Rückgabetyp.** Ein `<T>`, ein Kanal →
+   `HttpResponseBuilder<T>` → `Task<T>`. Ersetzt die `Expecting…`-Familie vollständig.
+2. **`ExpectedResponse…` ist OPTIONAL** — weglassen = body-loser Ergebnis-Pfad (trennt „Rückgabetyp"
+   von „Vergleich", §14.2; das Weglassen *ist* der body-lose Pfad):
+   ```csharp
+   // mit Body-Diff:  .Produces<User>(201).ExpectedResponseFromEmbeddedJson("x.json")
+   // ohne (nur Typ+Status, echte Antwort zurück):  .Produces<User>(201)
+   ```
+   Quell-Varianten spiegeln Schema A (§11): `ExpectedResponse(obj)` / `ExpectedResponseFromJsonString` /
+   `ExpectedResponseFromEmbeddedJson`.
+3. **Ein `Produces` pro Kette** — jeder Call assertet GENAU einen Ausgang → `ExecuteAsync()` bleibt
+   `Task<T>` eindeutig. Multi-Output-Endpoint → mehrere Tests (je einer pro `Produces`-Zeile):
+   ```csharp
+   // Test 1: .Accepts(valid).Produces<User>(201).ExecuteAsync()          → Task<User>
+   // Test 2: .Accepts(invalid).Produces<ProblemDetails>(400).ExecuteAsync() → Task<ProblemDetails>
+   ```
+   Kosten: bei Multi-Output-Endpoints geht die „exakt dieselben Zeilen"-Symmetrie verloren — die
+   Spiegelung bleibt als *mentales Modell* (jede `Produces`-Zeile bekommt ihren Test).
+4. **`ExecuteAsync()` ist der einzige Terminal-Anker** (ersetzt den `Expecting…`-Merksatz aus §3).
+   Merksatz neu: *Jede Kette endet mit genau einem `ExecuteAsync()`.* Es ist der einzige `await`-Punkt
+   → für Auge UND Analyzer noch trivialer scanbar. **Konsequenz: §2/§3/§5 (Analyzer MSTESTSDK001) müssen
+   umgeschrieben werden** — Marker ist „fehlendes `ExecuteAsync()`", nicht mehr „fehlendes `Expecting…`".
+
+**Durchgespielte Fälle (alle §13-realen Muster tragen):**
+
+| Fall | Kette | Ergebnis |
+|---|---|---|
+| Erfolg + Diff | `.Accepts(u).Produces<User>(201).ExpectedResponseFromEmbeddedJson("x").ExecuteAsync()` | `Task<User>` ✓ |
+| Erfolg ohne Diff | `.Accepts(u).Produces<User>(201).ExecuteAsync()` | `Task<User>` ✓, kein Golden-File |
+| Fehler (anderer Typ) | `.Accepts(bad).Produces<ProblemDetails>(400).ExpectedResponseFromEmbeddedJson("v").ExecuteAsync()` | `Task<ProblemDetails>` ✓ |
+| 204 NoContent | `.Produces(204).ExecuteAsync()` (nicht-generisch, kein `<T>`) | `Task` ✓; Typ-State: ohne `<T>` kein `ExpectedResponse…` möglich |
+| CRUD-Lifecycle | `create→Produces<User>(201)` → `get/{id}→Produces<User>(200)` → `delete/{id}→Produces(204)` → `get/{id}→Produces<ProblemDetails>(404)` | `created.Id` fließt durch ✓ (Kern-Rechtfertigung §9) |
+| GET/DELETE (kein Body) | `AssertGet(url).Produces<User>(200)…` | `Accepts` ist optionaler Zwischenschritt → `Produces` auch direkt nach Entry verfügbar |
+
+**Typ-State-Erkenntnis:** `IgnoreProperty` / `ForProperty` / `FilterResponse` / `Using` hängen am
+Zustand, den `ExpectedResponse…` zurückgibt — **nicht** am `Produces<T>(code)`-Zustand. Ohne Expected
+gibt es keine Vergleichs-Konfiguration → der **Compiler** (nicht erst der Analyzer) verhindert das
+sinnlose „Ignore ohne Vergleich":
+
+```csharp
+.Produces<User>(201)
+    .IgnoreProperty(u => u.Id)   // ❌ Compilerfehler — kein Vergleich konfigurierbar
+    .ExecuteAsync();
+```
+
+Der body-lose Pfad (`Produces<T>(code).ExecuteAsync()`) hat diese Methoden gar nicht erst sichtbar.
+IntelliSense führt dadurch die richtige Reihenfolge vor (§4, stärkste Verteidigungslinie).
+
+### 15.7 Offene Unterfragen zu §15.6 (klein, nicht blockierend)
+
+- [ ] **`Accepts`-Quell-Varianten:** `Accepts(obj)` ist ein Verb, `ExpectedResponse` ein Substantiv →
+      `AcceptsFromEmbeddedJson` vs. `ExpectedResponseFromEmbeddedJson` lesen sich unterschiedlich.
+      Prüfen, ob `Accepts` auch ein Substantiv-Pendant braucht (`RequestBody…`?) oder ob die
+      Verb-Form trägt. Content-Type als optionaler Zusatz (`.Accepts(u, Application.Json)`)?
+- [ ] **`Produces(204)` nicht-generisch vs. `Produces<T>(code)`** — zwei Overloads; Typ-State stellt
+      sicher, dass `ExpectedResponse…` nur nach der generischen Variante erreichbar ist.
+- [ ] **Benannte Status-Aliase?** `.ProducesOk<T>()` / `.ProducesCreated<T>()` / `.ProducesNotFound()`
+      als Abkürzungen auf `Produces<T>(code)` — ABER Achtung: genau diese Namen sind die bereits
+      eingetretene Doku-Drift (§1). Erst bauen, wenn der Kern (`Produces<T>(code)`) steht; nicht wieder
+      dokumentieren bevor implementiert.
+- [ ] **Analyzer-Umschreibung** (§2/§3/§5): Marker `ExecuteAsync()` statt `Expecting…`. `[FluentBuilder]`
+      bleibt auf den Builder-Interfaces; die dangling-chain-Diagnose (MSTESTSDK001) ändert nur den
+      Terminal-Namen, nicht das Prinzip.
+- [ ] **Meta-Ebene (§15.4) unberührt** — `Client.AssertEndpoint(…).Has…()` bleibt wie beschrieben die
+      zweite, eager Familie ohne Terminal-Risiko.
 
 ---
 
 ## 12. Entscheidungslog
+
+> Chronologische Historie — **maßgeblich bei Zweifeln.** Abschnitts-Nummern sind entstehungs-, nicht
+> lesereihenfolge (11 → 13 → 14 → 15 → 12); Querverweise gelten trotzdem. Einträge werden nicht
+> nachträglich umgeschrieben, nur ergänzt.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
@@ -859,3 +967,9 @@ ist offen (§15.5).
 | 2026-07-16 | Body-loser Ergebnis-Pfad `Reading<T>()` als additiver dritter Übergang | Schließt die einzige echte Lücke („Ergebnis ohne Golden-File-Diff") zwischen `ExpectingResponse()` (Task, kein Ergebnis) und `Returns…<T>` (Ergebnis, aber Diff-Zwang). Additiv → kein Breaking. Nutzt intern denselben `HttpResponseBuilder<T>`-Kanal + vorhandenen `IgnoreResponse`-Pfad. |
 | 2026-07-16 | Entry heißt `AssertPost/AssertGet/AssertPut/AssertPatch/AssertDelete` (flach), NICHT `Post(…)` und nicht `Assert.Post(…)` | `Assert` sichtbar am Zeilenanfang → macht Assert-Charakter klar (sonst wirkt es wie ein bloßer POST) und ist eine Verteidigungslinie gegen die still-grüne Kette (§2). Flach statt Gateway-Property (`.A.B.C`) = direkter + matcht die alte `AssertPostAsync`-Signatur → mechanische Migration der ~1000 Tests. |
 | 2026-07-16 | Zwei getrennte Assert-Ebenen: **funktional** (Request/Response, echter HTTP-Call, `Client.AssertPost…Expecting…().ExecuteAsync()`) vs. **meta** (Contract/Doku, kein Call, `Client.AssertEndpoint(…).Has…()`) — siehe §15 | Der „Super-Endpoint" (`Accepts` + 10× `Produces` + 5× `With…`) mischt Verhalten und Deklaration. Trennung verhindert die „zwei Stile"-Fragmentierung (§6); `Has…`/`Maps…`/`Declares…` (meta) vs. `Expecting…` (funktional) macht die Familien für Auge + Analyzer trennscharf. Fund: jeder Status-Code hat eigenen Body-Typ (`504 → string`!) → Fehler-Terminal MUSS `ExpectingError<T>` generisch sein (bestätigt §13.2/§14.2). |
+| 2026-07-16 | **Endpoint-Stil ist ALLEINIGER Kanon** (§15.6). Neutral-Stil `WithBody`/`Returns…`/`Expecting…` (§3/§11) VERWORFEN. Funktionale Kette: `Accepts` → `Produces<T>(code)` → `ExpectedResponse…` → `ExecuteAsync()`. | „Zwei Stile" (§1/§6, Risiko Nr. 1) nach Rollout in ~1000 Tests nur mit Breaking-Sweep lösbar → jetzt festnageln, solange `internal`. Endpoint-Stil spiegelt die Minimal-API-Spec line-by-line (Endpoint *beschreibt*, Test *verifiziert* denselben Vertrag) → selbsterklärender als der Mix aus `WithBody`/`ReturnsEmbeddedJson`/`ExpectingStatus`. |
+| 2026-07-16 | `Produces<T>(code)` trägt Typ + Status + Rückgabetyp in EINEM; `ExpectedResponse…` optional (weglassen = body-loser Pfad, macht `Reading<T>()` überflüssig) | Ein `<T>`-Kanal → `Task<T>`. Optionales `ExpectedResponse` trennt „Rückgabetyp" (Pflicht via `Produces<T>`) sauber von „Vergleichs-Vorlage" (optional) → löst §14.2/§14.3 im selben Vokabular. `ExpectedResponse(obj)`/`…FromJsonString`/`…FromEmbeddedJson` spiegeln Schema A (§11). |
+| 2026-07-16 | Ein `Produces` pro Kette (nicht mehrere) — jeder Call assertet genau einen Ausgang | Hält `ExecuteAsync()` als `Task<T>` eindeutig (mehrere `Produces` → `Task<object>`/Union → Rückgabetyp-Verlust). Multi-Output-Endpoint → mehrere Tests; line-by-line-Spiegelung bleibt mentales Modell (jede `Produces`-Zeile bekommt ihren Test). |
+| 2026-07-16 | `ExecuteAsync()` ist der einzige Terminal-Anker; Merksatz „jede Kette endet mit `ExecuteAsync()`" ersetzt „endet mit `Expecting…`" | Endpoint-Stil hat keine `Expecting…`-Familie mehr. `ExecuteAsync` ist der einzige `await`-Punkt → für Auge + Analyzer noch trivialer. **Konsequenz: §2/§3/§5 (Analyzer MSTESTSDK001) auf Marker „fehlendes `ExecuteAsync()`" umschreiben** (Prinzip unverändert, nur Terminal-Name). |
+| 2026-07-16 | `WithParameter`: EIN Verb, zwei Overloads — typisiert (`p => p.Id, 0`) + string (`"UniqueName", x`). String-Form nutzt NACKTE Namen, SDK escapt intern (kein `$…$` im Test-Code), toleriert aber bereits-escapte Eingaben (Postel). | Typisierte Form deckt Property-Platzhalter, String-Form die ohne Property-Pendant (`UniqueName`/`Timestamp`/URL, §13.1) → disjunkt, kein „zwei Stile". Ein Verb, weil dieselbe Operation (nur Selektor vs. Key). Nackte Namen: Delimiter-Konvention (`$…$`) wird interne Implementierungssache → änderbar ohne Test-Anfassen; `$` im Test wäre Leak der internen Repräsentation (Leitgedanke §4/§11). Bereits-escapt wird erkannt + beibehalten → Migration der ~1000 `("$Id$",…)`-Tests bleibt reiner Signatur-Sweep, kein `$`-Strippen. |
+| 2026-07-16 | `WithParameters(obj)` (Objekt-Bulk, §10.1.1): jede Property → Platzhalter. Property-Name = C#-PascalCase; ALLE Properties inkl. `default`/`null`. | Ergonomie beim Arrange-Muster (§13.1). Einfache/vorhersehbare Varianten für die Ideensammlung — PascalCase ist im Test-Code lesbar (Caveat: matcht evtl. nicht camelCase-Platzhalter aus JSON → still-grün), „alle Properties" vermeidet „mal da, mal nicht" (Caveat: value-type `Age=0` wird gesetzt, §10.3). Beide Fallen dokumentiert; Verschachtelung + Bulk/Einzel-Kollision offen. |

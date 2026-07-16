@@ -6,19 +6,29 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 {
     /// <summary>
-    /// Builds the response stage of a fluent HTTP assertion chain (MODEL B).
-    /// <c>Expecting…</c> methods are composable config (return <c>this</c>); the single terminal is
-    /// <see cref="ExecuteAsync"/>. The builder is intentionally NOT awaitable.
+    /// Builds the response + comparison stage of a fluent HTTP assertion chain (Endpoint-Stil, §15.6).
+    /// The status + return type come from <c>Produces&lt;T&gt;(code)</c>; an optional <c>ExpectedResponse…</c>
+    /// attaches a body to compare against. The single terminal is <see cref="ExecuteAsync"/>.
+    ///
+    /// <para>
+    /// Implements both <see cref="IHttpResponseConfiguring{TResult}"/> (before an expected body) and
+    /// <see cref="IHttpComparisonConfiguring{TResult}"/> (after) — but the type-state is enforced by the
+    /// interfaces: comparison config is only reachable once <c>ExpectedResponse…</c> returned the
+    /// comparison view.
+    /// </para>
     /// </summary>
     /// <typeparam name="TResult">The expected response type.</typeparam>
-    internal sealed class HttpResponseBuilder<TResult> : IHttpResponseConfiguring<TResult>
+    internal sealed class HttpResponseBuilder<TResult> : IHttpResponseConfiguring<TResult>, IHttpComparisonConfiguring<TResult>
     {
+        private const string NoComparisonMarker = "IgnoreResponse";
+
         private readonly HttpClient _client;
 
         private readonly HttpMethod _method;
@@ -35,18 +45,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         private readonly string _callerFilePath;
 
-        private readonly string _expectedJson;
+        private readonly HttpStatusCode _expectedStatusCode;
+
+        // Null until an ExpectedResponse… is set → body-less path (deserialize + return, no comparison).
+        private string? _expectedJson;
 
         private Func<TResult?, TResult?>? _filterFunc;
 
         private Func<ImmutableList<Difference>, IEnumerable<Difference>>? _differenceFunc;
 
-        private readonly List<(string Key, object? Value)> _expectedParameters = new();
-
         private bool _writeSnapshot;
-
-        // Expectation state (Model B — configured, applied on ExecuteAsync).
-        private HttpStatusCode[]? _expectedStatusCodes;
 
         internal HttpResponseBuilder(HttpClient client,
                                      HttpMethod method,
@@ -56,7 +64,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                      Dictionary<string, string> headers,
                                      Assembly callingAssembly,
                                      string callerFilePath,
-                                     string expectedJson)
+                                     HttpStatusCode expectedStatusCode)
         {
             _client = client;
             _method = method;
@@ -66,28 +74,53 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             _headers = headers;
             _callingAssembly = callingAssembly;
             _callerFilePath = callerFilePath;
-            _expectedJson = expectedJson;
+            _expectedStatusCode = expectedStatusCode;
         }
 
         // ============================================================
-        // Response transformation / difference configuration.
+        // Expected body (Schema A) → transition to comparison config.
         // ============================================================
 
-        public IHttpResponseConfiguring<TResult> FilterResponse(Func<TResult?, TResult?> filter)
+        public IHttpComparisonConfiguring<TResult> ExpectedResponse(TResult expected)
+        {
+            _expectedJson = JsonSerializer.Serialize(expected, HttpClientAssertExtensions.JsonSerializerOptions);
+
+            return this;
+        }
+
+        public IHttpComparisonConfiguring<TResult> ExpectedResponseFromJsonString(string expectedJson)
+        {
+            _expectedJson = expectedJson;
+
+            return this;
+        }
+
+        public IHttpComparisonConfiguring<TResult> ExpectedResponseFromEmbeddedJson(string embeddedFileName)
+        {
+            _expectedJson = embeddedFileName;
+
+            return this;
+        }
+
+        // ============================================================
+        // Comparison config (only reachable after ExpectedResponse…).
+        // ============================================================
+
+        public IHttpComparisonConfiguring<TResult> FilterResponse(Func<TResult?, TResult?> filter)
         {
             _filterFunc = filter;
 
             return this;
         }
 
-        public IHttpResponseConfiguring<TResult> IgnoreDifferences(Func<ImmutableList<Difference>, IEnumerable<Difference>> filter)
+        public IHttpComparisonConfiguring<TResult> IgnoreDifferences(Func<ImmutableList<Difference>, IEnumerable<Difference>> filter)
         {
             _differenceFunc = filter;
 
             return this;
         }
 
-        public IHttpResponseConfiguring<TResult> IgnoreProperty<T>(Expression<Func<T, object?>> propertySelector)
+        public IHttpComparisonConfiguring<TResult> IgnoreProperty<T>(Expression<Func<T, object?>> propertySelector)
         {
             var propertyName = ExtractPropertyName(propertySelector);
 
@@ -95,14 +128,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                          diffs.Where(d => !d.MemberPath.Equals(propertyName, StringComparison.OrdinalIgnoreCase)));
         }
 
-        public IHttpResponseConfiguring<TResult> WithParameters(params (string Key, object? Value)[] parameters)
-        {
-            _expectedParameters.AddRange(parameters);
-
-            return this;
-        }
-
-        public IHttpResponseConfiguring<TResult> WriteSnapshot(bool write = true)
+        public IHttpComparisonConfiguring<TResult> WriteSnapshot(bool write = true)
         {
             _writeSnapshot = write;
 
@@ -110,67 +136,29 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         }
 
         // ============================================================
-        // Expectations — composable config (Model B).
-        // ============================================================
-
-        public IHttpResponseConfiguring<TResult> ExpectingSuccess()
-        {
-            _expectedStatusCodes = null; // null = any 2xx
-
-            return this;
-        }
-
-        public IHttpResponseConfiguring<TResult> ExpectingStatus(HttpStatusCode code)
-        {
-            _expectedStatusCodes = new[] { code };
-
-            return this;
-        }
-
-        public IHttpResponseConfiguring<TResult> ExpectingOneOf(params HttpStatusCode[] codes)
-        {
-            if (codes.Length == 0)
-            {
-                throw new ArgumentException("At least one status code must be provided.", nameof(codes));
-            }
-
-            _expectedStatusCodes = codes;
-
-            return this;
-        }
-
-        public IHttpResponseConfiguring<TResult> ExpectingError(HttpStatusCode code)
-        {
-            _expectedStatusCodes = new[] { code };
-
-            return this;
-        }
-
-        // ============================================================
-        // THE one terminal.
+        // THE one terminal (shared by both interface views).
         // ============================================================
 
         public Task<TResult> ExecuteAsync()
         {
-            var allParameters = _requestParameters.Concat(_expectedParameters).ToArray();
+            var isSuccessTest = (int)_expectedStatusCode >= 200 && (int)_expectedStatusCode < 300;
 
-            var isSuccessTest = _expectedStatusCodes == null ||
-                                (_expectedStatusCodes.Length > 0 &&
-                                 (int)_expectedStatusCodes[0] >= 200 &&
-                                 (int)_expectedStatusCodes[0] < 300);
+            // No ExpectedResponse… → body-less path: deserialize + return, skip comparison (§15.6).
+            var expectedResult = _expectedJson ?? NoComparisonMarker;
 
             return _client.AssertHttpCallAsync(url: _url,
                                                payloadAsJson: _body ?? string.Empty,
-                                               expectedResult: _expectedJson,
+                                               expectedResult: expectedResult,
                                                filterFunc: _filterFunc ?? (x => x),
                                                httpMethod: _method,
                                                differenceFunc: _differenceFunc ?? (d => d),
-                                               parameters: allParameters,
+                                               parameters: _requestParameters.ToArray(),
                                                callingAssembly: _callingAssembly,
                                                callerFilePath: _callerFilePath,
                                                isSuccessStatusCode: isSuccessTest,
                                                writeResponse: _writeSnapshot,
-                                               expectedHttpStatusCode: _expectedStatusCodes?.FirstOrDefault());
+                                               ignoreResponse: _expectedJson == null,
+                                               expectedHttpStatusCode: _expectedStatusCode);
         }
 
         private static string ExtractPropertyName<T>(Expression<Func<T, object?>> propertySelector)

@@ -19,10 +19,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
     ///
     /// <example>
     /// <code>
-    /// await Client.AssertPost("api/persons")
-    ///     .WithBody(person)
-    ///     .ReturnsEmbeddedJson&lt;Person&gt;("Expected.json")
-    ///     .ExpectingStatus(HttpStatusCode.Created)
+    /// var created = await Client.AssertPost("api/persons")
+    ///     .Accepts(person)
+    ///     .Produces&lt;Person&gt;(StatusCodes.Status201Created)
+    ///     .ExpectedResponseFromEmbeddedJson("Expected.json")
     ///     .ExecuteAsync();
     /// </code>
     /// </example>
