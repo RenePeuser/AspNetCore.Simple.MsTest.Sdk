@@ -52,6 +52,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         private Func<ImmutableList<Difference>, IEnumerable<Difference>>? _differenceFunc;
 
+        private Predicate<Difference>? _differenceFilter;
+
         private bool _writeSnapshot;
 
         internal HttpResponseBuilder(HttpClient client,
@@ -118,6 +120,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             return this;
         }
 
+        public IHttpComparisonConfiguring<TResult> DifferenceFilter(Predicate<Difference> filter)
+        {
+            _differenceFilter = filter;
+
+            return this;
+        }
+
         public IHttpComparisonConfiguring<TResult> IgnoreProperty<T>(Expression<Func<T, object?>> propertySelector)
         {
             var propertyName = ExtractPropertyName(propertySelector);
@@ -153,11 +162,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                                differenceFunc: _differenceFunc ?? (d => d),
                                                parameters: _requestParameters.ToArray(),
                                                callingAssembly: _callingAssembly,
-                                               callerFilePath: _callerFilePath,
+                                               isEmptyAnonymous: null,
                                                isSuccessStatusCode: isSuccessTest,
                                                writeResponse: _writeSnapshot,
                                                ignoreResponse: _expectedJson == null,
-                                               expectedHttpStatusCode: _expectedStatusCode);
+                                               skipEndpointValidation: false,
+                                               expectedHttpStatusCode: _expectedStatusCode,
+                                               differenceFilter: _differenceFilter,
+                                               callerFilePath: _callerFilePath);
         }
 
         private static string ExtractPropertyName<T>(Expression<Func<T, object?>> propertySelector)

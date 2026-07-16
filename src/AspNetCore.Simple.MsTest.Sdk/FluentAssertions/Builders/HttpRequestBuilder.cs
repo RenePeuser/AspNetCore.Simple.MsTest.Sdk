@@ -8,27 +8,27 @@ using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 {
     /// <summary>
-    /// Builds the request stage of a fluent HTTP assertion chain (Endpoint-Stil, §15.6).
-    /// Body input is explicit (object / raw JSON / embedded file); all three funnel to a single
-    /// <c>_body</c> string, and the engine's file localizer resolves file-vs-raw downstream.
+    ///     Builds the request stage of a fluent HTTP assertion chain (Endpoint-Stil, §15.6).
+    ///     Body input is explicit (object / raw JSON / embedded file); all three funnel to a single
+    ///     <c>_body</c> string, and the engine's file localizer resolves file-vs-raw downstream.
     /// </summary>
     internal sealed class HttpRequestBuilder : IHttpRequestConfiguring
     {
-        private readonly HttpClient _client;
-
-        private readonly HttpMethod _method;
-
-        private readonly string _url;
+        private readonly string _callerFilePath;
 
         private readonly Assembly _callingAssembly;
 
-        private readonly string _callerFilePath;
+        private readonly HttpClient _client;
 
-        private string? _body;
+        private readonly Dictionary<string, string> _headers = new();
+
+        private readonly HttpMethod _method;
 
         private readonly List<(string Key, object? Value)> _parameters = new();
 
-        private readonly Dictionary<string, string> _headers = new();
+        private readonly string _url;
+
+        private string? _body;
 
         internal HttpRequestBuilder(HttpClient client,
                                     HttpMethod method,
@@ -72,7 +72,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         // Placeholder parameters — naked names, SDK escapes internally (§10.1).
         // ============================================================
 
-        public IHttpRequestConfiguring WithParameter(string key, object? value)
+        public IHttpRequestConfiguring WithParameter(string key,
+                                                     object? value)
         {
             _parameters.Add((PlaceholderName.Wrap(key), value));
 
@@ -99,7 +100,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             return this;
         }
 
-        public IHttpRequestConfiguring WithHeader(string key, string value)
+        public IHttpRequestConfiguring WithHeader(string key,
+                                                  string value)
         {
             _headers[key] = value;
 
@@ -130,7 +132,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         public IHttpExpectationConfiguring Produces(HttpStatusCode statusCode)
         {
-            return new HttpExpectationBuilder(_client, _method, _url, _body, _parameters, _headers, statusCode);
+            return new HttpExpectationBuilder(_client, _method, _url,
+                                              _body, _parameters, _headers,
+                                              statusCode);
         }
 
         public IHttpExpectationConfiguring Produces(int statusCode)

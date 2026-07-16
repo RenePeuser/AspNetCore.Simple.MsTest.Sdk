@@ -21,6 +21,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
         /// <summary>Filters which differences count as failures (e.g. ignore timestamps).</summary>
         IHttpComparisonConfiguring<TResult> IgnoreDifferences(Func<ImmutableList<Difference>, IEnumerable<Difference>> filter);
 
+        /// <summary>
+        /// Per-difference predicate: a difference counts as a failure ONLY when <paramref name="filter"/>
+        /// returns <see langword="true"/>. Complements <see cref="IgnoreDifferences"/> (which rewrites the
+        /// whole list at once) with a simple per-item keep/drop test, and mirrors the native
+        /// <c>differenceFilter</c> parameter so migration stays mechanical.
+        /// </summary>
+        IHttpComparisonConfiguring<TResult> DifferenceFilter(Predicate<Difference> filter);
+
         /// <summary>Type-safe way to ignore a property in the comparison (hard skip).</summary>
         IHttpComparisonConfiguring<TResult> IgnoreProperty<T>(Expression<Func<T, object?>> propertySelector);
 

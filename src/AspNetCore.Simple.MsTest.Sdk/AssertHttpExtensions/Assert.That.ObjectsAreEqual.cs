@@ -50,7 +50,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Applied in addition to (and after) <see cref="DifferenceFunc"/> and any
         /// per-assert filter. Defaults to keeping every difference.
         /// </summary>
-        public static Predicate<Difference> DifferenceFilter { get; set; } = static _ => true;
+        public static Predicate<Difference> DifferenceFilter { get; set; } = _ => true;
 
         /// <summary>
         /// Applies the configured difference filtering to a set of raw differences:
