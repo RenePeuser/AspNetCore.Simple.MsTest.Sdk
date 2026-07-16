@@ -129,6 +129,35 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                          callerLineNumber: callerLineNumber);
         }
 
+        // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc
+        public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
+                                                                   string url,
+                                                                   string expectedResult,
+                                                                   Predicate<Difference>? differenceFilter,
+                                                                   bool writeResponse = false,
+                                                                   [CallerArgumentExpression(nameof(expectedResult))]
+                                                                   string expectedResultParameterName = "",
+                                                                   bool skipEndpointValidation = false,
+                                                                   HttpStatusCode? expectedHttpStatusCode = null,
+                                                                   [CallerFilePath] string callerFilePath = "",
+                                                                   [CallerMemberName] string callerMemberName = "",
+                                                                   [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return client.AssertPutAsErrorAsync<TResult>(url: url,
+                                                         expectedResult: expectedResult,
+                                                         differenceFunc: difference => difference,
+                                                         parameters: [],
+                                                         callingAssembly: Assembly.GetCallingAssembly(),
+                                                         writeResponse: writeResponse,
+                                                         expectedResultParameterName: expectedResultParameterName,
+                                                         skipEndpointValidation: skipEndpointValidation,
+                                                         expectedHttpStatusCode: expectedHttpStatusCode,
+                                                         differenceFilter: differenceFilter,
+                                                         callerFilePath: callerFilePath,
+                                                         callerMemberName: callerMemberName,
+                                                         callerLineNumber: callerLineNumber);
+        }
+
         public static Task<TResult> AssertPutAsErrorAsync<TResult>(this HttpClient client,
                                                                    string url,
                                                                    string expectedResult,

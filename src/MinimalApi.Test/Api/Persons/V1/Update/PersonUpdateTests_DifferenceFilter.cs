@@ -36,11 +36,9 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
             // Expected age is wrong (1 vs 100) - the per-assert filter drops the age difference.
             var expectedPerson = personToUpdate with { Age = 1 };
 
-            // PUT's object-response overload requires filterFunc alongside differenceFunc.
             return Client.AssertPutAsync("api/v1/persons",
                                          personToUpdate,
                                          expectedPerson,
-                                         filterFunc: p => p,
                                          differenceFunc: diffs => diffs,
                                          differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase));
         }
@@ -60,7 +58,6 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
                       () => Client.AssertPutAsync("api/v1/persons",
                                                   personToUpdate,
                                                   expectedPerson,
-                                                  filterFunc: p => p,
                                                   differenceFunc: diffs => diffs,
                                                   differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
                   .ConfigureAwait(false);
