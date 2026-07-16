@@ -69,6 +69,16 @@
         <InternalsVisibleTo Include="MinimalApi.Test" />
     </ItemGroup>
 
+    <!-- ALPHA-ONLY fluent API (strategy: release the fluent API in alpha/prerelease only, until its
+         final shape is decided — see FluentAssertions/README.md). The FLUENT_ALPHA symbol flips the
+         entry points from internal to public. It is defined when:
+           * the build produces a prerelease version (GitVersion sets GitVersion_PreReleaseTag), OR
+           * FluentAlpha=true is passed explicitly (e.g. dotnet build -p:FluentAlpha=true / local dev).
+         In-repo test projects always reach the API via InternalsVisibleTo, so tests build regardless. -->
+    <PropertyGroup Condition="'$(GitVersion_PreReleaseTag)' != '' or '$(FluentAlpha)' == 'true'">
+        <DefineConstants>$(DefineConstants);FLUENT_ALPHA</DefineConstants>
+    </PropertyGroup>
+
     <!-- Ship the fluent-API analyzer (MSTESTSDK001) and its code fix as analyzer assets inside the
          NuGet package, so consumers automatically get the dangling-chain diagnostic AND the one-click fix.
          The ProjectReferences (OutputItemType=Analyzer) apply both to THIS project at dev time and

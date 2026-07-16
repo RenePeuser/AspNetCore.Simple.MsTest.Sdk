@@ -1,220 +1,149 @@
-# FluentAssertions API
+# Fluent Assert API
 
-Modern, type-safe fluent API for HTTP testing that reads like natural language.
+Type-safe fluent API for HTTP testing that mirrors ASP.NET Core endpoint definitions —
+the endpoint *describes* the contract, the test *verifies* it.
 
-## Architecture
+> ## ⚠️ ALPHA — released in alpha versions only
+>
+> This fluent API is **experimental** and shipped **exclusively in alpha (prerelease) versions** of the
+> package. Until its final shape is decided (see `DESIGN_VISION.md`), we deliberately **do not release it
+> in stable versions** — signatures may change without notice.
+>
+> **Do not use it in production test suites** that run against stable releases. Feedback on the API is
+> explicitly welcome — that is exactly what the alpha is for.
+>
+> For stable tests, keep using the classic `AssertPostAsync<T>(…)` overload API.
 
-```
-FluentAssertions/
-├── Interfaces/           # Core fluent interfaces (state machine)
-│   ├── IHttpRequestConfiguring.cs
-│   ├── IHttpResponseConfiguring.cs
-│   └── IHttpStatusAssertable.cs
-├── Builders/            # Implementation of fluent interfaces
-│   ├── HttpRequestBuilder.cs
-│   ├── HttpResponseBuilder.cs
-│   └── HttpStatusOnlyBuilder.cs
-├── Extensions/          # Entry points (AssertPost, AssertGet, etc.)
-│   └── HttpClientFluentExtensions.cs
-└── EndpointStyle/       # Opt-in endpoint-symmetric extensions
-    └── EndpointStyleExtensions.cs
-```
+---
 
-## Usage
+## The one chain
 
-### Neutral Style (Core API)
-
-Clean, framework-agnostic API:
+One style (endpoint), one terminal (`ExecuteAsync()`). Type-state enforces the order:
 
 ```csharp
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
+using Microsoft.AspNetCore.Http;   // StatusCodes
 
-// Simple POST with response validation (classic)
-await Client.AssertPost("api/persons")
-    .WithBody(person)
-    .WithResponse<Person>("Expected.json")
-    .ExpectSuccess();
+var created = await Client.AssertPost("api/v1/persons")
+    .Accepts(person)                                       // request body (C# object)
+    .Produces<Person>(StatusCodes.Status201Created)        // type + status + return type in ONE
+    .ExpectedResponseFromEmbeddedJson("CreatePerson.json") // optional comparison template
+        .IgnoreProperty<Person>(p => p.Id)                 // comparison config
+    .ExecuteAsync();                                       // the only terminal → Task<Person>
 
-// Simple POST with response validation (terminal - shorter!)
-await Client.AssertPost("api/persons")
-    .WithBody(person)
-    .WithResponse<Person>("Expected.json", expectSuccess: true);
-
-// With explicit status code (terminal)
-await Client.AssertPost("api/persons")
-    .WithBody(person)
-    .WithResponse<Person>("Expected.json", HttpStatusCode.Created);
-
-// Multiple accepted status codes (terminal)
-await Client.AssertPost("api/persons")
-    .WithBody(person)
-    .WithResponse<Person>("Expected.json", HttpStatusCode.OK, HttpStatusCode.Created);
-
-// With filtering and transformation (classic style required)
-await Client.AssertGet("api/persons")
-    .WithResponse<List<Person>>("Expected.json")
-    .FilterResponse(list => list.OrderBy(p => p.Id).ToList())
-    .IgnoreProperty<Person>(p => p.CreatedDate)
-    .ExpectSuccess();
-
-// Status code only (no response body check)
-await Client.AssertDelete($"api/persons/{id}")
-    .ExpectNoContent();
+// `created` is the REAL server response (with server-generated Id) — not the expected template.
 ```
 
-### Endpoint Style (Opt-In)
+**Rule of thumb:** *Every chain ends with exactly one `ExecuteAsync()`.*
 
-Mirrors ASP.NET Core endpoint definitions for maximum symmetry:
+## Building blocks
+
+### Entry
+`Client.AssertPost / AssertGet / AssertPut / AssertPatch / AssertDelete(url)`
+
+### Request body — explicit, no heuristic
+```csharp
+.Accepts(person)                          // C# object (serialized)
+.AcceptsFromJsonString("{ \"name\": … }") // raw JSON, verbatim
+.AcceptsFromEmbeddedJson("Create.json")   // embedded-resource file
+```
+
+### Placeholder parameters — naked names, the SDK escapes internally
+```csharp
+.WithParameter("Id", 0)                    // → internally $Id$; "$Id$" is also accepted
+.WithParameters(("Name", "Goku"), ("Age", 42))
+.WithParameters(person)                    // all properties of an object (PascalCase)
+.WithHeader("X-Correlation-Id", id)
+```
+
+### Status + type + return type
+```csharp
+.Produces<Person>(StatusCodes.Status201Created)  // body as Person → Task<Person>
+.Produces<Person>(HttpStatusCode.OK)             // HttpStatusCode overload
+.Produces(StatusCodes.Status204NoContent)        // no body → Task; no ExpectedResponse allowed
+```
+The body type is generic — error outcomes carry their own type:
+```csharp
+.Produces<ProblemDetails>(StatusCodes.Status404NotFound)
+.Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest)
+```
+
+### Expected body (optional) — mirrors the request side (Schema A)
+```csharp
+.ExpectedResponse(personObject)                    // C# object
+.ExpectedResponseFromJsonString("{ … }")           // raw JSON
+.ExpectedResponseFromEmbeddedJson("Expected.json") // embedded-resource file
+```
+**Omitting it = body-less path:** assert the status only, still get the real response back typed.
+
+### Comparison config — only reachable after `ExpectedResponse…` (type-state!)
+```csharp
+.IgnoreProperty<Person>(p => p.Id)               // type-safe hard skip
+.IgnoreDifferences(diffs => diffs.Where(…))      // free difference filtering
+.FilterResponse(list => list.OrderBy(p => p.Id)) // normalize before comparison
+.WriteSnapshot()                                 // rewrite the expected file
+```
+
+### Terminal
+`.ExecuteAsync()` → `Task<T>` (with body) or `Task` (body-less). The only `await` point.
+
+## Type-state (the compiler as the first line of defense)
+
+```
+IHttpRequestConfiguring
+  ├─ Accepts… / WithParameter… / WithHeader  → stays here
+  ├─ Produces<T>(code)   → IHttpResponseConfiguring<T>
+  └─ Produces(code)      → IHttpExpectationConfiguring   (no body, no ExpectedResponse)
+
+IHttpResponseConfiguring<T>
+  ├─ ExpectedResponse…   → IHttpComparisonConfiguring<T>
+  └─ ExecuteAsync()      → Task<T>   (body-less path)
+
+IHttpComparisonConfiguring<T>
+  ├─ IgnoreProperty / IgnoreDifferences / FilterResponse / WriteSnapshot → stays here
+  └─ ExecuteAsync()      → Task<T>
+
+IHttpExpectationConfiguring
+  └─ ExecuteAsync()      → Task
+```
+
+`IgnoreProperty` deliberately lives on `IHttpComparisonConfiguring<T>` — without an `ExpectedResponse…`
+there is no comparison to configure, so an `IgnoreProperty` without an expected body is a **compile
+error**, not a silent runtime no-op.
+
+## Why a forgotten terminal cannot slip through
+
+The builder interfaces are marked with `[FluentBuilder]`. The (planned) Roslyn analyzer `MSTESTSDK001`
+flags a dangling chain without `ExecuteAsync()` as an error — for a test SDK the worst failure mode (the
+request is never sent → the test silently turns green). Details in `DESIGN_VISION.md`.
+
+## Example: CRUD lifecycle
+
+The real deserialized response flows into the next request:
 
 ```csharp
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle;
-using Microsoft.AspNetCore.Http;
-
-// Happy path - mirrors endpoint definition with status code
-await Client.AssertPost("nodes")
-    .Accepts<CreateNodeRequest>(request)
-    .WithResponseType<CreateNodeResponse>()
-    .Produces(StatusCodes.Status201Created, "Expected.json");
-
-// With filtering
-await Client.AssertPost("nodes")
-    .Accepts<CreateNodeRequest>(request)
-    .WithResponseType<CreateNodeResponse>()
-    .FilterResponse(r => r with { Id = 0 })
-    .Produces(StatusCodes.Status201Created, "Expected.json");
-
-// Validation error
-await Client.AssertPost("nodes")
-    .Accepts<CreateNodeRequest>(invalidRequest)
-    .WithResponseType<ValidationProblemDetails>()
-    .Produces(StatusCodes.Status400BadRequest, "Error.json");
-
-// Or using classic style with separate Expect
-await Client.AssertPost("nodes")
-    .Accepts<CreateNodeRequest>(invalidRequest)
-    .Produces<ValidationProblemDetails>("Error.json")
-    .ExpectError(HttpStatusCode.BadRequest);
-```
-
-## State Machine
-
-The fluent API enforces correct usage through a type-state pattern:
-
-```
-IHttpRequestConfiguring (Initial State)
-  ├─ WithBody() → stays in IHttpRequestConfiguring
-  ├─ WithParameters() → stays in IHttpRequestConfiguring
-  ├─ WithHeader() → stays in IHttpRequestConfiguring
-  ├─ WithResponse<T>() → transitions to IHttpResponseConfiguring<T>
-  ├─ ExpectSuccess() → terminal (returns IHttpStatusAssertable)
-  ├─ Expect(codes) → terminal (returns IHttpStatusAssertable)
-  └─ ExpectNoContent() → terminal (returns IHttpStatusAssertable)
-
-IHttpResponseConfiguring<T> (Response Config State)
-  ├─ FilterResponse() → stays in IHttpResponseConfiguring<T>
-  ├─ IgnoreDifferences() → stays in IHttpResponseConfiguring<T>
-  ├─ IgnoreProperty() → stays in IHttpResponseConfiguring<T>
-  ├─ WithParameters() → stays in IHttpResponseConfiguring<T>
-  ├─ WriteSnapshot() → stays in IHttpResponseConfiguring<T>
-  ├─ ExpectSuccess() → terminal (returns Task<T>)
-  ├─ Expect(codes) → terminal (returns Task<T>)
-  ├─ ExpectStatus(code) → terminal (returns Task<T>)
-  └─ ExpectError(code) → terminal (returns Task<T>)
-
-IHttpStatusAssertable (Terminal State)
-  ├─ ExecuteAsync() → returns Task
-  └─ GetAwaiter() → enables direct await
-```
-
-## Design Principles
-
-1. **Terminal Flexibility**: Methods can be terminal (WithResponse with status code) or non-terminal (classic with .Expect()) depending on your needs
-2. **Type Safety**: Compiler enforces correct chain order through interfaces
-3. **No Overload Explosion**: Fluent API avoids the combinatorial explosion of extension method overloads
-4. **Opt-In Styles**: Core API is neutral; endpoint-symmetric style requires explicit namespace import
-5. **Discoverable**: IntelliSense guides you through the available options at each step
-6. **Backward Compatible**: All existing tests continue to work - new terminal overloads are additive
-
-## Examples
-
-### Complete Endpoint Test Suite
-
-```csharp
-// Endpoint definition
-endpoints.MapPost("nodes", HandleAsync)
-    .Accepts<CreateNodeRequest>(MediaTypeNames.Application.Json)
-    .Produces<CreateNodeResponse>()
-    .Produces<ValidationProblemDetailsExtended>(StatusCodes.Status400BadRequest)
-    .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
-    .Produces<ProblemDetails>(StatusCodes.Status409Conflict);
-
-// Test: Happy Path
-await Client.AssertPost("nodes")
-    .Accepts<CreateNodeRequest>(validRequest)
-    .Produces<CreateNodeResponse>("HappyPath.json")
-    .ExpectSuccess();
-
-// Test: Validation Error
-await Client.AssertPost("nodes")
-    .Accepts<CreateNodeRequest>(invalidRequest)
-    .ProducesBadRequest<ValidationProblemDetailsExtended>("ValidationError.json")
-    .ExpectError(HttpStatusCode.BadRequest);
-
-// Test: Unauthorized
-await Client.AssertPost("nodes")
-    .Accepts<CreateNodeRequest>(request)
-    .ProducesUnauthorized<ProblemDetails>("Unauthorized.json")
-    .ExpectError(HttpStatusCode.Unauthorized);
-
-// Test: Conflict
-await Client.AssertPost("nodes")
-    .Accepts<CreateNodeRequest>(duplicateRequest)
-    .ProducesConflict<ProblemDetails>("Conflict.json")
-    .ExpectError(HttpStatusCode.Conflict);
-```
-
-## Comparison: Old vs New API
-
-### Before (Extension Methods)
-```csharp
-await Client.AssertPostAsync<Person>(
-    url: "api/persons",
-    payloadAsJson: personJson,
-    expectedResult: "Expected.json",
-    parameters: new[] { ("$Id$", 0) },
-    writeResponse: false,
-    skipEndpointValidation: false,
-    expectedStatusCode: HttpStatusCode.Created);
-```
-
-### After (Fluent API - Neutral Style)
-```csharp
-await Client.AssertPost("api/persons")
-    .WithBody(person)
-    .WithParameters(("$Id$", 0))
-    .WithResponse<Person>("Expected.json")
-    .Expect(HttpStatusCode.Created);
-```
-
-### After (Fluent API - Endpoint Style with StatusCode)
-```csharp
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle;
-using Microsoft.AspNetCore.Http;
-
-await Client.AssertPost("api/persons")
+// create → real Id back
+var created = await Client.AssertPost("api/v1/persons")
     .Accepts(person)
-    .WithParameters(("$Id$", 0))
-    .WithResponseType<Person>()
-    .Produces(StatusCodes.Status201Created, "Expected.json");
+    .Produces<Person>(StatusCodes.Status201Created)
+    .ExecuteAsync();
+
+// get(id) with comparison
+await Client.AssertGet($"api/v1/persons/{created.Id}")
+    .Produces<Person>(StatusCodes.Status200OK)
+    .ExpectedResponseFromEmbeddedJson("GetPerson.json")
+    .ExecuteAsync();
+
+// delete(id) → no body
+await Client.AssertDelete($"api/v1/persons/{created.Id}")
+    .Produces(StatusCodes.Status204NoContent)
+    .ExecuteAsync();
+
+// get(id) → 404 with its own error type
+await Client.AssertGet($"api/v1/persons/{created.Id}")
+    .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
+    .ExecuteAsync();
 ```
 
-## Migration Path
-
-The fluent API is **fully compatible** with existing extension methods. Both APIs call the same underlying `AssertHttpCallAsync` implementation. You can:
-
-1. Use both APIs side-by-side
-2. Gradually migrate tests to the fluent API
-3. Choose the API that best fits your team's style
-
-No breaking changes required!
+More examples in [`EXAMPLES.md`](EXAMPLES.md). Design background and open questions in
+[`DESIGN_VISION.md`](DESIGN_VISION.md).
