@@ -25,6 +25,11 @@
         <ProjectReference Include="..\Controllers\Controllers.csproj" />
         <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj"
                           OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <!-- CodeFixes as an Analyzer asset too, so the MSTESTSDK001 lightbulb quick-fix ("await …ExecuteAsync()")
+             shows up live in VS/Rider within THIS solution — not just the red squiggle. The analyzer alone
+             produces the diagnostic; without this reference there is no fix to offer. -->
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.CodeFixes\AspNetCore.Simple.MsTest.Sdk.CodeFixes.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
     <ItemGroup>

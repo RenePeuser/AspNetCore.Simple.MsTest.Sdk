@@ -14,7 +14,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+        <!-- Pin to Roslyn 4.8.0 (VS 2022 17.8+ / Rider 2023.3+), NOT the solution-wide 5.6.0. An analyzer
+             loads ONLY into a host whose Roslyn version is >= the one it was compiled against. Building
+             against 5.6.0 makes the CLI (SDK 10) report the diagnostic but silently fails to load in every
+             IDE with an older language service — no squiggles, no code fix. 4.8.0 is the lowest baseline
+             that still has every API used here, so the diagnostic + fix light up in-editor for consumers. -->
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.8.0" PrivateAssets="all" />
     </ItemGroup>
 
 </Project>

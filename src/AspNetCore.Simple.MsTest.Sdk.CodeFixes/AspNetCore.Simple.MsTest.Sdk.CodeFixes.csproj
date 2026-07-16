@@ -16,7 +16,11 @@
         <!-- Workspaces.Common brings Document/SyntaxGenerator/CodeAction — needed by code fixes but
              NOT by analyzers. The host (VS/Rider) provides this assembly at runtime, so it is a
              compile-time reference only and is NOT packed into the NuGet package. -->
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" />
+        <!-- Pin to Roslyn 4.8.0 (VS 2022 17.8+ / Rider 2023.3+), NOT the solution-wide 5.6.0 — same reason
+             as the analyzer project: a code fix built against 5.6.0 never loads in an older IDE host, so the
+             lightbulb quick-fix never appears even though the CLI build reports MSTESTSDK001. Workspaces.Common
+             pins in lockstep with the analyzer's CodeAnalysis.CSharp version. -->
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" VersionOverride="4.8.0" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>

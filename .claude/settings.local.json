@@ -37,7 +37,9 @@
       "Bash(git commit -q -m 'feat: rebuild fluent assert API to Model B + MSTESTSDK001 analyzer *)",
       "Bash(dotnet pack *)",
       "Bash(unzip -l /tmp/nupkg-verify/AspNetCore.Simple.MsTest.Sdk.9.5.1.nupkg)",
-      "Bash(dotnet package *)"
+      "Bash(dotnet package *)",
+      "Bash(dotnet --version)",
+      "Read(//c/Program Files/dotnet/sdk/**)"
     ]
   }
 }
