@@ -31,7 +31,8 @@
       "Bash(dotnet nuget *)",
       "Bash(python3 /tmp/gen_twins.py Client.Assert.Put.AsObjectResponse.cs)",
       "Bash(cd *)",
-      "Bash(python3 -)"
+      "Bash(python3 -)",
+      "Bash(git check-ignore *)"
     ]
   }
 }

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MinimalApi.Api.Errors.V1.NotImplemented.Endpoint;
 using MinimalApi.Api.Errors.V1.QueryNotImplemented.Endpoint;
+using MinimalApi.Api.Errors.V1.VerbNotImplemented.Endpoint;
 
 namespace MinimalApi.Api.Errors.V1
 {
@@ -10,6 +11,7 @@ namespace MinimalApi.Api.Errors.V1
         {
             serviceCollection.AddNotImplementedEndpoint();
             serviceCollection.AddQueryNotImplementedEndpoint();
+            serviceCollection.AddVerbNotImplementedEndpoint();
         }
     }
 }
