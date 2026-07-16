@@ -22,7 +22,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                                      .WithBody(person)
                                      .ReturnsEmbeddedJson<Person>("CreatePerson.json")
                                      .ExpectingSuccess()
-                                     .ExecuteAsync();
+                                     .ExecuteAsync().ConfigureAwait(false);
 
             Assert.IsNotNull(result);
         }
