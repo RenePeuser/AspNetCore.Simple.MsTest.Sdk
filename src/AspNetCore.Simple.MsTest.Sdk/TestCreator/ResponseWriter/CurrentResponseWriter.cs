@@ -41,6 +41,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public required Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; init; }
 
+        public Predicate<Difference> DifferenceFilter { get; init; } = static _ => true;
+
         public required Assembly CallingAssembly { get; init; }
 
         public required ResponseWriteMode Mode { get; init; } = ResponseWriteMode.DifferencesOnly;
@@ -113,6 +115,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 CallingAssembly = context.CallingAssembly,
                 DifferenceFunc = context.DifferenceFunc,
+                DifferenceFilter = context.DifferenceFilter,
                 CurrentResponseAsString = currentResponseAsString,
                 ExpectedResult = expectedResult,
                 Parameters = context.Parameters,

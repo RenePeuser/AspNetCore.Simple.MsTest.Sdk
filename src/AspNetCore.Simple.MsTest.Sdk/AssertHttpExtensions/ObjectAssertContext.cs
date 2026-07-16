@@ -41,6 +41,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; init; }
 
         /// <summary>
+        /// Optional per-difference predicate. Return <c>true</c> to keep a difference,
+        /// <c>false</c> to ignore it. The SDK iterates internally, so callers only
+        /// describe the condition instead of writing loops.
+        /// Applied in addition to (and after) <see cref="DifferenceFunc"/>.
+        /// </summary>
+        Predicate<Difference> DifferenceFilter { get; init; }
+
+        /// <summary>
         /// Parameters to replace in JSON strings during comparison.
         /// Format: (Key, Value) tuples where Key is the placeholder and Value is the replacement.
         /// </summary>
@@ -138,6 +146,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Allows ignoring specific differences that are expected.
         /// </summary>
         public required Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; init; } = item => item;
+
+        /// <summary>
+        /// Optional per-difference predicate. Return <c>true</c> to keep a difference,
+        /// <c>false</c> to ignore it. The SDK iterates internally, so callers only
+        /// describe the condition instead of writing loops.
+        /// Applied in addition to (and after) <see cref="DifferenceFunc"/>.
+        /// Defaults to keeping every difference.
+        /// </summary>
+        public Predicate<Difference> DifferenceFilter { get; init; } = static _ => true;
 
         /// <summary>
         /// Parameters to replace in JSON strings during comparison.

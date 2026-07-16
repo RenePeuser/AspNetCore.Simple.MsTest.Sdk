@@ -98,6 +98,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 CurrentResult = currentResponse,
                 CurrentResultParameterName = context.CurrentResultParameterName,
                 DifferenceFunc = context.DifferenceFunc,
+                DifferenceFilter = context.DifferenceFilter,
                 Expected = expectedResponse, // Direct object - avoids deserialize step in comparison
                 ExpectedType = typeof(SimpleHttpResponseMessage),
                 ExpectedObjectAsJson = expectedJson, // Keep JSON for WriteResponse

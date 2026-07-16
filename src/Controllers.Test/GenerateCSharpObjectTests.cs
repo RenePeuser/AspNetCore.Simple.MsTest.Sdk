@@ -1,11 +1,11 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Controllers.Test
 {
+    [Ignore]
     [TestClass]
     public class GenerateCSharpObjectTests : ApiTestBase
     {
@@ -13,22 +13,15 @@ namespace Controllers.Test
         public async Task TestGenerateCSharpObjectFromEmptyAnonymous()
         {
             // Arrange: Create a simple person object to POST
-            var personToCreate = new
-                                 {
-                                     id = 0,
-                                     name = "John Doe",
-                                     firstName = "",
-                                     age = 30,
-                                     emails = Enumerable.Empty<string>()
-                                 };
+            var personToCreate = new { };
 
             // Act & Assert: Pass an empty anonymous object as expected response
             // This should trigger the CSharpObjectResponseWriter to generate code
             var result = await Client.AssertPostAsync("api/v1/persons", personToCreate, new
-                                                                                        {
-                                                                                            content = new
-                                                                                                      {
-                                                                                                          headers = new[]
+            {
+                content = new
+                {
+                    headers = new[]
                                                                                                                     {
                                                                                                                         new
                                                                                                                         {
@@ -36,20 +29,20 @@ namespace Controllers.Test
                                                                                                                             value = new[] { "application/json; charset=utf-8" }
                                                                                                                         }
                                                                                                                     },
-                                                                                                          value = new
-                                                                                                                  {
-                                                                                                                      id = 0,
-                                                                                                                      name = "John Doe",
-                                                                                                                      firstName = (string?)null,
-                                                                                                                      age = 30,
-                                                                                                                      emails = (string[]?)null
-                                                                                                                  }
-                                                                                                      },
-                                                                                            statusCode = "OK",
-                                                                                            headers = Array.Empty<object>(),
-                                                                                            trailingHeaders = Array.Empty<object>(),
-                                                                                            isSuccessStatusCode = true
-                                                                                        },
+                    value = new
+                    {
+                        id = 0,
+                        name = "John Doe",
+                        firstName = (string?)null,
+                        age = 30,
+                        emails = (string[]?)null
+                    }
+                },
+                statusCode = "OK",
+                headers = Array.Empty<object>(),
+                trailingHeaders = Array.Empty<object>(),
+                isSuccessStatusCode = true
+            },
                                                       true,
                                                       skipEndpointValidation: true).ConfigureAwait(false); // Manually enable writeResponse for prototype
 

@@ -178,6 +178,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string expectedResult,
                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(expectedResult))]
                                                               string expectedResultParameterName = "",
                                                               bool skipEndpointValidation = false,
@@ -191,6 +192,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertQueryAsync<TResult>(url: url,
                                                     expectedResult: expectedResult,
                                                     differenceFunc: differenceFunc,
+                                                    differenceFilter: differenceFilter,
                                                     parameters: [],
                                                     callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
@@ -208,6 +210,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               (string Key, object? Value)[] parameters,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(expectedResult))]
                                                               string expectedResultParameterName = "",
                                                               bool skipEndpointValidation = false,
@@ -221,6 +224,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertQueryAsync<TResult>(url: url,
                                                     expectedResult: expectedResult,
                                                     differenceFunc: differenceFunc,
+                                                    differenceFilter: differenceFilter,
                                                     parameters: parameters,
                                                     callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
@@ -338,6 +342,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               Assembly callingAssembly,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(expectedResult))]
                                                               string expectedResultParameterName = "",
                                                               bool skipEndpointValidation = false,
@@ -349,6 +354,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return client.AssertQueryAsync<TResult>(url: url,
                                                     expectedResult: expectedResult,
                                                     differenceFunc: differenceFunc,
+                                                    differenceFilter: differenceFilter,
                                                     parameters: [],
                                                     callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
@@ -367,6 +373,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               (string Key, object? Value)[] parameters,
                                                               Assembly callingAssembly,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(expectedResult))]
                                                               string expectedResultParameterName = "",
                                                               bool skipEndpointValidation = false,
@@ -381,6 +388,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        filterFunc: item => item,
                                                        httpMethod: HttpMethodExtensions.Query,
                                                        differenceFunc: differenceFunc,
+                                                       differenceFilter: differenceFilter,
                                                        parameters: parameters,
                                                        callingAssembly: callingAssembly,
                                                        payloadAsJsonParameterName: string.Empty,
@@ -665,6 +673,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               Assembly callingAssembly,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))]
                                                               string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -681,6 +690,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              expectedResult: expectedResult,
                                              filterFunc: result => result,
                                              differenceFunc: differenceFunc,
+                                             differenceFilter: differenceFilter,
                                              parameters: [],
                                              callingAssembly: callingAssembly,
                                              writeResponse: writeResponse,
@@ -701,6 +711,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               (string Key, object? Value)[] parameters,
                                                               Assembly callingAssembly,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))]
                                                               string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -717,6 +728,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              expectedResult: expectedResult,
                                              filterFunc: result => result,
                                              differenceFunc: differenceFunc,
+                                             differenceFilter: differenceFilter,
                                              parameters: parameters,
                                              callingAssembly: callingAssembly,
                                              writeResponse: writeResponse,
@@ -736,6 +748,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               Assembly callingAssembly,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsJson))]
                                                               string payloadAsJsonParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -752,6 +765,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              expectedResult: expectedResult,
                                              filterFunc: result => result,
                                              differenceFunc: differenceFunc,
+                                             differenceFilter: differenceFilter,
                                              parameters: [],
                                              callingAssembly: callingAssembly,
                                              writeResponse: writeResponse,
@@ -772,6 +786,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               (string Key, object? Value)[] parameters,
                                                               Assembly callingAssembly,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsJson))]
                                                               string payloadAsJsonParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -788,6 +803,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              expectedResult: expectedResult,
                                              filterFunc: result => result,
                                              differenceFunc: differenceFunc,
+                                             differenceFilter: differenceFilter,
                                              parameters: parameters,
                                              callingAssembly: callingAssembly,
                                              writeResponse: writeResponse,
@@ -944,6 +960,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string expectedResult,
                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))]
                                                               string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -961,6 +978,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     expectedResult: expectedResult,
                                                     filterFunc: item => item,
                                                     differenceFunc: differenceFunc,
+                                                    differenceFilter: differenceFilter,
                                                     parameters: [],
                                                     callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
@@ -980,6 +998,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               (string Key, object? Value)[] parameters,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))]
                                                               string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -997,6 +1016,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     expectedResult: expectedResult,
                                                     filterFunc: item => item,
                                                     differenceFunc: differenceFunc,
+                                                    differenceFilter: differenceFilter,
                                                     parameters: parameters,
                                                     callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
@@ -1015,6 +1035,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string expectedResult,
                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsJson))]
                                                               string payloadAsJsonParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -1032,6 +1053,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     expectedResult: expectedResult,
                                                     filterFunc: item => item,
                                                     differenceFunc: differenceFunc,
+                                                    differenceFilter: differenceFilter,
                                                     parameters: [],
                                                     callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
@@ -1051,6 +1073,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               (string Key, object? Value)[] parameters,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsJson))]
                                                               string payloadAsJsonParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -1068,6 +1091,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     expectedResult: expectedResult,
                                                     filterFunc: item => item,
                                                     differenceFunc: differenceFunc,
+                                                    differenceFilter: differenceFilter,
                                                     parameters: parameters,
                                                     callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
@@ -1226,6 +1250,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               Assembly callingAssembly,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))]
                                                               string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -1241,6 +1266,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            expectedResult: expectedResult,
                                            filterFunc: filterFunc,
                                            differenceFunc: differenceFunc,
+                                           differenceFilter: differenceFilter,
                                            parameters: [],
                                            callingAssembly: callingAssembly,
                                            writeResponse: writeResponse,
@@ -1263,6 +1289,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               (string Key, object? Value)[] parameters,
                                                               Assembly callingAssembly,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))]
                                                               string payloadAsObjectParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -1279,6 +1306,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               filterFunc: filterFunc,
                                               httpMethod: HttpMethodExtensions.Query,
                                               differenceFunc: differenceFunc,
+                                              differenceFilter: differenceFilter,
                                               parameters: parameters,
                                               callingAssembly: callingAssembly,
                                               payloadAsJsonParameterName: payloadAsObjectParameterName,
@@ -1300,6 +1328,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                                               Assembly callingAssembly,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsJson))]
                                                               string payloadAsJsonParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -1315,6 +1344,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            expectedResult: expectedResult,
                                            filterFunc: filterFunc,
                                            differenceFunc: differenceFunc,
+                                           differenceFilter: differenceFilter,
                                            parameters: [],
                                            callingAssembly: callingAssembly,
                                            writeResponse: writeResponse,
@@ -1337,6 +1367,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               (string Key, object? Value)[] parameters,
                                                               Assembly callingAssembly,
                                                               bool writeResponse = false,
+                                                              Predicate<Difference>? differenceFilter = null,
                                                               [CallerArgumentExpression(nameof(payloadAsJson))]
                                                               string payloadAsJsonParameterName = "",
                                                               [CallerArgumentExpression(nameof(expectedResult))]
@@ -1353,6 +1384,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               filterFunc: filterFunc,
                                               httpMethod: HttpMethodExtensions.Query,
                                               differenceFunc: differenceFunc,
+                                              differenceFilter: differenceFilter,
                                               parameters: parameters,
                                               callingAssembly: callingAssembly,
                                               payloadAsJsonParameterName: payloadAsJsonParameterName,
@@ -1439,6 +1471,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       filterFunc: context.OrderFunc,
                                                       httpMethod: HttpMethodExtensions.Query,
                                                       differenceFunc: context.DifferenceFunc,
+                                                      differenceFilter: context.DifferenceFilter,
                                                       parameters: context.Parameters,
                                                       callingAssembly: context.CallingAssembly,
                                                       payloadAsJsonParameterName: context.PayloadParameterName,

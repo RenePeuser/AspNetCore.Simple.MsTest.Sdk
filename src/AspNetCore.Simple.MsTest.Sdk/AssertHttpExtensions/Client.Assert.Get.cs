@@ -179,6 +179,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string expectedResultParameterName = "",
                                                             bool skipEndpointValidation = false,
                                                             HttpStatusCode? expectedHttpStatusCode = null,
+                                                            Predicate<Difference>? differenceFilter = null,
                                                             [CallerFilePath] string callerFilePath = "",
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
@@ -194,6 +195,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   expectedResultParameterName: expectedResultParameterName,
                                                   skipEndpointValidation: skipEndpointValidation,
                                                   expectedHttpStatusCode: expectedHttpStatusCode,
+                                                  differenceFilter: differenceFilter,
                                                   callerFilePath: callerFilePath,
                                                   callerMemberName: callerMemberName,
                                                   callerLineNumber: callerLineNumber);
@@ -209,6 +211,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string expectedResultParameterName = "",
                                                             bool skipEndpointValidation = false,
                                                             HttpStatusCode? expectedHttpStatusCode = null,
+                                                            Predicate<Difference>? differenceFilter = null,
                                                             [CallerFilePath] string callerFilePath = "",
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
@@ -224,6 +227,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   expectedResultParameterName: expectedResultParameterName,
                                                   skipEndpointValidation: skipEndpointValidation,
                                                   expectedHttpStatusCode: expectedHttpStatusCode,
+                                                  differenceFilter: differenceFilter,
                                                   callerFilePath: callerFilePath,
                                                   callerMemberName: callerMemberName,
                                                   callerLineNumber: callerLineNumber);
@@ -365,6 +369,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string expectedResultParameterName = "",
                                                             bool skipEndpointValidation = false,
                                                             HttpStatusCode? expectedHttpStatusCode = null,
+                                                            Predicate<Difference>? differenceFilter = null,
                                                             [CallerFilePath] string callerFilePath = "",
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
@@ -384,6 +389,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        writeResponse: writeResponse,
                                                        skipEndpointValidation: skipEndpointValidation,
                                                        expectedHttpStatusCode: expectedHttpStatusCode,
+                                                       differenceFilter: differenceFilter,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
         }
@@ -399,6 +405,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string expectedResultParameterName = "",
                                                             bool skipEndpointValidation = false,
                                                             HttpStatusCode? expectedHttpStatusCode = null,
+                                                            Predicate<Difference>? differenceFilter = null,
                                                             [CallerFilePath] string callerFilePath = "",
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
@@ -418,6 +425,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        writeResponse: writeResponse,
                                                        skipEndpointValidation: skipEndpointValidation,
                                                        expectedHttpStatusCode: expectedHttpStatusCode,
+                                                       differenceFilter: differenceFilter,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
         }
@@ -492,6 +500,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string expectedResultParameterName = "",
                                                             bool skipEndpointValidation = false,
                                                             HttpStatusCode? expectedHttpStatusCode = null,
+                                                            Predicate<Difference>? differenceFilter = null,
                                                             [CallerFilePath] string callerFilePath = "",
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
@@ -506,6 +515,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                          expectedResultParameterName: expectedResultParameterName,
                                          skipEndpointValidation: skipEndpointValidation,
                                          expectedHttpStatusCode: expectedHttpStatusCode,
+                                         differenceFilter: differenceFilter,
                                          callerFilePath: callerFilePath,
                                          callerMemberName: callerMemberName,
                                          callerLineNumber: callerLineNumber);
@@ -524,6 +534,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string expectedResultParameterName = "",
                                                             bool skipEndpointValidation = false,
                                                             HttpStatusCode? expectedHttpStatusCode = null,
+                                                            Predicate<Difference>? differenceFilter = null,
                                                             [CallerFilePath] string callerFilePath = "",
                                                             [CallerMemberName] string callerMemberName = "",
                                                             [CallerLineNumber] int callerLineNumber = 0)
@@ -543,6 +554,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               writeResponse: writeResponse,
                                               skipEndpointValidation: skipEndpointValidation,
                                               expectedHttpStatusCode: expectedHttpStatusCode,
+                                              differenceFilter: differenceFilter,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }
@@ -637,6 +649,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  expectedResultParameterName: context.ExpectedResultParameterName,
                                                  skipEndpointValidation: context.SkipEndpointValidation,
                                                  expectedHttpStatusCode: context.ExpectedHttpStatusCode,
+                                                 differenceFilter: context.DifferenceFilter,
                                                  callerFilePath: context.CallerFilePath,
                                                  callerMemberName: context.CallerMemberName,
                                                  callerLineNumber: context.CallerLineNumber);

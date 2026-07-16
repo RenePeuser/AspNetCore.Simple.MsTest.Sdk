@@ -43,6 +43,33 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
+        /// <summary>
+        /// Global per-difference predicate. Return <c>true</c> to keep a difference,
+        /// <c>false</c> to ignore it. The SDK iterates internally, so you only describe
+        /// the condition (e.g. <c>d => d.MemberPath != "id"</c>) instead of writing a loop.
+        /// Applied in addition to (and after) <see cref="DifferenceFunc"/> and any
+        /// per-assert filter. Defaults to keeping every difference.
+        /// </summary>
+        public static Predicate<Difference> DifferenceFilter { get; set; } = static _ => true;
+
+        /// <summary>
+        /// Applies the configured difference filtering to a set of raw differences:
+        /// the global <see cref="DifferenceFunc"/>, the per-assert difference func,
+        /// and finally the global + per-assert <see cref="DifferenceFilter"/> predicates
+        /// (a difference is kept only when both predicates return <c>true</c>).
+        /// </summary>
+        internal static ImmutableList<Difference> ApplyDifferenceFiltering(ImmutableList<Difference> differences,
+                                                                           Func<ImmutableList<Difference>, IEnumerable<Difference>> perAssertFunc,
+                                                                           Predicate<Difference>? perAssertFilter)
+        {
+            var afterGlobalFunc = DifferenceFunc(differences).ToImmutableList();
+            var afterFunc = perAssertFunc(afterGlobalFunc).ToImmutableList();
+
+            return afterFunc.Where(difference => DifferenceFilter(difference) &&
+                                                 (perAssertFilter?.Invoke(difference) ?? true))
+                            .ToImmutableList();
+        }
+
         private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions, new PlainTextDecorator(),
                                                                                                         new SourceCodeExtractor());
 
@@ -290,6 +317,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? expectedObject,
                                               T? currentObject,
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Predicate<Difference>? differenceFilter = null,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -306,6 +334,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    comparisonFunc: item => item,
                                    title: string.Empty,
                                    differenceFunc: differenceFunc,
+                                   differenceFilter: differenceFilter,
                                    curl: string.Empty,
                                    parameters: [],
                                    callingAssembly: callingAssembly,
@@ -322,6 +351,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? currentObject,
                                               (string Key, object? Value)[] parameters,
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Predicate<Difference>? differenceFilter = null,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -338,6 +368,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    comparisonFunc: item => item,
                                    title: string.Empty,
                                    differenceFunc: differenceFunc,
+                                   differenceFilter: differenceFilter,
                                    curl: string.Empty,
                                    parameters: parameters,
                                    callingAssembly: callingAssembly,
@@ -419,6 +450,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               T? currentObject,
                                               Func<T?, T?> orderFunc,
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Predicate<Difference>? differenceFilter = null,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -435,6 +467,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    comparisonFunc: orderFunc,
                                    title: string.Empty,
                                    differenceFunc: differenceFunc,
+                                   differenceFilter: differenceFilter,
                                    curl: string.Empty,
                                    parameters: [],
                                    callingAssembly: callingAssembly,
@@ -452,6 +485,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               Func<T?, T?> orderFunc,
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               (string Key, object? Value)[] parameters,
+                                              Predicate<Difference>? differenceFilter = null,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -468,6 +502,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    comparisonFunc: orderFunc,
                                    title: string.Empty,
                                    differenceFunc: differenceFunc,
+                                   differenceFilter: differenceFilter,
                                    curl: string.Empty,
                                    parameters: parameters,
                                    callingAssembly: callingAssembly,
@@ -485,6 +520,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               Func<T?, T?> orderFunc,
                                               string title,
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Predicate<Difference>? differenceFilter = null,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -501,6 +537,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    comparisonFunc: orderFunc,
                                    title: title,
                                    differenceFunc: differenceFunc,
+                                   differenceFilter: differenceFilter,
                                    curl: string.Empty,
                                    parameters: [],
                                    callingAssembly: callingAssembly,
@@ -519,6 +556,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string title,
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               (string Key, object? Value)[] parameters,
+                                              Predicate<Difference>? differenceFilter = null,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -535,6 +573,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    comparisonFunc: orderFunc,
                                    title: title,
                                    differenceFunc: differenceFunc,
+                                   differenceFilter: differenceFilter,
                                    curl: string.Empty,
                                    parameters: parameters,
                                    callingAssembly: callingAssembly,
@@ -553,6 +592,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string title,
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               string curl,
+                                              Predicate<Difference>? differenceFilter = null,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -567,6 +607,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    comparisonFunc: comparisonFunc,
                                    title: title,
                                    differenceFunc: differenceFunc,
+                                   differenceFilter: differenceFilter,
                                    curl: curl,
                                    parameters: [],
                                    writeResponse: writeResponse,
@@ -585,6 +626,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
                                               string curl,
                                               (string Key, object? Value)[] parameters,
+                                              Predicate<Difference>? differenceFilter = null,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -601,6 +643,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    comparisonFunc: comparisonFunc,
                                    title: title,
                                    differenceFunc: differenceFunc,
+                                   differenceFilter: differenceFilter,
                                    curl: curl,
                                    parameters: parameters,
                                    callingAssembly: callingAssembly,
@@ -621,6 +664,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               string curl,
                                               (string Key, object? Value)[] parameters,
                                               Assembly callingAssembly,
+                                              Predicate<Difference>? differenceFilter = null,
                                               bool writeResponse = false,
                                               [CallerArgumentExpression(nameof(expectedObject))]
                                               string expectedResultParameterName = "",
@@ -655,6 +699,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 CurrentObject = currentObject,
                 CurrentResultParameterName = currentResultParameterName,
                 DifferenceFunc = differenceFunc,
+                DifferenceFilter = differenceFilter ?? (static _ => true),
                 Expected = expectedObject, // Direct object reference - no serialization needed
                 ExpectedType = typeof(T),
                 ExpectedObjectAsJson = expectedObjectAsJson,

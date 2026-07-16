@@ -1436,6 +1436,34 @@ await Client.AssertPostAsync<AddUserReponse>(
 
 This lets you keep snapshots strict where they should be strict and flexible where they must be flexible.
 
+#### Predicate shorthand: `differenceFilter`
+
+The `DifferenceFunc` examples above require you to iterate the differences yourself. If you only want to
+decide per difference whether to keep it, use the `differenceFilter` predicate instead — the SDK does the
+iteration for you. **Return `true` to keep a difference, `false` to ignore it** (same semantics as LINQ `Where`).
+
+Global:
+
+```csharp
+// Keep every difference except database-generated ids.
+AssertObjectExtensions.DifferenceFilter = difference => difference.MemberPath != "Content.Value.Id";
+```
+
+Scoped (per assert):
+
+```csharp
+await Client.AssertPostAsync<AddUserReponse>(
+    "api/v1/users",
+    "NewUser.json",
+    "NewUser.json",
+    differenceFilter: difference => !difference.MemberPath.Contains("timestamp"));
+```
+
+`differenceFilter` runs in addition to `DifferenceFunc`: a difference is reported only when the global
+`DifferenceFunc`, the per-assert `differenceFunc`, and both (global + scoped) `differenceFilter` predicates
+all keep it. You can mix and match — use `DifferenceFunc` when you need full control over the sequence, and
+`differenceFilter` when a simple per-item condition is enough.
+
 ---
 
 ### Dynamic parameter replacement

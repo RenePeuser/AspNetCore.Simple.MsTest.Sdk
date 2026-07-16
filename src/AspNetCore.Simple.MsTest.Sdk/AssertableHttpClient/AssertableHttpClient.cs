@@ -170,6 +170,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 CurrentResult = currentResult,
                 CurrentResultParameterName = context.CurrentResultParameterName,
                 DifferenceFunc = context.DifferenceFunc,
+                DifferenceFilter = context.DifferenceFilter,
                 ExpectedType = context.ExpectedType,
                 ExpectedObjectAsJson = context.ExpectedObjectAsJson,
                 ExpectedResultFile = context.ExpectedResultFile,

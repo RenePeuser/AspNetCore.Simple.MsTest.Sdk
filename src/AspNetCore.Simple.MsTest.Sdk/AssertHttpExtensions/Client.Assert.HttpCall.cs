@@ -489,6 +489,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     bool ignoreResponse = false,
                                                                     bool skipEndpointValidation = false,
                                                                     HttpStatusCode? expectedHttpStatusCode = null,
+                                                                    Predicate<Difference>? differenceFilter = null,
                                                                     [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                     string payloadAsJsonParameterName = "",
                                                                     [CallerArgumentExpression(nameof(expectedResponse))]
@@ -518,6 +519,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                           ignoreResponse: ignoreResponse,
                                                           skipEndpointValidation: skipEndpointValidation,
                                                           expectedHttpStatusCode: expectedHttpStatusCode,
+                                                          differenceFilter: differenceFilter,
                                                           callerMemberName: callerMemberName,
                                                           callerLineNumber: callerLineNumber);
         }
@@ -537,6 +539,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                bool ignoreResponse = false,
                                                                                bool skipEndpointValidation = false,
                                                                                HttpStatusCode? expectedHttpStatusCode = null,
+                                                                               Predicate<Difference>? differenceFilter = null,
                                                                                [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                                string payloadAsJsonParameterName = "",
                                                                                [CallerArgumentExpression(nameof(expectedResult))]
@@ -562,6 +565,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               ignoreResponse: ignoreResponse,
                                               skipEndpointValidation: skipEndpointValidation,
                                               expectedHttpStatusCode: expectedHttpStatusCode,
+                                              differenceFilter: differenceFilter,
                                               callerMemberName: callerMemberName,
                                               callerLineNumber: callerLineNumber);
         }
@@ -581,6 +585,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          bool ignoreResponse = false,
                                                                          bool skipEndpointValidation = false,
                                                                          HttpStatusCode? expectedHttpStatusCode = null,
+                                                                         Predicate<Difference>? differenceFilter = null,
                                                                          [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                          string payloadAsJsonParameterName = "",
                                                                          [CallerArgumentExpression(nameof(expectedResult))]
@@ -632,6 +637,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 CurrentObject = null,
                 CurrentResultParameterName = "Current response",
                 DifferenceFunc = differenceFunc,
+                DifferenceFilter = differenceFilter ?? (static _ => true),
                 ExpectedType = typeof(TResult),
                 ExpectedObjectAsJson = expectedResult,
                 ExpectedResultFile = expectedResultFile,

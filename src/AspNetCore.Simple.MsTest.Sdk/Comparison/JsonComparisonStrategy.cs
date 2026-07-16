@@ -154,9 +154,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
                                                         item.MemberPath.EndsWith(']').IsFalse());
             }
 
-            // 8. Apply difference filtering
-            var commonDifferences = AssertObjectExtensions.DifferenceFunc(differences).ToImmutableList();
-            var filteredDifferences = context.DifferenceFunc(commonDifferences).ToImmutableList();
+            // 8. Apply difference filtering (global func + per-assert func + global/per-assert predicate)
+            var filteredDifferences = AssertObjectExtensions.ApplyDifferenceFiltering(differences,
+                                                                                     context.DifferenceFunc,
+                                                                                     context.DifferenceFilter);
 
             return new ComparisonResult
             {

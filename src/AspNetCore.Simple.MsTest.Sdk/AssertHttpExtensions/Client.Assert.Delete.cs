@@ -135,6 +135,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                bool writeResponse = false,
                                                                bool skipEndpointValidation = false,
                                                                HttpStatusCode? expectedHttpStatusCode = null,
+                                                               Predicate<Difference>? differenceFilter = null,
                                                                [CallerArgumentExpression(nameof(expectedResult))]
                                                                string expectedResultParameterName = "",
                                                                [CallerFilePath] string callerFilePath = "",
@@ -158,6 +159,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        writeResponse: writeResponse,
                                                        skipEndpointValidation: skipEndpointValidation,
                                                        expectedHttpStatusCode: expectedHttpStatusCode,
+                                                       differenceFilter: differenceFilter,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber);
         }
@@ -322,6 +324,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       isSuccessStatusCode: context.IsSuccessStatusCode,
                                                       writeResponse: context.WriteResponse,
                                                       skipEndpointValidation: context.SkipEndpointValidation,
+                                                      differenceFilter: context.DifferenceFilter,
                                                       callerMemberName: context.CallerMemberName,
                                                       callerLineNumber: context.CallerLineNumber);
         }

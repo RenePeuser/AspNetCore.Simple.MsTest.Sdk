@@ -70,8 +70,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            var scoped = context.DifferenceFunc(diffs).ToImmutableList();
-            var finalDiffs = AssertObjectExtensions.DifferenceFunc(scoped).ToImmutableList();
+            var finalDiffs = AssertObjectExtensions.ApplyDifferenceFiltering(diffs,
+                                                                            context.DifferenceFunc,
+                                                                            context.DifferenceFilter);
 
             var ignoredPaths = diffs.Except(finalDiffs)
                                     .Select(diff => diff.MemberPath)

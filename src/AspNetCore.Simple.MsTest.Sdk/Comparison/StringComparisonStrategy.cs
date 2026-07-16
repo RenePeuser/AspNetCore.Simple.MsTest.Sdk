@@ -37,9 +37,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             // Find line-level differences
             var differences = FindLineDifferences(expectedLines, currentLines);
 
-            // Filter differences using context filters
-            var commonDifferences = AssertObjectExtensions.DifferenceFunc(differences).ToImmutableList();
-            var filteredDifferences = context.DifferenceFunc(commonDifferences).ToImmutableList();
+            // Filter differences using context filters (global func + per-assert func + global/per-assert predicate)
+            var filteredDifferences = AssertObjectExtensions.ApplyDifferenceFiltering(differences,
+                                                                                     context.DifferenceFunc,
+                                                                                     context.DifferenceFilter);
 
             // Schema mismatch if line counts differ significantly (more than just trailing whitespace)
             var hasSchemaMismatch = filteredDifferences.Any(d =>
