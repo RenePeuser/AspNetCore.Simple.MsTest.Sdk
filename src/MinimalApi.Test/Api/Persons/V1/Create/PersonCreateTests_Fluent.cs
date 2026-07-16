@@ -21,12 +21,12 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         public async Task Fluent_Should_Create_Person_With_Object()
         {
             var person = TestHelpers.CreateValidPerson();
-            _ = await Client.AssertPost("api/v1/persons")
-                                     .Accepts(person)
-                                     .Produces<Person>(HttpStatusCode.Created)
-                                     .ExpectedResponseFromEmbeddedJson("CreatePerson.json").ExecuteAsync().ConfigureAwait(false);
 
-            return Task.CompletedTask;
+            await Client.AssertPost("api/v1/persons")
+                        .Accepts(person)
+                        .Produces<Person>(HttpStatusCode.Created)
+                        .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
+                        .ExecuteAsync().ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -402,8 +402,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                                                                                .Produces<Person>(HttpStatusCode.Created)
                                                                                .ExpectedResponse(expected)
                                                                                .DifferenceFilter(d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
-                                                                               .ExecuteAsync())
-                        .ConfigureAwait(false);
+                                                                               .ExecuteAsync()).ConfigureAwait(false);
         }
     }
 }
