@@ -992,6 +992,17 @@ public Task Should_Create_Person_Ignore_Id()
 }
 ```
 
+Or use the `differenceFilter` predicate shorthand — same result, no manual `Where`:
+
+```csharp
+return Client.AssertPostAsync("api/v1/persons",
+                              personToCreate,
+                              expectedPerson,
+                              differenceFilter: d => !d.MemberPath.Contains("id"));
+```
+
+See [Predicate shorthand: `differenceFilter`](#predicate-shorthand-differencefilter) for details.
+
 **When to use objects vs JSON files:**
 
 | Scenario | Use |
