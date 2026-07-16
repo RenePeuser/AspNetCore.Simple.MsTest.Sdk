@@ -20,7 +20,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PATCH")]
         public Task Fluent_Should_Patch_Person()
         {
-            return Client.Patch("api/v1/persons")
+            return Client.AssertPatch("api/v1/persons")
                          .WithEmbeddedJson("UpdatePerson.json")
                          .ReturnsEmbeddedJson<Person>("UpdatePerson.json")
                          .ExpectingSuccess()
@@ -32,7 +32,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PATCH")]
         public Task Fluent_Should_Patch_Person_Ignore_Id()
         {
-            return Client.Patch("api/v1/persons")
+            return Client.AssertPatch("api/v1/persons")
                          .WithEmbeddedJson("UpdatePerson.json")
                          .ReturnsEmbeddedJson<Person>("UpdatePerson.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -49,7 +49,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task Fluent_Should_Put_Person()
         {
-            return Client.Put("api/v1/persons")
+            return Client.AssertPut("api/v1/persons")
                          .WithEmbeddedJson("UpdatePerson.json")
                          .ReturnsEmbeddedJson<Person>("UpdatePersonNew.json")
                          .ExpectingSuccess()
@@ -61,7 +61,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task Fluent_Should_Put_Person_Ignore_Id()
         {
-            return Client.Put("api/v1/persons")
+            return Client.AssertPut("api/v1/persons")
                          .WithEmbeddedJson("UpdatePerson.json")
                          .ReturnsEmbeddedJson<Person>("UpdatePersonNew.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)

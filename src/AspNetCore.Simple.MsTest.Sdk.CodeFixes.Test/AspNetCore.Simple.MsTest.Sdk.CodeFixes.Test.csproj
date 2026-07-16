@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <!-- Relax style/design rules that fight test conventions (see Analyzers.Test for rationale). -->
+        <NoWarn>$(NoWarn);CA1707;MSTEST0016;CA1515;IDE0022;IDE0065;CA1861</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MSTest" />
+        <!-- Roslyn code-fix test harness (MSTest flavor) — runs analyzer + code fix and diffs the result. -->
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest" />
+        <!-- Pin modern Roslyn so the harness does not float to its .NETFramework-era 1.0.1 floor (NU1701). -->
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj" />
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.CodeFixes\AspNetCore.Simple.MsTest.Sdk.CodeFixes.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+    </ItemGroup>
+
+    <!-- Reuse the fluent-API source stub from the analyzer test project (single source of truth). -->
+    <ItemGroup>
+        <Compile Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers.Test\FluentApiStub.cs"
+                 Link="FluentApiStub.cs" />
+    </ItemGroup>
+
+</Project>

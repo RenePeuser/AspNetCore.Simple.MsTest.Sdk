@@ -14,15 +14,17 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         [TestMethod]
         [TestCategory("Fluent")]
         [TestCategory("POST")]
-        public Task Fluent_Should_Create_Person_With_Object()
+        public async Task Fluent_Should_Create_Person_With_Object()
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.Post("api/v1/persons")
-                         .WithBody(person)
-                         .ReturnsEmbeddedJson<Person>("CreatePerson.json")
-                         .ExpectingSuccess()
-                         .ExecuteAsync();
+            var result = await Client.AssertPost("api/v1/persons")
+                                     .WithBody(person)
+                                     .ReturnsEmbeddedJson<Person>("CreatePerson.json")
+                                     .ExpectingSuccess()
+                                     .ExecuteAsync();
+
+            Assert.IsNotNull(result);
         }
 
         [TestMethod]
@@ -32,7 +34,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreatePersonWithEmails();
 
-            return Client.Post("api/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .ReturnsEmbeddedJson<Person>("CreatePersonFull.json")
                          .ExpectingSuccess()
@@ -44,7 +46,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         [TestCategory("POST")]
         public Task Fluent_Should_Create_Person_With_Json()
         {
-            return Client.Post("api/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithEmbeddedJson("CreatePersonFull.json")
                          .ReturnsEmbeddedJson<Person>("CreatePersonFull.json")
                          .ExpectingSuccess()
@@ -58,7 +60,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.Post("api/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .ReturnsEmbeddedJson<Person>("CreatePerson.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -73,7 +75,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreatePersonWithEmails();
 
-            return Client.Post("api/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .ReturnsEmbeddedJson<Person>("CreatePersonFull.json")
                          .IgnoreProperty<Person>(p => p.Id)

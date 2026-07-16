@@ -69,15 +69,22 @@
         <InternalsVisibleTo Include="MinimalApi.Test" />
     </ItemGroup>
 
-    <!-- Ship the fluent-API analyzer (MSTESTSDK001) as an analyzer asset inside the NuGet package,
-         so consumers automatically get the dangling-chain diagnostic. -->
+    <!-- Ship the fluent-API analyzer (MSTESTSDK001) and its code fix as analyzer assets inside the
+         NuGet package, so consumers automatically get the dangling-chain diagnostic AND the one-click fix.
+         The ProjectReferences (OutputItemType=Analyzer) apply both to THIS project at dev time and
+         build them before packaging; the <None Pack=true> entries are what actually put the DLLs into
+         the package. Both must sit under analyzers/dotnet/cs for Roslyn/VS to load them. -->
     <ItemGroup>
         <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.CodeFixes\AspNetCore.Simple.MsTest.Sdk.CodeFixes.csproj"
                           OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
         <None Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\bin\$(Configuration)\netstandard2.0\AspNetCore.Simple.MsTest.Sdk.Analyzers.dll"
+              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="..\AspNetCore.Simple.MsTest.Sdk.CodeFixes\bin\$(Configuration)\netstandard2.0\AspNetCore.Simple.MsTest.Sdk.CodeFixes.dll"
               Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     </ItemGroup>
 

@@ -19,7 +19,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.Post("api/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .ReturnsEmbeddedJson<Person>("CreatePerson.json")
                          .ExpectingSuccess()
@@ -31,7 +31,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         [TestCategory("POST")]
         public Task Fluent_Should_Create_Person_With_Json()
         {
-            return Client.Post("api/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithEmbeddedJson("CreatePersonFull.json")
                          .ReturnsEmbeddedJson<Person>("CreatePersonFull.json")
                          .ExpectingSuccess()
@@ -45,7 +45,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.Post("api/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .ReturnsEmbeddedJson<Person>("CreatePerson.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -61,7 +61,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.Post("api/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .ReturnsEmbeddedJson<Person>("CreatePerson.json")
                          .ExpectingStatus(HttpStatusCode.OK)
@@ -76,7 +76,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.Post("api/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .ReturnsEmbeddedJson<Person>("CreatePerson.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -92,7 +92,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
         {
             var person = TestHelpers.CreateValidPerson();
 
-            return Client.Post("api/v1/persons")
+            return Client.AssertPost("api/v1/persons")
                          .WithBody(person)
                          .ReturnsEmbeddedJson<Person>("CreatePerson.json")
                          .ExpectingOneOf(HttpStatusCode.OK, HttpStatusCode.Created)

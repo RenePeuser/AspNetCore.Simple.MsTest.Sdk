@@ -17,7 +17,7 @@ namespace Controllers.Test.Api.Persons.V1.Get
         [TestCategory("GET")]
         public Task Fluent_Should_Get_All_Persons()
         {
-            return Client.Get("api/v1/persons")
+            return Client.AssertGet("api/v1/persons")
                          .ReturnsEmbeddedJson<IEnumerable<Person>>("GetAllPersons.json")
                          .ExpectingSuccess()
                          .ExecuteAsync();
@@ -28,7 +28,7 @@ namespace Controllers.Test.Api.Persons.V1.Get
         [TestCategory("GET")]
         public Task Fluent_Should_Get_All_Persons_With_Filtering()
         {
-            return Client.Get("api/v1/persons")
+            return Client.AssertGet("api/v1/persons")
                          .ReturnsEmbeddedJson<IEnumerable<Person>>("GetAllPersons.json")
                          .FilterResponse(TestHelpers.OrderByIdFilter)
                          .ExpectingSuccess()
@@ -40,7 +40,7 @@ namespace Controllers.Test.Api.Persons.V1.Get
         [TestCategory("GET")]
         public Task Fluent_Should_Get_All_Persons_Ignore_Id()
         {
-            return Client.Get("api/v1/persons")
+            return Client.AssertGet("api/v1/persons")
                          .ReturnsEmbeddedJson<IEnumerable<Person>>("GetAllPersons.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExpectingSuccess()
@@ -52,7 +52,7 @@ namespace Controllers.Test.Api.Persons.V1.Get
         [TestCategory("GET")]
         public Task Fluent_Should_Get_All_Persons_With_Type_Safe_Property_Ignore()
         {
-            return Client.Get("api/v1/persons")
+            return Client.AssertGet("api/v1/persons")
                          .ReturnsEmbeddedJson<IEnumerable<Person>>("GetAllPersons.json")
                          .IgnoreProperty<Person>(p => p.Id)
                          .ExpectingSuccess()
@@ -64,7 +64,7 @@ namespace Controllers.Test.Api.Persons.V1.Get
         [TestCategory("GET")]
         public Task Fluent_Should_Get_Persons_By_Query_Parameter()
         {
-            return Client.Get("api/v1/persons?name=Son")
+            return Client.AssertGet("api/v1/persons?name=Son")
                          .ReturnsEmbeddedJson<IEnumerable<Person>>("GetPersonByQuery.json")
                          .ExpectingSuccess()
                          .ExecuteAsync();

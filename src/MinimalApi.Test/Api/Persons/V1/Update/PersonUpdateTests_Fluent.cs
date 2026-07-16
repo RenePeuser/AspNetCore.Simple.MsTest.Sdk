@@ -20,7 +20,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
         [TestCategory("PATCH")]
         public Task Fluent_Should_Patch_Person()
         {
-            return Client.Patch("api/v1/persons")
+            return Client.AssertPatch("api/v1/persons")
                          .WithEmbeddedJson("UpdatePerson.json")
                          .ReturnsEmbeddedJson<Person>("UpdatePerson.json")
                          .ExpectingSuccess()
@@ -32,7 +32,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
         [TestCategory("PATCH")]
         public Task Fluent_Should_Patch_Person_Ignore_Id()
         {
-            return Client.Patch("api/v1/persons")
+            return Client.AssertPatch("api/v1/persons")
                          .WithEmbeddedJson("UpdatePerson.json")
                          .ReturnsEmbeddedJson<Person>("UpdatePerson.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -45,7 +45,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
         [TestCategory("PATCH")]
         public Task Fluent_Should_Patch_Person_With_Type_Safe_Property_Ignore()
         {
-            return Client.Patch("api/v1/persons")
+            return Client.AssertPatch("api/v1/persons")
                          .WithEmbeddedJson("UpdatePerson.json")
                          .ReturnsEmbeddedJson<Person>("UpdatePerson.json")
                          .IgnoreProperty<Person>(p => p.Id)
@@ -62,7 +62,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task Fluent_Should_Put_Person()
         {
-            return Client.Put("api/v1/persons")
+            return Client.AssertPut("api/v1/persons")
                          .WithEmbeddedJson("UpdatePerson.json")
                          .ReturnsEmbeddedJson<Person>("UpdatePersonNew.json")
                          .ExpectingSuccess()
@@ -74,7 +74,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task Fluent_Should_Put_Person_Ignore_Id()
         {
-            return Client.Put("api/v1/persons")
+            return Client.AssertPut("api/v1/persons")
                          .WithEmbeddedJson("UpdatePerson.json")
                          .ReturnsEmbeddedJson<Person>("UpdatePersonNew.json")
                          .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
@@ -87,7 +87,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
         [TestCategory("PUT")]
         public Task Fluent_Should_Put_Person_With_Type_Safe_Property_Ignore()
         {
-            return Client.Put("api/v1/persons")
+            return Client.AssertPut("api/v1/persons")
                          .WithEmbeddedJson("UpdatePerson.json")
                          .ReturnsEmbeddedJson<Person>("UpdatePersonNew.json")
                          .IgnoreProperty<Person>(p => p.Id)

@@ -10,9 +10,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
     /// Fluent API entry points on <see cref="HttpClient"/>. Each starts a chain that ends in exactly
     /// one <c>ExecuteAsync()</c> terminal (Model B).
     ///
+    /// <para>
+    /// The <c>Assert</c> prefix is deliberate: it makes the chain read as an assertion, not a plain
+    /// request (<c>client.AssertPost(...)</c> vs. the misleading <c>client.Post(...)</c>), and it keeps
+    /// the name aligned with the existing overload API (<c>AssertPostAsync</c>) so migration stays
+    /// mechanical. See DESIGN_VISION.md §3.
+    /// </para>
+    ///
     /// <example>
     /// <code>
-    /// await Client.Post("api/persons")
+    /// await Client.AssertPost("api/persons")
     ///     .WithBody(person)
     ///     .ReturnsEmbeddedJson&lt;Person&gt;("Expected.json")
     ///     .ExpectingStatus(HttpStatusCode.Created)
@@ -28,41 +35,41 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         // resolution. (Assembly-vs-CallerFilePath strategy is an open design question, see DESIGN_VISION.md §9.)
 
         /// <summary>Starts a fluent POST assertion chain.</summary>
-        public static IHttpRequestConfiguring Post(this HttpClient client,
-                                                   string url,
-                                                   [CallerFilePath] string callerFilePath = "")
+        public static IHttpRequestConfiguring AssertPost(this HttpClient client,
+                                                         string url,
+                                                         [CallerFilePath] string callerFilePath = "")
         {
             return new HttpRequestBuilder(client, HttpMethod.Post, url, Assembly.GetCallingAssembly(), callerFilePath);
         }
 
         /// <summary>Starts a fluent GET assertion chain.</summary>
-        public static IHttpRequestConfiguring Get(this HttpClient client,
-                                                  string url,
-                                                  [CallerFilePath] string callerFilePath = "")
+        public static IHttpRequestConfiguring AssertGet(this HttpClient client,
+                                                        string url,
+                                                        [CallerFilePath] string callerFilePath = "")
         {
             return new HttpRequestBuilder(client, HttpMethod.Get, url, Assembly.GetCallingAssembly(), callerFilePath);
         }
 
         /// <summary>Starts a fluent PUT assertion chain.</summary>
-        public static IHttpRequestConfiguring Put(this HttpClient client,
-                                                  string url,
-                                                  [CallerFilePath] string callerFilePath = "")
+        public static IHttpRequestConfiguring AssertPut(this HttpClient client,
+                                                        string url,
+                                                        [CallerFilePath] string callerFilePath = "")
         {
             return new HttpRequestBuilder(client, HttpMethod.Put, url, Assembly.GetCallingAssembly(), callerFilePath);
         }
 
         /// <summary>Starts a fluent PATCH assertion chain.</summary>
-        public static IHttpRequestConfiguring Patch(this HttpClient client,
-                                                    string url,
-                                                    [CallerFilePath] string callerFilePath = "")
+        public static IHttpRequestConfiguring AssertPatch(this HttpClient client,
+                                                          string url,
+                                                          [CallerFilePath] string callerFilePath = "")
         {
             return new HttpRequestBuilder(client, HttpMethod.Patch, url, Assembly.GetCallingAssembly(), callerFilePath);
         }
 
         /// <summary>Starts a fluent DELETE assertion chain.</summary>
-        public static IHttpRequestConfiguring Delete(this HttpClient client,
-                                                     string url,
-                                                     [CallerFilePath] string callerFilePath = "")
+        public static IHttpRequestConfiguring AssertDelete(this HttpClient client,
+                                                           string url,
+                                                           [CallerFilePath] string callerFilePath = "")
         {
             return new HttpRequestBuilder(client, HttpMethod.Delete, url, Assembly.GetCallingAssembly(), callerFilePath);
         }
