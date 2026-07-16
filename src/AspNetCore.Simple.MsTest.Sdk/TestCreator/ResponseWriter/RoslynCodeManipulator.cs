@@ -68,7 +68,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (variableDeclarator != null && variableDeclarator.Initializer != null)
 
-                // Get the initializer expression
+            // Get the initializer expression
             {
                 targetNode = variableDeclarator.Initializer.Value;
             }
@@ -177,14 +177,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Determine construction type based on initializer presence
             if (objectCreation.ArgumentList != null && objectCreation.ArgumentList.Arguments.Count > 0 && objectCreation.Initializer == null)
 
-                // Positional: new Person(1, "a", "b")
+            // Positional: new Person(1, "a", "b")
             {
                 return (typeName, ObjectConstructionType.RecordPositional);
             }
 
             if (objectCreation.Initializer != null)
 
-                // Nominal: new Person { Id = 1, Name = "a" }
+            // Nominal: new Person { Id = 1, Name = "a" }
             {
                 return (typeName, ObjectConstructionType.RecordNominal);
             }

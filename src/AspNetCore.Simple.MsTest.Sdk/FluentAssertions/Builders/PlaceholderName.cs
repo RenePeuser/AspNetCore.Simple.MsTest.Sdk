@@ -18,7 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                 return name;
             }
 
-            var alreadyWrapped = name.Length >= 2 && name[0] == Delimiter && name[name.Length - 1] == Delimiter;
+            var alreadyWrapped = name.Length >= 2 && name[0] == Delimiter && name[^1] == Delimiter;
 
             return alreadyWrapped ? name : $"{Delimiter}{name}{Delimiter}";
         }

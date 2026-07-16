@@ -28,10 +28,10 @@ namespace MinimalApi.Api.Persons.V1
                             if (person.Id == 999)
                             {
                                 return Results.NotFound(new
-                                                        {
-                                                            StatusCode = 404,
-                                                            Message = "Person not found"
-                                                        });
+                                {
+                                    StatusCode = 404,
+                                    Message = "Person not found"
+                                });
                             }
 
                             return Results.Ok(person);
@@ -53,10 +53,10 @@ namespace MinimalApi.Api.Persons.V1
                             if (id == 999)
                             {
                                 return Results.NotFound(new
-                                                        {
-                                                            StatusCode = 404,
-                                                            Message = "Person not found"
-                                                        });
+                                {
+                                    StatusCode = 404,
+                                    Message = "Person not found"
+                                });
                             }
 
                             return Results.Ok(person);

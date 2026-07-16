@@ -22,12 +22,12 @@ namespace MinimalApi.Test.Api.Errors
         public Task ObjectResponse_Should_Handle_NotFound_Error_On_Get()
         {
             var expectedError = new
-                                {
-                                    Title = "Person for given Id does not exist",
-                                    Status = 404,
-                                    Detail = "The person with the Id: 999 does not exist",
-                                    Id = 999
-                                };
+            {
+                Title = "Person for given Id does not exist",
+                Status = 404,
+                Detail = "The person with the Id: 999 does not exist",
+                Id = 999
+            };
 
             return Client.AssertGetAsErrorAsync("api/v1/persons/999",
                                                 expectedError,
@@ -43,10 +43,10 @@ namespace MinimalApi.Test.Api.Errors
             var invalidPerson = new { Name = "" };
 
             var expectedError = new
-                                {
-                                    StatusCode = 400,
-                                    Message = "Invalid request"
-                                };
+            {
+                StatusCode = 400,
+                Message = "Invalid request"
+            };
 
             return Client.AssertPostAsErrorAsync("api/v1/persons",
                                                  invalidPerson,
@@ -61,16 +61,16 @@ namespace MinimalApi.Test.Api.Errors
         public Task ObjectResponse_Should_Handle_NotFound_Error_On_Put()
         {
             var personToUpdate = new
-                                 {
-                                     Name = "Test",
-                                     Age = 30
-                                 };
+            {
+                Name = "Test",
+                Age = 30
+            };
 
             var expectedError = new
-                                {
-                                    StatusCode = 404,
-                                    Message = "Person not found"
-                                };
+            {
+                StatusCode = 404,
+                Message = "Person not found"
+            };
 
             return Client.AssertPutAsErrorAsync("api/v1/persons/999",
                                                 personToUpdate,
@@ -85,10 +85,10 @@ namespace MinimalApi.Test.Api.Errors
         public Task ObjectResponse_Should_Handle_NotFound_Error_On_Delete()
         {
             var expectedError = new
-                                {
-                                    StatusCode = 404,
-                                    Message = "Person not found"
-                                };
+            {
+                StatusCode = 404,
+                Message = "Person not found"
+            };
 
             return Client.AssertDeleteAsErrorAsync("api/v1/persons/999",
                                                    expectedError,

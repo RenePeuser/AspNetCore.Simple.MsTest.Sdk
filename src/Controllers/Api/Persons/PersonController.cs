@@ -70,10 +70,10 @@ namespace Controllers.Api.Persons
             if (person.Id == 999)
             {
                 return NotFound(new
-                                {
-                                    StatusCode = 404,
-                                    Message = "Person not found"
-                                });
+                {
+                    StatusCode = 404,
+                    Message = "Person not found"
+                });
             }
 
             return Ok(person);
@@ -93,10 +93,10 @@ namespace Controllers.Api.Persons
             if (id == 999)
             {
                 return NotFound(new
-                                {
-                                    StatusCode = 404,
-                                    Message = "Person not found"
-                                });
+                {
+                    StatusCode = 404,
+                    Message = "Person not found"
+                });
             }
 
             return Ok(person);
@@ -124,10 +124,10 @@ namespace Controllers.Api.Persons
             if (string.IsNullOrWhiteSpace(person.Name))
             {
                 return BadRequest(new
-                                  {
-                                      StatusCode = 400,
-                                      Message = "Invalid request"
-                                  });
+                {
+                    StatusCode = 400,
+                    Message = "Invalid request"
+                });
             }
 
             return Ok(person);
@@ -141,10 +141,10 @@ namespace Controllers.Api.Persons
             if (id == 999)
             {
                 return NotFound(new
-                                {
-                                    StatusCode = 404,
-                                    Message = "Person not found"
-                                });
+                {
+                    StatusCode = 404,
+                    Message = "Person not found"
+                });
             }
 
             return NoContent();

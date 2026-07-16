@@ -3,13 +3,13 @@ using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.Analyzers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
-using AspNetCore.Simple.MsTest.Sdk.Analyzers;
 
 namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes
 {

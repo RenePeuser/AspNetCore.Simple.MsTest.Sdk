@@ -148,7 +148,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         public Task<TResult> ExecuteAsync()
         {
-            var isSuccessTest = (int)_expectedStatusCode >= 200 && (int)_expectedStatusCode < 300;
+            var isSuccessTest = (int)_expectedStatusCode is >= 200 and < 300;
 
             // No ExpectedResponse… → body-less path: empty expected + ignoreResponse=true means the
             // engine deserializes + returns the real response but skips the body comparison (§15.6).

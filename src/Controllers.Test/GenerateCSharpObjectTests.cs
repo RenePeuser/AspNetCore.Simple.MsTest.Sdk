@@ -18,10 +18,10 @@ namespace Controllers.Test
             // Act & Assert: Pass an empty anonymous object as expected response
             // This should trigger the CSharpObjectResponseWriter to generate code
             var result = await Client.AssertPostAsync("api/v1/persons", personToCreate, new
-                                                                                        {
-                                                                                            content = new
-                                                                                                      {
-                                                                                                          headers = new[]
+            {
+                content = new
+                {
+                    headers = new[]
                                                                                                                     {
                                                                                                                         new
                                                                                                                         {
@@ -29,20 +29,20 @@ namespace Controllers.Test
                                                                                                                             value = new[] { "application/json; charset=utf-8" }
                                                                                                                         }
                                                                                                                     },
-                                                                                                          value = new
-                                                                                                                  {
-                                                                                                                      id = 0,
-                                                                                                                      name = "John Doe",
-                                                                                                                      firstName = (string?)null,
-                                                                                                                      age = 30,
-                                                                                                                      emails = (string[]?)null
-                                                                                                                  }
-                                                                                                      },
-                                                                                            statusCode = "OK",
-                                                                                            headers = Array.Empty<object>(),
-                                                                                            trailingHeaders = Array.Empty<object>(),
-                                                                                            isSuccessStatusCode = true
-                                                                                        },
+                    value = new
+                    {
+                        id = 0,
+                        name = "John Doe",
+                        firstName = (string?)null,
+                        age = 30,
+                        emails = (string[]?)null
+                    }
+                },
+                statusCode = "OK",
+                headers = Array.Empty<object>(),
+                trailingHeaders = Array.Empty<object>(),
+                isSuccessStatusCode = true
+            },
                                                       true,
                                                       skipEndpointValidation: true).ConfigureAwait(false); // Manually enable writeResponse for prototype
 
