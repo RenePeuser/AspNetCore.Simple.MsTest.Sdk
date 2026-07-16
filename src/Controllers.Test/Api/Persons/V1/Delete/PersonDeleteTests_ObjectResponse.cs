@@ -20,14 +20,14 @@ namespace Controllers.Test.Api.Persons.V1.Delete
         public Task ObjectResponse_Should_Delete_Person()
         {
             // DeletedAt timestamp is dynamic, so we don't include it in the assertion
-            var expectedResponse = /*lang=csharp*//*lang=json,strict*/ """
-                                                  {
-                                                      "id": 1,
-                                                      "name": "Son",
-                                                      "firstName": "Goku",
-                                                      "deleted": true
-                                                  }
-                                                  """;
+            var expectedResponse = /*lang=csharp*/ /*lang=json,strict*/ """
+                                                                        {
+                                                                            "id": 1,
+                                                                            "name": "Son",
+                                                                            "firstName": "Goku",
+                                                                            "deleted": true
+                                                                        }
+                                                                        """;
 
             return Client.AssertDeleteAsync<DeletePersonResponse>("api/v1/persons/1/with-response",
                                                                   expectedResponse,
@@ -40,14 +40,14 @@ namespace Controllers.Test.Api.Persons.V1.Delete
         public Task ObjectResponse_Should_Delete_Person_With_Status_Code()
         {
             // DeletedAt timestamp is dynamic, so we don't include it in the assertion
-            var expectedResponse = /*lang=csharp*//*lang=json,strict*/ """
-                                                  {
-                                                      "id": 1,
-                                                      "name": "Son",
-                                                      "firstName": "Goku",
-                                                      "deleted": true
-                                                  }
-                                                  """;
+            var expectedResponse = /*lang=csharp*/ /*lang=json,strict*/ """
+                                                                        {
+                                                                            "id": 1,
+                                                                            "name": "Son",
+                                                                            "firstName": "Goku",
+                                                                            "deleted": true
+                                                                        }
+                                                                        """;
 
             return Client.AssertDeleteAsync<DeletePersonResponse>("api/v1/persons/1/with-response",
                                                                   expectedResponse,

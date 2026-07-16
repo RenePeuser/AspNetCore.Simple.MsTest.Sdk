@@ -37,12 +37,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
                      """;
         }
 
-        private static Task VerifyAsync(string source, params DiagnosticResult[] expected)
+        private static Task VerifyAsync(string source,
+                                        params DiagnosticResult[] expected)
         {
-            var test = new CSharpAnalyzerTest<DanglingFluentChainAnalyzer, DefaultVerifier>
-            {
-                TestCode = source
-            };
+            var test = new CSharpAnalyzerTest<DanglingFluentChainAnalyzer, DefaultVerifier> { TestCode = source };
 
             test.ExpectedDiagnostics.AddRange(expected);
 
@@ -57,11 +55,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         public Task Fires_When_ResponseChain_Not_Terminated()
         {
             var source = InMethod("""
-                        {|#0:Client.AssertPost("api/persons")
-                            .WithBody(new Person())
-                            .Returns<Person>(new Person())
-                            .ExpectingStatus(HttpStatusCode.Created);|}
-            """);
+                                              {|#0:Client.AssertPost("api/persons")
+                                                  .WithBody(new Person())
+                                                  .Returns<Person>(new Person())
+                                                  .ExpectingStatus(HttpStatusCode.Created)|};
+                                  """);
 
             return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
         }
@@ -70,10 +68,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         public Task Fires_When_StatusOnlyChain_Not_Terminated()
         {
             var source = InMethod("""
-                        {|#0:Client.AssertGet("api/persons")
-                            .ExpectingResponse()
-                            .ExpectingSuccess();|}
-            """);
+                                              {|#0:Client.AssertGet("api/persons")
+                                                  .ExpectingResponse()
+                                                  .ExpectingSuccess()|};
+                                  """);
 
             return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
         }
@@ -83,8 +81,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         {
             // Even a bare request builder carries [FluentBuilder] → still a dangling, unsent chain.
             var source = InMethod("""
-                        {|#0:Client.AssertPost("api/persons").WithBody(new Person());|}
-            """);
+                                              {|#0:Client.AssertPost("api/persons").WithBody(new Person())|};
+                                  """);
 
             return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
         }
@@ -97,11 +95,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         public Task DoesNotFire_When_Awaited_And_Terminated()
         {
             var source = InMethod("""
-                        await Client.AssertPost("api/persons")
-                            .Returns<Person>(new Person())
-                            .ExpectingStatus(HttpStatusCode.Created)
-                            .ExecuteAsync();
-            """);
+                                              await Client.AssertPost("api/persons")
+                                                  .Returns<Person>(new Person())
+                                                  .ExpectingStatus(HttpStatusCode.Created)
+                                                  .ExecuteAsync();
+                                  """);
 
             return VerifyAsync(source);
         }
@@ -111,9 +109,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         {
             // Stored-then-terminated-later pattern: deliberately NOT flagged (avoids false positives).
             var source = InMethod("""
-                        var chain = Client.AssertPost("api/persons").Returns<Person>(new Person());
-                        await chain.ExecuteAsync();
-            """);
+                                              var chain = Client.AssertPost("api/persons").Returns<Person>(new Person());
+                                              await chain.ExecuteAsync();
+                                  """);
 
             return VerifyAsync(source);
         }
@@ -122,21 +120,21 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         public Task DoesNotFire_On_Unrelated_Fluent_Chain()
         {
             var source = FluentApiStub.Source
-                + """
+                         + """
 
-                namespace TestApp
-                {
-                    public class Other
-                    {
-                        public Other Configure() => this;
-                        public void Run()
-                        {
-                            // Not a [FluentBuilder] type → must be ignored.
-                            new Other().Configure().Configure();
-                        }
-                    }
-                }
-                """;
+                           namespace TestApp
+                           {
+                               public class Other
+                               {
+                                   public Other Configure() => this;
+                                   public void Run()
+                                   {
+                                       // Not a [FluentBuilder] type → must be ignored.
+                                       new Other().Configure().Configure();
+                                   }
+                               }
+                           }
+                           """;
 
             return VerifyAsync(source);
         }

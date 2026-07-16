@@ -28,18 +28,17 @@ namespace Controllers.Test.Api.Persons.V1.Delete
         {
             // firstName is intentionally wrong; the filter drops firstName differences.
             var expectedResponse = /*lang=json,strict*/ """
-                                   {
-                                       "id": 1,
-                                       "name": "Son",
-                                       "firstName": "Wrong",
-                                       "deleted": true
-                                   }
-                                   """;
+                                                        {
+                                                            "id": 1,
+                                                            "name": "Son",
+                                                            "firstName": "Wrong",
+                                                            "deleted": true
+                                                        }
+                                                        """;
 
-            return Client.AssertDeleteAsync<DeletePersonResponse>(
-                       DeleteUrl,
-                       expectedResponse,
-                       differenceFilter: d => !d.MemberPath.Contains("firstName", StringComparison.OrdinalIgnoreCase));
+            return Client.AssertDeleteAsync<DeletePersonResponse>(DeleteUrl,
+                                                                  expectedResponse,
+                                                                  differenceFilter: d => !d.MemberPath.Contains("firstName", StringComparison.OrdinalIgnoreCase));
         }
 
         [TestMethod]
@@ -50,20 +49,18 @@ namespace Controllers.Test.Api.Persons.V1.Delete
         {
             // name is wrong; the filter only ignores firstName, so the name difference must still fail.
             var expectedResponse = /*lang=json,strict*/ """
-                                   {
-                                       "id": 1,
-                                       "name": "WrongName",
-                                       "firstName": "Wrong",
-                                       "deleted": true
-                                   }
-                                   """;
+                                                        {
+                                                            "id": 1,
+                                                            "name": "WrongName",
+                                                            "firstName": "Wrong",
+                                                            "deleted": true
+                                                        }
+                                                        """;
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertDeleteAsync<DeletePersonResponse>(
-                                DeleteUrl,
-                                expectedResponse,
-                                differenceFilter: d => !d.MemberPath.Contains("firstName", StringComparison.OrdinalIgnoreCase)))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertDeleteAsync<DeletePersonResponse>(DeleteUrl,
+                                                                                                                        expectedResponse,
+                                                                                                                        differenceFilter: d => !d.MemberPath.Contains("firstName", StringComparison.OrdinalIgnoreCase)))
+                        .ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -73,18 +70,17 @@ namespace Controllers.Test.Api.Persons.V1.Delete
         public Task PerAssertFilter_That_Ignores_Everything_Should_Pass()
         {
             var expectedResponse = /*lang=json,strict*/ """
-                                   {
-                                       "id": 999,
-                                       "name": "Totally",
-                                       "firstName": "Different",
-                                       "deleted": false
-                                   }
-                                   """;
+                                                        {
+                                                            "id": 999,
+                                                            "name": "Totally",
+                                                            "firstName": "Different",
+                                                            "deleted": false
+                                                        }
+                                                        """;
 
-            return Client.AssertDeleteAsync<DeletePersonResponse>(
-                       DeleteUrl,
-                       expectedResponse,
-                       differenceFilter: _ => false);
+            return Client.AssertDeleteAsync<DeletePersonResponse>(DeleteUrl,
+                                                                  expectedResponse,
+                                                                  differenceFilter: _ => false);
         }
     }
 }

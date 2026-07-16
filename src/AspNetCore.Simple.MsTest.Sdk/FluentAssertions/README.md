@@ -39,9 +39,11 @@ var created = await Client.AssertPost("api/v1/persons")
 ## Building blocks
 
 ### Entry
+
 `Client.AssertPost / AssertGet / AssertPut / AssertPatch / AssertDelete(url)`
 
 ### Request body — explicit, no heuristic
+
 ```csharp
 .Accepts(person)                          // C# object (serialized)
 .AcceptsFromJsonString("{ \"name\": … }") // raw JSON, verbatim
@@ -49,6 +51,7 @@ var created = await Client.AssertPost("api/v1/persons")
 ```
 
 ### Placeholder parameters — naked names, the SDK escapes internally
+
 ```csharp
 .WithParameter("Id", 0)                    // → internally $Id$; "$Id$" is also accepted
 .WithParameters(("Name", "Goku"), ("Age", 42))
@@ -57,26 +60,32 @@ var created = await Client.AssertPost("api/v1/persons")
 ```
 
 ### Status + type + return type
+
 ```csharp
 .Produces<Person>(StatusCodes.Status201Created)  // body as Person → Task<Person>
 .Produces<Person>(HttpStatusCode.OK)             // HttpStatusCode overload
 .Produces(StatusCodes.Status204NoContent)        // no body → Task; no ExpectedResponse allowed
 ```
+
 The body type is generic — error outcomes carry their own type:
+
 ```csharp
 .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
 .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest)
 ```
 
 ### Expected body (optional) — mirrors the request side (Schema A)
+
 ```csharp
 .ExpectedResponse(personObject)                    // C# object
 .ExpectedResponseFromJsonString("{ … }")           // raw JSON
 .ExpectedResponseFromEmbeddedJson("Expected.json") // embedded-resource file
 ```
+
 **Omitting it = body-less path:** assert the status only, still get the real response back typed.
 
 ### Comparison config — only reachable after `ExpectedResponse…` (type-state!)
+
 ```csharp
 .IgnoreProperty<Person>(p => p.Id)               // type-safe hard skip
 .IgnoreDifferences(diffs => diffs.Where(…))      // free difference filtering
@@ -85,6 +94,7 @@ The body type is generic — error outcomes carry their own type:
 ```
 
 ### Terminal
+
 `.ExecuteAsync()` → `Task<T>` (with body) or `Task` (body-less). The only `await` point.
 
 ## Type-state (the compiler as the first line of defense)
@@ -145,5 +155,6 @@ await Client.AssertGet($"api/v1/persons/{created.Id}")
     .ExecuteAsync();
 ```
 
-More examples in [`EXAMPLES.md`](EXAMPLES.md). Design background and open questions in
+More examples in [`EXAMPLES.md`](EXAMPLES.md). A task-oriented walkthrough plus the full method idea
+collection lives in [`HOWTO.md`](HOWTO.md). Design background and open questions in
 [`DESIGN_VISION.md`](DESIGN_VISION.md).

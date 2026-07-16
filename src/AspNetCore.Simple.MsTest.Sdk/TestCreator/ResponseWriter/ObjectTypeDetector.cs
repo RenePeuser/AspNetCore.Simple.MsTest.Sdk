@@ -7,20 +7,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
     public enum ObjectConstructionType
     {
         Unknown,
+
         AnonymousObject,
+
         RecordPositional,
+
         RecordNominal,
+
         ClassNominal
     }
 
     public interface IObjectTypeDetector
     {
-        ObjectConstructionType DetectConstructionType<T>(T obj, string expressionText);
+        ObjectConstructionType DetectConstructionType<T>(T obj,
+                                                         string expressionText);
     }
 
     public sealed class ObjectTypeDetector : IObjectTypeDetector
     {
-        public ObjectConstructionType DetectConstructionType<T>(T obj, string expressionText)
+        public ObjectConstructionType DetectConstructionType<T>(T obj,
+                                                                string expressionText)
         {
             if (obj == null)
             {
@@ -50,6 +56,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Extract constructor call pattern
             var newIndex = trimmedExpression.IndexOf("new ", StringComparison.Ordinal);
+
             if (newIndex >= 0)
             {
                 var afterNew = trimmedExpression.Substring(newIndex + 4).TrimStart();
@@ -66,6 +73,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     {
                         return ObjectConstructionType.RecordPositional;
                     }
+
                     // Classes can also use positional constructors, but for generation purposes
                     // we'll treat them as nominal (more common pattern)
                     return ObjectConstructionType.ClassNominal;
@@ -78,6 +86,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     {
                         return ObjectConstructionType.RecordNominal;
                     }
+
                     return ObjectConstructionType.ClassNominal;
                 }
             }

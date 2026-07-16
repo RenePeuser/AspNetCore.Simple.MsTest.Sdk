@@ -210,12 +210,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     var value2 = currentLength == 0 ? "[] (0 items)" : $"[{currentLength} item(s)]";
 
                     consolidated.Add(new Difference
-                    {
-                        MemberPath = arrayPath,
-                        Value1 = value1,
-                        Value2 = value2,
-                        MismatchType = mismatchType
-                    });
+                                     {
+                                         MemberPath = arrayPath,
+                                         Value1 = value1,
+                                         Value2 = value2,
+                                         MismatchType = mismatchType
+                                     });
                 }
                 else
                 {

@@ -49,7 +49,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
                                                          string url,
                                                          [CallerFilePath] string callerFilePath = "")
         {
-            return new HttpRequestBuilder(client, HttpMethod.Post, url, Assembly.GetCallingAssembly(), callerFilePath);
+            return new HttpRequestBuilder(client, HttpMethod.Post, url,
+                                          Assembly.GetCallingAssembly(), callerFilePath);
         }
 
         /// <summary>Starts a fluent GET assertion chain.</summary>
@@ -57,7 +58,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
                                                         string url,
                                                         [CallerFilePath] string callerFilePath = "")
         {
-            return new HttpRequestBuilder(client, HttpMethod.Get, url, Assembly.GetCallingAssembly(), callerFilePath);
+            return new HttpRequestBuilder(client, HttpMethod.Get, url,
+                                          Assembly.GetCallingAssembly(), callerFilePath);
         }
 
         /// <summary>Starts a fluent PUT assertion chain.</summary>
@@ -65,7 +67,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
                                                         string url,
                                                         [CallerFilePath] string callerFilePath = "")
         {
-            return new HttpRequestBuilder(client, HttpMethod.Put, url, Assembly.GetCallingAssembly(), callerFilePath);
+            return new HttpRequestBuilder(client, HttpMethod.Put, url,
+                                          Assembly.GetCallingAssembly(), callerFilePath);
         }
 
         /// <summary>Starts a fluent PATCH assertion chain.</summary>
@@ -73,7 +76,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
                                                           string url,
                                                           [CallerFilePath] string callerFilePath = "")
         {
-            return new HttpRequestBuilder(client, HttpMethod.Patch, url, Assembly.GetCallingAssembly(), callerFilePath);
+            return new HttpRequestBuilder(client, HttpMethod.Patch, url,
+                                          Assembly.GetCallingAssembly(), callerFilePath);
         }
 
         /// <summary>Starts a fluent DELETE assertion chain.</summary>
@@ -81,7 +85,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
                                                            string url,
                                                            [CallerFilePath] string callerFilePath = "")
         {
-            return new HttpRequestBuilder(client, HttpMethod.Delete, url, Assembly.GetCallingAssembly(), callerFilePath);
+            return new HttpRequestBuilder(client, HttpMethod.Delete, url,
+                                          Assembly.GetCallingAssembly(), callerFilePath);
         }
     }
 }

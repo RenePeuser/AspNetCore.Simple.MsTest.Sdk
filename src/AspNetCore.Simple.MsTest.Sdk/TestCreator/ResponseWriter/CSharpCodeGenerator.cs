@@ -7,18 +7,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     public interface ICSharpCodeGenerator
     {
-        string GenerateAnonymousObjectInitializer(string jsonContent, int baseIndentation);
+        string GenerateAnonymousObjectInitializer(string jsonContent,
+                                                  int baseIndentation);
 
-        string GenerateRecordPositionalConstructor(string typeName, string jsonContent, int baseIndentation);
+        string GenerateRecordPositionalConstructor(string typeName,
+                                                   string jsonContent,
+                                                   int baseIndentation);
 
-        string GenerateRecordNominalInitializer(string typeName, string jsonContent, int baseIndentation);
+        string GenerateRecordNominalInitializer(string typeName,
+                                                string jsonContent,
+                                                int baseIndentation);
 
-        string GenerateClassNominalInitializer(string typeName, string jsonContent, int baseIndentation);
+        string GenerateClassNominalInitializer(string typeName,
+                                               string jsonContent,
+                                               int baseIndentation);
     }
 
     public sealed class CSharpCodeGenerator : ICSharpCodeGenerator
     {
-        public string GenerateAnonymousObjectInitializer(string jsonContent, int baseIndentation)
+        public string GenerateAnonymousObjectInitializer(string jsonContent,
+                                                         int baseIndentation)
         {
             if (string.IsNullOrWhiteSpace(jsonContent))
             {
@@ -35,7 +43,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 sb.Append(new string(' ', baseIndentation));
                 sb.Append('{');
 
-                GenerateProperties(doc.RootElement, sb, baseIndentation + 4, isFirst: true);
+                GenerateProperties(doc.RootElement, sb, baseIndentation + 4,
+                                   isFirst: true);
 
                 sb.AppendLine();
                 sb.Append(new string(' ', baseIndentation));
@@ -51,7 +60,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private void GenerateProperties(JsonElement element, StringBuilder sb, int indentation, bool isFirst)
+        private void GenerateProperties(JsonElement element,
+                                        StringBuilder sb,
+                                        int indentation,
+                                        bool isFirst)
         {
             foreach (var property in element.EnumerateObject())
             {
@@ -71,17 +83,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private void GenerateValue(JsonElement value, StringBuilder sb, int indentation)
+        private void GenerateValue(JsonElement value,
+                                   StringBuilder sb,
+                                   int indentation)
         {
             switch (value.ValueKind)
             {
                 case JsonValueKind.Null:
                     sb.Append("null");
+
                     break;
 
                 case JsonValueKind.True:
                 case JsonValueKind.False:
                     sb.Append(value.GetBoolean() ? "true" : "false");
+
                     break;
 
                 case JsonValueKind.Number:
@@ -97,16 +113,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     {
                         sb.Append(doubleValue);
                     }
+
                     break;
 
                 case JsonValueKind.String:
                     sb.Append('"');
                     sb.Append(EscapeString(value.GetString()));
                     sb.Append('"');
+
                     break;
 
                 case JsonValueKind.Array:
                     GenerateArray(value, sb, indentation);
+
                     break;
 
                 case JsonValueKind.Object:
@@ -114,15 +133,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     sb.AppendLine();
                     sb.Append(new string(' ', indentation));
                     sb.Append('{');
-                    GenerateProperties(value, sb, indentation + 4, isFirst: true);
+
+                    GenerateProperties(value, sb, indentation + 4,
+                                       isFirst: true);
+
                     sb.AppendLine();
                     sb.Append(new string(' ', indentation));
                     sb.Append('}');
+
                     break;
             }
         }
 
-        private void GenerateArray(JsonElement array, StringBuilder sb, int indentation)
+        private void GenerateArray(JsonElement array,
+                                   StringBuilder sb,
+                                   int indentation)
         {
             sb.Append("new[]");
             sb.AppendLine();
@@ -130,6 +155,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.Append('{');
 
             var isFirst = true;
+
             foreach (var item in array.EnumerateArray())
             {
                 if (!isFirst)
@@ -167,13 +193,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             return str.Replace("\\", "\\\\", StringComparison.Ordinal)
-                     .Replace("\"", "\\\"", StringComparison.Ordinal)
-                     .Replace("\n", "\\n", StringComparison.Ordinal)
-                     .Replace("\r", "\\r", StringComparison.Ordinal)
-                     .Replace("\t", "\\t", StringComparison.Ordinal);
+                      .Replace("\"", "\\\"", StringComparison.Ordinal)
+                      .Replace("\n", "\\n", StringComparison.Ordinal)
+                      .Replace("\r", "\\r", StringComparison.Ordinal)
+                      .Replace("\t", "\\t", StringComparison.Ordinal);
         }
 
-        public string GenerateRecordPositionalConstructor(string typeName, string jsonContent, int baseIndentation)
+        public string GenerateRecordPositionalConstructor(string typeName,
+                                                          string jsonContent,
+                                                          int baseIndentation)
         {
             if (string.IsNullOrWhiteSpace(jsonContent))
             {
@@ -188,6 +216,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 sb.Append($"new {typeName}(");
 
                 var isFirst = true;
+
                 foreach (var property in doc.RootElement.EnumerateObject())
                 {
                     if (!isFirst)
@@ -211,7 +240,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        public string GenerateRecordNominalInitializer(string typeName, string jsonContent, int baseIndentation)
+        public string GenerateRecordNominalInitializer(string typeName,
+                                                       string jsonContent,
+                                                       int baseIndentation)
         {
             if (string.IsNullOrWhiteSpace(jsonContent))
             {
@@ -228,7 +259,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 sb.Append(new string(' ', baseIndentation));
                 sb.Append('{');
 
-                GeneratePropertiesTyped(doc.RootElement, sb, baseIndentation + 4, isFirst: true);
+                GeneratePropertiesTyped(doc.RootElement, sb, baseIndentation + 4,
+                                        isFirst: true);
 
                 sb.AppendLine();
                 sb.Append(new string(' ', baseIndentation));
@@ -244,23 +276,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        public string GenerateClassNominalInitializer(string typeName, string jsonContent, int baseIndentation)
+        public string GenerateClassNominalInitializer(string typeName,
+                                                      string jsonContent,
+                                                      int baseIndentation)
         {
             // For classes, use the same format as record nominal
             return GenerateRecordNominalInitializer(typeName, jsonContent, baseIndentation);
         }
 
-        private void GenerateValueInline(JsonElement value, StringBuilder sb)
+        private void GenerateValueInline(JsonElement value,
+                                         StringBuilder sb)
         {
             switch (value.ValueKind)
             {
                 case JsonValueKind.Null:
                     sb.Append("null");
+
                     break;
 
                 case JsonValueKind.True:
                 case JsonValueKind.False:
                     sb.Append(value.GetBoolean() ? "true" : "false");
+
                     break;
 
                 case JsonValueKind.Number:
@@ -276,49 +313,62 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     {
                         sb.Append(doubleValue);
                     }
+
                     break;
 
                 case JsonValueKind.String:
                     sb.Append('"');
                     sb.Append(EscapeString(value.GetString()));
                     sb.Append('"');
+
                     break;
 
                 case JsonValueKind.Array:
                     sb.Append('[');
                     var isFirst = true;
+
                     foreach (var item in value.EnumerateArray())
                     {
                         if (!isFirst)
                         {
                             sb.Append(", ");
                         }
+
                         GenerateValueInline(item, sb);
                         isFirst = false;
                     }
+
                     sb.Append(']');
+
                     break;
 
                 case JsonValueKind.Object:
                     sb.Append("new { ");
                     isFirst = true;
+
                     foreach (var property in value.EnumerateObject())
                     {
                         if (!isFirst)
                         {
                             sb.Append(", ");
                         }
+
                         sb.Append(ToCamelCase(property.Name));
                         sb.Append(" = ");
                         GenerateValueInline(property.Value, sb);
                         isFirst = false;
                     }
+
                     sb.Append(" }");
+
                     break;
             }
         }
 
-        private void GeneratePropertiesTyped(JsonElement element, StringBuilder sb, int indentation, bool isFirst)
+        private void GeneratePropertiesTyped(JsonElement element,
+                                             StringBuilder sb,
+                                             int indentation,
+                                             bool isFirst)
         {
             foreach (var property in element.EnumerateObject())
             {

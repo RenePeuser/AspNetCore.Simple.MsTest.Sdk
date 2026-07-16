@@ -22,10 +22,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         public Task ObjectResponse_Should_Query_Persons()
         {
             var queryRequest = new
-            {
-                Name = "Son",
-                MinAge = 50
-            };
+                               {
+                                   Name = "Son",
+                                   MinAge = 50
+                               };
 
             var expectedPersons = new[]
                                   {
@@ -58,9 +58,9 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
                                   };
 
             return Client.AssertQueryAsync<IEnumerable<Person>>("api/v1/persons/search",
-                                           queryRequest,
-                                           expectedPersons,
-                                           expectedHttpStatusCode: HttpStatusCode.OK);
+                                                                queryRequest,
+                                                                expectedPersons,
+                                                                expectedHttpStatusCode: HttpStatusCode.OK);
         }
 
         [TestMethod]
@@ -87,8 +87,8 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
                                   };
 
             return Client.AssertQueryAsync<IEnumerable<Person>>("api/v1/persons/search",
-                                           queryRequest,
-                                           expectedPersons);
+                                                                queryRequest,
+                                                                expectedPersons);
         }
     }
 }

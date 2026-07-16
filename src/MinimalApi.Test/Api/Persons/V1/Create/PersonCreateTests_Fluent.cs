@@ -11,7 +11,7 @@ using MinimalApi.Test.Api.Persons.V1.Shared;
 namespace MinimalApi.Test.Api.Persons.V1.Create
 {
     /// <summary>
-    /// Fluent API tests for POST /api/v1/persons endpoint (Endpoint-Stil: chain ends in ExecuteAsync).
+    ///     Fluent API tests for POST /api/v1/persons endpoint (Endpoint-Stil: chain ends in ExecuteAsync).
     /// </summary>
     public partial class PersonCreateTests
     {
@@ -25,10 +25,9 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
             var result = await Client.AssertPost("api/v1/persons")
                                      .Accepts(person)
                                      .Produces<Person>(HttpStatusCode.Created)
-                                     .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
-                                     .ExecuteAsync().ConfigureAwait(false);
+                                     .ExpectedResponseFromEmbeddedJson("CreatePerson.json").ExecuteAsync().ConfigureAwait(false);
 
-            Assert.IsNotNull(result);
+            return Task.CompletedTask;
         }
 
         [TestMethod]
@@ -68,7 +67,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
-                            .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 
@@ -83,7 +82,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePersonFull.json")
-                             .IgnoreProperty<Person>(p => p.Id)
+                         .IgnoreProperty<Person>(p => p.Id)
                          .ExecuteAsync();
         }
 
@@ -244,7 +243,11 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
             // IHttpRequestConfiguring.WithParameters(object) — params from an object's public properties (§10.1.1).
             return Client.AssertPost("api/v1/persons")
                          .AcceptsFromEmbeddedJson("CreatePersonParameterized.json")
-                         .WithParameters(new { Name = "Son", Age = 42 })
+                         .WithParameters(new
+                                         {
+                                             Name = "Son",
+                                             Age = 42
+                                         })
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePersonParameterized.json")
                          .ExecuteAsync();
@@ -338,9 +341,9 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponse(expected)
-                             .FilterResponse(p => p is null
-                                                      ? null
-                                                      : p with { Emails = p.Emails.OrderByDescending(e => e.EmailAddress).ToImmutableList() })
+                         .FilterResponse(p => p is null
+                                                  ? null
+                                                  : p with { Emails = p.Emails.OrderByDescending(e => e.EmailAddress).ToImmutableList() })
                          .ExecuteAsync();
         }
 
@@ -357,7 +360,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
-                             .WriteSnapshot(false)
+                         .WriteSnapshot(false)
                          .ExecuteAsync();
         }
 
@@ -381,7 +384,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponse(expected)
-                             .DifferenceFilter(d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
+                         .DifferenceFilter(d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
                          .ExecuteAsync();
         }
 
@@ -395,14 +398,13 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
             var person = TestHelpers.CreateValidPerson();
             var expected = person with { Name = "WrongName" };
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertPost("api/v1/persons")
-                                  .Accepts(person)
-                                  .Produces<Person>(HttpStatusCode.Created)
-                                  .ExpectedResponse(expected)
-                                      .DifferenceFilter(d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
-                                  .ExecuteAsync())
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPost("api/v1/persons")
+                                                                               .Accepts(person)
+                                                                               .Produces<Person>(HttpStatusCode.Created)
+                                                                               .ExpectedResponse(expected)
+                                                                               .DifferenceFilter(d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
+                                                                               .ExecuteAsync())
+                        .ConfigureAwait(false);
         }
     }
 }

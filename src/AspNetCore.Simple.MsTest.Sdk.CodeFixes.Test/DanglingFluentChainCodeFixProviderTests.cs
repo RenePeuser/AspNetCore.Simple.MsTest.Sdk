@@ -13,15 +13,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
     [TestClass]
     public sealed class DanglingFluentChainCodeFixProviderTests
     {
-        private static Task VerifyFixAsync(string testCode, string fixedCode)
+        private static Task VerifyFixAsync(string testCode,
+                                           string fixedCode)
         {
             var test = new CSharpCodeFixTest<DanglingFluentChainAnalyzer,
-                DanglingFluentChainCodeFixProvider,
-                DefaultVerifier>
-            {
-                TestCode = testCode,
-                FixedCode = fixedCode
-            };
+                           DanglingFluentChainCodeFixProvider,
+                           DefaultVerifier>
+                       {
+                           TestCode = testCode,
+                           FixedCode = fixedCode
+                       };
 
             return test.RunAsync();
         }
@@ -38,41 +39,41 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
         {
             var test = Stub + """
 
-                namespace TestApp
-                {
-                    using System.Threading.Tasks;
-                    using System.Net;
+                              namespace TestApp
+                              {
+                                  using System.Threading.Tasks;
+                                  using System.Net;
 
-                    public class Tests
-                    {
-                        public async Task Run()
-                        {
-                            [|Client.AssertPost("api/persons")
-                                .Returns<Person>(new Person())
-                                .ExpectingStatus(HttpStatusCode.Created);|]
-                        }
-                    }
-                }
-                """;
+                                  public class Tests
+                                  {
+                                      public async Task Run()
+                                      {
+                                          [|Client.AssertPost("api/persons")
+                                              .Returns<Person>(new Person())
+                                              .ExpectingStatus(HttpStatusCode.Created);|]
+                                      }
+                                  }
+                              }
+                              """;
 
             var fixedCode = Stub + """
 
-                namespace TestApp
-                {
-                    using System.Threading.Tasks;
-                    using System.Net;
+                                   namespace TestApp
+                                   {
+                                       using System.Threading.Tasks;
+                                       using System.Net;
 
-                    public class Tests
-                    {
-                        public async Task Run()
-                        {
-                            await Client.AssertPost("api/persons")
-                                .Returns<Person>(new Person())
-                                .ExpectingStatus(HttpStatusCode.Created).ExecuteAsync();
-                        }
-                    }
-                }
-                """;
+                                       public class Tests
+                                       {
+                                           public async Task Run()
+                                           {
+                                               await Client.AssertPost("api/persons")
+                                                   .Returns<Person>(new Person())
+                                                   .ExpectingStatus(HttpStatusCode.Created).ExecuteAsync();
+                                           }
+                                       }
+                                   }
+                                   """;
 
             return VerifyFixAsync(test, fixedCode);
         }
@@ -86,39 +87,39 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
         {
             var test = Stub + """
 
-                namespace TestApp
-                {
-                    using System.Net;
+                              namespace TestApp
+                              {
+                                  using System.Net;
 
-                    public class Tests
-                    {
-                        public void Run()
-                        {
-                            [|Client.AssertGet("api/persons")
-                                .ExpectingResponse()
-                                .ExpectingSuccess();|]
-                        }
-                    }
-                }
-                """;
+                                  public class Tests
+                                  {
+                                      public void Run()
+                                      {
+                                          [|Client.AssertGet("api/persons")
+                                              .ExpectingResponse()
+                                              .ExpectingSuccess();|]
+                                      }
+                                  }
+                              }
+                              """;
 
             var fixedCode = Stub + """
 
-                namespace TestApp
-                {
-                    using System.Net;
+                                   namespace TestApp
+                                   {
+                                       using System.Net;
 
-                    public class Tests
-                    {
-                        public async Task Run()
-                        {
-                            await Client.AssertGet("api/persons")
-                                .ExpectingResponse()
-                                .ExpectingSuccess().ExecuteAsync();
-                        }
-                    }
-                }
-                """;
+                                       public class Tests
+                                       {
+                                           public async Task Run()
+                                           {
+                                               await Client.AssertGet("api/persons")
+                                                   .ExpectingResponse()
+                                                   .ExpectingSuccess().ExecuteAsync();
+                                           }
+                                       }
+                                   }
+                                   """;
 
             return VerifyFixAsync(test, fixedCode);
         }
@@ -132,45 +133,45 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
         {
             var test = Stub + """
 
-                namespace TestApp
-                {
-                    using System.Net;
+                              namespace TestApp
+                              {
+                                  using System.Net;
 
-                    public class Tests
-                    {
-                        public void Outer()
-                        {
-                            void Inner()
-                            {
-                                [|Client.AssertGet("api/persons")
-                                    .ExpectingResponse()
-                                    .ExpectingSuccess();|]
-                            }
-                        }
-                    }
-                }
-                """;
+                                  public class Tests
+                                  {
+                                      public void Outer()
+                                      {
+                                          void Inner()
+                                          {
+                                              [|Client.AssertGet("api/persons")
+                                                  .ExpectingResponse()
+                                                  .ExpectingSuccess();|]
+                                          }
+                                      }
+                                  }
+                              }
+                              """;
 
             var fixedCode = Stub + """
 
-                namespace TestApp
-                {
-                    using System.Net;
+                                   namespace TestApp
+                                   {
+                                       using System.Net;
 
-                    public class Tests
-                    {
-                        public void Outer()
-                        {
-                            async Task Inner()
-                            {
-                                await Client.AssertGet("api/persons")
-                                    .ExpectingResponse()
-                                    .ExpectingSuccess().ExecuteAsync();
-                            }
-                        }
-                    }
-                }
-                """;
+                                       public class Tests
+                                       {
+                                           public void Outer()
+                                           {
+                                               async Task Inner()
+                                               {
+                                                   await Client.AssertGet("api/persons")
+                                                       .ExpectingResponse()
+                                                       .ExpectingSuccess().ExecuteAsync();
+                                               }
+                                           }
+                                       }
+                                   }
+                                   """;
 
             return VerifyFixAsync(test, fixedCode);
         }
@@ -184,39 +185,39 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
         {
             var test = Stub + """
 
-                namespace TestApp
-                {
-                    using System.Threading.Tasks;
-                    using System.Net;
+                              namespace TestApp
+                              {
+                                  using System.Threading.Tasks;
+                                  using System.Net;
 
-                    public class Tests
-                    {
-                        public async Task Run()
-                        {
-                            [|Client.AssertPost("api/persons").Returns<Person>(new Person()).ExpectingSuccess();|]
-                            [|Client.AssertGet("api/persons").ExpectingResponse().ExpectingSuccess();|]
-                        }
-                    }
-                }
-                """;
+                                  public class Tests
+                                  {
+                                      public async Task Run()
+                                      {
+                                          [|Client.AssertPost("api/persons").Returns<Person>(new Person()).ExpectingSuccess();|]
+                                          [|Client.AssertGet("api/persons").ExpectingResponse().ExpectingSuccess();|]
+                                      }
+                                  }
+                              }
+                              """;
 
             var fixedCode = Stub + """
 
-                namespace TestApp
-                {
-                    using System.Threading.Tasks;
-                    using System.Net;
+                                   namespace TestApp
+                                   {
+                                       using System.Threading.Tasks;
+                                       using System.Net;
 
-                    public class Tests
-                    {
-                        public async Task Run()
-                        {
-                            await Client.AssertPost("api/persons").Returns<Person>(new Person()).ExpectingSuccess().ExecuteAsync();
-                            await Client.AssertGet("api/persons").ExpectingResponse().ExpectingSuccess().ExecuteAsync();
-                        }
-                    }
-                }
-                """;
+                                       public class Tests
+                                       {
+                                           public async Task Run()
+                                           {
+                                               await Client.AssertPost("api/persons").Returns<Person>(new Person()).ExpectingSuccess().ExecuteAsync();
+                                               await Client.AssertGet("api/persons").ExpectingResponse().ExpectingSuccess().ExecuteAsync();
+                                           }
+                                       }
+                                   }
+                                   """;
 
             return VerifyFixAsync(test, fixedCode);
         }

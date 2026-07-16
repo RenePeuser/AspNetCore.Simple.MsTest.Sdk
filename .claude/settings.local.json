@@ -39,7 +39,11 @@
       "Bash(unzip -l /tmp/nupkg-verify/AspNetCore.Simple.MsTest.Sdk.9.5.1.nupkg)",
       "Bash(dotnet package *)",
       "Bash(dotnet --version)",
-      "Read(//c/Program Files/dotnet/sdk/**)"
+      "Read(//c/Program Files/dotnet/sdk/**)",
+      "Bash(diff \"D:/new-features.md\" \"src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/HOWTO.md\")",
+      "Bash(echo \"exit: $?\")",
+      "Read(//tmp/**)",
+      "Bash(echo \"diff exit: $?  \\(0=identisch\\)\")"
     ]
   }
 }

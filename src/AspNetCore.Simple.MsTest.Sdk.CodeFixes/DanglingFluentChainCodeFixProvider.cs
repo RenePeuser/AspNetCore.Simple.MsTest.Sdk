@@ -65,13 +65,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes
                 return;
             }
 
-            context.RegisterCodeFix(CodeAction.Create(Title,
-                                                      cancellationToken =>
-                                                          TerminateChainAsync(context.Document,
-                                                                              statement,
-                                                                              cancellationToken),
-                                                      equivalenceKey: nameof(DanglingFluentChainCodeFixProvider)),
-                                    diagnostic);
+            var codeAction = CodeAction.Create(Title,
+                                               cancellationToken =>
+                                                   TerminateChainAsync(context.Document,
+                                                                       statement,
+                                                                       cancellationToken),
+                                               equivalenceKey: nameof(DanglingFluentChainCodeFixProvider));
+
+            context.RegisterCodeFix(codeAction, diagnostic);
         }
 
         private static async Task<Document> TerminateChainAsync(Document document,
@@ -90,10 +91,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes
             // chain  →  await chain.ExecuteAsync();  (leading/trailing trivia preserved verbatim from the
             // original statement; the await prefix and .ExecuteAsync() suffix add no newlines, so NO
             // Formatter.Annotation — the formatter would otherwise rewrite EOLs to Environment.NewLine.)
-            var terminated = SyntaxFactory
-                .ExpressionStatement(SyntaxFactory.AwaitExpression(BuildAwaitKeyword(),
-                                                                   BuildTerminalInvocation(invocation)))
-                .WithTriviaFrom(statement);
+            var awaitExpressionSyntax = SyntaxFactory.AwaitExpression(BuildAwaitKeyword(),
+                                                                      BuildTerminalInvocation(invocation));
+
+            var terminated = SyntaxFactory.ExpressionStatement(awaitExpressionSyntax)
+                                          .WithTriviaFrom(statement);
 
             var enclosing = FindEnclosingExecutable(statement);
 
@@ -205,7 +207,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes
         // indentation) must move — verbatim, non-elastic — onto 'async', or Roslyn re-expands it to
         // Environment.NewLine and fights the document's own line endings.
         private static (SyntaxTokenList Modifiers, TypeSyntax ReturnType) AddAsyncBeforeReturnType(
-            SyntaxTokenList modifiers, TypeSyntax returnType)
+            SyntaxTokenList modifiers,
+            TypeSyntax returnType)
         {
             if (modifiers.Any(SyntaxKind.AsyncKeyword))
             {
@@ -268,8 +271,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes
             }
 
             var usingDirective = SyntaxFactory
-                .UsingDirective(SyntaxFactory.ParseName(tasksNamespace))
-                .WithAdditionalAnnotations(Formatter.Annotation);
+                                 .UsingDirective(SyntaxFactory.ParseName(tasksNamespace))
+                                 .WithAdditionalAnnotations(Formatter.Annotation);
 
             return compilationUnit.AddUsings(usingDirective);
         }

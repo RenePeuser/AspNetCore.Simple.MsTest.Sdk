@@ -88,16 +88,16 @@ namespace Core.Test.Core
         {
             // Arrange
             var expected = new TestUser
-            {
-                Id = 1,
-                Name = "Goku"
-            };
+                           {
+                               Id = 1,
+                               Name = "Goku"
+                           };
 
             var actual = new TestUser
-            {
-                Id = 1,
-                Name = "Goku"
-            };
+                         {
+                             Id = 1,
+                             Name = "Goku"
+                         };
 
             // Act & Assert - Should NOT throw
             Assert.That.AreEqual(expected, actual,
@@ -110,18 +110,18 @@ namespace Core.Test.Core
         {
             // Arrange
             var expected = new TestUser
-            {
-                Id = 1,
-                Name = "Goku",
-                Email = "goku@saiyan.com"
-            };
+                           {
+                               Id = 1,
+                               Name = "Goku",
+                               Email = "goku@saiyan.com"
+                           };
 
             var actual = new TestUser
-            {
-                Id = 2,
-                Name = "Vegeta",
-                Email = "vegeta@saiyan.com"
-            };
+                         {
+                             Id = 2,
+                             Name = "Vegeta",
+                             Email = "vegeta@saiyan.com"
+                         };
 
             // Act
             try
@@ -245,16 +245,16 @@ namespace Core.Test.Core
         {
             // Arrange
             var expected = new TestUser
-            {
-                Id = 1,
-                Name = "Goku"
-            };
+                           {
+                               Id = 1,
+                               Name = "Goku"
+                           };
 
             var actual = new TestUser
-            {
-                Id = 2,
-                Name = "Vegeta"
-            };
+                         {
+                             Id = 2,
+                             Name = "Vegeta"
+                         };
 
             // Act & Assert - Should NOT throw
             Assert.That.AreNotEqual(expected, actual,
@@ -267,18 +267,18 @@ namespace Core.Test.Core
         {
             // Arrange
             var expected = new TestUser
-            {
-                Id = 1,
-                Name = "Goku",
-                Email = "goku@saiyan.com"
-            };
+                           {
+                               Id = 1,
+                               Name = "Goku",
+                               Email = "goku@saiyan.com"
+                           };
 
             var actual = new TestUser
-            {
-                Id = 1,
-                Name = "Goku",
-                Email = "goku@saiyan.com"
-            };
+                         {
+                             Id = 1,
+                             Name = "Goku",
+                             Email = "goku@saiyan.com"
+                         };
 
             // Act
             try
@@ -315,10 +315,10 @@ namespace Core.Test.Core
         {
             // Arrange
             var expected = new TestUser
-            {
-                Id = 1,
-                Name = "Goku"
-            };
+                           {
+                               Id = 1,
+                               Name = "Goku"
+                           };
 
             var actual = expected; // Same reference
 
@@ -333,16 +333,16 @@ namespace Core.Test.Core
         {
             // Arrange
             var expected = new TestUser
-            {
-                Id = 1,
-                Name = "Goku"
-            };
+                           {
+                               Id = 1,
+                               Name = "Goku"
+                           };
 
             var actual = new TestUser
-            {
-                Id = 1,
-                Name = "Goku"
-            }; // Different reference
+                         {
+                             Id = 1,
+                             Name = "Goku"
+                         }; // Different reference
 
             var threw = false;
 
@@ -367,18 +367,18 @@ namespace Core.Test.Core
         {
             // Arrange
             var expected = new TestUser
-            {
-                Id = 1,
-                Name = "Goku",
-                Email = "goku@saiyan.com"
-            };
+                           {
+                               Id = 1,
+                               Name = "Goku",
+                               Email = "goku@saiyan.com"
+                           };
 
             var actual = new TestUser
-            {
-                Id = 1,
-                Name = "Goku",
-                Email = "goku@saiyan.com"
-            };
+                         {
+                             Id = 1,
+                             Name = "Goku",
+                             Email = "goku@saiyan.com"
+                         };
 
             // Act
             try
@@ -472,16 +472,16 @@ namespace Core.Test.Core
         {
             // Arrange
             var expected = new TestUser
-            {
-                Id = 1,
-                Name = "Goku"
-            };
+                           {
+                               Id = 1,
+                               Name = "Goku"
+                           };
 
             var actual = new TestUser
-            {
-                Id = 1,
-                Name = "Goku"
-            }; // Different reference
+                         {
+                             Id = 1,
+                             Name = "Goku"
+                         }; // Different reference
 
             // Act & Assert - Should NOT throw
             Assert.That.AreNotSame(expected, actual,
@@ -494,10 +494,10 @@ namespace Core.Test.Core
         {
             // Arrange
             var expected = new TestUser
-            {
-                Id = 1,
-                Name = "Goku"
-            };
+                           {
+                               Id = 1,
+                               Name = "Goku"
+                           };
 
             var actual = expected; // Same reference
             var threw = false;
@@ -523,11 +523,11 @@ namespace Core.Test.Core
         {
             // Arrange
             var expected = new TestUser
-            {
-                Id = 1,
-                Name = "Goku",
-                Email = "goku@saiyan.com"
-            };
+                           {
+                               Id = 1,
+                               Name = "Goku",
+                               Email = "goku@saiyan.com"
+                           };
 
             var actual = expected; // Same reference
 

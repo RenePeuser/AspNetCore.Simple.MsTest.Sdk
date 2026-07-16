@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;   // StatusCodes
 ## Basics
 
 ### GET with body comparison
+
 ```csharp
 await Client.AssertGet("api/persons")
     .Produces<List<Person>>(StatusCodes.Status200OK)
@@ -27,6 +28,7 @@ await Client.AssertGet("api/persons")
 ```
 
 ### POST with object body
+
 ```csharp
 var created = await Client.AssertPost("api/persons")
     .Accepts(person)
@@ -36,6 +38,7 @@ var created = await Client.AssertPost("api/persons")
 ```
 
 ### DELETE without body (204)
+
 ```csharp
 await Client.AssertDelete($"api/persons/{id}")
     .Produces(StatusCodes.Status204NoContent)   // no <T> → no ExpectedResponse allowed
@@ -73,6 +76,7 @@ await Client.AssertDelete($"api/persons/{id}")
 ```
 
 ### No expected = body-less path
+
 ```csharp
 // Assert the status only, still get the real response back typed — no golden file.
 var person = await Client.AssertGet($"api/persons/{id}")
@@ -87,6 +91,7 @@ Assert.IsNotNull(person);
 ## Comparison configuration (only after `ExpectedResponse…`)
 
 ### Type-safe property ignore
+
 ```csharp
 await Client.AssertGet("api/persons")
     .Produces<List<Person>>(StatusCodes.Status200OK)
@@ -96,6 +101,7 @@ await Client.AssertGet("api/persons")
 ```
 
 ### Free difference filtering
+
 ```csharp
 await Client.AssertPut("api/persons/1")
     .AcceptsFromEmbeddedJson("Update.json")
@@ -106,6 +112,7 @@ await Client.AssertPut("api/persons/1")
 ```
 
 ### Normalize the response before comparison
+
 ```csharp
 await Client.AssertGet("api/persons")
     .Produces<List<Person>>(StatusCodes.Status200OK)
@@ -115,6 +122,7 @@ await Client.AssertGet("api/persons")
 ```
 
 ### Write a snapshot (update the expected file)
+
 ```csharp
 await Client.AssertGet("api/persons")
     .Produces<List<Person>>(StatusCodes.Status200OK)
@@ -150,6 +158,7 @@ await Client.AssertPost("api/persons")
 ---
 
 ## Custom headers
+
 ```csharp
 await Client.AssertGet("api/persons")
     .WithHeader("X-Custom-Header", "value")
@@ -225,6 +234,7 @@ public async Task Person_Lifecycle()
 ## Migration from the overload API
 
 **Before (overload):**
+
 ```csharp
 await Client.AssertPostAsync<Person>(
     url: "api/persons",
@@ -235,6 +245,7 @@ await Client.AssertPostAsync<Person>(
 ```
 
 **After (fluent, alpha):**
+
 ```csharp
 await Client.AssertPost("api/persons")
     .AcceptsFromJsonString(personJson)

@@ -69,7 +69,11 @@ namespace Controllers.Api.Persons
 
             if (person.Id == 999)
             {
-                return NotFound(new { StatusCode = 404, Message = "Person not found" });
+                return NotFound(new
+                                {
+                                    StatusCode = 404,
+                                    Message = "Person not found"
+                                });
             }
 
             return Ok(person);
@@ -81,13 +85,18 @@ namespace Controllers.Api.Persons
         [ProducesResponseType(typeof(ProblemDetails), 404)]
         [ProducesResponseType(typeof(ProblemDetails), 409)]
         [ProducesResponseType(typeof(ProblemDetails), 500)]
-        public IActionResult UpdateByIdAsync(long id, [FromBody] Person person)
+        public IActionResult UpdateByIdAsync(long id,
+                                             [FromBody] Person person)
         {
             ArgumentNullException.ThrowIfNull(person);
 
             if (id == 999)
             {
-                return NotFound(new { StatusCode = 404, Message = "Person not found" });
+                return NotFound(new
+                                {
+                                    StatusCode = 404,
+                                    Message = "Person not found"
+                                });
             }
 
             return Ok(person);
@@ -114,7 +123,11 @@ namespace Controllers.Api.Persons
 
             if (string.IsNullOrWhiteSpace(person.Name))
             {
-                return BadRequest(new { StatusCode = 400, Message = "Invalid request" });
+                return BadRequest(new
+                                  {
+                                      StatusCode = 400,
+                                      Message = "Invalid request"
+                                  });
             }
 
             return Ok(person);
@@ -127,7 +140,11 @@ namespace Controllers.Api.Persons
         {
             if (id == 999)
             {
-                return NotFound(new { StatusCode = 404, Message = "Person not found" });
+                return NotFound(new
+                                {
+                                    StatusCode = 404,
+                                    Message = "Person not found"
+                                });
             }
 
             return NoContent();

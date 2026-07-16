@@ -54,13 +54,12 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
             // FirstName is wrong; the filter only ignores age, so this difference must still fail.
             var expectedPerson = personToUpdate with { FirstName = "WrongName" };
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertPutAsync("api/v1/persons",
-                                                  personToUpdate,
-                                                  expectedPerson,
-                                                  differenceFunc: diffs => diffs,
-                                                  differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPutAsync("api/v1/persons",
+                                                                                               personToUpdate,
+                                                                                               expectedPerson,
+                                                                                               differenceFunc: diffs => diffs,
+                                                                                               differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
+                        .ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -92,13 +91,12 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
             // FirstName is wrong; the filter only ignores age, so this difference must still fail.
             var expectedPerson = personToPatch with { FirstName = "WrongName" };
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertPatchAsync("api/v1/persons",
-                                                    personToPatch,
-                                                    expectedPerson,
-                                                    differenceFunc: diffs => diffs,
-                                                    differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPatchAsync("api/v1/persons",
+                                                                                                 personToPatch,
+                                                                                                 expectedPerson,
+                                                                                                 differenceFunc: diffs => diffs,
+                                                                                                 differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
+                        .ConfigureAwait(false);
         }
     }
 }

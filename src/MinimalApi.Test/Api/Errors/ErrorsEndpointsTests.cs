@@ -85,11 +85,10 @@ namespace MinimalApi.Test.Api.Errors
         public async Task DifferenceFilter_Only_Should_Not_Hide_Unrelated_Difference()
         {
             // The filter only drops "detail" differences, so a wrong "title" must still fail.
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertPostAsErrorAsync<ProblemDetails>("api/v1/errors/not-implemented",
-                                                                          "ErrorResponseWrongDetail.json",
-                                                                          differenceFilter: d => !d.MemberPath.Contains("title", System.StringComparison.OrdinalIgnoreCase)))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPostAsErrorAsync<ProblemDetails>("api/v1/errors/not-implemented",
+                                                                                                                       "ErrorResponseWrongDetail.json",
+                                                                                                                       differenceFilter: d => !d.MemberPath.Contains("title", System.StringComparison.OrdinalIgnoreCase)))
+                        .ConfigureAwait(false);
         }
 
         private bool DifferenceFilter(Difference obj)

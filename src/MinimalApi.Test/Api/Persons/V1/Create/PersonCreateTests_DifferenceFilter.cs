@@ -54,13 +54,12 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
             // Name is wrong; the filter only ignores age, so the name difference must still fail.
             var expectedPerson = personToCreate with { Name = "WrongName" };
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertPostAsync("api/v1/persons",
-                                                   personToCreate,
-                                                   expectedPerson,
-                                                   differenceFunc: diffs => diffs,
-                                                   differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPostAsync("api/v1/persons",
+                                                                                                personToCreate,
+                                                                                                expectedPerson,
+                                                                                                differenceFunc: diffs => diffs,
+                                                                                                differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
+                        .ConfigureAwait(false);
         }
     }
 }

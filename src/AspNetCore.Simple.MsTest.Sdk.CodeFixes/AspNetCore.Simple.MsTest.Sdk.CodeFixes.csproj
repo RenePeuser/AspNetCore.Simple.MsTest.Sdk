@@ -6,6 +6,10 @@
         <TargetFrameworks></TargetFrameworks>
         <IsPackable>false</IsPackable>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <!-- The Roslyn analyzer host loads code-fix assemblies directly from disk and does NOT honor the
+             .deps.json file. Copy transitive runtime dependencies (notably System.Composition.*) next to
+             the code-fix DLL so Visual Studio can compose the provider and surface the lightbulb. -->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <!-- RS2008: release-tracking file not needed for this internal, under-construction component.
              CA1062: the Roslyn host never passes a null context to the provider. -->
         <NoWarn>$(NoWarn);RS2008;CA1062</NoWarn>
@@ -20,12 +24,12 @@
              as the analyzer project: a code fix built against 5.6.0 never loads in an older IDE host, so the
              lightbulb quick-fix never appears even though the CLI build reports MSTESTSDK001. Workspaces.Common
              pins in lockstep with the analyzer's CodeAnalysis.CSharp version. -->
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" VersionOverride="4.8.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" VersionOverride="4.8.0" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>
         <!-- The code fix reports against MSTESTSDK001, owned by the analyzer project. -->
-        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj" />
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj"/>
     </ItemGroup>
 
 </Project>

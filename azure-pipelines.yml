@@ -4,40 +4,40 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-  - master
-  - develop
-  
+    - master
+    - develop
+
 pool:
-  vmImage: 'ubuntu-latest'
+    vmImage: 'ubuntu-latest'
 
 variables:
-  buildConfiguration: 'Release'
-  GitVersion.SemVer: ''
+    buildConfiguration: 'Release'
+    GitVersion.SemVer: ''
 
 steps:
 
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '10.x'
+    -   task: UseDotNet@2
+        inputs:
+            packageType: 'sdk'
+            version: '10.x'
 
-- script: dotnet build --configuration $(buildConfiguration) /p:AssemblyVerison='$(GitVersion.SemVer)'
-  displayName: 'dotnet build $(buildConfiguration)'
+    -   script: dotnet build --configuration $(buildConfiguration) /p:AssemblyVerison='$(GitVersion.SemVer)'
+        displayName: 'dotnet build $(buildConfiguration)'
 
-- script: dotnet list package --include-transitive --vulnerable
-  displayName: 'Nuget vulnerability check'
+    -   script: dotnet list package --include-transitive --vulnerable
+        displayName: 'Nuget vulnerability check'
 
-- script: dotnet test
-  displayName: 'dotnet test'
+    -   script: dotnet test
+        displayName: 'dotnet test'
 
-- task: DotNetCoreCLI@2
-  displayName: Pack
-  inputs:
-    command: 'pack'
-    packagesToPack: './src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj'
-    versioningScheme: 'off'
+    -   task: DotNetCoreCLI@2
+        displayName: Pack
+        inputs:
+            command: 'pack'
+            packagesToPack: './src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj'
+            versioningScheme: 'off'
 
-- task: PublishBuildArtifacts@1
-  displayName: Publish artifacts
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    -   task: PublishBuildArtifacts@1
+        displayName: Publish artifacts
+        inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'

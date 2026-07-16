@@ -21,11 +21,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    internal sealed class CSharpObjectResponseWriter(
-        IParameterReplacer parameterReplacementService,
-        ISourceCodeExtractor sourceCodeExtractor,
-        ICSharpCodeGenerator codeGenerator,
-        IRoslynCodeManipulator codeManipulator) : ISpecificResponseWriter
+    internal sealed class CSharpObjectResponseWriter(IParameterReplacer parameterReplacementService,
+                                                     ISourceCodeExtractor sourceCodeExtractor,
+                                                     ICSharpCodeGenerator codeGenerator,
+                                                     IRoslynCodeManipulator codeManipulator) : ISpecificResponseWriter
     {
         public bool CanHandle(WriteResponseRequest context)
         {
@@ -48,12 +47,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (context.CallingAssembly.IsCompiledInDebug().IsFalse())
             {
                 Console.WriteLine("[CSharpObjectResponseWriter.Write] Not in DEBUG mode, skipping");
+
                 return;
             }
 
             try
             {
                 Console.WriteLine("[CSharpObjectResponseWriter.Write] Starting C# code generation...");
+
                 // Extract context from WriteResponseRequest fields
                 var callerFilePath = context.CallerFilePath;
                 var callerLineNumber = context.CallerLineNumber;
@@ -62,13 +63,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (string.IsNullOrWhiteSpace(callerFilePath) || callerLineNumber == 0)
                 {
                     Console.WriteLine("[CSharpObjectResponseWriter.Write] Missing caller context - cannot generate code");
+
                     return;
                 }
 
                 // Apply parameter replacement to response JSON
-                var responseJson = parameterReplacementService.ReplaceWithPlaceholders(
-                    context.CurrentResponseAsString,
-                    context.Parameters.Where(p => !p.key.StartsWith("__", StringComparison.Ordinal)).ToArray());
+                var responseJson = parameterReplacementService.ReplaceWithPlaceholders(context.CurrentResponseAsString,
+                                                                                       context.Parameters.Where(p => !p.key.StartsWith("__", StringComparison.Ordinal)).ToArray());
 
                 // Extract source code to determine indentation
                 var sourceCode = sourceCodeExtractor.ExtractCallCode(callerFilePath, callerLineNumber);
@@ -102,11 +103,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 Console.WriteLine($"[CSharpObjectResponseWriter.Write] Generated code: {csharpCode}");
 
                 // Use Roslyn to replace the object initializer in test file
-                codeManipulator.ReplaceEmptyAnonymousObject(
-                    callerFilePath,
-                    callerLineNumber,
-                    variableName,
-                    csharpCode);
+                codeManipulator.ReplaceEmptyAnonymousObject(callerFilePath,
+                                                            callerLineNumber,
+                                                            variableName,
+                                                            csharpCode);
             }
 #pragma warning disable CA1031
             catch (Exception ex)
@@ -127,6 +127,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Count leading spaces in first line
             var firstLine = sourceCode.Split('\n')[0];
             var count = 0;
+
             foreach (var ch in firstLine)
             {
                 if (ch is ' ' or '\t')
@@ -148,6 +149,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 // Try to extract content.value from HTTP response wrapper
                 using var doc = System.Text.Json.JsonDocument.Parse(jsonContent);
+
                 if (doc.RootElement.TryGetProperty("content", out var content))
                 {
                     if (content.TryGetProperty("value", out var value))
@@ -185,10 +187,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             //   "expectedPerson" -> "expectedPerson"
             //   "var expectedPerson = new { }" -> "expectedPerson"
             var parts = parameterExpression.Split('=');
+
             if (parts.Length > 0)
             {
                 var varPart = parts[0].Trim();
                 var tokens = varPart.Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries);
+
                 return tokens.LastOrDefault() ?? "expectedResponse";
             }
 

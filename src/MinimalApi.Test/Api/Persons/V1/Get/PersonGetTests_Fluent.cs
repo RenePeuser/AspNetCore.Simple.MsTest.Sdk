@@ -32,7 +32,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
             return Client.AssertGet("api/v1/persons")
                          .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("GetAllPersons.json")
-                             .FilterResponse(TestHelpers.OrderByIdFilter)
+                         .FilterResponse(TestHelpers.OrderByIdFilter)
                          .ExecuteAsync();
         }
 
@@ -44,7 +44,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
             return Client.AssertGet("api/v1/persons")
                          .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("GetAllPersons.json")
-                             .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 
@@ -56,7 +56,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
             return Client.AssertGet("api/v1/persons")
                          .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("GetAllPersons.json")
-                             .IgnoreProperty<Person>(p => p.Id)
+                         .IgnoreProperty<Person>(p => p.Id)
                          .ExecuteAsync();
         }
 

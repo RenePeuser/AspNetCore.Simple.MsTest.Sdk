@@ -20,16 +20,16 @@ namespace MinimalApi.Test.Api.Persons.V1.Delete
         {
             // DeletedAt timestamp is dynamic, so we don't include it in the assertion
             var expectedResponse = /*lang=json,strict*/ """
-                                   {
-                                       "id": 1,
-                                       "name": "Son",
-                                       "firstName": "Goku",
-                                       "deleted": true
-                                   }
-                                   """;
+                                                        {
+                                                            "id": 1,
+                                                            "name": "Son",
+                                                            "firstName": "Goku",
+                                                            "deleted": true
+                                                        }
+                                                        """;
 
             return Client.AssertDeleteAsync<DeletePersonResponse>("api/v1/persons/1/with-response",
-                                                                   expectedResponse);
+                                                                  expectedResponse);
         }
 
         [TestMethod]
@@ -39,17 +39,17 @@ namespace MinimalApi.Test.Api.Persons.V1.Delete
         {
             // DeletedAt timestamp is dynamic, so we don't include it in the assertion
             var expectedResponse = /*lang=json,strict*/ """
-                                   {
-                                       "id": 1,
-                                       "name": "Son",
-                                       "firstName": "Goku",
-                                       "deleted": true
-                                   }
-                                   """;
+                                                        {
+                                                            "id": 1,
+                                                            "name": "Son",
+                                                            "firstName": "Goku",
+                                                            "deleted": true
+                                                        }
+                                                        """;
 
             return Client.AssertDeleteAsync<DeletePersonResponse>("api/v1/persons/1/with-response",
-                                                                   expectedResponse,
-                                                                   skipEndpointValidation: false);
+                                                                  expectedResponse,
+                                                                  skipEndpointValidation: false);
         }
     }
 }

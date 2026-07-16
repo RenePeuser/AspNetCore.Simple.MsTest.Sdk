@@ -26,13 +26,15 @@
                 The HTTP method is determined by the context's HttpMethod property.
             </summary>
             <typeparam name="TResult">The expected result type to deserialize the response to.</typeparam>
-            <param name="context">The assertion context containing all request parameters including the HTTP method.</param>
+            <param name="context">The assertion context containing all request parameters including the HTTP method.
+            </param>
             <returns>A task containing the deserialized response.</returns>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertableHttpClient">
             <summary>
                 Implementation of
-                <see cref="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IAssertableHttpClient" /> that contains the core assertion logic.
+                <see cref="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IAssertableHttpClient"/>
+                that contains the core assertion logic.
                 This class encapsulates all dependencies needed for HTTP assertions.
                 All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
@@ -41,14 +43,15 @@
             name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertableHttpClient.#ctor(AspNetCore.Simple.MsTest.Sdk.IHttpCallHandler,AspNetCore.Simple.MsTest.Sdk.IParameterReplacer,AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionPipeline,AspNetCore.Simple.MsTest.Sdk.IPrimitiveTypeConverter,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IEndpointValidator)">
             <summary>
                 Implementation of
-                <see cref="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IAssertableHttpClient" /> that contains the core assertion logic.
+                <see cref="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IAssertableHttpClient"/>
+                that contains the core assertion logic.
                 This class encapsulates all dependencies needed for HTTP assertions.
                 All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
         </member>
         <member
             name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AssertableHttpClient.AssertAsync``1(AspNetCore.Simple.MsTest.Sdk.HttpAssertContext{``0})">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddAssertableHttpClientFactoryExtension">
             <summary>
@@ -139,7 +142,7 @@
         </member>
         <member
             name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpAssertionPipeline.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.IHttpAssertionPipeline">
             <summary>
@@ -200,7 +203,7 @@
         </member>
         <member
             name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentFormatValidationStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member
             name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddContentTypeHeaderValidationStepExtension.AddContentTypeHeaderValidationStep(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
@@ -225,7 +228,7 @@
         </member>
         <member
             name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.ContentTypeHeaderValidationStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member
             name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddJsonComparisonStepExtension.AddJsonComparisonStep(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
@@ -250,7 +253,7 @@
         </member>
         <member
             name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.JsonComparisonStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member
             name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.AddStatusCodeValidationStepExtension.AddStatusCodeValidationStep(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
@@ -275,7 +278,7 @@
         </member>
         <member
             name="M:AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.StatusCodeValidationStep.Execute``1(AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient.HttpResponseContext{``0})">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertThat">
             <summary>
@@ -758,7 +761,9 @@
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertService">
             <summary>
-                Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService" /> that contains the core assertion logic.
+                Implementation of
+                <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService"/>
+                that contains the core assertion logic.
                 This class encapsulates all dependencies needed for object assertions.
                 All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
@@ -766,7 +771,9 @@
         <member
             name="M:AspNetCore.Simple.MsTest.Sdk.AssertService.#ctor(AspNetCore.Simple.MsTest.Sdk.IJsonDiffer,AspNetCore.Simple.MsTest.Sdk.IResponseWriter,AspNetCore.Simple.MsTest.Sdk.IWriteResponseService,AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer,System.Text.Json.JsonSerializerOptions,AspNetCore.Simple.MsTest.Sdk.IAssertOutputBuilder)">
             <summary>
-                Implementation of <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService" /> that contains the core assertion logic.
+                Implementation of
+                <see cref="T:AspNetCore.Simple.MsTest.Sdk.IAssertService"/>
+                that contains the core assertion logic.
                 This class encapsulates all dependencies needed for object assertions.
                 All dependencies are injected via the primary constructor for testability and flexibility.
             </summary>
@@ -802,7 +809,8 @@
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Status">
             <summary>
-                The HTTP status code([RFC7231], Section 6) generated by the origin server for this occurrence of the problem.
+                The HTTP status code([RFC7231], Section 6) generated by the origin server for this occurrence of the
+                problem.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Detail">
@@ -812,24 +820,30 @@
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Instance">
             <summary>
-                A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information
+                A URI reference that identifies the specific occurrence of the problem. It may or may not yield further
+                information
                 if dereferenced.
             </summary>
         </member>
         <member name="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Extensions">
             <summary>
-                Gets the <see cref="T:System.Collections.Generic.IDictionary`2" /> for extension members.
+                Gets the
+                <see cref="T:System.Collections.Generic.IDictionary`2"/>
+                for extension members.
                 <para>
-                    Problem type definitions MAY extend the problem details object with additional members. Extension members
+                    Problem type definitions MAY extend the problem details object with additional members. Extension
+                    members
                     appear in the same namespace as
                     other members of a problem type.
                 </para>
             </summary>
             <remarks>
-                The round-tripping behavior for <see cref="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Extensions" />
+                The round-tripping behavior for
+                <see cref="P:AspNetCore.Simple.MsTest.Sdk.ProblemDetails.Extensions"/>
                 is determined by the implementation of the Input \ Output
                 formatters.
-                In particular, complex types or collection types may not round-trip to the original type when using the built-in
+                In particular, complex types or collection types may not round-trip to the original type when using the
+                built-in
                 JSON or XML formatters.
             </remarks>
         </member>
@@ -846,12 +860,16 @@
             </summary>
             <remarks>
                 This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/>
+                interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a
+                specified request
                 folder path and to allow additional parameters to be injected into each test case.
                 <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                    If no request folder is provided in the attribute constructor, the attribute automatically
+                    determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a
+                    ".Requests" suffix.
                 </para>
 
                 <para>
@@ -863,11 +881,13 @@
 
                 <para>
                     The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource
+                    as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as
+                    any extra parameters
                     provided via the attribute. The
                     <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/>
                     method returns a descriptive name that combines the test method's name
                     and the test data details.
                 </para>
@@ -882,7 +902,8 @@
                     [RequestLocator]
                     public void TestSomeUseCase(...) { }
                 </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                In this scenario, the attribute automatically calculates the request folder from the test class's
+                namespace
                 and supplies just the JSON identifier for each test case.
                 <para>
                     Applying the attribute with an explicit folder and additional parameters:
@@ -890,7 +911,8 @@
                         [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
                         public void TestSomeUseCase(...) { }
                     </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                    Here, the test case data will include the JSON identifier followed by the extra parameters
+                    "ExtraParam" and 42.
                 </para>
             </example>
         </member>
@@ -900,12 +922,16 @@
             </summary>
             <remarks>
                 This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/>
+                interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a
+                specified request
                 folder path and to allow additional parameters to be injected into each test case.
                 <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                    If no request folder is provided in the attribute constructor, the attribute automatically
+                    determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a
+                    ".Requests" suffix.
                 </para>
 
                 <para>
@@ -917,11 +943,13 @@
 
                 <para>
                     The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource
+                    as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as
+                    any extra parameters
                     provided via the attribute. The
                     <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.DynamicRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/>
                     method returns a descriptive name that combines the test method's name
                     and the test data details.
                 </para>
@@ -936,7 +964,8 @@
                     [RequestLocator]
                     public void TestSomeUseCase(...) { }
                 </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                In this scenario, the attribute automatically calculates the request folder from the test class's
+                namespace
                 and supplies just the JSON identifier for each test case.
                 <para>
                     Applying the attribute with an explicit folder and additional parameters:
@@ -944,7 +973,8 @@
                         [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
                         public void TestSomeUseCase(...) { }
                     </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                    Here, the test case data will include the JSON identifier followed by the extra parameters
+                    "ExtraParam" and 42.
                 </para>
             </example>
         </member>
@@ -956,7 +986,8 @@
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <returns>
-                An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
+                An enumerable collection of test data objects, where each object array begins with the JSON resource
+                identifier,
                 followed by any extra parameters.
             </returns>
         </member>
@@ -968,7 +999,8 @@
             <param name="methodInfo">The test method's metadata information.</param>
             <param name="data">An array of objects representing the test case data.</param>
             <returns>
-                A descriptive name that combines the test method's name with the test data details, aiding in test identification.
+                A descriptive name that combines the test method's name with the test data details, aiding in test
+                identification.
             </returns>
         </member>
         <member
@@ -991,12 +1023,16 @@
             </summary>
             <remarks>
                 This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/>
+                interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a
+                specified request
                 folder path and to allow additional parameters to be injected into each test case.
                 <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                    If no request folder is provided in the attribute constructor, the attribute automatically
+                    determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a
+                    ".Requests" suffix.
                 </para>
 
                 <para>
@@ -1008,11 +1044,13 @@
 
                 <para>
                     The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource
+                    as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as
+                    any extra parameters
                     provided via the attribute. The
                     <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/>
                     method returns a descriptive name that combines the test method's name
                     and the test data details.
                 </para>
@@ -1027,7 +1065,8 @@
                     [RequestLocator]
                     public void TestSomeUseCase(...) { }
                 </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                In this scenario, the attribute automatically calculates the request folder from the test class's
+                namespace
                 and supplies just the JSON identifier for each test case.
                 <para>
                     Applying the attribute with an explicit folder and additional parameters:
@@ -1035,7 +1074,8 @@
                         [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
                         public void TestSomeUseCase(...) { }
                     </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                    Here, the test case data will include the JSON identifier followed by the extra parameters
+                    "ExtraParam" and 42.
                 </para>
             </example>
         </member>
@@ -1045,12 +1085,16 @@
             </summary>
             <remarks>
                 This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/>
+                interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a
+                specified request
                 folder path and to allow additional parameters to be injected into each test case.
                 <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                    If no request folder is provided in the attribute constructor, the attribute automatically
+                    determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a
+                    ".Requests" suffix.
                 </para>
 
                 <para>
@@ -1062,11 +1106,13 @@
 
                 <para>
                     The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource
+                    as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as
+                    any extra parameters
                     provided via the attribute. The
                     <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.EnumTestCaseAttribute`1.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/>
                     method returns a descriptive name that combines the test method's name
                     and the test data details.
                 </para>
@@ -1081,7 +1127,8 @@
                     [RequestLocator]
                     public void TestSomeUseCase(...) { }
                 </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                In this scenario, the attribute automatically calculates the request folder from the test class's
+                namespace
                 and supplies just the JSON identifier for each test case.
                 <para>
                     Applying the attribute with an explicit folder and additional parameters:
@@ -1089,7 +1136,8 @@
                         [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
                         public void TestSomeUseCase(...) { }
                     </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                    Here, the test case data will include the JSON identifier followed by the extra parameters
+                    "ExtraParam" and 42.
                 </para>
             </example>
         </member>
@@ -1100,7 +1148,8 @@
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <returns>
-                An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
+                An enumerable collection of test data objects, where each object array begins with the JSON resource
+                identifier,
                 followed by any extra parameters.
             </returns>
         </member>
@@ -1112,13 +1161,15 @@
             <param name="methodInfo">The test method's metadata information.</param>
             <param name="data">An array of objects representing the test case data.</param>
             <returns>
-                A descriptive name that combines the test method's name with the test data details, aiding in test identification.
+                A descriptive name that combines the test method's name with the test data details, aiding in test
+                identification.
             </returns>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.IParameterReplacer">
             <summary>
                 Service for replacing parameters in JSON strings.
-                Handles both directions: placeholder → value (for comparison) and value → placeholder (for snapshot writing).
+                Handles both directions: placeholder → value (for comparison) and value → placeholder (for snapshot
+                writing).
             </summary>
         </member>
         <member
@@ -1139,7 +1190,9 @@
                 Works on JToken level for accurate property and full-text replacement.
             </summary>
             <param name="json">The JSON string containing actual values</param>
-            <param name="parameters">Parameters as (Key, Value) tuples where Key is the placeholder and Value is what to replace</param>
+            <param name="parameters">Parameters as (Key, Value) tuples where Key is the placeholder and Value is what to
+                replace
+            </param>
             <returns>JSON string with values replaced by placeholders</returns>
         </member>
         <member
@@ -1195,12 +1248,16 @@
             </summary>
             <remarks>
                 This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/>
+                interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a
+                specified request
                 folder path and to allow additional parameters to be injected into each test case.
                 <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                    If no request folder is provided in the attribute constructor, the attribute automatically
+                    determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a
+                    ".Requests" suffix.
                 </para>
 
                 <para>
@@ -1212,11 +1269,13 @@
 
                 <para>
                     The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource
+                    as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as
+                    any extra parameters
                     provided via the attribute. The
                     <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/>
                     method returns a descriptive name that combines the test method's name
                     and the test data details.
                 </para>
@@ -1231,7 +1290,8 @@
                     [RequestLocator]
                     public void TestSomeUseCase(...) { }
                 </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                In this scenario, the attribute automatically calculates the request folder from the test class's
+                namespace
                 and supplies just the JSON identifier for each test case.
                 <para>
                     Applying the attribute with an explicit folder and additional parameters:
@@ -1239,7 +1299,8 @@
                         [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
                         public void TestSomeUseCase(...) { }
                     </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                    Here, the test case data will include the JSON identifier followed by the extra parameters
+                    "ExtraParam" and 42.
                 </para>
             </example>
         </member>
@@ -1250,12 +1311,16 @@
             </summary>
             <remarks>
                 This attribute implements the
-                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource" /> interface for use with parameterized tests.
-                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a specified request
+                <see cref="T:Microsoft.VisualStudio.TestTools.UnitTesting.ITestDataSource"/>
+                interface for use with parameterized tests.
+                Its purpose is to dynamically locate and supply JSON resources representing use cases based on a
+                specified request
                 folder path and to allow additional parameters to be injected into each test case.
                 <para>
-                    If no request folder is provided in the attribute constructor, the attribute automatically determines the
-                    request folder by removing the declaring class's name from its full namespace and appending a ".Requests" suffix.
+                    If no request folder is provided in the attribute constructor, the attribute automatically
+                    determines the
+                    request folder by removing the declaring class's name from its full namespace and appending a
+                    ".Requests" suffix.
                 </para>
 
                 <para>
@@ -1267,11 +1332,13 @@
 
                 <para>
                     The attribute retrieves all the embedded manifest resource names from the test class’s assembly,
-                    filters them by a matching folder path and ".json" extension, and then prepares each found resource as a
-                    separate test case. Each test case data object consists of the JSON resource identifier as well as any extra parameters
+                    filters them by a matching folder path and ".json" extension, and then prepares each found resource
+                    as a
+                    separate test case. Each test case data object consists of the JSON resource identifier as well as
+                    any extra parameters
                     provided via the attribute. The
                     <see
-                        cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])" />
+                        cref="M:AspNetCore.Simple.MsTest.Sdk.StaticRequestLocatorAttribute.GetDisplayName(System.Reflection.MethodInfo,System.Object[])"/>
                     method returns a descriptive name that combines the test method's name
                     and the test data details.
                 </para>
@@ -1286,7 +1353,8 @@
                     [RequestLocator]
                     public void TestSomeUseCase(...) { }
                 </code>
-                In this scenario, the attribute automatically calculates the request folder from the test class's namespace
+                In this scenario, the attribute automatically calculates the request folder from the test class's
+                namespace
                 and supplies just the JSON identifier for each test case.
                 <para>
                     Applying the attribute with an explicit folder and additional parameters:
@@ -1294,7 +1362,8 @@
                         [RequestLocator("Api.User.V1.Create.Status_200_Ok.Requests", "ExtraParam", 42)]
                         public void TestSomeUseCase(...) { }
                     </code>
-                    Here, the test case data will include the JSON identifier followed by the extra parameters "ExtraParam" and 42.
+                    Here, the test case data will include the JSON identifier followed by the extra parameters
+                    "ExtraParam" and 42.
                 </para>
             </example>
         </member>
@@ -1306,7 +1375,8 @@
             </summary>
             <param name="methodInfo">The test method's metadata information.</param>
             <returns>
-                An enumerable collection of test data objects, where each object array begins with the JSON resource identifier,
+                An enumerable collection of test data objects, where each object array begins with the JSON resource
+                identifier,
                 followed by any extra parameters.
             </returns>
         </member>
@@ -1318,7 +1388,8 @@
             <param name="methodInfo">The test method's metadata information.</param>
             <param name="data">An array of objects representing the test case data.</param>
             <returns>
-                A descriptive name that combines the test method's name with the test data details, aiding in test identification.
+                A descriptive name that combines the test method's name with the test data details, aiding in test
+                identification.
             </returns>
         </member>
         <member
@@ -1571,7 +1642,8 @@
             <param name="expectedJson">Expected JSON string</param>
             <param name="currentJson">Current/actual JSON string</param>
             <returns>Formatted error message for Assert.That.Fail()</returns>
-            <exception cref="T:System.InvalidOperationException">Thrown when zero or multiple strategies match</exception>
+            <exception cref="T:System.InvalidOperationException">Thrown when zero or multiple strategies match
+            </exception>
         </member>
         <member name="T:AspNetCore.Simple.MsTest.Sdk.AssertOutputBuilder">
             <summary>
@@ -1684,40 +1756,67 @@
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.GlobalRegex.UrlVersionPattern">
             <remarks>
-                Pattern:<br />
-                <code>(?:^|/)v(\\d+(?:\\.\\d+)?)(?:/|$|\\?)</code><br />
-                Options:<br />
-                <code>RegexOptions.IgnoreCase</code><br />
-                Explanation:<br />
+                Pattern:
+                <br/>
+                <code>(?:^|/)v(\\d+(?:\\.\\d+)?)(?:/|$|\\?)</code>
+                <br/>
+                Options:
+                <br/>
+                <code>RegexOptions.IgnoreCase</code>
+                <br/>
+                Explanation:
+                <br/>
                 <code>
-                    ○ Match with 2 alternative expressions.<br />
-                    ○ Match if at the beginning of the string.<br />
-                    ○ Match '/'.<br />
-                    ○ Match a character in the set [Vv].<br />
-                    ○ 1st capture group.<br />
-                    ○ Match a Unicode digit greedily at least once.<br />
-                    ○ Optional (greedy).<br />
-                    ○ Match '.'.<br />
-                    ○ Match a Unicode digit atomically at least once.<br />
-                    ○ Match with 3 alternative expressions, atomically.<br />
-                    ○ Match '/'.<br />
-                    ○ Match if at the end of the string or if before an ending newline.<br />
-                    ○ Match '?'.<br />
+                    ○ Match with 2 alternative expressions.
+                    <br/>
+                    ○ Match if at the beginning of the string.
+                    <br/>
+                    ○ Match '/'.
+                    <br/>
+                    ○ Match a character in the set [Vv].
+                    <br/>
+                    ○ 1st capture group.
+                    <br/>
+                    ○ Match a Unicode digit greedily at least once.
+                    <br/>
+                    ○ Optional (greedy).
+                    <br/>
+                    ○ Match '.'.
+                    <br/>
+                    ○ Match a Unicode digit atomically at least once.
+                    <br/>
+                    ○ Match with 3 alternative expressions, atomically.
+                    <br/>
+                    ○ Match '/'.
+                    <br/>
+                    ○ Match if at the end of the string or if before an ending newline.
+                    <br/>
+                    ○ Match '?'.
+                    <br/>
                 </code>
             </remarks>
         </member>
         <member name="M:AspNetCore.Simple.MsTest.Sdk.GlobalRegex.IndexReplacement">
             <remarks>
-                Pattern:<br />
-                <code>\\[(\\d+)\\](?=\\.)</code><br />
-                Explanation:<br />
+                Pattern:
+                <br/>
+                <code>\\[(\\d+)\\](?=\\.)</code>
+                <br/>
+                Explanation:
+                <br/>
                 <code>
-                    ○ Match '['.<br />
-                    ○ 1st capture group.<br />
-                    ○ Match a Unicode digit atomically at least once.<br />
-                    ○ Match ']'.<br />
-                    ○ Zero-width positive lookahead.<br />
-                    ○ Match '.'.<br />
+                    ○ Match '['.
+                    <br/>
+                    ○ 1st capture group.
+                    <br/>
+                    ○ Match a Unicode digit atomically at least once.
+                    <br/>
+                    ○ Match ']'.
+                    <br/>
+                    ○ Zero-width positive lookahead.
+                    <br/>
+                    ○ Match '.'.
+                    <br/>
                 </code>
             </remarks>
         </member>
@@ -1761,7 +1860,9 @@
             </summary>
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.UrlVersionPattern_0">
-            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex" />-derived type for the UrlVersionPattern method.</summary>
+            <summary>Custom<see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the UrlVersionPattern
+                method.
+            </summary>
         </member>
         <member name="F:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.Instance">
             <summary>Cached, thread-safe singleton instance.</summary>
@@ -1771,38 +1872,53 @@
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory">
             <summary>
-                Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner" />
-                instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex" />.
+                Provides a factory for creating
+                <see cref="T:System.Text.RegularExpressions.RegexRunner"/>
+                instances to be used by methods on<see cref="T:System.Text.RegularExpressions.Regex"/>.
             </summary>
         </member>
         <member name="M:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory.CreateInstance">
             <summary>
-                Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner" /> used by methods on
-                <see cref="T:System.Text.RegularExpressions.Regex" />.
+                Creates an instance of a
+                <see cref="T:System.Text.RegularExpressions.RegexRunner"/>
+                used by methods on
+                <see cref="T:System.Text.RegularExpressions.Regex"/>.
             </summary>
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory.Runner">
-            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.
+            </summary>
         </member>
         <member
             name="M:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
-            <summary>Scan the <paramref name="inputSpan" /> starting from base.runtextstart for the next match.</summary>
+            <summary>Scan the
+                <paramref name="inputSpan"/>
+                starting from base.runtextstart for the next match.
+            </summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
         </member>
         <member
             name="M:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
-            <summary>Search <paramref name="inputSpan" /> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <summary>Search
+                <paramref name="inputSpan"/>
+                starting from base.runtextpos for the next location a match could possibly start.
+            </summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
             <returns>true if a possible match was found; false if no more matches are possible.</returns>
         </member>
         <member
             name="M:System.Text.RegularExpressions.Generated.UrlVersionPattern_0.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
-            <summary>Determine whether <paramref name="inputSpan" /> at base.runtextpos is a match for the regular expression.</summary>
+            <summary>Determine whether
+                <paramref name="inputSpan"/>
+                at base.runtextpos is a match for the regular expression.
+            </summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
             <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_1">
-            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex" />-derived type for the IndexReplacement method.</summary>
+            <summary>Custom<see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the IndexReplacement
+                method.
+            </summary>
         </member>
         <member name="F:System.Text.RegularExpressions.Generated.IndexReplacement_1.Instance">
             <summary>Cached, thread-safe singleton instance.</summary>
@@ -1812,47 +1928,66 @@
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory">
             <summary>
-                Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner" />
-                instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex" />.
+                Provides a factory for creating
+                <see cref="T:System.Text.RegularExpressions.RegexRunner"/>
+                instances to be used by methods on<see cref="T:System.Text.RegularExpressions.Regex"/>.
             </summary>
         </member>
         <member name="M:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory.CreateInstance">
             <summary>
-                Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner" /> used by methods on
-                <see cref="T:System.Text.RegularExpressions.Regex" />.
+                Creates an instance of a
+                <see cref="T:System.Text.RegularExpressions.RegexRunner"/>
+                used by methods on
+                <see cref="T:System.Text.RegularExpressions.Regex"/>.
             </summary>
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory.Runner">
-            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.
+            </summary>
         </member>
         <member
             name="M:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
-            <summary>Scan the <paramref name="inputSpan" /> starting from base.runtextstart for the next match.</summary>
+            <summary>Scan the
+                <paramref name="inputSpan"/>
+                starting from base.runtextstart for the next match.
+            </summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
         </member>
         <member
             name="M:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
-            <summary>Search <paramref name="inputSpan" /> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <summary>Search
+                <paramref name="inputSpan"/>
+                starting from base.runtextpos for the next location a match could possibly start.
+            </summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
             <returns>true if a possible match was found; false if no more matches are possible.</returns>
         </member>
         <member
             name="M:System.Text.RegularExpressions.Generated.IndexReplacement_1.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
-            <summary>Determine whether <paramref name="inputSpan" /> at base.runtextpos is a match for the regular expression.</summary>
+            <summary>Determine whether
+                <paramref name="inputSpan"/>
+                at base.runtextpos is a match for the regular expression.
+            </summary>
             <param name="inputSpan">The text being scanned by the regular expression.</param>
             <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.Utilities">
-            <summary>Helper methods used by generated <see cref="T:System.Text.RegularExpressions.Regex" />-derived implementations.</summary>
+            <summary>Helper methods used by generated<see cref="T:System.Text.RegularExpressions.Regex"/>-derived
+                implementations.
+            </summary>
         </member>
         <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout">
             <summary>
-                Default timeout value set in <see cref="T:System.AppContext" />, or
-                <see cref="F:System.Text.RegularExpressions.Regex.InfiniteMatchTimeout" /> if none was set.
+                Default timeout value set in<see cref="T:System.AppContext"/>, or
+                <see cref="F:System.Text.RegularExpressions.Regex.InfiniteMatchTimeout"/>
+                if none was set.
             </summary>
         </member>
         <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_hasTimeout">
-            <summary>Whether <see cref="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout" /> is non-infinite.</summary>
+            <summary>Whether
+                <see cref="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout"/>
+                is non-infinite.
+            </summary>
         </member>
         <member
             name="M:System.Text.RegularExpressions.Generated.Utilities.StackPush(System.Int32[]@,System.Int32@,System.Int32,System.Int32)">

@@ -37,7 +37,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
         // ============================================================
 
         /// <summary>Sets one placeholder parameter. Use the naked name ("Id"); the SDK adds the delimiters.</summary>
-        IHttpRequestConfiguring WithParameter(string key, object? value);
+        IHttpRequestConfiguring WithParameter(string key,
+                                              object? value);
 
         /// <summary>Sets placeholder parameters as key/value tuples.</summary>
         IHttpRequestConfiguring WithParameters(params (string Key, object? Value)[] parameters);
@@ -46,7 +47,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
         IHttpRequestConfiguring WithParameters(object source);
 
         /// <summary>Adds a custom HTTP request header.</summary>
-        IHttpRequestConfiguring WithHeader(string key, string value);
+        IHttpRequestConfiguring WithHeader(string key,
+                                           string value);
 
         // ============================================================
         // Transition to the response stage. Produces<T>(code) carries TYPE + STATUS + RETURN TYPE (§15.6).

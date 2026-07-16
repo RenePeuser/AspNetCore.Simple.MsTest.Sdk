@@ -37,7 +37,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
                          .AcceptsFromEmbeddedJson("UpdatePerson.json")
                          .Produces<Person>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("UpdatePerson.json")
-                             .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 
@@ -50,7 +50,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
                          .AcceptsFromEmbeddedJson("UpdatePerson.json")
                          .Produces<Person>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("UpdatePerson.json")
-                             .IgnoreProperty<Person>(p => p.Id)
+                         .IgnoreProperty<Person>(p => p.Id)
                          .ExecuteAsync();
         }
 
@@ -79,7 +79,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
                          .AcceptsFromEmbeddedJson("UpdatePerson.json")
                          .Produces<Person>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("UpdatePersonNew.json")
-                             .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 
@@ -92,7 +92,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
                          .AcceptsFromEmbeddedJson("UpdatePerson.json")
                          .Produces<Person>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("UpdatePersonNew.json")
-                             .IgnoreProperty<Person>(p => p.Id)
+                         .IgnoreProperty<Person>(p => p.Id)
                          .ExecuteAsync();
         }
     }

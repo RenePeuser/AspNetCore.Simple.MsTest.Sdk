@@ -92,6 +92,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // NEW LOGIC: If in DEBUG mode, always use GenerateCSharpObject mode
                 // This allows re-generating C# code with actual API response values
                 var isDebugMode = context.CallingAssembly.IsCompiledInDebug();
+
                 var mode = isDebugMode
                                ? ResponseWriteMode.GenerateCSharpObject
                                : (context.ExpectedResultFile.EmbeddedFile?.Exists ?? false)

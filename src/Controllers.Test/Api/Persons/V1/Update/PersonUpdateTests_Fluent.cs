@@ -37,7 +37,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
                          .AcceptsFromEmbeddedJson("UpdatePerson.json")
                          .Produces<Person>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("UpdatePerson.json")
-                             .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 
@@ -66,7 +66,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
                          .AcceptsFromEmbeddedJson("UpdatePerson.json")
                          .Produces<Person>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("UpdatePersonNew.json")
-                             .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
     }

@@ -112,6 +112,9 @@ dotnet_diagnostic.ca2254.severity = none
 dotnet_diagnostic.mstest0015.severity = none
 dotnet_diagnostic.mstest0016.severity = none
 
+# Custom SDK analyzers
+dotnet_diagnostic.MSTESTSDK001.severity = error
+
 [*.cs]
 # C# inline Analyzer (opt-in)
 dotnet_diagnostic.SDC_INLINE_0001.severity = error
@@ -151,7 +154,7 @@ csharp_style_conditional_delegate_call = true:error
 csharp_style_throw_expression = true:error
 
 # Enforce preferred modifier order.
-csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:error
+csharp_preferred_modifier_order = public, private, protected, internal, static, extern, new, virtual, abstract, sealed, override, readonly, unsafe, volatile, async:error
 
 # Always require braces.
 csharp_prefer_braces = true:error

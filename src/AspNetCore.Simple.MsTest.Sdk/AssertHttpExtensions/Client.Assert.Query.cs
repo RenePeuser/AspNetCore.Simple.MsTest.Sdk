@@ -1444,11 +1444,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
             var currentResult = new
-            {
-                Request = $"QUERY {url}",
-                Expected = HttpStatusCode.Unauthorized,
-                Current = result.StatusCode
-            }.ToIList();
+                                {
+                                    Request = $"QUERY {url}",
+                                    Expected = HttpStatusCode.Unauthorized,
+                                    Current = result.StatusCode
+                                }.ToIList();
 
             var table = TableFormatter.From(currentResult);
             var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";

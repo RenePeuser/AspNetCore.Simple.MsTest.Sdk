@@ -27,7 +27,11 @@ namespace MinimalApi.Api.Persons.V1
                         {
                             if (string.IsNullOrWhiteSpace(person.Name))
                             {
-                                return Results.BadRequest(new { StatusCode = 400, Message = "Invalid request" });
+                                return Results.BadRequest(new
+                                                          {
+                                                              StatusCode = 400,
+                                                              Message = "Invalid request"
+                                                          });
                             }
 
                             return Results.Created($"persons/{person.Id}", person);

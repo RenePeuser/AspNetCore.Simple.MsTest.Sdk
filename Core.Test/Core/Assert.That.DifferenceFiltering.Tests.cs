@@ -30,7 +30,8 @@ namespace Core.Test.Core
     public sealed class AssertThatDifferenceFilteringTests
     {
         // The endpoint-free subject: two persons differing only in the fields a test chooses.
-        private sealed record Sample(string Name, int Age);
+        private sealed record Sample(string Name,
+                                     int Age);
 
         private static readonly Sample Actual = new(Name: "Goku", Age: 99);
 
@@ -49,7 +50,8 @@ namespace Core.Test.Core
             return !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static void AssertThrows(Action action, string message)
+        private static void AssertThrows(Action action,
+                                         string message)
         {
             var threw = false;
 
@@ -102,7 +104,8 @@ namespace Core.Test.Core
         {
             var expected = Actual with { Age = 42 };
 
-            Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc, differenceFilter: KeepUnlessAge);
+            Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
+                                        differenceFilter: KeepUnlessAge);
         }
 
         [TestMethod]
@@ -155,7 +158,8 @@ namespace Core.Test.Core
         {
             var expected = new Sample(Name: "Totally", Age: 1);
 
-            Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc, differenceFilter: _ => false);
+            Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
+                                        differenceFilter: _ => false);
         }
 
         // ============================================================
@@ -168,7 +172,8 @@ namespace Core.Test.Core
             // Both name and age differ; the filter only drops age, so the name difference still fails.
             var expected = new Sample(Name: "Vegeta", Age: 42);
 
-            AssertThrows(() => Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc, differenceFilter: KeepUnlessAge),
+            AssertThrows(() => Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
+                                                           differenceFilter: KeepUnlessAge),
                          "A filter that only ignores age must not hide a name difference.");
         }
 
@@ -189,7 +194,8 @@ namespace Core.Test.Core
 
                 var expected = Actual with { Age = 42 };
 
-                Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc, differenceFilter: KeepUnlessAge);
+                Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
+                                            differenceFilter: KeepUnlessAge);
             }
             finally
             {
@@ -210,7 +216,8 @@ namespace Core.Test.Core
 
                 var expected = Actual with { Age = 42 };
 
-                Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc, differenceFilter: static _ => true);
+                Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
+                                            differenceFilter: static _ => true);
             }
             finally
             {
@@ -231,7 +238,8 @@ namespace Core.Test.Core
 
                 var expected = Actual with { Age = 42 };
 
-                AssertThrows(() => Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc, differenceFilter: static _ => true),
+                AssertThrows(() => Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
+                                                               differenceFilter: static _ => true),
                              "When neither filter drops the difference it must fail the assert.");
             }
             finally
@@ -258,7 +266,8 @@ namespace Core.Test.Core
 
                 var expected = new Sample(Name: "Vegeta", Age: 42);
 
-                Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc, differenceFilter: KeepUnlessAge);
+                Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
+                                            differenceFilter: KeepUnlessAge);
             }
             finally
             {

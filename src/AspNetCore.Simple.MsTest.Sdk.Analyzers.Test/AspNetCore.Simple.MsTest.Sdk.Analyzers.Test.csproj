@@ -11,21 +11,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MSTest" />
+        <PackageReference Include="MSTest"/>
         <!-- Roslyn analyzer test harness (MSTest flavor) — brings AnalyzerVerifier + in-memory compilation. -->
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest"/>
         <!-- The harness floats Roslyn to its 1.0.1 floor (a .NETFramework-era package → NU1701).
              Pin the modern net-compatible Roslyn so all transitive CodeAnalysis packages align. -->
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"/>
     </ItemGroup>
 
     <ItemGroup>
         <!-- Reference the analyzer as a normal library so we can pass its type to the verifier. -->
-        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj" />
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+        <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting"/>
     </ItemGroup>
 
 </Project>

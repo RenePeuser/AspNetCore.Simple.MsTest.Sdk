@@ -71,8 +71,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var finalDiffs = AssertObjectExtensions.ApplyDifferenceFiltering(diffs,
-                                                                            context.DifferenceFunc,
-                                                                            context.DifferenceFilter);
+                                                                             context.DifferenceFunc,
+                                                                             context.DifferenceFilter);
 
             var ignoredPaths = diffs.Except(finalDiffs)
                                     .Select(diff => diff.MemberPath)
@@ -94,10 +94,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Use custom serializer settings to handle currentValue un-escaping
             var serializerSettings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
-            };
+                                     {
+                                         Formatting = Formatting.Indented,
+                                         Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
+                                     };
 
             var output = JsonConvert.SerializeObject(resultRoot, serializerSettings);
 

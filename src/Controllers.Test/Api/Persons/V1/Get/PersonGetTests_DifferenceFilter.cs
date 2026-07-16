@@ -24,7 +24,8 @@ namespace Controllers.Test.Api.Persons.V1.Get
     {
         private const string PersonUrl = "api/v1/persons/1";
 
-        private static Person ExpectedPerson(int age = 99, string name = "Son")
+        private static Person ExpectedPerson(int age = 99,
+                                             string name = "Son")
         {
             return new Person(Id: 1,
                               Name: name,
@@ -56,12 +57,11 @@ namespace Controllers.Test.Api.Persons.V1.Get
         {
             var expectedPerson = ExpectedPerson(name: "WrongName");
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertGetAsync(PersonUrl,
-                                                  expectedPerson,
-                                                  differenceFunc: diffs => diffs,
-                                                  differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync(PersonUrl,
+                                                                                               expectedPerson,
+                                                                                               differenceFunc: diffs => diffs,
+                                                                                               differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
+                        .ConfigureAwait(false);
         }
 
         [TestMethod]

@@ -64,7 +64,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers
                 return;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(Rule, expressionStatement.GetLocation()));
+            context.ReportDiagnostic(Diagnostic.Create(Rule, invocation.GetLocation()));
         }
 
         private static bool CarriesFluentBuilderAttribute(ITypeSymbol type)

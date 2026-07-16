@@ -154,7 +154,8 @@ Run the test and you get:
 
 ## What you get
 
-- **HTTP QUERY support** ([RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008)) - Complex queries with request body, GET semantics
+- **HTTP QUERY support** ([RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008)) - Complex queries with request
+  body, GET semantics
 - Full HTTP response snapshots: status, headers, body, trailing headers
 - Precise structured diffs with deep `MemberPath` paths
 - Context-specific error headers (Snapshot Mismatch, Schema Mismatch, Status Code, etc.)
@@ -174,49 +175,51 @@ Complete feature matrix showing what's supported out of the box:
 
 ### HTTP Methods
 
-| Method | With Body | Success Response | Error Response |
-|--------|-----------|------------------|----------------|
-| **GET** | ❌ | ✅ `AssertGetAsync<T>()` | ✅ `AssertGetAsErrorAsync<T>()` |
-| **QUERY** [RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008) | ✅ | ✅ `AssertQueryAsync<T>()` | ✅ `AssertQueryAsErrorAsync<T>()` |
-| **POST** | ✅ | ✅ `AssertPostAsync<T>()` | ✅ `AssertPostAsErrorAsync<T>()` |
-| **PUT** | ✅ | ✅ `AssertPutAsync<T>()` | ✅ `AssertPutAsErrorAsync<T>()` |
-| **PATCH** | ✅ | ✅ `AssertPatchAsync<T>()` | ✅ `AssertPatchAsErrorAsync<T>()` |
-| **DELETE** | ❌ | ✅ `AssertDeleteAsync<T>()` | ✅ `AssertDeleteAsErrorAsync<T>()` |
-| **OPTIONS** | ❌ | ✅ `AssertOptionsAsync()` | ❌ |
+| Method                                                                | With Body | Success Response           | Error Response                    |
+|-----------------------------------------------------------------------|-----------|----------------------------|-----------------------------------|
+| **GET**                                                               | ❌         | ✅ `AssertGetAsync<T>()`    | ✅ `AssertGetAsErrorAsync<T>()`    |
+| **QUERY** [RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008) | ✅         | ✅ `AssertQueryAsync<T>()`  | ✅ `AssertQueryAsErrorAsync<T>()`  |
+| **POST**                                                              | ✅         | ✅ `AssertPostAsync<T>()`   | ✅ `AssertPostAsErrorAsync<T>()`   |
+| **PUT**                                                               | ✅         | ✅ `AssertPutAsync<T>()`    | ✅ `AssertPutAsErrorAsync<T>()`    |
+| **PATCH**                                                             | ✅         | ✅ `AssertPatchAsync<T>()`  | ✅ `AssertPatchAsErrorAsync<T>()`  |
+| **DELETE**                                                            | ❌         | ✅ `AssertDeleteAsync<T>()` | ✅ `AssertDeleteAsErrorAsync<T>()` |
+| **OPTIONS**                                                           | ❌         | ✅ `AssertOptionsAsync()`   | ❌                                 |
 
 **Note**: POST, PUT, PATCH, DELETE also support NoContent (204) variants without `<T>` generic parameter.
 
 ### Content Types
 
-| Content Type | Request | Response | Snapshot Format | Status |
-|--------------|---------|----------|-----------------|--------|
-| **application/json** | ✅ | ✅ | `.json` files | ✅ Full support |
-| **application/xml** | ❌ | ❌ | N/A | ⏳ Planned |
-| **multipart/form-data** | ❌ | N/A | N/A | ⏳ Planned |
-| **application/x-www-form-urlencoded** | ❌ | N/A | N/A | ⏳ Planned |
-| **text/plain** | ✅ | ✅ | `.txt` files | ✅ String comparison |
+| Content Type                          | Request | Response | Snapshot Format | Status              |
+|---------------------------------------|---------|----------|-----------------|---------------------|
+| **application/json**                  | ✅       | ✅        | `.json` files   | ✅ Full support      |
+| **application/xml**                   | ❌       | ❌        | N/A             | ⏳ Planned           |
+| **multipart/form-data**               | ❌       | N/A      | N/A             | ⏳ Planned           |
+| **application/x-www-form-urlencoded** | ❌       | N/A      | N/A             | ⏳ Planned           |
+| **text/plain**                        | ✅       | ✅        | `.txt` files    | ✅ String comparison |
 
 ### Features
 
-| Feature | Support | Notes |
-|---------|---------|-------|
-| **Request body validation** | ✅ | JSON snapshots |
-| **Response body validation** | ✅ | Deep object comparison |
-| **Status code validation** | ✅ | Expected vs actual |
-| **Header validation** | ✅ | Full HTTP response snapshots |
-| **Query parameters** | ✅ | URL parameters + parameter replacement |
-| **Dynamic parameters** | ✅ | `$placeholder$` replacement in JSON |
-| **File upload** | ❌ | Multipart not yet supported |
-| **Binary responses** | ❌ | Text/JSON only |
-| **Streaming** | ❌ | Snapshot-based only |
-| **WebSockets** | ❌ | HTTP only |
+| Feature                      | Support | Notes                                  |
+|------------------------------|---------|----------------------------------------|
+| **Request body validation**  | ✅       | JSON snapshots                         |
+| **Response body validation** | ✅       | Deep object comparison                 |
+| **Status code validation**   | ✅       | Expected vs actual                     |
+| **Header validation**        | ✅       | Full HTTP response snapshots           |
+| **Query parameters**         | ✅       | URL parameters + parameter replacement |
+| **Dynamic parameters**       | ✅       | `$placeholder$` replacement in JSON    |
+| **File upload**              | ❌       | Multipart not yet supported            |
+| **Binary responses**         | ❌       | Text/JSON only                         |
+| **Streaming**                | ❌       | Snapshot-based only                    |
+| **WebSockets**               | ❌       | HTTP only                              |
 
 **Legend:**
+
 - ✅ = Fully supported
-- ⏳ = Planned for future releases  
+- ⏳ = Planned for future releases
 - ❌ = Not supported
 
-**Current focus**: JSON-based REST APIs with full snapshot testing support for all standard HTTP methods including the new QUERY method.
+**Current focus**: JSON-based REST APIs with full snapshot testing support for all standard HTTP methods including the
+new QUERY method.
 
 ### Example: Complete CRUD workflow with QUERY
 
@@ -264,6 +267,7 @@ public class UserApiTests : ApiTestBase
 ```
 
 All methods support:
+
 - ✅ Full response snapshots
 - ✅ Error scenarios with `AsErrorAsync` variants
 - ✅ Dynamic parameter replacement
@@ -307,7 +311,8 @@ Not this:
 
 ### Context-aware disambiguation
 
-If multiple files with the same name exist in different folders, the SDK prefers the file in the **same namespace** as your test.
+If multiple files with the same name exist in different folders, the SDK prefers the file in the **same namespace** as
+your test.
 
 Example structure:
 
@@ -321,7 +326,8 @@ Api/
    └─ Requests/SonGoku.json
 ```
 
-When you reference `"Requests.SonGoku.json"` from a test in the `Api.Persons` namespace, the SDK automatically picks `Api.Persons.Requests.SonGoku.json`.
+When you reference `"Requests.SonGoku.json"` from a test in the `Api.Persons` namespace, the SDK automatically picks
+`Api.Persons.Requests.SonGoku.json`.
 
 If needed, you can be more specific:
 
@@ -330,7 +336,8 @@ If needed, you can be more specific:
 "Persons.Requests.SonGoku.json"       // Partial namespace
 ```
 
-The SDK uses **segment-based matching** to avoid false positives. `"Requests.SonGoku.json"` will not match `"ErrorRequests.SonGoku.json"` because the dot boundary matters.
+The SDK uses **segment-based matching** to avoid false positives. `"Requests.SonGoku.json"` will not match
+`"ErrorRequests.SonGoku.json"` because the dot boundary matters.
 
 This means you get:
 
@@ -394,22 +401,25 @@ public class CreateUser_Status_200_OK_Test : ApiTestBase
 
 ## What a failure looks like
 
-The SDK provides **context-specific error outputs** that make debugging fast and intuitive. Each failure type has a dedicated format with actionable information.
+The SDK provides **context-specific error outputs** that make debugging fast and intuitive. Each failure type has a
+dedicated format with actionable information.
 
 ### All Failure Types at a Glance
 
-| Icon | Failure Type | When It Occurs | What It Means |
-|------|--------------|----------------|---------------|
-| 📸 | **SNAPSHOT MISMATCH** | JSON values differ | Business logic produces different values |
-| 📋 | **SCHEMA MISMATCH** | Structure differs | API contract changed (breaking change) |
-| 🚫 | **UNEXPECTED STATUS CODE** | Wrong HTTP status | Status code doesn't match expectation |
-| 📄 | **CONTENT TYPE MISMATCH** | Wrong Content-Type | Response is not JSON (HTML, XML, etc.) |
-| ❌ | **ASSERT METHOD MISMATCH** | Wrong assertion type | Using success assert with error status (or vice versa) |
-| ❌ | **HTTP RESPONSE TYPE MISMATCH** | Wrong response type | Test type doesn't match endpoint contract |
+| Icon | Failure Type                    | When It Occurs       | What It Means                                          |
+|------|---------------------------------|----------------------|--------------------------------------------------------|
+| 📸   | **SNAPSHOT MISMATCH**           | JSON values differ   | Business logic produces different values               |
+| 📋   | **SCHEMA MISMATCH**             | Structure differs    | API contract changed (breaking change)                 |
+| 🚫   | **UNEXPECTED STATUS CODE**      | Wrong HTTP status    | Status code doesn't match expectation                  |
+| 📄   | **CONTENT TYPE MISMATCH**       | Wrong Content-Type   | Response is not JSON (HTML, XML, etc.)                 |
+| ❌    | **ASSERT METHOD MISMATCH**      | Wrong assertion type | Using success assert with error status (or vice versa) |
+| ❌    | **HTTP RESPONSE TYPE MISMATCH** | Wrong response type  | Test type doesn't match endpoint contract              |
 
-All errors follow the same structure: Header → Failure Details → Test Info → HTTP Context → Problem Details → Suggested Fix → Curl Command
+All errors follow the same structure: Header → Failure Details → Test Info → HTTP Context → Problem Details → Suggested
+Fix → Curl Command
 
-**Note:** The `File` field in Test Information contains a clickable `file://` URI that works in most IDEs (Rider, VS Code, Visual Studio). Click it to jump directly to the failing test line.
+**Note:** The `File` field in Test Information contains a clickable `file://` URI that works in most IDEs (Rider, VS
+Code, Visual Studio). Click it to jump directly to the failing test line.
 
 ### Snapshot Mismatch (Value Differences)
 
@@ -636,8 +646,8 @@ That is a completely different debugging experience from:
 Assert.AreEqual("Son", response.Name);  // ❌ No context, no curl, no path
 ```
 
-This SDK does not just tell you that something failed. It tells you **what kind of failure**, **where**, **what changed**, **under which HTTP call**, and **how to replay it now**.
-
+This SDK does not just tell you that something failed. It tells you **what kind of failure**, **where**, **what changed
+**, **under which HTTP call**, and **how to replay it now**.
 
 ### Response Type Mismatch
 
@@ -721,11 +731,13 @@ When your endpoint declares explicit response types:
 public void ThrowNotImplementedException() { ... }
 ```
 
-The SDK validates your test type against the declared status codes. Success tests (`AssertPostAsync`) are checked against 2xx responses. Error tests (`AssertPostAsErrorAsync`) are checked against 4xx/5xx responses.
+The SDK validates your test type against the declared status codes. Success tests (`AssertPostAsync`) are checked
+against 2xx responses. Error tests (`AssertPostAsErrorAsync`) are checked against 4xx/5xx responses.
 
 **Tier 2: Expected response JSON fallback**
 
-If no `[ProducesResponseType]` attributes exist, the SDK extracts the status code from your **expected response snapshot**:
+If no `[ProducesResponseType]` attributes exist, the SDK extracts the status code from your **expected response snapshot
+**:
 
 ```json
 {
@@ -740,11 +752,13 @@ If no `[ProducesResponseType]` attributes exist, the SDK extracts the status cod
 }
 ```
 
-This enables validation even when developers forget to add attributes. The SDK parses both numeric (`500`) and enum string (`"InternalServerError"`) formats.
+This enables validation even when developers forget to add attributes. The SDK parses both numeric (`500`) and enum
+string (`"InternalServerError"`) formats.
 
 **Tier 3: Assert method validation**
 
-The SDK catches when the assertion method doesn't align with the expected status code. This uses the same standardized error format as other failures:
+The SDK catches when the assertion method doesn't align with the expected status code. This uses the same standardized
+error format as other failures:
 
 ```plaintext
 ══════════════════════════════════════════════════════════════
@@ -792,7 +806,8 @@ Option 2: Update expected response status code
 ══════════════════════════════════════════════════════════════
 ```
 
-This catches common mistakes like using `AssertPostAsync` when you meant `AssertPostAsErrorAsync`, or vice versa. The header clearly shows whether the test expected SUCCESS or ERROR.
+This catches common mistakes like using `AssertPostAsync` when you meant `AssertPostAsErrorAsync`, or vice versa. The
+header clearly shows whether the test expected SUCCESS or ERROR.
 
 **Why this matters:**
 
@@ -805,7 +820,8 @@ This catches common mistakes like using `AssertPostAsync` when you meant `Assert
 
 ### Endpoint-only validation mode
 
-Sometimes you need to validate that an endpoint exists and returns the correct type, but don't care about the response content. Perfect for process chain tests or when the endpoint is already thoroughly tested elsewhere.
+Sometimes you need to validate that an endpoint exists and returns the correct type, but don't care about the response
+content. Perfect for process chain tests or when the endpoint is already thoroughly tested elsewhere.
 
 **Simple syntax - no response comparison:**
 
@@ -838,6 +854,7 @@ await Client.AssertGetAsync<GetAllNodesResponse>("api/v1/nodes",
 **Why this matters:**
 
 In large systems with lots of backend services, you often have:
+
 - **Deep tests** that validate full response snapshots (detailed unit/integration tests)
 - **Process tests** that validate multi-step workflows where intermediate calls just need to succeed
 
@@ -872,7 +889,8 @@ public async Task Complete_User_Registration_Flow()
 
 ### Response as C# Objects
 
-Instead of JSON strings, you can use C# objects for both request and response. This gives you compile-time type safety, better IDE support, and eliminates string-based JSON files for simple test cases.
+Instead of JSON strings, you can use C# objects for both request and response. This gives you compile-time type safety,
+better IDE support, and eliminates string-based JSON files for simple test cases.
 
 **Traditional JSON-based approach:**
 
@@ -1005,14 +1023,14 @@ See [Predicate shorthand: `differenceFilter`](#predicate-shorthand-differencefil
 
 **When to use objects vs JSON files:**
 
-| Scenario | Use |
-|----------|-----|
-| Simple, stable test data | **C# objects** - Type-safe, less overhead |
-| Complex nested structures | **JSON files** - Easier to read and maintain |
-| Dynamic test data generation | **C# objects** - Programmatic control |
-| Snapshot-driven workflows | **JSON files** - File-based test discovery |
-| Shared test data across tests | **JSON files** - Reusable snapshots |
-| Type-checked domain models | **C# objects** - Compile-time safety |
+| Scenario                      | Use                                          |
+|-------------------------------|----------------------------------------------|
+| Simple, stable test data      | **C# objects** - Type-safe, less overhead    |
+| Complex nested structures     | **JSON files** - Easier to read and maintain |
+| Dynamic test data generation  | **C# objects** - Programmatic control        |
+| Snapshot-driven workflows     | **JSON files** - File-based test discovery   |
+| Shared test data across tests | **JSON files** - Reusable snapshots          |
+| Type-checked domain models    | **C# objects** - Compile-time safety         |
 
 **Mixing approaches:**
 
@@ -1032,13 +1050,15 @@ await Client.AssertPostAsync(
     expectedPerson);
 ```
 
-The SDK automatically serializes objects to JSON and performs the same deep comparison, structured diff, and HTTP context output as with JSON files.
+The SDK automatically serializes objects to JSON and performs the same deep comparison, structured diff, and HTTP
+context output as with JSON files.
 
 ---
 
 ### Skip endpoint validation
 
-Sometimes you need to test external APIs or use different response types than what the endpoint declares. In these cases, endpoint validation becomes a blocker rather than a helper.
+Sometimes you need to test external APIs or use different response types than what the endpoint declares. In these
+cases, endpoint validation becomes a blocker rather than a helper.
 
 **When to skip endpoint validation:**
 
@@ -1080,12 +1100,12 @@ await Client.AssertPostAsync<CustomResponse>(
 
 **Difference from `ignoreResponse`:**
 
-| Feature | `ignoreResponse: true` | `skipEndpointValidation: true` |
-|---------|------------------------|--------------------------------|
-| Validates endpoint exists | ✅ Yes | ❌ No |
-| Validates response type matches endpoint | ✅ Yes | ❌ No |
-| Compares response content | ❌ No | ✅ Yes (if expectedResult provided) |
-| Use case | Process tests where call must succeed | External APIs or custom response types |
+| Feature                                  | `ignoreResponse: true`                | `skipEndpointValidation: true`         |
+|------------------------------------------|---------------------------------------|----------------------------------------|
+| Validates endpoint exists                | ✅ Yes                                 | ❌ No                                   |
+| Validates response type matches endpoint | ✅ Yes                                 | ❌ No                                   |
+| Compares response content                | ❌ No                                  | ✅ Yes (if expectedResult provided)     |
+| Use case                                 | Process tests where call must succeed | External APIs or custom response types |
 
 **Example: Testing external API**
 
@@ -1117,7 +1137,9 @@ public async Task Should_Transform_Response()
 
 **Future enhancement:**
 
-Later versions may support OpenAPI spec integration for external APIs, allowing endpoint validation even for external services. This would involve downloading and parsing OpenAPI specs at runtime - a bigger round trip that's not currently implemented.
+Later versions may support OpenAPI spec integration for external APIs, allowing endpoint validation even for external
+services. This would involve downloading and parsing OpenAPI specs at runtime - a bigger round trip that's not currently
+implemented.
 
 ---
 
@@ -1160,13 +1182,13 @@ You get:
 
 ### Boilerplate reduction that actually matters
 
-| Task | Traditional approach | This SDK |
-|---|---|---|
-| Add a new edge case | Add `DataRow` + add JSON + keep them in sync | Add one JSON file |
-| Validate headers + body + status | Multiple asserts | One snapshot |
-| Reproduce a failed request | Rebuild it manually | Paste generated `curl` |
-| See nested mismatch location | Manually inspect payloads | Read `MemberPath` |
-| Update snapshots after intentional API changes | Rewrite asserts | Enable snapshot update mode |
+| Task                                           | Traditional approach                         | This SDK                    |
+|------------------------------------------------|----------------------------------------------|-----------------------------|
+| Add a new edge case                            | Add `DataRow` + add JSON + keep them in sync | Add one JSON file           |
+| Validate headers + body + status               | Multiple asserts                             | One snapshot                |
+| Reproduce a failed request                     | Rebuild it manually                          | Paste generated `curl`      |
+| See nested mismatch location                   | Manually inspect payloads                    | Read `MemberPath`           |
+| Update snapshots after intentional API changes | Rewrite asserts                              | Enable snapshot update mode |
 
 ### The real multiplier: JSON-driven scaling
 
@@ -1305,7 +1327,8 @@ DIFFERENCES
 
 This makes it immediately clear that the issue is array length, not individual element values.
 
-When arrays have mixed differences (some elements changed, some missing), the SDK shows element-level details. Consolidation only happens when all elements are uniformly missing or added.
+When arrays have mixed differences (some elements changed, some missing), the SDK shows element-level details.
+Consolidation only happens when all elements are uniformly missing or added.
 
 ---
 
@@ -1618,10 +1641,10 @@ The SDK uses a **Strategy Pattern** for comparisons, making it extensible for cu
 **Built-in strategies:**
 
 1. **`StringComparisonStrategy`** - Line-by-line comparison (like git diff) for string types
-   - Perfect for comparing console outputs, log files, error messages
-   - Use `.txt` files as snapshots for string comparisons
+    - Perfect for comparing console outputs, log files, error messages
+    - Use `.txt` files as snapshots for string comparisons
 2. **`JsonComparisonStrategy`** - Deep object comparison via JSON serialization (fallback for all non-string types)
-   - Use `.json` files as snapshots for object comparisons
+    - Use `.json` files as snapshots for object comparisons
 
 **How it works:**
 
@@ -1685,7 +1708,8 @@ services.AddComparisonStrategy(); // Adds built-in strategies (String + JSON)
 
 **When NOT to use the base class:**
 
-Don't use `ComparisonStrategyBase<T>` for fallback strategies that handle multiple types (like `JsonComparisonStrategy`). Implement `ISpecificComparisonStrategy` directly instead.
+Don't use `ComparisonStrategyBase<T>` for fallback strategies that handle multiple types (like
+`JsonComparisonStrategy`). Implement `ISpecificComparisonStrategy` directly instead.
 
 ---
 
@@ -1713,7 +1737,8 @@ The assertion flow is pipeline-based:
 
 That means failures stop early and come with relevant context instead of a long tail of noisy assertions.
 
-The comparison system uses a Strategy Pattern, making it extensible for custom types beyond the built-in JSON and string comparisons.
+The comparison system uses a Strategy Pattern, making it extensible for custom types beyond the built-in JSON and string
+comparisons.
 
 ### Contract drift should be obvious
 
@@ -1730,7 +1755,8 @@ That is exactly what you want for API regression safety.
 
 ### Type-safe endpoint validation
 
-The SDK enforces type safety at the HTTP layer by distinguishing between compile-time types (`TResult`) and runtime validation types (`ExpectedType`).
+The SDK enforces type safety at the HTTP layer by distinguishing between compile-time types (`TResult`) and runtime
+validation types (`ExpectedType`).
 
 **Non-generic methods = NoContent endpoints (204):**
 
@@ -1766,6 +1792,7 @@ await Client.AssertPatchAsync<PatchItemResponse>("api/v1/items/123",
 **Why this distinction matters:**
 
 HTTP semantics demand different handling:
+
 - **200 OK / 201 Created** = success with response body
 - **204 NoContent** = success without response body
 
@@ -1784,14 +1811,14 @@ await Client.AssertPostAsync<CreateItemResponse>("api/v1/items",
 
 **Supported methods with NoContent variants:**
 
-| HTTP Method | NoContent (204) | With Response Body (200/201) |
-|-------------|-----------------|------------------------------|
-| GET | N/A (always has body) | `AssertGetAsync<T>()` |
-| **QUERY** | N/A (always has body) | `AssertQueryAsync<T>()` |
-| POST | `AssertPostAsync()` | `AssertPostAsync<T>()` |
-| PUT | `AssertPutAsync()` | `AssertPutAsync<T>()` |
-| PATCH | `AssertPatchAsync()` | `AssertPatchAsync<T>()` |
-| DELETE | `AssertDeleteAsync()` | `AssertDeleteAsync<T>()` |
+| HTTP Method | NoContent (204)       | With Response Body (200/201) |
+|-------------|-----------------------|------------------------------|
+| GET         | N/A (always has body) | `AssertGetAsync<T>()`        |
+| **QUERY**   | N/A (always has body) | `AssertQueryAsync<T>()`      |
+| POST        | `AssertPostAsync()`   | `AssertPostAsync<T>()`       |
+| PUT         | `AssertPutAsync()`    | `AssertPutAsync<T>()`        |
+| PATCH       | `AssertPatchAsync()`  | `AssertPatchAsync<T>()`      |
+| DELETE      | `AssertDeleteAsync()` | `AssertDeleteAsync<T>()`     |
 
 **Real-world examples:**
 
@@ -1813,6 +1840,7 @@ await Client.AssertDeleteAsync<DeleteConfirmation>("api/v1/items/123",
 ```
 
 This prevents:
+
 - Tests passing with wrong expectations
 - Refactoring breaking test contracts silently
 - 200 vs 204 confusion
@@ -1820,7 +1848,8 @@ This prevents:
 
 ### Real behavior should be easy to turn into tests
 
-The live traffic capture feature exists because good API tests often start with a real request. Recording that request and response into reusable test assets is part of the design, not an afterthought.
+The live traffic capture feature exists because good API tests often start with a real request. Recording that request
+and response into reusable test assets is part of the design, not an afterthought.
 
 ---
 
@@ -1845,7 +1874,8 @@ The live traffic capture feature exists because good API tests often start with 
 
 ## HTTP QUERY Method Support ([RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008))
 
-The SDK supports the new **HTTP QUERY** method standardized in RFC 10008. QUERY is designed for safe, cacheable queries that can include a request body - bridging the gap between GET (no body) and POST (not safe/cacheable).
+The SDK supports the new **HTTP QUERY** method standardized in RFC 10008. QUERY is designed for safe, cacheable queries
+that can include a request body - bridging the gap between GET (no body) and POST (not safe/cacheable).
 
 ### Why HTTP QUERY?
 
@@ -1855,7 +1885,8 @@ The QUERY method addresses a long-standing limitation in HTTP:
 - **POST** can send complex queries but isn't safe or cacheable
 - **QUERY** gives you both: request body support with GET semantics
 
-Perfect for complex search queries, GraphQL, database queries, or any scenario where query parameters are too limiting but POST semantics don't fit.
+Perfect for complex search queries, GraphQL, database queries, or any scenario where query parameters are too limiting
+but POST semantics don't fit.
 
 ### Query without request body (GET-like)
 
@@ -1883,6 +1914,7 @@ public Task Should_Query_Users_With_Complex_Search()
 ```
 
 Example search request body:
+
 ```json
 {
   "filters": {
@@ -1917,6 +1949,7 @@ public Task Should_Return_Error_For_Invalid_Query()
 ### Implementing QUERY endpoints
 
 **Controller-based:**
+
 ```csharp
 [AcceptVerbs("QUERY")]
 [Route("search")]
@@ -1928,6 +1961,7 @@ public IEnumerable<User> QueryUsers([FromBody] SearchRequest request)
 ```
 
 **Minimal API:**
+
 ```csharp
 app.MapMethods("api/v1/users/search", new[] { "QUERY" }, 
     ([FromBody] SearchRequest request) =>
@@ -1949,11 +1983,11 @@ app.MapMethods("api/v1/users/search", new[] { "QUERY" },
 
 ### When to use QUERY vs GET vs POST
 
-| Method | Use When | Body | Safe | Cacheable |
-|--------|----------|------|------|-----------|
-| **GET** | Simple queries (query params) | ❌ No | ✅ Yes | ✅ Yes |
-| **QUERY** | Complex queries (need body) | ✅ Yes | ✅ Yes | ✅ Yes |
-| **POST** | Creating/modifying data | ✅ Yes | ❌ No | ❌ No |
+| Method    | Use When                      | Body  | Safe  | Cacheable |
+|-----------|-------------------------------|-------|-------|-----------|
+| **GET**   | Simple queries (query params) | ❌ No  | ✅ Yes | ✅ Yes     |
+| **QUERY** | Complex queries (need body)   | ✅ Yes | ✅ Yes | ✅ Yes     |
+| **POST**  | Creating/modifying data       | ✅ Yes | ❌ No  | ❌ No      |
 
 The SDK makes QUERY a first-class citizen with the same full support as GET, POST, PUT, PATCH, and DELETE.
 
@@ -1965,7 +1999,8 @@ The SDK includes a modern assertion library designed for both human readability 
 
 ### Why `Assert.That.*`?
 
-Traditional assertions give you a line number and a brief message. `Assert.That.*` gives you **structured failure context** that makes debugging instant for humans and enables AI tools to understand test failures without guessing.
+Traditional assertions give you a line number and a brief message. `Assert.That.*` gives you **structured failure
+context** that makes debugging instant for humans and enables AI tools to understand test failures without guessing.
 
 ### Key features
 
@@ -2024,24 +2059,67 @@ Additional suggestions:
 
 ### Available assertions
 
-| Category | Methods | Use For |
-|----------|---------|---------|
-| **Boolean** | `IsTrue`, `IsFalse` | Condition checks |
-| **Null** | `IsNull`, `IsNotNull` | Null reference validation |
-| **Equality** | `AreEqual`, `AreNotEqual`, `AreSame`, `AreNotSame` | Value and reference comparison |
-| **Type** | `IsInstanceOfType`, `IsNotInstanceOfType` | Type checking |
-| **Numeric** | `IsGreaterThan`, `IsLessThan`, `IsInRange`, `IsPositive`, `IsNegative` | Number validation |
-| **String** | `IsEmpty`, `IsNotEmpty`, `Contains`, `StartsWith`, `EndsWith`, `Matches` | String validation |
-| **Collection** | `IsEmpty`, `IsNotEmpty`, `Contains`, `DoesNotContain`, `AllMatch` | Collection validation |
-| **Exception** | `Throws`, `DoesNotThrow` | Exception behavior |
-| **DateTime** | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `IsUtc`, `IsLocal`, `IsUnspecified` | Date/time validation |
-| **DateTimeOffset** | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `HasOffset`, `IsUtc`, `IsLocal` | Timezone-aware date/time validation |
+| Category           | Methods                                                                              | Use For                             |
+|--------------------|--------------------------------------------------------------------------------------|-------------------------------------|
+| **Boolean**        | `IsTrue`, `IsFalse`                                                                  | Condition checks                    |
+| **Null**           | `IsNull`, `IsNotNull`                                                                | Null reference validation           |
+| **Equality**       | `AreEqual`, `AreNotEqual`, `AreSame`, `AreNotSame`                                   | Value and reference comparison      |
+| **Type**           | `IsInstanceOfType`, `IsNotInstanceOfType`                                            | Type checking                       |
+| **Numeric**        | `IsGreaterThan`, `IsLessThan`, `IsInRange`, `IsPositive`, `IsNegative`               | Number validation                   |
+| **String**         | `IsEmpty`, `IsNotEmpty`, `Contains`, `StartsWith`, `EndsWith`, `Matches`             | String validation                   |
+| **Collection**     | `IsEmpty`, `IsNotEmpty`, `Contains`, `DoesNotContain`, `AllMatch`                    | Collection validation               |
+| **Exception**      | `Throws`, `DoesNotThrow`                                                             | Exception behavior                  |
+| **DateTime**       | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `IsUtc`, `IsLocal`, `IsUnspecified` | Date/time validation                |
+| **DateTimeOffset** | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `HasOffset`, `IsUtc`, `IsLocal`     | Timezone-aware date/time validation |
 
 ### Why not `AiAssert.*`?
 
-The `because` and `fix` parameters make assertions self-documenting. The structured output format is already AI-parseable. Creating a separate `AiAssert` namespace would fragment the API and create confusion about when to use which.
+The `because` and `fix` parameters make assertions self-documenting. The structured output format is already
+AI-parseable. Creating a separate `AiAssert` namespace would fragment the API and create confusion about when to use
+which.
 
 **Single API, dual benefit**: Write once, debug easily (human), parse reliably (AI).
+
+---
+
+## Coming Soon — Fluent Assert API (Alpha) 🧪
+
+A declarative, type-safe fluent API for HTTP contract testing is in the works. A test should read like the
+endpoint contract it verifies:
+
+```csharp
+await Client.AssertPost("api/v1/persons")
+    .Accepts(person)                                // request contract
+    .Produces<Person>(HttpStatusCode.Created)       // status + response type
+    .ExpectedResponse(expectedPerson)               // expected content
+    .ExecuteAsync();                                // the only terminal
+```
+
+Highlights that are already prototyped or on the roadmap:
+
+- **Endpoint-mirroring vocabulary** — `Accepts` / `Produces` / `ExpectedResponse` line up with ASP.NET Core
+  Minimal API metadata.
+- **Type-state builder** — comparison config (`IgnoreProperty`, `FilterResponse`, `DifferenceFilter`) is only
+  reachable *after* an expected response, enforced by the compiler.
+- **Analyzer-protected terminal** — a forgotten `ExecuteAsync()` is a build error (`MSTESTSDK001`), not a
+  silently green test.
+- **Type-safe property handling** — `.IgnoreProperty<Person>(p => p.Id)` and
+  `.MatchesProperty(p => p.Id, id => id != Guid.Empty)` instead of magic strings.
+- **Endpoint metadata assertions** — `Client.AssertEndpoint(...)` to verify names, tags, auth, produced
+  responses and more, without sending a request.
+
+> ⚠️ **Alpha only.** The fluent entry points are `public` only in prerelease builds (`FLUENT_ALPHA`); in
+> stable packages they stay `internal` until the shape is final. Signatures may still change. For stable
+> tests, keep using the classic `AssertPostAsync<T>(…)` API.
+
+```sh
+dotnet add package AspNetCore.Simple.MsTest.Sdk --version 9.6.0-alpha.19
+```
+
+Full walkthrough, the complete method idea collection, and design notes:
+[`FluentAssertions/HOWTO.md`](src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/HOWTO.md) ·
+[`README.md`](src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/README.md) ·
+[`DESIGN_VISION.md`](src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/DESIGN_VISION.md).
 
 ---
 

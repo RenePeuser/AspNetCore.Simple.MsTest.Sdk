@@ -5,6 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspNetCore.Simple.Sdk" />
+        <PackageReference Include="AspNetCore.Simple.Sdk"/>
     </ItemGroup>
 </Project>

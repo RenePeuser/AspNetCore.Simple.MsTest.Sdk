@@ -23,7 +23,8 @@ namespace Controllers.Test.Api.Persons.V1.Query
         private const string SearchUrl = "api/v1/persons/search";
 
         // Query {Name="Son", MinAge=50} returns exactly Person 1 (Son/Goku/99).
-        private static Person[] ExpectedSonPersons(int age = 99, string name = "Son")
+        private static Person[] ExpectedSonPersons(int age = 99,
+                                                   string name = "Son")
         {
             return
             [
@@ -42,14 +43,17 @@ namespace Controllers.Test.Api.Persons.V1.Query
         [TestCategory("DifferenceFilter")]
         public Task PerAssertFilter_Should_Ignore_Filtered_Difference()
         {
-            var queryRequest = new { Name = "Son", MinAge = 50 };
+            var queryRequest = new
+                               {
+                                   Name = "Son",
+                                   MinAge = 50
+                               };
 
-            return Client.AssertQueryAsync<IEnumerable<Person>>(
-                       SearchUrl,
-                       queryRequest,
-                       ExpectedSonPersons(age: 42),
-                       differenceFunc: diffs => diffs,
-                       differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase));
+            return Client.AssertQueryAsync<IEnumerable<Person>>(SearchUrl,
+                                                                queryRequest,
+                                                                ExpectedSonPersons(age: 42),
+                                                                differenceFunc: diffs => diffs,
+                                                                differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase));
         }
 
         [TestMethod]
@@ -58,16 +62,18 @@ namespace Controllers.Test.Api.Persons.V1.Query
         [TestCategory("DifferenceFilter")]
         public async Task PerAssertFilter_Should_Not_Hide_Unrelated_Difference()
         {
-            var queryRequest = new { Name = "Son", MinAge = 50 };
+            var queryRequest = new
+                               {
+                                   Name = "Son",
+                                   MinAge = 50
+                               };
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertQueryAsync<IEnumerable<Person>>(
-                                SearchUrl,
-                                queryRequest,
-                                ExpectedSonPersons(age: 42, name: "WrongName"),
-                                differenceFunc: diffs => diffs,
-                                differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertQueryAsync<IEnumerable<Person>>(SearchUrl,
+                                                                                                                      queryRequest,
+                                                                                                                      ExpectedSonPersons(age: 42, name: "WrongName"),
+                                                                                                                      differenceFunc: diffs => diffs,
+                                                                                                                      differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
+                        .ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -76,13 +82,16 @@ namespace Controllers.Test.Api.Persons.V1.Query
         [TestCategory("DifferenceFilter")]
         public Task DifferenceFilterOnly_Twin_Should_Ignore_Filtered_Difference()
         {
-            var queryRequest = new { Name = "Son", MinAge = 50 };
+            var queryRequest = new
+                               {
+                                   Name = "Son",
+                                   MinAge = 50
+                               };
 
-            return Client.AssertQueryAsync<IEnumerable<Person>>(
-                       SearchUrl,
-                       queryRequest,
-                       ExpectedSonPersons(age: 42),
-                       differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase));
+            return Client.AssertQueryAsync<IEnumerable<Person>>(SearchUrl,
+                                                                queryRequest,
+                                                                ExpectedSonPersons(age: 42),
+                                                                differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase));
         }
     }
 }

@@ -19,58 +19,58 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         /// test chains read exactly like real usage.
         /// </summary>
         public const string Source = """
-            using System;
-            using System.Net;
-            using System.Threading.Tasks;
+                                     using System;
+                                     using System.Net;
+                                     using System.Threading.Tasks;
 
-            namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions
-            {
-                [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = true)]
-                public sealed class FluentBuilderAttribute : Attribute { }
-            }
+                                     namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions
+                                     {
+                                         [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = true)]
+                                         public sealed class FluentBuilderAttribute : Attribute { }
+                                     }
 
-            namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
-            {
-                using AspNetCore.Simple.MsTest.Sdk.FluentAssertions;
+                                     namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
+                                     {
+                                         using AspNetCore.Simple.MsTest.Sdk.FluentAssertions;
 
-                [FluentBuilder]
-                public interface IHttpRequestConfiguring
-                {
-                    IHttpRequestConfiguring WithBody<T>(T body);
-                    IHttpRequestConfiguring WithJsonString(string bodyJson);
-                    IHttpResponseConfiguring<TResult> Returns<TResult>(TResult expected);
-                    IHttpExpectationConfiguring ExpectingResponse();
-                }
+                                         [FluentBuilder]
+                                         public interface IHttpRequestConfiguring
+                                         {
+                                             IHttpRequestConfiguring WithBody<T>(T body);
+                                             IHttpRequestConfiguring WithJsonString(string bodyJson);
+                                             IHttpResponseConfiguring<TResult> Returns<TResult>(TResult expected);
+                                             IHttpExpectationConfiguring ExpectingResponse();
+                                         }
 
-                [FluentBuilder]
-                public interface IHttpResponseConfiguring<TResult>
-                {
-                    IHttpResponseConfiguring<TResult> ExpectingSuccess();
-                    IHttpResponseConfiguring<TResult> ExpectingStatus(HttpStatusCode code);
-                    Task<TResult> ExecuteAsync();
-                }
+                                         [FluentBuilder]
+                                         public interface IHttpResponseConfiguring<TResult>
+                                         {
+                                             IHttpResponseConfiguring<TResult> ExpectingSuccess();
+                                             IHttpResponseConfiguring<TResult> ExpectingStatus(HttpStatusCode code);
+                                             Task<TResult> ExecuteAsync();
+                                         }
 
-                [FluentBuilder]
-                public interface IHttpExpectationConfiguring
-                {
-                    IHttpExpectationConfiguring ExpectingSuccess();
-                    IHttpExpectationConfiguring ExpectingStatus(HttpStatusCode code);
-                    Task ExecuteAsync();
-                }
-            }
+                                         [FluentBuilder]
+                                         public interface IHttpExpectationConfiguring
+                                         {
+                                             IHttpExpectationConfiguring ExpectingSuccess();
+                                             IHttpExpectationConfiguring ExpectingStatus(HttpStatusCode code);
+                                             Task ExecuteAsync();
+                                         }
+                                     }
 
-            namespace TestApp
-            {
-                using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
+                                     namespace TestApp
+                                     {
+                                         using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 
-                public class Person { public int Id { get; set; } public string? Name { get; set; } }
+                                         public class Person { public int Id { get; set; } public string? Name { get; set; } }
 
-                public static class Client
-                {
-                    public static IHttpRequestConfiguring AssertPost(string url) => null!;
-                    public static IHttpRequestConfiguring AssertGet(string url) => null!;
-                }
-            }
-            """;
+                                         public static class Client
+                                         {
+                                             public static IHttpRequestConfiguring AssertPost(string url) => null!;
+                                             public static IHttpRequestConfiguring AssertGet(string url) => null!;
+                                         }
+                                     }
+                                     """;
     }
 }

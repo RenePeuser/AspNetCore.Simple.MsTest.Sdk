@@ -79,7 +79,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             return await _client.SendAsync(request).ConfigureAwait(false);
         }
 
-        private string BuildErrorOutput(string expected, string actual)
+        private string BuildErrorOutput(string expected,
+                                        string actual)
         {
             var data = new[]
                        {

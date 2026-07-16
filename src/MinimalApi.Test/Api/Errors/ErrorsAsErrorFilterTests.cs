@@ -50,11 +50,10 @@ namespace MinimalApi.Test.Api.Errors
         [TestCategory("GET")]
         public async Task GetAsError_With_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
         {
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertGetAsErrorAsync<ProblemDetails>("api/v1/errors/get-not-implemented",
-                                                                         WrongDetailFile,
-                                                                         differenceFilter: KeepUnlessTitle))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsErrorAsync<ProblemDetails>("api/v1/errors/get-not-implemented",
+                                                                                                                      WrongDetailFile,
+                                                                                                                      differenceFilter: KeepUnlessTitle))
+                        .ConfigureAwait(false);
         }
 
         // ============================================================
@@ -74,11 +73,10 @@ namespace MinimalApi.Test.Api.Errors
         [TestCategory("DELETE")]
         public async Task DeleteAsError_With_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
         {
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertDeleteAsErrorAsync<ProblemDetails>("api/v1/errors/delete-not-implemented",
-                                                                            WrongDetailFile,
-                                                                            differenceFilter: KeepUnlessTitle))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertDeleteAsErrorAsync<ProblemDetails>("api/v1/errors/delete-not-implemented",
+                                                                                                                         WrongDetailFile,
+                                                                                                                         differenceFilter: KeepUnlessTitle))
+                        .ConfigureAwait(false);
         }
 
         // ============================================================
@@ -99,12 +97,11 @@ namespace MinimalApi.Test.Api.Errors
         [TestCategory("PUT")]
         public async Task PutAsError_With_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
         {
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertPutAsErrorAsync<ProblemDetails>("api/v1/errors/put-not-implemented",
-                                                                         ThrowawayBody,
-                                                                         WrongDetailFile,
-                                                                         differenceFilter: KeepUnlessTitle))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPutAsErrorAsync<ProblemDetails>("api/v1/errors/put-not-implemented",
+                                                                                                                      ThrowawayBody,
+                                                                                                                      WrongDetailFile,
+                                                                                                                      differenceFilter: KeepUnlessTitle))
+                        .ConfigureAwait(false);
         }
 
         // ============================================================
@@ -125,12 +122,11 @@ namespace MinimalApi.Test.Api.Errors
         [TestCategory("PATCH")]
         public async Task PatchAsError_With_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
         {
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertPatchAsErrorAsync<ProblemDetails>("api/v1/errors/patch-not-implemented",
-                                                                           ThrowawayBody,
-                                                                           WrongDetailFile,
-                                                                           differenceFilter: KeepUnlessTitle))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPatchAsErrorAsync<ProblemDetails>("api/v1/errors/patch-not-implemented",
+                                                                                                                        ThrowawayBody,
+                                                                                                                        WrongDetailFile,
+                                                                                                                        differenceFilter: KeepUnlessTitle))
+                        .ConfigureAwait(false);
         }
     }
 }

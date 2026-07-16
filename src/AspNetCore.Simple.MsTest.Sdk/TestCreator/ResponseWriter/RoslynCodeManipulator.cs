@@ -50,10 +50,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Find the method containing the position (we need to search the whole method for the variable)
             var method = (root.FindToken(targetPosition)
-                             .Parent
-                             ?.AncestorsAndSelf()
-                             .OfType<MethodDeclarationSyntax>()
-                             .FirstOrDefault()) ?? throw new InvalidOperationException($"Could not find method at line {lineNumber}");
+                              .Parent
+                              ?.AncestorsAndSelf()
+                              .OfType<MethodDeclarationSyntax>()
+                              .FirstOrDefault()) ?? throw new InvalidOperationException($"Could not find method at line {lineNumber}");
 
             // Find the object creation expression in this method
             // Strategy: Look for any object creation (ObjectCreationExpressionSyntax, ImplicitObjectCreationExpressionSyntax, AnonymousObjectCreationExpressionSyntax)
@@ -68,7 +68,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (variableDeclarator != null && variableDeclarator.Initializer != null)
 
-            // Get the initializer expression
+                // Get the initializer expression
             {
                 targetNode = variableDeclarator.Initializer.Value;
             }
@@ -88,12 +88,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Try 3: Fallback - find first object creation expression
             targetNode ??= method.DescendantNodes()
-                                   .OfType<ObjectCreationExpressionSyntax>()
-                                   .FirstOrDefault();
+                                 .OfType<ObjectCreationExpressionSyntax>()
+                                 .FirstOrDefault();
 
             targetNode ??= method.DescendantNodes()
-                                   .OfType<AnonymousObjectCreationExpressionSyntax>()
-                                   .FirstOrDefault();
+                                 .OfType<AnonymousObjectCreationExpressionSyntax>()
+                                 .FirstOrDefault();
 
             if (targetNode == null)
             {
@@ -177,14 +177,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Determine construction type based on initializer presence
             if (objectCreation.ArgumentList != null && objectCreation.ArgumentList.Arguments.Count > 0 && objectCreation.Initializer == null)
 
-            // Positional: new Person(1, "a", "b")
+                // Positional: new Person(1, "a", "b")
             {
                 return (typeName, ObjectConstructionType.RecordPositional);
             }
 
             if (objectCreation.Initializer != null)
 
-            // Nominal: new Person { Id = 1, Name = "a" }
+                // Nominal: new Person { Id = 1, Name = "a" }
             {
                 return (typeName, ObjectConstructionType.RecordNominal);
             }

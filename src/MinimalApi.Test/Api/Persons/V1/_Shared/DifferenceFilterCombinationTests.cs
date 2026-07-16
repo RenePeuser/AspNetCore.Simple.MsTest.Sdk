@@ -72,13 +72,12 @@ namespace MinimalApi.Test.Api.Persons.V1.Shared
             // Same three mechanisms, but now "name" also differs and nothing drops it → must still fail.
             var expected = ExpectedPerson(age: 1, name: "WrongName", firstName: "WrongFirst");
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertGetAsync(PersonUrl,
-                                                  expected,
-                                                  filterFunc: person => person,
-                                                  differenceFunc: diffs => diffs.Where(d => !d.MemberPath.Contains("firstName", StringComparison.OrdinalIgnoreCase)),
-                                                  differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync(PersonUrl,
+                                                                                               expected,
+                                                                                               filterFunc: person => person,
+                                                                                               differenceFunc: diffs => diffs.Where(d => !d.MemberPath.Contains("firstName", StringComparison.OrdinalIgnoreCase)),
+                                                                                               differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
+                        .ConfigureAwait(false);
         }
 
         // ============================================================
@@ -108,10 +107,9 @@ namespace MinimalApi.Test.Api.Persons.V1.Shared
         public Task PostAsError_With_DifferenceFilter_Should_Ignore_Filtered_Difference()
         {
             // The expected file intentionally has a wrong "detail"; the filter drops that difference.
-            return Client.AssertPostAsErrorAsync<ProblemDetails>(
-                       ErrorUrl,
-                       "ErrorResponseWrongDetail.json",
-                       differenceFilter: d => !d.MemberPath.Contains("detail", StringComparison.OrdinalIgnoreCase));
+            return Client.AssertPostAsErrorAsync<ProblemDetails>(ErrorUrl,
+                                                                 "ErrorResponseWrongDetail.json",
+                                                                 differenceFilter: d => !d.MemberPath.Contains("detail", StringComparison.OrdinalIgnoreCase));
         }
 
         [TestMethod]
@@ -119,12 +117,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Shared
         public async Task PostAsError_With_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
         {
             // The filter only drops "detail"; a wrong "title" must still fail.
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertPostAsErrorAsync<ProblemDetails>(
-                                ErrorUrl,
-                                "ErrorResponseWrongDetail.json",
-                                differenceFilter: d => !d.MemberPath.Contains("title", StringComparison.OrdinalIgnoreCase)))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPostAsErrorAsync<ProblemDetails>(ErrorUrl,
+                                                                                                                       "ErrorResponseWrongDetail.json",
+                                                                                                                       differenceFilter: d => !d.MemberPath.Contains("title", StringComparison.OrdinalIgnoreCase)))
+                        .ConfigureAwait(false);
         }
     }
 }

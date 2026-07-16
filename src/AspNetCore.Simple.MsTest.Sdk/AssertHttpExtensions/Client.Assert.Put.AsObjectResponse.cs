@@ -437,21 +437,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertPutAsync<TResult>(url: url,
-                                         payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
-                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
-                                         filterFunc: static item => item,
-                                         differenceFunc: differenceFunc,
-                                         parameters: [],
-                                         callingAssembly: callingAssembly,
-                                         writeResponse: writeResponse,
-                                         payloadAsJsonParameterName: payloadAsObjectParameterName,
-                                         expectedResultParameterName: nameof(expectedResponse),
-                                         skipEndpointValidation: skipEndpointValidation,
-                                         expectedHttpStatusCode: expectedHttpStatusCode,
-                                         differenceFilter: differenceFilter,
-                                         callerFilePath: callerFilePath,
-                                         callerMemberName: callerMemberName,
-                                         callerLineNumber: callerLineNumber);
+                                                  payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  filterFunc: static item => item,
+                                                  differenceFunc: differenceFunc,
+                                                  parameters: [],
+                                                  callingAssembly: callingAssembly,
+                                                  writeResponse: writeResponse,
+                                                  payloadAsJsonParameterName: payloadAsObjectParameterName,
+                                                  expectedResultParameterName: nameof(expectedResponse),
+                                                  skipEndpointValidation: skipEndpointValidation,
+                                                  expectedHttpStatusCode: expectedHttpStatusCode,
+                                                  differenceFilter: differenceFilter,
+                                                  callerFilePath: callerFilePath,
+                                                  callerMemberName: callerMemberName,
+                                                  callerLineNumber: callerLineNumber);
         }
 
         // differenceFunc without filterFunc (with parameters): mirrors the POST overloads
@@ -474,21 +474,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertPutAsync<TResult>(url: url,
-                                         payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
-                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
-                                         filterFunc: static item => item,
-                                         differenceFunc: differenceFunc,
-                                         parameters: parameters,
-                                         callingAssembly: callingAssembly,
-                                         writeResponse: writeResponse,
-                                         payloadAsJsonParameterName: payloadAsObjectParameterName,
-                                         expectedResultParameterName: nameof(expectedResponse),
-                                         skipEndpointValidation: skipEndpointValidation,
-                                         expectedHttpStatusCode: expectedHttpStatusCode,
-                                         differenceFilter: differenceFilter,
-                                         callerFilePath: callerFilePath,
-                                         callerMemberName: callerMemberName,
-                                         callerLineNumber: callerLineNumber);
+                                                  payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  filterFunc: static item => item,
+                                                  differenceFunc: differenceFunc,
+                                                  parameters: parameters,
+                                                  callingAssembly: callingAssembly,
+                                                  writeResponse: writeResponse,
+                                                  payloadAsJsonParameterName: payloadAsObjectParameterName,
+                                                  expectedResultParameterName: nameof(expectedResponse),
+                                                  skipEndpointValidation: skipEndpointValidation,
+                                                  expectedHttpStatusCode: expectedHttpStatusCode,
+                                                  differenceFilter: differenceFilter,
+                                                  callerFilePath: callerFilePath,
+                                                  callerMemberName: callerMemberName,
+                                                  callerLineNumber: callerLineNumber);
         }
 
         public static Task<TResult> AssertPutAsync<TResult>(this HttpClient client,
@@ -582,21 +582,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertPutAsync<TResult>(url: url,
-                                         payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
-                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
-                                         filterFunc: item => item,
-                                         differenceFunc: difference => difference,
-                                         parameters: [],
-                                         callingAssembly: callingAssembly,
-                                         writeResponse: writeResponse,
-                                         payloadAsJsonParameterName: payloadAsObjectParameterName,
-                                         expectedResultParameterName: nameof(expectedResponse),
-                                         skipEndpointValidation: skipEndpointValidation,
-                                         expectedHttpStatusCode: expectedHttpStatusCode,
-                                         differenceFilter: differenceFilter,
-                                         callerFilePath: callerFilePath,
-                                         callerMemberName: callerMemberName,
-                                         callerLineNumber: callerLineNumber);
+                                                  payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  filterFunc: item => item,
+                                                  differenceFunc: difference => difference,
+                                                  parameters: [],
+                                                  callingAssembly: callingAssembly,
+                                                  writeResponse: writeResponse,
+                                                  payloadAsJsonParameterName: payloadAsObjectParameterName,
+                                                  expectedResultParameterName: nameof(expectedResponse),
+                                                  skipEndpointValidation: skipEndpointValidation,
+                                                  expectedHttpStatusCode: expectedHttpStatusCode,
+                                                  differenceFilter: differenceFilter,
+                                                  callerFilePath: callerFilePath,
+                                                  callerMemberName: callerMemberName,
+                                                  callerLineNumber: callerLineNumber);
         }
 
         // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc/filterFunc
@@ -618,21 +618,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertPutAsync<TResult>(url: url,
-                                         payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
-                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
-                                         filterFunc: item => item,
-                                         differenceFunc: difference => difference,
-                                         parameters: parameters,
-                                         callingAssembly: callingAssembly,
-                                         writeResponse: writeResponse,
-                                         payloadAsJsonParameterName: payloadAsObjectParameterName,
-                                         expectedResultParameterName: nameof(expectedResponse),
-                                         skipEndpointValidation: skipEndpointValidation,
-                                         expectedHttpStatusCode: expectedHttpStatusCode,
-                                         differenceFilter: differenceFilter,
-                                         callerFilePath: callerFilePath,
-                                         callerMemberName: callerMemberName,
-                                         callerLineNumber: callerLineNumber);
+                                                  payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  filterFunc: item => item,
+                                                  differenceFunc: difference => difference,
+                                                  parameters: parameters,
+                                                  callingAssembly: callingAssembly,
+                                                  writeResponse: writeResponse,
+                                                  payloadAsJsonParameterName: payloadAsObjectParameterName,
+                                                  expectedResultParameterName: nameof(expectedResponse),
+                                                  skipEndpointValidation: skipEndpointValidation,
+                                                  expectedHttpStatusCode: expectedHttpStatusCode,
+                                                  differenceFilter: differenceFilter,
+                                                  callerFilePath: callerFilePath,
+                                                  callerMemberName: callerMemberName,
+                                                  callerLineNumber: callerLineNumber);
         }
 
         // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc/filterFunc
@@ -653,21 +653,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertPutAsync<TResult>(url: url,
-                                         payloadAsJson: payloadAsJson,
-                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
-                                         filterFunc: item => item,
-                                         differenceFunc: difference => difference,
-                                         parameters: [],
-                                         callingAssembly: callingAssembly,
-                                         writeResponse: writeResponse,
-                                         payloadAsJsonParameterName: payloadAsJsonParameterName,
-                                         expectedResultParameterName: nameof(expectedResponse),
-                                         skipEndpointValidation: skipEndpointValidation,
-                                         expectedHttpStatusCode: expectedHttpStatusCode,
-                                         differenceFilter: differenceFilter,
-                                         callerFilePath: callerFilePath,
-                                         callerMemberName: callerMemberName,
-                                         callerLineNumber: callerLineNumber);
+                                                  payloadAsJson: payloadAsJson,
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  filterFunc: item => item,
+                                                  differenceFunc: difference => difference,
+                                                  parameters: [],
+                                                  callingAssembly: callingAssembly,
+                                                  writeResponse: writeResponse,
+                                                  payloadAsJsonParameterName: payloadAsJsonParameterName,
+                                                  expectedResultParameterName: nameof(expectedResponse),
+                                                  skipEndpointValidation: skipEndpointValidation,
+                                                  expectedHttpStatusCode: expectedHttpStatusCode,
+                                                  differenceFilter: differenceFilter,
+                                                  callerFilePath: callerFilePath,
+                                                  callerMemberName: callerMemberName,
+                                                  callerLineNumber: callerLineNumber);
         }
 
         // differenceFilter-only twin: differenceFilter usable without an explicit differenceFunc/filterFunc
@@ -689,21 +689,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertPutAsync<TResult>(url: url,
-                                         payloadAsJson: payloadAsJson,
-                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
-                                         filterFunc: item => item,
-                                         differenceFunc: difference => difference,
-                                         parameters: parameters,
-                                         callingAssembly: callingAssembly,
-                                         writeResponse: writeResponse,
-                                         payloadAsJsonParameterName: payloadAsJsonParameterName,
-                                         expectedResultParameterName: nameof(expectedResponse),
-                                         skipEndpointValidation: skipEndpointValidation,
-                                         expectedHttpStatusCode: expectedHttpStatusCode,
-                                         differenceFilter: differenceFilter,
-                                         callerFilePath: callerFilePath,
-                                         callerMemberName: callerMemberName,
-                                         callerLineNumber: callerLineNumber);
+                                                  payloadAsJson: payloadAsJson,
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  filterFunc: item => item,
+                                                  differenceFunc: difference => difference,
+                                                  parameters: parameters,
+                                                  callingAssembly: callingAssembly,
+                                                  writeResponse: writeResponse,
+                                                  payloadAsJsonParameterName: payloadAsJsonParameterName,
+                                                  expectedResultParameterName: nameof(expectedResponse),
+                                                  skipEndpointValidation: skipEndpointValidation,
+                                                  expectedHttpStatusCode: expectedHttpStatusCode,
+                                                  differenceFilter: differenceFilter,
+                                                  callerFilePath: callerFilePath,
+                                                  callerMemberName: callerMemberName,
+                                                  callerLineNumber: callerLineNumber);
         }
     }
 }

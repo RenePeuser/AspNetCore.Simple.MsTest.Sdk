@@ -63,12 +63,11 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
                                             Emails: ImmutableList.Create(new Email("alf@gmx.de", "GMX"),
                                                                          new Email("abc@hotmail.de", "Microsoft")));
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(
-                      () => Client.AssertGetAsync(PersonUrl,
-                                                  expectedPerson,
-                                                  differenceFunc: diffs => diffs,
-                                                  differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
-                  .ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync(PersonUrl,
+                                                                                               expectedPerson,
+                                                                                               differenceFunc: diffs => diffs,
+                                                                                               differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
+                        .ConfigureAwait(false);
         }
 
         [TestMethod]
