@@ -21,7 +21,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
 
             var result = await Client.AssertPost("api/v1/persons")
                                      .Accepts(person)
-                                     .Produces<Person>(HttpStatusCode.OK)
+                                     .Produces<Person>(HttpStatusCode.Created)
                                      .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
                                      .ExecuteAsync().ConfigureAwait(false);
 
@@ -37,7 +37,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
 
             return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
-                         .Produces<Person>(HttpStatusCode.OK)
+                         .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePersonFull.json")
                          .ExecuteAsync();
         }
@@ -49,7 +49,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         {
             return Client.AssertPost("api/v1/persons")
                          .AcceptsFromEmbeddedJson("CreatePersonFull.json")
-                         .Produces<Person>(HttpStatusCode.OK)
+                         .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePersonFull.json")
                          .ExecuteAsync();
         }
@@ -63,7 +63,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
 
             return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
-                         .Produces<Person>(HttpStatusCode.OK)
+                         .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
                             .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
@@ -78,7 +78,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
 
             return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
-                         .Produces<Person>(HttpStatusCode.OK)
+                         .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePersonFull.json")
                              .IgnoreProperty<Person>(p => p.Id)
                          .ExecuteAsync();
@@ -94,7 +94,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
             // Body-less path: only status + typed result, no golden-file comparison (§15.6).
             var result = await Client.AssertPost("api/v1/persons")
                                      .Accepts(person)
-                                     .Produces<Person>(HttpStatusCode.OK)
+                                     .Produces<Person>(HttpStatusCode.Created)
                                      .ExecuteAsync().ConfigureAwait(false);
 
             Assert.IsNotNull(result);

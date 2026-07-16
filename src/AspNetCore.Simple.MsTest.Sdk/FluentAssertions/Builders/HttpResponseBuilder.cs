@@ -27,8 +27,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
     /// <typeparam name="TResult">The expected response type.</typeparam>
     internal sealed class HttpResponseBuilder<TResult> : IHttpResponseConfiguring<TResult>, IHttpComparisonConfiguring<TResult>
     {
-        private const string NoComparisonMarker = "IgnoreResponse";
-
         private readonly HttpClient _client;
 
         private readonly HttpMethod _method;
@@ -143,8 +141,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         {
             var isSuccessTest = (int)_expectedStatusCode >= 200 && (int)_expectedStatusCode < 300;
 
-            // No ExpectedResponse… → body-less path: deserialize + return, skip comparison (§15.6).
-            var expectedResult = _expectedJson ?? NoComparisonMarker;
+            // No ExpectedResponse… → body-less path: empty expected + ignoreResponse=true means the
+            // engine deserializes + returns the real response but skips the body comparison (§15.6).
+            var expectedResult = _expectedJson ?? string.Empty;
 
             return _client.AssertHttpCallAsync(url: _url,
                                                payloadAsJson: _body ?? string.Empty,
