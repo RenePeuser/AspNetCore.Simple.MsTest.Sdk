@@ -72,12 +72,28 @@
     <!-- ALPHA-ONLY fluent API (strategy: release the fluent API in alpha/prerelease only, until its
          final shape is decided — see FluentAssertions/README.md). The FLUENT_ALPHA symbol flips the
          entry points from internal to public. It is defined when:
-           * the build produces a prerelease version (GitVersion sets GitVersion_PreReleaseTag), OR
-           * FluentAlpha=true is passed explicitly (e.g. dotnet build -p:FluentAlpha=true / local dev).
-         In-repo test projects always reach the API via InternalsVisibleTo, so tests build regardless. -->
-    <PropertyGroup Condition="'$(GitVersion_PreReleaseTag)' != '' or '$(FluentAlpha)' == 'true'">
+           * the build produces a prerelease version, e.g. /develop → "…-alpha.N"
+             (GitVersion_PreReleaseTag is non-empty), OR
+           * FluentAlpha=true is passed explicitly (dotnet build -p:FluentAlpha=true / local dev).
+         In-repo test projects always reach the API via InternalsVisibleTo, so tests build regardless.
+
+         IMPORTANT — timing: GitVersion.MsBuild sets GitVersion_* in a TARGET (GetVersion), not at
+         project-evaluation time. A plain <PropertyGroup Condition="…GitVersion_…"> would evaluate too
+         early and never see the value. So the constant is appended in a target that runs AFTER
+         GetVersion and BEFORE CoreCompile. -->
+    <PropertyGroup Condition="'$(FluentAlpha)' == 'true'">
         <DefineConstants>$(DefineConstants);FLUENT_ALPHA</DefineConstants>
     </PropertyGroup>
+
+    <Target Name="DefineFluentAlphaForPrerelease"
+            AfterTargets="GetVersion"
+            BeforeTargets="CoreCompile"
+            Condition="'$(GitVersion_PreReleaseTag)' != '' and '$(FluentAlpha)' != 'true'">
+        <PropertyGroup>
+            <DefineConstants>$(DefineConstants);FLUENT_ALPHA</DefineConstants>
+        </PropertyGroup>
+        <Message Importance="high" Text="FLUENT_ALPHA enabled — prerelease build '$(GitVersion_NuGetVersion)' (fluent API is public)." />
+    </Target>
 
     <!-- Ship the fluent-API analyzer (MSTESTSDK001) and its code fix as analyzer assets inside the
          NuGet package, so consumers automatically get the dangling-chain diagnostic AND the one-click fix.
