@@ -184,12 +184,302 @@ benannte Schritte statt positionaler Endparameter (bessere IntelliSense-Führung
       weil sie den Fluent-Ansatz ggü. der Overload-API rechtfertigt.
 - [ ] Endpoint-Style: streichen oder als dünner optionaler Layer behalten?
 - [ ] Wann Value-Assertions angehen — und dann eager oder deferred?
+- [ ] Typisierte Selectors + Matcher/`Any()`-Konzept → siehe Abschnitt 10.
+- [ ] Body-Input: explizite Methoden statt ratender `WithBody`-Heuristik → siehe Abschnitt 11.
 
 ---
 
-## 10. Entscheidungslog
+## 10. Typisierte Selectors & Matcher (`Any()`) — Ideensammlung
+
+Ausgangsbeobachtung (2026-07-16): Die Vision-Kette zeigt `IgnoreProperty(p => p.CreatedDate)`
+**ohne** `<T>` — heute erzwingt der Prototyp aber `IgnoreProperty<Person>(...)`, weil `T` nicht an
+`TResult` gebunden ist (der Lambda-Parameter `p` hat sonst keinen abgeleiteten Typ). Wenn wir `T`
+an `TResult` koppeln, wird das `<T>` für Objekt-Responses redundant. Diese Selector-Ergonomie
+soll durchgängig gelten — **nicht nur für `IgnoreProperty`, sondern auch für Parameter.**
+
+### 10.1 Typisierte Parameter statt String-Platzhalter
+
+Heute: `WithParameters(("$Id$", 0))` — Platzhalter als Magic-String, kein Refactoring-Support,
+kein Compile-Check gegen die tatsächliche Property.
+
+Vision: dieselbe Selector-Signatur wie `IgnoreProperty`:
+
+```csharp
+.WithParameter(p => p.Id, 0)                 // typsicher, statt ("$Id$", 0)
+.WithParameter(p => p.Name, "Goku")
+```
+
+→ Refactoring-fest, IntelliSense-geführt, Tippfehler im Platzhalter werden Compilerfehler.
+
+### 10.2 Matcher / `Any()` — die dritte Stufe zwischen „ignorieren" und „exakt"
+
+Heute gibt es nur zwei Extreme:
+- **`IgnoreProperty(p => p.Id)`** — Wert *und* Existenz/Form komplett egal.
+- **exakter Vergleich** — Wert muss auf den Punkt stimmen.
+
+Fehlt die Mitte: *„der Wert ist egal, ABER er muss eine gültige Guid / ein Datum / non-null sein."*
+
+**Bevorzugte Form (Idee) — Matcher im Prädikat, eine `p => …`-Zeile:**
+
+```csharp
+.ForProperty(p => p.Id == Guid.Any())        // muss eine gültige Guid sein, Wert egal
+.ForProperty(p => p.CreatedDate == Date.Any())
+.ForProperty(p => p.Name != null)            // liest sich wie normale Bedingung
+.ForProperty(p => p.Age is >= 0 and <= 120)
+```
+
+Liest sich wie eine gewöhnliche Boolean-Bedingung — kein zweites Argument, kein separates
+Matcher-Vokabular im Vordergrund. `Guid.Any()` / `Date.Any()` sind dabei **Marker-Token**, keine
+echten Laufzeitwerte.
+
+> ⚠️ **Technischer Vorbehalt (entscheidend):** Das funktioniert NUR als
+> `Expression<Func<T, bool>>`, nicht als kompiliertes `Func<T, bool>`. Würde `p.Id == Guid.Any()`
+> real ausgeführt, gäbe `Guid.Any()` irgendeinen Wert zurück und `==` wäre schlicht `false`. Die
+> SDK muss den **Ausdrucksbaum** entgegennehmen und selbst zerlegen: „linke Seite = Selector auf
+> `Id`, rechte Seite = `Any`-Marker → prüfe nur, dass ein parsbarer Guid da ist." Das ist mehr
+> Implementierungsaufwand (Expression-Visitor, der `== Guid.Any()`, `!= null`, `is`-Pattern etc.
+> erkennt) als die Zwei-Argument-Form.
+
+**Fallback-Form (einfacher zu bauen) — Matcher als zweites Argument:**
+
+```csharp
+.ForProperty(p => p.Id, Guid.Any())          // Selector + Matcher getrennt
+.ForProperty(p => p.Name, Value.NotNull())
+```
+
+Hier ist der Selector ein normaler `Expression<Func<T, object?>>` (wie `IgnoreProperty`) und der
+Matcher ein separates Objekt — kein Baum-Parsing der rechten Seite nötig. Weniger elegant, aber
+deutlich billiger und robuster.
+
+Kernnutzen (beide Formen): Server-generierte Felder (IDs, Timestamps) werden **nicht blind
+ignoriert**, sondern auf *Typ/Form* geprüft — ein `Id: null` oder `Id: "abc"` fällt weiterhin durch,
+obwohl der konkrete Guid-Wert nicht vorhersehbar ist. Das schließt genau die Lücke, die
+`IgnoreProperty` heute offen lässt (dort würde auch Müll durchrutschen).
+
+Methodenname noch offen (`.ForProperty` Arbeitsname — **`.Verify`/`.Match` verworfen**).
+
+### 10.3 Das Kombinations-Problem (der spannende Teil)
+
+Der wirklich knifflige Teil ist **nicht** der einzelne Matcher, sondern wie alles zusammenspielt.
+Zwei Achsen kreuzen sich:
+
+**Achse A — Woher kommt das Expected?**
+- **C# Objekt** (`Returns<Person>(expectedObject)`): typisiert, aber wird intern serialisiert, um
+  gegen die JSON-Response zu diffen.
+- **JSON** (`Returns<Person>("Expected.json")` / Roh-String): kein typisiertes Objekt, evtl. mit
+  `$Platzhalter$` und `filterFunc`/`differenceFunc`-Vorverarbeitung.
+
+**Achse B — Wie wird verglichen?**
+- exakter Diff (heute) · `IgnoreProperty` (Diff verwerfen) · **Matcher** (Form prüfen, Wert frei).
+
+Der Bruch: Der Matcher ist **typisiert** (`p => p.Id`, Compile-Zeit gegen `TResult`), die Diff-Engine
+arbeitet aber auf **`MemberPath`-Strings** (`"Id"`, `"Emails[0].CreatedDate"`). Es braucht also eine
+**Selector→MemberPath-Übersetzung**, damit der Matcher an `ApplyDifferenceFiltering` andocken kann
+(dieselbe Stelle wie `differenceFilter`/`differenceFunc`, siehe
+[[project-differencefilter-object-response-gaps]]).
+
+**Der Schlüssel: leere Objekt-Felder → Matcher füllt die Lücke.** Objekt-Expected ist *für sich
+allein* fast unbrauchbar, weil ungesetzte Felder `null`/`default`/`0` sind:
+
+```csharp
+.Returns<Person>(new Person { Name = "Son Goku" })   // Id/Age/CreatedDate sind null/0/default
+```
+
+Exakter Vergleich würde `Id: null`, `Age: 0` verlangen — fast nie gewollt. Und „nur gesetzte Felder
+vergleichen" ist unmöglich, weil `Age = 0` nicht von „nicht gesetzt" unterscheidbar ist (value
+types). **Die Matcher lösen genau das:**
+
+```csharp
+await Client.Post(...)
+    .Returns<Person>(new Person { Name = "Son Goku" })  // exakte Felder: Name
+    .ForProperty(p => p.Id == Guid.Any())               // server-generiert: irgendeine Guid
+    .ForProperty(p => p.CreatedDate == Date.Any())      // server-generiert: irgendein Datum
+    .ExpectingStatus(Accepted)
+    .ExecuteAsync();
+```
+
+Das Objekt liefert die *bekannten* Felder, die Matcher decken die *server-generierten* ab — der Rest
+muss exakt stimmen. **Deshalb** gehören Objekt-Expected und Matcher zusammen: das eine macht das
+andere erst praktisch nutzbar. Das ist die eigentliche Antwort auf „warum überhaupt Matcher".
+
+Offene Kernfragen dazu:
+- [ ] **Wo greift der Matcher?** Vermutlich als weiterer Schritt in `ApplyDifferenceFiltering`: eine
+      Difference an `MemberPath X` wird verworfen, WENN der Matcher für `X` die Form akzeptiert —
+      und bleibt (= Fehler), wenn die Form nicht passt. Verhältnis/Reihenfolge zu global
+      `DifferenceFunc` → per-assert func → filter klären.
+- [ ] **„Nicht gesetzt"-Erkennung bei Objekt-Expected:** Wie unterscheidet die Engine ein bewusst
+      gesetztes `Age = 0` von „egal"? Optionen: (a) alles exakt außer den Matcher-Feldern (heutiges
+      Diff-Verhalten), (b) nullable-Wrapper/Sentinel. Tendenz (a) — Matcher sind die explizite
+      Opt-out-Liste, kein implizites „leere Felder ignorieren".
+- [ ] **JSON-Expected + Matcher:** Platzhalter (`$Id$`) vs. Matcher — konkurrieren die oder ergänzen
+      sie sich? Ein `$Id$`-Platzhalter, der per Matcher als „irgendeine Guid" validiert wird, wäre
+      die Brücke zwischen beiden Welten.
+- [ ] **String-Vergleichspfad** (`StringComparisonStrategy`, `MemberPath "Line N"`): dort gibt es
+      keine Properties → Matcher greift nur im JSON-/Objekt-Pfad, im reinen String-Pfad nicht. Klar
+      dokumentieren.
+
+### 10.4 Offene Unterfragen
+
+- [ ] **Collection-Responses:** bei `TResult = List<Person>` zeigt `p` auf die Liste, nicht auf das
+      Element. → Vermutlich zwei Überladungen nötig: bequem ohne `<T>` fürs Objekt, explizit `<T>`
+      fürs Collection-Element (analog gilt das schon für `IgnoreProperty`).
+- [ ] **Prädikat-Form vs. Zwei-Argument-Form:** `p => p.Id == Guid.Any()` (elegant, braucht
+      Expression-Visitor) vs. `(p => p.Id, Guid.Any())` (billiger, robuster). Evtl. beide anbieten —
+      Prädikat als Zucker, Zwei-Argument als Basis.
+- [ ] **Matcher-Namespace/Vokabular:** `Guid.Any()` / `Date.Any()` / `Value.NotNull()` vs. ein
+      einheitliches `Match.Guid()` / `Match.AnyDate()` / `Match.NotNull()`. Einheitliches Präfix
+      erleichtert Discovery (wie beim `Expecting…`-Leitsatz).
+- [ ] **Integration mit der Diff-Engine:** Matcher als spezielle `Difference`-Behandlung
+      (`ApplyDifferenceFiltering`) modellieren — ein Matcher, der die Form prüft und die Difference
+      nur dann verwirft, wenn die Form stimmt. Verhältnis zu `differenceFilter`/`differenceFunc` klären.
+- [ ] **Eigene Matcher:** erweiterbar für Custom-Prüfungen (`Match.Custom(v => …)`)?
+- [ ] **Methodenname:** `.ForProperty` ist Arbeitsname (`.Verify`, `.Match` verworfen). Alternativen
+      erwägen (`.Ensure`, `.Require`, `.Where`; `.Expect…` kollidiert mit Terminals).
+
+---
+
+## 11. Body-Input: explizit statt „Magic" — Ideensammlung
+
+### 11.1 Das Problem mit dem heutigen `WithBody`
+
+Der Prototyp hat **schon heute versteckte Magic**: `WithBody(string)` nimmt Datei*name*, Roh-JSON
+und (via Generic-Overload) C#-Objekt entgegen und rät per `IsRawJson`-Heuristik, was gemeint ist
+(beginnt mit `{`/`"` → Roh-JSON, sonst → Embedded-Resource-Dateiname):
+
+```csharp
+.WithBody(person)                    // C# Objekt  (Generic-Overload)
+.WithBody("CreatePersonFull.json")   // Dateiname → Embedded Resource (geraten!)
+.WithBody("{ \"name\": \"x\" }")     // Roh-JSON            (geraten!)
+```
+
+Der still-grüne Fehlerfall: `.WithBody("Person.json")` mit Tippfehler kann als „Roh-Text-Body"
+durchrutschen statt als „Datei nicht gefunden" zu knallen → Request geht mit Müll raus → evtl.
+grüner Test. Genau das Vertrauensleck aus Abschnitt 2 — nur an der Request-Seite.
+
+### 11.2 Entscheidung: drei explizite Methoden, keine Heuristik
+
+**Wir müssen NICHT kompatibel bleiben** — die Fluent-API ist neu und noch `internal`, kein
+Bestandskunde hängt dran. Also lassen wir die rate-Heuristik komplett fallen und machen die
+Intention im Methodennamen explizit (Arbeitsnamen):
+
+```csharp
+.WithBody(person)                        // C# Objekt — Generic, typsicher
+.WithJsonString("{ \"name\": \"x\" }")   // Roh-JSON — explizit, kein Raten
+.WithEmbeddedJson("CreatePersonFull.json") // Embedded Resource — explizit
+```
+
+Gewinn (passt zum Leitsatz „Compiler > Analyzer > Runtime"): Die Absicht steht im Namen, nicht in
+einer Laufzeit-Heuristik. `WithEmbeddedJson("Persons.json")` mit Tippfehler kann nur *eins*
+bedeuten → sofortiger, klarer „Resource nicht gefunden"-Fehler statt eines Ratefalls. Der Analyzer
+muss diese Ambiguität gar nicht erst tragen.
+
+**Symmetrie-Entscheidung: Response-Seite spiegelt die Dreiteilung.** Damit Request- und
+Expected-Seite dasselbe mentale Modell haben, bekommt `Returns` dieselbe explizite Aufteilung —
+kein ratender `Returns<T>(string)`:
+
+```csharp
+.Returns<Person>(personObject)                        // C# Objekt (→ Matcher füllen leere Felder, siehe 10.3)
+.ReturnsJsonString<Person>("{ \"name\": \"...\" }")   // Roh-JSON, explizit
+.ReturnsEmbeddedJson<Person>("Expected.json")         // Embedded Resource, explizit
+```
+
+**Das `<T>` ist bei ALLEN drei Pflicht** — auch bei den String-Varianten. Es treibt zweierlei:
+(1) die Deserialisierung des Response-Body in `TResult`, (2) den Ketten-Zustand
+`IHttpResponseConfiguring<TResult>`, ohne den `.ForProperty(p => p.Name)` keinen typisierten
+`p` hätte. Bei der Objekt-Variante ist `<T>` aus dem Argument ableitbar, bei den String-Varianten
+nicht → dort **muss** es explizit stehen, sonst kein Typ.
+
+→ verbindet sich mit dem Objekt-vs-JSON-Problem in 10.3 (Objekt-Expected wird erst durch Matcher nutzbar).
+
+### 11.3 Offene Unterfragen
+
+- [ ] **Namensschema final:** `WithJsonString` vs. `WithRawJson` vs. `WithJsonBody`;
+      `WithEmbeddedJson` vs. `WithBodyFrom` vs. `WithJsonFile`. Konsistenz mit Response-Seite und mit
+      dem `Expecting…`-Präfix-Gedanken (einheitliche, scanbare Vokabeln).
+- [ ] **`WithEmbeddedJson` + Parameter:** Zusammenspiel mit `$Platzhalter$`-Substitution und der
+      `CallerFilePath`/Assembly-Auflösung (Abschnitt 9) klar definieren.
+
+---
+
+## 13. Feature-Kandidaten aus echter Nutzung (Sdc.Console.Test, ~1000 Tests)
+
+Erhoben 2026-07-16 aus der realen Consumer-Codebase `Sdc.Console.Test`. Diese Tests laufen HEUTE
+auf der Overload-API + einer handgeschriebenen Domain-Wrapper-Schicht (`SdcTestClient`, `CapabilitiesV1.cs`
+~1650 Zeilen). Was die Wrapper mühsam kapseln, ist das stärkste Signal dafür, was die Fluent-API können muss.
+
+### 13.1 Bestätigt unsere bisherigen Ideen
+- **Body/Expected aus Objekt / JSON / Datei** — alle drei kommen real vor (Objekt via `.ToJson()`,
+  anonyme Inline-Objekte, `"UseCase_01.json"`-Dateien). ✅ deckt §11 ab.
+- **Platzhalter-Substitution** `("$UniqueName$", x), ("$Id$", id)` — massiv genutzt, in Request- UND
+  Expected-Dateien UND URLs. ✅ deckt §10.1 ab (typisierte Parameter würden das ersetzen).
+- **differenceFunc/-filter zum Ignorieren dynamischer Felder** — allgegenwärtig. ✅ deckt §10.2/10.3 ab.
+
+### 13.2 NEU — bedenkenswerte Features, die wir noch nicht hatten
+
+- [ ] **Fluent Route- & Query-Params statt String-Interpolation.** Heute überall
+      `$"api/.../{id}?stage={stage}&name={name}"` mit ad-hoc Null-Behandlung
+      (`x.IsNullOrWhiteSpace() ? "" : $"&name={x}"`). Vision: `.Route(id).Query("stage", stage).Query("name", name)`
+      — zentrale Kodierung + Null-Skipping. **Hoher Nutzen, hohe Häufigkeit.**
+
+- [ ] **Per-Request Auth / Identität.** Heute NICHT am Call-Site möglich — Auth klebt am statischen
+      `HttpClient`; Identitätswechsel nur über Mock der User-Directory. Vision: `.AsUser(token)` /
+      `.AsUnauthorized()` / `.WithHeader(k, v)`. **Echte neue Fähigkeit, nicht nur Zucker.**
+      Verzahnt sich mit den `AsUnauthorizedAsync`-Terminals (siehe unten).
+
+- [ ] **Error-Terminals als Teil der EINEN Kette.** Heute getrennte Methoden-Familien pro Ausgang:
+      `AssertXAsErrorAsync<T>("NotFound.json")`, `AssertXAsUnauthorizedAsync()`,
+      `AssertXAsValidationErrorAsync<ValidationProblemDetailsExtended>()`, `AsForbidden` — mal ×Verb.
+      Vision: dieselbe Kette, nur anderes Terminal → `.ExpectingError<ProblemDetails>(NotFound, "NotFound.json")`,
+      `.ExpectingUnauthorized()`, `.ExpectingValidationError<T>(...)`. Passt exakt zur „kleine
+      Terminal-Familie"-Idee (§3). Fehler-Response hat eigenen Typ (`ProblemDetails` /
+      `ValidationProblemDetailsExtended`) → Terminal ist generisch über den Fehlertyp.
+
+- [ ] **Snapshot-/Golden-File-Modus** (`writeResponse: true`). Real genutzt, um Expected-`.json`
+      neu zu schreiben. Vision: `.WriteSnapshot()` existiert im Prototyp schon — als bewusstes Feature
+      im Vokabular verankern (nicht nur bool-Flag).
+
+- [ ] **Globale vs. per-Assert Ignore-Regeln.** `ApiTestBase` installiert einen GLOBALEN
+      `DifferenceFunc`, der `CreatedAt`/`LastModifiedAt`/`Id`/`Tenant`/`ProjectId`/… überall ignoriert;
+      per-Test kommen lokale dazu. Muss mit der Matcher-/Filter-Semantik aus §10.3 zusammenspielen
+      (Reihenfolge global → per-assert ist in `ApplyDifferenceFiltering` schon geklärt, siehe
+      [[project-differencefilter-object-response-gaps]]). Fluent: `.IgnoringPaths(".samples", ".name")`
+      als Kurzform der handgeschriebenen `MemberPath.Contains(...)`-Closures.
+
+- [ ] **`filterFunc` (Response normalisieren vor Vergleich).** Reorder/Normalize der deserialisierten
+      Antwort (z. B. Listen sortieren) — existiert als `FilterResponse` im Prototyp. Bestätigt als
+      nötig; im Vokabular halten.
+
+- [ ] **Response-Objekt fließt in Folge-Requests (CRUD-Lifecycle).** Realer Dominant-Pattern:
+      `create → id merken → get(id) → delete(id) → get(id)==404`, plus mehrstufiges Arrange
+      (`capability.Id` in nächste Calls fädeln). ✅ bestätigt die `Task<TResult>`-Rückgabe-Story aus §9
+      als KERN-Rechtfertigung der Fluent-API — nicht nur nette Deko.
+
+- [ ] **Data-driven / Endpoint-Katalog** (`[DynamicRequestLocator]`, `[EnumTestCase<T>]`,
+      OpenAPI-`AllEndpointsClient` „mach X gegen JEDEN Endpoint"). Wahrscheinlich AUSSERHALB der
+      Fluent-Assert-Kette (MSTest-Attribut-Ebene), aber die Kette muss sich sauber in solche Loops
+      einsetzen lassen (z. B. `.ForAllEndpoints().ExpectingRejected()` als denkbare Erweiterung). Nur
+      als Fernziel notieren, nicht Kern-Scope.
+
+- [ ] **AppSync-/Event-Assertions** (`AppSyncMessagesClient` — „wurde Event X publiziert?"). Eigene
+      Domäne (nicht HTTP-Response), aber dieselbe Diff-/Expected-Philosophie. Fern; nur erwähnt.
+
+### 13.3 Bewusst NICHT in die Fluent-Kette
+
+- **Domain-Wrapper** (`TestClient.Capabilities.V1.AssertCreateAsync`) bleiben projektspezifisch —
+  die Fluent-API ist die Basis, auf der solche Wrapper dünner werden, ersetzt sie aber nicht.
+- **Mock-Setup / Test-Host-Bootstrap** (`MockRegistry`, `WebApplicationFactory`) — außerhalb Scope.
+- **Reuse der bestehenden Pipeline:** Fluent-Kette soll `IAssertableHttpClient` /
+  `HttpClientAssertExtensions.CustomAssertableHttpClient` + `IEmbeddedFileLocalizer` +
+  `Difference`-Modell WIEDERVERWENDEN, nicht neu bauen (die Fassade-über-Engine-Strategie steht schon
+  so im Prototyp — beibehalten).
+
+---
+
+## 12. Entscheidungslog
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
 | 2026-07-16 | HTTP zuerst, Value-Assertions später | Fokus; HTTP hat das größere Overload-/Terminal-Problem. |
 | 2026-07-16 | Analyzer ist Fundament, nicht optional | Ohne ihn ist Fluent für ein Test-SDK riskanter als die Overload-API. |
+| 2026-07-16 | Body-Input explizit (`WithBody`/`WithJsonString`/`WithEmbeddedJson`), keine rate-Heuristik | Fluent-API ist neu + `internal` → keine Kompatibilität nötig; Intention im Namen statt Laufzeit-Raten schließt einen still-grünen Fehlerfall. |
+| 2026-07-16 | Response-Seite spiegelt die Dreiteilung: `Returns<T>(object)` / `ReturnsJsonString<T>` / `ReturnsEmbeddedJson<T>` | Symmetrie zur Body-Seite, gleiches mentales Modell; Objekt-Expected wird erst durch Matcher (§10.3) praktisch nutzbar. `<T>` bei allen dreien Pflicht (treibt Deserialisierung + Ketten-Zustand `IHttpResponseConfiguring<T>`). |
