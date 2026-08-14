@@ -89,11 +89,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // Determine ResponseWriteMode based on context
                 Console.WriteLine($"[AssertService] IsEmptyAnonymousObjectForCodeGeneration={context.IsEmptyAnonymousObjectForCodeGeneration}, IsDebug={context.CallingAssembly.IsCompiledInDebug()}");
 
-                // NEW LOGIC: If in DEBUG mode, always use GenerateCSharpObject mode
-                // This allows re-generating C# code with actual API response values
+                // C# code generation is only valid for inline expectations (empty anonymous object).
+                // Snapshot based asserts (*.json) must stay on the file modes, otherwise the C# writer
+                // and a json writer would both claim the request and ResponseWriter throws.
                 var isDebugMode = context.CallingAssembly.IsCompiledInDebug();
 
-                var mode = isDebugMode
+                var mode = isDebugMode && context.IsEmptyAnonymousObjectForCodeGeneration
                                ? ResponseWriteMode.GenerateCSharpObject
                                : (context.ExpectedResultFile.EmbeddedFile?.Exists ?? false)
                                    ? ResponseWriteMode.DifferencesOnly

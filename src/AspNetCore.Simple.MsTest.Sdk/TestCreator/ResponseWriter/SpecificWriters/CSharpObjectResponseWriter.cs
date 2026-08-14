@@ -30,9 +30,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             // Only handle when:
             // 1. Mode is GenerateCSharpObject
-            // 2. AND assembly is compiled in DEBUG mode
+            // 2. AND there is no json snapshot file - those belong to the json writers
+            // 3. AND assembly is compiled in DEBUG mode
 
             var canHandle = context.Mode == ResponseWriteMode.GenerateCSharpObject &&
+                            context.ExpectedResult.EmbeddedFileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse() &&
                             context.CallingAssembly.IsCompiledInDebug();
 
             Console.WriteLine($"[CSharpObjectResponseWriter.CanHandle] Mode={context.Mode}, IsDebug={context.CallingAssembly.IsCompiledInDebug()}, CanHandle={canHandle}");
