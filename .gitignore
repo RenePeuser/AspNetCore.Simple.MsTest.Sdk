@@ -434,3 +434,6 @@ $RECYCLE.BIN/
 !.vscode/launch.json
 !.vscode/extensions.json
 /src/New
+
+# Claude Code local settings (user-specific)
+.claude/settings.local.json
