@@ -26,10 +26,42 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     /// Note: Does NOT inherit from ComparisonStrategyBase because it handles multiple types (not type-specific).
     /// Should be registered LAST in DI so specific strategies are checked first.
     /// </summary>
-    internal sealed class JsonComparisonStrategy(IJsonDiffer jsonDiffer,
-                                                 Serializer.Json.JsonSerializer jsonSerializer,
-                                                 JsonSerializerOptions jsonSerializerOptions) : ISpecificComparisonStrategy
+    internal sealed class JsonComparisonStrategy : ISpecificComparisonStrategy
     {
+        private readonly IJsonDiffer _jsonDiffer;
+
+        private readonly Serializer.Json.JsonSerializer _jsonSerializer;
+
+        private readonly Func<JsonSerializerOptions> _jsonSerializerOptionsProvider;
+
+        public JsonComparisonStrategy(IJsonDiffer jsonDiffer,
+                                      Serializer.Json.JsonSerializer jsonSerializer,
+                                      JsonSerializerOptions jsonSerializerOptions)
+            : this(jsonDiffer, jsonSerializer, () => jsonSerializerOptions)
+        {
+        }
+
+        /// <summary>
+        /// Reads the options per comparison instead of capturing them once.
+        /// </summary>
+        /// <remarks>
+        /// The static holders in <c>HttpClientAssertExtensions</c> and <c>AssertObjectExtensions</c>
+        /// build their strategy in a field initializer, long before a test assigns the api's
+        /// <see cref="JsonSerializerOptions"/>. An instance captured there stays the SDK default
+        /// forever - and the default knows nothing about the api's polymorphic type hierarchies, so
+        /// the expected side would silently be written as the declared base type while the current
+        /// side, a raw JsonElement, keeps everything the api wrote. That shows up as the derived
+        /// properties "missing in expected", not as a serialization error.
+        /// </remarks>
+        public JsonComparisonStrategy(IJsonDiffer jsonDiffer,
+                                      Serializer.Json.JsonSerializer jsonSerializer,
+                                      Func<JsonSerializerOptions> jsonSerializerOptionsProvider)
+        {
+            _jsonDiffer = jsonDiffer;
+            _jsonSerializer = jsonSerializer;
+            _jsonSerializerOptionsProvider = jsonSerializerOptionsProvider;
+        }
+
         public bool CanCompare<T>(ObjectAssertContext<T> context)
         {
             // Fallback strategy - can handle all types (except string which is handled by StringComparisonStrategy)
@@ -46,6 +78,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             {
                 throw new InvalidOperationException($"JsonComparisonStrategy can only compare objects, but was asked to compare {typeof(T).Name}");
             }
+
+            var jsonSerializerOptions = _jsonSerializerOptionsProvider();
 
             var currentObject = context.CurrentObject;
 
@@ -84,7 +118,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 
                 try
                 {
-                    expectedObject = jsonSerializer.Deserialize<T>(expectedJson);
+                    expectedObject = _jsonSerializer.Deserialize<T>(expectedJson);
                 }
                 catch (TestSdkProblemDetailsException)
                 {
@@ -133,7 +167,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             var currentOrderedJson = orderedCurrent.ToJson(jsonSerializerOptions);
 
             // 5. Find differences
-            var differences = jsonDiffer.FindDifferences(expectedOrderedJson, currentOrderedJson);
+            var differences = _jsonDiffer.FindDifferences(expectedOrderedJson, currentOrderedJson);
 
             // 6. Check for schema mismatches
             var hasSchemaMismatch = differences.Any(item =>
@@ -146,7 +180,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 
             if (contentValueDifference.IsNotNull())
             {
-                differences = jsonDiffer.FindDifferences(contentValueDifference.Value1 ?? string.Empty,
+                differences = _jsonDiffer.FindDifferences(contentValueDifference.Value1 ?? string.Empty,
                                                          contentValueDifference.Value2 ?? string.Empty);
 
                 hasSchemaMismatch = differences.Any(item =>

@@ -81,6 +81,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
+            // TEMP PROBE
+            Console.WriteLine($"[PROBE-SDK] AssertGetAsync options#{RuntimeHelpers.GetHashCode(JsonSerializerOptions)} " +
+                                     $"resolver={JsonSerializerOptions.TypeInfoResolver?.GetType().Name ?? "NULL"} " +
+                                     $"json={expectedResponse.ToJson(JsonSerializerOptions)}");
+
             return client.AssertGetAsync<TResult>(url: url,
                                                   expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
                                                   differenceFunc: differenceFunc,

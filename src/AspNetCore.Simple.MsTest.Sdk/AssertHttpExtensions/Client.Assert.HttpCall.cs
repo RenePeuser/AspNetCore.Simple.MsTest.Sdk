@@ -259,7 +259,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // Comparison strategies (order matters - first match wins)
         private static readonly ISpecificComparisonStrategy StringComparisonStrategy = new StringComparisonStrategy();
 
-        private static readonly ISpecificComparisonStrategy JsonComparisonStrategy = new JsonComparisonStrategy(_jsonDiffer, _jsonSerializerInstance, JsonSerializerOptions);
+        // Reads JsonSerializerOptions per comparison, not once here: this field initializer runs long
+        // before a test hands the SDK the api's options, and both sides of the diff have to be written
+        // with the very options the api writes with.
+        private static readonly ISpecificComparisonStrategy JsonComparisonStrategy = new JsonComparisonStrategy(_jsonDiffer, _jsonSerializerInstance, () => JsonSerializerOptions);
 
         private static readonly ISpecificComparisonStrategy[] SpecificComparisonStrategies =
         [
