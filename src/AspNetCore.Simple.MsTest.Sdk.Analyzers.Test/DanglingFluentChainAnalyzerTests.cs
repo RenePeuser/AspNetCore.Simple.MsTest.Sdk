@@ -58,7 +58,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
                                               {|#0:Client.AssertPost("api/persons")
                                                   .WithBody(new Person())
                                                   .Returns<Person>(new Person())
-                                                  .ExpectingStatus(HttpStatusCode.Created)|};
+                                                  .ExpectingStatus(HttpStatusCode.Created);|}
                                   """);
 
             return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
@@ -70,7 +70,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
             var source = InMethod("""
                                               {|#0:Client.AssertGet("api/persons")
                                                   .ExpectingResponse()
-                                                  .ExpectingSuccess()|};
+                                                  .ExpectingSuccess();|}
                                   """);
 
             return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
@@ -81,7 +81,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         {
             // Even a bare request builder carries [FluentBuilder] → still a dangling, unsent chain.
             var source = InMethod("""
-                                              {|#0:Client.AssertPost("api/persons").WithBody(new Person())|};
+                                              {|#0:Client.AssertPost("api/persons").WithBody(new Person());|}
                                   """);
 
             return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));

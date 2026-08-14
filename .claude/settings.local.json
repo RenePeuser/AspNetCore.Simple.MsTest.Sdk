@@ -43,7 +43,9 @@
       "Bash(diff \"D:/new-features.md\" \"src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/HOWTO.md\")",
       "Bash(echo \"exit: $?\")",
       "Read(//tmp/**)",
-      "Bash(echo \"diff exit: $?  \\(0=identisch\\)\")"
+      "Bash(echo \"diff exit: $?  \\(0=identisch\\)\")",
+      "PowerShell(dotnet test *)",
+      "PowerShell(dotnet clean; dotnet build --verbosity quiet)"
     ]
   }
 }

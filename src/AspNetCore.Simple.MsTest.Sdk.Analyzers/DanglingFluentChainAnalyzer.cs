@@ -64,7 +64,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers
                 return;
             }
 
-            // Span the entire statement including the semicolon.
+            // Span the invocation including the trailing semicolon for consistency with CodeFix expectations.
             var start = invocation.Span.Start;
             var end = expressionStatement.SemicolonToken.Span.End;
             var location = Location.Create(expressionStatement.SyntaxTree,
