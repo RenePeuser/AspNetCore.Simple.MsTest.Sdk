@@ -274,6 +274,7 @@ dotnet_diagnostic.ide0042.severity = suggestion
 dotnet_diagnostic.ide0045.severity = suggestion
 dotnet_diagnostic.ide0046.severity = suggestion
 dotnet_diagnostic.ide0050.severity = suggestion
+dotnet_diagnostic.ide0053.severity = suggestion
 
 # **Formatting enforcement**
 # Crucial for CI consistency. Any mismatch becomes a build error.

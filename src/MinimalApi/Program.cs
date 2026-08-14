@@ -27,13 +27,13 @@ builder.Services.AddErrorHandling();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
+// builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddProblemDetails();
 
 // Add API versioning
 builder.Services.AddApiVersioning(apiVersion =>
 {
-    apiVersion.DefaultApiVersion = new ApiVersion(1, 0);
+    // apiVersion.DefaultApiVersion = new ApiVersion(1, 0);
     apiVersion.ApiVersionReader = new UrlSegmentApiVersionReader();
 }).AddApiExplorer(apiExplorer =>
 {

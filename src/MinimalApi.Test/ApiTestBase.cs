@@ -1,6 +1,7 @@
 using System.Net.Http;
 using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MinimalApi.Test.Api.Persons.V1.Shared;
 
@@ -10,6 +11,8 @@ namespace MinimalApi.Test
     public abstract class ApiTestBase
     {
         private static ApiTestBase<Program> _apiTestBase = null!;
+
+        protected static IServiceCollection ServiceCollection { get; private set; } = null!;
 
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext _)
@@ -21,6 +24,8 @@ namespace MinimalApi.Test
                                                     (services,
                                                      configuration) =>
                                                     {
+                                                        ServiceCollection = services;
+
                                                         services.AddAssertableHttpClient(configuration);
                                                     });
 

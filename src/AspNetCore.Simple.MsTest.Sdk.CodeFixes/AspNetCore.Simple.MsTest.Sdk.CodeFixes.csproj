@@ -24,12 +24,12 @@
              as the analyzer project: a code fix built against 5.6.0 never loads in an older IDE host, so the
              lightbulb quick-fix never appears even though the CLI build reports MSTESTSDK001. Workspaces.Common
              pins in lockstep with the analyzer's CodeAnalysis.CSharp version. -->
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" VersionOverride="4.8.0" PrivateAssets="all"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" VersionOverride="5.6.0" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
         <!-- The code fix reports against MSTESTSDK001, owned by the analyzer project. -->
-        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj"/>
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj" />
     </ItemGroup>
 
 </Project>

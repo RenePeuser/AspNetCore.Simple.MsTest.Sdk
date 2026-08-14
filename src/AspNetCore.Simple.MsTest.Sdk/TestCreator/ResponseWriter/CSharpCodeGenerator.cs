@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Text.Json;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -400,7 +401,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return name;
             }
 
-            return char.ToUpper(name[0]) + name.Substring(1);
+            return char.ToUpper(name[0]) + name[1..];
         }
     }
 
@@ -408,7 +409,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddCSharpCodeGenerator(this IServiceCollection services)
         {
-            services.AddSingleton<ICSharpCodeGenerator, CSharpCodeGenerator>();
+            services.AddSingletonIfNotExists<ICSharpCodeGenerator, CSharpCodeGenerator>();
         }
     }
 }

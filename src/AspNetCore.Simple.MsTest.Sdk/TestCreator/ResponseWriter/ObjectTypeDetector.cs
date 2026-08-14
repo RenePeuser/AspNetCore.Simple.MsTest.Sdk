@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -129,7 +130,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddObjectTypeDetector(this IServiceCollection services)
         {
-            services.AddSingleton<IObjectTypeDetector, ObjectTypeDetector>();
+            services.AddSingletonIfNotExists<IObjectTypeDetector, ObjectTypeDetector>();
         }
     }
 }
