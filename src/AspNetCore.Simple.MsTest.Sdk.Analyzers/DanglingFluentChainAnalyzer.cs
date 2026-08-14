@@ -64,7 +64,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers
                 return;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(Rule, invocation.GetLocation()));
+            // Span the entire statement including the semicolon.
+            var start = invocation.Span.Start;
+            var end = expressionStatement.SemicolonToken.Span.End;
+            var location = Location.Create(expressionStatement.SyntaxTree,
+                                           Microsoft.CodeAnalysis.Text.TextSpan.FromBounds(start, end));
+            context.ReportDiagnostic(Diagnostic.Create(Rule, location));
         }
 
         private static bool CarriesFluentBuilderAttribute(ITypeSymbol type)
