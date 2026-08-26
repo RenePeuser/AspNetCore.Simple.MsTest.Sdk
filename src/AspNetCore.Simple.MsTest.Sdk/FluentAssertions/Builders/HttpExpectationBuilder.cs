@@ -55,8 +55,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
             if (response.StatusCode != _expectedStatusCode)
             {
-                Assert.Fail(BuildErrorOutput($"{(int)_expectedStatusCode} {_expectedStatusCode}",
-                                             $"{(int)response.StatusCode} {response.StatusCode}"));
+                Assert.That.Fail(BuildErrorOutput($"{(int)_expectedStatusCode} {_expectedStatusCode}",
+                                                  $"{(int)response.StatusCode} {response.StatusCode}"));
             }
         }
 

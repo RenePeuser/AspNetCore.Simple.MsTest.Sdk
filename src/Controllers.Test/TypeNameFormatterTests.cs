@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using UnrelatedResponse = Controllers.Test.VersionedContracts.V1.UnrelatedResponse;
 using V1Response = Controllers.Test.VersionedContracts.V1.InsertOrUpdateOrDeleteResponse;
@@ -22,8 +23,10 @@ namespace Controllers.Test
         {
             IReadOnlyCollection<Type> peers = [typeof(V1Response), typeof(UnrelatedResponse)];
 
-            Assert.AreEqual("InsertOrUpdateOrDeleteResponse",
-                            TypeNameFormatter.Format(typeof(V1Response), peers));
+            Assert.That.AreEqual("InsertOrUpdateOrDeleteResponse",
+                                 TypeNameFormatter.Format(typeof(V1Response), peers),
+                                 because: "Nothing in the peer set shares this short name, so the reader gains nothing from a namespace prefix - the plain name is the most readable form.",
+                                 fix: "TypeNameFormatter.Format must only add the disambiguating namespace segment when a peer actually carries the same short name.");
         }
 
         [TestMethod]
@@ -38,17 +41,29 @@ namespace Controllers.Test
             var v2Name = TypeNameFormatter.Format(v2, peers);
 
             // Only the part the namespaces do NOT share is added - not the whole namespace.
-            Assert.AreEqual("V1.InsertOrUpdateOrDeleteResponse", v1Name);
-            Assert.AreEqual("V2.InsertOrUpdateOrDeleteResponse", v2Name);
+            Assert.That.AreEqual("V1.InsertOrUpdateOrDeleteResponse",
+                                 v1Name,
+                                 because: "V1 and V2 carry the same short name, so the formatter has to prefix the one namespace segment that differs - and only that segment, printing the full namespace would drown the table.",
+                                 fix: "Check the common-prefix logic in TypeNameFormatter.Format: it has to strip the shared namespace part and keep the first differing segment.");
 
-            Assert.AreNotEqual(v1Name, v2Name, "A collision must never render as two identical strings.");
+            Assert.That.AreEqual("V2.InsertOrUpdateOrDeleteResponse",
+                                 v2Name,
+                                 because: "V1 and V2 carry the same short name, so the formatter has to prefix the one namespace segment that differs - and only that segment, printing the full namespace would drown the table.",
+                                 fix: "Check the common-prefix logic in TypeNameFormatter.Format: it has to strip the shared namespace part and keep the first differing segment.");
+
+            Assert.That.AreNotEqual(v1Name,
+                                    v2Name,
+                                    because: "This is the whole point of the formatter: a version mix-up must not render as two identical strings on both sides of the validation table, because that reads like an sdk bug instead of the wrong-version test it is.",
+                                    fix: "Make TypeNameFormatter.Format detect the collision - two peers with the same short name must both get their differing namespace segment.");
         }
 
         [TestMethod]
         public void ShouldStillRenderGenericArgumentsReadable()
         {
-            Assert.AreEqual("IEnumerable<InsertOrUpdateOrDeleteResponse>",
-                            TypeNameFormatter.Format(typeof(IEnumerable<V1Response>)));
+            Assert.That.AreEqual("IEnumerable<InsertOrUpdateOrDeleteResponse>",
+                                 TypeNameFormatter.Format(typeof(IEnumerable<V1Response>)),
+                                 because: "Endpoints commonly return collections, so the generic has to render in C# syntax - the CLR form 'IEnumerable`1[[...]]' is unreadable in a failure table.",
+                                 fix: "TypeNameFormatter.Format has to recurse into GetGenericArguments() and join them with '<' and '>' instead of falling back to Type.Name.");
         }
     }
 }

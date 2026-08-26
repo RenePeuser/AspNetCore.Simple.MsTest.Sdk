@@ -50,7 +50,9 @@ namespace Controllers.Test
                                                       skipEndpointValidation: true).ConfigureAwait(false); // Manually enable writeResponse for prototype
 
             // Verify the result is not null (the API returned something)
-            Assert.IsNotNull(result);
+            Assert.That.IsNotNull(result,
+                                  because: "An empty anonymous object as expected response is the trigger for CSharpObjectResponseWriter. The call still has to come back with a response - a null one means the assert pipeline gave up before the writer ever ran.",
+                                  fix: "Check that AssertPostAsync returns the response even when writeResponse is on, and that CSharpObjectResponseWriter does not swallow it.");
         }
 
         [TestMethod]

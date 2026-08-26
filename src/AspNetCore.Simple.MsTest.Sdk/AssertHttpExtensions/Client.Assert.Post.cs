@@ -10,7 +10,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Argument.Check;
-using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -1398,22 +1397,37 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public static Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient,
-                                                         string url)
+                                                         string url,
+                                                         [CallerFilePath] string callerFilePath = "",
+                                                         [CallerMemberName] string callerMemberName = "",
+                                                         [CallerLineNumber] int callerLineNumber = 0)
         {
-            return httpClient.AssertPostAsUnauthorizedAsync(url: url, body: null, parameters: []);
+            return httpClient.AssertPostAsUnauthorizedAsync(url: url, body: null, parameters: [],
+                                                            callerFilePath: callerFilePath,
+                                                            callerMemberName: callerMemberName,
+                                                            callerLineNumber: callerLineNumber);
         }
 
         public static Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient,
                                                          string url,
-                                                         object? body)
+                                                         object? body,
+                                                         [CallerFilePath] string callerFilePath = "",
+                                                         [CallerMemberName] string callerMemberName = "",
+                                                         [CallerLineNumber] int callerLineNumber = 0)
         {
-            return httpClient.AssertPostAsUnauthorizedAsync(url: url, body: body, parameters: []);
+            return httpClient.AssertPostAsUnauthorizedAsync(url: url, body: body, parameters: [],
+                                                            callerFilePath: callerFilePath,
+                                                            callerMemberName: callerMemberName,
+                                                            callerLineNumber: callerLineNumber);
         }
 
         public static async Task AssertPostAsUnauthorizedAsync(this HttpClient httpClient,
                                                                string url,
                                                                object? body,
-                                                               (string Key, object? Value)[] parameters)
+                                                               (string Key, object? Value)[] parameters,
+                                                               [CallerFilePath] string callerFilePath = "",
+                                                               [CallerMemberName] string callerMemberName = "",
+                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
             Throw.IfNull(argument: httpClient);
             Throw.IfNullOrWhiteSpace(argument: url);
@@ -1436,17 +1450,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Reset back to original
             httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 
-            var currentResult = new
-            {
-                Request = $"POST {url}",
-                Expected = HttpStatusCode.Unauthorized,
-                Current = result.StatusCode
-            }.ToIList();
-
-            var table = TableFormatter.From(currentResult);
-            var errorOutput = $"{Environment.NewLine}{Environment.NewLine}{table}";
-
-            Assert.AreEqual(expected: HttpStatusCode.Unauthorized, actual: result.StatusCode, message: errorOutput);
+            Assert.That.AreEqual(HttpStatusCode.Unauthorized,
+                                 result.StatusCode,
+                                 because: $"POST {url} was called with an invalid bearer token, so the endpoint has to reject it with 401 Unauthorized. Any other status code means the route can be reached without valid credentials.",
+                                 fix: "Check that the endpoint is covered by [Authorize] (or an equivalent policy/authentication middleware) and that no [AllowAnonymous] on the action or controller overrides it.",
+                                 expectedName: "HttpStatusCode.Unauthorized",
+                                 actualName: "result.StatusCode",
+                                 callerFilePath: callerFilePath,
+                                 callerMemberName: callerMemberName,
+                                 callerLineNumber: callerLineNumber);
         }
 
         // ============================================================

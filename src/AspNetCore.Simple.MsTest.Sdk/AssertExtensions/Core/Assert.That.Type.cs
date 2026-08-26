@@ -143,6 +143,52 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new AssertFailedException(output);
         }
 
+        /// <summary>
+        /// Asserts that the object is NOT assignable to the specified type - neither that type nor
+        /// anything deriving from or implementing it.
+        /// A null object passes: null is not an instance of anything.
+        /// </summary>
+        /// <typeparam name="TNotExpected">The type the object must not be assignable to</typeparam>
+        /// <param name="_">Extension point (use Assert.That)</param>
+        /// <param name="obj">The object to check</param>
+        /// <param name="because">Why this object must not be of that type (context)</param>
+        /// <param name="fix">How to fix if assertion fails (guidance)</param>
+        /// <param name="objName">Auto-captured variable name</param>
+        /// <param name="callerFilePath">Auto-captured file path</param>
+        /// <param name="callerMemberName">Auto-captured method name</param>
+        /// <param name="callerLineNumber">Auto-captured line number</param>
+        /// <exception cref="AssertFailedException">Thrown when object is assignable to the type</exception>
+        public static void IsNotAssignableTo<TNotExpected>(this Assert _,
+                                                           object? obj,
+                                                           string because,
+                                                           string fix,
+                                                           [CallerArgumentExpression(nameof(obj))]
+                                                           string objName = "",
+                                                           [CallerFilePath] string callerFilePath = "",
+                                                           [CallerMemberName] string callerMemberName = "",
+                                                           [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var notExpectedType = typeof(TNotExpected);
+
+            if (obj is null || !notExpectedType.IsAssignableFrom(obj.GetType()))
+            {
+                return;
+            }
+
+            var output = BuildTypeAssertionOutput(assertionType: TypeAssertionType.IsNotAssignableTo,
+                                                  expectedType: notExpectedType,
+                                                  actualType: obj.GetType(),
+                                                  objName: objName,
+                                                  obj: obj,
+                                                  because: because,
+                                                  fix: fix,
+                                                  callerFilePath: callerFilePath,
+                                                  callerMemberName: callerMemberName,
+                                                  callerLineNumber: callerLineNumber);
+
+            throw new AssertFailedException(output);
+        }
+
         // Private enum for type assertion variants
         private enum TypeAssertionType
         {
@@ -150,7 +196,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             IsNotOfType,
 
-            IsAssignableTo
+            IsAssignableTo,
+
+            IsNotAssignableTo
         }
 
         // Private helper for building type assertion output
@@ -174,6 +222,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 TypeAssertionType.IsOfType => "TYPE MISMATCH - EXPECTED EXACT TYPE",
                 TypeAssertionType.IsNotOfType => "TYPE MISMATCH - EXPECTED DIFFERENT TYPE",
                 TypeAssertionType.IsAssignableTo => "TYPE MISMATCH - EXPECTED ASSIGNABLE TYPE",
+                TypeAssertionType.IsNotAssignableTo => "TYPE MISMATCH - EXPECTED NON-ASSIGNABLE TYPE",
                 _ => "TYPE MISMATCH"
             };
 
@@ -193,6 +242,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 TypeAssertionType.IsAssignableTo => obj is null
                                                         ? $"Expected object to be assignable to type '{expectedType.Name}' but received null."
                                                         : $"Expected object to be assignable to type '{expectedType.Name}' but received '{actualType?.Name}'.",
+                TypeAssertionType.IsNotAssignableTo => $"Expected object to NOT be assignable to type '{expectedType.Name}' but '{actualType?.Name}' is.",
                 _ => "Type mismatch detected."
             };
 
@@ -204,7 +254,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine($"{"Expected Type",-15} : {expectedType.FullName ?? expectedType.Name}");
             sb.AppendLine($"{"Actual Type",-15} : {(actualType is not null ? (actualType.FullName ?? actualType.Name) : "null")}");
 
-            if (assertionType == TypeAssertionType.IsAssignableTo && actualType is not null)
+            if (assertionType is TypeAssertionType.IsAssignableTo or TypeAssertionType.IsNotAssignableTo && actualType is not null)
             {
                 sb.AppendLine($"{"Assignable",-15} : {(expectedType.IsAssignableFrom(actualType) ? "Yes" : "No")}");
             }
@@ -230,6 +280,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 TypeAssertionType.IsOfType => new[] { $"Ensure '{objName}' is instantiated as '{expectedType.Name}' rather than '{actualType?.Name}'", $"Check the factory or constructor creating '{objName}'", $"Verify that '{objName}' is not being cast or converted to a different type" },
                 TypeAssertionType.IsNotOfType => new[] { $"Change the type of '{objName}' to something other than '{expectedType.Name}'", $"Review the logic that creates '{objName}' to return a different type", $"Consider using a derived or different type for '{objName}'" },
                 TypeAssertionType.IsAssignableTo => new[] { $"Ensure '{actualType?.Name ?? "the type"}' inherits from '{expectedType.Name}' or implements it as an interface", $"Check that '{objName}' is created with the correct derived type", $"Verify the class hierarchy and interface implementations for '{actualType?.Name ?? "the type"}'" },
+                TypeAssertionType.IsNotAssignableTo => new[] { $"Check what puts a '{actualType?.Name}' into '{objName}' - it was expected to be anything but a '{expectedType.Name}'", $"Verify the registration or selection order that produced '{objName}'", $"If '{actualType?.Name}' is legitimate here, relax the assertion to the concrete type you want to exclude" },
                 _ => Array.Empty<string>()
             };
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,31 +14,49 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static Task<HttpResponseMessage> AssertOptionsAsync(this HttpClient client,
                                                                    string url,
-                                                                   IImmutableDictionary<string, string> expectedHeaders)
+                                                                   IImmutableDictionary<string, string> expectedHeaders,
+                                                                   [CallerFilePath] string callerFilePath = "",
+                                                                   [CallerMemberName] string callerMemberName = "",
+                                                                   [CallerLineNumber] int callerLineNumber = 0)
         {
             IImmutableDictionary<string, ImmutableList<string>> expectedHeaderStructure = expectedHeaders.ToImmutableDictionary(item => item.Key, item => item.Value.AsImmutableList());
 
-            return client.AssertOptionsAsync(url, expectedHeaderStructure.ToJson(JsonSerializerOptions));
+            return client.AssertOptionsAsync(url, expectedHeaderStructure.ToJson(JsonSerializerOptions),
+                                             callerFilePath, callerMemberName,
+                                             callerLineNumber);
         }
 
         public static Task<HttpResponseMessage> AssertOptionsAsync(this HttpClient client,
                                                                    string url,
-                                                                   IImmutableDictionary<string, ImmutableList<string>> expectedHeaders)
+                                                                   IImmutableDictionary<string, ImmutableList<string>> expectedHeaders,
+                                                                   [CallerFilePath] string callerFilePath = "",
+                                                                   [CallerMemberName] string callerMemberName = "",
+                                                                   [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertOptionsAsync(url, expectedHeaders.ToJson(JsonSerializerOptions));
+            return client.AssertOptionsAsync(url, expectedHeaders.ToJson(JsonSerializerOptions),
+                                             callerFilePath, callerMemberName,
+                                             callerLineNumber);
         }
 
         public static Task<HttpResponseMessage> AssertOptionsAsync(this HttpClient client,
                                                                    string url,
-                                                                   string expectedHeadersAsJson)
+                                                                   string expectedHeadersAsJson,
+                                                                   [CallerFilePath] string callerFilePath = "",
+                                                                   [CallerMemberName] string callerMemberName = "",
+                                                                   [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertOptionsAsync(url, expectedHeadersAsJson, Assembly.GetCallingAssembly());
+            return client.AssertOptionsAsync(url, expectedHeadersAsJson, Assembly.GetCallingAssembly(),
+                                             callerFilePath, callerMemberName,
+                                             callerLineNumber);
         }
 
         private static async Task<HttpResponseMessage> AssertOptionsAsync(this HttpClient client,
                                                                           string url,
                                                                           string expectedHeadersAsJson,
-                                                                          Assembly callingAssembly)
+                                                                          Assembly callingAssembly,
+                                                                          string callerFilePath,
+                                                                          string callerMemberName,
+                                                                          int callerLineNumber)
         {
             var expectedHeaders = expectedHeadersAsJson.GetJsonStringFrom<object>(string.Empty, callingAssembly, string.Empty);
 
@@ -45,10 +64,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var result = await client.SendAsync(request).ConfigureAwait(false);
             var content = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode,
-                            $"Option call to {request.RequestUri?.AbsoluteUri} was not successful. ErrorCode: {result.StatusCode}. Pleae check if your Option-Middleware and your [HttpOptions] attribute was set on your controller for the route: {request.RequestUri!.AbsoluteUri}");
+            Assert.That.AreEqual(HttpStatusCode.NoContent,
+                                 result.StatusCode,
+                                 because: $"An OPTIONS call to {request.RequestUri?.AbsoluteUri} has to answer 204 NoContent - that is how the endpoint advertises which verbs and headers it supports.",
+                                 fix: $"Check that the OPTIONS middleware is registered and that the action serving '{request.RequestUri?.AbsoluteUri}' carries the [HttpOptions] attribute.",
+                                 expectedName: "HttpStatusCode.NoContent",
+                                 actualName: "result.StatusCode",
+                                 callerFilePath: callerFilePath,
+                                 callerMemberName: callerMemberName,
+                                 callerLineNumber: callerLineNumber);
 
-            Assert.IsTrue(content.IsNullOrWhiteSpace(), "Content of options call should be null or empty");
+            Assert.That.IsNullOrWhiteSpace(content,
+                                           because: "A 204 NoContent answer to OPTIONS must not carry a body - the headers alone are the payload.",
+                                           fix: "Make the OPTIONS action return NoContent() / Results.NoContent() instead of writing a body.",
+                                           valueName: "response content",
+                                           callerFilePath: callerFilePath,
+                                           callerMemberName: callerMemberName,
+                                           callerLineNumber: callerLineNumber);
 
             var headers = result.Headers.ToDictionary(item => item.Key, item => item.Value);
 

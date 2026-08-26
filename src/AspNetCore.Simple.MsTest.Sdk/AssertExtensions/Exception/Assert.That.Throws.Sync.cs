@@ -129,15 +129,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string fix,
                                                             string callerFilePath,
                                                             string callerMemberName,
-                                                            int callerLineNumber) where TException : Exception
+                                                            int callerLineNumber,
+                                                            bool exactType = false) where TException : Exception
         {
             var textDecorator = TextDecoratorHelper.GetTextDecorator();
             var sb = new StringBuilder();
 
+            // A derived type only matters when the assertion demanded the exact one - for Throws it
+            // is a pass, so it can never reach this output.
+            var caughtDerivedType = exactType && caughtException is TException;
+
             // Header
             var title = expectedMessage != null
                             ? "EXCEPTION ASSERTION - TYPE AND MESSAGE MISMATCH"
-                            : "EXCEPTION ASSERTION - TYPE MISMATCH";
+                            : exactType
+                                ? "EXCEPTION ASSERTION - EXACT TYPE MISMATCH"
+                                : "EXCEPTION ASSERTION - TYPE MISMATCH";
 
             AssertOutputHelper.BuildHeader(sb, title, textDecorator);
 
@@ -151,6 +158,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (caughtException == null)
             {
                 problem = $"Expected action to throw {typeof(TException).Name} but no exception was thrown.";
+            }
+            else if (caughtDerivedType)
+            {
+                problem = $"Expected action to throw exactly {typeof(TException).Name} but caught {caughtException.GetType().Name}, "
+                          + $"which derives from it. ThrowsExactly does not accept a derived type.";
             }
             else if (caughtException is not TException)
             {
@@ -171,6 +183,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
             sb.AppendLine($"{"Action",-15} : {actionName}");
             sb.AppendLine($"{"Expected Type",-15} : {typeof(TException).Name}");
+            sb.AppendLine($"{"Match Mode",-15} : {(exactType ? "exact type only" : "type or any derived type")}");
 
             if (expectedMessage != null)
             {
@@ -200,6 +213,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (caughtException == null)
             {
                 additionalOptions = new[] { $"Ensure the code in '{actionName}' throws {typeof(TException).Name}", $"Check if the exception is being caught and suppressed before this assertion", $"Verify that the conditions for throwing {typeof(TException).Name} are met" };
+            }
+            else if (caughtDerivedType)
+            {
+                additionalOptions = new[]
+                                    {
+                                        $"Expect the concrete type instead: ThrowsExactly<{caughtException.GetType().Name}>(...)", $"Switch to Throws<{typeof(TException).Name}>(...) if a derived type is acceptable here",
+                                        $"Stop the code in '{actionName}' from throwing the more specific {caughtException.GetType().Name}"
+                                    };
             }
             else if (caughtException is not TException)
             {
