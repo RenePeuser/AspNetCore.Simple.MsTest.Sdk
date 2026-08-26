@@ -80,7 +80,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Build context for AssertService and delegate all comparison logic
             // Optimization: Pass both expectedResponse object AND expectedJson for flexibility
-            Console.WriteLine($"[JsonComparisonStep] context.IsEmptyAnonymousObjectForCodeGeneration={context.IsEmptyAnonymousObjectForCodeGeneration}");
+            SdkTrace.WriteLine($"[JsonComparisonStep] context.IsEmptyAnonymousObjectForCodeGeneration={context.IsEmptyAnonymousObjectForCodeGeneration}");
 
             var objectAssertContext = new HttpResponseContext<SimpleHttpResponseMessage>
             {

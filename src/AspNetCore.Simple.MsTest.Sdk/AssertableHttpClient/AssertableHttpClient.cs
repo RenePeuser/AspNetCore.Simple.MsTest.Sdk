@@ -75,6 +75,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                                IPrimitiveTypeConverter primitiveTypeConverter,
                                                JsonSerializerOptions jsonSerializerOptions,
                                                IEndpointValidator endpointValidator,
+                                               IWriteResponseService writeResponseService,
                                                ITestErrorHandlingStrategy testErrorHandlingStrategy) : IAssertableHttpClient
 #pragma warning restore IDE0060 // Remove unused parameter
     {
@@ -109,6 +110,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
         private async Task<TResult> AssertInternalAsync<TResult>(HttpAssertContext<TResult> context)
         {
+            // 0. A payload or snapshot reference that resolved to nothing must never travel further:
+            //    EmbeddedFileInfo.Content then still holds the file NAME, and the downstream lookup
+            //    matches manifest names by substring - "Persons.json" binds to "GetAllPersons.json"
+            //    and the test goes green against a foreign snapshot.
+            EnsureReferencedFilesExist(context);
+
+            // A file that exists but is not parseable json must say so. Otherwise the shape checks look
+            // at the first character only and report a structure mismatch for a plain syntax error.
+            EnsureReferencedFilesAreParseable(context);
+
             // 1. Validate endpoint request to real world
             endpointValidator.Validate<TResult>(context);
 
@@ -214,6 +225,66 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             }
 
             return result;
+        }
+
+        private static void EnsureReferencedFilesAreParseable<TResult>(HttpAssertContext<TResult> context)
+        {
+            // Validate the PARAMETER RESOLVED content. A parameterized snapshot legitimately carries
+            // bare placeholders ("age": $Age$) which are not json until the parameters are applied.
+            EnsureParseable(context.PayloadFile, context.ResolvedPayload, isPayload: true);
+            EnsureParseable(context.ExpectedResultFile, context.ResolvedExpectedJson, isPayload: false);
+        }
+
+        private static void EnsureParseable(EmbeddedFileInfo? file,
+                                            string? resolvedContent,
+                                            bool isPayload)
+        {
+            // Only content that came from a *.json file is checked - inline json and text snapshots are
+            // not this method's business, and an unresolved reference was already rejected above.
+            if (file.IsNull() ||
+                file.Resolved.IsFalse() ||
+                resolvedContent.IsNullOrWhiteSpace() ||
+                file.EmbeddedFileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
+            {
+                return;
+            }
+
+            try
+            {
+                // System.Text.Json is strict per RFC 8259 and reports line and position, where
+                // Newtonsoft silently accepts several malformed shapes.
+                using var _ = JsonDocument.Parse(resolvedContent);
+            }
+            catch (JsonException exception)
+            {
+                throw new InvalidSnapshotJsonException(file.EmbeddedFileName,
+                                                       file.EmbeddedFile?.FullName,
+                                                       resolvedContent!,
+                                                       isPayload,
+                                                       exception);
+            }
+        }
+
+        private void EnsureReferencedFilesExist<TResult>(HttpAssertContext<TResult> context)
+        {
+            // A payload can never be created on the fly - it is input, not a recording.
+            if (context.PayloadFile.IsNotNull() && context.PayloadFile.Resolved.IsFalse())
+            {
+                throw new SnapshotNotFoundException(context.PayloadAsJson ?? string.Empty,
+                                                    context.PayloadParameterName,
+                                                    context.CallingAssembly,
+                                                    isPayload: true);
+            }
+
+            // A missing snapshot is legitimate while recording - that is what write response is for.
+            if (context.ExpectedResultFile.Resolved.IsFalse() &&
+                writeResponseService.ShouldWriteResponse(context.WriteResponse, context.CallingAssembly).IsFalse())
+            {
+                throw new SnapshotNotFoundException(context.ExpectedObjectAsJson,
+                                                    context.ExpectedResultParameterName,
+                                                    context.CallingAssembly,
+                                                    isPayload: false);
+            }
         }
     }
 }

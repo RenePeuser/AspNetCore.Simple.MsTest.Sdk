@@ -33,7 +33,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             context.ExpectedResult.EmbeddedFile.IsNotNull() &&
                             context.ExpectedResult.EmbeddedFile.Exists;
 
-            Console.WriteLine($"[DifferenceResponseWriter.CanHandle] Mode={context.Mode}, FileName={context.ExpectedResult.EmbeddedFileName}, CanHandle={canHandle}");
+            SdkTrace.WriteLine($"[DifferenceResponseWriter.CanHandle] Mode={context.Mode}, FileName={context.ExpectedResult.EmbeddedFileName}, CanHandle={canHandle}");
 
             return canHandle;
         }

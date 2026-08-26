@@ -24,7 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             context.ExpectedResult.EmbeddedFile.IsNotNull() &&
                             (context.Mode == ResponseWriteMode.OverwriteAll || context.ExpectedResult.EmbeddedFile.NotExists());
 
-            Console.WriteLine($"[OverwriteAllResponseWriter.CanHandle] Mode={context.Mode}, FileName={context.ExpectedResult.EmbeddedFileName}, CanHandle={canHandle}");
+            SdkTrace.WriteLine($"[OverwriteAllResponseWriter.CanHandle] Mode={context.Mode}, FileName={context.ExpectedResult.EmbeddedFileName}, CanHandle={canHandle}");
 
             return canHandle;
         }

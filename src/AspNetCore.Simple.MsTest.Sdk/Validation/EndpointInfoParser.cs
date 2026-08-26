@@ -61,14 +61,33 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     {
         public static Type UnwrapTaskType(Type type)
         {
-            // Check if type is Task<T>
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
+            // Check if type is Task<T> or ValueTask<T>
+            if (type.IsGenericType)
             {
-                // Extract T from Task<T>
-                return type.GetGenericArguments()[0];
+                var genericDefinition = type.GetGenericTypeDefinition();
+
+                if (genericDefinition == typeof(Task<>) || genericDefinition == typeof(ValueTask<>))
+                {
+                    // Extract T from Task<T> / ValueTask<T>
+                    return type.GetGenericArguments()[0];
+                }
             }
 
             return type;
+        }
+
+        /// <summary>
+        /// True when the action cannot produce a response body at all - it returns void, Task or
+        /// ValueTask. Such an action has no type a test could deserialize into, so suggesting a
+        /// generic parameter for it (AssertDeleteAsync&lt;Task&gt;) can never work.
+        /// </summary>
+        public static bool ReturnsNoResponseBody(Type? type)
+        {
+            return type.IsNull() ||
+                   type == typeof(void) ||
+                   type == typeof(Task) ||
+                   type == typeof(ValueTask) ||
+                   type!.Name.EqualsTo("Void");
         }
 
         public static string ResolvePlaceholders(string routePattern,

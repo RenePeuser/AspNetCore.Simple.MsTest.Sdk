@@ -148,6 +148,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                          _primitiveTypeConverter,
                                                                                          _jsonSerializerOptions,
                                                                                          _endpointValidator,
+                                                                                         _writeResponseService,
                                                                                          _testErrorHandlingStrategy);
 
             CustomAssertableHttpClient = _assertableHttpClientDefault;
@@ -313,6 +314,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                                                           _primitiveTypeConverter,
                                                                                                                           JsonSerializerOptions,
                                                                                                                           _endpointValidator,
+                                                                                                                          _writeResponseService,
                                                                                                                           _testErrorHandlingStrategy);
 
         // You have the possible to set and pass the api settings specific json options
@@ -504,7 +506,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             // Detect if expectedResponse should trigger C# code generation
             var isEmptyAnonymous = _emptyAnonymousObjectDetector.IsEmptyAnonymousObject(expectedResponse, expectedResponseParameterName);
-            Console.WriteLine($"[HttpCall with object] expectedResponseParameterName='{expectedResponseParameterName}', isEmptyAnonymous={isEmptyAnonymous}");
+            SdkTrace.WriteLine($"[HttpCall with object] expectedResponseParameterName='{expectedResponseParameterName}', isEmptyAnonymous={isEmptyAnonymous}");
 
             return client.AssertHttpCallAsyncWithDetection(url,
                                                            payloadAsJson,
@@ -634,7 +636,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var detectedIsEmptyAnonymous = (isEmptyAnonymous ?? (resolvedExpectedJson == "{}")) &&
                                            expectationIsSnapshotFile.IsFalse();
-            Console.WriteLine($"[HttpCall] resolvedExpectedJson='{resolvedExpectedJson}', isEmptyAnonymous={detectedIsEmptyAnonymous} (provided={isEmptyAnonymous})");
+            SdkTrace.WriteLine($"[HttpCall] resolvedExpectedJson='{resolvedExpectedJson}', isEmptyAnonymous={detectedIsEmptyAnonymous} (provided={isEmptyAnonymous})");
 
             // Create public context directly - no need for internal context
             var context = new HttpAssertContext<TResult>

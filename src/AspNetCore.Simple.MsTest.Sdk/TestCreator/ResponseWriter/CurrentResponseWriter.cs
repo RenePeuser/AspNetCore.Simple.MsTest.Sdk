@@ -89,11 +89,39 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var writersCanHandle = specificResponseWriters.Where(w => w.CanHandle(writeResponseRequest)).ToImmutableList();
 
-            Console.WriteLine($"[ResponseWriter.Write] Mode={writeResponseRequest.Mode}, WritersCanHandle={writersCanHandle.Count}");
+            SdkTrace.WriteLine($"[ResponseWriter.Write] Mode={writeResponseRequest.Mode}, WritersCanHandle={writersCanHandle.Count}");
 
             if (writersCanHandle.IsEmpty())
             {
-                Console.WriteLine("[ResponseWriter.Write] No writers can handle this request");
+                // Reaching this method means write response was requested. Silently doing nothing is how
+                // a broken snapshot pipeline hides for months: the developer sees a red diff, re-runs with
+                // write response on, nothing changes, and there is no hint why. For a *.json snapshot the
+                // expectation is unambiguous - some writer has to claim it.
+                var isSnapshotFile = writeResponseRequest.ExpectedResult
+                                                         .EmbeddedFileName
+                                                         .EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+
+                if (isSnapshotFile)
+                {
+                    var declined = specificResponseWriters.Select(writer => $"  - {writer.GetType().Name}")
+                                                          .ToImmutableList();
+
+                    throw new InvalidOperationException($"""
+                                                         Write response was requested but no writer accepted the snapshot.
+
+                                                         Snapshot : {writeResponseRequest.ExpectedResult.EmbeddedFileName}
+                                                         File     : {writeResponseRequest.ExpectedResult.EmbeddedFile?.FullName ?? "<not resolved>"}
+                                                         Mode     : {writeResponseRequest.Mode}
+
+                                                         Writers that declined:
+                                                         {string.Join(Environment.NewLine, declined)}
+
+                                                         A null file means the snapshot path could not be resolved - that is the usual cause.
+                                                         """);
+                }
+
+                // Inline expectations (an anonymous object, raw json) have no file to write to.
+                SdkTrace.WriteLine("[ResponseWriter.Write] No writers can handle this request");
 
                 return;
             }
@@ -103,7 +131,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 throw new InvalidOperationException($"Multiple ISpecificResponseWriter found for mode '{writeResponseRequest.Mode}'.");
             }
 
-            Console.WriteLine($"[ResponseWriter.Write] Calling Write on {writersCanHandle[0].GetType().Name}");
+            SdkTrace.WriteLine($"[ResponseWriter.Write] Calling Write on {writersCanHandle[0].GetType().Name}");
             writersCanHandle[0].Write(writeResponseRequest);
         }
 

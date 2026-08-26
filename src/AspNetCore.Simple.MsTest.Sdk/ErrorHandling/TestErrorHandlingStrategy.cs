@@ -20,6 +20,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
         {
             // Register specific error handlers (order matters - first match wins!)
             services.AddProblemDetailsErrorHandler();
+            services.AddSnapshotNotFoundErrorHandler();
+            services.AddInvalidSnapshotJsonErrorHandler();
             services.AddInvalidJsonErrorHandler();
             services.AddJsonSerializationErrorHandler();
 

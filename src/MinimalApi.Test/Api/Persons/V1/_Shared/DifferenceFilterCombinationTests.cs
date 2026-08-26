@@ -108,7 +108,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Shared
         {
             // The expected file intentionally has a wrong "detail"; the filter drops that difference.
             return Client.AssertPostAsErrorAsync<ProblemDetails>(ErrorUrl,
-                                                                 "ErrorResponseWrongDetail.json",
+                                                                 "Responses.ErrorResponseWrongDetail.json",
                                                                  differenceFilter: d => !d.MemberPath.Contains("detail", StringComparison.OrdinalIgnoreCase));
         }
 
@@ -118,7 +118,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Shared
         {
             // The filter only drops "detail"; a wrong "title" must still fail.
             await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPostAsErrorAsync<ProblemDetails>(ErrorUrl,
-                                                                                                                       "ErrorResponseWrongDetail.json",
+                                                                                                                       "Responses.ErrorResponseWrongDetail.json",
                                                                                                                        differenceFilter: d => !d.MemberPath.Contains("title", StringComparison.OrdinalIgnoreCase)))
                         .ConfigureAwait(false);
         }

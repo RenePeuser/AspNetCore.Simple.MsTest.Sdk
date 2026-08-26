@@ -10,14 +10,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddCSharpObjectResponseWriter(this IServiceCollection services)
         {
-            Console.WriteLine("[AddCSharpObjectResponseWriter] Called!");
+            SdkTrace.WriteLine("[AddCSharpObjectResponseWriter] Called!");
             services.AddParameterReplacer();
             services.AddSourceCodeExtractor();
             services.AddCSharpCodeGenerator();
             services.AddRoslynCodeManipulator();
             services.AddObjectTypeDetector();
             services.AddSingletonIfNotExists<ISpecificResponseWriter, CSharpObjectResponseWriter>();
-            Console.WriteLine("[AddCSharpObjectResponseWriter] Registered!");
+            SdkTrace.WriteLine("[AddCSharpObjectResponseWriter] Registered!");
         }
     }
 
@@ -37,25 +37,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             context.ExpectedResult.EmbeddedFileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse() &&
                             context.CallingAssembly.IsCompiledInDebug();
 
-            Console.WriteLine($"[CSharpObjectResponseWriter.CanHandle] Mode={context.Mode}, IsDebug={context.CallingAssembly.IsCompiledInDebug()}, CanHandle={canHandle}");
+            SdkTrace.WriteLine($"[CSharpObjectResponseWriter.CanHandle] Mode={context.Mode}, IsDebug={context.CallingAssembly.IsCompiledInDebug()}, CanHandle={canHandle}");
 
             return canHandle;
         }
 
         public void Write(WriteResponseRequest context)
         {
-            Console.WriteLine("[CSharpObjectResponseWriter.Write] Called!");
+            SdkTrace.WriteLine("[CSharpObjectResponseWriter.Write] Called!");
 
             if (context.CallingAssembly.IsCompiledInDebug().IsFalse())
             {
-                Console.WriteLine("[CSharpObjectResponseWriter.Write] Not in DEBUG mode, skipping");
+                SdkTrace.WriteLine("[CSharpObjectResponseWriter.Write] Not in DEBUG mode, skipping");
 
                 return;
             }
 
             try
             {
-                Console.WriteLine("[CSharpObjectResponseWriter.Write] Starting C# code generation...");
+                SdkTrace.WriteLine("[CSharpObjectResponseWriter.Write] Starting C# code generation...");
 
                 // Extract context from WriteResponseRequest fields
                 var callerFilePath = context.CallerFilePath;
@@ -64,7 +64,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (string.IsNullOrWhiteSpace(callerFilePath) || callerLineNumber == 0)
                 {
-                    Console.WriteLine("[CSharpObjectResponseWriter.Write] Missing caller context - cannot generate code");
+                    SdkTrace.WriteLine("[CSharpObjectResponseWriter.Write] Missing caller context - cannot generate code");
 
                     return;
                 }
@@ -77,20 +77,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var sourceCode = sourceCodeExtractor.ExtractCallCode(callerFilePath, callerLineNumber);
                 var baseIndentation = GetBaseIndentation(sourceCode);
 
-                Console.WriteLine($"[CSharpObjectResponseWriter.Write] expectedParameterName='{expectedParameterName}', baseIndentation={baseIndentation}");
-                Console.WriteLine($"[CSharpObjectResponseWriter.Write] ExpectedType={context.ExpectedType.Name}");
+                SdkTrace.WriteLine($"[CSharpObjectResponseWriter.Write] expectedParameterName='{expectedParameterName}', baseIndentation={baseIndentation}");
+                SdkTrace.WriteLine($"[CSharpObjectResponseWriter.Write] ExpectedType={context.ExpectedType.Name}");
 
                 // Extract the inner value JSON from HTTP response wrapper (content.value)
                 var actualJson = ExtractInnerValueFromJson(responseJson);
-                Console.WriteLine($"[CSharpObjectResponseWriter.Write] Extracted inner JSON: {actualJson}");
+                SdkTrace.WriteLine($"[CSharpObjectResponseWriter.Write] Extracted inner JSON: {actualJson}");
 
                 // Extract variable name first
                 var variableName = ExtractVariableName(expectedParameterName);
-                Console.WriteLine($"[CSharpObjectResponseWriter.Write] variableName='{variableName}'");
+                SdkTrace.WriteLine($"[CSharpObjectResponseWriter.Write] variableName='{variableName}'");
 
                 // Extract type info from the variable declaration using Roslyn
                 var (typeName, constructionType) = codeManipulator.ExtractTypeInfo(callerFilePath, callerLineNumber, variableName);
-                Console.WriteLine($"[CSharpObjectResponseWriter.Write] Extracted type name: {typeName}, construction type: {constructionType}");
+                SdkTrace.WriteLine($"[CSharpObjectResponseWriter.Write] Extracted type name: {typeName}, construction type: {constructionType}");
 
                 // Generate C# code based on detected type
                 var csharpCode = constructionType switch
@@ -102,7 +102,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     _ => codeGenerator.GenerateAnonymousObjectInitializer(actualJson, baseIndentation)
                 };
 
-                Console.WriteLine($"[CSharpObjectResponseWriter.Write] Generated code: {csharpCode}");
+                SdkTrace.WriteLine($"[CSharpObjectResponseWriter.Write] Generated code: {csharpCode}");
 
                 // Use Roslyn to replace the object initializer in test file
                 codeManipulator.ReplaceEmptyAnonymousObject(callerFilePath,
@@ -115,7 +115,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #pragma warning restore CA1031
             {
                 // Log error but don't fail the test
-                Console.WriteLine($"[CSharpObjectResponseWriter] Failed to generate C# code: {ex.Message}");
+                SdkTrace.WriteLine($"[CSharpObjectResponseWriter] Failed to generate C# code: {ex.Message}");
             }
         }
 

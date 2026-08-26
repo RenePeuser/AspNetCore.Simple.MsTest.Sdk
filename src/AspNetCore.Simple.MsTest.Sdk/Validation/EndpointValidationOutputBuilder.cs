@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
@@ -43,6 +44,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         string BuildResponseTypeMismatch(IHttpAssertContext context,
                                          EndpointInfo endpoint,
                                          Type expectedType);
+
+        /// <summary>
+        /// Builds the error message for an action that cannot return a response body at all
+        /// (void / Task / ValueTask) and does not declare 204 No Content.
+        /// </summary>
+        string BuildNoResponseBodyMismatch(IHttpAssertContext context,
+                                           EndpointInfo endpoint,
+                                           Type expectedType);
 
         /// <summary>
         /// Builds error message for response type mismatch with status code details.
@@ -166,6 +175,118 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             return sb.ToString();
         }
 
+        /// <summary>
+        /// An action returning void / Task / ValueTask produces no response body. Asp.net still answers
+        /// 200 OK with an EMPTY body unless the action explicitly returns 204, which is almost never
+        /// what a DELETE is supposed to do. The generic type table cannot help here - there is no type
+        /// to put in it - so this renders dedicated guidance instead of suggesting an impossible
+        /// '&lt;Task&gt;' type argument.
+        /// </summary>
+        public string BuildNoResponseBodyMismatch(IHttpAssertContext context,
+                                                  EndpointInfo endpoint,
+                                                  Type expectedType)
+        {
+            var sb = new StringBuilder();
+
+            var returnTypeName = endpoint.ResponseType.IsNull()
+                                     ? "void"
+                                     : TypeNameFormatter.Format(endpoint.ResponseType);
+
+            var httpMethod = context.HttpMethod.Method;
+            var assertMethod = $"Assert{CultureInfo.InvariantCulture.TextInfo.ToTitleCase(httpMethod.ToLowerInvariant())}Async";
+
+            // SourceLocation is "Namespace.ControllerType.ActionName" - the snippet below shows the
+            // CONTROLLER action, so it must not be labelled with the test method name.
+            var actionName = endpoint.SourceLocation?.Split('.').LastOrDefault();
+
+            if (actionName.IsNullOrWhiteSpace())
+            {
+                actionName = "YourAction";
+            }
+
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine(textDecorator.Error("❌ ENDPOINT RETURNS NO RESPONSE BODY"));
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine();
+
+            BuildTestInfo(sb, context);
+            sb.AppendLine();
+
+            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine($"The action returns '{textDecorator.Error(returnTypeName)}' - there is no response body,");
+            sb.AppendLine("so no generic type argument can ever be correct for this call.");
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Dim("Note: No HTTP call was made. Validation failed before executing the request."));
+            sb.AppendLine();
+
+            BuildHttpCallTable(sb, context, "Endpoint Validation Failed", endpoint);
+            sb.AppendLine();
+
+            sb.AppendLine(textDecorator.SectionTitle("🚦 Status Code"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine($"The endpoint declares no {textDecorator.Success("[ProducesResponseType]")}, so asp.net answers");
+            sb.AppendLine($"{textDecorator.Error("200 OK with an empty body")} - not {textDecorator.Success("204 No Content")}.");
+            sb.AppendLine();
+            sb.AppendLine($"An action without a response body should answer {textDecorator.Success("204 No Content")}.");
+            sb.AppendLine();
+
+            var sourceCode = sourceCodeExtractor.ExtractCallCode(context.CallerFilePath, context.CallerLineNumber);
+
+            if (sourceCode.IsNotNullOrWhiteSpace())
+            {
+                sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+                sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+                sb.AppendLine();
+                sb.AppendLine(sourceCode);
+                sb.AppendLine();
+            }
+
+            sb.AppendLine(textDecorator.SectionTitle("✅ How To Fix"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
+            sb.AppendLine();
+            sb.AppendLine("1. Endpoint (preferred) - declare and return 204:");
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Success($"     [Http{CultureInfo.InvariantCulture.TextInfo.ToTitleCase(httpMethod.ToLowerInvariant())}]"));
+            sb.AppendLine(textDecorator.Success("     [ProducesResponseType(StatusCodes.Status204NoContent)]"));
+            sb.AppendLine(textDecorator.Success($"     public async Task<IActionResult> {actionName}(...)"));
+            sb.AppendLine(textDecorator.Success("     {"));
+            sb.AppendLine(textDecorator.Success("         await mediator.SendAsync(...);"));
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Success("         return NoContent();"));
+            sb.AppendLine(textDecorator.Success("     }"));
+            sb.AppendLine();
+            // No response body means there is nothing to compare, so the expected result argument is
+            // dropped entirely - neither a generic type argument nor an empty string belongs here.
+            // Only the request body (POST/PUT/PATCH) stays, it is unrelated to the response.
+            var hasRequestBody = string.Equals(httpMethod, "POST", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(httpMethod, "PUT", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(httpMethod, "PATCH", StringComparison.OrdinalIgnoreCase);
+
+            var callPrefix = $"     Client.{assertMethod}(";
+            var argumentIndent = new string(' ', callPrefix.Length);
+
+            sb.AppendLine("2. Test - drop the expected result, there is nothing to compare:");
+            sb.AppendLine();
+            sb.AppendLine(textDecorator.Success($"{callPrefix}url,"));
+
+            if (hasRequestBody)
+            {
+                sb.AppendLine(textDecorator.Success($"{argumentIndent}payload,"));
+            }
+
+            sb.AppendLine(textDecorator.Success($"{argumentIndent}expectedHttpStatusCode: HttpStatusCode.NoContent);"));
+            sb.AppendLine();
+
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+
+            return sb.ToString();
+        }
+
         public string BuildResponseTypeMismatch(IHttpAssertContext context,
                                                 EndpointInfo endpoint,
                                                 Type expectedType)
@@ -198,8 +319,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // TYPE VALIDATION Table - Show problem first
-            var actualEndpointTypeName = endpoint.ResponseType.IsNotNull() ? FormatTypeName(endpoint.ResponseType) : "object";
-            var declaredTestTypeName = FormatTypeName(expectedType);
+            var peers = new[] { endpoint.ResponseType, expectedType }.OfType<Type>().ToList();
+
+            var actualEndpointTypeName = endpoint.ResponseType.IsNotNull()
+                                             ? TypeNameFormatter.Format(endpoint.ResponseType, peers)
+                                             : "object";
+
+            var declaredTestTypeName = TypeNameFormatter.Format(expectedType, peers);
             var endpointReturnsVoid = endpoint.ResponseType.IsNull();
 
             var typeColumns = new[] { "Source", "Actual Endpoint Type", "Declared Test Type" };
@@ -322,12 +448,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // TYPE VALIDATION Table - Show all relevant status codes
-            var declaredTestTypeName = FormatTypeName(expectedType);
+            // Every type that appears anywhere in this section is a peer of every other one, so a
+            // V1/V2 name clash is resolved consistently across table, narrative and suggested fix.
+            var shownTypes = relevantStatusCodes.Values
+                                                .Where(type => type.IsNotNull())
+                                                .Append(expectedType)
+                                                .Distinct()
+                                                .ToList();
+
+            var declaredTestTypeName = TypeNameFormatter.Format(expectedType, shownTypes);
             var isSuccessTest = context.IsSuccessStatusCode;
 
             // Find first matching type as suggestion
             var firstRelevantType = relevantStatusCodes.FirstOrDefault().Value;
-            var suggestedTypeName = firstRelevantType.IsNotNull() ? FormatTypeName(firstRelevantType) : "object";
+            var suggestedTypeName = firstRelevantType.IsNotNull() ? TypeNameFormatter.Format(firstRelevantType, shownTypes) : "object";
             var endpointReturnsVoid = firstRelevantType.IsNull();
 
             sb.AppendLine(textDecorator.SectionTitle("🔍 Type Validation"));
@@ -344,7 +478,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             foreach (var statusCode in relevantStatusCodes.OrderBy(kvp => kvp.Key))
             {
-                var actualTypeName = FormatTypeName(statusCode.Value);
+                var actualTypeName = TypeNameFormatter.Format(statusCode.Value, shownTypes);
                 var isMatch = statusCode.Value == expectedType ? "✓" : "✗";
 
                 typeRows.Add(new object[]
@@ -367,7 +501,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             if (relevantStatusCodes.Count == 1)
             {
                 var singleStatus = relevantStatusCodes.First();
-                sb.AppendLine($"Endpoint defines: {singleStatus.Key} → {FormatTypeName(singleStatus.Value)}");
+                sb.AppendLine($"Endpoint defines: {singleStatus.Key} → {TypeNameFormatter.Format(singleStatus.Value, shownTypes)}");
             }
             else
             {
@@ -375,7 +509,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
                 foreach (var statusCode in relevantStatusCodes.OrderBy(kvp => kvp.Key))
                 {
-                    sb.AppendLine($"  - {statusCode.Key} → {FormatTypeName(statusCode.Value)}");
+                    sb.AppendLine($"  - {statusCode.Key} → {TypeNameFormatter.Format(statusCode.Value, shownTypes)}");
                 }
             }
 
@@ -753,26 +887,5 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             return sb.ToString();
         }
 
-        private static string FormatTypeName(Type type)
-        {
-            // Handle generic types like IEnumerable<Person> instead of IEnumerable`1
-            if (type.IsGenericType.IsFalse())
-            {
-                return type.Name;
-            }
-
-            var typeName = type.Name;
-            var backtickIndex = typeName.IndexOf('`');
-
-            if (backtickIndex > 0)
-            {
-                typeName = typeName.Substring(0, backtickIndex);
-            }
-
-            var genericArgs = type.GetGenericArguments();
-            var genericArgNames = string.Join(", ", genericArgs.Select(FormatTypeName));
-
-            return $"{typeName}<{genericArgNames}>";
-        }
     }
 }

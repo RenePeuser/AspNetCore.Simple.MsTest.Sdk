@@ -29,9 +29,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
+    /// <param name="EmbeddedFileName">Manifest resource name - synthesized when nothing was found.</param>
+    /// <param name="Content">The snapshot content, or the raw input when it is inline json.</param>
+    /// <param name="EmbeddedFile">The file on disk, if it could be located.</param>
+    /// <param name="Resolved">
+    /// False when the input was a file reference that matched neither an embedded resource nor a file
+    /// on disk. Callers must not silently continue with such a reference: <see cref="Content"/> then
+    /// still holds the file NAME, and comparing against a file name is how a typo turns into a green
+    /// test. Only snapshot writing may proceed - there the file is about to be created.
+    /// </param>
     public sealed record EmbeddedFileInfo(string EmbeddedFileName,
                                           string Content,
-                                          FileInfo? EmbeddedFile);
+                                          FileInfo? EmbeddedFile,
+                                          bool Resolved = true);
 
     public interface IEmbeddedFileLocalizer
     {
@@ -266,12 +276,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 return new EmbeddedFileInfo(embeddedResource.EmbeddedFile,
                                             embeddedContent ?? input,
-                                            null);
+                                            null,
+                                            embeddedResource.Exist);
             }
 
             if (physicalFile.NotExists())
             {
-                return new EmbeddedFileInfo(embeddedResource.EmbeddedFile, input, physicalFile);
+                // The source file is gone but the assembly still carries the snapshot - that content
+                // is authoritative. Only when neither side has it is the reference unresolved.
+                var embeddedContent = embeddedResource.Exist
+                                          ? assembly.GetFileContentOrDefaultFrom(embeddedResource.EmbeddedFile)
+                                          : null;
+
+                return new EmbeddedFileInfo(embeddedResource.EmbeddedFile,
+                                            embeddedContent ?? input,
+                                            physicalFile,
+                                            embeddedResource.Exist);
             }
 
             // NEW: When you are in snapshot mode, you are writing the json which are at that moment
@@ -333,7 +353,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (absoluteMatches.Count == 0)
                 {
-                    return (trimmed, false);
+                    // Nothing embedded under that name (yet). Returning the raw input would leave the
+                    // writer without a target path, so a brand new snapshot referenced in dotted form
+                    // could never be created. Qualify it with the caller context instead - exactly what
+                    // the plain file name branch below does.
+                    return ($"{contextPrefix}.{trimmed}", false);
 
                     //    throw new InvalidOperationException($"""
                     //                                         Absolute embedded resource not found.

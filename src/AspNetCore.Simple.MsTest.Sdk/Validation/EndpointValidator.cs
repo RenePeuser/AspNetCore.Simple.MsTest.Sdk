@@ -155,6 +155,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // Fallback 2: Use old ResponseType property (backward compatibility)
             if (endpoint.ResponseType.IsNotNull())
             {
+                // An action returning bare Task/ValueTask/void has no response body. Reaching this
+                // fallback means it also declares no ProducesResponseType, so asp.net answers
+                // 200 OK with an EMPTY body instead of 204 No Content. Point that out explicitly -
+                // the generic type table would otherwise suggest an impossible '<Task>'.
+                if (EndpointParsingHelpers.ReturnsNoResponseBody(endpoint.ResponseType))
+                {
+                    var noBodyError = outputBuilder.BuildNoResponseBodyMismatch(context, endpoint, expectedResponse);
+
+                    Assert.That.Fail(noBodyError);
+                }
+
                 // Check if TResult matches the declared response type
                 if (endpoint.ResponseType != expectedResponse)
                 {

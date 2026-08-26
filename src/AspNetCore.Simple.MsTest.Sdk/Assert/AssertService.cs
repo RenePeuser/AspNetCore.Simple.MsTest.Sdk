@@ -87,7 +87,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (shouldWriteResponse)
             {
                 // Determine ResponseWriteMode based on context
-                Console.WriteLine($"[AssertService] IsEmptyAnonymousObjectForCodeGeneration={context.IsEmptyAnonymousObjectForCodeGeneration}, IsDebug={context.CallingAssembly.IsCompiledInDebug()}");
+                SdkTrace.WriteLine($"[AssertService] IsEmptyAnonymousObjectForCodeGeneration={context.IsEmptyAnonymousObjectForCodeGeneration}, IsDebug={context.CallingAssembly.IsCompiledInDebug()}");
 
                 // C# code generation is only valid for inline expectations (empty anonymous object).
                 // Snapshot based asserts (*.json) must stay on the file modes, otherwise the C# writer
@@ -106,7 +106,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    ? ResponseWriteMode.DifferencesOnly
                                    : ResponseWriteMode.OverwriteAll;
 
-                Console.WriteLine($"[AssertService] Determined Mode={mode}");
+                SdkTrace.WriteLine($"[AssertService] Determined Mode={mode}");
 
                 responseWriter.Write(context, currentFormatted, context.ExpectedResultFile,
                                      mode);
