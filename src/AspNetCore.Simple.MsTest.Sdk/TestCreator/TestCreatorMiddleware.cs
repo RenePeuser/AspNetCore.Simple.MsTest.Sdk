@@ -26,45 +26,42 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public async Task InvokeAsync(HttpContext context,
                                       RequestDelegate next)
         {
-            ResponseInfoUltra? response;
             var request = await GetRequestInfoUltraAsync(context.Request).ConfigureAwait(false);
+
+            //Copy a pointer to the original response body stream
+            var originalBodyStream = context.Response.Body;
+
+            //Create a new memory stream so the response can be read back after the pipeline ran
+#pragma warning disable CA2007 // Consider calling ConfigureAwait on the awaited task
+            await using var responseBody = new MemoryStream();
+#pragma warning restore CA2007 // Consider calling ConfigureAwait on the awaited task
+            context.Response.Body = responseBody;
 
             try
             {
-                //First, get the incoming request
-
-                //Copy a pointer to the original response body stream
-                var originalBodyStream = context.Response.Body;
-
-                //Create a new memory stream...
-#pragma warning disable CA2007 // Consider calling ConfigureAwait on the awaited task
-                await using var responseBody = new MemoryStream();
-#pragma warning restore CA2007 // Consider calling ConfigureAwait on the awaited task
-                context.Response.Body = responseBody;
                 await next(context).ConfigureAwait(false);
-
-                //Format the response from the server
-                response = await GetResponseInfoUltraAsync(context).ConfigureAwait(false);
-
-                if (response.IsNotNull())
-                {
-                    requestTestCreator.CreateTestFor(request, response);
-                }
-
-                //Copy the contents of the new memory stream (which contains the response) to the original stream, which is then returned to the client.
-                await responseBody.CopyToAsync(originalBodyStream).ConfigureAwait(false);
             }
-            catch (Exception)
+            finally
             {
-                //Format the response from the server
-                response = await GetResponseInfoUltraAsync(context).ConfigureAwait(false);
+                // Read the response BEFORE the buffer is handed back - on the exception path the
+                // previous version inspected an already disposed stream and reported nothing.
+                var response = await GetResponseInfoUltraAsync(context).ConfigureAwait(false);
 
                 if (response.IsNotNull())
                 {
                     requestTestCreator.CreateTestFor(request, response);
                 }
 
-                throw;
+                // Always hand the buffer back to the real response stream. Leaving the disposed
+                // MemoryStream in place turns any later write into a confusing follow-up error that
+                // hides whatever actually failed.
+                if (responseBody.CanSeek)
+                {
+                    responseBody.Seek(0, SeekOrigin.Begin);
+                    await responseBody.CopyToAsync(originalBodyStream).ConfigureAwait(false);
+                }
+
+                context.Response.Body = originalBodyStream;
             }
         }
 
@@ -76,7 +73,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 if (request.Body.CanRead)
                 {
-                    if (request.ContentType.Contains(MediaTypeNames.Application.Json))
+                    // PATCH is sent as "application/merge-patch+json" (RFC 7386), which does NOT
+                    // contain "application/json" as a substring - patch bodies were invisible here.
+                    if (IsJson(request.ContentType))
                     {
                         using var reader = new StreamReader(request.Body);
                         bodyAsText = await reader.ReadToEndAsync().ConfigureAwait(false);
@@ -99,14 +98,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    bodyAsText);
         }
 
+        /// <summary>
+        /// True for application/json and every "+json" structured suffix such as
+        /// application/merge-patch+json or application/problem+json.
+        /// </summary>
+        private static bool IsJson(string contentType)
+        {
+            return contentType.Contains(MediaTypeNames.Application.Json, StringComparison.OrdinalIgnoreCase) ||
+                   contentType.Contains("+json", StringComparison.OrdinalIgnoreCase);
+        }
+
         private async Task<ResponseInfoUltra?> GetResponseInfoUltraAsync(HttpContext response)
         {
             var bodyAsText = "Was not able to read response stream";
 
-            if (response.Response.Body.CanRead)
+            // Seek requires CanSeek - checking CanRead threw NotSupportedException ("The stream is
+            // not seekable") for every response body that was not swapped for a buffer.
+            if (response.Response.Body.CanRead && response.Response.Body.CanSeek)
             {
                 response.Response.Body.Seek(0, SeekOrigin.Begin);
-                using var streamReader = new StreamReader(response.Response.Body);
+
+                // leaveOpen - the caller still needs this stream to copy the response back.
+                using var streamReader = new StreamReader(response.Response.Body, Encoding.UTF8, true, 1024, leaveOpen: true);
                 bodyAsText = await streamReader.ReadToEndAsync().ConfigureAwait(false);
                 response.Response.Body.Seek(0, SeekOrigin.Begin);
             }

@@ -22,6 +22,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
             services.AddProblemDetailsErrorHandler();
             services.AddSnapshotNotFoundErrorHandler();
             services.AddInvalidSnapshotJsonErrorHandler();
+            services.AddNonSeekableBodyErrorHandler();
             services.AddInvalidJsonErrorHandler();
             services.AddJsonSerializationErrorHandler();
 
