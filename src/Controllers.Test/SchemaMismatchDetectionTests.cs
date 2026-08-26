@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using AspNetCore.Simple.MsTest.Sdk;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,19 @@ namespace Controllers.Test
     [TestCategory("SchemaMismatch")]
     public sealed class SchemaMismatchDetectionTests
     {
+        /// <summary>
+        /// The rule under test, in one place:
+        /// hasSchemaMismatch = differences.Any(item =&gt;
+        ///     item.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &amp;&amp;
+        ///     item.MemberPath.EndsWith(']').IsFalse());
+        /// </summary>
+        private static readonly Func<Difference, bool> SchemaMismatchRule =
+            item => item.MismatchType != MismatchType.ValueDifference && !item.MemberPath.EndsWith(']');
+
+        private const string RuleDescription = "a difference that is not a ValueDifference and whose path does not end with ']'";
+
+        private const string RuleFix = "The rule lives wherever hasSchemaMismatch is computed: a difference counts as a schema mismatch only when its MismatchType is not ValueDifference AND its MemberPath does not end with ']'. Check both halves - and check what JsonDiffer reported as MismatchType and MemberPath in the Details above.";
+
         private static IJsonDiffer _jsonDiffer = null!;
 
         [TestInitialize]
@@ -41,10 +55,15 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             var emailDiff = diffs.FirstOrDefault(d => d.MemberPath == "email");
-            Assert.IsNotNull(emailDiff, "Should detect 'email' difference");
 
-            Assert.AreEqual(MismatchType.MissingInFirst, emailDiff.MismatchType,
-                            "Property in current but not in expected should be MissingInFirst");
+            Assert.That.IsNotNull(emailDiff,
+                                  because: "'email' exists only in current, so the differ has to report it at all - a property appearing out of nowhere is exactly what a schema mismatch is.",
+                                  fix: "Check that JsonDiffer.FindDifferences walks the properties of the second document too, not only those of the first.");
+
+            Assert.That.AreEqual(MismatchType.MissingInFirst,
+                                 emailDiff.MismatchType,
+                                 because: "The direction is what tells the author whether the api grew a property or the snapshot lost one. 'In current but not in expected' is MissingInFirst - expected is the first argument.",
+                                 fix: "Check the argument order in JsonDiffer.FindDifferences: MissingInFirst means absent from json1, MissingInSecond means absent from json2. Swapping them inverts every message the sdk prints.");
         }
 
         [TestMethod]
@@ -61,10 +80,15 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             var emailDiff = diffs.FirstOrDefault(d => d.MemberPath == "email");
-            Assert.IsNotNull(emailDiff, "Should detect 'email' difference");
 
-            Assert.AreEqual(MismatchType.MissingInSecond, emailDiff.MismatchType,
-                            "Property in expected but not in current should be MissingInSecond");
+            Assert.That.IsNotNull(emailDiff,
+                                  because: "'email' exists only in expected, so the differ has to report it - a property the api stopped returning must never pass unnoticed.",
+                                  fix: "Check that JsonDiffer.FindDifferences walks the properties of the first document and reports the ones missing on the other side.");
+
+            Assert.That.AreEqual(MismatchType.MissingInSecond,
+                                 emailDiff.MismatchType,
+                                 because: "The direction is what tells the author whether the api grew a property or dropped one. 'In expected but not in current' is MissingInSecond - current is the second argument.",
+                                 fix: "Check the argument order in JsonDiffer.FindDifferences: MissingInSecond means absent from json2. Swapping the two inverts every message the sdk prints.");
         }
 
         [TestMethod]
@@ -81,10 +105,15 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
             var nameDiff = diffs.FirstOrDefault(d => d.MemberPath == "name");
-            Assert.IsNotNull(nameDiff, "Should detect 'name' difference");
 
-            Assert.AreEqual(MismatchType.ValueDifference, nameDiff.MismatchType,
-                            "Same property with different values should be ValueDifference");
+            Assert.That.IsNotNull(nameDiff,
+                                  because: "Both sides carry 'name' with different content, so the differ has to report the value difference.",
+                                  fix: "Check the leaf comparison in JsonDiffer.FindDifferences - two present properties with unequal values have to produce a Difference.");
+
+            Assert.That.AreEqual(MismatchType.ValueDifference,
+                                 nameDiff.MismatchType,
+                                 because: "The property exists on both sides, so the schema is intact and only the data differs. Classifying this as missing would make every ordinary value change look like a contract break.",
+                                 fix: "JsonDiffer must only use MissingInFirst/MissingInSecond when a property is really absent on one side, never for two present-but-unequal values.");
         }
 
         #endregion
@@ -94,23 +123,16 @@ namespace Controllers.Test
         [TestMethod]
         public void SchemaMismatch_ShouldBeTrue_WhenAnyDifferenceIs_MissingInFirst_AndNotArrayIndex()
         {
-            // Schema mismatch detection logic:
-            // hasSchemaMismatch = differences.Any(item =>
-            //     item.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &&
-            //     item.MemberPath.EndsWith(']').IsFalse());
-
             var expected = /*lang=json,strict*/ """{ "id": 1 }""";
             var current = /*lang=json,strict*/ """{ "id": 1, "extra": "value" }""";
 
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
-            // Verify the condition for schema mismatch
-            var hasSchemaMismatch = diffs.Any(item =>
-                                                  item.MismatchType != MismatchType.ValueDifference &&
-                                                  !item.MemberPath.EndsWith(']'));
-
-            Assert.IsTrue(hasSchemaMismatch,
-                          "MissingInFirst (not array index) should trigger schema mismatch");
+            Assert.That.Any(diffs,
+                            SchemaMismatchRule,
+                            predicateDescription: RuleDescription,
+                            because: "'extra' appears only in current and its path carries no array index, so it is a genuine schema mismatch - the api returns something the snapshot does not know about.",
+                            fix: RuleFix);
         }
 
         [TestMethod]
@@ -121,13 +143,11 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
-            // Verify the condition for schema mismatch
-            var hasSchemaMismatch = diffs.Any(item =>
-                                                  item.MismatchType != MismatchType.ValueDifference &&
-                                                  !item.MemberPath.EndsWith(']'));
-
-            Assert.IsTrue(hasSchemaMismatch,
-                          "MissingInSecond (not array index) should trigger schema mismatch");
+            Assert.That.Any(diffs,
+                            SchemaMismatchRule,
+                            predicateDescription: RuleDescription,
+                            because: "'required' is expected but absent from current and its path carries no array index, so it is a genuine schema mismatch - the api stopped returning a property the snapshot relies on.",
+                            fix: RuleFix);
         }
 
         [TestMethod]
@@ -138,13 +158,11 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
-            // Verify the condition for schema mismatch
-            var hasSchemaMismatch = diffs.Any(item =>
-                                                  item.MismatchType != MismatchType.ValueDifference &&
-                                                  !item.MemberPath.EndsWith(']'));
-
-            Assert.IsFalse(hasSchemaMismatch,
-                           "Only ValueDifference should NOT trigger schema mismatch");
+            Assert.That.None(diffs,
+                             SchemaMismatchRule,
+                             predicateDescription: RuleDescription,
+                             because: "Both documents carry exactly the same properties; only the data differs. Reporting a schema mismatch here would send the author looking for a contract change that never happened.",
+                             fix: RuleFix);
         }
 
         [TestMethod]
@@ -155,13 +173,15 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
-            // Verify the condition for schema mismatch
-            var hasSchemaMismatch = diffs.Any(item =>
-                                                  item.MismatchType != MismatchType.ValueDifference &&
-                                                  !item.MemberPath.EndsWith(']'));
+            Assert.That.IsEmpty(diffs,
+                                because: "The two documents are identical, so the differ must report nothing at all - a phantom difference here would make every unchanged snapshot fail.",
+                                fix: "Check the equality comparison in JsonDiffer.FindDifferences; property order and formatting must not count as a difference.");
 
-            Assert.IsFalse(hasSchemaMismatch, "No differences means no schema mismatch");
-            Assert.AreEqual(0, diffs.Count, "Should have no differences");
+            Assert.That.None(diffs,
+                             SchemaMismatchRule,
+                             predicateDescription: RuleDescription,
+                             because: "No differences at all can never amount to a schema mismatch.",
+                             fix: RuleFix);
         }
 
         #endregion
@@ -178,17 +198,17 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
-            // Verify that we have array index differences
-            var arrayIndexDiff = diffs.FirstOrDefault(d => d.MemberPath.EndsWith(']'));
-            Assert.IsNotNull(arrayIndexDiff, "Should have at least one array index difference");
+            Assert.That.Any(diffs,
+                            d => d.MemberPath.EndsWith(']'),
+                            predicateDescription: "a difference whose path ends with ']' (an array element)",
+                            because: "The exclusion rule can only be proven if the differ really produced an array-index path here - without one this test would pass no matter what the rule does.",
+                            fix: "Check how JsonDiffer builds MemberPath for array elements: an extra element has to be reported as 'items[2]', not as 'items'.");
 
-            // Verify the schema mismatch logic excludes array indexes
-            var hasSchemaMismatch = diffs.Any(item =>
-                                                  item.MismatchType != MismatchType.ValueDifference &&
-                                                  !item.MemberPath.EndsWith(']'));
-
-            Assert.IsFalse(hasSchemaMismatch,
-                           "Array length differences (paths ending with ']') should NOT trigger schema mismatch");
+            Assert.That.None(diffs,
+                             SchemaMismatchRule,
+                             predicateDescription: RuleDescription,
+                             because: "A longer or shorter array is a data difference, not a contract change - the property 'items' exists on both sides. That is why paths ending with ']' are excluded from the rule.",
+                             fix: RuleFix);
         }
 
         [TestMethod]
@@ -210,19 +230,17 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
-            // Verify we have property difference in array element
-            var propertyDiff = diffs.FirstOrDefault(d =>
-                                                        d.MemberPath.Contains('[') && !d.MemberPath.EndsWith(']'));
+            Assert.That.Any(diffs,
+                            d => d.MemberPath.Contains('[') && !d.MemberPath.EndsWith(']'),
+                            predicateDescription: "a difference inside an array element, e.g. 'items[0].status'",
+                            because: "The exclusion rule keys on the path ending with ']'. A property inside an element ends with the property name, so it has to be reported with the full path 'items[0].status'.",
+                            fix: "Check that JsonDiffer appends the property name after the index when descending into array elements, instead of stopping the path at 'items[0]'.");
 
-            Assert.IsNotNull(propertyDiff, "Should have property difference in array element");
-
-            // Verify the schema mismatch logic includes this
-            var hasSchemaMismatch = diffs.Any(item =>
-                                                  item.MismatchType != MismatchType.ValueDifference &&
-                                                  !item.MemberPath.EndsWith(']'));
-
-            Assert.IsTrue(hasSchemaMismatch,
-                          "Property differences in array elements (not ending with ']') should trigger schema mismatch");
+            Assert.That.Any(diffs,
+                            SchemaMismatchRule,
+                            predicateDescription: RuleDescription,
+                            because: "An element that grew a property is a real contract change, even though it sits inside an array - only the array length itself is exempt from the rule.",
+                            fix: RuleFix);
         }
 
         #endregion
@@ -249,18 +267,23 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
-            Assert.IsTrue(diffs.Any(d => d.MismatchType == MismatchType.MissingInFirst),
-                          "Should have MissingInFirst");
+            Assert.That.Any(diffs,
+                            d => d.MismatchType == MismatchType.MissingInFirst,
+                            predicateDescription: "a MissingInFirst difference (here: 'currentProp')",
+                            because: "Both sides lost and gained a property at once. The differ has to report both directions - reporting only one would hide half the contract change.",
+                            fix: "Check that JsonDiffer walks both documents' property sets and does not stop after the first side it finds a mismatch on.");
 
-            Assert.IsTrue(diffs.Any(d => d.MismatchType == MismatchType.MissingInSecond),
-                          "Should have MissingInSecond");
+            Assert.That.Any(diffs,
+                            d => d.MismatchType == MismatchType.MissingInSecond,
+                            predicateDescription: "a MissingInSecond difference (here: 'expectedProp')",
+                            because: "Both sides lost and gained a property at once. The differ has to report both directions - reporting only one would hide half the contract change.",
+                            fix: "Check that JsonDiffer walks both documents' property sets and does not stop after the first side it finds a mismatch on.");
 
-            var hasSchemaMismatch = diffs.Any(item =>
-                                                  item.MismatchType != MismatchType.ValueDifference &&
-                                                  !item.MemberPath.EndsWith(']'));
-
-            Assert.IsTrue(hasSchemaMismatch,
-                          "Combined missing properties should trigger schema mismatch");
+            Assert.That.Any(diffs,
+                            SchemaMismatchRule,
+                            predicateDescription: RuleDescription,
+                            because: "Properties missing on both sides is the clearest possible schema mismatch.",
+                            fix: RuleFix);
         }
 
         [TestMethod]
@@ -283,22 +306,16 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
-            var hasSchemaMismatch = diffs.Any(item =>
-                                                  item.MismatchType != MismatchType.ValueDifference &&
-                                                  !item.MemberPath.EndsWith(']'));
-
-            Assert.IsFalse(hasSchemaMismatch,
-                           "Only value differences should NOT trigger schema mismatch");
+            Assert.That.None(diffs,
+                             SchemaMismatchRule,
+                             predicateDescription: RuleDescription,
+                             because: "Both documents carry the same properties and the same array length - every difference here is pure data. The two exclusions of the rule have to hold at the same time.",
+                             fix: RuleFix);
         }
 
         [TestMethod]
         public void SchemaMismatch_CompleteRuleVerification()
         {
-            // Complete verification of the schema mismatch rule:
-            // hasSchemaMismatch = differences.Any(item =>
-            //     item.MismatchType.NotEqualsTo(MismatchType.ValueDifference) &&
-            //     item.MemberPath.EndsWith(']').IsFalse());
-
             // Test cases that should trigger schema mismatch
             var testCases = new[] { (Expected: /*lang=json,strict*/ """{"a":1}""", Current: /*lang=json,strict*/ """{"a":1,"b":2}""", Reason: "Extra property in current"), (Expected: /*lang=json,strict*/ """{"a":1,"b":2}""", Current: /*lang=json,strict*/ """{"a":1}""", Reason: "Missing property in current"), (Expected: /*lang=json,strict*/ """{"x":{"y":1}}""", Current: /*lang=json,strict*/ """{"x":{"y":1,"z":2}}""", Reason: "Extra nested property") };
 
@@ -306,11 +323,11 @@ namespace Controllers.Test
             {
                 var diffs = _jsonDiffer.FindDifferences(testCase.Expected, testCase.Current);
 
-                var hasSchemaMismatch = diffs.Any(item =>
-                                                      item.MismatchType != MismatchType.ValueDifference &&
-                                                      !item.MemberPath.EndsWith(']'));
-
-                Assert.IsTrue(hasSchemaMismatch, $"Should detect schema mismatch for: {testCase.Reason}");
+                Assert.That.Any(diffs,
+                                SchemaMismatchRule,
+                                predicateDescription: RuleDescription,
+                                because: $"{testCase.Reason} - expected {testCase.Expected} against current {testCase.Current}. Every shape in this table changes the set of properties, so all of them have to be flagged.",
+                                fix: RuleFix);
             }
 
             // Test cases that should NOT trigger schema mismatch
@@ -320,11 +337,11 @@ namespace Controllers.Test
             {
                 var diffs = _jsonDiffer.FindDifferences(testCase.Expected, testCase.Current);
 
-                var hasSchemaMismatch = diffs.Any(item =>
-                                                      item.MismatchType != MismatchType.ValueDifference &&
-                                                      !item.MemberPath.EndsWith(']'));
-
-                Assert.IsFalse(hasSchemaMismatch, $"Should NOT detect schema mismatch for: {testCase.Reason}");
+                Assert.That.None(diffs,
+                                 SchemaMismatchRule,
+                                 predicateDescription: RuleDescription,
+                                 because: $"{testCase.Reason} - expected {testCase.Expected} against current {testCase.Current}. The set of properties is unchanged, so this must not be flagged as a contract break.",
+                                 fix: RuleFix);
             }
         }
 

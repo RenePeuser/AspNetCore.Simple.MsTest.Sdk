@@ -10,6 +10,8 @@ namespace Controllers.Test
     [TestCategory("JsonDiffer")]
     public sealed class JsonDifferTests
     {
+        private const string NormalizationFix = "Check the normalization in JsonDiffer.FindDifferences: it has to compare parsed JTokens instead of raw strings, and object property order must not count as a difference. Whatever shows up in the Details above is a formatting artefact that leaked into the comparison.";
+
         private static IJsonDiffer _jsonDiffer = null!;
 
         [TestInitialize]
@@ -39,9 +41,20 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(left, right);
 
-            Assert.HasCount(1, diffs);
-            Assert.AreEqual("name", diffs[0].MemberPath);
-            Assert.AreEqual(MismatchType.ValueDifference, diffs[0].MismatchType);
+            Assert.That.HasCount(1,
+                                 diffs,
+                                 because: "Only 'name' differs; 'age' is identical on both sides. A second entry would mean the differ reports untouched properties as well and would drown every real finding.",
+                                 fix: "Check the leaf comparison in JsonDiffer.FindDifferences - equal values must produce no Difference at all.");
+
+            Assert.That.AreEqual("name",
+                                 diffs[0].MemberPath,
+                                 because: "The member path is what the author uses to find the spot in the payload, so it has to name the property that actually changed.",
+                                 fix: "Check how JsonDiffer builds MemberPath while descending - at the root level it is the plain property name, without a leading dot or '$'.");
+
+            Assert.That.AreEqual(MismatchType.ValueDifference,
+                                 diffs[0].MismatchType,
+                                 because: "'name' exists on both sides with different content, so the schema is intact and only the value changed. Any other classification would make an ordinary data change look like a contract break.",
+                                 fix: "JsonDiffer must reserve MissingInFirst/MissingInSecond for properties that are really absent on one side.");
         }
 
         [TestMethod]
@@ -63,9 +76,22 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(left, right);
 
-            Assert.HasCount(2, diffs);
-            Assert.IsTrue(diffs.Any(d => d.MemberPath == "onlyLeft" && d.MismatchType == MismatchType.MissingInSecond));
-            Assert.IsTrue(diffs.Any(d => d.MemberPath == "onlyRight" && d.MismatchType == MismatchType.MissingInFirst));
+            Assert.That.HasCount(2,
+                                 diffs,
+                                 because: "Each side carries one property the other does not, so exactly two findings are expected - one per direction. 'name' is identical and must not add a third.",
+                                 fix: "Check that JsonDiffer walks both property sets and reports each missing property exactly once.");
+
+            Assert.That.Any(diffs,
+                            d => d.MemberPath == "onlyLeft" && d.MismatchType == MismatchType.MissingInSecond,
+                            predicateDescription: "'onlyLeft' reported as MissingInSecond",
+                            because: "'onlyLeft' exists in the first document only, so it is missing in the second. Getting the direction wrong inverts every message the sdk prints about it.",
+                            fix: "Check the argument order in JsonDiffer.FindDifferences: MissingInSecond means absent from json2, which is the right-hand document here.");
+
+            Assert.That.Any(diffs,
+                            d => d.MemberPath == "onlyRight" && d.MismatchType == MismatchType.MissingInFirst,
+                            predicateDescription: "'onlyRight' reported as MissingInFirst",
+                            because: "'onlyRight' exists in the second document only, so it is missing in the first. Both directions have to be reported, otherwise half of a contract change stays invisible.",
+                            fix: "Check that JsonDiffer also iterates the second document's properties - reporting only one direction is the classic omission here.");
         }
 
         [TestMethod]
@@ -96,8 +122,17 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(left, right);
 
-            Assert.IsTrue(diffs.Any(d => d.MemberPath == "items[0].value" && d.MismatchType == MismatchType.ValueDifference));
-            Assert.IsTrue(diffs.Any(d => d.MemberPath == "items[1]" && d.MismatchType == MismatchType.MissingInFirst));
+            Assert.That.Any(diffs,
+                            d => d.MemberPath == "items[0].value" && d.MismatchType == MismatchType.ValueDifference,
+                            predicateDescription: "'items[0].value' reported as ValueDifference",
+                            because: "Inside an array the path has to carry the index and continue into the element, otherwise the author cannot tell which of many elements changed.",
+                            fix: "Check that JsonDiffer appends '[index]' when descending into an array and then keeps appending the property name.");
+
+            Assert.That.Any(diffs,
+                            d => d.MemberPath == "items[1]" && d.MismatchType == MismatchType.MissingInFirst,
+                            predicateDescription: "'items[1]' reported as MissingInFirst",
+                            because: "The right-hand array has a second element the left one does not. A surplus element is reported at the index itself - that trailing ']' is what later excludes it from the schema-mismatch rule.",
+                            fix: "Check the array length handling in JsonDiffer: a surplus element has to be reported as MissingInFirst at path 'items[1]', not as a difference on 'items'.");
         }
 
         [TestMethod]
@@ -251,7 +286,10 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(left, right);
 
-            Assert.HasCount(0, diffs, "Property order should not affect comparison");
+            Assert.That.HasCount(0,
+                                 diffs,
+                                 because: "Property order should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
+                                 fix: NormalizationFix);
         }
 
         [TestMethod]
@@ -271,7 +309,10 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
 
-            Assert.HasCount(0, diffs, "Whitespace formatting should not affect comparison");
+            Assert.That.HasCount(0,
+                                 diffs,
+                                 because: "Whitespace formatting should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
+                                 fix: NormalizationFix);
         }
 
         [TestMethod]
@@ -308,7 +349,10 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(left, right);
 
-            Assert.HasCount(0, diffs, "Property order in nested objects should not affect comparison");
+            Assert.That.HasCount(0,
+                                 diffs,
+                                 because: "Property order in nested objects should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
+                                 fix: NormalizationFix);
         }
 
         [TestMethod]
@@ -352,7 +396,10 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
 
-            Assert.HasCount(0, diffs, "Array formatting should not affect comparison when order is same");
+            Assert.That.HasCount(0,
+                                 diffs,
+                                 because: "Array formatting should not affect comparison when order is same. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
+                                 fix: NormalizationFix);
         }
 
         [TestMethod]
@@ -384,7 +431,10 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
 
-            Assert.HasCount(0, diffs, "Array whitespace variations should not affect comparison");
+            Assert.That.HasCount(0,
+                                 diffs,
+                                 because: "Array whitespace variations should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
+                                 fix: NormalizationFix);
         }
 
         [TestMethod]
@@ -403,7 +453,10 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
 
-            Assert.HasCount(0, diffs, "Array element whitespace should not affect comparison");
+            Assert.That.HasCount(0,
+                                 diffs,
+                                 because: "Array element whitespace should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
+                                 fix: NormalizationFix);
         }
 
         [TestMethod]
@@ -427,7 +480,10 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
 
-            Assert.HasCount(0, diffs, "Array of objects whitespace should not affect comparison");
+            Assert.That.HasCount(0,
+                                 diffs,
+                                 because: "Array of objects whitespace should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
+                                 fix: NormalizationFix);
         }
 
         [TestMethod]
@@ -448,8 +504,14 @@ namespace Controllers.Test
             var diffs1 = _jsonDiffer.FindDifferences(leftCompact, rightWithSpace);
             var diffs2 = _jsonDiffer.FindDifferences(leftCompact, rightWithNewline);
 
-            Assert.HasCount(0, diffs1, "Empty array with space should not affect comparison");
-            Assert.HasCount(0, diffs2, "Empty array with newline should not affect comparison");
+            Assert.That.HasCount(0,
+                                 diffs1,
+                                 because: "Empty array with space should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
+                                 fix: NormalizationFix);
+            Assert.That.HasCount(0,
+                                 diffs2,
+                                 because: "Empty array with newline should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
+                                 fix: NormalizationFix);
         }
 
         [TestMethod]
@@ -475,7 +537,10 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
 
-            Assert.HasCount(0, diffs, "Nested array whitespace should not affect comparison");
+            Assert.That.HasCount(0,
+                                 diffs,
+                                 because: "Nested array whitespace should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
+                                 fix: NormalizationFix);
         }
 
         [TestMethod]
@@ -527,7 +592,10 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(leftMixed, rightMixed);
 
-            Assert.HasCount(0, diffs, "Mixed whitespace styles should not affect comparison");
+            Assert.That.HasCount(0,
+                                 diffs,
+                                 because: "Mixed whitespace styles should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
+                                 fix: NormalizationFix);
         }
     }
 }
