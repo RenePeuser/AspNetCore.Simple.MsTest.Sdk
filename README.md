@@ -56,6 +56,9 @@ dotnet add package AspNetCore.Simple.MsTest.Sdk
 
 ### Minimal setup
 
+Use the SDK's `ApiTestBase<TStartup>` and there is **nothing to wire up** — it registers and initializes
+everything the assert extensions need:
+
 ```csharp
 [TestClass]
 public abstract class ApiTestBase
@@ -72,14 +75,11 @@ public abstract class ApiTestBase
                                                 (services,
                                                  configuration) =>
                                                 {
-                                                    // IMPORTANT: Required for endpoint validation and assertable HTTP client features
-                                                    services.AddAssertableHttpClient(configuration);
+                                                    // Only your own overrides / test doubles go here.
+                                                    // Nothing SDK-related is required.
                                                 });
 
         Client = _apiTestBase.CreateClient();
-
-        // IMPORTANT: Required to make all HttpClientAssertExtensions 100% functional
-        HHttpClientAssertExtensions.Setup(_apiTestBase.Services);
     }
 
     protected static HttpClient Client { get; private set; } = null!;
@@ -91,6 +91,69 @@ public abstract class ApiTestBase
         Client.Dispose();
     }
 }
+```
+
+That's it. `ApiTestBase<TStartup>` performs both required steps internally:
+
+1. `services.AddAssertableHttpClient(configuration)` — registers `IAssertableHttpClient`, the endpoint
+   registry used for validation, the diff engine and the failure reporters.
+2. `HttpClientAssertExtensions.Setup(serviceProvider)` — hands those resolved services to the static
+   `Assert…Async` extension methods.
+
+### Bringing your own host? Then do these two steps yourself
+
+If you don't use `ApiTestBase<TStartup>` — e.g. you have your own `WebApplicationFactory<T>`, a custom
+fixture, or a hand-rolled host — the SDK cannot hook itself in. You have to make both calls explicitly,
+exactly once, in `[AssemblyInitialize]`:
+
+```csharp
+[TestClass]
+public abstract class ApiTestBase
+{
+    private static WebApplicationFactory<Program> _factory = null!;
+
+    [AssemblyInitialize]
+    public static void AssemblyInitialize(TestContext _)
+    {
+        _factory = new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices((context,
+                                           services) =>
+                {
+                    // 1. REQUIRED: endpoint validation + assertable HTTP client features
+                    services.AddAssertableHttpClient(context.Configuration);
+                });
+            });
+
+        Client = _factory.CreateClient();
+
+        // 2. REQUIRED: makes all HttpClientAssertExtensions 100% functional.
+        //    Must run *after* the host is built, and must use the *real* provider of the running host.
+        HttpClientAssertExtensions.Setup(_factory.Services);
+    }
+
+    protected static HttpClient Client { get; private set; } = null!;
+
+    [AssemblyCleanup]
+    public static void AssemblyCleanup()
+    {
+        _factory.Dispose();
+        Client.Dispose();
+    }
+}
+```
+
+Miss either step and the first assert call tells you so instead of failing cryptically:
+
+```text
+⚠️  MISSING REGISTRATION
+
+The AssertableHttpClient requires endpoint registration to validate HTTP calls.
+Please ensure the following registrations exist in your test setup:
+
+  1. services.AddAssertableHttpClient(configuration);
+  2. HttpClientAssertExtensions.Setup(_apiTestBase.Services);
 ```
 
 ### First test
