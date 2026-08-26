@@ -36,14 +36,10 @@ namespace Controllers.Test
                                                     (services,
                                                      configuration) =>
                                                     {
-                                                        services.AddAssertableHttpClient(configuration);
                                                     }); // Configure environment variables
 
             Client = _apiTestBase.CreateClient();
             AssertableHttpClient = _apiTestBase.Services.GetRequiredService<IAssertableHttpClient>();
-
-            // NEW: Initialize the HttpClientAssertExtensions with the service provider to enable assertion capabilities in your tests
-            HttpClientAssertExtensions.Setup(_apiTestBase.Services);
 
             AssertObjectExtensions.DifferenceFunc = TestHelpers.IgnoreIdDifferences;
         }

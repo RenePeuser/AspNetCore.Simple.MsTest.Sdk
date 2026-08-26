@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -50,7 +51,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 configuration = configurationBuilder.Build();
             });
 
-            builder.ConfigureServices(services => registerServices(services, configuration));
+            builder.ConfigureServices(services =>
+            {
+                registerServices(services, configuration);
+
+                // NEW self registration
+                services.AddAssertableHttpClient(configuration);
+
+                // NEW self setup
+                using var serviceProvider = services.BuildServiceProvider();
+                HttpClientAssertExtensions.Setup(serviceProvider);
+
+            });
 
             builder.UseEnvironment(EnvironmentName);
         }
