@@ -5,7 +5,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Controllers.Test
 {
-    [Ignore]
+    // The C# code generation feature (CSharpObjectResponseWriter / RoslynCodeManipulator) is not
+    // finished - it rewrites the test source in place and does not survive a re-run yet. These tests
+    // describe the intended behaviour and are meant to be enabled together with that feature.
+    [Ignore("C# code generation is unfinished - see CSharpObjectResponseWriter")]
     [TestClass]
     public class GenerateCSharpObjectTests : ApiTestBase
     {

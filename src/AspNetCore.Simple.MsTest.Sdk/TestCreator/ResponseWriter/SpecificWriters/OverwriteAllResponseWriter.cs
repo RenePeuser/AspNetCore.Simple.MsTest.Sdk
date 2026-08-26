@@ -43,6 +43,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var result = parameterReplacementService.ReplaceWithPlaceholders(context.CurrentResponseAsString, context.Parameters);
 
+            // An existing snapshot keeps its shape - see SnapshotShape. A file that is created right
+            // here has no shape yet and gets the envelope.
+            var targetExists = context.ExpectedResult.EmbeddedFile?.Exists ?? false;
+
+            if (targetExists)
+            {
+                result = SnapshotShape.MatchExisting(result, context.ExpectedResult.Content);
+            }
+
             //// New we can have also indexer properties. Values[0] -> Values[$Index$]
             //foreach (var parameter in context.Parameters)
             //{

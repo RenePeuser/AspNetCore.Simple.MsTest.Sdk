@@ -36,7 +36,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                              IAssertService assertService,
                                              IParameterReplacer parameterReplacementService,
                                              IWriteResponseService writeResponseService,
-                                             TestCreatorSettings testCreatorSettings,
+                                             TestSdkSettings testSdkSettings,
                                              JsonSerializerOptions jsonSerializerOptions) : IHttpAssertionStep
     {
         private const string IgnoreResponseComparison = "IgnoreResponse";
@@ -70,11 +70,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // VolatileHeaderFilter.
             var simpleHttpResponseMessage = context.HttpResponseMessage.ToJson(jsonSerializerOptions)
                                                    .FromJsonStringAs<SimpleHttpResponseMessage>(jsonSerializerOptions)
-                                                   .WithoutVolatileHeaders(testCreatorSettings);
+                                                   .WithoutVolatileHeaders(testSdkSettings);
 
             var contentHeaders = context.HttpResponseMessage.Content.Headers.ToJson(jsonSerializerOptions)
                                         .FromJsonStringAs<ImmutableList<KeyValuePair<string, ImmutableList<string>>>>(jsonSerializerOptions)
-                                        .WithoutVolatileHeaders(testCreatorSettings);
+                                        .WithoutVolatileHeaders(testSdkSettings);
 
             // Build HTTP-specific comparison structures
             var currentResponse = BuildCurrentResponse(context, simpleHttpResponseMessage);
@@ -234,7 +234,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // A snapshot recorded before volatile headers were filtered still carries them. Dropping
             // them on this side too is what keeps those snapshots green instead of failing on a
             // traceparent that can never match again.
-            //TEMPREVERT
+            expectedResultAsSimpleResponse = expectedResultAsSimpleResponse?.WithoutVolatileHeaders(testSdkSettings);
 
             // To keep the whole code compatible with existence
             if (expectedResultAsSimpleResponse.IsNull() || expectedResultAsSimpleResponse.Content.IsNull())

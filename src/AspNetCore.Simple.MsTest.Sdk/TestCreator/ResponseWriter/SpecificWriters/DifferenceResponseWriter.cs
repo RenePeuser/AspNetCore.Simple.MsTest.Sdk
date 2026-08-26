@@ -53,6 +53,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var contextParameters = context.Parameters.OrderByDescending(p => p.Value?.ToString()?.Length).ToArray();
             var currentRootAsJson = parameterReplacementService.ReplaceWithPlaceholders(context.CurrentResponseAsString, contextParameters);
 
+            // The snapshot being updated keeps the shape it has - see SnapshotShape. Both sides have to
+            // be in that same shape here, otherwise every json path of the envelope would read as a
+            // difference against a bare body and the file would be replaced wholesale.
+            currentRootAsJson = SnapshotShape.MatchExisting(currentRootAsJson, context.ExpectedResult.Content);
+
             //// New we can have also indexer properties. Values[0] -> Values[$Index$]
             //foreach (var parameter in contextParameters)
             //{

@@ -77,7 +77,13 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
                                                               "{\"content\":{\"headers\":[{\"key\":\"Content-Type\",\"value\":[\"application/json; charset=utf-8\"]}],\"value\":[{\"id\":1,\"name\":\"Son\",\"firstName\":\"Goku\",\"age\":99,\"emails\":[{\"emailAddress\":\"alf@gmx.de\",\"type\":\"GMX\"},{\"emailAddress\":\"abc@hotmail.de\",\"type\":\"Microsoft\"}]},{\"id\":2,\"name\":\"Vegeta\",\"firstName\":\"Unknown\",\"age\":77,\"emails\":[{\"emailAddress\":\"abc@gmx.de\",\"type\":\"GMX\"},{\"emailAddress\":\"maxmustermann@hotmail.de\",\"type\":\"Microsoft\"}]}]},\"statusCode\":\"OK\",\"headers\":[],\"trailingHeaders\":[],\"isSuccessStatusCode\":true}");
         }
 
-        [Ignore("Fails in CI because of formatting")]
+        /// <summary>
+        /// Used to compare the whole rendered error block against a text snapshot, which made it fail
+        /// in CI for reasons that had nothing to do with the endpoint: the block embeds the assert
+        /// source code, its line number and box drawing, so reformatting this file was enough to break
+        /// it. What the test is actually about is that a wrong response type is reported as a type
+        /// mismatch and names the type the endpoint really returns - so that is what it asserts now.
+        /// </summary>
         [TestMethod]
         [TestCategory("Native")]
         [TestCategory("GET")]
@@ -86,8 +92,17 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
             var error = await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<UnknownResponse>("api/v1/persons",
                                                                                                                             "GetAllPersons.json")).ConfigureAwait(false);
 
-            Assert.That.ObjectsAreEqual(expectedObjectAsJson: "InvalidResponseType.txt",
-                                        currentObject: error.Message);
+            StringAssert.Contains(error.Message, "HTTP RESPONSE TYPE MISMATCH");
+
+            // The declared type and the one the endpoint returns - without both the message is useless.
+            StringAssert.Contains(error.Message, nameof(UnknownResponse));
+            StringAssert.Contains(error.Message, "IEnumerable<Person>");
+
+            // And it has to say what to do about it.
+            StringAssert.Contains(error.Message, "Suggested Fix");
+
+            // No request may go out - the mismatch is caught by endpoint validation beforehand.
+            StringAssert.Contains(error.Message, "No HTTP call was made");
         }
 
         [TestMethod]

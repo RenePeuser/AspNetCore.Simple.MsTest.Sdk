@@ -9,7 +9,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     internal static class DifferenceExtensions
     {
-        private static readonly TestCreatorSettings TestCreatorSettings = new();
+        private static readonly TestSdkSettings TestSdkSettings = new();
 
         internal static string ToResultTable(this ImmutableList<Difference> differences,
                                              string objectName1,
@@ -22,9 +22,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (!AssertObjectExtensions.ResponseFileFullPath)
             {
-                var matched = TestCreatorSettings.ResponseFolderName;
+                var matched = TestSdkSettings.ResponseFolderName;
 
-                foreach (var legacyResponseFolderName in TestCreatorSettings.LegacyResponseFolderNames)
+                foreach (var legacyResponseFolderName in TestSdkSettings.LegacyResponseFolderNames)
                 {
                     if (objectName1.Contains($".{legacyResponseFolderName}."))
                     {

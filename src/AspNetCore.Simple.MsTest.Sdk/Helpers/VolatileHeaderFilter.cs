@@ -7,7 +7,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 {
     /// <summary>
     /// Removes the response headers that change on every call - see
-    /// <see cref="TestCreatorSettings.VolatileHeaderNames"/>.
+    /// <see cref="TestSdkSettings.VolatileHeaderNames"/>.
     ///
     /// Applied to BOTH sides of a comparison and to whatever is written to disk. Doing it on one side
     /// only would trade recording noise for a permanently red test, and doing it at write time only
@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
     {
         public static ImmutableList<KeyValuePair<string, ImmutableList<string>>> WithoutVolatileHeaders(
             this ImmutableList<KeyValuePair<string, ImmutableList<string>>>? headers,
-            TestCreatorSettings settings)
+            TestSdkSettings settings)
         {
             if (headers.IsNull() || headers.IsEmpty)
             {
@@ -37,7 +37,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
         }
 
         public static SimpleHttpResponseMessage WithoutVolatileHeaders(this SimpleHttpResponseMessage message,
-                                                                       TestCreatorSettings settings)
+                                                                       TestSdkSettings settings)
         {
             return message with
                    {

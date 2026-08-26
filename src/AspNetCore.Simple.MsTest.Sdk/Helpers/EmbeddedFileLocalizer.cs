@@ -21,7 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void AddEmbeddedFileLocalizer(this IServiceCollection services,
                                                     IConfiguration configuration)
         {
-            services.AddTestCreatorSettings(configuration);
+            services.AddTestSdkSettings(configuration);
             services.AddSourceCodeExtractor();
             services.AddResourceRootNamespaceResolver();
 
@@ -98,7 +98,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         EmbeddedFileInfo LocalizeResponseFile(IObjectAssertContext context);
     }
 
-    internal sealed class EmbeddedFileLocalizer(TestCreatorSettings settings,
+    internal sealed class EmbeddedFileLocalizer(TestSdkSettings settings,
                                                 JsonSerializerOptions jsonSerializerOptions,
                                                 ITextDecorator textDecorator,
                                                 ISourceCodeExtractor sourceCodeExtractor,

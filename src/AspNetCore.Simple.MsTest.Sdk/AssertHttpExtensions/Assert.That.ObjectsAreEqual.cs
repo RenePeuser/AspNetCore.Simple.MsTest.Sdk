@@ -72,7 +72,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             .ToImmutableList();
         }
 
-        private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions, new PlainTextDecorator(),
+        private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestSdkSettings(), JsonSerializerOptions, new PlainTextDecorator(),
                                                                                                         new SourceCodeExtractor(),
                                                                                                         new ResourceRootNamespaceResolver());
 

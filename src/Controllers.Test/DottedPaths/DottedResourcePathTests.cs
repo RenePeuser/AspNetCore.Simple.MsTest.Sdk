@@ -80,7 +80,7 @@ namespace Controllers.Test.DottedPaths
         private static EmbeddedFileInfo Localize(string reference,
                                                  [CallerFilePath] string callerFilePath = "")
         {
-            var localizer = new EmbeddedFileLocalizer(new TestCreatorSettings(),
+            var localizer = new EmbeddedFileLocalizer(new TestSdkSettings(),
                                                       new JsonSerializerOptions(),
                                                       new PlainTextDecorator(),
                                                       new SourceCodeExtractor(),

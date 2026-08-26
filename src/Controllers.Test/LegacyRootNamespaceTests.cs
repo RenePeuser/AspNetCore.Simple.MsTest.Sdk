@@ -133,7 +133,7 @@ namespace Controllers.Test
 
         private static EmbeddedFileLocalizer CreateLocalizer()
         {
-            return new EmbeddedFileLocalizer(new TestCreatorSettings(),
+            return new EmbeddedFileLocalizer(new TestSdkSettings(),
                                              new JsonSerializerOptions(),
                                              new PlainTextDecorator(),
                                              new SourceCodeExtractor(),

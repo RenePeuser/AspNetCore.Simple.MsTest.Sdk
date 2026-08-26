@@ -44,26 +44,7 @@
     ]
   },
   "statusCode": "OK",
-  "headers": [
-    {
-      "key": "traceparent",
-      "value": [
-        "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
-      ]
-    },
-    {
-      "key": "X-Amzn-Trace-Id",
-      "value": [
-        "Root=1-67891233-abcdef012345678912345678"
-      ]
-    },
-    {
-      "key": "Date",
-      "value": [
-        "Tue, 26 Aug 2025 09:14:07 GMT"
-      ]
-    }
-  ],
+  "headers": [],
   "trailingHeaders": [],
   "isSuccessStatusCode": true
 }
