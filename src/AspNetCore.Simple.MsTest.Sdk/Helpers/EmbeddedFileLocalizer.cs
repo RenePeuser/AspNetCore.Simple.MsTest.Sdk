@@ -357,7 +357,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     // writer without a target path, so a brand new snapshot referenced in dotted form
                     // could never be created. Qualify it with the caller context instead - exactly what
                     // the plain file name branch below does.
-                    return ($"{contextPrefix}.{trimmed}", false);
+                    return (JoinWithoutOverlap(contextPrefix, trimmed), false);
 
                     //    throw new InvalidOperationException($"""
                     //                                         Absolute embedded resource not found.
