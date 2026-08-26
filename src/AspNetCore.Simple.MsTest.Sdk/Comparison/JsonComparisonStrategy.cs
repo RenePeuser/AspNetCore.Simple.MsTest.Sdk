@@ -72,7 +72,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
                 throw new InvalidOperationException($"JsonComparisonStrategy can only compare objects, but was asked to compare {typeof(T).Name}");
             }
 
-            var jsonSerializerOptions = _jsonSerializerOptionsProvider();
+            // Dictionary keys are data, not clr member names - see ComparisonJsonOptions. Renaming them
+            // on the expected side only is what makes a dictionary payload permanently red.
+            var jsonSerializerOptions = _jsonSerializerOptionsProvider().ForComparison();
 
             var currentObject = context.CurrentObject;
 

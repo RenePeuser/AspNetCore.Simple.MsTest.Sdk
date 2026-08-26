@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "name": "Son",
+    "firstName": "Stale",
+    "age": 1,
+    "emails": [
+      {
+        "emailAddress": "alf@gmx.de",
+        "type": "GMX"
+      },
+      {
+        "emailAddress": "abc@hotmail.de",
+        "type": "Microsoft"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Vegeta",
+    "firstName": "Unknown",
+    "age": 77,
+    "emails": [
+      {
+        "emailAddress": "abc@gmx.de",
+        "type": "GMX"
+      },
+      {
+        "emailAddress": "maxmustermann@hotmail.de",
+        "type": "Microsoft"
+      }
+    ]
+  }
+]

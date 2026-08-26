@@ -79,21 +79,30 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                              context.DifferenceFunc,
                                                                              context.DifferenceFilter);
 
-            var ignoredPaths = diffs.Except(finalDiffs)
-                                    .Select(diff => diff.MemberPath)
-                                    .Where(path => path.IsNullOrWhiteSpace().IsFalse())
-                                    .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+            var ignoredDifferences = diffs.Except(finalDiffs)
+                                          .Where(difference => difference.MemberPath.IsNullOrWhiteSpace().IsFalse());
 
             var resultRoot = currentRoot.DeepClone();
 
-            // For ignored paths we keep the expected snapshot state to avoid noise.
-            foreach (var ignoredPath in ignoredPaths)
+            // An ignored difference is not compared, so its current value must not reach the file -
+            // it would produce a diff on every single re-record for a property the author declared
+            // uninteresting, and that noise is what buries the real changes in a review.
+            foreach (var ignoredDifference in ignoredDifferences)
             {
-                var source = expectedRoot.SelectToken(ignoredPath);
+                // The response carries a property the snapshot never had. There is no snapshot value
+                // to keep, so the only way not to record it is to drop it from the result.
+                if (ignoredDifference.MismatchType == MismatchType.MissingInFirst)
+                {
+                    jsonPathWriter.Remove(resultRoot, ignoredDifference.MemberPath);
+
+                    continue;
+                }
+
+                var source = MemberPathQuery.SelectToken(expectedRoot, ignoredDifference.MemberPath);
 
                 if (source != null)
                 {
-                    jsonPathWriter.AddOrUpdate(resultRoot, ignoredPath, source);
+                    jsonPathWriter.AddOrUpdate(resultRoot, ignoredDifference.MemberPath, source);
                 }
             }
 

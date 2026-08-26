@@ -21,6 +21,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         internal static partial Regex IndexReplacement();
 
         /// <summary>
+        /// Matches the key indexer JsonDiffer produces for key-value arrays: ["theme"] in
+        /// settings["theme"].Value. Captures the key without its quotes in group 1.
+        /// See MemberPathQuery - the segment is its own notation and has to be translated
+        /// before Newtonsoft can resolve it.
+        /// </summary>
+        [GeneratedRegex(@"\[""([^""]*)""\]")]
+        internal static partial Regex KeyIndexer();
+
+        /// <summary>
         /// Matches Assert method names followed by opening parenthesis.
         /// Examples: AssertGetAsync(, AssertPostAsync(, AssertDeleteAsync(, etc.
         /// Captures the method name in group 1.

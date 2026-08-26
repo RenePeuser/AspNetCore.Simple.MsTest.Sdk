@@ -37,9 +37,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                              IParameterReplacer parameterReplacementService,
                                              IWriteResponseService writeResponseService,
                                              TestSdkSettings testSdkSettings,
-                                             JsonSerializerOptions jsonSerializerOptions) : IHttpAssertionStep
+                                             JsonSerializerOptions apiJsonSerializerOptions) : IHttpAssertionStep
     {
         private const string IgnoreResponseComparison = "IgnoreResponse";
+
+        /// <summary>
+        /// The current side of the diff is the raw response body, so nothing on this side may rename
+        /// anything the api did not rename itself - see <see cref="ComparisonJsonOptions"/>.
+        /// </summary>
+        private readonly JsonSerializerOptions jsonSerializerOptions = apiJsonSerializerOptions.ForComparison();
 
         /// <inheritdoc />
         public void Execute<TResult>(HttpResponseContext<TResult> context)

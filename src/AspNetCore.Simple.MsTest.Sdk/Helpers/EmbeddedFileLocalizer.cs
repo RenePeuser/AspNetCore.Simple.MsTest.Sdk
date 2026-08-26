@@ -463,6 +463,46 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return (matches[0], true);
         }
 
+        /// <summary>
+        /// Qualifies a dotted reference with the caller context without repeating what both already
+        /// say. A reference is written the way the file is reached from somewhere above the test, so
+        /// it usually repeats the folders the test itself sits in: a test in
+        /// <c>API\BridgeReporting\V1</c> references <c>BridgeReporting.V1.Results.Filter.json</c>.
+        /// While that file is embedded it is found by name and the context never comes into play -
+        /// but the moment it is not (a snapshot about to be recorded for the first time), a blind
+        /// concatenation writes it to <c>API\BridgeReporting\V1\BridgeReporting\V1\Results</c>, next
+        /// to the folder the reference means, where nothing will ever read it again.
+        ///
+        /// So the overlap between the end of the context and the start of the reference is written
+        /// once. The last two segments (name and extension) are never treated as folders.
+        /// </summary>
+        private static string JoinWithoutOverlap(string contextPrefix,
+                                                 string dottedReference)
+        {
+            if (contextPrefix.IsNullOrWhiteSpace())
+            {
+                return dottedReference;
+            }
+
+            var contextSegments = contextPrefix.Split('.');
+            var referenceSegments = dottedReference.Split('.');
+
+            var maxOverlap = Math.Min(contextSegments.Length, referenceSegments.Length - 2);
+
+            for (var overlap = maxOverlap; overlap > 0; overlap--)
+            {
+                var contextTail = contextSegments.Skip(contextSegments.Length - overlap);
+                var referenceHead = referenceSegments.Take(overlap);
+
+                if (contextTail.SequenceEqual(referenceHead, StringComparer.OrdinalIgnoreCase))
+                {
+                    return $"{contextPrefix}.{string.Join('.', referenceSegments.Skip(overlap))}";
+                }
+            }
+
+            return $"{contextPrefix}.{dottedReference}";
+        }
+
         private static bool EndsWithFileName(string resourceName,
                                              string fileName)
         {
