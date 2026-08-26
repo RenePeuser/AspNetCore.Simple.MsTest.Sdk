@@ -10,4 +10,7 @@ namespace Controllers.Api.Persons
 
     public sealed record Email(string EmailAddress,
                                string Type);
+
+    /// <summary>Response of the echo-header action — carries back the correlation id it received.</summary>
+    public sealed record EchoHeaderResponse(string CorrelationId);
 }

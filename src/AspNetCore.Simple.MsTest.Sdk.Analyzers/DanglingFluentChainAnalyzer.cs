@@ -36,7 +36,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers
                                                                 "Reliability",
                                                                 DiagnosticSeverity.Error,
                                                                 true,
-                                                                "A fluent HTTP assertion chain must end with 'ExecuteAsync()'. A dangling builder expression is never sent, so the test is silently green.");
+                                                                "A fluent HTTP assertion chain must end with 'ExecuteAsync()'. A dangling builder expression is never sent, so the test is silently green. The same diagnostic also covers configuration applied to a stored builder AFTER it already ran ('await chain.ExecuteAsync(); chain.IgnoreProperty(…);') — that call configures nothing, because the request has gone out.");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 

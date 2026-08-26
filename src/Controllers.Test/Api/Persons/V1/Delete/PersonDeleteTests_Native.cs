@@ -14,7 +14,7 @@ namespace Controllers.Test.Api.Persons.V1.Delete
     [TestClass]
     [TestCategory("Controller")]
     [TestCategory("DELETE")]
-    public class PersonDeleteTests : ApiTestBase
+    public partial class PersonDeleteTests : ApiTestBase
     {
         // ============================================================
         // DELETE - 204 No Content (without response body)

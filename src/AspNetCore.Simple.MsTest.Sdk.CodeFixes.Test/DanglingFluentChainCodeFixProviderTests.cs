@@ -49,8 +49,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
                                       public async Task Run()
                                       {
                                           [|Client.AssertPost("api/persons")
-                                              .Returns<Person>(new Person())
-                                              .ExpectingStatus(HttpStatusCode.Created);|]
+                                              .Accepts(new Person())
+                                              .Produces<Person>(HttpStatusCode.Created);|]
                                       }
                                   }
                               }
@@ -68,8 +68,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
                                            public async Task Run()
                                            {
                                                await Client.AssertPost("api/persons")
-                                                   .Returns<Person>(new Person())
-                                                   .ExpectingStatus(HttpStatusCode.Created).ExecuteAsync();
+                                                   .Accepts(new Person())
+                                                   .Produces<Person>(HttpStatusCode.Created).ExecuteAsync();
                                            }
                                        }
                                    }
@@ -96,8 +96,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
                                       public void Run()
                                       {
                                           [|Client.AssertGet("api/persons")
-                                              .ExpectingResponse()
-                                              .ExpectingSuccess();|]
+                                              .WithHeader("X-Trace", "1")
+                                              .Produces(HttpStatusCode.NoContent);|]
                                       }
                                   }
                               }
@@ -114,8 +114,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
                                            public async Task Run()
                                            {
                                                await Client.AssertGet("api/persons")
-                                                   .ExpectingResponse()
-                                                   .ExpectingSuccess().ExecuteAsync();
+                                                   .WithHeader("X-Trace", "1")
+                                                   .Produces(HttpStatusCode.NoContent).ExecuteAsync();
                                            }
                                        }
                                    }
@@ -144,8 +144,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
                                           void Inner()
                                           {
                                               [|Client.AssertGet("api/persons")
-                                                  .ExpectingResponse()
-                                                  .ExpectingSuccess();|]
+                                                  .WithHeader("X-Trace", "1")
+                                                  .Produces(HttpStatusCode.NoContent);|]
                                           }
                                       }
                                   }
@@ -165,8 +165,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
                                                async Task Inner()
                                                {
                                                    await Client.AssertGet("api/persons")
-                                                       .ExpectingResponse()
-                                                       .ExpectingSuccess().ExecuteAsync();
+                                                       .WithHeader("X-Trace", "1")
+                                                       .Produces(HttpStatusCode.NoContent).ExecuteAsync();
                                                }
                                            }
                                        }
@@ -194,8 +194,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
                                   {
                                       public async Task Run()
                                       {
-                                          [|Client.AssertPost("api/persons").Returns<Person>(new Person()).ExpectingSuccess();|]
-                                          [|Client.AssertGet("api/persons").ExpectingResponse().ExpectingSuccess();|]
+                                          [|Client.AssertPost("api/persons").Accepts(new Person()).Produces<Person>(HttpStatusCode.Created);|]
+                                          [|Client.AssertGet("api/persons").Produces(HttpStatusCode.NoContent);|]
                                       }
                                   }
                               }
@@ -212,8 +212,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
                                        {
                                            public async Task Run()
                                            {
-                                               await Client.AssertPost("api/persons").Returns<Person>(new Person()).ExpectingSuccess().ExecuteAsync();
-                                               await Client.AssertGet("api/persons").ExpectingResponse().ExpectingSuccess().ExecuteAsync();
+                                               await Client.AssertPost("api/persons").Accepts(new Person()).Produces<Person>(HttpStatusCode.Created).ExecuteAsync();
+                                               await Client.AssertGet("api/persons").Produces(HttpStatusCode.NoContent).ExecuteAsync();
                                            }
                                        }
                                    }

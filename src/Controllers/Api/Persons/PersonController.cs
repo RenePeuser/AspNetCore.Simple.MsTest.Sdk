@@ -133,6 +133,21 @@ namespace Controllers.Api.Persons
             return Ok(person);
         }
 
+        /// <summary>
+        /// Reflects a custom request header back in the response body.
+        /// Exists so a test can PROVE that a request header actually left the client — custom headers
+        /// used to be dropped silently on the typed assertion path, and no test could catch it because
+        /// no action ever looked at one.
+        /// </summary>
+        [HttpGet("echo-header")]
+        [ProducesResponseType(typeof(EchoHeaderResponse), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
+        public EchoHeaderResponse EchoHeader([FromHeader(Name = "X-Correlation-Id")] string? correlationId = null)
+        {
+            return new EchoHeaderResponse(correlationId ?? "(absent)");
+        }
+
         [HttpDelete("{id}")]
         [ProducesResponseType(statusCode: 204)]
         [ProducesResponseType(typeof(ProblemDetails), statusCode: 404)]

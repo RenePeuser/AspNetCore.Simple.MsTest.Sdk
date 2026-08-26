@@ -56,9 +56,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         {
             var source = InMethod("""
                                               {|#0:Client.AssertPost("api/persons")
-                                                  .WithBody(new Person())
-                                                  .Returns<Person>(new Person())
-                                                  .ExpectingStatus(HttpStatusCode.Created);|}
+                                                  .Accepts(new Person())
+                                                  .Produces<Person>(HttpStatusCode.Created)
+                                                  .ExpectedResponse(new Person());|}
                                   """);
 
             return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
@@ -69,8 +69,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         {
             var source = InMethod("""
                                               {|#0:Client.AssertGet("api/persons")
-                                                  .ExpectingResponse()
-                                                  .ExpectingSuccess();|}
+                                                  .Produces(HttpStatusCode.NoContent);|}
                                   """);
 
             return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
@@ -81,7 +80,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         {
             // Even a bare request builder carries [FluentBuilder] → still a dangling, unsent chain.
             var source = InMethod("""
-                                              {|#0:Client.AssertPost("api/persons").WithBody(new Person());|}
+                                              {|#0:Client.AssertPost("api/persons").Accepts(new Person());|}
                                   """);
 
             return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
@@ -96,8 +95,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         {
             var source = InMethod("""
                                               await Client.AssertPost("api/persons")
-                                                  .Returns<Person>(new Person())
-                                                  .ExpectingStatus(HttpStatusCode.Created)
+                                                  .Accepts(new Person())
+                                                  .Produces<Person>(HttpStatusCode.Created)
                                                   .ExecuteAsync();
                                   """);
 
@@ -109,7 +108,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         {
             // Stored-then-terminated-later pattern: deliberately NOT flagged (avoids false positives).
             var source = InMethod("""
-                                              var chain = Client.AssertPost("api/persons").Returns<Person>(new Person());
+                                              var chain = Client.AssertPost("api/persons").Produces<Person>(HttpStatusCode.Created);
                                               await chain.ExecuteAsync();
                                   """);
 
@@ -137,6 +136,26 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
                            """;
 
             return VerifyAsync(source);
+        }
+        // ---------------------------------------------------------------
+        // Dead configuration AFTER the terminal — what DESIGN_VISION §5 sketched as MSTESTSDK003.
+        // No separate diagnostic is needed: the direct form does not compile (ExecuteAsync returns a
+        // Task, which has no builder members), and the only reachable form — configuring a stored
+        // builder after it ran — is already a dangling builder expression statement, so 001 catches it.
+        // ---------------------------------------------------------------
+
+        [TestMethod]
+        public Task Fires_On_Configuration_After_The_Chain_Already_Ran()
+        {
+            var source = InMethod("""
+                                              var chain = Client.AssertPost("api/persons")
+                                                  .Produces<Person>(HttpStatusCode.Created)
+                                                  .ExpectedResponse(new Person());
+                                              await chain.ExecuteAsync();
+                                              {|#0:chain.WriteSnapshot();|}
+                                  """);
+
+            return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
         }
     }
 }

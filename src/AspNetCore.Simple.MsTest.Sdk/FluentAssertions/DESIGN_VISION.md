@@ -154,7 +154,14 @@ Fundament, nicht Beiwerk.
       eine Ebene tiefer). Nicht gemeldet: `await`, `return`, Zuweisung und explizites `_ =`.
       Wichtiger als „bessere Message als CS4014": in einer **synchronen** Testmethode gibt es gar
       keine CS4014 — der Test ist dann still grün, auch bei falscher Erwartung.
-    - `MSTESTSDK003` (Info): unerreichbare Konfiguration nach `ExecuteAsync()`.
+    - ~~`MSTESTSDK003` (Info): unerreichbare Konfiguration nach `ExecuteAsync()`~~ — **nicht nötig,
+      bereits abgedeckt.** Die direkte Form (`….ExecuteAsync().IgnoreProperty(…)`) kompiliert gar
+      nicht: `ExecuteAsync()` liefert `Task<T>`, und darauf gibt es keine Builder-Member — der
+      Type-State erledigt das ohne Analyzer. Die einzige erreichbare Form ist der gespeicherte
+      Builder (`await chain.ExecuteAsync(); chain.WriteSnapshot();`), und die ist bereits ein
+      dangling Builder-Expression-Statement → **MSTESTSDK001 feuert dort schon** (Test:
+      `Fires_On_Configuration_After_The_Chain_Already_Ran`). Nur die Message nannte den zweiten Fall
+      nicht; das steht jetzt in der Description der Regel.
 - **CodeFix:** siehe §5.1 — eigener `CodeFixProvider`, der die Terminals automatisch repariert.
 - **Auslieferung:** als Analyzer-Asset im NuGet-Paket, damit er automatisch mitkommt.
 
