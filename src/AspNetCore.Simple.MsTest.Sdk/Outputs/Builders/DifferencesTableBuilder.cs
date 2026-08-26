@@ -212,7 +212,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             stringBuilder.AppendLine(textDecorator.Dim($"  {label}:"));
 
-            foreach (var line in Prettify(value!).Split('\n'))
+            foreach (var line in Prettify(value).Split('\n'))
             {
                 stringBuilder.AppendLine($"    {line.TrimEnd('\r')}");
             }
@@ -588,7 +588,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // Replace all newlines with spaces
-            var compressed = value!
+            var compressed = value
                              .Replace("\r\n", " ")
                              .Replace("\n", " ")
                              .Replace("\r", " ")

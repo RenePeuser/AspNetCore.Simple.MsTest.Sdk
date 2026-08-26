@@ -196,7 +196,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         };
 
         private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions, new PlainTextDecorator(),
-                                                                                                 new SourceCodeExtractor());
+                                                                                                 new SourceCodeExtractor(),
+                                                                                                 new ResourceRootNamespaceResolver());
 
         private static JsonSerializer _jsonSerializerInstance = new(JsonSerializerOptions);
 
@@ -624,8 +625,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var apiVersion = _apiVersionResolver.Resolve(url, client);
 
             // PROTOTYPE: Detect empty anonymous object for code generation
-            // Use provided detection result or fallback to JSON check
-            var detectedIsEmptyAnonymous = isEmptyAnonymous ?? (resolvedExpectedJson == "{}");
+            // Use provided detection result or fallback to JSON check.
+            // A snapshot FILE whose content happens to be "{}" is not an inline empty anonymous
+            // object - it is an empty snapshot waiting to be written. Treating it as one routes the
+            // request to the C# writer, which refuses *.json, while both json writers refuse the
+            // generator mode: no writer claims the request and the snapshot is silently never written.
+            var expectationIsSnapshotFile = expectedResultFile.EmbeddedFileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+
+            var detectedIsEmptyAnonymous = (isEmptyAnonymous ?? (resolvedExpectedJson == "{}")) &&
+                                           expectationIsSnapshotFile.IsFalse();
             Console.WriteLine($"[HttpCall] resolvedExpectedJson='{resolvedExpectedJson}', isEmptyAnonymous={detectedIsEmptyAnonymous} (provided={isEmptyAnonymous})");
 
             // Create public context directly - no need for internal context

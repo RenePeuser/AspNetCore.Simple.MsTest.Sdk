@@ -26,40 +26,33 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     /// Note: Does NOT inherit from ComparisonStrategyBase because it handles multiple types (not type-specific).
     /// Should be registered LAST in DI so specific strategies are checked first.
     /// </summary>
-    internal sealed class JsonComparisonStrategy : ISpecificComparisonStrategy
+    /// <remarks>
+    /// Reads the options per comparison instead of capturing them once.
+    /// </remarks>
+    /// <remarks>
+    /// The static holders in <c>HttpClientAssertExtensions</c> and <c>AssertObjectExtensions</c>
+    /// build their strategy in a field initializer, long before a test assigns the api's
+    /// <see cref="JsonSerializerOptions"/>. An instance captured there stays the SDK default
+    /// forever - and the default knows nothing about the api's polymorphic type hierarchies, so
+    /// the expected side would silently be written as the declared base type while the current
+    /// side, a raw JsonElement, keeps everything the api wrote. That shows up as the derived
+    /// properties "missing in expected", not as a serialization error.
+    /// </remarks>
+    internal sealed class JsonComparisonStrategy(IJsonDiffer jsonDiffer,
+                                  Serializer.Json.JsonSerializer jsonSerializer,
+                                  Func<JsonSerializerOptions> jsonSerializerOptionsProvider) : ISpecificComparisonStrategy
     {
-        private readonly IJsonDiffer _jsonDiffer;
+        private readonly IJsonDiffer _jsonDiffer = jsonDiffer;
 
-        private readonly Serializer.Json.JsonSerializer _jsonSerializer;
+        private readonly Serializer.Json.JsonSerializer _jsonSerializer = jsonSerializer;
 
-        private readonly Func<JsonSerializerOptions> _jsonSerializerOptionsProvider;
+        private readonly Func<JsonSerializerOptions> _jsonSerializerOptionsProvider = jsonSerializerOptionsProvider;
 
         public JsonComparisonStrategy(IJsonDiffer jsonDiffer,
                                       Serializer.Json.JsonSerializer jsonSerializer,
                                       JsonSerializerOptions jsonSerializerOptions)
             : this(jsonDiffer, jsonSerializer, () => jsonSerializerOptions)
         {
-        }
-
-        /// <summary>
-        /// Reads the options per comparison instead of capturing them once.
-        /// </summary>
-        /// <remarks>
-        /// The static holders in <c>HttpClientAssertExtensions</c> and <c>AssertObjectExtensions</c>
-        /// build their strategy in a field initializer, long before a test assigns the api's
-        /// <see cref="JsonSerializerOptions"/>. An instance captured there stays the SDK default
-        /// forever - and the default knows nothing about the api's polymorphic type hierarchies, so
-        /// the expected side would silently be written as the declared base type while the current
-        /// side, a raw JsonElement, keeps everything the api wrote. That shows up as the derived
-        /// properties "missing in expected", not as a serialization error.
-        /// </remarks>
-        public JsonComparisonStrategy(IJsonDiffer jsonDiffer,
-                                      Serializer.Json.JsonSerializer jsonSerializer,
-                                      Func<JsonSerializerOptions> jsonSerializerOptionsProvider)
-        {
-            _jsonDiffer = jsonDiffer;
-            _jsonSerializer = jsonSerializer;
-            _jsonSerializerOptionsProvider = jsonSerializerOptionsProvider;
         }
 
         public bool CanCompare<T>(ObjectAssertContext<T> context)

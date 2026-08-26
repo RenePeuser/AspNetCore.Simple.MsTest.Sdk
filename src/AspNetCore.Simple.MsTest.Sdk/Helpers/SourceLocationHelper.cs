@@ -250,7 +250,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
             return null;
         }
 
-        private static string? FindFirstCsprojDirectory(string startDirectory)
+        internal static string? FindFirstCsprojDirectory(string startDirectory)
         {
             var directory = startDirectory;
 

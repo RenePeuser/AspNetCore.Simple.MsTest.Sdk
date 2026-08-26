@@ -94,7 +94,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // and a json writer would both claim the request and ResponseWriter throws.
                 var isDebugMode = context.CallingAssembly.IsCompiledInDebug();
 
-                var mode = isDebugMode && context.IsEmptyAnonymousObjectForCodeGeneration
+                // Mirrors CSharpObjectResponseWriter.CanHandle. Without the *.json guard a snapshot
+                // could end up in a mode no writer accepts, and ResponseWriter would silently no-op.
+                var expectationIsSnapshotFile = context.ExpectedResultFile
+                                                       .EmbeddedFileName
+                                                       .EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+
+                var mode = isDebugMode && context.IsEmptyAnonymousObjectForCodeGeneration && expectationIsSnapshotFile.IsFalse()
                                ? ResponseWriteMode.GenerateCSharpObject
                                : (context.ExpectedResultFile.EmbeddedFile?.Exists ?? false)
                                    ? ResponseWriteMode.DifferencesOnly

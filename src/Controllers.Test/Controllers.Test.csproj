@@ -7,7 +7,14 @@
     <!--Embedded files area-->
     <ItemGroup>
         <EmbeddedResource Include="**\*.txt" Exclude="bin\**\*;obj\**\*"/>
-        <EmbeddedResource Include="**\*.json" Exclude="bin\**\*;obj\**\*;appsettings*.json"/>
+        <EmbeddedResource Include="**\*.json" Exclude="bin\**\*;obj\**\*;appsettings*.json;Legacy\**\*"/>
+
+        <!-- Regression fixture for legacy projects whose RootNamespace differs from the AssemblyName.
+             LogicalName pins a resource name that does NOT start with "Controllers.Test.", so the
+             resource name cannot be mapped to its file on disk by stripping the assembly name.
+             See IResourceRootNamespaceResolver / LegacyRootNamespaceTests. -->
+        <EmbeddedResource Include="Legacy\V1\Results\LegacyRootNamespace.json"
+                          LogicalName="Pulse.Legacy.Root.Legacy.V1.Results.LegacyRootNamespace.json"/>
         <EmbeddedResource Include="**\*.sh" Exclude="bin\**\*;obj\**\*"/>
     </ItemGroup>
 

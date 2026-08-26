@@ -71,7 +71,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions, new PlainTextDecorator(),
-                                                                                                        new SourceCodeExtractor());
+                                                                                                        new SourceCodeExtractor(),
+                                                                                                        new ResourceRootNamespaceResolver());
 
         private static readonly Serializer.Json.JsonSerializer JsonSerializer = new(JsonSerializerOptions);
 

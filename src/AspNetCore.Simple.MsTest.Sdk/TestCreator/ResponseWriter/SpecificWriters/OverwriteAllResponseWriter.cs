@@ -49,7 +49,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             //    result = GlobalRegex.IndexReplacement().Replace(result, $"[{parameter.key}]");
             //}
 
-            File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName, Indent(result));
+            var targetFile = context.ExpectedResult.EmbeddedFile!;
+
+            // A brand new snapshot can sit in a folder that does not exist yet.
+            if (targetFile.Directory is { Exists: false })
+            {
+                targetFile.Directory.Create();
+            }
+
+            File.WriteAllText(targetFile.FullName, Indent(result));
         }
 
         /// <summary>
@@ -62,11 +70,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             try
             {
                 using var reader = new JsonTextReader(new StringReader(json))
-                                   {
-                                       // Keep dates, times and big numbers exactly as the api wrote them.
-                                       DateParseHandling = DateParseHandling.None,
-                                       FloatParseHandling = FloatParseHandling.Decimal
-                                   };
+                {
+                    // Keep dates, times and big numbers exactly as the api wrote them.
+                    DateParseHandling = DateParseHandling.None,
+                    FloatParseHandling = FloatParseHandling.Decimal
+                };
 
                 return JToken.Load(reader).ToString(Formatting.Indented);
             }

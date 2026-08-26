@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +23,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             services.AddTestCreatorSettings(configuration);
             services.AddSourceCodeExtractor();
+            services.AddResourceRootNamespaceResolver();
 
             services.AddSingletonIfNotExists<IEmbeddedFileLocalizer, EmbeddedFileLocalizer>();
         }
@@ -89,7 +91,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class EmbeddedFileLocalizer(TestCreatorSettings settings,
                                                 JsonSerializerOptions jsonSerializerOptions,
                                                 ITextDecorator textDecorator,
-                                                ISourceCodeExtractor sourceCodeExtractor)
+                                                ISourceCodeExtractor sourceCodeExtractor,
+                                                IResourceRootNamespaceResolver rootNamespaceResolver)
         : IEmbeddedFileLocalizer
     {
         // ============================================================
@@ -255,7 +258,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (physicalFile.IsNull())
             {
-                return new EmbeddedFileInfo(embeddedResource.EmbeddedFile, input, null);
+                // No source folder on this machine (or the name does not belong to this assembly).
+                // The embedded copy is still the better content than echoing the file name back.
+                var embeddedContent = embeddedResource.Exist
+                                          ? assembly.GetFileContentOrDefaultFrom(embeddedResource.EmbeddedFile)
+                                          : null;
+
+                return new EmbeddedFileInfo(embeddedResource.EmbeddedFile,
+                                            embeddedContent ?? input,
+                                            null);
             }
 
             if (physicalFile.NotExists())
@@ -506,15 +517,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // Context Prefix Builder
         // ============================================================
 
-        private static string BuildContextPrefix(string callerFilePath,
-                                                 Assembly assembly)
+        private string BuildContextPrefix(string callerFilePath,
+                                          Assembly assembly)
         {
             var projectFolder = FindProjectFolder(new FileInfo(callerFilePath).Directory,
                                                   assembly);
 
+            // Resource names are built from the RootNamespace, which is only by default the
+            // assembly name - see IResourceRootNamespaceResolver.
+            var rootNamespace = rootNamespaceResolver.ResolveForAssembly(assembly, projectFolder);
+
             if (projectFolder is null)
             {
-                return assembly.GetName().Name + ".";
+                return rootNamespace;
             }
 
             var relativePath = Path.GetRelativePath(projectFolder.FullName,
@@ -524,7 +539,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                 .Replace(Path.DirectorySeparatorChar, '.')
                                 .Trim('.');
 
-            return assembly.GetName().Name + "." + namespacePath;
+            // The caller sits in the project root - there is no folder part to append.
+            return namespacePath.IsNullOrWhiteSpace()
+                       ? rootNamespace
+                       : rootNamespace + "." + namespacePath;
         }
 
         // ============================================================
@@ -544,7 +562,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             var (relativeFolder, fileName) =
-                ParseResourcePath(resourceName, assembly);
+                ParseResourcePath(resourceName, assembly, projectFolder);
 
             if (relativeFolder is null)
             {
@@ -555,29 +573,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         relativeFolder,
                                         fileName);
 
-            var fileInfo = new FileInfo(fullPath);
-
-            if (!fileInfo.Directory!.Exists)
-            {
-                fileInfo.Directory.Create();
-            }
-
-            return fileInfo;
+            // The directory is created by the writer that actually needs it - looking a snapshot up
+            // must not litter the source tree with empty folders.
+            return new FileInfo(fullPath);
         }
 
-        private static (string? folder, string fileName)
+        private (string? folder, string fileName)
             ParseResourcePath(string resourceName,
-                              Assembly assembly)
+                              Assembly assembly,
+                              DirectoryInfo? projectFolder)
         {
-            var prefix = assembly.GetName().Name + ".";
+            var rootNamespace = rootNamespaceResolver.ResolveForResource(resourceName, assembly, projectFolder);
 
-            if (!resourceName.StartsWith(prefix,
-                                         StringComparison.OrdinalIgnoreCase))
+            if (rootNamespace.IsNullOrWhiteSpace())
             {
                 return (null, resourceName);
             }
 
-            var relative = resourceName[prefix.Length..];
+            var relative = resourceName[(rootNamespace.Length + 1)..];
             var parts = relative.Split('.');
 
             if (parts.Length < 2)
@@ -602,6 +615,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static DirectoryInfo? FindProjectFolder(DirectoryInfo? dir,
                                                         Assembly assembly)
         {
+            var byName = FindProjectFolderByName(dir, assembly);
+
+            if (byName.IsNotNull())
+            {
+                return byName;
+            }
+
+            if (dir is null)
+            {
+                return null;
+            }
+
+            // Legacy projects can have a folder name that differs from the assembly name. The nearest
+            // folder holding a csproj is the project root by definition.
+            var csprojFolder = SourceLocationHelper.FindFirstCsprojDirectory(dir.FullName);
+
+            return csprojFolder.IsNullOrWhiteSpace() ? null : new DirectoryInfo(csprojFolder);
+        }
+
+        private static DirectoryInfo? FindProjectFolderByName(DirectoryInfo? dir,
+                                                              Assembly assembly)
+        {
             if (dir is null)
             {
                 return null;
@@ -613,7 +648,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return dir;
             }
 
-            return FindProjectFolder(dir.Parent, assembly);
+            return FindProjectFolderByName(dir.Parent, assembly);
         }
 
         // ============================================================
