@@ -89,10 +89,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var wantedFileName = Path.GetFileName(reference.Replace('\\', '/').Trim().Trim('"'));
 
             var ranked = resources.Select(resource => new
-                                                      {
-                                                          Resource = resource,
-                                                          Score = Score(ResourceFileName(resource), wantedFileName)
-                                                      })
+            {
+                Resource = resource,
+                Score = Score(ResourceFileName(resource), wantedFileName)
+            })
                                   .Where(entry => entry.Score <= MaxDistance(wantedFileName))
                                   .OrderBy(entry => entry.Score)
                                   .ThenBy(entry => entry.Resource.Length)

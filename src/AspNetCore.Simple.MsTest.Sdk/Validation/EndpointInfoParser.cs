@@ -87,7 +87,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                    type == typeof(void) ||
                    type == typeof(Task) ||
                    type == typeof(ValueTask) ||
-                   type!.Name.EqualsTo("Void");
+                   type.Name.EqualsTo("Void");
         }
 
         public static string ResolvePlaceholders(string routePattern,

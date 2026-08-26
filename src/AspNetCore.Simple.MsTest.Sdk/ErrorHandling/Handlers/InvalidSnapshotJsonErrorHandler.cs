@@ -61,7 +61,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                 var line = exception.LineNumber;
                 var suffix = line.HasValue ? $":{line.Value}" : string.Empty;
 
-                sb.AppendLine($"{"Path",-10} : file:///{exception.FilePath!.Replace('\\', '/')}{suffix}");
+                sb.AppendLine($"{"Path",-10} : file:///{exception.FilePath.Replace('\\', '/')}{suffix}");
             }
 
             sb.AppendLine();

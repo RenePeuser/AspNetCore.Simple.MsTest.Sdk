@@ -86,7 +86,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             {
                 throw new InvalidSnapshotJsonException(file.EmbeddedFileName,
                                                        file.EmbeddedFile?.FullName,
-                                                       resolvedContent!,
+                                                       resolvedContent,
                                                        isPayload,
                                                        exception);
             }

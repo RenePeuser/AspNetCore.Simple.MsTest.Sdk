@@ -112,7 +112,7 @@ namespace Controllers.Test.SnapshotFormat
         [TestMethod]
         public void MatchExistingMustLeaveANewSnapshotAsAnEnvelope()
         {
-            const string Envelope = """{ "content": { "value": [1,2] }, "statusCode": "OK" }""";
+            const string Envelope = /*lang=json,strict*/ """{ "content": { "value": [1,2] }, "statusCode": "OK" }""";
 
             // No existing content - nothing to preserve, the envelope stays.
             Assert.That.AreEqual(Envelope,

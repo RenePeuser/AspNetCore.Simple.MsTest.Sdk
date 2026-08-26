@@ -226,7 +226,7 @@ namespace Controllers.Test.SnapshotWriteFiltering
         {
             // The strictest form of the promise, and the one a reviewer actually sees: not "the values
             // are equal again" but "git reports nothing at all" - byte for byte, formatting included.
-            var expected = Indented("""{"name":"Son","age":99,"city":"West City"}""");
+            var expected = Indented(/*lang=json,strict*/ """{"name":"Son","age":99,"city":"West City"}""");
 
             var written = WriteRaw(expected: expected,
                                    current: /*lang=json,strict*/ """{"name":"Vegeta","age":100,"city":"East City"}""",

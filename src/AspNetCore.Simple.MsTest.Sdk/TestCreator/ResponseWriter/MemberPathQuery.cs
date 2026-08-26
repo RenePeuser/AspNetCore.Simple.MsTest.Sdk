@@ -41,7 +41,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             try
             {
-                return root!.SelectToken(jsonPath!);
+                return root.SelectToken(jsonPath);
             }
             catch (JsonException)
             {

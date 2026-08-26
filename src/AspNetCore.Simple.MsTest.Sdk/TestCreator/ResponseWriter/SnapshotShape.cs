@@ -31,7 +31,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return currentResponseAsString;
             }
 
-            var existing = TryParse(existingContent!);
+            var existing = TryParse(existingContent);
 
             // No shape to preserve, or the file is an envelope already.
             if (existing.IsNull() || IsEnvelope(existing))
@@ -46,7 +46,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return currentResponseAsString;
             }
 
-            var body = current!["content"]?["value"];
+            var body = current["content"]?["value"];
 
             // An envelope without a body says nothing - leave the writer with what it had.
             return body.IsNull()
@@ -69,8 +69,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var content = jsonObject.GetValue("content", StringComparison.OrdinalIgnoreCase);
 
             if (content is not JObject contentObject ||
-                contentObject.ContainsKey("value").IsFalse() &&
-                contentObject.GetValue("value", StringComparison.OrdinalIgnoreCase).IsNull())
+                (contentObject.ContainsKey("value").IsFalse() &&
+                contentObject.GetValue("value", StringComparison.OrdinalIgnoreCase).IsNull()))
             {
                 return false;
             }

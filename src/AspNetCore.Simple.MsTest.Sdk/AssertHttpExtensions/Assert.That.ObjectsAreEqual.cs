@@ -809,10 +809,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             return context with
-                   {
-                       Expected = context.OrderFunc(context.Current),
-                       ResolvedExpectedJson = null
-                   };
+            {
+                Expected = context.OrderFunc(context.Current),
+                ResolvedExpectedJson = null
+            };
         }
 
         private static void ObjectsAreEqualInternal<T>(ObjectAssertContext<T> context)

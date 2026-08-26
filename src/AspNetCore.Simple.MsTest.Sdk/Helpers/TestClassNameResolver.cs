@@ -33,7 +33,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 
                 if (byCsproj.IsNotNullOrWhiteSpace())
                 {
-                    return byCsproj!;
+                    return byCsproj;
                 }
 
                 // The sources are not on this machine (a snapshot recorded elsewhere, a ci artifact).
@@ -58,14 +58,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
                 return null;
             }
 
-            var projectFolder = SourceLocationHelper.FindFirstCsprojDirectory(directory!);
+            var projectFolder = SourceLocationHelper.FindFirstCsprojDirectory(directory);
 
             if (projectFolder.IsNullOrWhiteSpace())
             {
                 return null;
             }
 
-            var relativePath = Path.GetRelativePath(projectFolder!, directory!);
+            var relativePath = Path.GetRelativePath(projectFolder, directory);
 
             // The file sits outside the project folder - that is not a namespace we can name.
             if (relativePath.StartsWith("..", StringComparison.Ordinal))
