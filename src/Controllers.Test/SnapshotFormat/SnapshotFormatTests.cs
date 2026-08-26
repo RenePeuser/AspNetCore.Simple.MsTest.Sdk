@@ -26,8 +26,9 @@ namespace Controllers.Test.SnapshotFormat
             var snapshot = SnapshotPath("BareBody.json");
             var original = await File.ReadAllTextAsync(snapshot).ConfigureAwait(false);
 
-            Assert.IsFalse(SnapshotShape.IsEnvelope(JToken.Parse(original)),
-                           "The fixture has to be a bare body, otherwise this test proves nothing.");
+            Assert.That.IsFalse(SnapshotShape.IsEnvelope(JToken.Parse(original)),
+                                because: "This test is about NOT migrating a bare body to the envelope. If the fixture already is an envelope there is nothing left to migrate and the test would pass for the wrong reason.",
+                                fix: "Restore Responses\\BareBody.json to a bare body (a plain array of persons, no 'content'/'statusCode' wrapper). A previous run may have rewritten it - that is the very bug under test.");
 
             try
             {
@@ -38,11 +39,18 @@ namespace Controllers.Test.SnapshotFormat
 
                 var written = JToken.Parse(await File.ReadAllTextAsync(snapshot).ConfigureAwait(false));
 
-                Assert.IsFalse(SnapshotShape.IsEnvelope(written),
-                               "The snapshot was migrated to the response envelope.");
+                Assert.That.IsFalse(SnapshotShape.IsEnvelope(written),
+                                    because: "An existing snapshot has to keep the shape it has. Writing always emitted the envelope, so with write response enabled globally one run rewrote whole folders of bare-body snapshots.",
+                                    fix: "Check SnapshotShape.MatchExisting: when the existing content is a bare body the envelope has to be unwrapped again before writing.");
 
-                Assert.IsInstanceOfType<JArray>(written, "A bare body of this endpoint is an array of persons.");
-                Assert.AreEqual(2, ((JArray)written).Count);
+                Assert.That.IsAssignableTo<JArray>(written,
+                                                   because: "A bare body of this endpoint is the array of persons itself - an object here means the envelope wrapper survived.",
+                                                   fix: "See SnapshotShape.MatchExisting - it has to hand back the 'content.value' payload, not the whole envelope.");
+
+                Assert.That.AreEqual(2,
+                                     ((JArray)written).Count,
+                                     because: "Keeping the shape must not cost content: the endpoint returns two persons and both have to end up in the rewritten snapshot.",
+                                     fix: "Check that unwrapping in SnapshotShape.MatchExisting takes the complete 'content.value' array instead of a single element.");
             }
             finally
             {
@@ -56,7 +64,9 @@ namespace Controllers.Test.SnapshotFormat
             var snapshot = SnapshotPath("Envelope.json");
             var original = await File.ReadAllTextAsync(snapshot).ConfigureAwait(false);
 
-            Assert.IsNotNull(JToken.Parse(original)["content"], "The fixture has to be an envelope.");
+            Assert.That.IsNotNull(JToken.Parse(original)["content"],
+                                  because: "This test is the mirror image of the bare-body one: it proves an envelope stays an envelope. Without a 'content' wrapper in the fixture there is nothing to preserve.",
+                                  fix: "Restore Responses\\Envelope.json to the full response envelope ('content' with 'value', plus 'statusCode').");
 
             try
             {
@@ -67,8 +77,13 @@ namespace Controllers.Test.SnapshotFormat
 
                 var written = JToken.Parse(await File.ReadAllTextAsync(snapshot).ConfigureAwait(false));
 
-                Assert.IsNotNull(written["content"], "The envelope was flattened to a bare body.");
-                Assert.IsNotNull(written["content"]!["value"]);
+                Assert.That.IsNotNull(written["content"],
+                                      because: "Keeping the existing shape has to work in both directions - an envelope must not be flattened to a bare body either, or the recorded status code and headers are lost.",
+                                      fix: "Check SnapshotShape.MatchExisting: when the existing content is an envelope it has to write the envelope through unchanged.");
+
+                Assert.That.IsNotNull(written["content"]!["value"],
+                                      because: "An envelope without its payload is worse than a flattened one: the file still looks right but the actual response body is gone.",
+                                      fix: "Check that the envelope written by the response writer carries content.value and that MatchExisting does not strip it.");
             }
             finally
             {
@@ -83,11 +98,15 @@ namespace Controllers.Test.SnapshotFormat
             // "value" AND a status code.
             var body = JToken.Parse("""{ "content": { "value": "a blog post" } }""");
 
-            Assert.IsFalse(SnapshotShape.IsEnvelope(body));
+            Assert.That.IsFalse(SnapshotShape.IsEnvelope(body),
+                                because: "A perfectly ordinary body may carry a property called 'content' - a blog post is the obvious case. Treating it as an envelope would unwrap the real payload away.",
+                                fix: "SnapshotShape.IsEnvelope must require content, content.value AND a statusCode together - any single one of them is not enough.");
 
             var envelope = JToken.Parse("""{ "content": { "value": {} }, "statusCode": "OK" }""");
 
-            Assert.IsTrue(SnapshotShape.IsEnvelope(envelope));
+            Assert.That.IsTrue(SnapshotShape.IsEnvelope(envelope),
+                               because: "The full triple content + content.value + statusCode only occurs in the envelope, so this shape has to be recognised - otherwise every envelope would be rewritten as a bare body.",
+                               fix: "Check the property lookups in SnapshotShape.IsEnvelope - an empty 'value' object still counts as present.");
         }
 
         [TestMethod]
@@ -96,11 +115,17 @@ namespace Controllers.Test.SnapshotFormat
             const string Envelope = """{ "content": { "value": [1,2] }, "statusCode": "OK" }""";
 
             // No existing content - nothing to preserve, the envelope stays.
-            Assert.AreEqual(Envelope, SnapshotShape.MatchExisting(Envelope, existingContent: null));
+            Assert.That.AreEqual(Envelope,
+                                 SnapshotShape.MatchExisting(Envelope, existingContent: null),
+                                 because: "With no existing content there is no shape to preserve, so the new snapshot keeps the envelope - that is the richer format and the intended default for anything created from now on.",
+                                 fix: "Check the null branch in SnapshotShape.MatchExisting: it has to return the envelope unchanged instead of unwrapping by default.");
 
             var unwrapped = SnapshotShape.MatchExisting(Envelope, existingContent: "[1,2]");
 
-            CollectionAssert.AreEqual(new[] { 1, 2 }, JArray.Parse(unwrapped).Select(item => (int)item).ToList());
+            Assert.That.AreEqual(new[] { 1, 2 },
+                                 JArray.Parse(unwrapped).Select(item => (int)item).ToList(),
+                                 because: "When the existing snapshot is a bare body the envelope has to be unwrapped down to exactly its payload - same elements, same order, nothing of the wrapper left over.",
+                                 fix: "Check that SnapshotShape.MatchExisting returns content.value verbatim when the existing content is not an envelope.");
         }
 
         private static string SnapshotPath(string fileName,

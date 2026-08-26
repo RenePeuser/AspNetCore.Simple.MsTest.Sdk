@@ -35,8 +35,10 @@ namespace Controllers.Test.VolatileHeaders
 
             var filtered = headers.WithoutVolatileHeaders(new TestSdkSettings());
 
-            CollectionAssert.AreEquivalent(new[] { "Content-Type", "X-Business-Relevant" },
-                                           filtered.Select(header => header.Key).ToList());
+            Assert.That.AreEquivalent(new[] { "Content-Type", "X-Business-Relevant" },
+                                      filtered.Select(header => header.Key).ToList(),
+                                      because: "The filter has to drop exactly the configured names - case-insensitively, hence X-AMZN-TRACE-ID in upper case - and leave every other header untouched. Dropping too much would lose business-relevant headers, dropping too little keeps the re-record noise.",
+                                      fix: "Check WithoutVolatileHeaders in VolatileHeaderFilter: the name comparison has to be case-insensitive and must only consider TestSdkSettings.VolatileHeaderNames.");
         }
 
         /// <summary>
@@ -63,9 +65,20 @@ namespace Controllers.Test.VolatileHeaders
 
             var filtered = response.WithoutVolatileHeaders(new TestSdkSettings());
 
-            CollectionAssert.AreEquivalent(new[] { "X-Keep" }, filtered.Headers.Select(header => header.Key).ToList());
-            CollectionAssert.AreEquivalent(new[] { "X-Keep" }, filtered.TrailingHeaders.Select(header => header.Key).ToList());
-            CollectionAssert.AreEquivalent(new[] { "Content-Type" }, filtered.Content!.Headers.Select(header => header.Key).ToList());
+            Assert.That.AreEquivalent(new[] { "X-Keep" },
+                                      filtered.Headers.Select(header => header.Key).ToList(),
+                                      because: "The response headers are part of the written envelope, so 'traceparent' has to be gone from them - one unfiltered collection is enough to keep the noise in the file.",
+                                      fix: "Check that WithoutVolatileHeaders(SimpleHttpResponseMessage) filters the Headers collection, not only the content headers.");
+
+            Assert.That.AreEquivalent(new[] { "X-Keep" },
+                                      filtered.TrailingHeaders.Select(header => header.Key).ToList(),
+                                      because: "TrailingHeaders end up in the envelope just like the normal ones, so 'Server-Timing' has to be dropped there too.",
+                                      fix: "Check that WithoutVolatileHeaders(SimpleHttpResponseMessage) also runs over TrailingHeaders - it is the collection most easily forgotten.");
+
+            Assert.That.AreEquivalent(new[] { "Content-Type" },
+                                      filtered.Content!.Headers.Select(header => header.Key).ToList(),
+                                      because: "The content headers are written as well, so 'Date' has to be dropped there - and Content-Type has to survive, it is not volatile.",
+                                      fix: "Check that WithoutVolatileHeaders(SimpleHttpResponseMessage) rebuilds Content.Headers through the same filter.");
         }
 
         [TestMethod]
@@ -75,7 +88,10 @@ namespace Controllers.Test.VolatileHeaders
 
             var filtered = headers.WithoutVolatileHeaders(new TestSdkSettings { VolatileHeaderNames = [] });
 
-            Assert.AreEqual(1, filtered.Count, "An empty list means the project opted out of filtering.");
+            Assert.That.HasCount(1,
+                                 filtered,
+                                 because: "An empty VolatileHeaderNames list means the project opted out of filtering, so even 'traceparent' has to survive. A hard-coded default list would silently ignore that opt-out.",
+                                 fix: "Check that WithoutVolatileHeaders reads the names from the passed TestSdkSettings only and never falls back to a built-in list when that collection is empty.");
         }
 
         [TestMethod]
@@ -87,7 +103,10 @@ namespace Controllers.Test.VolatileHeaders
 
             var filtered = headers.WithoutVolatileHeaders(settings);
 
-            CollectionAssert.AreEquivalent(new[] { "X-Keep" }, filtered.Select(header => header.Key).ToList());
+            Assert.That.AreEquivalent(new[] { "X-Keep" },
+                                      filtered.Select(header => header.Key).ToList(),
+                                      because: "A project has to be able to name its own volatile header. Only 'X-My-Correlation-Id' was configured here, so the built-in names must not be added on top and X-Keep has to survive.",
+                                      fix: "Check that WithoutVolatileHeaders uses exactly the configured TestSdkSettings.VolatileHeaderNames instead of merging them with a default set.");
         }
 
         /// <summary>
@@ -109,9 +128,12 @@ namespace Controllers.Test.VolatileHeaders
                               .Select(header => header["key"]!.ToString())
                               .ToList();
 
-            CollectionAssert.Contains(names, "traceparent", "Without a volatile header the test above proves nothing.");
-            CollectionAssert.Contains(names, "X-Amzn-Trace-Id");
-            CollectionAssert.Contains(names, "Date");
+            const string Because = "ASnapshotThatStillCarriesVolatileHeadersMustStayGreen only proves something if the fixture really carries these headers. Once they are gone from the file that test passes for the wrong reason.";
+            const string Fix = "Restore the volatile headers in VolatileHeaders\\Responses\\StaleVolatileHeaders.json - the fixture deliberately represents a snapshot recorded before the filter existed and must not be re-recorded.";
+
+            Assert.That.Contains(names, "traceparent", because: Because, fix: Fix);
+            Assert.That.Contains(names, "X-Amzn-Trace-Id", because: Because, fix: Fix);
+            Assert.That.Contains(names, "Date", because: Because, fix: Fix);
         }
 
         private static KeyValuePair<string, ImmutableList<string>> Header(string name,

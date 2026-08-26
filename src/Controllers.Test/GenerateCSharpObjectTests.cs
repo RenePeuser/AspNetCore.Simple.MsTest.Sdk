@@ -72,11 +72,14 @@ namespace Controllers.Test
             var csharpCode = generator.GenerateAnonymousObjectInitializer(json, 12);
 
             // Verify the generated code contains expected properties
-            Assert.IsTrue(csharpCode.Contains("id = 1"));
-            Assert.IsTrue(csharpCode.Contains("name = \"John Doe\""));
-            Assert.IsTrue(csharpCode.Contains("age = 30"));
-            Assert.IsTrue(csharpCode.Contains("isActive = true"));
-            Assert.IsTrue(csharpCode.Contains("tags = "));
+            const string Because = "The generated initializer is pasted straight into the test source, so every json property has to appear with C# syntax and the right literal form - a number unquoted, a string quoted, a bool lowercase.";
+            const string Fix = "Check the per-JTokenType branches in CSharpCodeGenerator.GenerateAnonymousObjectInitializer - a missing property means its token type has no branch.";
+
+            Assert.That.Contains(csharpCode, "id = 1", because: Because, fix: Fix);
+            Assert.That.Contains(csharpCode, "name = \"John Doe\"", because: Because, fix: Fix);
+            Assert.That.Contains(csharpCode, "age = 30", because: Because, fix: Fix);
+            Assert.That.Contains(csharpCode, "isActive = true", because: Because, fix: Fix);
+            Assert.That.Contains(csharpCode, "tags = ", because: Because, fix: Fix);
 
             // Output for visual inspection
             Console.WriteLine("Generated C# Code:");
@@ -92,16 +95,25 @@ namespace Controllers.Test
             // Test 1: Empty anonymous object should be detected
             var empty = new { };
             var isEmptyDetected = detector.IsEmptyAnonymousObject(empty, "new { }");
-            Assert.IsTrue(isEmptyDetected, "Should detect empty anonymous object");
+
+            Assert.That.IsTrue(isEmptyDetected,
+                               because: "'new { }' is the opt-in signal for code generation. Not recognising it means the writer never runs and the test just compares against an empty object.",
+                               fix: "EmptyAnonymousObjectDetector has to treat a type with zero properties as empty - check the reflection branch, not only the expression one.");
 
             // Test 2: Non-empty anonymous object should NOT be detected
             var notEmpty = new { id = 1 };
             var isNotEmptyDetected = detector.IsEmptyAnonymousObject(notEmpty, "new { id = 1 }");
-            Assert.IsFalse(isNotEmptyDetected, "Should NOT detect non-empty anonymous object");
+
+            Assert.That.IsFalse(isNotEmptyDetected,
+                                because: "A populated anonymous object is a real expectation the author wrote by hand. Mistaking it for the generation trigger would overwrite their test source.",
+                                fix: "EmptyAnonymousObjectDetector must return false as soon as the object has at least one property or the expression contains anything between the braces.");
 
             // Test 3: Expression detection
             var emptyByExpression = detector.IsEmptyAnonymousObject(new object(), "new {}");
-            Assert.IsTrue(emptyByExpression, "Should detect via expression");
+
+            Assert.That.IsTrue(emptyByExpression,
+                               because: "The detector also has to recognise the trigger from the caller expression alone - 'new {}' without spaces is the same opt-in and reflection cannot tell a plain 'new object()' apart.",
+                               fix: "Normalise whitespace before matching the expression in EmptyAnonymousObjectDetector; 'new {}' and 'new { }' have to be treated alike.");
         }
     }
 }
