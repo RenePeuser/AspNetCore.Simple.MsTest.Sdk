@@ -437,3 +437,5 @@ $RECYCLE.BIN/
 
 # Claude Code local settings (user-specific)
 .claude/settings.local.json
+
+Nuget.config
