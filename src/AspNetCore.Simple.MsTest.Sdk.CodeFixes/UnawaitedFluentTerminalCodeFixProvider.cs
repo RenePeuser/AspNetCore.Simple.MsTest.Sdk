@@ -10,30 +10,27 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes
 {
     /// <summary>
-    ///     Repairs MSTESTSDK001 (dangling fluent assertion chain) with a single click.
+    ///     Repairs MSTESTSDK002 (fluent terminal never awaited) with a single click.
     ///     <para>
-    ///         The chain lacks its terminal, so the request is never sent and the test can pass
-    ///         silently. The fix appends the terminal <c>.ExecuteAsync()</c>, wraps the whole chain in
-    ///         <c>await</c>, and — if needed — turns the enclosing method/local function into
-    ///         <c>async</c> (converting a <c>void</c> return type to <c>Task</c>) so the result compiles.
+    ///         The chain already ends in <c>ExecuteAsync()</c>, so — unlike the MSTESTSDK001 fix — nothing
+    ///         is appended. Only the missing <c>await</c> is added, and the enclosing method/local function
+    ///         is made <c>async</c> (<c>void</c> → <c>Task</c>) so it compiles.
     ///     </para>
     ///     <para>
-    ///         FixAll (BatchFixer) is supported so an entire file/project/solution can be migrated at once
-    ///         — relevant when the fluent API flips from <c>internal</c> to <c>public</c>.
+    ///         FixAll (BatchFixer) is supported so a whole file/project/solution can be repaired at once.
     ///     </para>
     /// </summary>
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(DanglingFluentChainCodeFixProvider))]
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UnawaitedFluentTerminalCodeFixProvider))]
     [Shared]
-    public sealed class DanglingFluentChainCodeFixProvider : CodeFixProvider
+    public sealed class UnawaitedFluentTerminalCodeFixProvider : CodeFixProvider
     {
-        private const string Title = "Terminate chain with 'await …ExecuteAsync()'";
+        private const string Title = "Await the assertion ('await …ExecuteAsync()')";
 
         public override ImmutableArray<string> FixableDiagnosticIds =>
-            ImmutableArray.Create(DanglingFluentChainAnalyzer.DiagnosticId);
+            ImmutableArray.Create(UnawaitedFluentTerminalAnalyzer.DiagnosticId);
 
         public override FixAllProvider GetFixAllProvider()
         {
-            // Batch-fix whole document/project/solution — needed for bulk migration.
             return WellKnownFixAllProviders.BatchFixer;
         }
 
@@ -53,7 +50,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes
 
             var statement = node.FirstAncestorOrSelf<ExpressionStatementSyntax>();
 
-            // Only the bare "chain();" expression-statement shape is fixable — matches the analyzer.
+            // Only the bare "chain.ExecuteAsync();" expression-statement shape is fixable — matches the analyzer.
             if (statement?.Expression is not InvocationExpressionSyntax)
             {
                 return;
@@ -63,9 +60,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes
                                                cancellationToken =>
                                                    FluentChainFixer.AwaitStatementAsync(context.Document,
                                                                                         statement,
-                                                                                        appendTerminal: true,
+                                                                                        appendTerminal: false,
                                                                                         cancellationToken),
-                                               equivalenceKey: nameof(DanglingFluentChainCodeFixProvider));
+                                               equivalenceKey: nameof(UnawaitedFluentTerminalCodeFixProvider));
 
             context.RegisterCodeFix(codeAction, diagnostic);
         }

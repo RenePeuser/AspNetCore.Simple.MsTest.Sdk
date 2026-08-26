@@ -95,5 +95,35 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
                          .IgnoreProperty<Person>(p => p.Id)
                          .ExecuteAsync();
         }
+
+        // ============================================================
+        // Body-less Produces(code) — same engine as the typed path.
+        // ============================================================
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("PATCH")]
+        public Task Fluent_BodyLess_Patch_Should_Resolve_Embedded_Body()
+        {
+            // Two things at once, both of which the body-less path used to get wrong because it sent the
+            // request itself instead of going through the engine: the embedded file was posted as its
+            // NAME (a 500 from the api), and PATCH went out as application/json instead of
+            // merge-patch+json.
+            return Client.AssertPatch("api/v1/persons")
+                         .AcceptsFromEmbeddedJson("UpdatePerson.json")
+                         .Produces(HttpStatusCode.OK)
+                         .ExecuteAsync();
+        }
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("PUT")]
+        public Task Fluent_BodyLess_Put_Should_Resolve_Placeholders_In_Body()
+        {
+            return Client.AssertPut("api/v1/persons")
+                         .AcceptsFromEmbeddedJson("UpdatePerson.json")
+                         .Produces(HttpStatusCode.OK)
+                         .ExecuteAsync();
+        }
     }
 }

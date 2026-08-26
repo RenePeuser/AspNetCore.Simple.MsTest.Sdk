@@ -256,7 +256,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         }
 
         // ============================================================
-        // Custom headers — WithHeader (forwarded on the body-less Produces(code) path).
+        // Custom headers — WithHeader, on BOTH paths.
         // ============================================================
 
         [TestMethod]
@@ -272,6 +272,119 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                          .WithHeader("X-Correlation-Id", "fluent-test-42")
                          .Produces(HttpStatusCode.Created)
                          .ExecuteAsync();
+        }
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("GET")]
+        [TestCategory("Header")]
+        public async Task Fluent_WithHeader_Should_Reach_Endpoint_On_Typed_Path()
+        {
+            // The header used to be collected by the builder and then silently dropped: the typed path
+            // never passed it to the engine, and the engine had no way to send one. Nothing failed - the
+            // request simply went out without the header, which is why the documented example in
+            // EXAMPLES.md ("Custom headers") never actually did anything. Echoing it back is the only way
+            // to prove it left the client.
+            var echo = await Client.AssertGet("api/v1/persons/echo-header")
+                                   .WithHeader("X-Correlation-Id", "fluent-typed-42")
+                                   .Produces<EchoHeaderResponse>(HttpStatusCode.OK)
+                                   .ExecuteAsync()
+                                   .ConfigureAwait(false);
+
+            Assert.That.AreEqual("fluent-typed-42", echo.CorrelationId,
+                                 because: "WithHeader has to reach the endpoint on the typed Produces<T> path too, not just on the body-less one. The endpoint reflects the header it received, so anything else here means the header never left the client.",
+                                 fix: "Check that HttpResponseBuilder passes its collected headers to AssertHttpCallAsync and that HttpRequestMessageBuilder applies context.RequestHeaders to the outgoing request.");
+        }
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("GET")]
+        [TestCategory("Header")]
+        public async Task Fluent_Without_Header_Should_Reach_Endpoint_Without_It()
+        {
+            // Counter-test: proves the assertion above measures the header and not a constant.
+            var echo = await Client.AssertGet("api/v1/persons/echo-header")
+                                   .Produces<EchoHeaderResponse>(HttpStatusCode.OK)
+                                   .ExecuteAsync()
+                                   .ConfigureAwait(false);
+
+            Assert.That.AreEqual("(absent)", echo.CorrelationId,
+                                 because: "Without WithHeader the endpoint must see no correlation id. If this echoed a value, the header assertion next to it would be passing on leftover state instead of on what the chain sent.",
+                                 fix: "Check that the builder starts with an empty header collection per chain and does not share one across chains.");
+        }
+
+        // ============================================================
+        // IgnoreProperty — member-path matching and composition.
+        // ============================================================
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("POST")]
+        public Task Fluent_IgnoreProperty_Should_Ignore_Nested_Property()
+        {
+            // The differ reports qualified paths ("content.value.emails[0].emailAddress"), never the bare
+            // property name. Comparing the WHOLE path against "EmailAddress" matched nothing, so this
+            // ignore silently did nothing and the test only stayed green while the values happened to
+            // agree. Here they deliberately do not.
+            var person = TestHelpers.CreatePersonWithEmails();
+
+            var expected = person with
+            {
+                Emails = ImmutableList.Create(new Email("wrong@example.com", person.Emails[0].Type))
+                                      .AddRange(person.Emails.RemoveAt(0))
+            };
+
+            return Client.AssertPost("api/v1/persons")
+                         .Accepts(person)
+                         .Produces<Person>(HttpStatusCode.Created)
+                         .ExpectedResponse(expected)
+                         .IgnoreProperty<Email>(e => e.EmailAddress)
+                         .ExecuteAsync();
+        }
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("POST")]
+        public Task Fluent_IgnoreProperty_Twice_Should_Compose()
+        {
+            // Both ignores have to survive. They used to share one field, so the second call threw the
+            // first away and the difference it was hiding failed the test with no hint why.
+            var person = TestHelpers.CreateValidPerson();
+
+            var expected = person with
+            {
+                Name = "WrongName",
+                FirstName = "WrongFirstName"
+            };
+
+            return Client.AssertPost("api/v1/persons")
+                         .Accepts(person)
+                         .Produces<Person>(HttpStatusCode.Created)
+                         .ExpectedResponse(expected)
+                         .IgnoreProperty<Person>(p => p.Name)
+                         .IgnoreProperty<Person>(p => p.FirstName)
+                         .ExecuteAsync();
+        }
+
+        [TestMethod]
+        [TestCategory("Fluent")]
+        [TestCategory("POST")]
+        public async Task Fluent_IgnoreProperty_Should_Not_Hide_Unrelated_Difference()
+        {
+            // Ignoring Name must not also swallow FirstName. Matching the path segment by "contains"
+            // instead of by equality would do exactly that, and every later regression in FirstName
+            // would go green.
+            var person = TestHelpers.CreateValidPerson();
+            var expected = person with { FirstName = "WrongFirstName" };
+
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPost("api/v1/persons")
+                                                                                    .Accepts(person)
+                                                                                    .Produces<Person>(HttpStatusCode.Created)
+                                                                                    .ExpectedResponse(expected)
+                                                                                    .IgnoreProperty<Person>(p => p.Name)
+                                                                                    .ExecuteAsync(),
+                                                                        because: "IgnoreProperty may hide exactly the property it names and nothing else. 'firstName' merely ENDS WITH 'name', so a substring match would drop it too and switch off a real part of the comparison.",
+                                                                        fix: "Check that the member-path match compares the last path segment for equality instead of using Contains/EndsWith.").ConfigureAwait(false);
         }
 
         // ============================================================

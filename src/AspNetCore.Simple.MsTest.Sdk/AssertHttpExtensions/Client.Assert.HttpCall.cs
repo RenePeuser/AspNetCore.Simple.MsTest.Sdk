@@ -378,7 +378,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
 #pragma warning disable CA1859
-        private static async Task AssertHttpCallAsync(this HttpClient client,
+        internal static async Task AssertHttpCallAsync(this HttpClient client,
                                                       string url,
                                                       string payloadAsJson,
                                                       HttpMethod httpMethod,
@@ -391,6 +391,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       bool writeResponse = false,
                                                       bool skipEndpointValidation = false,
                                                       HttpStatusCode? expectedHttpStatusCode = null,
+                                                      IReadOnlyDictionary<string, string>? requestHeaders = null,
                                                       [CallerMemberName] string callerMemberName = "",
                                                       [CallerLineNumber] int callerLineNumber = 0)
 #pragma warning restore CA1859
@@ -444,7 +445,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 IgnoreResponse = false,
                 SkipEndpointValidation = skipEndpointValidation,
                 ExpectedHttpStatusCode = expectedHttpStatusCode,
-                Expected = null
+                Expected = null,
+                RequestHeaders = requestHeaders
             };
 
             await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
@@ -603,6 +605,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          bool skipEndpointValidation = false,
                                                                          HttpStatusCode? expectedHttpStatusCode = null,
                                                                          Predicate<Difference>? differenceFilter = null,
+                                                                         IReadOnlyDictionary<string, string>? requestHeaders = null,
                                                                          [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                          string payloadAsJsonParameterName = "",
                                                                          [CallerArgumentExpression(nameof(expectedResult))]
@@ -684,7 +687,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 SkipEndpointValidation = skipEndpointValidation,
                 ExpectedHttpStatusCode = expectedHttpStatusCode,
                 Expected = default,
-                IsEmptyAnonymousObjectForCodeGeneration = detectedIsEmptyAnonymous
+                IsEmptyAnonymousObjectForCodeGeneration = detectedIsEmptyAnonymous,
+                RequestHeaders = requestHeaders
             };
 
             var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);

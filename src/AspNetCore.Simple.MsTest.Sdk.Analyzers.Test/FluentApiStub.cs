@@ -40,6 +40,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
                                              IHttpRequestConfiguring WithJsonString(string bodyJson);
                                              IHttpResponseConfiguring<TResult> Returns<TResult>(TResult expected);
                                              IHttpExpectationConfiguring ExpectingResponse();
+
+                                             IHttpRequestConfiguring Accepts<T>(T body);
+                                             IHttpResponseConfiguring<T> Produces<T>(HttpStatusCode statusCode);
+                                             IHttpExpectationConfiguring Produces(HttpStatusCode statusCode);
                                          }
 
                                          [FluentBuilder]
@@ -47,6 +51,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
                                          {
                                              IHttpResponseConfiguring<TResult> ExpectingSuccess();
                                              IHttpResponseConfiguring<TResult> ExpectingStatus(HttpStatusCode code);
+                                             IHttpComparisonConfiguring<TResult> ExpectedResponse(TResult expected);
+                                             Task<TResult> ExecuteAsync();
+                                         }
+
+                                         [FluentBuilder]
+                                         public interface IHttpComparisonConfiguring<TResult>
+                                         {
                                              Task<TResult> ExecuteAsync();
                                          }
 
@@ -69,6 +80,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
                                          {
                                              public static IHttpRequestConfiguring AssertPost(string url) => null!;
                                              public static IHttpRequestConfiguring AssertGet(string url) => null!;
+                                             public static IHttpRequestConfiguring AssertDelete(string url) => null!;
                                          }
                                      }
                                      """;

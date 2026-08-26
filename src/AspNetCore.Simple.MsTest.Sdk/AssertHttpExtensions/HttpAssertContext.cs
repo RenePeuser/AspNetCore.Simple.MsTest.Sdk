@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 
@@ -88,6 +89,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// 2. The test type (OK/200 for success tests, BadRequest/400 for error tests)
         /// </summary>
         HttpStatusCode? ExpectedHttpStatusCode { get; init; }
+
+        /// <summary>
+        /// Custom request headers to send with the call, keyed by header name.
+        /// Null or empty means no extra headers beyond what the HttpClient itself carries.
+        /// Deliberately NOT required: every existing call site predates headers and must keep compiling.
+        /// </summary>
+        IReadOnlyDictionary<string, string>? RequestHeaders { get; init; }
     }
 
     /// <summary>
@@ -181,5 +189,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// 2. The test type (OK/200 for success tests, BadRequest/400 for error tests)
         /// </summary>
         public required HttpStatusCode? ExpectedHttpStatusCode { get; init; }
+
+        /// <summary>
+        /// Custom request headers to send with the call, keyed by header name.
+        /// Null (the default) means no extra headers beyond what the HttpClient itself carries.
+        /// </summary>
+        public IReadOnlyDictionary<string, string>? RequestHeaders { get; init; }
     }
 }

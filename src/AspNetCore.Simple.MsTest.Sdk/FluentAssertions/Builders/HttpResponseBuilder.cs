@@ -43,6 +43,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         private readonly string _callerFilePath;
 
+        private readonly string _callerMemberName;
+
+        private readonly int _callerLineNumber;
+
         private readonly HttpStatusCode _expectedStatusCode;
 
         // Null until an ExpectedResponse… is set → body-less path (deserialize + return, no comparison).
@@ -64,6 +68,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                      Dictionary<string, string> headers,
                                      Assembly callingAssembly,
                                      string callerFilePath,
+                                     string callerMemberName,
+                                     int callerLineNumber,
                                      HttpStatusCode expectedStatusCode)
         {
             _client = client;
@@ -74,6 +80,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             _headers = headers;
             _callingAssembly = callingAssembly;
             _callerFilePath = callerFilePath;
+            _callerMemberName = callerMemberName;
+            _callerLineNumber = callerLineNumber;
             _expectedStatusCode = expectedStatusCode;
         }
 
@@ -113,16 +121,28 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             return this;
         }
 
+        // Filters COMPOSE instead of overwriting: two IgnoreProperty calls (or IgnoreProperty next to an
+        // IgnoreDifferences) each have to keep their effect. Overwriting would silently drop the earlier
+        // one and let the difference it was hiding fail the test for no visible reason.
         public IHttpComparisonConfiguring<TResult> IgnoreDifferences(Func<ImmutableList<Difference>, IEnumerable<Difference>> filter)
         {
-            _differenceFunc = filter;
+            var previous = _differenceFunc;
+
+            _differenceFunc = previous is null
+                                  ? filter
+                                  : diffs => filter(previous(diffs).ToImmutableList());
 
             return this;
         }
 
         public IHttpComparisonConfiguring<TResult> DifferenceFilter(Predicate<Difference> filter)
         {
-            _differenceFilter = filter;
+            var previous = _differenceFilter;
+
+            // A difference survives only if EVERY registered predicate keeps it.
+            _differenceFilter = previous is null
+                                    ? filter
+                                    : difference => previous(difference) && filter(difference);
 
             return this;
         }
@@ -131,8 +151,38 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         {
             var propertyName = ExtractPropertyName(propertySelector);
 
-            return IgnoreDifferences(diffs =>
-                                         diffs.Where(d => !d.MemberPath.Equals(propertyName, StringComparison.OrdinalIgnoreCase)));
+            return IgnoreDifferences(diffs => diffs.Where(d => !MemberPathTargets(d.MemberPath, propertyName)));
+        }
+
+        /// <summary>
+        /// Matches a difference's member path against a property name.
+        ///
+        /// <para>
+        /// The paths the differ produces are qualified and indexed — <c>id</c> at the root, but
+        /// <c>[0].id</c> inside a collection and <c>emails[0].emailAddress</c> when nested. Comparing the
+        /// whole path against the bare property name therefore only ever matched top-level scalars and
+        /// silently did nothing everywhere else. Only the LAST segment is the property, so that is what
+        /// gets compared — with any array index stripped, so <c>emails[0]</c> still matches
+        /// <c>Emails</c>.
+        /// </para>
+        /// </summary>
+        private static bool MemberPathTargets(string memberPath,
+                                              string propertyName)
+        {
+            var lastSeparator = memberPath.LastIndexOf('.');
+
+            var segment = lastSeparator >= 0
+                              ? memberPath[(lastSeparator + 1)..]
+                              : memberPath;
+
+            var indexStart = segment.IndexOf('[');
+
+            if (indexStart >= 0)
+            {
+                segment = segment[..indexStart];
+            }
+
+            return segment.Equals(propertyName, StringComparison.OrdinalIgnoreCase);
         }
 
         public IHttpComparisonConfiguring<TResult> WriteSnapshot(bool write = true)
@@ -169,7 +219,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                                skipEndpointValidation: false,
                                                expectedHttpStatusCode: _expectedStatusCode,
                                                differenceFilter: _differenceFilter,
-                                               callerFilePath: _callerFilePath);
+                                               requestHeaders: _headers,
+                                               callerFilePath: _callerFilePath,
+                                               callerMemberName: _callerMemberName,
+                                               callerLineNumber: _callerLineNumber);
         }
 
         private static string ExtractPropertyName<T>(Expression<Func<T, object?>> propertySelector)

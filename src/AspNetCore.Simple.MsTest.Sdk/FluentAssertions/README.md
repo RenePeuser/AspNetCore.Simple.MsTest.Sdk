@@ -123,9 +123,25 @@ error**, not a silent runtime no-op.
 
 ## Why a forgotten terminal cannot slip through
 
-The builder interfaces are marked with `[FluentBuilder]`. The (planned) Roslyn analyzer `MSTESTSDK001`
-flags a dangling chain without `ExecuteAsync()` as an error — for a test SDK the worst failure mode (the
-request is never sent → the test silently turns green). Details in `DESIGN_VISION.md`.
+The builder interfaces are marked with `[FluentBuilder]`, and two Roslyn analyzers ship with the package
+— both **errors**, because for a test SDK a silently green test is the worst failure mode:
+
+| Id | Fires on | Why the compiler misses it |
+|----|----------|----------------------------|
+| `MSTESTSDK001` | Chain without `ExecuteAsync()` | The builder is not a `Task`, so there is not even a CS4014 |
+| `MSTESTSDK002` | `ExecuteAsync()` present but never awaited/returned | CS4014 only fires inside an `async` method — in a synchronous test method nothing warns at all |
+
+```csharp
+// MSTESTSDK001 — request never sent
+Client.AssertPost("api/persons").Accepts(person).Produces(Created);
+
+// MSTESTSDK002 — assertion runs detached, its failure lands on no test
+Client.AssertPost("api/persons").Accepts(person).Produces(Created).ExecuteAsync();
+```
+
+Both come with a one-click code fix (`await` + `.ExecuteAsync()`, `void` → `async Task` where needed),
+with FixAll for whole-file/project migration. `return …ExecuteAsync();` and `var t = …ExecuteAsync();`
+are consuming forms and are never flagged. Details in `DESIGN_VISION.md`.
 
 ## Example: CRUD lifecycle
 

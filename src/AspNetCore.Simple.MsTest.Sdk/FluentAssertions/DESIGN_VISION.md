@@ -146,11 +146,14 @@ Fundament, nicht Beiwerk.
   `IHttpRequestConfiguring` / `IHttpResponseConfiguring<T>`. Dann muss der Analyzer keine
   Typnamen raten.
 - **Diagnostics:**
-    - `MSTESTSDK001` (Error): `ExpressionStatementSyntax`, dessen Ergebnistyp ein
+    - ✅ `MSTESTSDK001` (Error, **implementiert**): `ExpressionStatementSyntax`, dessen Ergebnistyp ein
       `[FluentBuilder]`-Interface ist → *„Assertion-Kette nie ausgeführt — `ExecuteAsync()`
       fehlt. Test kann fälschlich grün werden."*
-    - `MSTESTSDK002` (Error/Warning): `ExecuteAsync()` liefert `Task`, wird nicht awaited/returned
-      (bessere Message als CS4014).
+    - ✅ `MSTESTSDK002` (Error, **implementiert**): `ExecuteAsync()` liefert `Task`, wird nicht
+      awaited/returned. Deckt auch `…ExecuteAsync().ConfigureAwait(false);` ab (Terminal liegt dort
+      eine Ebene tiefer). Nicht gemeldet: `await`, `return`, Zuweisung und explizites `_ =`.
+      Wichtiger als „bessere Message als CS4014": in einer **synchronen** Testmethode gibt es gar
+      keine CS4014 — der Test ist dann still grün, auch bei falscher Erwartung.
     - `MSTESTSDK003` (Info): unerreichbare Konfiguration nach `ExecuteAsync()`.
 - **CodeFix:** siehe §5.1 — eigener `CodeFixProvider`, der die Terminals automatisch repariert.
 - **Auslieferung:** als Analyzer-Asset im NuGet-Paket, damit er automatisch mitkommt.
@@ -181,8 +184,10 @@ Offene Unterfragen:
   Provider muss Expression-body/`return`-Kontext erkennen und nur `.ExecuteAsync()` anhängen.
 - [ ] **Scope:** erst der einfache „hänge `.ExecuteAsync()` an"-Fix (deckt den häufigsten Fall:
   `Produces` da, Terminal vergessen). `await`/Signatur-Umbau als Ausbaustufe.
-- [ ] **Weitere Diagnostics mitfixen:** MSTESTSDK002 (Task nicht awaited) → `await` einfügen;
-  MSTESTSDK003 (Config nach Terminal) → toten Aufruf entfernen.
+- [x] **Weitere Diagnostics mitfixen:** MSTESTSDK002 (Task nicht awaited) → `await` einfügen —
+  erledigt via `UnawaitedFluentTerminalCodeFixProvider`; teilt sich die Rewrite-Logik
+  (`FluentChainFixer`) mit dem 001-Fix, setzt aber nur `await` davor statt ein zweites
+  `.ExecuteAsync()` anzuhängen. Offen: MSTESTSDK003 (Config nach Terminal) → toten Aufruf entfernen.
 - **Risiko am Analyzer selbst:** Ketten, die in einer Variable gespeichert und *später*
   terminiert werden (`var chain = Client.AssertPost(...); … await chain.ExecuteAsync();`), dürfen
   keinen false positive erzeugen. → **Anfangs konservativ**: nur den offensichtlichen

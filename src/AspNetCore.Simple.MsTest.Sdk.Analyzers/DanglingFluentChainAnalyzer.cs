@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -20,14 +19,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers
     ///         Chains stored in a variable and terminated later are intentionally NOT reported (avoids false
     ///         positives).
     ///     </para>
+    ///     <para>
+    ///         Covers the MISSING terminal only. Once <c>ExecuteAsync()</c> is present the statement's type
+    ///         is a <c>Task</c> and no longer carries the marker — the unawaited-terminal case belongs to
+    ///         <see cref="UnawaitedFluentTerminalAnalyzer" /> (MSTESTSDK002).
+    ///     </para>
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class DanglingFluentChainAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "MSTESTSDK001";
-
-        private const string FluentBuilderAttributeName =
-            "AspNetCore.Simple.MsTest.Sdk.FluentAssertions.FluentBuilderAttribute";
 
         private static readonly DiagnosticDescriptor Rule = new(DiagnosticId,
                                                                 "Fluent assertion chain never executed",
@@ -59,7 +60,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers
             var typeInfo = context.SemanticModel.GetTypeInfo(invocation, context.CancellationToken);
             var type = typeInfo.Type;
 
-            if (type is null || !CarriesFluentBuilderAttribute(type))
+            if (!FluentBuilderMarker.CarriesFluentBuilderAttribute(type))
             {
                 return;
             }
@@ -70,22 +71,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers
             var location = Location.Create(expressionStatement.SyntaxTree,
                                            Microsoft.CodeAnalysis.Text.TextSpan.FromBounds(start, end));
             context.ReportDiagnostic(Diagnostic.Create(Rule, location));
-        }
-
-        private static bool CarriesFluentBuilderAttribute(ITypeSymbol type)
-        {
-            if (HasAttribute(type))
-            {
-                return true;
-            }
-
-            return type.AllInterfaces.Any(HasAttribute);
-        }
-
-        private static bool HasAttribute(ISymbol symbol)
-        {
-            return symbol.GetAttributes()
-                         .Any(a => a.AttributeClass?.ToDisplayString() == FluentBuilderAttributeName);
         }
     }
 }

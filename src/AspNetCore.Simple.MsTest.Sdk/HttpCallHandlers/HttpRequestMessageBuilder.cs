@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -75,10 +76,32 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public HttpRequestMessage BuildFrom(IHttpAssertContext context)
         {
-            return BuildFrom(context.HttpMethod,
-                             context.Url,
-                             context.ResolvedPayload ?? context.PayloadAsJson,
-                             context.PayloadParameterName);
+            var httpRequestMessage = BuildFrom(context.HttpMethod,
+                                               context.Url,
+                                               context.ResolvedPayload ?? context.PayloadAsJson,
+                                               context.PayloadParameterName);
+
+            AddRequestHeaders(httpRequestMessage, context.RequestHeaders);
+
+            return httpRequestMessage;
+        }
+
+        /// <summary>
+        /// Applies the caller's custom request headers. TryAddWithoutValidation keeps non-standard test
+        /// headers (X-Correlation-Id and friends) from being rejected by HttpClient's header validation.
+        /// </summary>
+        private static void AddRequestHeaders(HttpRequestMessage httpRequestMessage,
+                                              IReadOnlyDictionary<string, string>? headers)
+        {
+            if (headers.IsNull())
+            {
+                return;
+            }
+
+            foreach (var (key, value) in headers)
+            {
+                httpRequestMessage.Headers.TryAddWithoutValidation(key, value);
+            }
         }
     }
 }

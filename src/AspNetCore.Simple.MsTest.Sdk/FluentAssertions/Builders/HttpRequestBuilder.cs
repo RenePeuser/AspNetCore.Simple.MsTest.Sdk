@@ -16,6 +16,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
     {
         private readonly string _callerFilePath;
 
+        private readonly string _callerMemberName;
+
+        private readonly int _callerLineNumber;
+
         private readonly Assembly _callingAssembly;
 
         private readonly HttpClient _client;
@@ -34,13 +38,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                     HttpMethod method,
                                     string url,
                                     Assembly callingAssembly,
-                                    string callerFilePath)
+                                    string callerFilePath,
+                                    string callerMemberName,
+                                    int callerLineNumber)
         {
             _client = client;
             _method = method;
             _url = url;
             _callingAssembly = callingAssembly;
             _callerFilePath = callerFilePath;
+            _callerMemberName = callerMemberName;
+            _callerLineNumber = callerLineNumber;
         }
 
         // ============================================================
@@ -122,6 +130,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                               _headers,
                                               _callingAssembly,
                                               _callerFilePath,
+                                              _callerMemberName,
+                                              _callerLineNumber,
                                               statusCode);
         }
 
@@ -134,6 +144,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         {
             return new HttpExpectationBuilder(_client, _method, _url,
                                               _body, _parameters, _headers,
+                                              _callingAssembly,
+                                              _callerFilePath,
+                                              _callerMemberName,
+                                              _callerLineNumber,
                                               statusCode);
         }
 
