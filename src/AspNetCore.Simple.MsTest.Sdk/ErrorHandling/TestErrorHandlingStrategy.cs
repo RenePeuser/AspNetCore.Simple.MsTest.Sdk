@@ -42,10 +42,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
         /// <summary>
         /// Asynchronously handles the specified exception and returns a formatted error message.
         /// </summary>
-        /// <param name="context">The HTTP assertion context containing request/response information.</param>
+        /// <param name="context">
+        /// The assertion context - an <see cref="IHttpAssertContext"/> for http asserts, a plain
+        /// <see cref="IObjectAssertContext"/> for the direct object route.
+        /// </param>
         /// <param name="exception">The exception that was thrown.</param>
         /// <returns>A formatted error message suitable for display in test output.</returns>
-        Task<string> HandleAsync(IHttpAssertContext context,
+        Task<string> HandleAsync(IObjectAssertContext context,
                                  Exception exception);
     }
 
@@ -64,32 +67,29 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
         /// <summary>
         /// Handles the exception by finding the most suitable handler and returning a formatted error message.
         /// </summary>
-        public async Task<string> HandleAsync(IHttpAssertContext context,
+        public async Task<string> HandleAsync(IObjectAssertContext context,
                                               Exception exception)
         {
-            // 1. Find all handlers that can handle this exception type
+            // 1. Find all handlers that can handle this exception type, in registration order.
+            //    The default handler is registered last so it acts as a catch-all.
             var compatibleHandlers = testErrorHandlers
                                      .Where(handler => handler.CanHandle(exception))
                                      .ToList();
 
-            // 2. Take the first compatible handler (or null if none found)
-            //    Note: The default handler should always be last in registration,
-            //    so it acts as a catch-all if no specific handler matches
-            var selectedHandler = compatibleHandlers.FirstOrDefault();
-
-            // 3. Handle the exception (this should always succeed because DefaultErrorHandler is registered last)
-            if (selectedHandler.IsNotNull())
+            // 2. Ask them in turn. An empty answer means "I have nothing useful to say about THIS
+            //    context" - a handler that needs http data cannot serve a plain object assert - so the
+            //    next compatible handler gets its turn instead of dropping straight to the fallback.
+            foreach (var handler in compatibleHandlers)
             {
-                var errorMessage = await selectedHandler.HandleAsync(context, exception).ConfigureAwait(false);
+                var errorMessage = await handler.HandleAsync(context, exception).ConfigureAwait(false);
 
-                // 4. Safety check - if handler returned empty string, something went wrong
                 if (errorMessage.IsNotNullOrWhiteSpace())
                 {
                     return errorMessage;
                 }
             }
 
-            // 5. Final fallback - this should never happen if DefaultErrorHandler is registered correctly
+            // 3. Final fallback - this should never happen if DefaultErrorHandler is registered correctly
             //    But we provide a simple error message just in case
             return BuildFallbackError(context, exception);
         }
@@ -98,9 +98,19 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
         /// Builds a minimal error message when no handler can process the exception.
         /// This should never be called if the handlers are registered correctly.
         /// </summary>
-        private static string BuildFallbackError(IHttpAssertContext context,
+        private static string BuildFallbackError(IObjectAssertContext context,
                                                  Exception exception)
         {
+            var origin = context is IHttpAssertContext httpContext
+                             ? $"""
+                                HTTP Method    : {httpContext.HttpMethod.Method}
+                                URL            : {httpContext.Url}
+                                """
+                             : $"""
+                                Method         : {context.CallerMemberName}
+                                Line           : {context.CallerLineNumber}
+                                """;
+
             return $"""
 
                     ══════════════════════════════════════════════════════════════
@@ -110,8 +120,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
                     Exception Type : {exception.GetType().Name}
                     Message        : {exception.Message}
 
-                    HTTP Method    : {context.HttpMethod.Method}
-                    URL            : {context.Url}
+                    {origin}
 
                     This error should not occur - please check error handler registration.
                     ══════════════════════════════════════════════════════════════

@@ -23,13 +23,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     internal sealed class InvalidSnapshotJsonErrorHandler(ITextDecorator textDecorator)
         : TestErrorHandler<InvalidSnapshotJsonException>
     {
-        protected override Task<string> HandleExceptionAsync(IHttpAssertContext context,
+        protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              InvalidSnapshotJsonException exception)
         {
             return Task.FromResult(Build(context, exception));
         }
 
-        private string Build(IHttpAssertContext context,
+        private string Build(IObjectAssertContext context,
                              InvalidSnapshotJsonException exception)
         {
             var kind = exception.IsPayload ? "PAYLOAD" : "SNAPSHOT";

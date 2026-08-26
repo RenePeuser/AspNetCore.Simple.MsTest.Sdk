@@ -1,4 +1,3 @@
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
@@ -27,13 +26,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                                                        ISourceCodeExtractor sourceCodeExtractor)
         : TestErrorHandler<SnapshotNotFoundException>
     {
-        protected override Task<string> HandleExceptionAsync(IHttpAssertContext context,
+        protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              SnapshotNotFoundException exception)
         {
             return Task.FromResult(Build(context, exception));
         }
 
-        private string Build(IHttpAssertContext context,
+        private string Build(IObjectAssertContext context,
                              SnapshotNotFoundException exception)
         {
             var kind = exception.IsPayload ? "PAYLOAD" : "SNAPSHOT";

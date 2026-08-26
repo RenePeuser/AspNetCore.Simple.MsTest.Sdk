@@ -18,10 +18,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
         /// <summary>
         /// Asynchronously handles the specified exception and returns a formatted error message.
         /// </summary>
-        /// <param name="context">The HTTP assertion context containing request/response information.</param>
+        /// <param name="context">
+        /// The assertion context. This is an <see cref="IHttpAssertContext"/> for http asserts and a
+        /// plain <see cref="IObjectAssertContext"/> for the direct object route - handlers that print
+        /// http specifics have to check for the richer type.
+        /// </param>
         /// <param name="exception">The exception that was thrown.</param>
-        /// <returns>A formatted error message suitable for display in test output.</returns>
-        Task<string> HandleAsync(IHttpAssertContext context,
+        /// <returns>
+        /// A formatted error message suitable for display in test output, or an empty string when this
+        /// handler cannot say anything useful about the given context - the strategy then moves on to
+        /// the next compatible handler.
+        /// </returns>
+        Task<string> HandleAsync(IObjectAssertContext context,
                                  Exception exception);
     }
 
@@ -67,7 +75,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
         /// <summary>
         /// Handles the exception by delegating to the type-safe implementation.
         /// </summary>
-        public async Task<string> HandleAsync(IHttpAssertContext context,
+        public async Task<string> HandleAsync(IObjectAssertContext context,
                                               Exception exception)
         {
             // Safety first - only handle if we can
@@ -83,10 +91,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
         /// <summary>
         /// Override this method to implement the actual exception handling logic.
         /// </summary>
-        /// <param name="context">The HTTP assertion context containing request/response information.</param>
+        /// <param name="context">The assertion context - http asserts pass an <see cref="IHttpAssertContext"/>.</param>
         /// <param name="exception">The exception to handle (already cast to the correct type).</param>
         /// <returns>A formatted error message for display in test output.</returns>
-        protected abstract Task<string> HandleExceptionAsync(IHttpAssertContext context,
+        protected abstract Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              TException exception);
     }
 }

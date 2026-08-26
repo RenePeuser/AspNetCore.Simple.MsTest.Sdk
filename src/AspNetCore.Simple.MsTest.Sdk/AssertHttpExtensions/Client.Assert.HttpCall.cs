@@ -108,6 +108,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var httpCallHandler = serviceProvider.GetRequiredService<IHttpCallHandler>();
             _httpCallHandler = (HttpCallHandler)httpCallHandler;
 
+            // Settings carry the project's volatile header list - take the configured one, not defaults.
+            _testCreatorSettings = serviceProvider.GetService<TestCreatorSettings>() ?? new TestCreatorSettings();
+
             // 7. Rebuild pipeline with the updated components
             _httpAssertionPipeline = new HttpAssertionPipeline([
                                                                    new StatusCodeValidationStep(_outputBuilder),
@@ -117,6 +120,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                           _assertService,
                                                                                           _parameterReplacer,
                                                                                           _writeResponseService,
+                                                                                          _testCreatorSettings,
                                                                                           _jsonSerializerOptions),
                                                                    new SuccessfulTestCurlPrinter(_curlPrinter)
                                                                ]);
@@ -199,6 +203,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestCreatorSettings(), JsonSerializerOptions, new PlainTextDecorator(),
                                                                                                  new SourceCodeExtractor(),
                                                                                                  new ResourceRootNamespaceResolver());
+
+        /// <summary>
+        /// Defaults until the container hands over the project's own settings when the service provider
+        /// is applied - the volatile header list is configurable per project.
+        /// </summary>
+        private static TestCreatorSettings _testCreatorSettings = new();
 
         private static JsonSerializer _jsonSerializerInstance = new(JsonSerializerOptions);
 
@@ -287,6 +297,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                                                             _assertService,
                                                                                                                             _parameterReplacer,
                                                                                                                             _writeResponseService,
+                                                                                                                            _testCreatorSettings,
                                                                                                                             JsonSerializerOptions)
                                                                                                  });
 

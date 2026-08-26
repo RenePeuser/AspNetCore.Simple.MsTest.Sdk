@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -9,6 +8,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
+using AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
@@ -123,6 +125,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   ResponseWriter,
                                                                   WriteResponseService,
                                                                   OutputBuilder);
+
+        /// <summary>
+        /// The object route has no DI container, so the handlers that can serve a context without a
+        /// request are wired up by hand - in the same order the container registers them, catch-all
+        /// last. The http-only handlers are left out: they answer with an empty string for a plain
+        /// object context anyway.
+        /// </summary>
+        private static readonly TestErrorHandlingStrategy ErrorHandlingStrategy =
+            new TestErrorHandlingStrategy([
+                                              new SnapshotNotFoundErrorHandler(TextDecorator, new SourceCodeExtractor()),
+                                              new InvalidSnapshotJsonErrorHandler(TextDecorator),
+                                              new DefaultErrorHandler()
+                                          ]);
 
         // GlobalWriteResponse
         // NEW Env variable WriteResponse = true -> For Ai Usage
@@ -727,7 +742,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             try
             {
-                ObjectsAreEqualInternal(context);
+                // A snapshot reference that resolved to nothing must never travel further:
+                // EmbeddedFileInfo.Content then still holds the file NAME, and the downstream lookup
+                // matches manifest names by substring - "Persons.json" binds to "GetAllPersons.json"
+                // and the test goes green against a foreign snapshot. The http route has guarded this
+                // for a while; this route did not, which left the protection half armed.
+                EnsureSnapshotReferenceIsUsable(context);
+
+                ObjectsAreEqualInternal(PrepareForRecording(context));
             }
             catch (AssertFailedException)
             {
@@ -738,14 +760,59 @@ namespace AspNetCore.Simple.MsTest.Sdk
             catch (Exception exception)
 #pragma warning restore CA1031
             {
-                // ToDo: Error handler as well
                 // GLOBAL EXCEPTION HANDLER FOR OBJECT ASSERTIONS
-                // Build a simple error message since we don't have HTTP context here
-                var errorOutput = BuildObjectAssertionError(context, exception);
-                Assert.That.Fail(errorOutput);
+                // The handlers are shared with the http route - a missing or broken snapshot reads the
+                // same no matter which assert found it. Only the generic fallback differs, because
+                // there is no request and no response to print here.
+                var errorOutput = ErrorHandlingStrategy.HandleAsync(context, exception)
+                                                       .GetAwaiter()
+                                                       .GetResult();
+
+                Assert.That.Fail(errorOutput.IsNullOrWhiteSpace()
+                                     ? BuildObjectAssertionError(context, exception)
+                                     : errorOutput);
 
                 throw; // Never reached, but required for compiler
             }
+        }
+
+        private static void EnsureSnapshotReferenceIsUsable<T>(ObjectAssertContext<T> context)
+        {
+            SnapshotReferenceGuard.EnsureSnapshotExists(context.ExpectedResultFile,
+                                                        context.ExpectedObjectAsJson,
+                                                        context.ExpectedResultParameterName,
+                                                        context.CallingAssembly,
+                                                        WriteResponseService.ShouldWriteResponse(context.WriteResponse, context.CallingAssembly));
+
+            // A file that exists but is not parseable json must say so. Otherwise the shape checks look
+            // at the first character only and report a structure mismatch for a plain syntax error.
+            SnapshotReferenceGuard.EnsureParseable(context.ExpectedResultFile,
+                                                   context.ResolvedExpectedJson,
+                                                   isPayload: false);
+        }
+
+        /// <summary>
+        /// Turns an assert against a snapshot that does not exist yet into a recording.
+        ///
+        /// The writer sits behind the comparison, and for an unresolved reference
+        /// <see cref="IObjectAssertContext.ResolvedExpectedJson"/> still holds the file NAME - so the
+        /// comparison threw ("could not deserialize your json string into expected type") long before
+        /// the writer could create anything. Recording the current object is what write response means
+        /// for a snapshot that is about to be created; the http route does the same thing one layer up.
+        /// </summary>
+        private static ObjectAssertContext<T> PrepareForRecording<T>(ObjectAssertContext<T> context)
+        {
+            if (context.ExpectedResultFile.Resolved ||
+                WriteResponseService.ShouldWriteResponse(context).IsFalse())
+            {
+                return context;
+            }
+
+            return context with
+                   {
+                       Expected = context.OrderFunc(context.Current),
+                       ResolvedExpectedJson = null
+                   };
         }
 
         private static void ObjectsAreEqualInternal<T>(ObjectAssertContext<T> context)
@@ -801,7 +868,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine("──────────────────────────────────────────────────────────────");
             sb.AppendLine();
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var fullClassName = GetFullClassName(context.CallerFilePath, projectName);
+            var fullClassName = TestClassNameResolver.Resolve(context.CallerFilePath, projectName);
             sb.AppendLine($"{"Project",-10} : {projectName}");
             sb.AppendLine($"{"Class",-10} : {fullClassName}");
             sb.AppendLine($"{"Method",-10} : {context.CallerMemberName}");
@@ -884,46 +951,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return sb.ToString();
         }
 
-        private static string GetFullClassName(string callerFilePath,
-                                               string projectName)
-        {
-            try
-            {
-                // Get the file name without extension
-                var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
-
-                // Find the project root by looking for the project name in the path
-                var pathSegments = callerFilePath.Replace("\\", "/").Split('/');
-                var projectIndex = Array.FindIndex(pathSegments, s => s.Equals(projectName, StringComparison.OrdinalIgnoreCase));
-
-                if (projectIndex >= 0 && projectIndex < pathSegments.Length - 1)
-                {
-                    // Take segments after the project name up to (but not including) the file name
-                    var namespaceParts = pathSegments.Skip(projectIndex + 1).Take(pathSegments.Length - projectIndex - 2).ToList();
-
-                    if (namespaceParts.Count > 0)
-                    {
-                        // Build namespace.ClassName
-                        var namespaceStr = string.Join(".", namespaceParts.Select(s => s.Replace(" ", "")));
-
-                        return $"{projectName}.{namespaceStr}.{fileName}";
-                    }
-
-                    // File is directly in project root
-                    return $"{projectName}.{fileName}";
-                }
-
-                // Fallback to just the file name
-                return fileName;
-            }
-#pragma warning disable CA1031
-            catch
-#pragma warning restore CA1031
-            {
-                // Fallback to full caller file path on any error
-                return callerFilePath;
-            }
-        }
     }
 #pragma warning restore IDE0060 // Remove unused parameter
 }

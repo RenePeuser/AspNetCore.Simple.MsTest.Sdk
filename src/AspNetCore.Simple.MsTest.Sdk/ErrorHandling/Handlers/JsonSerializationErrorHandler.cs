@@ -35,7 +35,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                                                         ISourceCodeExtractor sourceCodeExtractor)
         : TestErrorHandler<JsonException>
     {
-        protected override Task<string> HandleExceptionAsync(IHttpAssertContext context,
+        protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              JsonException exception)
         {
             // If this is our wrapper exception with ResponseContext, use that context instead
@@ -44,7 +44,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                                        ? contextException.ResponseContext
                                        : context;
 
-            var errorOutput = BuildJsonSerializationError(effectiveContext, exception);
+            // Everything below prints the request and its response. A plain object assert has neither,
+            // so the next compatible handler gets its turn.
+            if (effectiveContext is not IHttpAssertContext httpContext)
+            {
+                return Task.FromResult(string.Empty);
+            }
+
+            var errorOutput = BuildJsonSerializationError(httpContext, exception);
 
             return Task.FromResult(errorOutput);
         }

@@ -622,14 +622,149 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return (null, resourceName);
             }
 
-            var fileName = $"{parts[^2]}.{parts[^1]}";
-            var folderSegments = parts[..^2];
+            // A manifest name is one flat dotted string, so it cannot say on its own where a folder
+            // ends and the file begins: "Api.V3.1.Responses.My.File.json" reads just as well as
+            // folder "V3" + folder "1" and as file "File.json" inside a folder "My". Splitting blindly
+            // on '.' picked exactly those wrong readings - a folder like "V3.1" mapped to V3\1 and a
+            // file like "my.file.json" lost its first segment to the folder path.
+            // The source tree is the authority, so walk it as far as it goes.
+            var (matchedFolders, consumed, reachedFolder) = MatchFoldersOnDisk(parts, projectFolder);
 
-            var folderPath = folderSegments.Length > 0
-                                 ? Path.Combine(folderSegments)
-                                 : string.Empty;
+            var remaining = parts[consumed..];
 
-            return (folderPath, fileName);
+            // The file itself settles the remaining dots when it is already there.
+            var joinedRemainder = string.Join('.', remaining);
+
+            if (reachedFolder.IsNotNull() &&
+                File.Exists(Path.Combine(reachedFolder.FullName, joinedRemainder)))
+            {
+                return (BuildFolderPath(matchedFolders), joinedRemainder);
+            }
+
+            // Nothing on disk to go by - a snapshot about to be created, or sources that are not on
+            // this machine. The last two segments are the file name, the rest are folders.
+            if (remaining.Length < 2)
+            {
+                return (BuildFolderPath(matchedFolders), joinedRemainder);
+            }
+
+            var fileName = $"{remaining[^2]}.{remaining[^1]}";
+            var allFolders = matchedFolders.Concat(remaining[..^2]).ToArray();
+
+            return (BuildFolderPath(allFolders), fileName);
+        }
+
+        private static string BuildFolderPath(IReadOnlyCollection<string> folderSegments)
+        {
+            return folderSegments.Count > 0
+                       ? Path.Combine([.. folderSegments])
+                       : string.Empty;
+        }
+
+        /// <summary>
+        /// Consumes as many leading segments as map to folders that really exist. The folders on disk
+        /// are matched by their RESOURCE form, not by their name: msbuild runs every folder name
+        /// through MakeValidEverettIdentifier before it becomes part of a manifest name, so the folder
+        /// "V3.1" appears as "V3._1" and could never be found by looking for a folder called "V3._1".
+        ///
+        /// The last two segments are never consumed - "Name.json" is the shortest a file name can be.
+        /// </summary>
+        private static (ImmutableList<string> Folders, int Consumed, DirectoryInfo? ReachedFolder)
+            MatchFoldersOnDisk(string[] parts,
+                               DirectoryInfo? projectFolder)
+        {
+            if (projectFolder.IsNull() || projectFolder.Exists.IsFalse())
+            {
+                return (ImmutableList<string>.Empty, 0, null);
+            }
+
+            var folders = ImmutableList<string>.Empty;
+            var current = projectFolder;
+            var index = 0;
+
+            while (index < parts.Length - 2)
+            {
+                DirectoryInfo? bestMatch = null;
+                var bestLength = 0;
+
+                foreach (var candidate in current.EnumerateDirectories())
+                {
+                    var segments = ToResourceSegments(candidate.Name);
+
+                    // Longest match wins: with both "V3" and "V3.1" on disk, "V3.1" is the one meant.
+                    if (segments.Length <= bestLength ||
+                        index + segments.Length > parts.Length - 2 ||
+                        MatchesAt(parts, index, segments).IsFalse())
+                    {
+                        continue;
+                    }
+
+                    bestMatch = candidate;
+                    bestLength = segments.Length;
+                }
+
+                if (bestMatch.IsNull())
+                {
+                    break;
+                }
+
+                current = bestMatch;
+                folders = folders.Add(bestMatch.Name);
+                index += bestLength;
+            }
+
+            return (folders, index, current);
+        }
+
+        private static bool MatchesAt(string[] parts,
+                                      int index,
+                                      string[] segments)
+        {
+            for (var offset = 0; offset < segments.Length; offset++)
+            {
+                if (parts[index + offset].Equals(segments[offset], StringComparison.OrdinalIgnoreCase).IsFalse())
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// The dotted segments a folder name contributes to a manifest resource name. Mirrors msbuild's
+        /// MakeValidEverettIdentifier: every dot separated piece has to start with a letter or an
+        /// underscore, and anything that is not a letter, digit or underscore is replaced.
+        /// </summary>
+        private static string[] ToResourceSegments(string folderName)
+        {
+            return folderName.Split('.')
+                             .Select(ToIdentifier)
+                             .ToArray();
+        }
+
+        private static string ToIdentifier(string piece)
+        {
+            if (piece.Length.EqualsTo(0))
+            {
+                return "_";
+            }
+
+            var builder = new StringBuilder(piece.Length + 1);
+
+            if (char.IsLetter(piece[0]).IsFalse() && piece[0].EqualsTo('_').IsFalse())
+            {
+                builder.Append('_');
+            }
+
+            foreach (var character in piece)
+            {
+                builder.Append(char.IsLetterOrDigit(character) || character.EqualsTo('_')
+                                   ? character
+                                   : '_');
+            }
+
+            return builder.ToString();
         }
 
         // ============================================================

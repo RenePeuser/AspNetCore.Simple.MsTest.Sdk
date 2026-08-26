@@ -45,9 +45,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                    exception.Message.Contains("not seekable", StringComparison.OrdinalIgnoreCase);
         }
 
-        protected override Task<string> HandleExceptionAsync(IHttpAssertContext context,
+        protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              NotSupportedException exception)
         {
+            // A rewound request body needs a request. Without one this is an ordinary
+            // NotSupportedException and the default handler describes it better.
+            if (context is not IHttpAssertContext httpContext)
+            {
+                return Task.FromResult(string.Empty);
+            }
+
             var sb = new StringBuilder();
 
             sb.AppendLine();
@@ -60,15 +67,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
-            sb.AppendLine($"{"Method",-10} : {context.CallerMemberName}");
-            sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
+            sb.AppendLine($"{"Method",-10} : {httpContext.CallerMemberName}");
+            sb.AppendLine($"{"Line",-10} : {httpContext.CallerLineNumber}");
             sb.AppendLine();
 
             sb.AppendLine(textDecorator.SectionTitle("🌍 HTTP"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
-            sb.AppendLine($"{"Method",-10} : {context.HttpMethod.Method}");
-            sb.AppendLine($"{"Url",-10} : {context.Url}");
+            sb.AppendLine($"{"Method",-10} : {httpContext.HttpMethod.Method}");
+            sb.AppendLine($"{"Url",-10} : {httpContext.Url}");
             sb.AppendLine();
 
             sb.AppendLine(textDecorator.SectionTitle("⚠️ What Happened"));

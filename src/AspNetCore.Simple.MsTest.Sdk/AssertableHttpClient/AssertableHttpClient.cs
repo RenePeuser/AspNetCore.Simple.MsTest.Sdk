@@ -82,9 +82,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         /// <inheritdoc />
         public async Task<TResult> AssertAsync<TResult>(HttpAssertContext<TResult> context)
         {
+            // The response context only comes into existence once the call came back. Handing the
+            // request context to the error strategy for a failure that happened AFTER the response
+            // arrived is why the default handler printed "[Response not available yet]" while the body
+            // was sitting right there. The reporter carries the richest context known at any moment.
+            var reporter = new AssertContextReporter(context);
+
             try
             {
-                var result = await AssertInternalAsync(context).ConfigureAwait(false);
+                var result = await AssertInternalAsync(context, reporter).ConfigureAwait(false);
 
                 return result;
             }
@@ -100,7 +106,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 // Delegate exception handling to the error handling strategy
                 // The strategy will find the appropriate handler (ProblemDetailsErrorHandler, DefaultErrorHandler, etc.)
                 // and return a formatted error message
-                var errorOutput = await testErrorHandlingStrategy.HandleAsync(context, exception).ConfigureAwait(false);
+                var errorOutput = await testErrorHandlingStrategy.HandleAsync(reporter.Context, exception).ConfigureAwait(false);
 
                 Assert.That.Fail(errorOutput);
 
@@ -108,7 +114,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             }
         }
 
-        private async Task<TResult> AssertInternalAsync<TResult>(HttpAssertContext<TResult> context)
+        /// <summary>
+        /// Holds the most complete context seen so far. An async method cannot hand a value back through
+        /// an out parameter, and the response context is built deep inside the call.
+        /// </summary>
+        private sealed class AssertContextReporter(IHttpAssertContext context)
+        {
+            public IHttpAssertContext Context { get; set; } = context;
+        }
+
+        private async Task<TResult> AssertInternalAsync<TResult>(HttpAssertContext<TResult> context,
+                                                                 AssertContextReporter reporter)
         {
             // 0. A payload or snapshot reference that resolved to nothing must never travel further:
             //    EmbeddedFileInfo.Content then still holds the file NAME, and the downstream lookup
@@ -212,6 +228,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 IsEmptyAnonymousObjectForCodeGeneration = context.IsEmptyAnonymousObjectForCodeGeneration
             };
 
+            // From here on the response is known - every error message may show it.
+            reporter.Context = responseContext;
+
             // Delegate to pipeline - steps only validate, never modify the result
             // The pipeline will catch status code mismatches and other issues BEFORE we check deserialization
             // Pipeline returns context.CurrentResult (the original deserialized response)
@@ -229,62 +248,22 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
         private static void EnsureReferencedFilesAreParseable<TResult>(HttpAssertContext<TResult> context)
         {
-            // Validate the PARAMETER RESOLVED content. A parameterized snapshot legitimately carries
-            // bare placeholders ("age": $Age$) which are not json until the parameters are applied.
-            EnsureParseable(context.PayloadFile, context.ResolvedPayload, isPayload: true);
-            EnsureParseable(context.ExpectedResultFile, context.ResolvedExpectedJson, isPayload: false);
-        }
-
-        private static void EnsureParseable(EmbeddedFileInfo? file,
-                                            string? resolvedContent,
-                                            bool isPayload)
-        {
-            // Only content that came from a *.json file is checked - inline json and text snapshots are
-            // not this method's business, and an unresolved reference was already rejected above.
-            if (file.IsNull() ||
-                file.Resolved.IsFalse() ||
-                resolvedContent.IsNullOrWhiteSpace() ||
-                file.EmbeddedFileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase).IsFalse())
-            {
-                return;
-            }
-
-            try
-            {
-                // System.Text.Json is strict per RFC 8259 and reports line and position, where
-                // Newtonsoft silently accepts several malformed shapes.
-                using var _ = JsonDocument.Parse(resolvedContent);
-            }
-            catch (JsonException exception)
-            {
-                throw new InvalidSnapshotJsonException(file.EmbeddedFileName,
-                                                       file.EmbeddedFile?.FullName,
-                                                       resolvedContent!,
-                                                       isPayload,
-                                                       exception);
-            }
+            SnapshotReferenceGuard.EnsureParseable(context.PayloadFile, context.ResolvedPayload, isPayload: true);
+            SnapshotReferenceGuard.EnsureParseable(context.ExpectedResultFile, context.ResolvedExpectedJson, isPayload: false);
         }
 
         private void EnsureReferencedFilesExist<TResult>(HttpAssertContext<TResult> context)
         {
-            // A payload can never be created on the fly - it is input, not a recording.
-            if (context.PayloadFile.IsNotNull() && context.PayloadFile.Resolved.IsFalse())
-            {
-                throw new SnapshotNotFoundException(context.PayloadAsJson ?? string.Empty,
-                                                    context.PayloadParameterName,
-                                                    context.CallingAssembly,
-                                                    isPayload: true);
-            }
+            SnapshotReferenceGuard.EnsurePayloadExists(context.PayloadFile,
+                                                       context.PayloadAsJson ?? string.Empty,
+                                                       context.PayloadParameterName,
+                                                       context.CallingAssembly);
 
-            // A missing snapshot is legitimate while recording - that is what write response is for.
-            if (context.ExpectedResultFile.Resolved.IsFalse() &&
-                writeResponseService.ShouldWriteResponse(context.WriteResponse, context.CallingAssembly).IsFalse())
-            {
-                throw new SnapshotNotFoundException(context.ExpectedObjectAsJson,
-                                                    context.ExpectedResultParameterName,
-                                                    context.CallingAssembly,
-                                                    isPayload: false);
-            }
+            SnapshotReferenceGuard.EnsureSnapshotExists(context.ExpectedResultFile,
+                                                        context.ExpectedObjectAsJson,
+                                                        context.ExpectedResultParameterName,
+                                                        context.CallingAssembly,
+                                                        writeResponseService.ShouldWriteResponse(context.WriteResponse, context.CallingAssembly));
         }
     }
 }

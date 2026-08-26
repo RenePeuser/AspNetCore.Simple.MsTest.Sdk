@@ -1,8 +1,7 @@
 using System;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,7 +25,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     /// </summary>
     internal sealed class DefaultErrorHandler : TestErrorHandler<Exception>
     {
-        protected override Task<string> HandleExceptionAsync(IHttpAssertContext context,
+        protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              Exception exception)
         {
             var errorOutput = BuildUnexpectedSdkError(context, exception);
@@ -37,7 +36,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         /// <summary>
         /// Builds a formatted error message for unexpected SDK errors (bugs, network issues, etc.)
         /// </summary>
-        private static string BuildUnexpectedSdkError(IHttpAssertContext context,
+        private static string BuildUnexpectedSdkError(IObjectAssertContext context,
                                                       Exception exception)
         {
             var sb = new StringBuilder();
@@ -52,11 +51,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             BuildTestInfo(sb, context);
             sb.AppendLine();
 
-            BuildHttpInfo(sb, context);
-            sb.AppendLine();
+            // The direct object route has no request and no response - printing empty http sections
+            // there would only be noise.
+            if (context is IHttpAssertContext httpContext)
+            {
+                BuildHttpInfo(sb, httpContext);
+                sb.AppendLine();
 
-            BuildResponseContent(sb, context);
-            sb.AppendLine();
+                BuildResponseContent(sb, httpContext);
+                sb.AppendLine();
+            }
 
             BuildExceptionDetails(sb, exception);
             sb.AppendLine();
@@ -70,10 +74,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         }
 
         private static void BuildTestInfo(StringBuilder sb,
-                                          IHttpAssertContext context)
+                                          IObjectAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var fullClassName = GetFullClassName(context.CallerFilePath, projectName);
+            var fullClassName = TestClassNameResolver.Resolve(context.CallerFilePath, projectName);
 
             sb.AppendLine("📦 Test Information");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
@@ -82,40 +86,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine($"{"Class",-10} : {fullClassName}");
             sb.AppendLine($"{"Method",-10} : {context.CallerMemberName}");
             sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
-        }
-
-        private static string GetFullClassName(string callerFilePath,
-                                               string projectName)
-        {
-            try
-            {
-                var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
-                var pathSegments = callerFilePath.Replace("\\", "/").Split('/');
-                var projectIndex = Array.FindIndex(pathSegments, s => s.Equals(projectName, StringComparison.OrdinalIgnoreCase));
-
-                if (projectIndex >= 0 && projectIndex < pathSegments.Length - 1)
-                {
-                    var namespaceParts = pathSegments.Skip(projectIndex + 1).Take(pathSegments.Length - projectIndex - 2).ToList();
-
-                    if (namespaceParts.Count > 0)
-                    {
-                        var namespaceStr = string.Join(".", namespaceParts.Select(s => s.Replace(" ", "")));
-
-                        return $"{projectName}.{namespaceStr}.{fileName}";
-                    }
-
-                    return $"{projectName}.{fileName}";
-                }
-
-                return fileName;
-            }
-#pragma warning disable CA1031
-            catch
-#pragma warning restore CA1031
-            {
-                // Fallback to full caller file path on any error
-                return callerFilePath;
-            }
         }
 
         private static void BuildHttpInfo(StringBuilder sb,
@@ -165,7 +135,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             }
             else
             {
-                sb.AppendLine("  [Response not available yet]");
+                // Reaching this means the call never came back - a connect error, a hang, an exception
+                // thrown before the request went out.
+                sb.AppendLine("  [The request did not produce a response]");
             }
         }
 

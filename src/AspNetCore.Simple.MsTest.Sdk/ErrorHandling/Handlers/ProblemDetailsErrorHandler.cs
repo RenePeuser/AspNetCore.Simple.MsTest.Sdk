@@ -24,11 +24,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     internal sealed class ProblemDetailsErrorHandler(IProblemDetailsOutputBuilder problemDetailsOutputBuilder)
         : TestErrorHandler<TestSdkProblemDetailsException>
     {
-        protected override Task<string> HandleExceptionAsync(IHttpAssertContext context,
+        protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              TestSdkProblemDetailsException exception)
         {
+            // Problem details are an http response shape - a plain object assert cannot produce one,
+            // so an empty answer hands the exception to the next compatible handler.
+            if (context is not IHttpAssertContext httpContext)
+            {
+                return Task.FromResult(string.Empty);
+            }
+
             // Delegate to the specialized ProblemDetailsOutputBuilder
-            var errorOutput = problemDetailsOutputBuilder.BuildUnexpectedError(context, exception);
+            var errorOutput = problemDetailsOutputBuilder.BuildUnexpectedError(httpContext, exception);
 
             return Task.FromResult(errorOutput);
         }

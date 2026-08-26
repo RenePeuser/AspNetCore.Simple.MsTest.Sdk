@@ -32,10 +32,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                                                   ISourceCodeExtractor sourceCodeExtractor)
         : TestErrorHandler<InvalidJsonException>
     {
-        protected override Task<string> HandleExceptionAsync(IHttpAssertContext context,
+        protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              InvalidJsonException exception)
         {
-            var errorOutput = BuildInvalidJsonError(context, exception);
+            // The whole message is built around the call that produced the json - without an http
+            // context there is nothing to show, so the next compatible handler takes over.
+            if (context is not IHttpAssertContext httpContext)
+            {
+                return Task.FromResult(string.Empty);
+            }
+
+            var errorOutput = BuildInvalidJsonError(httpContext, exception);
 
             return Task.FromResult(errorOutput);
         }
