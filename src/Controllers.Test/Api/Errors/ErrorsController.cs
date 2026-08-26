@@ -51,11 +51,13 @@ namespace Controllers.Test.Api.Errors
             // This test should fail because we expect 404 but get 500
             // The endpoint returns 500 (InternalServerError)
             // We don't provide an expected JSON file, so only the status code is checked
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() =>
-                                                                       Client.AssertPostAsync<ProblemDetails>("api/v1/errors/not-implemented",
-                                                                                                              writeResponse: false,
-                                                                                                              skipEndpointValidation: true,
-                                                                                                              expectedHttpStatusCode: System.Net.HttpStatusCode.NotFound))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() =>
+                                                                            Client.AssertPostAsync<ProblemDetails>("api/v1/errors/not-implemented",
+                                                                                                                   writeResponse: false,
+                                                                                                                   skipEndpointValidation: true,
+                                                                                                                   expectedHttpStatusCode: System.Net.HttpStatusCode.NotFound),
+                                                                        because: "The endpoint answers 500, the test declares 404. With no expected json only the status code is compared, so this is the narrowest possible check that the comparison happens at all.",
+                                                                        fix: "Check that the status code is compared against expectedHttpStatusCode even when no snapshot is given - skipping the check for a bodyless assert is the likely cause.")
                         .ConfigureAwait(false);
         }
 

@@ -89,20 +89,39 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
         [TestCategory("GET")]
         public async Task Native_Should_Throw_When_Response_Type_Invalid()
         {
-            var error = await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<UnknownResponse>("api/v1/persons",
-                                                                                                                            "GetAllPersons.json")).ConfigureAwait(false);
+            var error = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<UnknownResponse>("api/v1/persons",
+                                                                                                                                 "GetAllPersons.json"),
+                                                                                    because: "The test declares a type the endpoint never returns. Endpoint validation has to catch that up front instead of letting the call go out and fail later on a deserialization error nobody can read.",
+                                                                                    fix: "Check that endpoint validation compares the declared type against the endpoint's real return type before the request is built.")
+                                    .ConfigureAwait(false);
 
-            StringAssert.Contains(error.Message, "HTTP RESPONSE TYPE MISMATCH");
+            Assert.That.Contains(error.Message,
+                                 "HTTP RESPONSE TYPE MISMATCH",
+                                 because: "The heading has to name the real problem - a wrong type argument in the test - instead of surfacing as a json or serialization error further downstream.",
+                                 fix: "Check that endpoint validation raises the response-type mismatch and that its handler is selected before the generic ones.");
 
             // The declared type and the one the endpoint returns - without both the message is useless.
-            StringAssert.Contains(error.Message, nameof(UnknownResponse));
-            StringAssert.Contains(error.Message, "IEnumerable<Person>");
+            Assert.That.Contains(error.Message,
+                                 nameof(UnknownResponse),
+                                 because: "Naming the declared type tells the author which of possibly several asserts in the file is the wrong one.",
+                                 fix: "Check that the validation output prints the type argument that was passed in.");
+
+            Assert.That.Contains(error.Message,
+                                 "IEnumerable<Person>",
+                                 because: "The type the endpoint really returns is the answer to the question the failure raises. Without it the author has to go read the controller - and the readable C# form matters, the CLR name is not something you can paste into the test.",
+                                 fix: "Check that the validation output renders the endpoint's return type through TypeNameFormatter and that it unwraps Task<T> first.");
 
             // And it has to say what to do about it.
-            StringAssert.Contains(error.Message, "Suggested Fix");
+            Assert.That.Contains(error.Message,
+                                 "Suggested Fix",
+                                 because: "This is the whole point of the AI-friendly output: naming the problem is not enough, the message has to say what to change.",
+                                 fix: "Check that the handler renders the Suggested Fix section - see AssertOutputHelper.BuildFixSection.");
 
             // No request may go out - the mismatch is caught by endpoint validation beforehand.
-            StringAssert.Contains(error.Message, "No HTTP call was made");
+            Assert.That.Contains(error.Message,
+                                 "No HTTP call was made",
+                                 because: "Validation runs before the request, so the author has to be told the endpoint was never touched - otherwise they will go looking for a server-side cause of a purely local mistake.",
+                                 fix: "Check that endpoint validation runs before the http call and that its output says so explicitly.");
         }
 
         [TestMethod]
@@ -113,11 +132,15 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
         [DataRow("{incomplete")]
         public async Task Native_Should_Throw_When_Json_Malformed(string invalidJson)
         {
-            var exception = await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons", invalidJson))
+            var exception = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons", invalidJson),
+                                                                                        because: $"Inline json that does not parse ({invalidJson}) has to stop the test. Treating it as an unresolvable snapshot reference and carrying on would compare against nothing.",
+                                                                                        fix: "Check that the inline-json path reports a parse error instead of falling through to the snapshot lookup.")
                                         .ConfigureAwait(false);
 
             // Just verify an exception was thrown with invalid JSON
-            Assert.IsNotNull(exception);
+            Assert.That.IsNotNull(exception,
+                                  because: "ThrowsExactlyAsync hands the caught exception back so the message can be inspected - a null here would mean the assert helper itself lost it.",
+                                  fix: "Check the return value of Assert.That.ThrowsExactlyAsync.");
         }
     }
 

@@ -50,9 +50,11 @@ namespace MinimalApi.Test.Api.Errors
         [TestCategory("GET")]
         public async Task GetAsError_With_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
         {
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsErrorAsync<ProblemDetails>("api/v1/errors/get-not-implemented",
-                                                                                                                      WrongDetailFile,
-                                                                                                                      differenceFilter: KeepUnlessTitle))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsErrorAsync<ProblemDetails>("api/v1/errors/get-not-implemented",
+                                                                                                                           WrongDetailFile,
+                                                                                                                           differenceFilter: KeepUnlessTitle),
+                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.")
                         .ConfigureAwait(false);
         }
 
@@ -73,9 +75,11 @@ namespace MinimalApi.Test.Api.Errors
         [TestCategory("DELETE")]
         public async Task DeleteAsError_With_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
         {
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertDeleteAsErrorAsync<ProblemDetails>("api/v1/errors/delete-not-implemented",
-                                                                                                                         WrongDetailFile,
-                                                                                                                         differenceFilter: KeepUnlessTitle))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertDeleteAsErrorAsync<ProblemDetails>("api/v1/errors/delete-not-implemented",
+                                                                                                                              WrongDetailFile,
+                                                                                                                              differenceFilter: KeepUnlessTitle),
+                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.")
                         .ConfigureAwait(false);
         }
 
@@ -97,10 +101,12 @@ namespace MinimalApi.Test.Api.Errors
         [TestCategory("PUT")]
         public async Task PutAsError_With_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
         {
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPutAsErrorAsync<ProblemDetails>("api/v1/errors/put-not-implemented",
-                                                                                                                      ThrowawayBody,
-                                                                                                                      WrongDetailFile,
-                                                                                                                      differenceFilter: KeepUnlessTitle))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPutAsErrorAsync<ProblemDetails>("api/v1/errors/put-not-implemented",
+                                                                                                                           ThrowawayBody,
+                                                                                                                           WrongDetailFile,
+                                                                                                                           differenceFilter: KeepUnlessTitle),
+                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.")
                         .ConfigureAwait(false);
         }
 
@@ -122,10 +128,12 @@ namespace MinimalApi.Test.Api.Errors
         [TestCategory("PATCH")]
         public async Task PatchAsError_With_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
         {
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPatchAsErrorAsync<ProblemDetails>("api/v1/errors/patch-not-implemented",
-                                                                                                                        ThrowawayBody,
-                                                                                                                        WrongDetailFile,
-                                                                                                                        differenceFilter: KeepUnlessTitle))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPatchAsErrorAsync<ProblemDetails>("api/v1/errors/patch-not-implemented",
+                                                                                                                             ThrowawayBody,
+                                                                                                                             WrongDetailFile,
+                                                                                                                             differenceFilter: KeepUnlessTitle),
+                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.")
                         .ConfigureAwait(false);
         }
     }

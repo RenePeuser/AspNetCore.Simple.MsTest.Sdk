@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MinimalApi.Api.Persons.V1;
@@ -98,7 +99,9 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                                      .Produces<Person>(HttpStatusCode.Created)
                                      .ExecuteAsync().ConfigureAwait(false);
 
-            Assert.IsNotNull(result);
+            Assert.That.IsNotNull(result,
+                                  because: "This is the body-less path: no golden file is compared, so the typed result coming back is the only proof the request went through and was deserialized.",
+                                  fix: "Check that ExecuteAsync returns the deserialized body for a Produces<T>(status) expectation instead of only asserting the status code.");
         }
 
         // ============================================================
@@ -288,7 +291,9 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                                      .Produces<Person>(201)
                                      .ExecuteAsync().ConfigureAwait(false);
 
-            Assert.IsNotNull(result);
+            Assert.That.IsNotNull(result,
+                                  because: "This is the body-less path: no golden file is compared, so the typed result coming back is the only proof the request went through and was deserialized.",
+                                  fix: "Check that ExecuteAsync returns the deserialized body for a Produces<T>(status) expectation instead of only asserting the status code.");
         }
 
         [TestMethod]
@@ -397,12 +402,14 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
             var person = TestHelpers.CreateValidPerson();
             var expected = person with { Name = "WrongName" };
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPost("api/v1/persons")
-                                                                               .Accepts(person)
-                                                                               .Produces<Person>(HttpStatusCode.Created)
-                                                                               .ExpectedResponse(expected)
-                                                                               .DifferenceFilter(d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
-                                                                               .ExecuteAsync()).ConfigureAwait(false);
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPost("api/v1/persons")
+                                                                                    .Accepts(person)
+                                                                                    .Produces<Person>(HttpStatusCode.Created)
+                                                                                    .ExpectedResponse(expected)
+                                                                                    .DifferenceFilter(d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
+                                                                                    .ExecuteAsync(),
+                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.").ConfigureAwait(false);
         }
     }
 }

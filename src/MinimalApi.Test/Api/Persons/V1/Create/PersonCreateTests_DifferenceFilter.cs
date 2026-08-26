@@ -54,11 +54,13 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
             // Name is wrong; the filter only ignores age, so the name difference must still fail.
             var expectedPerson = personToCreate with { Name = "WrongName" };
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPostAsync("api/v1/persons",
-                                                                                                personToCreate,
-                                                                                                expectedPerson,
-                                                                                                differenceFunc: diffs => diffs,
-                                                                                                differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPostAsync("api/v1/persons",
+                                                                                                     personToCreate,
+                                                                                                     expectedPerson,
+                                                                                                     differenceFunc: diffs => diffs,
+                                                                                                     differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)),
+                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.")
                         .ConfigureAwait(false);
         }
     }

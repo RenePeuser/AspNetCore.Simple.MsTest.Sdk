@@ -57,10 +57,12 @@ namespace Controllers.Test.Api.Persons.V1.Get
         {
             var expectedPerson = ExpectedPerson(name: "WrongName");
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync(PersonUrl,
-                                                                                               expectedPerson,
-                                                                                               differenceFunc: diffs => diffs,
-                                                                                               differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync(PersonUrl,
+                                                                                                    expectedPerson,
+                                                                                                    differenceFunc: diffs => diffs,
+                                                                                                    differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)),
+                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The name is wrong here for an unrelated reason and still has to fail - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.")
                         .ConfigureAwait(false);
         }
 

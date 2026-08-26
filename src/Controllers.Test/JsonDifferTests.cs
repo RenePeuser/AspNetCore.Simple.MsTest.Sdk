@@ -141,11 +141,30 @@ namespace Controllers.Test
             // Test for bug fix: Primitive values should be detected as differences
             var diffs = _jsonDiffer.FindDifferences("69", "42");
 
-            Assert.HasCount(1, diffs);
-            Assert.AreEqual("", diffs[0].MemberPath); // Root level primitive
-            Assert.AreEqual("69", diffs[0].Value1);
-            Assert.AreEqual("42", diffs[0].Value2);
-            Assert.AreEqual(MismatchType.ValueDifference, diffs[0].MismatchType);
+            Assert.That.HasCount(1,
+                                 diffs,
+                                 because: "This is the regression this test exists for: a bare primitive at the root used to be compared away to nothing, so two different numbers looked equal.",
+                                 fix: "Check the entry point of JsonDiffer.FindDifferences - it has to compare the root token itself when it is a primitive, not only descend into object properties.");
+
+            Assert.That.AreEqual("",
+                                 diffs[0].MemberPath, // Root level primitive
+                                 because: "A root level primitive has no member to name, so the path is empty. A synthetic name like 'root' or '$' would not point at anything in the payload.",
+                                 fix: "Check the path JsonDiffer passes into the comparison for the root token - it has to start out empty.");
+
+            Assert.That.AreEqual("69",
+                                 diffs[0].Value1,
+                                 because: "Value1 has to carry the left/expected side. This is where the primitive bug showed: the differ used to report the actual value on both sides, hiding what was expected.",
+                                 fix: "Check that JsonDiffer fills Value1 from json1 and Value2 from json2 - not the same token twice.");
+
+            Assert.That.AreEqual("42",
+                                 diffs[0].Value2,
+                                 because: "Value2 has to carry the right/current side, so the failure output can show expected against actual.",
+                                 fix: "Check that JsonDiffer fills Value2 from json2 - not from json1.");
+
+            Assert.That.AreEqual(MismatchType.ValueDifference,
+                                 diffs[0].MismatchType,
+                                 because: "Both sides have a value, only the content differs - that is a value difference, not a missing member.",
+                                 fix: "JsonDiffer must reserve MissingInFirst/MissingInSecond for tokens that are really absent on one side.");
         }
 
         [TestMethod]
@@ -261,7 +280,10 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(left, right);
 
-            Assert.HasCount(5, diffs);
+            Assert.That.HasCount(5,
+                                 diffs,
+                                 because: "The two envelopes differ in exactly five leaves (bucket name, capability id, lastModifiedAt, createdAt and the display name). Everything else - headers, status code, the empty arrays - is identical and must not add noise. A deep structure is where a differ most easily reports a whole subtree instead of the leaves that changed.",
+                                 fix: "Compare the reported paths in the Details above against the two documents: too many findings means JsonDiffer stops descending too early, too few means it does not descend far enough.");
         }
 
         [TestMethod]
@@ -370,11 +392,30 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
 
-            Assert.HasCount(1, diffs);
-            Assert.AreEqual("name", diffs[0].MemberPath);
-            Assert.AreEqual("Alice", diffs[0].Value1);
-            Assert.AreEqual("Bob", diffs[0].Value2);
-            Assert.AreEqual(MismatchType.ValueDifference, diffs[0].MismatchType);
+            Assert.That.HasCount(1,
+                                 diffs,
+                                 because: "Normalising away formatting must not go so far that a real value change disappears with it - 'age' is identical, 'name' is not.",
+                                 fix: "Check that the normalization in JsonDiffer only removes insignificant whitespace and does not compare the documents as one canonicalised blob.");
+
+            Assert.That.AreEqual("name",
+                                 diffs[0].MemberPath,
+                                 because: "The compact and the formatted document have to yield the same member path - the path must come from the parsed tree, never from string positions.",
+                                 fix: "Check that JsonDiffer builds MemberPath while walking JTokens instead of deriving it from the raw json text.");
+
+            Assert.That.AreEqual("Alice",
+                                 diffs[0].Value1,
+                                 because: "Value1 has to carry the left/expected side so the failure output can show expected against actual.",
+                                 fix: "Check that JsonDiffer fills Value1 from json1 and Value2 from json2 - not the same token twice.");
+
+            Assert.That.AreEqual("Bob",
+                                 diffs[0].Value2,
+                                 because: "Value2 has to carry the right/current side, and reformatting must not leak quotes or whitespace into the reported value.",
+                                 fix: "Check that JsonDiffer takes the parsed token's value for Value2, not the raw json slice.");
+
+            Assert.That.AreEqual(MismatchType.ValueDifference,
+                                 diffs[0].MismatchType,
+                                 because: "'name' exists on both sides, so this is a value difference - a reformatted document must not look like a schema change.",
+                                 fix: "JsonDiffer must reserve MissingInFirst/MissingInSecond for properties that are really absent on one side.");
         }
 
         [TestMethod]
@@ -412,9 +453,22 @@ namespace Controllers.Test
             var diffs = _jsonDiffer.FindDifferences(left, right);
 
             // Should detect differences at index 0 and 2
-            Assert.IsTrue(diffs.Count >= 2, "Array order differences should be detected");
-            Assert.IsTrue(diffs.Any(d => d.MemberPath.Contains("[0]")));
-            Assert.IsTrue(diffs.Any(d => d.MemberPath.Contains("[2]")));
+            Assert.That.IsGreaterThanOrEqual(diffs.Count,
+                                             2,
+                                             because: "Arrays are order-sensitive by design: [1,2,3] against [3,2,1] differs at index 0 and index 2 (index 1 happens to match). Fewer findings means reordering an array would slip through unnoticed.",
+                                             fix: "Check that JsonDiffer compares array elements positionally instead of as a set - a set comparison would report nothing at all here.");
+
+            Assert.That.Any(diffs,
+                            d => d.MemberPath.Contains("[0]"),
+                            predicateDescription: "a difference at array index 0",
+                            because: "1 against 3 at the first position has to be reported with its index, so the author can see which element moved.",
+                            fix: "Check that JsonDiffer includes the element index in MemberPath when comparing arrays.");
+
+            Assert.That.Any(diffs,
+                            d => d.MemberPath.Contains("[2]"),
+                            predicateDescription: "a difference at array index 2",
+                            because: "3 against 1 at the last position has to be reported too - stopping after the first mismatching element would leave the author fixing one difference at a time.",
+                            fix: "Check that JsonDiffer keeps comparing after the first mismatching element instead of returning early.");
         }
 
         [TestMethod]
@@ -559,11 +613,30 @@ namespace Controllers.Test
 
             var diffs = _jsonDiffer.FindDifferences(leftCompact, rightFormatted);
 
-            Assert.HasCount(1, diffs);
-            Assert.AreEqual("[1]", diffs[0].MemberPath);
-            Assert.AreEqual("2", diffs[0].Value1);
-            Assert.AreEqual("99", diffs[0].Value2);
-            Assert.AreEqual(MismatchType.ValueDifference, diffs[0].MismatchType);
+            Assert.That.HasCount(1,
+                                 diffs,
+                                 because: "Only the element at index 1 differs; the whitespace around the other elements is not data. More findings would mean reformatting an array produces phantom differences.",
+                                 fix: "Check that JsonDiffer compares parsed array elements instead of raw json slices.");
+
+            Assert.That.AreEqual("[1]",
+                                 diffs[0].MemberPath,
+                                 because: "A root level array has no property name, so the path is just the index in brackets - that is what lets the author jump straight to the element.",
+                                 fix: "Check how JsonDiffer builds MemberPath for a root array: the index alone, with no property prefix and no leading dot.");
+
+            Assert.That.AreEqual("2",
+                                 diffs[0].Value1,
+                                 because: "Value1 has to carry the left/expected element so the failure output can show expected against actual.",
+                                 fix: "Check that JsonDiffer fills Value1 from json1 and Value2 from json2 - not the same element twice.");
+
+            Assert.That.AreEqual("99",
+                                 diffs[0].Value2,
+                                 because: "Value2 has to carry the right/current element, and the surrounding whitespace must not leak into it.",
+                                 fix: "Check that JsonDiffer takes the parsed element's value for Value2, not the raw json slice.");
+
+            Assert.That.AreEqual(MismatchType.ValueDifference,
+                                 diffs[0].MismatchType,
+                                 because: "Both arrays have an element at index 1, so this is a value difference - not a missing element.",
+                                 fix: "JsonDiffer must only report MissingInFirst/MissingInSecond when one array is actually shorter.");
         }
 
         [TestMethod]

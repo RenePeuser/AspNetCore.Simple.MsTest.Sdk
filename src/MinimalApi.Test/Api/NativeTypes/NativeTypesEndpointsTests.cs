@@ -23,9 +23,15 @@ namespace MinimalApi.Test.Api.NativeTypes
         [TestMethod]
         public async Task Should_Be_Able_To_Fetch_Native_Int_As_Well_Invalid()
         {
-            var result = await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<int>("api/v1/native-types/int", expectedResult: "24")).ConfigureAwait(false);
+            var result = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<int>("api/v1/native-types/int", expectedResult: "24"),
+                                                                                     because: "The endpoint returns 42 and the test declares 24. A bare native type has no property names to diff on, so this is the case where a comparison most easily degrades into 'both sides are just a number, close enough'.",
+                                                                                     fix: "Check that the primitive comparison really compares the two values - see the JsonComparisonStep branch for primitive types.")
+                                     .ConfigureAwait(false);
 
-            Assert.Contains("24", result.Message);
+            Assert.That.Contains(result.Message,
+                                 "24",
+                                 because: "The expected value has to appear in the output. Without it the author sees only that a number did not match, with no way to tell which side they got wrong.",
+                                 fix: "Check that the failure output prints the expected value and not just the actual one - reporting the actual value on both sides is a known failure mode for primitives.");
         }
 
         [TestMethod]

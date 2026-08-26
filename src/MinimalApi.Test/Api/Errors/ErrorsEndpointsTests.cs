@@ -49,11 +49,13 @@ namespace MinimalApi.Test.Api.Errors
             // This test should fail because we expect 404 but get 500
             // The endpoint returns 500 (InternalServerError)
             // We don't provide an expected JSON file, so only the status code is checked
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() =>
-                                                                       Client.AssertPostAsync<ProblemDetails>("api/v1/errors/not-implemented",
-                                                                                                              writeResponse: false,
-                                                                                                              skipEndpointValidation: true,
-                                                                                                              expectedHttpStatusCode: System.Net.HttpStatusCode.NotFound))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() =>
+                                                                            Client.AssertPostAsync<ProblemDetails>("api/v1/errors/not-implemented",
+                                                                                                                   writeResponse: false,
+                                                                                                                   skipEndpointValidation: true,
+                                                                                                                   expectedHttpStatusCode: System.Net.HttpStatusCode.NotFound),
+                                                                        because: "The endpoint answers 500, the test declares 404. With no expected json only the status code is compared, so this is the narrowest possible check that the comparison happens at all.",
+                                                                        fix: "Check that the status code is compared against expectedHttpStatusCode even when no snapshot is given - skipping the check for a bodyless assert is the likely cause.")
                         .ConfigureAwait(false);
         }
 
@@ -85,9 +87,11 @@ namespace MinimalApi.Test.Api.Errors
         public async Task DifferenceFilter_Only_Should_Not_Hide_Unrelated_Difference()
         {
             // The filter only drops "detail" differences, so a wrong "title" must still fail.
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPostAsErrorAsync<ProblemDetails>("api/v1/errors/not-implemented",
-                                                                                                                       "ErrorResponseWrongDetail.json",
-                                                                                                                       differenceFilter: d => !d.MemberPath.Contains("title", System.StringComparison.OrdinalIgnoreCase)))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPostAsErrorAsync<ProblemDetails>("api/v1/errors/not-implemented",
+                                                                                                                            "ErrorResponseWrongDetail.json",
+                                                                                                                            differenceFilter: d => !d.MemberPath.Contains("title", System.StringComparison.OrdinalIgnoreCase)),
+                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.")
                         .ConfigureAwait(false);
         }
 

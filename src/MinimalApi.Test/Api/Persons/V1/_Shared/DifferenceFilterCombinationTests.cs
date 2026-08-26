@@ -72,11 +72,13 @@ namespace MinimalApi.Test.Api.Persons.V1.Shared
             // Same three mechanisms, but now "name" also differs and nothing drops it → must still fail.
             var expected = ExpectedPerson(age: 1, name: "WrongName", firstName: "WrongFirst");
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync(PersonUrl,
-                                                                                               expected,
-                                                                                               filterFunc: person => person,
-                                                                                               differenceFunc: diffs => diffs.Where(d => !d.MemberPath.Contains("firstName", StringComparison.OrdinalIgnoreCase)),
-                                                                                               differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync(PersonUrl,
+                                                                                                    expected,
+                                                                                                    filterFunc: person => person,
+                                                                                                    differenceFunc: diffs => diffs.Where(d => !d.MemberPath.Contains("firstName", StringComparison.OrdinalIgnoreCase)),
+                                                                                                    differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)),
+                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.")
                         .ConfigureAwait(false);
         }
 
@@ -117,9 +119,11 @@ namespace MinimalApi.Test.Api.Persons.V1.Shared
         public async Task PostAsError_With_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
         {
             // The filter only drops "detail"; a wrong "title" must still fail.
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPostAsErrorAsync<ProblemDetails>(ErrorUrl,
-                                                                                                                       "Responses.ErrorResponseWrongDetail.json",
-                                                                                                                       differenceFilter: d => !d.MemberPath.Contains("title", StringComparison.OrdinalIgnoreCase)))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPostAsErrorAsync<ProblemDetails>(ErrorUrl,
+                                                                                                                            "Responses.ErrorResponseWrongDetail.json",
+                                                                                                                            differenceFilter: d => !d.MemberPath.Contains("title", StringComparison.OrdinalIgnoreCase)),
+                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.")
                         .ConfigureAwait(false);
         }
     }

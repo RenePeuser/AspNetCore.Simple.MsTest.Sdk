@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AspNetCore.Simple.MsTest.Sdk;
 using ConsoleTables;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,8 +35,9 @@ namespace Sdc.Console.Test.Startup
 
             var table = ConsoleTable.From(filteredDuplicates).ToString();
 
-            Assert.IsTrue(filteredDuplicates.IsEmpty(),
-                          $"Total amount of service registrations: {ServiceCollection.Count}{Environment.NewLine}{Environment.NewLine}Please check your implementation for multiple registrations, each implementation have to be registered only once.{Environment.NewLine}{Environment.NewLine}{table}");
+            Assert.That.IsEmpty(filteredDuplicates,
+                                because: "Every implementation must be registered exactly once. A duplicate registration means the container hands out a different instance than the one the code was written against - and with a scoped or singleton service that shows up much later as state that mysteriously does not persist.",
+                                fix: $"Remove the duplicate registrations listed below, or add the type to the whitelist in this test if the framework registers it more than once on purpose.{Environment.NewLine}Total amount of service registrations: {ServiceCollection.Count}{Environment.NewLine}{Environment.NewLine}{table}");
 
             return;
 

@@ -33,8 +33,15 @@ namespace Controllers.Test.ErrorHandling
 
             var output = await HandleAsync(exception).ConfigureAwait(false);
 
-            StringAssert.Contains(output, "SNAPSHOT FILE NOT FOUND");
-            Assert.IsFalse(output.Contains("UNEXPECTED TEST SDK ERROR", StringComparison.Ordinal));
+            Assert.That.Contains(output,
+                                 "SNAPSHOT FILE NOT FOUND",
+                                 because: "A SnapshotNotFoundException has to reach SnapshotNotFoundErrorHandler, which names the missing file. That heading is what tells the author it is a typo in a file name, not a broken sdk.",
+                                 fix: "Check that the specific handler is registered and that its CanHandle accepts SnapshotNotFoundException with isPayload false.");
+
+            Assert.That.DoesNotContain(output,
+                                       "UNEXPECTED TEST SDK ERROR",
+                                       because: "The catch-all always produces something, so a mis-registered specific handler does not fail loudly - it just prints this heading plus a stack trace and sends the author hunting for an sdk bug.",
+                                       fix: "The specific handler has to be selected before DefaultErrorHandler; check the registration order in AddTestErrorHandlingStrategy.");
         }
 
         [TestMethod]
@@ -47,7 +54,10 @@ namespace Controllers.Test.ErrorHandling
 
             var output = await HandleAsync(exception).ConfigureAwait(false);
 
-            StringAssert.Contains(output, "PAYLOAD FILE NOT FOUND");
+            Assert.That.Contains(output,
+                                 "PAYLOAD FILE NOT FOUND",
+                                 because: "The same exception type carries isPayload, and a missing request payload is a different mistake from a missing response snapshot - the wording has to say which one it is.",
+                                 fix: "Check that the handler branches on SnapshotNotFoundException.IsPayload instead of always printing the snapshot wording.");
         }
 
         [TestMethod]
@@ -55,8 +65,15 @@ namespace Controllers.Test.ErrorHandling
         {
             var output = await HandleAsync(BrokenJson()).ConfigureAwait(false);
 
-            StringAssert.Contains(output, "IS NOT VALID JSON");
-            Assert.IsFalse(output.Contains("UNEXPECTED TEST SDK ERROR", StringComparison.Ordinal));
+            Assert.That.Contains(output,
+                                 "IS NOT VALID JSON",
+                                 because: "A syntax error in the snapshot is the author's own file, so the output has to point at the json and its position instead of at the sdk.",
+                                 fix: "Check that InvalidSnapshotJsonErrorHandler is registered and that its CanHandle accepts InvalidSnapshotJsonException.");
+
+            Assert.That.DoesNotContain(output,
+                                       "UNEXPECTED TEST SDK ERROR",
+                                       because: "Falling through to the catch-all here would blame the sdk for a stray comma in a fixture.",
+                                       fix: "The specific handler has to be selected before DefaultErrorHandler; check the registration order in AddTestErrorHandlingStrategy.");
         }
 
         [TestMethod]
@@ -64,8 +81,15 @@ namespace Controllers.Test.ErrorHandling
         {
             var output = await HandleAsync(new InvalidOperationException("something nobody planned for")).ConfigureAwait(false);
 
-            StringAssert.Contains(output, "UNEXPECTED TEST SDK ERROR");
-            StringAssert.Contains(output, "something nobody planned for");
+            Assert.That.Contains(output,
+                                 "UNEXPECTED TEST SDK ERROR",
+                                 because: "For an exception nobody planned for the catch-all is the right answer - it exists so that no failure ever disappears without output.",
+                                 fix: "Check that DefaultErrorHandler is registered at all and that its CanHandle returns true unconditionally.");
+
+            Assert.That.Contains(output,
+                                 "something nobody planned for",
+                                 because: "The catch-all has no domain knowledge, so the original exception message is the only clue the author gets - swallowing it leaves nothing to act on.",
+                                 fix: "Check that DefaultErrorHandler writes exception.Message into its output instead of only the type name.");
         }
 
         /// <summary>
@@ -77,8 +101,15 @@ namespace Controllers.Test.ErrorHandling
         {
             var output = await HandleAsync(new NotSupportedException("this operation is not supported")).ConfigureAwait(false);
 
-            Assert.IsFalse(output.Contains("READ TWICE WITHOUT BUFFERING", StringComparison.Ordinal));
-            StringAssert.Contains(output, "UNEXPECTED TEST SDK ERROR");
+            Assert.That.DoesNotContain(output,
+                                       "READ TWICE WITHOUT BUFFERING",
+                                       because: "NonSeekableBodyErrorHandler narrows NotSupportedException down to a rewind attempt. Claiming a buffering problem for an unrelated NotSupportedException sends the author off to fix something that is not broken.",
+                                       fix: "Make NonSeekableBodyErrorHandler.CanHandle check the exception's origin or message for the rewind case instead of accepting every NotSupportedException.");
+
+            Assert.That.Contains(output,
+                                 "UNEXPECTED TEST SDK ERROR",
+                                 because: "With no specific handler willing to take it, this exception has to land on the catch-all - which is at least honest about not knowing what happened.",
+                                 fix: "Check that declining the exception in NonSeekableBodyErrorHandler really lets the selection continue to DefaultErrorHandler.");
         }
 
         /// <summary>
@@ -90,15 +121,20 @@ namespace Controllers.Test.ErrorHandling
         {
             var handlers = BuildProvider().GetServices<ITestErrorHandler>().ToImmutableList();
 
-            Assert.IsGreaterThan(1, handlers.Count, "No specific handlers are registered at all.");
+            Assert.That.IsGreaterThan(handlers.Count,
+                                      1,
+                                      because: "With only the catch-all registered, every test above would still pass its 'falls back to default' half while every specific handler silently does nothing.",
+                                      fix: "Check AddTestErrorHandlingStrategy - the specific handlers have to be registered next to DefaultErrorHandler, not instead of it.");
 
-            Assert.IsInstanceOfType<DefaultErrorHandler>(handlers[^1],
-                                                         "The catch-all is not last - it would swallow every exception.");
+            Assert.That.IsAssignableTo<DefaultErrorHandler>(handlers[^1],
+                                                            because: "The catch-all has to come last. Anywhere else it wins every selection and no specific handler is ever reached - exactly the silent failure this class exists for.",
+                                                            fix: "Move the DefaultErrorHandler registration to the end of AddTestErrorHandlingStrategy; DI preserves registration order for GetServices.");
 
             for (var index = 0; index < handlers.Count - 1; index++)
             {
-                Assert.IsNotInstanceOfType<DefaultErrorHandler>(handlers[index],
-                                                                $"The catch-all is also registered at position {index}.");
+                Assert.That.IsNotAssignableTo<DefaultErrorHandler>(handlers[index],
+                                                                   because: $"The catch-all appears at position {index} as well. A duplicate registration in front of the specific handlers has the same effect as registering it first - it swallows everything.",
+                                                                   fix: "Check AddTestErrorHandlingStrategy for a second DefaultErrorHandler registration, e.g. one added by a nested Add... extension.");
             }
         }
 
@@ -113,9 +149,15 @@ namespace Controllers.Test.ErrorHandling
 
             var output = await strategy.HandleAsync(Context(), new InvalidOperationException("passed along")).ConfigureAwait(false);
 
-            StringAssert.Contains(output, "UNEXPECTED TEST SDK ERROR");
-            Assert.IsFalse(output.Contains("UNHANDLED EXCEPTION", StringComparison.Ordinal),
-                           "The bare fallback ran even though a capable handler was registered.");
+            Assert.That.Contains(output,
+                                 "UNEXPECTED TEST SDK ERROR",
+                                 because: "SilentHandler claims it can handle the exception but returns an empty string. The strategy has to carry on to the next compatible handler instead of accepting that nothing as the answer.",
+                                 fix: "Check TestErrorHandlingStrategy.HandleAsync - an empty result has to count as declined and the loop has to continue.");
+
+            Assert.That.DoesNotContain(output,
+                                       "UNHANDLED EXCEPTION",
+                                       because: "The bare fallback is only for the case where no handler produced anything. Reaching it here would mean a perfectly capable handler was skipped.",
+                                       fix: "The fallback in TestErrorHandlingStrategy has to run only after every registered handler declined - not after the first empty result.");
         }
 
         [TestMethod]
@@ -125,8 +167,15 @@ namespace Controllers.Test.ErrorHandling
 
             var output = await strategy.HandleAsync(Context(), new InvalidOperationException("nothing left")).ConfigureAwait(false);
 
-            StringAssert.Contains(output, "UNHANDLED EXCEPTION");
-            StringAssert.Contains(output, "nothing left");
+            Assert.That.Contains(output,
+                                 "UNHANDLED EXCEPTION",
+                                 because: "Even with no handler registered at all the strategy has to produce output - an empty message turns a failure into a test that fails for no visible reason.",
+                                 fix: "Check the last-resort branch in TestErrorHandlingStrategy.HandleAsync; it has to run when the handler list is empty.");
+
+            Assert.That.Contains(output,
+                                 "nothing left",
+                                 because: "The bare fallback knows nothing about the exception, so passing its message through is the only information the author gets.",
+                                 fix: "Check that the fallback in TestErrorHandlingStrategy includes exception.Message, not just a generic heading.");
         }
 
         private static Task<string> HandleAsync(Exception exception)

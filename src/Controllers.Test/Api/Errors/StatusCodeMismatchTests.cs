@@ -29,22 +29,29 @@ namespace Controllers.Test.Api.Errors
             // ARRANGE: Test expects success (AssertPostAsync), but API throws exception → 500 ProblemDetails
 
             // ACT & ASSERT: Should fail with STATUS CODE MISMATCH (not JSON error)
-            var exception = await Assert.ThrowsExactlyAsync<AssertFailedException>(() =>
-                                                                                       Client.AssertPostAsync<ProblemDetails>("api/v1/errors/not-implemented",
-                                                                                                                              writeResponse: false,
-                                                                                                                              skipEndpointValidation: true)).ConfigureAwait(false);
+            var exception = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() =>
+                                                                                            Client.AssertPostAsync<ProblemDetails>("api/v1/errors/not-implemented",
+                                                                                                                                   writeResponse: false,
+                                                                                                                                   skipEndpointValidation: true),
+                                                                                        because: "The endpoint throws and answers 500 ProblemDetails while the test expects success. That mismatch has to fail the test - passing would mean an erroring endpoint looks healthy.",
+                                                                                        fix: "Check that the status code validation step runs before the body is deserialized.")
+                                        .ConfigureAwait(false);
 
             // VERIFY: Error message should contain "STATUS CODE" (not "SERIALIZATION")
-            Assert.IsTrue(exception.Message.Contains("STATUS CODE"),
-                          "Should show STATUS CODE MISMATCH, not JSON SERIALIZATION ERROR");
+            Assert.That.Contains(exception.Message,
+                                 "STATUS CODE",
+                                 because: "The status code is the real problem. Reporting a JSON SERIALIZATION ERROR instead - which is what happens when the body is deserialized first - sends the author to debug their model for what is a 500 from the api.",
+                                 fix: "Check the step order in the assert pipeline: StatusCodeValidationStep has to run before the content is deserialized into the expected type.");
 
-            Assert.IsTrue(exception.Message.Contains("500") || exception.Message.Contains("InternalServerError"),
-                          "Should show actual status code 500");
+            Assert.That.IsTrue(exception.Message.Contains("500") || exception.Message.Contains("InternalServerError"),
+                               because: "Knowing that the status code was wrong is not enough - the author needs the code that actually came back to tell a 500 from a 404 or a 401.",
+                               fix: "Check that the status code output prints the actual code, numerically or by name.");
 
             // VERIFY: Response content (ProblemDetails) should be visible
-            Assert.IsTrue(exception.Message.Contains("Implementation is missing") ||
-                          exception.Message.Contains("ProblemDetails"),
-                          "Should show ProblemDetails response content");
+            Assert.That.IsTrue(exception.Message.Contains("Implementation is missing") ||
+                               exception.Message.Contains("ProblemDetails"),
+                               because: "The ProblemDetails body carries why the api failed. Without it the author knows only that something went wrong on the server and has to reproduce the call by hand.",
+                               fix: "Check that the response content is read and included in the status code mismatch output instead of being dropped once the code check fails.");
         }
 
         /// <summary>
@@ -59,17 +66,21 @@ namespace Controllers.Test.Api.Errors
             //          Test uses AssertPostAsync (expects 200) instead of AssertPostAsErrorAsync
 
             // ACT & ASSERT: Should fail with STATUS CODE MISMATCH
-            var exception = await Assert.ThrowsExactlyAsync<AssertFailedException>(() =>
-                                                                                       Client.AssertPostAsync<ProblemDetails>("api/v1/errors/not-implemented",
-                                                                                                                              writeResponse: false,
-                                                                                                                              expectedHttpStatusCode: System.Net.HttpStatusCode.OK, // Explicitly expect 200
-                                                                                                                              skipEndpointValidation: true)).ConfigureAwait(false);
+            var exception = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() =>
+                                                                                            Client.AssertPostAsync<ProblemDetails>("api/v1/errors/not-implemented",
+                                                                                                                                   writeResponse: false,
+                                                                                                                                   expectedHttpStatusCode: System.Net.HttpStatusCode.OK, // Explicitly expect 200
+                                                                                                                                   skipEndpointValidation: true),
+                                                                                        because: "Using AssertPostAsync instead of AssertPostAsErrorAsync while explicitly expecting 200 is a common mistake when testing error endpoints. Declaring the expected code explicitly must not make the check any weaker.",
+                                                                                        fix: "Check that an explicitly passed expectedHttpStatusCode is really compared and does not overwrite the check with a blanket 'any status is fine'.")
+                                        .ConfigureAwait(false);
 
             // VERIFY: Should show status code mismatch
-            Assert.IsTrue(exception.Message.Contains("STATUS CODE") ||
-                          exception.Message.Contains("200") ||
-                          exception.Message.Contains("500"),
-                          "Should show STATUS CODE MISMATCH error");
+            Assert.That.IsTrue(exception.Message.Contains("STATUS CODE") ||
+                               exception.Message.Contains("200") ||
+                               exception.Message.Contains("500"),
+                               because: "The message has to name the mismatch or at least the two codes involved, so the author sees they picked the wrong assert method rather than that the api is broken.",
+                               fix: "Check that the status code output prints expected and actual code; a bare 'assertion failed' leaves the author with nothing.");
         }
     }
 }

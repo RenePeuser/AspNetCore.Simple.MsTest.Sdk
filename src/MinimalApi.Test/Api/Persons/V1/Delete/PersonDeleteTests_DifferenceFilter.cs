@@ -62,9 +62,11 @@ namespace MinimalApi.Test.Api.Persons.V1.Delete
                                                         }
                                                         """;
 
-            await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertDeleteAsync<DeletePersonResponse>(DeleteUrl,
-                                                                                                                        expectedResponse,
-                                                                                                                        differenceFilter: d => !d.MemberPath.Contains("firstName", StringComparison.OrdinalIgnoreCase)))
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertDeleteAsync<DeletePersonResponse>(DeleteUrl,
+                                                                                                                             expectedResponse,
+                                                                                                                             differenceFilter: d => !d.MemberPath.Contains("firstName", StringComparison.OrdinalIgnoreCase)),
+                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.")
                         .ConfigureAwait(false);
         }
 

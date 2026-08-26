@@ -85,11 +85,15 @@ namespace Controllers.Test.Api.Persons.V1.Get
         [DataRow("{incomplete")]
         public async Task Native_Should_Throw_When_Json_Malformed(string invalidJson)
         {
-            var exception = await Assert.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons", invalidJson))
+            var exception = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons", invalidJson),
+                                                                                        because: $"Inline json that does not parse ({invalidJson}) has to stop the test. Treating it as an unresolvable snapshot reference and carrying on would compare against nothing.",
+                                                                                        fix: "Check that the inline-json path reports a parse error instead of falling through to the snapshot lookup.")
                                         .ConfigureAwait(false);
 
             // Just verify an exception was thrown with invalid JSON
-            Assert.IsNotNull(exception);
+            Assert.That.IsNotNull(exception,
+                                  because: "ThrowsExactlyAsync hands the caught exception back so the message can be inspected - a null here would mean the assert helper itself lost it.",
+                                  fix: "Check the return value of Assert.That.ThrowsExactlyAsync.");
         }
     }
 }
