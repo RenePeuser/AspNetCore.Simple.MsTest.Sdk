@@ -24,6 +24,26 @@ public Task Should_Create_User(string useCase)
 }
 ```
 
+The same test with the fluent API — it reads like the endpoint contract it verifies:
+
+```csharp
+// Alpha version only
+[TestMethod]
+[DynamicRequestLocator]
+public Task Should_Create_User(string useCase)
+{
+    return Client.AssertPost("api/v1/users")
+                 .AcceptsFromEmbeddedJson(useCase)
+                 .Produces<UserResponse>(HttpStatusCode.OK)
+                 .ExpectedResponseFromEmbeddedJson(useCase)
+                 .ExecuteAsync();
+}
+```
+
+> ⚠️ The fluent entry points (`AssertPost`, `AssertGet`, …) are `public` only in prerelease builds
+> (`FLUENT_ALPHA`); in stable packages they stay `internal`.
+> See [Fluent Assert API (Alpha)](#coming-soon--fluent-assert-api-alpha-).
+
 ---
 
 ## Quick Start
@@ -89,6 +109,29 @@ public class UserTests : ApiTestBase
     }
 }
 ```
+
+Fluent equivalent:
+
+```csharp
+// Alpha version only
+[TestClass]
+public class UserTests : ApiTestBase
+{
+    [TestMethod]
+    public Task Should_Create_User()
+    {
+        return Client.AssertPost("api/v1/users")
+                     .AcceptsFromEmbeddedJson("CreateUser.json")
+                     .Produces<UserResponse>(HttpStatusCode.OK)
+                     .ExpectedResponseFromEmbeddedJson("CreateUser.json")
+                     .ExecuteAsync();
+    }
+}
+```
+
+Both styles run the same pipeline and produce the same failure output. The fluent chain additionally
+makes the expected status code explicit and is guarded by an analyzer: forgetting `ExecuteAsync()`
+is a build error (`MSTESTSDK001`), not a silently passing test.
 
 ### Add the JSON snapshot files
 
@@ -165,6 +208,9 @@ Run the test and you get:
 - Convention-based test discovery with `DynamicRequestLocator`
 - Snapshot generation from live traffic
 - Snapshot auto-update and ignore strategies
+- **`Assert.That.*` AI-friendly assertions** - mandatory `because` / `fix` context on every assertion
+- **Roslyn analyzer + code fix shipped in the package** - a dangling fluent chain without
+  `ExecuteAsync()` fails the build (`MSTESTSDK001`) instead of passing silently
 - Drastically less boilerplate than traditional API tests
 
 ---
@@ -2059,18 +2105,28 @@ Additional suggestions:
 
 ### Available assertions
 
-| Category           | Methods                                                                              | Use For                             |
-|--------------------|--------------------------------------------------------------------------------------|-------------------------------------|
-| **Boolean**        | `IsTrue`, `IsFalse`                                                                  | Condition checks                    |
-| **Null**           | `IsNull`, `IsNotNull`                                                                | Null reference validation           |
-| **Equality**       | `AreEqual`, `AreNotEqual`, `AreSame`, `AreNotSame`                                   | Value and reference comparison      |
-| **Type**           | `IsInstanceOfType`, `IsNotInstanceOfType`                                            | Type checking                       |
-| **Numeric**        | `IsGreaterThan`, `IsLessThan`, `IsInRange`, `IsPositive`, `IsNegative`               | Number validation                   |
-| **String**         | `IsEmpty`, `IsNotEmpty`, `Contains`, `StartsWith`, `EndsWith`, `Matches`             | String validation                   |
-| **Collection**     | `IsEmpty`, `IsNotEmpty`, `Contains`, `DoesNotContain`, `AllMatch`                    | Collection validation               |
-| **Exception**      | `Throws`, `DoesNotThrow`                                                             | Exception behavior                  |
-| **DateTime**       | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `IsUtc`, `IsLocal`, `IsUnspecified` | Date/time validation                |
-| **DateTimeOffset** | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `HasOffset`, `IsUtc`, `IsLocal`     | Timezone-aware date/time validation |
+| Category           | Methods                                                                                                      | Use For                             |
+|--------------------|--------------------------------------------------------------------------------------------------------------|-------------------------------------|
+| **Boolean**        | `IsTrue`, `IsFalse`                                                                                          | Condition checks                    |
+| **Null**           | `IsNull`, `IsNotNull`                                                                                        | Null reference validation           |
+| **Equality**       | `AreEqual`, `AreNotEqual`, `AreSame`, `AreNotSame`                                                           | Value and reference comparison      |
+| **Type**           | `IsOfType`, `IsNotOfType`, `IsAssignableTo`, `IsNotAssignableTo`                                             | Exact type vs. assignability        |
+| **Numeric**        | `IsGreaterThan`, `IsGreaterThanOrEqual`, `IsLessThan`, `IsLessThanOrEqual`, `IsInRange`, `IsOutOfRange`       | Number validation                   |
+| **Numeric (sign)** | `IsPositive`, `IsNegative`, `IsZero`, `IsEven`, `IsOdd`                                                      | Sign and parity checks              |
+| **Tolerance**      | `IsCloseTo`                                                                                                  | Floating-point comparison           |
+| **String**         | `IsEmpty`, `IsNotEmpty`, `IsNullOrEmpty`, `IsNotNullOrEmpty`, `IsNullOrWhiteSpace`, `IsNotNullOrWhiteSpace`   | Emptiness validation                |
+| **String content** | `Contains`, `DoesNotContain`, `StartsWith`, `EndsWith`, `Matches`, `DoesNotMatch`, `HasLength`, `HasLengthInRange` | Content and length validation  |
+| **Collection**     | `IsEmpty`, `IsNotEmpty`, `Contains`, `DoesNotContain`, `ContainsAll`, `ContainsAny`, `AreEquivalent`          | Collection content                  |
+| **Collection**     | `HasCount`, `HasCountGreaterThan`, `HasCountInRange`, `Single`, `Any`, `All`, `None`                          | Count and predicate checks          |
+| **Exception**      | `Throws`, `ThrowsAsync`, `ThrowsExactly`, `ThrowsExactlyAsync`, `ThrowsWithMessage`, `ThrowsWithMessageAsync` | Exception behavior                  |
+| **Exception**      | `DoesNotThrow`, `DoesNotThrowAsync`                                                                          | Absence of exceptions               |
+| **DateTime**       | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `IsUtc`, `IsLocal`, `IsUnspecified`                         | Date/time validation                |
+| **DateTimeOffset** | `IsAfter`, `IsBefore`, `IsInRange`, `IsCloseTo`, `HasOffset`, `IsUtc`, `IsLocal`                             | Timezone-aware date/time validation |
+| **Object diff**    | `ObjectsAreEqual`                                                                                            | Deep comparison with `MemberPath`   |
+| **Escape hatch**   | `Fail`                                                                                                       | Explicit failure with context       |
+
+`Throws*` and `DoesNotThrow*` come in sync and async pairs — use the `…Async` variants for
+`Func<Task>` so the exception is observed instead of swallowed by an unawaited task.
 
 ### Why not `AiAssert.*`?
 
@@ -2095,18 +2151,43 @@ await Client.AssertPost("api/v1/persons")
     .ExecuteAsync();                                // the only terminal
 ```
 
-Highlights that are already prototyped or on the roadmap:
+Already implemented in the alpha:
 
+- **Entry points** — `AssertPost`, `AssertGet`, `AssertPut`, `AssertPatch`, `AssertDelete` on `HttpClient`.
 - **Endpoint-mirroring vocabulary** — `Accepts` / `Produces` / `ExpectedResponse` line up with ASP.NET Core
   Minimal API metadata.
-- **Type-state builder** — comparison config (`IgnoreProperty`, `FilterResponse`, `DifferenceFilter`) is only
-  reachable *after* an expected response, enforced by the compiler.
+- **Type-state builder** — comparison config (`IgnoreProperty`, `FilterResponse`, `IgnoreDifferences`,
+  `DifferenceFilter`, `WriteSnapshot`) is only reachable *after* an expected response, enforced by the compiler.
 - **Analyzer-protected terminal** — a forgotten `ExecuteAsync()` is a build error (`MSTESTSDK001`), not a
-  silently green test.
-- **Type-safe property handling** — `.IgnoreProperty<Person>(p => p.Id)` and
-  `.MatchesProperty(p => p.Id, id => id != Guid.Empty)` instead of magic strings.
+  silently green test. A code fix appends the missing terminal.
+- **Type-safe property ignore** — `.IgnoreProperty<Person>(p => p.Id)` instead of magic strings.
+- **Three input shapes each** — object, raw JSON string, or embedded file: `Accepts` /
+  `AcceptsFromJsonString` / `AcceptsFromEmbeddedJson`, and the matching `ExpectedResponse…` trio.
+- **Placeholders and headers** — `WithParameter`, `WithParameters` (tuples or an object), `WithHeader`.
+- **Body-less path** — `Produces(HttpStatusCode.Created)` without `<T>` asserts status only.
+
+Still on the roadmap (not in the alpha yet):
+
+- **QUERY entry point** — `AssertQuery(...)`; use the classic `AssertQueryAsync<T>(…)` in the meantime.
+- **Error-response chains** — the `AsErrorAsync` equivalents.
+- **Property predicates** — `.MatchesProperty(p => p.Id, id => id != Guid.Empty)`.
 - **Endpoint metadata assertions** — `Client.AssertEndpoint(...)` to verify names, tags, auth, produced
   responses and more, without sending a request.
+
+Full method reference:
+
+```csharp
+// Alpha version only
+await Client.AssertPost("api/v1/persons")
+            .AcceptsFromEmbeddedJson("CreatePersonParameterized.json")
+            .WithParameters(("Name", "Son"), ("Age", 42))   // $Name$ / $Age$ substitution
+            .WithHeader("X-Correlation-Id", "test-42")
+            .Produces<Person>(HttpStatusCode.Created)
+            .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
+            .IgnoreProperty<Person>(p => p.Id)
+            .DifferenceFilter(d => !d.MemberPath.Contains("timestamp"))
+            .ExecuteAsync();
+```
 
 > ⚠️ **Alpha only.** The fluent entry points are `public` only in prerelease builds (`FLUENT_ALPHA`); in
 > stable packages they stay `internal` until the shape is final. Signatures may still change. For stable
