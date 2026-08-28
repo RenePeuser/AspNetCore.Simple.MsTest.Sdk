@@ -92,6 +92,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             NormalizeCurrentValues(token1);
             NormalizeCurrentValues(token2);
 
+            // Normalize line endings in all string values
+            // This ensures consistent comparison between Windows (\r\n) and Unix (\n) line endings
+            NormalizeStringValues(token1);
+            NormalizeStringValues(token2);
+
             CompareTokens(token1, token2, differences,
                           "");
 
@@ -141,6 +146,55 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 foreach (var item in array)
                 {
                     NormalizeCurrentValues(item);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Normalizes all string values in the JSON by replacing \r\n with \n.
+        /// This ensures consistent comparison between files with different line endings.
+        /// </summary>
+        private static void NormalizeStringValues(JToken token)
+        {
+            if (token is JObject obj)
+            {
+                foreach (var property in obj.Properties().ToList())
+                {
+                    if (property.Value.Type == JTokenType.String)
+                    {
+                        var stringValue = property.Value.ToString();
+                        var normalized = stringValue.Replace("\r\n", "\n");
+                        if (normalized != stringValue)
+                        {
+                            property.Value = new JValue(normalized);
+                        }
+                    }
+                    else
+                    {
+                        // Recursively process nested values
+                        NormalizeStringValues(property.Value);
+                    }
+                }
+            }
+            else if (token is JArray array)
+            {
+                for (int i = 0; i < array.Count; i++)
+                {
+                    var item = array[i];
+                    if (item.Type == JTokenType.String)
+                    {
+                        var stringValue = item.ToString();
+                        var normalized = stringValue.Replace("\r\n", "\n");
+                        if (normalized != stringValue)
+                        {
+                            array[i] = new JValue(normalized);
+                        }
+                    }
+                    else
+                    {
+                        // Recursively process nested values
+                        NormalizeStringValues(item);
+                    }
                 }
             }
         }
