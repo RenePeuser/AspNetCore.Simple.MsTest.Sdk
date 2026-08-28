@@ -10,6 +10,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static void AddCurlFormatter(this IServiceCollection services)
         {
             // No dependencies - ITextDecorator is registered separately
+
             services.AddSingletonIfNotExists<ICurlFormatter, CurlFormatter>();
         }
     }
