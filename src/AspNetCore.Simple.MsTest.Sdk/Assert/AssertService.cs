@@ -18,12 +18,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         public static void AddAssertService(this IServiceCollection services)
         {
-            // 1. Register text decorator (conditional on build configuration)
-#if DEBUG
-            services.AddPlainTextDecorator(); // No colors for Visual Studio Test Explorer
-#else
-            services.AddAnsiColorTextDecorator(); // Colors for CI/terminal
-#endif
+            // 1. Register text decorator (runtime detection for debugger state)
+            // Uses RuntimeTextDecorator which checks Debugger.IsAttached at call time
+            // to prevent ANSI escape codes from appearing as ASCII artifacts in IDE test output
+            services.AddRuntimeTextDecorator();
 
             // 2. Register all dependencies via their own extensions
             services.AddPrimitiveTypeConverter();

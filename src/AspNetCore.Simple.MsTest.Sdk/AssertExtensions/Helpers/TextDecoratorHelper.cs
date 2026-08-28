@@ -12,15 +12,22 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
     internal static class TextDecoratorHelper
     {
         /// <summary>
-        /// Gets the appropriate text decorator based on the calling assembly's build configuration.
-        /// Returns PlainTextDecorator if the calling assembly is in DEBUG mode, AnsiColorTextDecorator otherwise.
-        /// This ensures the decorator matches the test project's build configuration, not the SDK's.
+        /// Gets the appropriate text decorator based on debugger state and build configuration.
+        /// Returns PlainTextDecorator if a debugger is attached or the calling assembly is in DEBUG mode.
+        /// This prevents ANSI escape codes from appearing as ASCII artifacts in IDE test output.
         /// </summary>
         /// <returns>The text decorator instance</returns>
 #pragma warning disable CA1859 // Use concrete types when possible for improved performance - interface needed for flexibility
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static ITextDecorator GetTextDecorator()
         {
+            // Always use plain text when a debugger is attached, regardless of build configuration
+            // This prevents ANSI codes from being rendered as ASCII characters in IDE test explorers
+            if (Debugger.IsAttached)
+            {
+                return new PlainTextDecorator();
+            }
+
             var callingAssembly = Assembly.GetCallingAssembly();
             var isDebugMode = IsAssemblyDebugBuild(callingAssembly);
 
