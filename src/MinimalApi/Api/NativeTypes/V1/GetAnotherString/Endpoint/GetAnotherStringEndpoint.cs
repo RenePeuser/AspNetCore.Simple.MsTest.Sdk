@@ -1,3 +1,4 @@
+using Extensions.Pack;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,7 @@ namespace MinimalApi.Api.NativeTypes.V1
     {
         public static void AddGetAnotherStringEndpoint(this IServiceCollection services)
         {
-            services.AddSingleton<IEndpoint, GetAnotherStringEndpoint>();
+            services.AddSingletonIfNotExists<IEndpoint, GetAnotherStringEndpoint>();
         }
     }
 

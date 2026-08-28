@@ -1,3 +1,4 @@
+using Extensions.Pack;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +16,7 @@ namespace MinimalApi.Api.Persons.V1
     {
         public static void AddCreatePersonEndpoint(this IServiceCollection services)
         {
-            services.AddSingleton<IEndpoint, CreatePersonEndpoint>();
+            services.AddSingletonIfNotExists<IEndpoint, CreatePersonEndpoint>();
         }
     }
 

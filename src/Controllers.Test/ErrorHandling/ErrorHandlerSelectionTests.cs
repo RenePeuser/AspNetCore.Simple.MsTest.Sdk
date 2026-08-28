@@ -7,6 +7,7 @@ using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
 using AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
+using Extensions.Pack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -189,7 +190,7 @@ namespace Controllers.Test.ErrorHandling
         {
             var services = new ServiceCollection();
 
-            services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+            services.AddSingletonIfNotExists<IConfiguration>(new ConfigurationBuilder().Build());
             services.AddPlainTextDecorator();
             services.AddSourceCodeExtractor();
             services.AddTestErrorHandlingStrategy();

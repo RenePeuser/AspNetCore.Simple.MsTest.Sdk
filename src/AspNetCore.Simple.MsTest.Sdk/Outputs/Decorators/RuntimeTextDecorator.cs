@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 

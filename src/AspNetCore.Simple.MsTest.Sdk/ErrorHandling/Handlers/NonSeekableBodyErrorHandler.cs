@@ -116,7 +116,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine(textDecorator.Success("     }"));
             sb.AppendLine();
             sb.AppendLine(textDecorator.Success("     // Startup"));
-            sb.AppendLine(textDecorator.Success("     services.AddSingleton<EnableRequestBufferingMiddleware>();"));
+            sb.AppendLine(textDecorator.Success("     services.AddSingletonIfNotExists<EnableRequestBufferingMiddleware>();"));
             sb.AppendLine(textDecorator.Success("     app.UseMiddleware<EnableRequestBufferingMiddleware>();"));
             sb.AppendLine();
             sb.AppendLine();

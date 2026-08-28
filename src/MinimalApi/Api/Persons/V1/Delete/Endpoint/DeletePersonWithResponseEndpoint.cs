@@ -1,3 +1,4 @@
+using Extensions.Pack;
 using System;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Builder;
@@ -16,7 +17,7 @@ namespace MinimalApi.Api.Persons.V1
     {
         public static void AddDeletePersonWithResponseEndpoint(this IServiceCollection services)
         {
-            services.AddSingleton<IEndpoint, DeletePersonWithResponseEndpoint>();
+            services.AddSingletonIfNotExists<IEndpoint, DeletePersonWithResponseEndpoint>();
         }
     }
 

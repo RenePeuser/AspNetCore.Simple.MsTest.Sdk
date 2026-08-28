@@ -9,7 +9,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddRequestTestCreator(this IServiceCollection services)
         {
-            services.AddSingleton<IRequestTestCreator, RequestTestCreator>();
+            services.AddSingletonIfNotExists<IRequestTestCreator, RequestTestCreator>();
         }
     }
 

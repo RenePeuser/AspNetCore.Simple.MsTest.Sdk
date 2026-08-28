@@ -1,3 +1,4 @@
+using Extensions.Pack;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,7 @@ namespace MinimalApi.Api.Errors.V1.QueryNotImplemented.Endpoint
     {
         public static void AddQueryNotImplementedEndpoint(this IServiceCollection services)
         {
-            services.AddSingleton<IEndpoint, QueryNotImplementedEndpoint>();
+            services.AddSingletonIfNotExists<IEndpoint, QueryNotImplementedEndpoint>();
         }
     }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Text.Json;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -62,7 +63,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddEmptyAnonymousObjectDetector(this IServiceCollection services)
         {
-            services.AddSingleton<IEmptyAnonymousObjectDetector, EmptyAnonymousObjectDetector>();
+            services.AddSingletonIfNotExists<IEmptyAnonymousObjectDetector, EmptyAnonymousObjectDetector>();
         }
     }
 }

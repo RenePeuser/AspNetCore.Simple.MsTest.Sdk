@@ -22,7 +22,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             services.AddTestSdkSettings(configuration);
 
-            services.AddSingleton<ISpecificTestCreator, PostWithBodyTestCreator>();
+            services.AddSingletonIfNotExists<ISpecificTestCreator, PostWithBodyTestCreator>();
         }
     }
 

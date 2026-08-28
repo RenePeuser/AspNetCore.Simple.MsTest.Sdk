@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         internal static void AddTestCreatorMiddleware(this IServiceCollection services)
         {
-            services.AddSingleton<TestCreatorMiddleware>();
+            services.AddSingletonIfNotExists<TestCreatorMiddleware>();
         }
     }
 

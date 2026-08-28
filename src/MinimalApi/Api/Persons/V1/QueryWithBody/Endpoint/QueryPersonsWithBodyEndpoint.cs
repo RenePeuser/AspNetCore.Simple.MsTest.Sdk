@@ -18,7 +18,7 @@ namespace MinimalApi.Api.Persons.V1
     {
         public static void AddQueryPersonsWithBodyEndpoint(this IServiceCollection services)
         {
-            services.AddSingleton<IEndpoint, QueryPersonsWithBodyEndpoint>();
+            services.AddSingletonIfNotExists<IEndpoint, QueryPersonsWithBodyEndpoint>();
         }
     }
 

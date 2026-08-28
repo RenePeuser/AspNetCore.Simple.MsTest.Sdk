@@ -1,3 +1,4 @@
+using Extensions.Pack;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +26,7 @@ namespace MinimalApi.Api.Persons.V1
     {
         public static void AddEchoHeaderEndpoint(this IServiceCollection services)
         {
-            services.AddSingleton<IEndpoint, EchoHeaderEndpoint>();
+            services.AddSingletonIfNotExists<IEndpoint, EchoHeaderEndpoint>();
         }
     }
 

@@ -1,3 +1,4 @@
+using Extensions.Pack;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,7 @@ namespace MinimalApi.Api.Errors.V1.NotImplemented.Endpoint
     {
         public static void AddNotImplementedEndpoint(this IServiceCollection services)
         {
-            services.AddSingleton<IEndpoint, NotImplementedEndpoint>();
+            services.AddSingletonIfNotExists<IEndpoint, NotImplementedEndpoint>();
         }
     }
 

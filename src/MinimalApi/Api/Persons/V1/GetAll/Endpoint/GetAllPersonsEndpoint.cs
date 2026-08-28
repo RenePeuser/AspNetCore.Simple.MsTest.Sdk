@@ -18,7 +18,7 @@ namespace MinimalApi.Api.Persons.V1
     {
         public static void AddGetAllPersonsEndpoint(this IServiceCollection services)
         {
-            services.AddSingleton<IEndpoint, GetAllPersonsEndpoint>();
+            services.AddSingletonIfNotExists<IEndpoint, GetAllPersonsEndpoint>();
         }
     }
 
