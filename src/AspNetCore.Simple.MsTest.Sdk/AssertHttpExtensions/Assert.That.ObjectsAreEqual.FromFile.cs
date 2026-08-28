@@ -534,6 +534,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var targetIsPrimitiveType = typeof(T).IsPrimitive || typeof(T).EqualsTo(typeof(string));
 
+            // For string types, parse the JSON to get the expected value
+            T? expectedValue = default;
+            if (typeof(T) == typeof(string) && !string.IsNullOrEmpty(resolvedExpectedJson))
+            {
+                try
+                {
+                    expectedValue = (T?)(object?)System.Text.Json.JsonSerializer.Deserialize<string>(resolvedExpectedJson);
+                }
+#pragma warning disable CA1031 // Do not catch general exception types
+                catch (System.Text.Json.JsonException)
+#pragma warning restore CA1031
+                {
+                    // If parsing fails, keep default
+                }
+            }
+
             // Create context with preprocessed data - no further logic needed in AssertService
             var context = new ObjectAssertContext<T>
             {
@@ -555,7 +571,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 ResolvedExpectedJson = resolvedExpectedJson,
                 TypeIsPrimitiveType = targetIsPrimitiveType,
                 WriteResponse = writeResponse,
-                Expected = default,
+                Expected = expectedValue,
             };
 
             ObjectsAreEqual(assert, context);

@@ -23,8 +23,42 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     {
         protected override ComparisonResult CompareTyped(ObjectAssertContext<string> context)
         {
-            var expectedString = context.ResolvedExpectedJson ?? string.Empty;
-            var currentString = context.Current ?? string.Empty; // Use Current instead of CurrentObject
+            // Determine which value to use for expected string
+            string expectedString;
+
+            // Priority 1: If ResolvedExpectedJson is available, use it (for FromFile-based asserts)
+            var resolvedJson = context.ResolvedExpectedJson;
+            if (!string.IsNullOrEmpty(resolvedJson))
+            {
+                // If it's a JSON string (starts and ends with quotes), parse it
+                if (resolvedJson.TrimStart().StartsWith('"') && resolvedJson.TrimEnd().EndsWith('"'))
+                {
+                    // Parse JSON string to get the actual value
+                    try
+                    {
+                        expectedString = System.Text.Json.JsonSerializer.Deserialize<string>(resolvedJson) ?? string.Empty;
+                    }
+#pragma warning disable CA1031 // Do not catch general exception types
+                    catch (System.Text.Json.JsonException)
+#pragma warning restore CA1031
+                    {
+                        // If parsing fails, use the raw string
+                        expectedString = resolvedJson;
+                    }
+                }
+                else
+                {
+                    // Not a JSON string, use it as-is
+                    expectedString = resolvedJson;
+                }
+            }
+            else
+            {
+                // Priority 2: If ResolvedExpectedJson is empty, use Expected directly (for direct ObjectsAreEqual calls)
+                expectedString = context.Expected ?? string.Empty;
+            }
+
+            var currentString = context.Current ?? string.Empty;
 
             // Normalize line endings
             expectedString = NormalizeLineEndings(expectedString);

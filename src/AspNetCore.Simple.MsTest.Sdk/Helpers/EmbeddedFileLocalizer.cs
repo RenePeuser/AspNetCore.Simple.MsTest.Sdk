@@ -1021,6 +1021,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return true;
             }
 
+            // If it doesn't look like a file reference, treat it as a raw string value
+            // This handles simple strings like "Skill" that are used in ObjectsAreEqual for string comparisons
+            if (!LooksLikeFileReference(trimmed))
+            {
+                return true;
+            }
+
             return false;
         }
 
