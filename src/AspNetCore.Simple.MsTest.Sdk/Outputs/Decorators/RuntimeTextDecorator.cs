@@ -1,3 +1,6 @@
+#if !DEBUG
+using System.Diagnostics;
+#endif
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
