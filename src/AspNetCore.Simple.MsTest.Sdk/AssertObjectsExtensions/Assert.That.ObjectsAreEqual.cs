@@ -621,6 +621,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string callerMemberName = "",
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             assert.ObjectsAreEqual(expectedObject: expectedObject,
                                    currentObject: currentObject,
                                    comparisonFunc: comparisonFunc,
@@ -629,6 +631,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    differenceFilter: differenceFilter,
                                    curl: curl,
                                    parameters: [],
+                                   callingAssembly: callingAssembly,
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,
@@ -666,6 +669,496 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    curl: curl,
                                    parameters: parameters,
                                    callingAssembly: callingAssembly,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        // ============================================================
+        // Explicit calling assembly overloads
+        //
+        // Every overload above reads the caller through Assembly.GetCallingAssembly().
+        // That breaks down as soon as the assert is not written straight into the test:
+        // a shared helper, a base class or a wrapper in another assembly hands the SDK
+        // its OWN assembly, and the embedded snapshot is then looked up in the wrong
+        // manifest. These twins let that caller pass the test assembly along instead.
+        // ============================================================
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Assembly callingAssembly,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: item => item,
+                                   title: string.Empty,
+                                   differenceFunc: difference => difference,
+                                   curl: string.Empty,
+                                   parameters: [],
+                                   callingAssembly: callingAssembly,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              (string Key, object? Value)[] parameters,
+                                              Assembly callingAssembly,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: item => item,
+                                   title: string.Empty,
+                                   differenceFunc: difference => difference,
+                                   curl: string.Empty,
+                                   parameters: parameters,
+                                   callingAssembly: callingAssembly,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              string title,
+                                              Assembly callingAssembly,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: item => item,
+                                   title: title,
+                                   differenceFunc: difference => difference,
+                                   curl: string.Empty,
+                                   parameters: [],
+                                   callingAssembly: callingAssembly,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              string title,
+                                              (string Key, object? Value)[] parameters,
+                                              Assembly callingAssembly,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: item => item,
+                                   title: title,
+                                   differenceFunc: difference => difference,
+                                   curl: string.Empty,
+                                   parameters: parameters,
+                                   callingAssembly: callingAssembly,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              Assembly callingAssembly,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: orderFunc,
+                                   title: string.Empty,
+                                   differenceFunc: difference => difference,
+                                   curl: string.Empty,
+                                   parameters: [],
+                                   callingAssembly: callingAssembly,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              (string Key, object? Value)[] parameters,
+                                              Assembly callingAssembly,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: orderFunc,
+                                   title: string.Empty,
+                                   differenceFunc: difference => difference,
+                                   curl: string.Empty,
+                                   parameters: parameters,
+                                   callingAssembly: callingAssembly,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Assembly callingAssembly,
+                                              Predicate<Difference>? differenceFilter = null,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: item => item,
+                                   title: string.Empty,
+                                   differenceFunc: differenceFunc,
+                                   curl: string.Empty,
+                                   parameters: [],
+                                   callingAssembly: callingAssembly,
+                                   differenceFilter: differenceFilter,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              (string Key, object? Value)[] parameters,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Assembly callingAssembly,
+                                              Predicate<Difference>? differenceFilter = null,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: item => item,
+                                   title: string.Empty,
+                                   differenceFunc: differenceFunc,
+                                   curl: string.Empty,
+                                   parameters: parameters,
+                                   callingAssembly: callingAssembly,
+                                   differenceFilter: differenceFilter,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              string title,
+                                              Assembly callingAssembly,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: orderFunc,
+                                   title: title,
+                                   differenceFunc: difference => difference,
+                                   curl: string.Empty,
+                                   parameters: [],
+                                   callingAssembly: callingAssembly,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              string title,
+                                              (string Key, object? Value)[] parameters,
+                                              Assembly callingAssembly,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: orderFunc,
+                                   title: title,
+                                   differenceFunc: difference => difference,
+                                   curl: string.Empty,
+                                   parameters: parameters,
+                                   callingAssembly: callingAssembly,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Assembly callingAssembly,
+                                              Predicate<Difference>? differenceFilter = null,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: orderFunc,
+                                   title: string.Empty,
+                                   differenceFunc: differenceFunc,
+                                   curl: string.Empty,
+                                   parameters: [],
+                                   callingAssembly: callingAssembly,
+                                   differenceFilter: differenceFilter,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              (string Key, object? Value)[] parameters,
+                                              Assembly callingAssembly,
+                                              Predicate<Difference>? differenceFilter = null,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: orderFunc,
+                                   title: string.Empty,
+                                   differenceFunc: differenceFunc,
+                                   curl: string.Empty,
+                                   parameters: parameters,
+                                   callingAssembly: callingAssembly,
+                                   differenceFilter: differenceFilter,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              string title,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              Assembly callingAssembly,
+                                              Predicate<Difference>? differenceFilter = null,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: orderFunc,
+                                   title: title,
+                                   differenceFunc: differenceFunc,
+                                   curl: string.Empty,
+                                   parameters: [],
+                                   callingAssembly: callingAssembly,
+                                   differenceFilter: differenceFilter,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> orderFunc,
+                                              string title,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              (string Key, object? Value)[] parameters,
+                                              Assembly callingAssembly,
+                                              Predicate<Difference>? differenceFilter = null,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: orderFunc,
+                                   title: title,
+                                   differenceFunc: differenceFunc,
+                                   curl: string.Empty,
+                                   parameters: parameters,
+                                   callingAssembly: callingAssembly,
+                                   differenceFilter: differenceFilter,
+                                   writeResponse: writeResponse,
+                                   expectedResultParameterName: expectedResultParameterName,
+                                   currentResultParameterName: currentResultParameterName,
+                                   callerFilePath: callerFilePath,
+                                   callerMemberName: callerMemberName,
+                                   callerLineNumber: callerLineNumber);
+        }
+
+        public static void ObjectsAreEqual<T>(this Assert assert,
+                                              T? expectedObject,
+                                              T? currentObject,
+                                              Func<T?, T?> comparisonFunc,
+                                              string title,
+                                              Func<ImmutableList<Difference>, IEnumerable<Difference>> differenceFunc,
+                                              string curl,
+                                              Assembly callingAssembly,
+                                              Predicate<Difference>? differenceFilter = null,
+                                              bool writeResponse = false,
+                                              [CallerArgumentExpression(nameof(expectedObject))]
+                                              string expectedResultParameterName = "",
+                                              [CallerArgumentExpression(nameof(currentObject))]
+                                              string currentResultParameterName = "",
+                                              [CallerFilePath] string callerFilePath = "",
+                                              [CallerMemberName] string callerMemberName = "",
+                                              [CallerLineNumber] int callerLineNumber = 0)
+        {
+            assert.ObjectsAreEqual(expectedObject: expectedObject,
+                                   currentObject: currentObject,
+                                   comparisonFunc: comparisonFunc,
+                                   title: title,
+                                   differenceFunc: differenceFunc,
+                                   curl: curl,
+                                   parameters: [],
+                                   callingAssembly: callingAssembly,
+                                   differenceFilter: differenceFilter,
                                    writeResponse: writeResponse,
                                    expectedResultParameterName: expectedResultParameterName,
                                    currentResultParameterName: currentResultParameterName,

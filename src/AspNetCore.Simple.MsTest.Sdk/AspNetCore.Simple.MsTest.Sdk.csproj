@@ -38,35 +38,35 @@
             <Pack>True</Pack>
             <PackagePath></PackagePath>
         </None>
-        <None Include="..\..\readme.md" Pack="true" PackagePath="\"/>
+        <None Include="..\..\readme.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Asp.Versioning.Abstractions"/>
-        <PackageReference Include="Asp.Versioning.Http"/>
-        <PackageReference Include="Asp.Versioning.Mvc"/>
-        <PackageReference Include="Extensions.Pack"/>
+        <PackageReference Include="Asp.Versioning.Abstractions" />
+        <PackageReference Include="Asp.Versioning.Http" />
+        <PackageReference Include="Asp.Versioning.Mvc" />
+        <PackageReference Include="Extensions.Pack" />
         <PackageReference Include="GitVersion.MsBuild">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"/>
-        <PackageReference Include="Microsoft.AspNetCore.TestHost"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
-        <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" PrivateAssets="All"/>
-        <PackageReference Include="MSTest.TestFramework"/>
-        <PackageReference Include="System.CodeDom"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+        <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" PrivateAssets="All" />
+        <PackageReference Include="MSTest.TestFramework" />
+        <PackageReference Include="System.CodeDom" />
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="ErrorHandling\"/>
-        <Folder Include="FluentAssertions\"/>
-        <Folder Include="AssertExtensions\"/>
+        <Folder Include="ErrorHandling\" />
+        <Folder Include="FluentAssertions\" />
+        <Folder Include="AssertExtensions\" />
     </ItemGroup>
 
     <!-- Make internal classes visible to test projects -->
     <ItemGroup>
-        <InternalsVisibleTo Include="Controllers.Test"/>
-        <InternalsVisibleTo Include="MinimalApi.Test"/>
+        <InternalsVisibleTo Include="Controllers.Test" />
+        <InternalsVisibleTo Include="MinimalApi.Test" />
     </ItemGroup>
 
     <!-- ALPHA-ONLY fluent API (strategy: release the fluent API in alpha/prerelease only, until its
@@ -85,14 +85,11 @@
         <DefineConstants>$(DefineConstants);FLUENT_ALPHA</DefineConstants>
     </PropertyGroup>
 
-    <Target Name="DefineFluentAlphaForPrerelease"
-            AfterTargets="GetVersion"
-            BeforeTargets="CoreCompile"
-            Condition="'$(GitVersion_PreReleaseTag)' != '' and '$(FluentAlpha)' != 'true'">
+    <Target Name="DefineFluentAlphaForPrerelease" AfterTargets="GetVersion" BeforeTargets="CoreCompile" Condition="'$(GitVersion_PreReleaseTag)' != '' and '$(FluentAlpha)' != 'true'">
         <PropertyGroup>
             <DefineConstants>$(DefineConstants);FLUENT_ALPHA</DefineConstants>
         </PropertyGroup>
-        <Message Importance="high" Text="FLUENT_ALPHA enabled — prerelease build '$(GitVersion_NuGetVersion)' (fluent API is public)."/>
+        <Message Importance="high" Text="FLUENT_ALPHA enabled — prerelease build '$(GitVersion_NuGetVersion)' (fluent API is public)." />
     </Target>
 
     <!-- Ship the fluent-API analyzer (MSTESTSDK001) and its code fix as analyzer assets inside the
@@ -101,21 +98,16 @@
          build them before packaging; the <None Pack=true> entries are what actually put the DLLs into
          the package. Both must sit under analyzers/dotnet/cs for Roslyn/VS to load them. -->
     <ItemGroup>
-        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj"
-                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all"/>
-        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.CodeFixes\AspNetCore.Simple.MsTest.Sdk.CodeFixes.csproj"
-                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all"/>
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+        <ProjectReference Include="..\AspNetCore.Simple.MsTest.Sdk.CodeFixes\AspNetCore.Simple.MsTest.Sdk.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\bin\$(Configuration)\netstandard2.0\AspNetCore.Simple.MsTest.Sdk.Analyzers.dll"
-              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
-        <None Include="..\AspNetCore.Simple.MsTest.Sdk.CodeFixes\bin\$(Configuration)\netstandard2.0\AspNetCore.Simple.MsTest.Sdk.CodeFixes.dll"
-              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+        <None Include="..\AspNetCore.Simple.MsTest.Sdk.Analyzers\bin\$(Configuration)\netstandard2.0\AspNetCore.Simple.MsTest.Sdk.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="..\AspNetCore.Simple.MsTest.Sdk.CodeFixes\bin\$(Configuration)\netstandard2.0\AspNetCore.Simple.MsTest.Sdk.CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <!-- MEF composition dependencies must ship beside the code-fix assembly; Roslyn does not read
              the code-fix project's .deps.json when loading analyzer assets from a package. -->
-        <None Include="..\AspNetCore.Simple.MsTest.Sdk.CodeFixes\bin\$(Configuration)\netstandard2.0\System.Composition*.dll"
-              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+        <None Include="..\AspNetCore.Simple.MsTest.Sdk.CodeFixes\bin\$(Configuration)\netstandard2.0\System.Composition*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     </ItemGroup>
 
 </Project>

@@ -178,7 +178,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
             else if (token is JArray array)
             {
-                for (int i = 0; i < array.Count; i++)
+                for (var i = 0; i < array.Count; i++)
                 {
                     var item = array[i];
                     if (item.Type == JTokenType.String)
