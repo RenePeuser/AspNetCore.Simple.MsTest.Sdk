@@ -12,6 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     {
         public static void AddInvalidSnapshotJsonErrorHandler(this IServiceCollection services)
         {
+            services.AddTextDecoratorProvider();
             services.AddSingletonIfNotExists<ITestErrorHandler, InvalidSnapshotJsonErrorHandler>();
         }
     }
@@ -20,17 +21,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     /// Shows WHERE a snapshot stops being valid json, instead of the misleading structure-mismatch
     /// message the shape checks used to produce for it.
     /// </summary>
-    internal sealed class InvalidSnapshotJsonErrorHandler(ITextDecorator textDecorator)
+    internal sealed class InvalidSnapshotJsonErrorHandler(ITextDecoratorProvider textDecoratorProvider)
         : TestErrorHandler<InvalidSnapshotJsonException>
     {
         protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              InvalidSnapshotJsonException exception)
         {
-            return Task.FromResult(Build(context, exception));
+            return Task.FromResult(Build(context, exception, textDecoratorProvider.For(context.CallingAssembly)));
         }
 
         private string Build(IObjectAssertContext context,
-                             InvalidSnapshotJsonException exception)
+                             InvalidSnapshotJsonException exception,
+                             ITextDecorator textDecorator)
         {
             var kind = exception.IsPayload ? "PAYLOAD" : "SNAPSHOT";
 
@@ -91,7 +93,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
 
             sb.AppendLine();
 
-            AppendContent(sb, exception);
+            AppendContent(sb, exception, textDecorator);
 
             sb.AppendLine(textDecorator.SectionTitle("💡 How To Fix"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
@@ -116,8 +118,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         /// Prints the content with line numbers and marks the failing line, capped so a large snapshot
         /// does not bury the message.
         /// </summary>
-        private void AppendContent(StringBuilder sb,
-                                   InvalidSnapshotJsonException exception)
+        private static void AppendContent(StringBuilder sb,
+                                          InvalidSnapshotJsonException exception,
+                                          ITextDecorator textDecorator)
         {
             if (exception.Content.IsNullOrWhiteSpace())
             {

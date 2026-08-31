@@ -1,3 +1,4 @@
+using System.Reflection;
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -33,6 +34,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                   [CallerMemberName] string callerMemberName = "",
                                   [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             if (value % 2 == 0)
             {
                 return;
@@ -47,7 +50,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  callerFilePath: callerFilePath,
                                                  callerMemberName: callerMemberName,
                                                  callerLineNumber: callerLineNumber,
-                                                 additionalOptions: new[] { $"Ensure '{valueName}' is calculated or set to an even number", "Use modulo operation (% 2 == 0) to verify even values before this assertion", $"If '{valueName}' comes from user input, add validation or rounding logic" });
+                                                 additionalOptions: new[] { $"Ensure '{valueName}' is calculated or set to an even number", "Use modulo operation (% 2 == 0) to verify even values before this assertion", $"If '{valueName}' comes from user input, add validation or rounding logic" },
+                                                 callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -74,6 +78,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                  [CallerMemberName] string callerMemberName = "",
                                  [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             if (value % 2 != 0)
             {
                 return;
@@ -88,7 +94,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  callerFilePath: callerFilePath,
                                                  callerMemberName: callerMemberName,
                                                  callerLineNumber: callerLineNumber,
-                                                 additionalOptions: new[] { $"Ensure '{valueName}' is calculated or set to an odd number", "Use modulo operation (% 2 != 0) to verify odd values before this assertion", $"If '{valueName}' comes from user input, add validation logic" });
+                                                 additionalOptions: new[] { $"Ensure '{valueName}' is calculated or set to an odd number", "Use modulo operation (% 2 != 0) to verify odd values before this assertion", $"If '{valueName}' comes from user input, add validation logic" },
+                                                 callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -116,6 +123,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                          [CallerMemberName] string callerMemberName = "",
                                          [CallerLineNumber] int callerLineNumber = 0) where T : IComparable<T>
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             dynamic zero = Convert.ChangeType(0, typeof(T));
 
             if (value.CompareTo(zero) > 0)
@@ -136,7 +145,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     {
                                                                         $"Verify that '{valueName}' is set to a value greater than zero", $"Check calculations or operations that produce '{valueName}' for correctness", "Add validation to ensure positive values before this assertion",
                                                                         $"Consider using Math.Abs() if '{valueName}' should always be positive"
-                                                                    });
+                                                                    },
+                                                                    callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -164,6 +174,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                          [CallerMemberName] string callerMemberName = "",
                                          [CallerLineNumber] int callerLineNumber = 0) where T : IComparable<T>
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             dynamic zero = Convert.ChangeType(0, typeof(T));
 
             if (value.CompareTo(zero) < 0)
@@ -184,7 +196,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     {
                                                                         $"Verify that '{valueName}' is set to a value less than zero", $"Check calculations or operations that produce '{valueName}' for correctness", "Add validation to ensure negative values before this assertion",
                                                                         "Review the business logic that should produce negative values"
-                                                                    });
+                                                                    },
+                                                                    callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -212,6 +225,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      [CallerMemberName] string callerMemberName = "",
                                      [CallerLineNumber] int callerLineNumber = 0) where T : IComparable<T>
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             dynamic zero = Convert.ChangeType(0, typeof(T));
 
             if (value.CompareTo(zero) == 0)
@@ -232,7 +247,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     {
                                                                         $"Ensure '{valueName}' is explicitly set to zero for this test scenario", $"Check that calculations involving '{valueName}' correctly result in zero", "Review the initialization or reset logic for this value",
                                                                         "Verify that default values are properly configured to zero"
-                                                                    });
+                                                                    },
+                                                                    callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -247,9 +263,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                          string callerFilePath,
                                                          string callerMemberName,
                                                          int callerLineNumber,
-                                                         string[] additionalOptions)
+                                                         string[] additionalOptions,
+                                                         Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator();
+            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
             var sb = new StringBuilder();
 
             // Header

@@ -1,3 +1,4 @@
+using System.Reflection;
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -32,6 +33,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    [CallerMemberName] string callerMemberName = "",
                                                    [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             if (action == null)
             {
                 throw new ArgumentNullException(nameof(action), "Action cannot be null");
@@ -51,7 +54,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      fix: fix,
                                                      callerFilePath: callerFilePath,
                                                      callerMemberName: callerMemberName,
-                                                     callerLineNumber: callerLineNumber);
+                                                     callerLineNumber: callerLineNumber,
+                                                     callingAssembly: callingAssembly);
 
                 throw new AssertFailedException(output);
             }

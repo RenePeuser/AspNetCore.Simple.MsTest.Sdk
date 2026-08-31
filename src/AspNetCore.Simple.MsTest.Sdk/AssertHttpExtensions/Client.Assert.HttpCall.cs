@@ -34,19 +34,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="serviceProvider">The service provider containing registered services</param>
         public static void Setup(IServiceProvider serviceProvider)
         {
-            // 0. Detect calling assembly debug mode first
-            var callingAssembly = Assembly.GetCallingAssembly();
-            var useDebugDecorator = callingAssembly.IsCompiledInDebug();
-
-            // 1. Resolve core services - use appropriate text decorator based on calling assembly
-            if (useDebugDecorator)
-            {
-                _textDecorator = new PlainTextDecorator();
-            }
-            else
-            {
-                _textDecorator = new AnsiColorTextDecorator();
-            }
+            // 1. Resolve core services. The decorator was bound to the consumer test assembly when
+            //    the services were registered - see AddTextDecorator.
+            _textDecorator = serviceProvider.GetRequiredService<ITextDecorator>();
 
             _primitiveTypeConverter = serviceProvider.GetRequiredService<IPrimitiveTypeConverter>();
             _jsonDiffer = serviceProvider.GetRequiredService<IJsonDiffer>();

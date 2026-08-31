@@ -1,55 +1,27 @@
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
 {
     /// <summary>
-    /// Shared helper for getting the appropriate text decorator based on build configuration.
+    /// Shared helper for getting the text decorator inside the primitive assert extensions, which
+    /// have neither a DI container nor an assert context to resolve from.
     /// </summary>
     internal static class TextDecoratorHelper
     {
-        /// <summary>
-        /// Gets the appropriate text decorator based on debugger state and build configuration.
-        /// Returns PlainTextDecorator if a debugger is attached or the calling assembly is in DEBUG mode.
-        /// This prevents ANSI escape codes from appearing as ASCII artifacts in IDE test output.
-        /// </summary>
-        /// <returns>The text decorator instance</returns>
-#pragma warning disable CA1859 // Use concrete types when possible for improved performance - interface needed for flexibility
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static ITextDecorator GetTextDecorator()
-        {
-            // Always use plain text when a debugger is attached, regardless of build configuration
-            // This prevents ANSI codes from being rendered as ASCII characters in IDE test explorers
-            if (Debugger.IsAttached)
-            {
-                return new PlainTextDecorator();
-            }
-
-            var callingAssembly = Assembly.GetCallingAssembly();
-            var isDebugMode = IsAssemblyDebugBuild(callingAssembly);
-
-            return isDebugMode ? new PlainTextDecorator() : new AnsiColorTextDecorator();
-        }
-#pragma warning restore CA1859
+        private static readonly TextDecoratorProvider Provider = new TextDecoratorProvider();
 
         /// <summary>
-        /// Determines if an assembly was built in DEBUG mode by checking the DebuggableAttribute.
+        /// Gets the decorator for the test assembly that made the assert.
+        ///
+        /// The assembly has to be handed in. This used to call <c>Assembly.GetCallingAssembly()</c>
+        /// here instead, which always answered "the sdk": every caller of this method is an sdk
+        /// internal Build* helper, never the test. A RELEASE built package therefore always chose
+        /// colour and a DEBUG test project got escape codes in its output.
         /// </summary>
-        private static bool IsAssemblyDebugBuild(Assembly assembly)
+        public static ITextDecorator GetTextDecorator(Assembly? consumerAssembly)
         {
-            var debuggableAttribute = assembly.GetCustomAttributes(typeof(DebuggableAttribute), false)
-                                              .OfType<DebuggableAttribute>()
-                                              .FirstOrDefault();
-
-            if (debuggableAttribute == null)
-            {
-                return false;
-            }
-
-            return debuggableAttribute.IsJITTrackingEnabled;
+            return Provider.For(consumerAssembly);
         }
     }
 }

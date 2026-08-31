@@ -1,16 +1,26 @@
+using System.Reflection;
+using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Decorators
 {
     public static class AddTextDecoratorExtension
     {
-        public static void AddTextDecorator(this IServiceCollection services)
+        /// <summary>
+        /// Registers the decorator bound to the consumer test assembly. The assembly has to be handed
+        /// in because the sdk cannot read it off itself - see <see cref="ITextDecoratorProvider"/>.
+        /// </summary>
+        public static void AddTextDecorator(this IServiceCollection services,
+                                            Assembly? consumerAssembly = null)
         {
-#if DEBUG
-            services.AddPlainTextDecorator();
-#else
-            services.AddAnsiColorTextDecorator();
-#endif
+            // A consumer registering the sdk by hand is the direct caller here; the sdk's own
+            // registration paths always pass the assembly explicitly, so this never masks them.
+            consumerAssembly ??= Assembly.GetCallingAssembly();
+
+            services.AddTextDecoratorProvider();
+
+            services.AddSingletonIfNotExists<ITextDecorator>(new ConsumerTextDecorator(new TextDecoratorProvider(),
+                                                                                       consumerAssembly));
         }
     }
 

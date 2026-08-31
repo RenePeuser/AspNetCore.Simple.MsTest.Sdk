@@ -78,32 +78,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly Serializer.Json.JsonSerializer JsonSerializer = new(JsonSerializerOptions);
 
-        // Text decorator - conditional on build configuration (default fallback)
-#if DEBUG
-        private static readonly ITextDecorator TextDecorator = new PlainTextDecorator();
-#else
-        private static readonly ITextDecorator TextDecorator = new AnsiColorTextDecorator();
-#endif
+        // The object route has neither a container nor a Setup call, so the consumer assembly is only
+        // known per assert. The output stack is therefore built per assert in BuildAssertService -
+        // cheap objects on a failure path, and no shared decorator state anywhere.
+        private static readonly TextDecoratorProvider TextDecoratorProvider = new TextDecoratorProvider();
 
-        // Builders for output strategies
         private static readonly TableBuilder StaticTableBuilder = new();
-
-        private static readonly DifferencesTableBuilder DifferencesTableBuilder = new(StaticTableBuilder, TextDecorator);
-
-        private static readonly JsonSectionBuilder JsonSectionBuilder = new(TextDecorator);
-
-        // Output strategies for AssertService
-        private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new(TextDecorator);
-
-        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(DifferencesTableBuilder, JsonSectionBuilder, TextDecorator);
-
-        private static readonly IAssertOutputStrategy[] OutputStrategies =
-        [
-            PrimitiveOutputStrategy,
-            ObjectOutputStrategy
-        ];
-
-        private static readonly AssertOutputBuilder OutputBuilder = new(OutputStrategies);
 
         // Comparison strategies (order matters - first match wins)
         private static readonly ISpecificComparisonStrategy StringComparisonStrategy = new StringComparisonStrategy();
@@ -121,10 +101,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static readonly IComparisonStrategy ComparisonStrategy = new ComparisonStrategy(SpecificComparisonStrategies);
 
-        private static readonly AssertService AssertService = new(ComparisonStrategy,
-                                                                  ResponseWriter,
-                                                                  WriteResponseService,
-                                                                  OutputBuilder);
+        /// <summary>
+        /// Builds the output stack for one assert, bound to the decorator the consumer assembly asks
+        /// for. Constructing it here instead of in a static field is what keeps the plain-vs-ANSI
+        /// choice a function of the caller rather than of how the sdk itself was compiled.
+        /// </summary>
+        private static AssertService BuildAssertService(ITextDecorator textDecorator)
+        {
+            var differencesTableBuilder = new DifferencesTableBuilder(StaticTableBuilder, textDecorator);
+            var jsonSectionBuilder = new JsonSectionBuilder(textDecorator);
+
+            var outputBuilder = new AssertOutputBuilder([
+                                                            new PrimitiveOutputStrategy(textDecorator),
+                                                            new ObjectOutputStrategy(differencesTableBuilder, jsonSectionBuilder, textDecorator)
+                                                        ]);
+
+            return new AssertService(ComparisonStrategy, ResponseWriter, WriteResponseService, outputBuilder);
+        }
 
         /// <summary>
         /// The object route has no DI container, so the handlers that can serve a context without a
@@ -134,8 +127,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         private static readonly TestErrorHandlingStrategy ErrorHandlingStrategy =
             new TestErrorHandlingStrategy([
-                                              new SnapshotNotFoundErrorHandler(TextDecorator, new SourceCodeExtractor()),
-                                              new InvalidSnapshotJsonErrorHandler(TextDecorator),
+                                              new SnapshotNotFoundErrorHandler(TextDecoratorProvider, new SourceCodeExtractor()),
+                                              new InvalidSnapshotJsonErrorHandler(TextDecoratorProvider),
                                               new DefaultErrorHandler()
                                           ]);
 
@@ -1310,34 +1303,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static void ObjectsAreEqualInternal<T>(ObjectAssertContext<T> context)
         {
-            // Check if calling assembly is in debug mode - if so, use PlainTextDecorator
-            var useDebugDecorator = context.CallingAssembly.IsCompiledInDebug();
+            var textDecorator = TextDecoratorProvider.For(context.CallingAssembly);
 
-            if (useDebugDecorator)
-            {
-                // Create debug-specific builders and service
-                var plainTextDecorator = new PlainTextDecorator();
-                var tableBuilder = new TableBuilder();
-                var debugDifferencesTableBuilder = new DifferencesTableBuilder(tableBuilder, plainTextDecorator);
-                var debugJsonSectionBuilder = new JsonSectionBuilder(plainTextDecorator);
-                var debugPrimitiveOutputStrategy = new PrimitiveOutputStrategy(plainTextDecorator);
-                var debugObjectOutputStrategy = new ObjectOutputStrategy(debugDifferencesTableBuilder, debugJsonSectionBuilder, plainTextDecorator);
-
-                var debugOutputStrategies = new IAssertOutputStrategy[] { debugPrimitiveOutputStrategy, debugObjectOutputStrategy };
-
-                var debugOutputBuilder = new AssertOutputBuilder(debugOutputStrategies);
-
-                var debugAssertService = new AssertService(ComparisonStrategy, ResponseWriter, WriteResponseService,
-                                                           debugOutputBuilder);
-
-                // Use debug service
-                debugAssertService.ObjectsAreEqual(context);
-            }
-            else
-            {
-                // Use the default (release) service
-                AssertService.ObjectsAreEqual(context);
-            }
+            BuildAssertService(textDecorator).ObjectsAreEqual(context);
         }
 
         /// <summary>

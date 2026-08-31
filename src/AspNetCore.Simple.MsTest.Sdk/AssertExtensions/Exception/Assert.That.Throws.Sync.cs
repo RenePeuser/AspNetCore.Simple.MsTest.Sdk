@@ -1,3 +1,4 @@
+using System.Reflection;
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -35,6 +36,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     [CallerMemberName] string callerMemberName = "",
                                                     [CallerLineNumber] int callerLineNumber = 0) where TException : Exception
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             Exception? caughtException = null;
 
             try
@@ -60,7 +63,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        fix: fix,
                                                        callerFilePath: callerFilePath,
                                                        callerMemberName: callerMemberName,
-                                                       callerLineNumber: callerLineNumber);
+                                                       callerLineNumber: callerLineNumber,
+                                                       callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -91,6 +95,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                [CallerMemberName] string callerMemberName = "",
                                                                [CallerLineNumber] int callerLineNumber = 0) where TException : Exception
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             Exception? caughtException = null;
 
             try
@@ -116,7 +122,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        fix: fix,
                                                        callerFilePath: callerFilePath,
                                                        callerMemberName: callerMemberName,
-                                                       callerLineNumber: callerLineNumber);
+                                                       callerLineNumber: callerLineNumber,
+                                                       callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -130,9 +137,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             string callerFilePath,
                                                             string callerMemberName,
                                                             int callerLineNumber,
+                                                            Assembly callingAssembly,
                                                             bool exactType = false) where TException : Exception
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator();
+            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
             var sb = new StringBuilder();
 
             // A derived type only matters when the assertion demanded the exact one - for Throws it

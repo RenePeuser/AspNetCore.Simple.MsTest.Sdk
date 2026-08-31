@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,6 +37,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      [CallerMemberName] string callerMemberName = "",
                                      [CallerLineNumber] int callerLineNumber = 0) where T : struct
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             if (!value.HasValue)
             {
                 return;
@@ -49,7 +52,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   fix: fix,
                                                   callerFilePath: callerFilePath,
                                                   callerMemberName: callerMemberName,
-                                                  callerLineNumber: callerLineNumber);
+                                                  callerLineNumber: callerLineNumber,
+                                                  callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -77,6 +81,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         [CallerMemberName] string callerMemberName = "",
                                         [CallerLineNumber] int callerLineNumber = 0) where T : struct
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             if (value.HasValue)
             {
                 return;
@@ -90,7 +96,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       fix: fix,
                                                       callerFilePath: callerFilePath,
                                                       callerMemberName: callerMemberName,
-                                                      callerLineNumber: callerLineNumber);
+                                                      callerLineNumber: callerLineNumber,
+                                                      callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }

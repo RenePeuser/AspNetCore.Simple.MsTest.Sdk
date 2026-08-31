@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
@@ -34,7 +35,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                 [CallerMemberName] string callerMemberName = "",
                                 [CallerLineNumber] int callerLineNumber = 0)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator();
+            var callingAssembly = Assembly.GetCallingAssembly();
+
+            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
             var sb = new StringBuilder();
 
             AssertOutputHelper.BuildHeader(sb, "ASSERTION FAILED - UNREACHABLE STATE", textDecorator);

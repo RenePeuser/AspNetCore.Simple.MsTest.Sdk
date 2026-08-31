@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
@@ -16,12 +17,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Registers all assertion services and their dependencies in the DI container.
         /// Feature-based registration following the dependency tree pattern.
         /// </summary>
-        public static void AddAssertService(this IServiceCollection services)
+        public static void AddAssertService(this IServiceCollection services,
+                                            Assembly? consumerAssembly = null)
         {
-            // 1. Register text decorator (runtime detection for debugger state)
-            // Uses RuntimeTextDecorator which checks Debugger.IsAttached at call time
-            // to prevent ANSI escape codes from appearing as ASCII artifacts in IDE test output
-            services.AddRuntimeTextDecorator();
+            consumerAssembly ??= Assembly.GetCallingAssembly();
+
+            // 1. Register the text decorator bound to the consumer test assembly - the plain vs ANSI
+            // decision follows the consumer, never how the sdk itself was compiled.
+            services.AddTextDecorator(consumerAssembly);
 
             // 2. Register all dependencies via their own extensions
             services.AddPrimitiveTypeConverter();

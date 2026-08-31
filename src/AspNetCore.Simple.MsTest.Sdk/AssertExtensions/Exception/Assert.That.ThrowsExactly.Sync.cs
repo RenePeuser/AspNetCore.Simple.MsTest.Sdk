@@ -1,3 +1,4 @@
+using System.Reflection;
 using System;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,6 +39,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            [CallerMemberName] string callerMemberName = "",
                                                            [CallerLineNumber] int callerLineNumber = 0) where TException : Exception
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             Exception? caughtException = null;
 
             try
@@ -64,7 +67,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        callerFilePath: callerFilePath,
                                                        callerMemberName: callerMemberName,
                                                        callerLineNumber: callerLineNumber,
-                                                       exactType: true);
+                                                       exactType: true,
+                                                       callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }

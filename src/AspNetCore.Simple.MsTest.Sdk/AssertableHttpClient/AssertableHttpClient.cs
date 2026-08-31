@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,11 +19,21 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         /// Registers all assertable HTTP client services and their dependencies in the DI container.
         /// Feature-based registration following the dependency tree pattern.
         /// </summary>
+        /// <param name="services">The service collection to register into.</param>
+        /// <param name="configuration">Configuration used by the embedded file localizer.</param>
+        /// <param name="consumerAssembly">
+        /// The test assembly the sdk is serving. Defaults to the direct caller, which is correct for a
+        /// test project registering the sdk itself; <c>ApiTestBase&lt;T&gt;</c> hands its own caller in
+        /// because otherwise the "calling assembly" would be the sdk.
+        /// </param>
         public static void AddAssertableHttpClient(this IServiceCollection services,
-                                                   IConfiguration configuration)
+                                                   IConfiguration configuration,
+                                                   Assembly? consumerAssembly = null)
         {
+            consumerAssembly ??= Assembly.GetCallingAssembly();
+
             // 1. Register all dependencies via their own extensions
-            services.AddTextDecorator();
+            services.AddTextDecorator(consumerAssembly);
             services.AddHttpOutputFormatter();
             services.AddCurlBuilder();
             services.AddPrimitiveTypeConverter();
@@ -30,7 +41,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             services.AddResponseWriter();
             services.AddWriteResponseService();
             services.AddHttpCallHandler();
-            services.AddAssertService();
+            services.AddAssertService(consumerAssembly);
             services.AddParameterReplacer();
             services.AddHttpAssertionPipeline();
             services.AddEmbeddedFileLocalizer(configuration);

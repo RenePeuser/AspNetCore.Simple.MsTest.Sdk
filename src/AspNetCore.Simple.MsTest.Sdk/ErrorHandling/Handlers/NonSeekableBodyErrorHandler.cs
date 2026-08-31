@@ -11,6 +11,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     {
         public static void AddNonSeekableBodyErrorHandler(this IServiceCollection services)
         {
+            services.AddTextDecoratorProvider();
             services.AddSingletonIfNotExists<ITestErrorHandler, NonSeekableBodyErrorHandler>();
         }
     }
@@ -24,7 +25,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     /// The important part of the message is the second-order effect: this exception is thrown from
     /// inside error handling, so it REPLACES whatever the endpoint originally failed with.
     /// </summary>
-    internal sealed class NonSeekableBodyErrorHandler(ITextDecorator textDecorator)
+    internal sealed class NonSeekableBodyErrorHandler(ITextDecoratorProvider textDecoratorProvider)
         : TestErrorHandler<NotSupportedException>
     {
         protected override bool CanHandle(NotSupportedException exception)
@@ -54,6 +55,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             {
                 return Task.FromResult(string.Empty);
             }
+
+            var textDecorator = textDecoratorProvider.For(context.CallingAssembly);
 
             var sb = new StringBuilder();
 

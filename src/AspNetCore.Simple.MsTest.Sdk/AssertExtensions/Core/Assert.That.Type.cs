@@ -1,3 +1,4 @@
+using System.Reflection;
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -34,6 +35,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                [CallerMemberName] string callerMemberName = "",
                                                [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             var expectedType = typeof(TExpected);
 
             if (obj is not null && obj.GetType() == expectedType)
@@ -50,7 +53,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   fix: fix,
                                                   callerFilePath: callerFilePath,
                                                   callerMemberName: callerMemberName,
-                                                  callerLineNumber: callerLineNumber);
+                                                  callerLineNumber: callerLineNumber,
+                                                  callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -78,6 +82,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      [CallerMemberName] string callerMemberName = "",
                                                      [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             var notExpectedType = typeof(TNotExpected);
 
             if (obj is null || obj.GetType() != notExpectedType)
@@ -94,7 +100,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   fix: fix,
                                                   callerFilePath: callerFilePath,
                                                   callerMemberName: callerMemberName,
-                                                  callerLineNumber: callerLineNumber);
+                                                  callerLineNumber: callerLineNumber,
+                                                  callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -122,6 +129,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      [CallerMemberName] string callerMemberName = "",
                                                      [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             var expectedType = typeof(TExpected);
 
             if (obj is not null && expectedType.IsAssignableFrom(obj.GetType()))
@@ -138,7 +147,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   fix: fix,
                                                   callerFilePath: callerFilePath,
                                                   callerMemberName: callerMemberName,
-                                                  callerLineNumber: callerLineNumber);
+                                                  callerLineNumber: callerLineNumber,
+                                                  callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -168,6 +178,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            [CallerMemberName] string callerMemberName = "",
                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             var notExpectedType = typeof(TNotExpected);
 
             if (obj is null || !notExpectedType.IsAssignableFrom(obj.GetType()))
@@ -184,7 +196,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   fix: fix,
                                                   callerFilePath: callerFilePath,
                                                   callerMemberName: callerMemberName,
-                                                  callerLineNumber: callerLineNumber);
+                                                  callerLineNumber: callerLineNumber,
+                                                  callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -211,9 +224,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        string fix,
                                                        string callerFilePath,
                                                        string callerMemberName,
-                                                       int callerLineNumber)
+                                                       int callerLineNumber,
+                                                       Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator();
+            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
             var sb = new StringBuilder();
 
             // Header

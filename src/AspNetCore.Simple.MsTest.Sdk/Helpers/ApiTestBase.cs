@@ -15,6 +15,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                        params (string name, object? value)[] environmentVariables) : WebApplicationFactory<TStartup>
         where TStartup : class
     {
+        /// <summary>
+        /// The test assembly that constructed this factory. Captured here because it is the last
+        /// point where the consumer is still the caller - from ConfigureWebHost onwards every frame
+        /// belongs to the sdk, and Assembly.GetCallingAssembly() would just answer "the sdk".
+        /// </summary>
+        private readonly Assembly _consumerAssembly = Assembly.GetCallingAssembly();
+
         private Assembly CallingAssembly => GetType().Assembly;
 
         public string EnvironmentName { get; } = environmentName;
@@ -56,7 +63,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 registerServices(services, configuration);
 
                 // NEW self registration
-                services.AddAssertableHttpClient(configuration);
+                services.AddAssertableHttpClient(configuration, _consumerAssembly);
 
                 // NEW self setup
                 using var serviceProvider = services.BuildServiceProvider();

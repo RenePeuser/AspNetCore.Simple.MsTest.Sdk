@@ -1,3 +1,4 @@
+using System.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                        [CallerMemberName] string callerMemberName = "",
                                        [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             if (expected is null && actual is null)
             {
                 return;
@@ -57,7 +60,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber,
-                                                           checkOrder: true);
+                                                           checkOrder: true,
+                                                           callingAssembly: callingAssembly);
 
                 throw new AssertFailedException(output);
             }
@@ -76,7 +80,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber,
-                                                           checkOrder: true);
+                                                           checkOrder: true,
+                                                           callingAssembly: callingAssembly);
 
                 throw new AssertFailedException(output);
             }
@@ -110,6 +115,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             [CallerMemberName] string callerMemberName = "",
                                             [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             if (expected is null && actual is null)
             {
                 return;
@@ -126,7 +133,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber,
-                                                           checkOrder: false);
+                                                           checkOrder: false,
+                                                           callingAssembly: callingAssembly);
 
                 throw new AssertFailedException(output);
             }
@@ -147,7 +155,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            callerFilePath: callerFilePath,
                                                            callerMemberName: callerMemberName,
                                                            callerLineNumber: callerLineNumber,
-                                                           checkOrder: false);
+                                                           checkOrder: false,
+                                                           callingAssembly: callingAssembly);
 
                 throw new AssertFailedException(output);
             }
@@ -163,9 +172,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                string callerFilePath,
                                                                string callerMemberName,
                                                                int callerLineNumber,
-                                                               bool checkOrder)
+                                                               bool checkOrder,
+                                                               Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator();
+            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
             var sb = new StringBuilder();
 
             // Header

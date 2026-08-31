@@ -12,6 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         public static void AddSnapshotNotFoundErrorHandler(this IServiceCollection services)
         {
             services.AddSourceCodeExtractor();
+            services.AddTextDecoratorProvider();
             services.AddSingletonIfNotExists<ITestErrorHandler, SnapshotNotFoundErrorHandler>();
         }
     }
@@ -22,18 +23,19 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     /// a bug in the Test SDK itself", followed by a stack trace and a dump of every embedded resource
     /// in the project. This handler names the file, shows the nearest matches and stops there.
     /// </summary>
-    internal sealed class SnapshotNotFoundErrorHandler(ITextDecorator textDecorator,
+    internal sealed class SnapshotNotFoundErrorHandler(ITextDecoratorProvider textDecoratorProvider,
                                                        ISourceCodeExtractor sourceCodeExtractor)
         : TestErrorHandler<SnapshotNotFoundException>
     {
         protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              SnapshotNotFoundException exception)
         {
-            return Task.FromResult(Build(context, exception));
+            return Task.FromResult(Build(context, exception, textDecoratorProvider.For(context.CallingAssembly)));
         }
 
         private string Build(IObjectAssertContext context,
-                             SnapshotNotFoundException exception)
+                             SnapshotNotFoundException exception,
+                             ITextDecorator textDecorator)
         {
             var kind = exception.IsPayload ? "PAYLOAD" : "SNAPSHOT";
 
