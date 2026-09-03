@@ -14,10 +14,6 @@
             - Expected Status Code validation: All Assert methods now support optional expectedStatusCode parameter
             Example: Client.AssertPostAsync&lt;T&gt;("api/endpoint", "Request.json", "Response.json", expectedStatusCode: HttpStatusCode.Created)
             Allows explicit status code validation (200, 201, etc.) instead of just 2xx success range
-
-            INTERNAL IMPROVEMENTS:
-            - InternalsVisibleTo: Test projects can now access internal fluent API for testing purposes
-            Coming soon feature fluent assert api with roslyn analyzers
         </PackageReleaseNotes>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <PackageId>AspNetCore.Simple.MsTest.Sdk</PackageId>
