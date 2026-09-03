@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
 using Controllers.Api.DynamicRows;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,8 +12,8 @@ namespace Controllers.Test.Api.DynamicRows
     /// policy renames clr properties, never dictionary keys.
     ///
     /// The comparison has to keep that promise. The current side of a snapshot diff is the raw
-    /// response body, the expected side is the snapshot read into the response type and written out
-    /// again - so a <see cref="System.Text.Json.JsonSerializerOptions.DictionaryKeyPolicy"/> would
+    /// response body - unless the assert supplies a filter func - the expected side is the snapshot
+    /// read into the response type and written out again - so a <see cref="System.Text.Json.JsonSerializerOptions.DictionaryKeyPolicy"/> would
     /// rename the keys on the expected side ONLY, and every key of every row would differ in nothing
     /// but its first letter.
     ///

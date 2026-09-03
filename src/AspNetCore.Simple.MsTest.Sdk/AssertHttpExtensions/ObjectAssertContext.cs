@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reflection;
@@ -249,5 +249,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Note: Function must handle nullable inputs/outputs.
         /// </summary>
         public required Func<T?, T?> OrderFunc { get; init; } = item => item;
+
+        /// <summary>
+        /// True when the caller actually supplied an <see cref="OrderFunc"/>, false when it defaulted to
+        /// identity. The two sides of an http snapshot diff are not built the same way - the expected side
+        /// always goes through the response type, the current side stays the raw body on purpose so a
+        /// property the api returns but the type does not model still shows up. That asymmetry silently
+        /// swallows the order func: normalizing a volatile arn or timestamp only ever reached the expected
+        /// side, so the diff kept the raw values and the test could never go green. Knowing whether a func
+        /// was passed lets the current side switch to the normalized object for exactly those asserts, and
+        /// keeps the raw body everywhere else.
+        /// </summary>
+        public bool HasOrderFunc { get; init; }
     }
 }

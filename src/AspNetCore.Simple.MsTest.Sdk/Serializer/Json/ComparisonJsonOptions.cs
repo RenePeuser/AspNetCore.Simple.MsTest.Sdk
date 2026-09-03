@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Extensions.Pack;
 
@@ -6,9 +6,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
 {
     /// <summary>
     /// The two sides of a snapshot diff do not come from the same place: the current side is the
-    /// response body exactly as it came off the wire (see <c>JsonComparisonStep.BuildCurrentResponse</c>),
-    /// the expected side is the snapshot read into the response type and written out again. Every
-    /// serializer setting that RENAMES something therefore only ever hits the expected side.
+    /// response body exactly as it came off the wire (see <c>JsonComparisonStep.BuildCurrentResponse</c>,
+    /// which only departs from that when the assert supplies a filter func), the expected side is the
+    /// snapshot read into the response type and written out again. Every serializer setting that RENAMES
+    /// something therefore only ever hits the expected side.
     ///
     /// <see cref="JsonSerializerOptions.PropertyNamingPolicy"/> is harmless here - it renames the same
     /// clr properties the api renamed when it produced the body, so both sides end up with the same

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk.Helpers;
@@ -83,7 +83,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                         .WithoutVolatileHeaders(testSdkSettings);
 
             // Build HTTP-specific comparison structures
-            var currentResponse = BuildCurrentResponse(context, simpleHttpResponseMessage);
+            var currentResponse = BuildCurrentResponse(context, simpleHttpResponseMessage, filteredCurrentResult);
 
             var expectedResponse = BuildExpectedResponse(context, expectedResultAsJsonParameterized, targetIsPrimitiveType,
                                                          simpleHttpResponseMessage, contentHeaders, filteredCurrentResult);
@@ -201,8 +201,22 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             return expectedResultAsJson;
         }
 
+        /// <summary>
+        /// Builds the current side of the diff.
+        ///
+        /// Default is the raw response body: the expected side is rebuilt from the response type, so
+        /// keeping this side untyped is what still surfaces a property the api returns but the type does
+        /// not model.
+        ///
+        /// An order func flips that. It normalizes volatile data - an execution arn, a start date, a name
+        /// carrying a timestamp - and <see cref="BuildExpectedResponse{TResult}"/> applies it to the
+        /// expected side. Leaving the raw body here would compare normalized against volatile and the
+        /// assert could never pass, no matter how often the snapshot is re-recorded. So when the caller
+        /// supplied one, both sides go through the normalized object.
+        /// </summary>
         private SimpleHttpResponseMessage BuildCurrentResponse<TResult>(HttpResponseContext<TResult> context,
-                                                                        SimpleHttpResponseMessage simpleHttpResponseMessage)
+                                                                        SimpleHttpResponseMessage simpleHttpResponseMessage,
+                                                                        TResult? filteredCurrentResult)
         {
             return simpleHttpResponseMessage with
             {
@@ -214,9 +228,22 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                      }
                                      : simpleHttpResponseMessage.Content with
                                      {
-                                         Value = context.ContentAsString.IsNullOrWhiteSpace() ? "{}" : JsonDocument.Parse(context.ContentAsString).RootElement,
+                                         Value = BuildCurrentValue(context, filteredCurrentResult)
                                      }
             };
+        }
+
+        private object BuildCurrentValue<TResult>(HttpResponseContext<TResult> context,
+                                                  TResult? filteredCurrentResult)
+        {
+            if (context.HasOrderFunc && filteredCurrentResult.IsNotNull())
+            {
+                return filteredCurrentResult;
+            }
+
+            return context.ContentAsString.IsNullOrWhiteSpace()
+                       ? "{}"
+                       : JsonDocument.Parse(context.ContentAsString).RootElement;
         }
 
         private SimpleHttpResponseMessage BuildExpectedResponse<TResult>(HttpResponseContext<TResult> context,

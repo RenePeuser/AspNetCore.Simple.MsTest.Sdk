@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net;
@@ -662,6 +662,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 HttpMethod = httpMethod,
                 IsSuccessStatusCode = isSuccessStatusCode,
                 OrderFunc = filterFunc ?? (item => item),
+                HasOrderFunc = filterFunc.IsNotNull(),
                 Parameters = parameters,
                 PayloadAsJson = payloadAsJson,
                 PayloadFile = payloadFile,

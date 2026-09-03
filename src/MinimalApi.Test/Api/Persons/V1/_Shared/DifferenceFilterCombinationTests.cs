@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
@@ -44,10 +44,11 @@ namespace MinimalApi.Test.Api.Persons.V1.Shared
         // ============================================================
         // F + D + df together (GET).
         //
-        // Note on filterFunc semantics: filterFunc (internally "OrderFunc") normalizes the EXPECTED
-        // side (and reordering scenarios), it does NOT rewrite the actual response used for comparison.
-        // So here filterFunc is the identity — its job is to exercise the F+D+df overload wiring, while
+        // Note on filterFunc semantics: filterFunc (internally "OrderFunc") normalizes BOTH sides of the
+        // diff - the expected side read from the snapshot and the current side coming off the wire. Here
+        // it is the identity on purpose: its job is to exercise the F+D+df overload wiring, while
         // differenceFunc (drops firstName) and differenceFilter (drops age) do the actual dropping.
+        // See Controllers.Test FilterFunc/OrderFuncTests for what a non-identity filterFunc has to do.
         // ============================================================
 
         [TestMethod]
