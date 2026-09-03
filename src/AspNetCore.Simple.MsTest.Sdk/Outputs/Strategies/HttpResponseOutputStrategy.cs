@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http;
 using Extensions.Pack;
@@ -14,6 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             services.AddHttpCallInfoTableBuilder();
             services.AddDifferencesTableBuilder();
             services.AddJsonSectionBuilder();
+            services.AddUnresolvedParameterSectionBuilder();
             services.AddCurlBuilder();
             services.AddCurlFormatter();
 
@@ -36,6 +37,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
                                                      IHttpCallInfoTableBuilder httpCallInfoTableBuilder,
                                                      IDifferencesTableBuilder differencesTableBuilder,
                                                      IJsonSectionBuilder jsonSectionBuilder,
+                                                     IUnresolvedParameterSectionBuilder unresolvedParameterSectionBuilder,
                                                      ICurlBuilder curlBuilder,
                                                      ICurlFormatter curlFormatter)
         : AssertOutputStrategyBase<IHttpResponseContext>
@@ -61,6 +63,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             if (differencesTable.IsNotNullOrWhiteSpace())
             {
                 stringBuilder.AppendLine(differencesTable);
+                stringBuilder.AppendLine();
+            }
+
+            // Section 3.1: A placeholder nobody supplied a parameter for explains a diff that otherwise
+            // reads as a plain value mismatch - and a parse error that reads as nothing at all.
+            var unresolvedParameters = unresolvedParameterSectionBuilder.Build(context, differences);
+
+            if (unresolvedParameters.IsNotNullOrWhiteSpace())
+            {
+                stringBuilder.AppendLine(unresolvedParameters);
                 stringBuilder.AppendLine();
             }
 

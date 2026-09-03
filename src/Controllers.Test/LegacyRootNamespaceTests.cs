@@ -101,7 +101,7 @@ namespace Controllers.Test
 
             try
             {
-                var writer = new ResponseWriter([new OverwriteAllResponseWriter(new ParameterReplacer())]);
+                var writer = new ResponseWriter([new OverwriteAllResponseWriter(new ParameterReplacer(), new SnapshotPlaceholderGuard())]);
 
                 var request = new WriteResponseRequest
                 {

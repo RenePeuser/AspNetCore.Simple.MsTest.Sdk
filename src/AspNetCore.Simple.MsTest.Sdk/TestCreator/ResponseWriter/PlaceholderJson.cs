@@ -47,6 +47,127 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static partial Regex SentinelToken();
 
         /// <summary>
+        /// The marker asking for a placeholder to be written WITHOUT quotes, quotes included. A json
+        /// string is the only way to carry that wish through a json tree - it is unwrapped in text form by
+        /// <see cref="RestoreBareMarkers"/> once the tree has been serialized.
+        /// </summary>
+        [GeneratedRegex(@"""@@BARE:(?<name>[A-Za-z0-9_.\-]+)@@""")]
+        private static partial Regex BareMarkerToken();
+
+        /// <summary>
+        /// Like <see cref="MakeParseable"/>, but the marker REMEMBERS the spelling: a bare placeholder
+        /// becomes <c>@@PHB:name@@</c>, a quoted one <c>@@PHQ:name@@</c>. Used to read the shape of the
+        /// file being updated - never for comparing, where the two spellings have to look identical.
+        /// </summary>
+        public static string MakeParseableKeepingShape(string? json)
+        {
+            if (json.IsNullOrWhiteSpace())
+            {
+                return json ?? string.Empty;
+            }
+
+            var result = ScanOutsideStrings(json, name => $"\"@@PHB:{name}@@\"");
+
+            return QuotedPlaceholder().Replace(result, match => $"\"@@PHQ:{match.Value.Trim('"').Trim('$')}@@\"");
+        }
+
+        /// <summary>
+        /// Reads a marker written by <see cref="MakeParseableKeepingShape"/> back into its name and the
+        /// spelling it had, or null when the text is not such a marker.
+        /// </summary>
+        public static (string Name, bool WasBare)? TaggedPlaceholder(string? value)
+        {
+            if (value.IsNullOrWhiteSpace())
+            {
+                return null;
+            }
+
+            var match = TaggedToken().Match(value);
+
+            return match.Success
+                       ? (match.Groups["name"].Value, match.Groups["kind"].Value == "B")
+                       : null;
+        }
+
+        /// <summary>
+        /// The literal pieces around every placeholder, in order - the fixed text of a sentence that
+        /// carries one. <c>"Id: $x$ missing"</c> yields <c>["Id: ", " missing"]</c>.
+        /// </summary>
+        public static ImmutableList<string> SplitOnPlaceholders(string? text)
+        {
+            return text.IsNullOrWhiteSpace()
+                       ? ImmutableList<string>.Empty
+                       : BarePlaceholder().Split(text).ToImmutableList();
+        }
+
+        /// <summary>A shape remembering marker, without quotes.</summary>
+        [GeneratedRegex(@"^@@PH(?<kind>[BQ]):(?<name>[A-Za-z0-9_.\-]+)@@$")]
+        private static partial Regex TaggedToken();
+
+        /// <summary>The value a tree node carries when it must be written bare.</summary>
+        public static string BareMarkerFor(string name)
+        {
+            return $"@@BARE:{name}@@";
+        }
+
+        /// <summary>The value a tree node carries when it must be written as a quoted placeholder.</summary>
+        public static string PlaceholderFor(string name)
+        {
+            return $"${name}$";
+        }
+
+        /// <summary>
+        /// The placeholder name a sentinel or bare marker stands for, or null when the value is neither.
+        /// </summary>
+        public static string? NameOfSentinel(string? value)
+        {
+            if (value.IsNullOrWhiteSpace())
+            {
+                return null;
+            }
+
+            var sentinel = SentinelToken().Match($"\"{value}\"");
+
+            if (sentinel.Success)
+            {
+                return sentinel.Groups["name"].Value;
+            }
+
+            var bare = BareMarkerToken().Match($"\"{value}\"");
+
+            return bare.Success ? bare.Groups["name"].Value : null;
+        }
+
+        /// <summary>
+        /// Unwraps the bare markers a tree carried, after it has been serialized: the quotes around them
+        /// go away and what is left is the placeholder as the snapshot spelled it.
+        /// </summary>
+        public static string RestoreBareMarkers(string? json)
+        {
+            if (json.IsNullOrWhiteSpace())
+            {
+                return json ?? string.Empty;
+            }
+
+            return BareMarkerToken().Replace(json, match => $"${match.Groups["name"].Value}$");
+        }
+
+        /// <summary>
+        /// Every sentinel still sitting in the text after the per path restore ran - a placeholder the
+        /// current side produced at a path the snapshot does not have. Nothing is known about how it
+        /// should be spelled, so it becomes an ordinary quoted placeholder.
+        /// </summary>
+        public static string RestoreRemainingSentinelsAsQuoted(string? json)
+        {
+            if (json.IsNullOrWhiteSpace())
+            {
+                return json ?? string.Empty;
+            }
+
+            return SentinelToken().Replace(json, match => $"\"${match.Groups["name"].Value}$\"");
+        }
+
+        /// <summary>
         /// The placeholder names the given snapshot spells bare, i.e. outside of a json string. Those are
         /// the ones that must not come back quoted - they stand in for numbers.
         /// </summary>
@@ -66,6 +187,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                                    return null;
                                });
+
+            return tokens.ToImmutable();
+        }
+
+        /// <summary>
+        /// Every placeholder name in the given text, however it is spelled - bare, quoted, or embedded in
+        /// a longer string. Unlike <see cref="BareTokens"/> this does not care where it sits; it answers
+        /// "which placeholders does this text mention".
+        /// </summary>
+        public static ImmutableHashSet<string> AllTokens(string? json)
+        {
+            if (json.IsNullOrWhiteSpace())
+            {
+                return ImmutableHashSet<string>.Empty;
+            }
+
+            var tokens = ImmutableHashSet.CreateBuilder<string>();
+
+            foreach (Match match in BarePlaceholder().Matches(json))
+            {
+                tokens.Add(match.Value.Trim('$'));
+            }
 
             return tokens.ToImmutable();
         }

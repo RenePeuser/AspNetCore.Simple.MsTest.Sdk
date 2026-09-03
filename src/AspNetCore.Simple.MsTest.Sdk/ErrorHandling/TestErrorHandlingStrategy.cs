@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,6 +22,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
             services.AddProblemDetailsErrorHandler();
             services.AddSnapshotNotFoundErrorHandler();
             services.AddInvalidSnapshotJsonErrorHandler();
+            services.AddSnapshotPlaceholderLostErrorHandler();
             services.AddNonSeekableBodyErrorHandler();
             services.AddInvalidJsonErrorHandler();
             services.AddJsonSerializationErrorHandler();

@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -98,10 +99,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine(textDecorator.SectionTitle("💡 How To Fix"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
-            if (LooksLikeUnresolvedPlaceholder(exception))
+
+            var unresolved = UnresolvedPlaceholders(exception);
+
+            if (unresolved.IsEmpty.IsFalse())
             {
-                sb.AppendLine(textDecorator.Error("  • The offending token looks like a placeholder that was never replaced."));
-                sb.AppendLine("    Supply it through the parameters argument, e.g. parameters: [(\"$Age$\", 42)].");
+                var names = string.Join(", ", unresolved.Order().Select(name => $"${name}$"));
+
+                sb.AppendLine(textDecorator.Error($"  • Still unreplaced after the parameters were applied: {names}"));
+                sb.AppendLine($"    Supply it through the parameters argument, e.g. parameters: [(\"${unresolved.Order().First()}$\", theValue)].");
                 sb.AppendLine();
             }
 
@@ -157,10 +163,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         /// <summary>
         /// A parameterized snapshot holds bare placeholders until the parameters are applied. If one
         /// survived, the json is invalid for a reason the developer fixes in one place.
+        ///
+        /// The content handed to this handler is already parameter resolved, so anything still spelled
+        /// <c>$name$</c> had no parameter - which is both the reason the file does not parse and the name
+        /// the developer needs. Reading it off the content beats testing the parser message for a leading
+        /// <c>'$'</c>: that wording belongs to System.Text.Json, and it never named the placeholder.
         /// </summary>
-        private static bool LooksLikeUnresolvedPlaceholder(InvalidSnapshotJsonException exception)
+        private static ImmutableHashSet<string> UnresolvedPlaceholders(InvalidSnapshotJsonException exception)
         {
-            return exception.ParseMessage.StartsWith("'$'", StringComparison.Ordinal);
+            return PlaceholderJson.AllTokens(exception.Content);
         }
     }
 }

@@ -1,0 +1,6 @@
+{
+  "title": "Person not found",
+  "status": 404,
+  "detail": "The person with the Id: $myId$ does not exist",
+  "id": $myId$
+}

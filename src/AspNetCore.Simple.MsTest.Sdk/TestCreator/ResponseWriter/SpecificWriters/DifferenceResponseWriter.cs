@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AspNetCore.Simple.MsTest.Sdk.Converters;
@@ -16,13 +16,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddJsonDiffer();
             services.AddJsonPathWriter();
             services.AddParameterReplacer();
+            services.AddSnapshotPlaceholderGuard();
+
             services.AddSingletonIfNotExists<ISpecificResponseWriter, DifferenceResponseWriter>();
         }
     }
 
     internal sealed class DifferenceResponseWriter(IJsonDiffer jsonDiffer,
                                                    IJsonPathWriter jsonPathWriter,
-                                                   IParameterReplacer parameterReplacementService) : ISpecificResponseWriter
+                                                   IParameterReplacer parameterReplacementService,
+                                                   SnapshotPlaceholderGuard snapshotPlaceholderGuard) : ISpecificResponseWriter
     {
         public bool CanHandle(WriteResponseRequest context)
         {
@@ -54,7 +57,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // A numeric parameter stands bare in the snapshot, which is not json Newtonsoft can read - see
             // PlaceholderJson. Both sides move into the sentinel form for the whole merge and come back at
             // the very end, so the file keeps the spelling its author chose.
-            var bareTokens = PlaceholderJson.BareTokens(context.ExpectedResult.Content);
             var expectedAsJson = PlaceholderJson.MakeParseable(context.ExpectedResult.Content);
             currentRootAsJson = PlaceholderJson.MakeParseable(currentRootAsJson);
 
@@ -118,7 +120,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
             };
 
-            var output = PlaceholderJson.Restore(JsonConvert.SerializeObject(resultRoot, serializerSettings), bareTokens);
+            // Which placeholder belongs where, and how it was spelled, is read off the file being updated
+            // - per json path, so the same name can be a bare number here and a quoted string there. See
+            // SnapshotPlaceholderRestorer.
+            SnapshotPlaceholderRestorer.ApplyOriginalSpelling(resultRoot, context.ExpectedResult.Content);
+
+            var serialized = JsonConvert.SerializeObject(resultRoot, serializerSettings);
+
+            // A sentinel left over here sits at a path the snapshot never had, so nothing is known about
+            // its spelling and quoted is the only safe form.
+            var output = PlaceholderJson.RestoreBareMarkers(PlaceholderJson.RestoreRemainingSentinelsAsQuoted(serialized));
+
+            // A merge that silently drops a placeholder turns the template into a hard coded snapshot -
+            // see SnapshotPlaceholderGuard. Checked before the write, so a refusal leaves the file intact.
+            snapshotPlaceholderGuard.EnsureNoPlaceholderIsLost(context.ExpectedResult,
+                                                               context.ExpectedResult.Content,
+                                                               output,
+                                                               context.Parameters);
 
             File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName,
                               output);

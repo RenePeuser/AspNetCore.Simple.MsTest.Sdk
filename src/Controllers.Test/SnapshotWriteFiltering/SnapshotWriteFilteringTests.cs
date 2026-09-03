@@ -54,8 +54,8 @@ namespace Controllers.Test.SnapshotWriteFiltering
         /// </summary>
         private static ResponseWriter CreateWriter()
         {
-            return new ResponseWriter([new DifferenceResponseWriter(new JsonDiffer(), new JsonPathWriter(), new ParameterReplacer()),
-                                       new OverwriteAllResponseWriter(new ParameterReplacer())]);
+            return new ResponseWriter([new DifferenceResponseWriter(new JsonDiffer(), new JsonPathWriter(), new ParameterReplacer(), new SnapshotPlaceholderGuard()),
+                                       new OverwriteAllResponseWriter(new ParameterReplacer(), new SnapshotPlaceholderGuard())]);
         }
 
         // ============================================================

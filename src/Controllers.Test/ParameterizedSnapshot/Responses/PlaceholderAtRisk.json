@@ -1,0 +1,11 @@
+{
+  "id": 1,
+  "name": "$name$",
+  "firstName": "Goku",
+  "age": 99,
+  "legacyRef": "$legacyRef$",
+  "emails": [
+    { "emailAddress": "alf@gmx.de", "type": "GMX" },
+    { "emailAddress": "abc@hotmail.de", "type": "Microsoft" }
+  ]
+}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +16,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    internal sealed class OverwriteAllResponseWriter(IParameterReplacer parameterReplacementService) : ISpecificResponseWriter
+    internal sealed class OverwriteAllResponseWriter(IParameterReplacer parameterReplacementService,
+                                                     SnapshotPlaceholderGuard snapshotPlaceholderGuard) : ISpecificResponseWriter
     {
         public bool CanHandle(WriteResponseRequest context)
         {
@@ -46,7 +47,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // A numeric parameter stands bare in the snapshot and is not json Newtonsoft can read - see
             // PlaceholderJson. Without this the shape lookup below silently found "no shape" and the file
             // was replaced wholesale instead of keeping the bare body it already used.
-            var bareTokens = PlaceholderJson.BareTokens(context.ExpectedResult.Content);
             result = PlaceholderJson.MakeParseable(result);
 
             // An existing snapshot keeps its shape - see SnapshotShape. A file that is created right
@@ -72,7 +72,42 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 targetFile.Directory.Create();
             }
 
-            File.WriteAllText(targetFile.FullName, PlaceholderJson.Restore(Indent(result), bareTokens));
+            var output = RestoreSpelling(Indent(result), targetExists ? context.ExpectedResult.Content : null);
+
+            // See SnapshotPlaceholderGuard. A file created by this run has no placeholders yet and passes.
+            snapshotPlaceholderGuard.EnsureNoPlaceholderIsLost(context.ExpectedResult,
+                                                               targetExists ? context.ExpectedResult.Content : null,
+                                                               output,
+                                                               context.Parameters);
+
+            File.WriteAllText(targetFile.FullName, output);
+        }
+
+        /// <summary>
+        /// Gives every placeholder the spelling the file being updated used for it - see
+        /// SnapshotPlaceholderRestorer. A snapshot created by this very run has no spelling to preserve, so
+        /// everything falls back to the quoted form.
+        /// </summary>
+        private static string RestoreSpelling(string json,
+                                              string? existingContent)
+        {
+            if (existingContent.IsNotNullOrWhiteSpace())
+            {
+                try
+                {
+                    var tree = JToken.Parse(json);
+                    SnapshotPlaceholderRestorer.ApplyOriginalSpelling(tree, existingContent);
+                    json = tree.ToString(Formatting.Indented);
+                }
+#pragma warning disable CA1031
+                catch (Exception)
+#pragma warning restore CA1031
+                {
+                    // Not parseable as json (e.g. a text snapshot) - nothing to walk.
+                }
+            }
+
+            return PlaceholderJson.RestoreBareMarkers(PlaceholderJson.RestoreRemainingSentinelsAsQuoted(json));
         }
 
         /// <summary>

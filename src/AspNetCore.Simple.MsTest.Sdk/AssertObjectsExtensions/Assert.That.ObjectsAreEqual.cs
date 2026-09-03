@@ -27,8 +27,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static readonly ParameterReplacer ParameterReplacer = new();
 
         private static readonly ResponseWriter ResponseWriter = new ResponseWriter([
-                                                                                       new DifferenceResponseWriter(JsonDiffer, new JsonPathWriter(), ParameterReplacer),
-                                                                                       new OverwriteAllResponseWriter(ParameterReplacer)
+                                                                                       new DifferenceResponseWriter(JsonDiffer, new JsonPathWriter(), ParameterReplacer, new SnapshotPlaceholderGuard()),
+                                                                                       new OverwriteAllResponseWriter(ParameterReplacer, new SnapshotPlaceholderGuard())
                                                                                    ]);
 
         private static readonly WriteResponseService WriteResponseService = new WriteResponseService();

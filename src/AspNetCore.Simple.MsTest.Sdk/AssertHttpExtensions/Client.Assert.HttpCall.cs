@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net;
@@ -54,6 +54,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _httpCallInfoTableBuilder = new HttpCallInfoTableBuilder(_textDecorator);
             _differencesTableBuilder = new DifferencesTableBuilder(tableBuilder, _textDecorator);
             _jsonSectionBuilder = new JsonSectionBuilder(_textDecorator);
+            _unresolvedParameterSectionBuilder = new UnresolvedParameterSectionBuilder(_textDecorator);
             JsonTypeMismatchOutputBuilder = new JsonTypeMismatchOutputBuilder(_textDecorator);
             _curlBuilder = serviceProvider.GetRequiredService<ICurlBuilder>();
             _curlFormatter = new CurlFormatter(_textDecorator);
@@ -79,6 +80,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                             _httpCallInfoTableBuilder,
                                                                             _differencesTableBuilder,
                                                                             _jsonSectionBuilder,
+                                                                            _unresolvedParameterSectionBuilder,
                                                                             _curlBuilder,
                                                                             _curlFormatter);
 
@@ -173,8 +175,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static IParameterReplacer _parameterReplacer = new ParameterReplacer();
 
         private static IResponseWriter _responseWriter = new ResponseWriter([
-                                                                                new DifferenceResponseWriter(_jsonDiffer, new JsonPathWriter(), _parameterReplacer),
-                                                                                new OverwriteAllResponseWriter(_parameterReplacer)
+                                                                                new DifferenceResponseWriter(_jsonDiffer, new JsonPathWriter(), _parameterReplacer, new SnapshotPlaceholderGuard()),
+                                                                                new OverwriteAllResponseWriter(_parameterReplacer, new SnapshotPlaceholderGuard())
                                                                             ]);
 
         private static IWriteResponseService _writeResponseService = new WriteResponseService();
@@ -217,6 +219,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static IJsonSectionBuilder _jsonSectionBuilder = new JsonSectionBuilder(_textDecorator);
 
+        private static IUnresolvedParameterSectionBuilder _unresolvedParameterSectionBuilder = new UnresolvedParameterSectionBuilder(_textDecorator);
+
         private static ICurlBuilder _curlBuilder = new CurlBuilder();
 
         private static ICurlPrinter _curlPrinter = new CurlPrinter(_curlFormatter, _curlBuilder);
@@ -246,6 +250,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                             _httpCallInfoTableBuilder,
                                                                                             _differencesTableBuilder,
                                                                                             _jsonSectionBuilder,
+                                                                                            _unresolvedParameterSectionBuilder,
                                                                                             _curlBuilder,
                                                                                             _curlFormatter);
 
