@@ -1,0 +1,16 @@
+{
+  "id": 1,
+  "name": "$name$",
+  "firstName": "Goku",
+  "age": $age$,
+  "emails": [
+    {
+      "emailAddress": "alf@gmx.de",
+      "type": "GMX"
+    },
+    {
+      "emailAddress": "abc@hotmail.de",
+      "type": "Microsoft"
+    }
+  ]
+}

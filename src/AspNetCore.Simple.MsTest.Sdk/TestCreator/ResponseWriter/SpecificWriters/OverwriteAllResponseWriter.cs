@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,13 +43,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var result = parameterReplacementService.ReplaceWithPlaceholders(context.CurrentResponseAsString, context.Parameters);
 
+            // A numeric parameter stands bare in the snapshot and is not json Newtonsoft can read - see
+            // PlaceholderJson. Without this the shape lookup below silently found "no shape" and the file
+            // was replaced wholesale instead of keeping the bare body it already used.
+            var bareTokens = PlaceholderJson.BareTokens(context.ExpectedResult.Content);
+            result = PlaceholderJson.MakeParseable(result);
+
             // An existing snapshot keeps its shape - see SnapshotShape. A file that is created right
             // here has no shape yet and gets the envelope.
             var targetExists = context.ExpectedResult.EmbeddedFile?.Exists ?? false;
 
             if (targetExists)
             {
-                result = SnapshotShape.MatchExisting(result, context.ExpectedResult.Content);
+                result = SnapshotShape.MatchExisting(result, PlaceholderJson.MakeParseable(context.ExpectedResult.Content));
             }
 
             //// New we can have also indexer properties. Values[0] -> Values[$Index$]
@@ -66,7 +72,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 targetFile.Directory.Create();
             }
 
-            File.WriteAllText(targetFile.FullName, Indent(result));
+            File.WriteAllText(targetFile.FullName, PlaceholderJson.Restore(Indent(result), bareTokens));
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AspNetCore.Simple.MsTest.Sdk.Converters;
@@ -51,10 +51,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var contextParameters = context.Parameters.OrderByDescending(p => p.Value?.ToString()?.Length).ToArray();
             var currentRootAsJson = parameterReplacementService.ReplaceWithPlaceholders(context.CurrentResponseAsString, contextParameters);
 
+            // A numeric parameter stands bare in the snapshot, which is not json Newtonsoft can read - see
+            // PlaceholderJson. Both sides move into the sentinel form for the whole merge and come back at
+            // the very end, so the file keeps the spelling its author chose.
+            var bareTokens = PlaceholderJson.BareTokens(context.ExpectedResult.Content);
+            var expectedAsJson = PlaceholderJson.MakeParseable(context.ExpectedResult.Content);
+            currentRootAsJson = PlaceholderJson.MakeParseable(currentRootAsJson);
+
             // The snapshot being updated keeps the shape it has - see SnapshotShape. Both sides have to
             // be in that same shape here, otherwise every json path of the envelope would read as a
             // difference against a bare body and the file would be replaced wholesale.
-            currentRootAsJson = SnapshotShape.MatchExisting(currentRootAsJson, context.ExpectedResult.Content);
+            currentRootAsJson = SnapshotShape.MatchExisting(currentRootAsJson, expectedAsJson);
 
             //// New we can have also indexer properties. Values[0] -> Values[$Index$]
             //foreach (var parameter in contextParameters)
@@ -64,7 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var currentRoot = JToken.Parse(currentRootAsJson);
 
-            var expectedRoot = JToken.Parse(context.ExpectedResult.Content);
+            var expectedRoot = JToken.Parse(expectedAsJson);
 
             var diffs = jsonDiffer.FindDifferences(expectedRoot.ToString(), currentRoot.ToString());
 
@@ -111,7 +118,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
             };
 
-            var output = JsonConvert.SerializeObject(resultRoot, serializerSettings);
+            var output = PlaceholderJson.Restore(JsonConvert.SerializeObject(resultRoot, serializerSettings), bareTokens);
 
             File.WriteAllText(context.ExpectedResult.EmbeddedFile!.FullName,
                               output);
