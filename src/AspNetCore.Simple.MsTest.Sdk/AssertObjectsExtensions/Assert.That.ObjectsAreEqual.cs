@@ -55,6 +55,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static Predicate<Difference> DifferenceFilter { get; set; } = _ => true;
 
         /// <summary>
+        /// Global predicate marking arrays whose element ORDER carries no meaning - an OpenAPI
+        /// <c>anyOf</c>, a set of tags, anything a producer emits in a different order per run.
+        /// Their elements are MATCHED against each other instead of compared index by index, so a
+        /// pure reordering is no longer a difference while a missing or changed element still is.
+        /// Neither document is reordered, which keeps every reported path pointing at the element
+        /// it names.
+        /// <para>
+        /// Decide per array, not per bare name: <c>array => array.PropertyName is "anyOf"</c> makes
+        /// EVERY anyOf order blind, <c>array => array.Path == "components.schemas.Pet.anyOf"</c>
+        /// only that one. <see cref="JsonArrayContext.Path"/> is index free.
+        /// </para>
+        /// <para>
+        /// This is the escape hatch for payloads you do not control. When the type is yours, the
+        /// per-assert <c>orderFunc</c> is the better tool: it is type safe and it also normalizes
+        /// what gets WRITTEN into the snapshot. And when the producer's order is nondeterministic
+        /// at all, every client sees that - fixing it at the source beats hiding it in the test.
+        /// </para>
+        /// Defaults to <c>null</c>, which compares every array by index.
+        /// </summary>
+        public static Predicate<JsonArrayContext>? OrderIndependentArrayFilter { get; set; }
+
+        /// <summary>
         /// Applies the configured difference filtering to a set of raw differences:
         /// the global <see cref="DifferenceFunc"/>, the per-assert difference func,
         /// and finally the global + per-assert <see cref="DifferenceFilter"/> predicates

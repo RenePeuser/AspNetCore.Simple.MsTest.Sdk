@@ -49,6 +49,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         Predicate<Difference> DifferenceFilter { get; init; }
 
         /// <summary>
+        /// Optional per-assert override for
+        /// <see cref="AssertObjectExtensions.OrderIndependentArrayFilter"/>. Null falls back to
+        /// that global filter.
+        /// </summary>
+        Predicate<JsonArrayContext>? OrderIndependentArrayFilter { get; init; }
+
+        /// <summary>
         /// Parameters to replace in JSON strings during comparison.
         /// Format: (Key, Value) tuples where Key is the placeholder and Value is the replacement.
         /// </summary>
@@ -155,6 +162,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Defaults to keeping every difference.
         /// </summary>
         public Predicate<Difference> DifferenceFilter { get; init; } = static _ => true;
+
+        /// <summary>
+        /// Optional per-assert override for
+        /// <see cref="AssertObjectExtensions.OrderIndependentArrayFilter"/>. Null falls back to
+        /// that global filter, so a test only sets this when it needs different array semantics
+        /// than the rest of the suite.
+        /// </summary>
+        public Predicate<JsonArrayContext>? OrderIndependentArrayFilter { get; init; }
 
         /// <summary>
         /// Parameters to replace in JSON strings during comparison.

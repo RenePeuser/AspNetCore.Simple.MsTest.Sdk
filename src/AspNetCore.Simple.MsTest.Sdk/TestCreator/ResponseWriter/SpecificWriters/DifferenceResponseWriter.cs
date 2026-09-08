@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AspNetCore.Simple.MsTest.Sdk.Converters;
@@ -75,7 +75,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var expectedRoot = JToken.Parse(expectedAsJson);
 
-            var diffs = jsonDiffer.FindDifferences(expectedRoot.ToString(), currentRoot.ToString());
+            // The same array semantics the assert used. An array that only got reordered produces no
+            // difference at all here, so the snapshot keeps the order its author chose instead of
+            // being rewritten on every recording.
+            var diffs = jsonDiffer.FindDifferences(expectedRoot.ToString(),
+                                                  currentRoot.ToString(),
+                                                  context.OrderIndependentArrayFilter ??
+                                                  AssertObjectExtensions.OrderIndependentArrayFilter);
 
             if (!diffs.Any())
             {
@@ -98,9 +104,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 // The response carries a property the snapshot never had. There is no snapshot value
                 // to keep, so the only way not to record it is to drop it from the result.
+                // resultRoot is a clone of the CURRENT document, expectedRoot is the snapshot. Inside
+                // an order-independent array a matched pair can sit at different indices on the two
+                // sides, so each side has to be addressed with its own path - see
+                // Difference.CurrentMemberPath.
+                var currentPath = ignoredDifference.CurrentMemberPath ?? ignoredDifference.MemberPath;
+
                 if (ignoredDifference.MismatchType == MismatchType.MissingInFirst)
                 {
-                    jsonPathWriter.Remove(resultRoot, ignoredDifference.MemberPath);
+                    jsonPathWriter.Remove(resultRoot, currentPath);
 
                     continue;
                 }
@@ -109,7 +121,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 if (source != null)
                 {
-                    jsonPathWriter.AddOrUpdate(resultRoot, ignoredDifference.MemberPath, source);
+                    jsonPathWriter.AddOrUpdate(resultRoot, currentPath, source);
                 }
             }
 

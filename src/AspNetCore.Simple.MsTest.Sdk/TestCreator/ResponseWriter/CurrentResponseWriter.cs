@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -42,6 +42,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; init; }
 
         public Predicate<Difference> DifferenceFilter { get; init; } = static _ => true;
+
+        /// <summary>
+        /// Arrays whose element order carries no meaning, so the merge sees the same set of
+        /// differences the assert saw. Without it a snapshot whose array is merely ordered
+        /// differently would be rewritten on every recording.
+        /// </summary>
+        public Predicate<JsonArrayContext>? OrderIndependentArrayFilter { get; init; }
 
         public required Assembly CallingAssembly { get; init; }
 
@@ -145,6 +152,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 CallingAssembly = context.CallingAssembly,
                 DifferenceFunc = context.DifferenceFunc,
                 DifferenceFilter = context.DifferenceFilter,
+                OrderIndependentArrayFilter = context.OrderIndependentArrayFilter,
                 CurrentResponseAsString = currentResponseAsString,
                 ExpectedResult = expectedResult,
                 Parameters = context.Parameters,

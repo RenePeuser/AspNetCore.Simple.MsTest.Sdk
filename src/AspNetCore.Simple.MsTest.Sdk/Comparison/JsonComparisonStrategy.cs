@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.Json;
@@ -161,8 +161,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             var expectedOrderedJson = orderedExpected.ToJson(jsonSerializerOptions);
             var currentOrderedJson = orderedCurrent.ToJson(jsonSerializerOptions);
 
-            // 5. Find differences
-            var differences = _jsonDiffer.FindDifferences(expectedOrderedJson, currentOrderedJson);
+            // 5. Find differences. The per-assert filter wins over the global one, so a single test
+            // can treat an array as a set without making every other test in the suite order blind.
+            var orderIndependentArrayFilter = context.OrderIndependentArrayFilter ??
+                                              AssertObjectExtensions.OrderIndependentArrayFilter;
+
+            var differences = _jsonDiffer.FindDifferences(expectedOrderedJson,
+                                                         currentOrderedJson,
+                                                         orderIndependentArrayFilter);
 
             // 6. Check for schema mismatches
             var hasSchemaMismatch = differences.Any(item =>
@@ -176,7 +182,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             if (contentValueDifference.IsNotNull())
             {
                 differences = _jsonDiffer.FindDifferences(contentValueDifference.Value1 ?? string.Empty,
-                                                         contentValueDifference.Value2 ?? string.Empty);
+                                                         contentValueDifference.Value2 ?? string.Empty,
+                                                         orderIndependentArrayFilter);
 
                 hasSchemaMismatch = differences.Any(item =>
                                                         (item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond) &&
