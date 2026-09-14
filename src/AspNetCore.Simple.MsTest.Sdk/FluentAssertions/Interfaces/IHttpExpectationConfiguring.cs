@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
 {
@@ -13,7 +13,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
     /// </para>
     /// </summary>
     [FluentBuilder]
+#if FLUENT_ALPHA
     public interface IHttpExpectationConfiguring
+#else
+    internal interface IHttpExpectationConfiguring
+#endif
     {
         /// <summary>Executes the request and asserts the status code. The single terminal.</summary>
         Task ExecuteAsync();

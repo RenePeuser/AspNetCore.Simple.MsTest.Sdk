@@ -1,3 +1,4 @@
+﻿using System;
 using System.Net;
 
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
@@ -17,7 +18,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
     /// </para>
     /// </summary>
     [FluentBuilder]
+#if FLUENT_ALPHA
     public interface IHttpRequestConfiguring
+#else
+    internal interface IHttpRequestConfiguring
+#endif
     {
         // ============================================================
         // Request body — explicit, no rate-heuristic (Schema A).
@@ -25,6 +30,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
 
         /// <summary>Sets the request body from a C# object (serialized to JSON).</summary>
         IHttpRequestConfiguring Accepts<T>(T body);
+
+        /// <summary>
+        /// NOT a request body. Reserved to close the Minimal-API false friend: there,
+        /// <c>Accepts&lt;T&gt;("application/json")</c> declares a CONTENT TYPE, while here the argument
+        /// IS the body — so the reflex spelling would silently POST the string "application/json".
+        /// Use <see cref="AcceptsFromJsonString"/> for raw JSON or <see cref="AcceptsFromEmbeddedJson"/>
+        /// for a file name.
+        /// </summary>
+        [Obsolete("Accepts(string) is not a body. In the Minimal API the string argument is the CONTENT TYPE, here it would be sent AS the body. Use AcceptsFromJsonString(json) for raw JSON, AcceptsFromEmbeddedJson(fileName) for an embedded file, or Accepts<T>(obj) for an object.", error: true)]
+        IHttpRequestConfiguring Accepts(string bodyJson);
 
         /// <summary>Sets the request body from a raw JSON string (used verbatim).</summary>
         IHttpRequestConfiguring AcceptsFromJsonString(string bodyJson);
@@ -42,6 +57,19 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
 
         /// <summary>Sets placeholder parameters as key/value tuples.</summary>
         IHttpRequestConfiguring WithParameters(params (string Key, object? Value)[] parameters);
+
+        /// <summary>
+        /// Sets a single placeholder parameter given as a tuple.
+        ///
+        /// <para>
+        /// Exists so that <c>WithParameters(("Name", "Goku"))</c> cannot bind to
+        /// <see cref="WithParameters(object)"/>: with only the params-array and the object overload
+        /// present, C# prefers the normal form over the expanded one, so a single tuple would be
+        /// reflected over as an object and produce the placeholders <c>$Item1$</c>/<c>$Item2$</c>
+        /// instead of <c>$Name$</c> — silently wrong.
+        /// </para>
+        /// </summary>
+        IHttpRequestConfiguring WithParameters((string Key, object? Value) parameter);
 
         /// <summary>Sets placeholder parameters from all public properties of an object (§10.1.1, PascalCase).</summary>
         IHttpRequestConfiguring WithParameters(object source);

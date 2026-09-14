@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq.Expressions;
@@ -13,7 +13,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
     /// </summary>
     /// <typeparam name="TResult">The expected response type.</typeparam>
     [FluentBuilder]
+#if FLUENT_ALPHA
     public interface IHttpComparisonConfiguring<TResult>
+#else
+    internal interface IHttpComparisonConfiguring<TResult>
+#endif
     {
         /// <summary>Transforms the deserialized response before comparison (sort/normalize).</summary>
         IHttpComparisonConfiguring<TResult> FilterResponse(Func<TResult?, TResult?> filter);

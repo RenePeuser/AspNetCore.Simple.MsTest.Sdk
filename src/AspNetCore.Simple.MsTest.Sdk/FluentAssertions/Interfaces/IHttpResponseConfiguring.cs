@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
 {
@@ -21,7 +21,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
     /// </summary>
     /// <typeparam name="TResult">The response type (also the return type of <see cref="ExecuteAsync"/>).</typeparam>
     [FluentBuilder]
+#if FLUENT_ALPHA
     public interface IHttpResponseConfiguring<TResult>
+#else
+    internal interface IHttpResponseConfiguring<TResult>
+#endif
     {
         /// <summary>Sets the expected response body from a C# object (serialized to JSON).</summary>
         IHttpComparisonConfiguring<TResult> ExpectedResponse(TResult expected);

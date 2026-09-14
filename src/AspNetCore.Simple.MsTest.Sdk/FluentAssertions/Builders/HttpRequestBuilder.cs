@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -62,6 +63,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             return this;
         }
 
+        [Obsolete("Accepts(string) is not a body. In the Minimal API the string argument is the CONTENT TYPE, here it would be sent AS the body. Use AcceptsFromJsonString(json) for raw JSON, AcceptsFromEmbeddedJson(fileName) for an embedded file, or Accepts<T>(obj) for an object.", error: true)]
+        public IHttpRequestConfiguring Accepts(string bodyJson)
+        {
+            throw new NotSupportedException("Accepts(string) is not a request body. Use AcceptsFromJsonString or AcceptsFromEmbeddedJson.");
+        }
+
         public IHttpRequestConfiguring AcceptsFromJsonString(string bodyJson)
         {
             _body = bodyJson;
@@ -96,6 +103,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             }
 
             return this;
+        }
+
+        public IHttpRequestConfiguring WithParameters((string Key, object? Value) parameter)
+        {
+            return WithParameter(parameter.Key, parameter.Value);
         }
 
         public IHttpRequestConfiguring WithParameters(object source)
