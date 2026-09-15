@@ -220,7 +220,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 IsExpectedStatusCode = isExpectedStatusCode,
                 IsSuccessStatusCode = context.IsSuccessStatusCode,
                 OrderFunc = context.OrderFunc,
-                HasOrderFunc = context.HasOrderFunc,
                 Parameters = context.Parameters,
                 PayloadAsJson = context.PayloadAsJson,
                 PayloadFile = context.PayloadFile,

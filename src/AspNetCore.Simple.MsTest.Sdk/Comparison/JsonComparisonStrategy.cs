@@ -155,8 +155,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             }
 
             // 4. Apply ordering function
-            var orderedExpected = context.OrderFunc(expectedObject);
-            var orderedCurrent = context.OrderFunc(context.Current);
+            var orderedExpected = context.OrderFunc.IsNull() ? expectedObject : context.OrderFunc(expectedObject);
+            var orderedCurrent = context.OrderFunc.IsNull() ? context.Current : context.OrderFunc(context.Current);
 
             var expectedOrderedJson = orderedExpected.ToJson(jsonSerializerOptions);
             var currentOrderedJson = orderedCurrent.ToJson(jsonSerializerOptions);

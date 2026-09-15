@@ -93,7 +93,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                     string url,
                                                                     string payloadAsJson,
                                                                     TResult expectedResponse,
-                                                                    Func<TResult?, TResult?> filterFunc,
+                                                                    Func<TResult?, TResult?>? filterFunc,
                                                                     bool writeResponse = false,
                                                                     [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                     string payloadAsJsonParameterName = "",

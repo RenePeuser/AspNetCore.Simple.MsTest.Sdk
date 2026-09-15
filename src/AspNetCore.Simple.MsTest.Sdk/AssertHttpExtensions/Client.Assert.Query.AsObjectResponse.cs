@@ -76,7 +76,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string url,
                                                               object payloadAsObject,
                                                               TResult expectedResponse,
-                                                              Func<TResult?, TResult?> filterFunc,
+                                                              Func<TResult?, TResult?>? filterFunc,
                                                               bool writeResponse = false,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))]
                                                               string payloadAsObjectParameterName = "",
@@ -104,7 +104,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string url,
                                                               object payloadAsObject,
                                                               TResult expectedResponse,
-                                                              Func<TResult?, TResult?> filterFunc,
+                                                              Func<TResult?, TResult?>? filterFunc,
                                                               (string Key, object? Value)[] parameters,
                                                               bool writeResponse = false,
                                                               [CallerArgumentExpression(nameof(payloadAsObject))]
@@ -134,7 +134,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string url,
                                                               string payloadAsJson,
                                                               TResult expectedResponse,
-                                                              Func<TResult?, TResult?> filterFunc,
+                                                              Func<TResult?, TResult?>? filterFunc,
                                                               bool writeResponse = false,
                                                               [CallerArgumentExpression(nameof(payloadAsJson))]
                                                               string payloadAsJsonParameterName = "",
@@ -162,7 +162,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               string url,
                                                               string payloadAsJson,
                                                               TResult expectedResponse,
-                                                              Func<TResult?, TResult?> filterFunc,
+                                                              Func<TResult?, TResult?>? filterFunc,
                                                               (string Key, object? Value)[] parameters,
                                                               bool writeResponse = false,
                                                               [CallerArgumentExpression(nameof(payloadAsJson))]

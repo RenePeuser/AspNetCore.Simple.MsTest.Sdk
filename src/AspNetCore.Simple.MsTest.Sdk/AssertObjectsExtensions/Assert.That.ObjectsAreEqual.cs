@@ -1318,7 +1318,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             return context with
             {
-                Expected = context.OrderFunc(context.Current),
+                Expected = context.OrderFunc.IsNull() ? context.Current : context.OrderFunc(context.Current),
                 ResolvedExpectedJson = null
             };
         }

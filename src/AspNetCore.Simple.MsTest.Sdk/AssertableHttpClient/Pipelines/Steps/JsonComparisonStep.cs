@@ -57,7 +57,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             var currentResult = context.CurrentResult;
 
             // Apply filter function to get filtered result for comparison
-            var filteredCurrentResult = context.OrderFunc(currentResult);
+            var filteredCurrentResult = context.OrderFunc.IsNull() ? currentResult : context.OrderFunc(currentResult);
 
             // Build expected result JSON
             var expectedResultAsJson = BuildExpectedResultJson(context, filteredCurrentResult);
@@ -124,7 +124,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                 HttpStatusCode = context.HttpStatusCode,
                 IsExpectedStatusCode = context.IsExpectedStatusCode,
                 IsSuccessStatusCode = context.IsExpectedStatusCode,
-                OrderFunc = item => item, // Order func was executed already on the primitive type level
+                // No OrderFunc: it already ran on the primitive type level, one level up.
                 Parameters = context.Parameters,
                 PayloadAsJson = context.PayloadAsJson,
                 PayloadFile = context.PayloadFile,
@@ -236,7 +236,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         private object BuildCurrentValue<TResult>(HttpResponseContext<TResult> context,
                                                   TResult? filteredCurrentResult)
         {
-            if (context.HasOrderFunc && filteredCurrentResult.IsNotNull())
+            if (context.OrderFunc.IsNotNull() && filteredCurrentResult.IsNotNull())
             {
                 return filteredCurrentResult;
             }
@@ -260,7 +260,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                    ? primitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParameterized)
                                    : expectedResultAsJsonParameterized.FromJsonStringOrDefault<TResult>(jsonSerializerOptions);
 
-            var filteredExpectedType = expectedType.IsNotNull() ? context.OrderFunc(expectedType) : expectedType;
+            var filteredExpectedType = expectedType.IsNotNull() && context.OrderFunc.IsNotNull() ? context.OrderFunc(expectedType) : expectedType;
 
             var expectedResultAsSimpleResponse = expectedResultAsJsonParameterized.FromJsonStringOrDefault<SimpleHttpResponseMessage>(jsonSerializerOptions);
 

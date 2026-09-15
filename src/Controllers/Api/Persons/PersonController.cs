@@ -57,6 +57,30 @@ namespace Controllers.Api.Persons
             return Task.FromResult(person);
         }
 
+        /// <summary>
+        /// Declares the lean <see cref="PersonWithoutEmails"/> as its response type but writes a full
+        /// <see cref="Person"/>, so <c>emails</c> only ever exists on the wire. Fixture for the snapshot
+        /// diff: the current side has to stay the raw body, or that field silently disappears.
+        /// </summary>
+        [HttpGet("{id}/lean")]
+        [ProducesResponseType(typeof(PersonWithoutEmails), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
+        public IActionResult GetPersonLean(long id)
+        {
+            var person = _persons.FirstOrDefault(x => x.Id == id);
+
+            if (person.IsNull())
+            {
+                throw new ProblemDetailsException(System.Net.HttpStatusCode.NotFound,
+                                                  "Person not found",
+                                                  $"The person with the Id: {id} does not exist",
+                                                  ("Id", id));
+            }
+
+            return Ok(person);
+        }
+
         [HttpPut]
         [ProducesResponseType(typeof(Person), 200)]
         [ProducesResponseType(typeof(ProblemDetails), 400)]

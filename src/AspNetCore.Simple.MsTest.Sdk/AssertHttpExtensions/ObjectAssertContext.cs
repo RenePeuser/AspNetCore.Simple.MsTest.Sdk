@@ -259,22 +259,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         /// <summary>
-        /// Optional ordering/transformation function to apply before comparison.
-        /// Useful for sorting collections or normalizing data.
-        /// Note: Function must handle nullable inputs/outputs.
+        /// Optional ordering/transformation function to apply before comparison. Useful for sorting
+        /// collections or normalizing volatile data - an execution arn, a start date, a generated name.
+        /// Must handle nullable inputs/outputs. Null means the caller supplied none.
+        ///
+        /// Null is load bearing, so do NOT default it to an identity lambda. It is the only thing that
+        /// says whether a caller asked for normalization, and the http snapshot diff steers on exactly
+        /// that: the expected side always goes through the response type, while the current side stays
+        /// the raw response body on purpose, because that is what still surfaces a property the api
+        /// returns but the type does not model. Only an assert that actually normalizes may give that
+        /// up and compare the typed object on both sides - otherwise it would compare normalized
+        /// against volatile and could never go green, no matter how often the snapshot is re-recorded.
+        ///
+        /// This used to be a separate `HasOrderFunc` flag next to a non-nullable func, and the two drifted
+        /// apart immediately: every overload taking no filter func forwarded an identity lambda, so the
+        /// flag was true for practically every assert in the sdk and every field a response type did not
+        /// model silently dropped out of the diff. One nullable field cannot drift.
         /// </summary>
-        public required Func<T?, T?> OrderFunc { get; init; } = item => item;
-
-        /// <summary>
-        /// True when the caller actually supplied an <see cref="OrderFunc"/>, false when it defaulted to
-        /// identity. The two sides of an http snapshot diff are not built the same way - the expected side
-        /// always goes through the response type, the current side stays the raw body on purpose so a
-        /// property the api returns but the type does not model still shows up. That asymmetry silently
-        /// swallows the order func: normalizing a volatile arn or timestamp only ever reached the expected
-        /// side, so the diff kept the raw values and the test could never go green. Knowing whether a func
-        /// was passed lets the current side switch to the normalized object for exactly those asserts, and
-        /// keeps the raw body everywhere else.
-        /// </summary>
-        public bool HasOrderFunc { get; init; }
+        public Func<T?, T?>? OrderFunc { get; init; }
     }
 }
