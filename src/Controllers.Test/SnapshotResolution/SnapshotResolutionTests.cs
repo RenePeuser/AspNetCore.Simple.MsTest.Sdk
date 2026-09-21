@@ -29,7 +29,7 @@ namespace Controllers.Test.SnapshotResolution
                                       .ConfigureAwait(false);
 
             Assert.That.Contains(failure.Message,
-                                 "SNAPSHOT FILE NOT FOUND",
+                                 "RESPONSE SNAPSHOT FILE NOT FOUND",
                                  "The failure has to name the real problem - a snapshot that is not there - instead of any downstream comparison error.",
                                  "Check that the unresolved reference raises SnapshotNotFoundException and that its handler is selected.");
 
@@ -51,7 +51,7 @@ namespace Controllers.Test.SnapshotResolution
                                       .ConfigureAwait(false);
 
             Assert.That.Contains(failure.Message,
-                                 "PAYLOAD FILE NOT FOUND",
+                                 "REQUEST JSON FILE NOT FOUND",
                                  "Payload and snapshot are two different files, and the author needs to know which of the two is missing before looking for it.",
                                  "Check that the isPayload flag reaches SnapshotNotFoundException so the handler picks the payload wording.");
 
@@ -59,6 +59,64 @@ namespace Controllers.Test.SnapshotResolution
                                  "Requests.DoesNotExistAtAll.json",
                                  "The reference the author wrote is the one thing they can act on - without it they have to guess which of several payloads is meant.",
                                  "Check that the handler prints the unresolved reference verbatim.");
+        }
+
+        /// <summary>
+        ///     The shape that cost an afternoon in a consumer project: a capability had its REQUEST json
+        ///     but no recorded response, and the missing snapshot was reported with the request file as
+        ///     "did you mean". Everything in that output pointed at a file that was already correct, so
+        ///     the conclusion was that the sdk could not read it - while the snapshot that had to be
+        ///     created was never mentioned. Both halves of that were green here.
+        /// </summary>
+        [TestMethod]
+        public async Task AMissingSnapshotMustNotOfferTheRequestFileOfTheSameName()
+        {
+            // "Requests/RequestWithoutSnapshot.json" exists. A response of that name does not.
+            var failure = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons", "RequestWithoutSnapshot.json"),
+                                                                                      "A snapshot lookup that finds nothing has to fail - the identically named request file is the input of the call, not a recording of its response.",
+                                                                                      "Check that the response resolution only accepts the response folders; a request file must never satisfy it.")
+                                      .ConfigureAwait(false);
+
+            Assert.That.DoesNotContain(failure.Message,
+                                       "Requests.RequestWithoutSnapshot.json",
+                                       "Offering the request file as a near miss is worse than offering nothing: it is always present, it reads as 'the file is there, under this path', and it sends the author to a file that needs no change while the snapshot they have to record goes unmentioned.",
+                                       "Check that SnapshotNotFoundException.FindCandidates scopes its search to the folders of the role being looked up - EmbeddedFileInfo.AllowedFolders carries them.");
+
+            Assert.That.Contains(failure.Message,
+                                 "RESPONSE SNAPSHOT FILE NOT FOUND",
+                                 "The title is read first and often alone. 'SNAPSHOT' next to a request json that plainly exists reads as 'cannot find THAT file' - it has to say which of the two is missing.",
+                                 "Check that the handler renders the isPayload false wording as RESPONSE SNAPSHOT.");
+
+            Assert.That.Contains(failure.Message,
+                                 "Responses.RequestWithoutSnapshot.json",
+                                 "The reference is a bare file name, so on its own it never shows WHICH folder was searched. Naming the resolved target is what makes the sibling folder obviously not the same file.",
+                                 "Check that the synthesized EmbeddedFileName reaches SnapshotNotFoundException.ExpectedResourceName and that the handler prints the Expected line.");
+        }
+
+        /// <summary>
+        ///     The mirror image: a payload lookup must not be answered with the response snapshot of the
+        ///     same name. Same rule, and just as silent when it breaks.
+        /// </summary>
+        [TestMethod]
+        public async Task AMissingPayloadMustNotOfferTheSnapshotOfTheSameName()
+        {
+            // "Responses/BrokenJson.json" exists. A request of that name does not.
+            var failure = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPostAsync<Person>("api/v1/persons",
+                                                                                                                           "BrokenJson.json",
+                                                                                                                           "Responses.CreatePerson.json"),
+                                                                                      "A payload reference that resolves to nothing has to stop the test, whatever else happens to carry the same file name.",
+                                                                                      "Check that the payload resolution only accepts the request folders.")
+                                      .ConfigureAwait(false);
+
+            Assert.That.DoesNotContain(failure.Message,
+                                       "Responses.BrokenJson.json",
+                                       "A snapshot is a recording of a response and can never serve as the body of a request. Suggesting it invites the author to point their payload at it, which then fails somewhere else entirely.",
+                                       "Check that the role scope in SnapshotNotFoundException.FindCandidates applies to the payload direction too.");
+
+            Assert.That.Contains(failure.Message,
+                                 "REQUEST JSON FILE NOT FOUND",
+                                 "Which of the two files is missing decides where the author looks. The title has to answer that before anything else.",
+                                 "Check that the handler renders the isPayload true wording as REQUEST JSON.");
         }
 
         [TestMethod]
@@ -146,7 +204,7 @@ namespace Controllers.Test.SnapshotResolution
                                                                            fix: "Check that ObjectsAreEqual runs the same strict snapshot resolution as the http asserts - see SnapshotReferenceGuard.");
 
             Assert.That.Contains(failure.Message,
-                                 "SNAPSHOT FILE NOT FOUND",
+                                 "RESPONSE SNAPSHOT FILE NOT FOUND",
                                  "The object route has to produce the same diagnosis as the http route - a missing file is a missing file either way.",
                                  "Check that the object route raises SnapshotNotFoundException rather than a generic assertion failure.");
 

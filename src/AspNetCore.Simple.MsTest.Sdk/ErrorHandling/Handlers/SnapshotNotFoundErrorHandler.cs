@@ -37,7 +37,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                              SnapshotNotFoundException exception,
                              ITextDecorator textDecorator)
         {
-            var kind = exception.IsPayload ? "PAYLOAD" : "SNAPSHOT";
+            // "SNAPSHOT" on its own does not say which of the two files a call reads. An author looking
+            // at a request json that is plainly there reads it as "the sdk cannot find THAT file" and
+            // goes hunting in the wrong folder. A snapshot is the expected RESPONSE - the title says so.
+            var kind = exception.IsPayload ? "REQUEST JSON" : "RESPONSE SNAPSHOT";
 
             var sb = new StringBuilder();
 
@@ -74,6 +77,22 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             }
 
             sb.AppendLine($"{"Reference",-12} : {textDecorator.Error(exception.Reference)}");
+            sb.AppendLine($"{"Role",-12} : {(exception.IsPayload ? "request payload - the body this call SENDS" : "expected response - the body this call COMPARES against")}");
+
+            // The reference is a bare file name far more often than not, so on its own it never reveals
+            // WHERE the sdk looked. Naming the resolved target is what separates "the file is missing"
+            // from "the reference resolves into a folder you did not mean" - and it is the line that
+            // makes an identically named file in the sibling folder obviously not the same file.
+            if (exception.ExpectedResourceName.IsNotNullOrWhiteSpace())
+            {
+                sb.AppendLine($"{"Expected",-12} : {exception.ExpectedResourceName}");
+            }
+
+            if (exception.ExpectedFilePath.IsNotNullOrWhiteSpace())
+            {
+                sb.AppendLine($"{"Path",-12} : file:///{exception.ExpectedFilePath.Replace('\\', '/')}");
+            }
+
             sb.AppendLine();
             sb.AppendLine("It matches no embedded resource and no file on disk.");
             sb.AppendLine();
@@ -100,6 +119,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                 sb.AppendLine();
                 sb.AppendLine("  • Is the file included as <EmbeddedResource> in the csproj?");
                 sb.AppendLine("  • Was it renamed or deleted?");
+
+                // Suggestions are scoped to the role - see SnapshotNotFoundException.FindCandidates. A
+                // file of the OTHER role carrying this exact name is therefore not listed above, and
+                // saying nothing about it is how the author concludes the sdk is simply blind.
+                if (exception.IsPayload.IsFalse())
+                {
+                    sb.AppendLine("  • A request json of the same name is NOT a substitute - the");
+                    sb.AppendLine("    expected response has to be recorded separately.");
+                }
+
                 sb.AppendLine();
             }
 
@@ -124,6 +153,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                 sb.AppendLine(textDecorator.Success("  • pass writeResponse: true on this assert, or"));
                 sb.AppendLine(textDecorator.Success("  • set AspNetCoreSimpleMsTestSdk__WriteResponse=true"));
                 sb.AppendLine();
+
+                // Recording is gated on a Debug build and the gate returns false without a word - so in
+                // a Release run the author follows the advice above, nothing happens, and this very same
+                // error comes back. Repeating the advice without this note is what makes that a loop.
+                if (exception.CanRecord.IsFalse())
+                {
+                    sb.AppendLine(textDecorator.Error($"  ⚠️ '{exception.AssemblyName}' is NOT compiled in Debug."));
+                    sb.AppendLine(textDecorator.Error("     Snapshot recording is a Debug-only feature: writeResponse is"));
+                    sb.AppendLine(textDecorator.Error("     ignored in a Release build. Re-run the test with -c Debug."));
+                    sb.AppendLine();
+                }
             }
 
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));

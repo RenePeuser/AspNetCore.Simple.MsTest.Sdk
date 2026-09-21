@@ -38,10 +38,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// still holds the file NAME, and comparing against a file name is how a typo turns into a green
     /// test. Only snapshot writing may proceed - there the file is about to be created.
     /// </param>
+    /// <param name="AllowedFolders">
+    /// The folders this reference was searched in - "Responses" and its legacy spellings for a
+    /// snapshot, "Requests" and its legacy spellings for a payload. Null for inline json, which has
+    /// no folder at all.
+    ///
+    /// It travels with the result so a failure can stay inside the role: a snapshot that is missing
+    /// must not offer the identically named REQUEST file as "did you mean". That suggestion reads
+    /// like the file is there under a different path, sends the author to the wrong folder, and the
+    /// snapshot they actually have to create never gets written.
+    /// </param>
     public sealed record EmbeddedFileInfo(string EmbeddedFileName,
                                           string Content,
                                           FileInfo? EmbeddedFile,
-                                          bool Resolved = true);
+                                          bool Resolved = true,
+                                          IImmutableSet<string>? AllowedFolders = null);
 
     public interface IEmbeddedFileLocalizer
     {
@@ -277,7 +288,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return new EmbeddedFileInfo(embeddedResource.EmbeddedFile,
                                             embeddedContent ?? input,
                                             null,
-                                            embeddedResource.Exist);
+                                            embeddedResource.Exist,
+                                            allowedSet);
             }
 
             if (physicalFile.NotExists())
@@ -291,7 +303,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return new EmbeddedFileInfo(embeddedResource.EmbeddedFile,
                                             embeddedContent ?? input,
                                             physicalFile,
-                                            embeddedResource.Exist);
+                                            embeddedResource.Exist,
+                                            allowedSet);
             }
 
             // NEW: When you are in snapshot mode, you are writing the json which are at that moment
@@ -302,12 +315,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 var contentFromFile = File.ReadAllText(physicalFile.FullName);
 
-                return new EmbeddedFileInfo(embeddedResource.EmbeddedFile, contentFromFile, physicalFile);
+                return new EmbeddedFileInfo(embeddedResource.EmbeddedFile,
+                                            contentFromFile,
+                                            physicalFile,
+                                            AllowedFolders: allowedSet);
             }
 
             var content = assembly.GetFileContentOrDefaultFrom(embeddedResource.EmbeddedFile);
 
-            return new EmbeddedFileInfo(embeddedResource.EmbeddedFile, content, physicalFile);
+            return new EmbeddedFileInfo(embeddedResource.EmbeddedFile,
+                                        content,
+                                        physicalFile,
+                                        AllowedFolders: allowedSet);
         }
 
         // ============================================================
@@ -565,16 +584,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static bool ContainsFolderSegment(string resourceName,
                                                   ImmutableHashSet<string> folders)
         {
-            foreach (var folder in folders)
-            {
-                if (resourceName.Contains("." + folder + ".",
-                                          StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return ResourceFolderMatcher.ContainsFolderSegment(resourceName, folders);
         }
 
         // ============================================================

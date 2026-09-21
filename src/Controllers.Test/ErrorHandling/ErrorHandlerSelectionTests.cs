@@ -35,7 +35,7 @@ namespace Controllers.Test.ErrorHandling
             var output = await HandleAsync(exception).ConfigureAwait(false);
 
             Assert.That.Contains(output,
-                                 "SNAPSHOT FILE NOT FOUND",
+                                 "RESPONSE SNAPSHOT FILE NOT FOUND",
                                  because: "A SnapshotNotFoundException has to reach SnapshotNotFoundErrorHandler, which names the missing file. That heading is what tells the author it is a typo in a file name, not a broken sdk.",
                                  fix: "Check that the specific handler is registered and that its CanHandle accepts SnapshotNotFoundException with isPayload false.");
 
@@ -56,9 +56,64 @@ namespace Controllers.Test.ErrorHandling
             var output = await HandleAsync(exception).ConfigureAwait(false);
 
             Assert.That.Contains(output,
-                                 "PAYLOAD FILE NOT FOUND",
+                                 "REQUEST JSON FILE NOT FOUND",
                                  because: "The same exception type carries isPayload, and a missing request payload is a different mistake from a missing response snapshot - the wording has to say which one it is.",
                                  fix: "Check that the handler branches on SnapshotNotFoundException.IsPayload instead of always printing the snapshot wording.");
+        }
+
+        /// <summary>
+        /// Recording is gated on a Debug build and the gate returns false without a word. So in a
+        /// Release run the author follows the "pass writeResponse: true" advice, no file appears, no
+        /// reason is given, and the identical error comes back - the advice itself becomes the loop.
+        /// </summary>
+        [TestMethod]
+        public async Task AMissingSnapshotInANonDebugAssemblyMustSayThatRecordingCannotWork()
+        {
+            // Any assembly shipped in Release does - the framework's own is the one guaranteed to be there.
+            var releaseAssembly = typeof(string).Assembly;
+
+            var exception = new SnapshotNotFoundException("Persons.json",
+                                                          nameof(AMissingSnapshotInANonDebugAssemblyMustSayThatRecordingCannotWork),
+                                                          releaseAssembly,
+                                                          isPayload: false);
+
+            Assert.That.IsFalse(exception.CanRecord,
+                                because: "The warning below only appears when recording is impossible. If CanRecord came out true for a Release assembly the warning would never be reachable, and a string match alone would not notice.",
+                                fix: "Check that SnapshotNotFoundException.CanRecord is taken from callingAssembly.IsCompiledInDebug().");
+
+            var output = await HandleAsync(exception).ConfigureAwait(false);
+
+            Assert.That.Contains(output,
+                                 "NOT compiled in Debug",
+                                 because: "Without this line the output repeats the advice that just silently did nothing, and the author cannot tell a Release build from a broken sdk.",
+                                 fix: "Check that the handler branches on SnapshotNotFoundException.CanRecord in the 'Creating A New Snapshot' section.");
+        }
+
+        /// <summary>
+        /// A bare file name never says which folder was searched. The resolved target does, and it is
+        /// what separates a missing file from a reference pointing into the wrong folder.
+        /// </summary>
+        [TestMethod]
+        public async Task AMissingSnapshotMustNameTheLocationItWasExpectedIn()
+        {
+            var expected = new EmbeddedFileInfo("Controllers.Test.Api.Persons.V1.Get.Responses.Persons.json",
+                                                "Persons.json",
+                                                null,
+                                                false,
+                                                ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, "Responses"));
+
+            var exception = new SnapshotNotFoundException("Persons.json",
+                                                          nameof(AMissingSnapshotMustNameTheLocationItWasExpectedIn),
+                                                          typeof(ErrorHandlerSelectionTests).Assembly,
+                                                          isPayload: false,
+                                                          expected);
+
+            var output = await HandleAsync(exception).ConfigureAwait(false);
+
+            Assert.That.Contains(output,
+                                 "Controllers.Test.Api.Persons.V1.Get.Responses.Persons.json",
+                                 because: "The reference on its own is a file name. Where the sdk looked for it is what turns 'not found' into an actionable path, and it is already known at the point the error is raised.",
+                                 fix: "Check that SnapshotReferenceGuard passes the EmbeddedFileInfo into SnapshotNotFoundException and that the handler prints ExpectedResourceName.");
         }
 
         [TestMethod]

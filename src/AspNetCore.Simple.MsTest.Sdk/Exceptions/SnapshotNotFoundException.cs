@@ -20,14 +20,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public SnapshotNotFoundException(string reference,
                                          string parameterName,
                                          Assembly callingAssembly,
-                                         bool isPayload)
+                                         bool isPayload,
+                                         EmbeddedFileInfo? file = null)
             : base($"Embedded file '{reference}' was not found in assembly '{callingAssembly.GetName().Name}'.")
         {
             Reference = reference;
             ParameterName = parameterName;
             IsPayload = isPayload;
             AssemblyName = callingAssembly.GetName().Name ?? string.Empty;
-            Candidates = FindCandidates(reference, callingAssembly);
+            ExpectedResourceName = file?.EmbeddedFileName ?? string.Empty;
+            ExpectedFilePath = file?.EmbeddedFile?.FullName ?? string.Empty;
+            CanRecord = callingAssembly.IsCompiledInDebug();
+            Candidates = FindCandidates(reference, callingAssembly, file?.AllowedFolders);
         }
 
         public SnapshotNotFoundException()
@@ -35,6 +39,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Reference = string.Empty;
             ParameterName = string.Empty;
             AssemblyName = string.Empty;
+            ExpectedResourceName = string.Empty;
+            ExpectedFilePath = string.Empty;
             Candidates = ImmutableList<string>.Empty;
         }
 
@@ -44,6 +50,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Reference = string.Empty;
             ParameterName = string.Empty;
             AssemblyName = string.Empty;
+            ExpectedResourceName = string.Empty;
+            ExpectedFilePath = string.Empty;
             Candidates = ImmutableList<string>.Empty;
         }
 
@@ -54,6 +62,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Reference = string.Empty;
             ParameterName = string.Empty;
             AssemblyName = string.Empty;
+            ExpectedResourceName = string.Empty;
+            ExpectedFilePath = string.Empty;
             Candidates = ImmutableList<string>.Empty;
         }
 
@@ -68,6 +78,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public string AssemblyName { get; }
 
+        /// <summary>
+        /// The manifest name the resolution synthesized for the reference - where the file WOULD have
+        /// been read from. Naming it is what distinguishes "your snapshot is missing" from "your
+        /// reference points at the wrong folder", which the bare file name cannot.
+        /// </summary>
+        public string ExpectedResourceName { get; }
+
+        /// <summary>The path on disk the synthesized name maps to, empty when it could not be mapped.</summary>
+        public string ExpectedFilePath { get; }
+
+        /// <summary>
+        /// Whether recording could work at all. Snapshot writing is gated on a Debug build
+        /// (<see cref="WriteResponseService"/>), and in a Release build writeResponse is dropped without
+        /// a word - so the author passes it, nothing is written, and the same not-found error comes back
+        /// unchanged. The message has to say that instead of repeating the advice that just failed.
+        /// </summary>
+        public bool CanRecord { get; }
+
         /// <summary>Resources that most likely were meant, best first.</summary>
         public IImmutableList<string> Candidates { get; }
 
@@ -75,9 +103,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Ranks the assembly's resources against the reference. A resource carrying the same file name
         /// in a different folder is the single most common cause (wrong folder prefix), followed by
         /// near misses on the file name itself (typos, singular/plural).
+        ///
+        /// The search stays inside <paramref name="allowedFolders"/> - the folders that belong to the
+        /// role being looked up. Without that scope a missing RESPONSE snapshot offers the identically
+        /// named REQUEST file, which is not a near miss at all: it is the input of the very same call,
+        /// it always exists, and suggesting it sends the author to a file that is already correct while
+        /// the snapshot they have to create goes unmentioned.
         /// </summary>
         private static ImmutableList<string> FindCandidates(string reference,
-                                                             Assembly callingAssembly)
+                                                             Assembly callingAssembly,
+                                                             IImmutableSet<string>? allowedFolders)
         {
             var resources = callingAssembly.GetManifestResourceNames();
 
@@ -88,17 +123,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var wantedFileName = Path.GetFileName(reference.Replace('\\', '/').Trim().Trim('"'));
 
-            var ranked = resources.Select(resource => new
+            var inRole = allowedFolders.IsNull() || allowedFolders.Count.EqualsTo(0)
+                             ? resources
+                             : resources.Where(resource => ResourceFolderMatcher.ContainsFolderSegment(resource, allowedFolders))
+                                        .ToArray();
+
+            var ranked = inRole.Select(resource => new
             {
                 Resource = resource,
                 Score = Score(ResourceFileName(resource), wantedFileName)
             })
-                                  .Where(entry => entry.Score <= MaxDistance(wantedFileName))
-                                  .OrderBy(entry => entry.Score)
-                                  .ThenBy(entry => entry.Resource.Length)
-                                  .Select(entry => entry.Resource)
-                                  .Take(5)
-                                  .ToImmutableList();
+                               .Where(entry => entry.Score <= MaxDistance(wantedFileName))
+                               .OrderBy(entry => entry.Score)
+                               .ThenBy(entry => entry.Resource.Length)
+                               .Select(entry => entry.Resource)
+                               .Take(5)
+                               .ToImmutableList();
 
             return ranked;
         }

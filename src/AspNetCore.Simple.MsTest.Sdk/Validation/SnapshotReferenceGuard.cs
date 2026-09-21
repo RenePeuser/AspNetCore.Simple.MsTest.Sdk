@@ -32,7 +32,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             throw new SnapshotNotFoundException(reference,
                                                 parameterName,
                                                 callingAssembly,
-                                                isPayload: true);
+                                                isPayload: true,
+                                                file);
         }
 
         /// <summary>
@@ -52,7 +53,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             throw new SnapshotNotFoundException(reference,
                                                 parameterName,
                                                 callingAssembly,
-                                                isPayload: false);
+                                                isPayload: false,
+                                                file);
         }
 
         /// <summary>
