@@ -5,7 +5,7 @@
 ### Breaking: all global settings moved into `TestSdkSettings`
 
 The static settings are gone. Configure them once through `TestSdkSettings` instead - see
-"Configuring the SDK" in the README.
+"Configuration via TestSdkSettings" and "Upgrading from 9.5.x" in the README.
 
 | Removed | Replacement |
 |---|---|
@@ -27,13 +27,27 @@ The static settings are gone. Configure them once through `TestSdkSettings` inst
 - `HttpClientAssertExtensions.Setup(settings => ...)` - without any host
 - The provider handed to `HttpClientAssertExtensions.Setup(provider)` must stay alive for the whole test run.
 
+### New
+
+- **Output modes** - `TestSdkSettings.OutputMode` = `Human` (default), `Ai` (structured JSON with error codes
+  and fix suggestions) or `Hybrid` (both). Configure via `TestSdkSettings__OutputMode=Ai` or appsettings.
+- `HttpClientAssertExtensions.Setup(Action<TestSdkSettings>)` - configure the SDK for tests without a host.
+- `services.AddTestSdkSettings(configuration, settings => ...)` is now public; the first configured
+  registration wins, so calling it from `registerServices` of `ApiTestBase<T>` overrides the SDK defaults.
+- `TestSdkSettings` properties are now settable (`set` instead of `init`).
+- `ApiTestBase<T>` hands the running host's own provider to the assert extensions - asserts and the
+  application under test share one container (previously a separate, immediately disposed provider).
+
 ### Fixed: dictionary responses in recording mode
 
 With `writeResponse` a `Dictionary<,>`/`IReadOnlyDictionary<,>` response was treated as an array, so an
 existing `{...}` snapshot failed with an "array/object mismatch". The expected json is now resolved by the
 one `IJsonStringResolver`, which already handled dictionaries and empty envelope values correctly.
 
-## Upcoming Release - Assert.That Extensions
+## 9.3.0 - Assert.That Extensions (2026-06-07)
+
+Core `Assert.That.*` assertions were introduced in 9.2.0; 9.3.0 completed them with the DateTime /
+DateTimeOffset extensions described below.
 
 ### New: AI-Friendly Assertion Library
 
@@ -176,7 +190,7 @@ Negligible. `CallerArgumentExpression` and caller info attributes are compile-ti
 
 ### Future enhancements
 
-- Optional JSON output mode for CI/CD tool integration
+- ~~Optional JSON output mode for CI/CD tool integration~~ - delivered as `TestSdkSettings.OutputMode` (see above)
 - Custom assertion message templates
 - Integration with test result analyzers
 

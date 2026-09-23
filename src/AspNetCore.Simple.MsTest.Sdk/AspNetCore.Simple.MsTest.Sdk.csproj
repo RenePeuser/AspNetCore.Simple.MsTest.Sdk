@@ -10,11 +10,27 @@
         <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>aspnetcore;testing;snapshot-testing;snapshot;mstest;api-testing;integration-testing;http-testing;test-framework;regression-testing;web-api;rest-api;test-automation;test-sdk;aspnetcore-testing;api-snapshots;http-assertions;minimal-api;webapi-testing;contract-testing;response-validation;csharp;dotnet;json;json-comparison;diff;approval-testing;unit-testing;curl;http-client;testhost;</PackageTags>
         <PackageReleaseNotes>
+            BREAKING CHANGES:
+            - All static settings removed; every global setting now lives on TestSdkSettings:
+              HttpClientAssertExtensions.JsonSerializerOptions / SkipEndpointValidation / ShowTokenInCurl / LogAction,
+              AssertObjectExtensions.JsonSerializerOptions / DifferenceFunc / DifferenceFilter / OrderIndependentArrayFilter / WriteResponse
+              -> same names on TestSdkSettings.
+            - HttpClientAssertExtensions.CustomAssertableHttpClient removed: register your own IAssertableHttpClient before AddAssertableHttpClient.
+            - AssertObjectExtensions.ResponseFileFullPath removed (had no effect).
+            - Environment variable AspNetCoreSimpleMsTestSdk__WriteResponse renamed to TestSdkSettings__WriteResponse.
+            - Public helpers Tables.TableFormatter and Outputs.Formatters.JsonTypeMismatchFormatter removed.
+            Configure via services.AddTestSdkSettings(configuration, s =&gt; ...), services.AddAssertableHttpClient(configuration, s =&gt; ...)
+            or HttpClientAssertExtensions.Setup(s =&gt; ...) when there is no host.
+
             NEW FEATURES:
-            - Expected Status Code validation: All Assert methods now support optional expectedStatusCode parameter
-            Example: Client.AssertPostAsync&lt;T&gt;("api/endpoint", "Request.json", "Response.json", expectedStatusCode: HttpStatusCode.Created)
-            Allows explicit status code validation (200, 201, etc.) instead of just 2xx success range
-            Bugfixes with order and filter func
+            - Output modes: TestSdkSettings.OutputMode = Human | Ai | Hybrid (env var TestSdkSettings__OutputMode=Ai) for structured, AI-parseable failures.
+            - HttpClientAssertExtensions.Setup(Action&lt;TestSdkSettings&gt;) for tests without a host.
+            - ApiTestBase&lt;T&gt; shares the running host's service provider with the assert extensions.
+
+            FIXES:
+            - Dictionary responses in recording mode (writeResponse) no longer fail with an array/object mismatch.
+
+            Full details: RELEASE-NOTES.md in the repository.
         </PackageReleaseNotes>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <PackageId>AspNetCore.Simple.MsTest.Sdk</PackageId>

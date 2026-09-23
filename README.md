@@ -1561,7 +1561,7 @@ await Client.AssertPostAsync<AddUserReponse>(
     {
         foreach (var difference in differences)
         {
-            if (difference.MemberPath == "Content.Value.Id")
+            if (difference.MemberPath == "content.value.id")
             {
                 continue;
             }
@@ -1584,7 +1584,7 @@ Global:
 ```csharp
 // Keep every difference except database-generated ids.
 services.AddTestSdkSettings(configuration, settings =>
-    settings.DifferenceFilter = difference => difference.MemberPath != "Content.Value.Id");
+    settings.DifferenceFilter = difference => difference.MemberPath != "content.value.id");
 ```
 
 Scoped (per assert):
@@ -1601,6 +1601,29 @@ await Client.AssertPostAsync<AddUserReponse>(
 `DifferenceFunc`, the per-assert `differenceFunc`, and both (global + scoped) `differenceFilter` predicates
 all keep it. You can mix and match — use `DifferenceFunc` when you need full control over the sequence, and
 `differenceFilter` when a simple per-item condition is enough.
+
+Order of evaluation: global `DifferenceFunc` → per-assert `differenceFunc` → global `DifferenceFilter`
+**and** per-assert `differenceFilter`.
+
+> **`MemberPath` format:** it is the camelCase JSON path exactly as printed in the differences table,
+> e.g. `content.value.id` or `content.value.emails[1].type` - not the C# property name. Compare exact
+> paths with `==`, or use `Contains(..., StringComparison.OrdinalIgnoreCase)` for a looser match.
+
+#### Order-independent arrays
+
+Some arrays carry no meaningful order (tags, an OpenAPI `anyOf`, anything a producer emits in a different
+order per run). Mark them globally with `OrderIndependentArrayFilter` - their elements are then *matched*
+instead of compared index by index, so a pure reordering is no difference, while a missing or changed element
+still is:
+
+```csharp
+services.AddTestSdkSettings(configuration, settings =>
+    settings.OrderIndependentArrayFilter = array => array.Path == "content.value.tags");
+```
+
+`JsonArrayContext.Path` is index-free; `JsonArrayContext.PropertyName` (e.g. `array => array.PropertyName is "anyOf"`)
+matches every array with that name. For object comparisons of your own types, prefer the type-safe per-assert
+`orderFunc` of `Assert.That.ObjectsAreEqual` - it also normalizes what gets written into the snapshot.
 
 ---
 
@@ -1701,7 +1724,7 @@ private static IEnumerable<Difference> IgnoreId(ImmutableList<Difference> differ
 {
     foreach (var difference in differences)
     {
-        if (difference.MemberPath == "Content.Value.Id")
+        if (difference.MemberPath == "content.value.id")
         {
             continue;
         }
@@ -1879,7 +1902,7 @@ _apiTestBase = new ApiTestBase<Program>("Development",
                                             services.AddTestSdkSettings(configuration, settings =>
                                             {
                                                 settings.JsonSerializerOptions = MyApiJsonOptions.Create();
-                                                settings.DifferenceFilter = difference => difference.MemberPath != "Content.Value.Id";
+                                                settings.DifferenceFilter = difference => difference.MemberPath != "content.value.id";
                                             });
                                         });
 ```
@@ -1906,6 +1929,30 @@ HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = differe
 - ✅ **One source** - one instance per test project, injected wherever the SDK needs it
 - ✅ **IntelliSense** - Full IDE support in configuration files
 - ✅ **Automatic binding** - ASP.NET Core configuration system handles the rest
+
+### Upgrading from 9.5.x (breaking changes)
+
+The static settings properties are gone - every global setting now lives on `TestSdkSettings`:
+
+| Removed                                                                                      | Replacement                                                               |
+|----------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| `HttpClientAssertExtensions.JsonSerializerOptions` / `AssertObjectExtensions.JsonSerializerOptions` | `settings.JsonSerializerOptions`                                     |
+| `HttpClientAssertExtensions.SkipEndpointValidation`                                          | `settings.SkipEndpointValidation`                                         |
+| `HttpClientAssertExtensions.ShowTokenInCurl`                                                 | `settings.ShowTokenInCurl`                                                |
+| `HttpClientAssertExtensions.LogAction`                                                       | `settings.LogAction`                                                      |
+| `HttpClientAssertExtensions.CustomAssertableHttpClient`                                      | register your own `IAssertableHttpClient` before `AddAssertableHttpClient` |
+| `AssertObjectExtensions.DifferenceFunc` / `DifferenceFilter` / `OrderIndependentArrayFilter` | same names on `TestSdkSettings`                                           |
+| `AssertObjectExtensions.WriteResponse`                                                       | `settings.WriteResponse`                                                  |
+| `AssertObjectExtensions.ResponseFileFullPath`                                                | removed - it had no effect                                                |
+| env var `AspNetCoreSimpleMsTestSdk__WriteResponse`                                           | `TestSdkSettings__WriteResponse`                                          |
+| `Tables.TableFormatter`, `Outputs.Formatters.JsonTypeMismatchFormatter`                      | removed - use `ITableBuilder` / `IJsonTypeMismatchOutputBuilder`          |
+
+Where to configure instead: `services.AddTestSdkSettings(configuration, settings => ...)` (with
+`ApiTestBase<T>`), `services.AddAssertableHttpClient(configuration, settings => ...)` (own host) or
+`HttpClientAssertExtensions.Setup(settings => ...)` (no host). The provider passed to
+`HttpClientAssertExtensions.Setup(provider)` must stay alive for the whole test run.
+
+Full details: [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 **Why use `ComparisonStrategyBase<T>`?**
 
