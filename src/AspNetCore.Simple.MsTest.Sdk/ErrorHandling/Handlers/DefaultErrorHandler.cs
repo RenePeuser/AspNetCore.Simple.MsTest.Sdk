@@ -16,6 +16,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         {
             // Default handler must be registered LAST so it acts as a catch-all
             services.AddTestClassNameResolver();
+            services.AddEndpointSourceResolver();
             services.AddSingletonIfNotExists<ITestErrorHandler, DefaultErrorHandler>();
         }
     }
@@ -24,7 +25,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     /// Catch-all error handler for any exception that doesn't have a specific handler.
     /// This handles SDK bugs, network errors, serialization issues, and any other unexpected exceptions.
     /// </summary>
-    public sealed class DefaultErrorHandler(ITestClassNameResolver testClassNameResolver) : TestErrorHandler<Exception>
+    public sealed class DefaultErrorHandler(ITestClassNameResolver testClassNameResolver,
+                                            IEndpointSourceResolver endpointSourceResolver) : TestErrorHandler<Exception>
     {
         protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              Exception exception)
@@ -89,8 +91,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
         }
 
-        private static void BuildHttpInfo(StringBuilder sb,
-                                          IHttpAssertContext context)
+        private void BuildHttpInfo(StringBuilder sb,
+                                   IHttpAssertContext context)
         {
             sb.AppendLine("🌍 HTTP Request");
             sb.AppendLine("──────────────────────────────────────────────────────────────");
@@ -102,6 +104,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
 
             sb.AppendLine($"{"Method",-10} : {context.HttpMethod.Method}");
             sb.AppendLine($"{"Url",-10} : {fullUrl}");
+
+            var endpointSource = endpointSourceResolver.Resolve(context);
+
+            if (endpointSource.IsNotNullOrWhiteSpace())
+            {
+                sb.AppendLine($"{"Endpoint",-10} : {endpointSource}");
+            }
         }
 
         private static void BuildResponseContent(StringBuilder sb,

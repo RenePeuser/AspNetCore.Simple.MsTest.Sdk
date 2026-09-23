@@ -206,6 +206,7 @@ namespace Controllers.Test.ErrorHandling
             var services = new ServiceCollection();
             services.AddSingletonIfNotExists<IConfiguration>(new ConfigurationBuilder().Build());
             services.AddTestClassNameResolver();
+            services.AddEndpointSourceResolver();
             services.AddSingleton<ITestErrorHandler, SilentHandler>();
             services.AddSingleton<ITestErrorHandler, DefaultErrorHandler>();
             services.AddSingleton<ITestErrorHandlingStrategy, TestErrorHandlingStrategy>();

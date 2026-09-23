@@ -1,6 +1,7 @@
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,7 +11,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddHttpCallInfoTableBuilder(this IServiceCollection services)
         {
-            // No dependencies - ITextDecorator is registered separately
+            // ITextDecorator is registered separately
+            services.AddEndpointSourceResolver();
             services.AddSingletonIfNotExists<IHttpCallInfoTableBuilder, HttpCallInfoTableBuilder>();
         }
     }
@@ -31,7 +33,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         string Build(IHttpResponseContext context);
     }
 
-    internal sealed class HttpCallInfoTableBuilder(ITextDecorator textDecorator) : IHttpCallInfoTableBuilder
+    internal sealed class HttpCallInfoTableBuilder(ITextDecorator textDecorator,
+                                                   IEndpointSourceResolver endpointSourceResolver) : IHttpCallInfoTableBuilder
     {
         public string Build<TResult>(HttpResponseContext<TResult> context)
         {
@@ -59,6 +62,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (bodyContent.IsNotNullOrWhiteSpace())
             {
                 stringBuilder.AppendLine($"{textDecorator.Highlight("Body")}     : {bodyContent}");
+            }
+
+            var endpointSource = endpointSourceResolver.Resolve(context);
+
+            if (endpointSource.IsNotNullOrWhiteSpace())
+            {
+                stringBuilder.AppendLine($"{textDecorator.Highlight("Endpoint")} : {endpointSource}");
             }
 
             stringBuilder.Append($"{textDecorator.Highlight("Response")} : {responseFile}");

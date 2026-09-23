@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Linq;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -10,6 +11,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddAiOutputTransformer(this IServiceCollection services)
         {
+            services.AddEndpointSourceResolver();
             services.AddSingletonIfNotExists<IAiOutputTransformer, AiOutputTransformer>();
         }
     }
@@ -37,7 +39,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// Implementation that generates AI-friendly JSON output with error codes, severity,
     /// location information, differences, and actionable suggested fixes.
     /// </summary>
-    internal sealed class AiOutputTransformer : IAiOutputTransformer
+    internal sealed class AiOutputTransformer(IEndpointSourceResolver endpointSourceResolver) : IAiOutputTransformer
     {
         public string TransformToJson(IObjectAssertContext context,
                                       ImmutableList<Difference> differences,
@@ -72,6 +74,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // HTTP-specific fields (null for non-HTTP contexts)
                 httpMethod = httpContext?.HttpResponseMessage.RequestMessage?.Method.ToString(),
                 url = httpContext?.AbsoluteUrl,
+                endpointSource = ResolveEndpointSource(httpContext),
                 statusCode = httpContext?.HttpStatusCode,
                 httpFailureType = httpContext?.FailureType,
                 expectedStatusCode = httpContext?.ExpectedStatusCode,
@@ -79,6 +82,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             };
 
             return JsonConvert.SerializeObject(output, Formatting.Indented);
+        }
+
+        private string? ResolveEndpointSource(IHttpResponseContext? httpContext)
+        {
+            if (httpContext is null)
+            {
+                return null;
+            }
+
+            var endpointSource = endpointSourceResolver.Resolve(httpContext);
+
+            return endpointSource.IsNotNullOrWhiteSpace() ? endpointSource : null;
         }
 
         private static string DetermineErrorCode(IObjectAssertContext context,

@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         public static void AddNonSeekableBodyErrorHandler(this IServiceCollection services)
         {
             services.AddTextDecoratorProvider();
+            services.AddEndpointSourceResolver();
             services.AddSingletonIfNotExists<ITestErrorHandler, NonSeekableBodyErrorHandler>();
         }
     }
@@ -25,7 +27,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     /// The important part of the message is the second-order effect: this exception is thrown from
     /// inside error handling, so it REPLACES whatever the endpoint originally failed with.
     /// </summary>
-    internal sealed class NonSeekableBodyErrorHandler(ITextDecoratorProvider textDecoratorProvider)
+    internal sealed class NonSeekableBodyErrorHandler(ITextDecoratorProvider textDecoratorProvider,
+                                                      IEndpointSourceResolver endpointSourceResolver)
         : TestErrorHandler<NotSupportedException>
     {
         protected override bool CanHandle(NotSupportedException exception)
@@ -79,6 +82,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine();
             sb.AppendLine($"{"Method",-10} : {httpContext.HttpMethod.Method}");
             sb.AppendLine($"{"Url",-10} : {httpContext.Url}");
+
+            var endpointSource = endpointSourceResolver.Resolve(httpContext);
+
+            if (endpointSource.IsNotNullOrWhiteSpace())
+            {
+                sb.AppendLine($"{"Endpoint",-10} : {endpointSource}");
+            }
+
             sb.AppendLine();
 
             sb.AppendLine(textDecorator.SectionTitle("⚠️ What Happened"));

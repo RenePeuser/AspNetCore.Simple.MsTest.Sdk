@@ -21,7 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             services.AddCurlFormatter();
             services.AddSourceCodeExtractor();
             services.AddTestContextHelper();
-            services.AddSourceLocationHelper();
+            services.AddEndpointSourceResolver();
             services.AddSingletonIfNotExists<IEndpointValidationOutputBuilder, EndpointValidationOutputBuilder>();
         }
     }
@@ -77,7 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                                           ISourceCodeExtractor sourceCodeExtractor,
                                                           ITextDecorator textDecorator,
                                                           ITestContextHelper testContextHelper,
-                                                          ISourceLocationHelper sourceLocationHelper) : IEndpointValidationOutputBuilder
+                                                          IEndpointSourceResolver endpointSourceResolver) : IEndpointValidationOutputBuilder
     {
         public string BuildEndpointNotFound(IHttpAssertContext context,
                                             ImmutableList<EndpointInfo> availableEndpoints)
@@ -685,10 +685,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine($"{"Request",-10} : {requestBody}");
             }
 
-            if (endpoint?.SourceLocation.IsNotNullOrWhiteSpace() ?? false)
+            var endpointSource = endpointSourceResolver.Resolve(context, endpoint);
+
+            if (endpointSource.IsNotNullOrWhiteSpace())
             {
-                var clickableSource = sourceLocationHelper.ToClickableUri(endpoint.SourceLocation, context.CallingAssembly);
-                sb.AppendLine($"{"Source",-10} : {clickableSource}");
+                sb.AppendLine($"{"Endpoint",-10} : {endpointSource}");
             }
         }
 

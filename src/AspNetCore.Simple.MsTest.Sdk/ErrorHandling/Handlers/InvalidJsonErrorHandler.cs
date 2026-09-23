@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             services.AddCurlBuilder();
             services.AddCurlFormatter();
             services.AddSourceCodeExtractor();
+            services.AddEndpointSourceResolver();
             services.AddSingletonIfNotExists<ITestErrorHandler, InvalidJsonErrorHandler>();
         }
     }
@@ -29,7 +31,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     /// </summary>
     internal sealed class InvalidJsonErrorHandler(ICurlBuilder curlBuilder,
                                                   ICurlFormatter curlFormatter,
-                                                  ISourceCodeExtractor sourceCodeExtractor)
+                                                  ISourceCodeExtractor sourceCodeExtractor,
+                                                  IEndpointSourceResolver endpointSourceResolver)
         : TestErrorHandler<InvalidJsonException>
     {
         protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
@@ -143,8 +146,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             }
         }
 
-        private static void BuildHttpInfo(StringBuilder sb,
-                                          IHttpAssertContext context)
+        private void BuildHttpInfo(StringBuilder sb,
+                                   IHttpAssertContext context)
         {
             var fullUrl = context.Client.BaseAddress.IsNotNull()
                               ? new Uri(context.Client.BaseAddress, context.Url).ToString()
@@ -155,6 +158,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine();
             sb.AppendLine($"{"Method",-15} : {context.HttpMethod.Method}");
             sb.AppendLine($"{"URL",-15} : {fullUrl}");
+
+            var endpointSource = endpointSourceResolver.Resolve(context);
+
+            if (endpointSource.IsNotNullOrWhiteSpace())
+            {
+                sb.AppendLine($"{"Endpoint",-15} : {endpointSource}");
+            }
+
             sb.AppendLine($"{"Expected Type",-15} : {context.ExpectedType?.Name ?? "Unknown"}");
         }
 

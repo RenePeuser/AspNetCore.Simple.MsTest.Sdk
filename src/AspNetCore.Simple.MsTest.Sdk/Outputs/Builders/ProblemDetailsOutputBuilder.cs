@@ -20,7 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddCurlFormatter();
             services.AddSourceCodeExtractor();
             services.AddTestContextHelper();
-            services.AddSourceLocationHelper();
+            services.AddEndpointSourceResolver();
             services.AddSingletonIfNotExists<IProblemDetailsOutputBuilder, ProblemDetailsOutputBuilder>();
         }
     }
@@ -41,7 +41,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       ISourceCodeExtractor sourceCodeExtractor,
                                                       ITextDecorator textDecorator,
                                                       ITestContextHelper testContextHelper,
-                                                      ISourceLocationHelper sourceLocationHelper) : IProblemDetailsOutputBuilder
+                                                      IEndpointSourceResolver endpointSourceResolver) : IProblemDetailsOutputBuilder
     {
         public string BuildUnexpectedError(IHttpAssertContext context,
                                            TestSdkProblemDetailsException exception,
@@ -131,10 +131,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine($"{"Url",-10} : {fullUrl}");
             sb.AppendLine($"{"Status",-10} : {DecorateStatusCode(statusCode, statusText)}");
 
-            if (endpoint?.SourceLocation.IsNotNullOrWhiteSpace() ?? false)
+            var endpointSource = endpointSourceResolver.Resolve(context, endpoint);
+
+            if (endpointSource.IsNotNullOrWhiteSpace())
             {
-                var clickableSource = sourceLocationHelper.ToClickableUri(endpoint.SourceLocation, context.CallingAssembly);
-                sb.AppendLine($"{"Source",-10} : {clickableSource}");
+                sb.AppendLine($"{"Endpoint",-10} : {endpointSource}");
             }
         }
 
