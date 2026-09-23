@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AspNetCore.Simple.MsTest.Sdk.Converters;
@@ -127,10 +127,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Use custom serializer settings to handle currentValue un-escaping
             var serializerSettings = new JsonSerializerSettings
-                                     {
-                                         Formatting = Formatting.Indented,
-                                         Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
-                                     };
+            {
+                Formatting = Formatting.Indented,
+                Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
+            };
 
             // Which placeholder belongs where, and how it was spelled, is read off the file being updated
             // - per json path, so the same name can be a bare number here and a quoted string there. See

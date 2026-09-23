@@ -1,5 +1,5 @@
-using Extensions.Pack;
 using System.Net.Mime;
+using Extensions.Pack;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,10 +29,10 @@ namespace MinimalApi.Api.Persons.V1
                             if (string.IsNullOrWhiteSpace(person.Name))
                             {
                                 return Results.BadRequest(new
-                                                          {
-                                                              StatusCode = 400,
-                                                              Message = "Invalid request"
-                                                          });
+                                {
+                                    StatusCode = 400,
+                                    Message = "Invalid request"
+                                });
                             }
 
                             return Results.Created($"persons/{person.Id}", person);

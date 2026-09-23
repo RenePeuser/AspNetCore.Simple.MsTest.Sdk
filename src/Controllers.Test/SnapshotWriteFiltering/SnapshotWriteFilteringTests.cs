@@ -381,20 +381,20 @@ namespace Controllers.Test.SnapshotWriteFiltering
                                                     Predicate<Difference>? differenceFilter = null)
         {
             return new WriteResponseRequest
-                   {
-                       CallingAssembly = typeof(SnapshotWriteFilteringTests).Assembly,
-                       CurrentResponseAsString = current,
-                       ExpectedResult = new EmbeddedFileInfo("Responses.Snapshot.json", expected, file),
-                       Parameters = [],
-                       DifferenceFunc = differenceFunc ?? (differences => differences),
-                       DifferenceFilter = differenceFilter ?? (static _ => true),
-                       Mode = mode,
-                       CallerFilePath = ThisFile(),
-                       CallerLineNumber = 0,
-                       ExpectedResultParameterName = nameof(SnapshotReference),
-                       ExpectedType = typeof(object),
-                       ExpectedObject = null
-                   };
+            {
+                CallingAssembly = typeof(SnapshotWriteFilteringTests).Assembly,
+                CurrentResponseAsString = current,
+                ExpectedResult = new EmbeddedFileInfo("Responses.Snapshot.json", expected, file),
+                Parameters = [],
+                DifferenceFunc = differenceFunc ?? (differences => differences),
+                DifferenceFilter = differenceFilter ?? (static _ => true),
+                Mode = mode,
+                CallerFilePath = ThisFile(),
+                CallerLineNumber = 0,
+                ExpectedResultParameterName = nameof(SnapshotReference),
+                ExpectedType = typeof(object),
+                ExpectedObject = null
+            };
         }
 
         private static string SnapshotPath(string fileName,

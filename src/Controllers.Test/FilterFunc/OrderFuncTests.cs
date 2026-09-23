@@ -50,10 +50,10 @@ namespace Controllers.Test.FilterFunc
             }
 
             return person with
-                   {
-                       Name = NormalizedName,
-                       Age = 0
-                   };
+            {
+                Name = NormalizedName,
+                Age = 0
+            };
         }
 
         [TestMethod]

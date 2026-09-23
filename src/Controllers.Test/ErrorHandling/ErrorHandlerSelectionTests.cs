@@ -260,27 +260,27 @@ namespace Controllers.Test.ErrorHandling
         private static ObjectAssertContext<string> Context()
         {
             return new ObjectAssertContext<string>
-                   {
-                       CallerFilePath = ThisFile(),
-                       CallerLineNumber = 1,
-                       CallerMemberName = nameof(Context),
-                       CallingAssembly = typeof(ErrorHandlerSelectionTests).Assembly,
-                       Current = "current",
-                       CurrentObject = "current",
-                       CurrentResultParameterName = "current",
-                       DifferenceFunc = differences => differences,
-                       Expected = "expected",
-                       ExpectedType = typeof(string),
-                       ExpectedObjectAsJson = "Expected.json",
-                       ExpectedResultFile = new EmbeddedFileInfo("Expected.json", "Expected.json", null,
+            {
+                CallerFilePath = ThisFile(),
+                CallerLineNumber = 1,
+                CallerMemberName = nameof(Context),
+                CallingAssembly = typeof(ErrorHandlerSelectionTests).Assembly,
+                Current = "current",
+                CurrentObject = "current",
+                CurrentResultParameterName = "current",
+                DifferenceFunc = differences => differences,
+                Expected = "expected",
+                ExpectedType = typeof(string),
+                ExpectedObjectAsJson = "Expected.json",
+                ExpectedResultFile = new EmbeddedFileInfo("Expected.json", "Expected.json", null,
                                                                  false),
-                       ExpectedResultParameterName = "expected",
-                       OrderFunc = item => item,
-                       Parameters = [],
-                       ResolvedExpectedJson = null,
-                       TypeIsPrimitiveType = true,
-                       WriteResponse = false
-                   };
+                ExpectedResultParameterName = "expected",
+                OrderFunc = item => item,
+                Parameters = [],
+                ResolvedExpectedJson = null,
+                TypeIsPrimitiveType = true,
+                WriteResponse = false
+            };
         }
 
         private static InvalidSnapshotJsonException BrokenJson()

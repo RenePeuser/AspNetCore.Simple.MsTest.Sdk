@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
 using Controllers.Api.DynamicRows;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

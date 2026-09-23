@@ -246,10 +246,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
             return Client.AssertPost("api/v1/persons")
                          .AcceptsFromEmbeddedJson("CreatePersonParameterized.json")
                          .WithParameters(new
-                                         {
-                                             Name = "Son",
-                                             Age = 42
-                                         })
+                         {
+                             Name = "Son",
+                             Age = 42
+                         })
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePersonParameterized.json")
                          .ExecuteAsync();
@@ -329,10 +329,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
             var person = TestHelpers.CreatePersonWithEmails();
 
             var expected = person with
-                           {
-                               Emails = ImmutableList.Create(new Email("wrong@example.com", person.Emails[0].Type))
+            {
+                Emails = ImmutableList.Create(new Email("wrong@example.com", person.Emails[0].Type))
                                                      .AddRange(person.Emails.RemoveAt(0))
-                           };
+            };
 
             return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
@@ -352,10 +352,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
             var person = TestHelpers.CreateValidPerson();
 
             var expected = person with
-                           {
-                               Name = "WrongName",
-                               FirstName = "WrongFirstName"
-                           };
+            {
+                Name = "WrongName",
+                FirstName = "WrongFirstName"
+            };
 
             return Client.AssertPost("api/v1/persons")
                          .Accepts(person)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -148,21 +148,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
                           ResponseWriteMode mode = ResponseWriteMode.DifferencesOnly)
         {
             var request = new WriteResponseRequest
-                          {
-                              CallingAssembly = context.CallingAssembly,
-                              DifferenceFunc = context.DifferenceFunc,
-                              DifferenceFilter = context.DifferenceFilter,
-                              OrderIndependentArrayFilter = context.OrderIndependentArrayFilter,
-                              CurrentResponseAsString = currentResponseAsString,
-                              ExpectedResult = expectedResult,
-                              Parameters = context.Parameters,
-                              Mode = mode,
-                              CallerFilePath = context.CallerFilePath,
-                              CallerLineNumber = context.CallerLineNumber,
-                              ExpectedResultParameterName = context.ExpectedResultParameterName,
-                              ExpectedType = context.ExpectedType,
-                              ExpectedObject = null // We don't have access to Expected here in the non-generic interface
-                          };
+            {
+                CallingAssembly = context.CallingAssembly,
+                DifferenceFunc = context.DifferenceFunc,
+                DifferenceFilter = context.DifferenceFilter,
+                OrderIndependentArrayFilter = context.OrderIndependentArrayFilter,
+                CurrentResponseAsString = currentResponseAsString,
+                ExpectedResult = expectedResult,
+                Parameters = context.Parameters,
+                Mode = mode,
+                CallerFilePath = context.CallerFilePath,
+                CallerLineNumber = context.CallerLineNumber,
+                ExpectedResultParameterName = context.ExpectedResultParameterName,
+                ExpectedType = context.ExpectedType,
+                ExpectedObject = null // We don't have access to Expected here in the non-generic interface
+            };
 
             Write(request);
         }

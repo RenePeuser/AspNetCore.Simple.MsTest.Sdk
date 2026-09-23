@@ -11,18 +11,18 @@ namespace Core.Test
         {
             // Arrange
             var expected = new
-                           {
-                               Name = "Goku",
-                               Age = 30,
-                               Power = 9000
-                           };
+            {
+                Name = "Goku",
+                Age = 30,
+                Power = 9000
+            };
 
             var actual = new
-                         {
-                             Name = "Goku",
-                             Age = 30,
-                             Power = 9000
-                         };
+            {
+                Name = "Goku",
+                Age = 30,
+                Power = 9000
+            };
 
             // Act & Assert - Should pass now
             Assert.That.ObjectsAreEqual(expected, actual);

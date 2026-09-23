@@ -115,10 +115,10 @@ namespace Controllers.Test.Api.Persons.V1.Create
             return Client.AssertPost("api/v1/persons")
                          .AcceptsFromEmbeddedJson("CreatePersonParameterized.json")
                          .WithParameters(new
-                                         {
-                                             Name = "Son",
-                                             Age = 42
-                                         })
+                         {
+                             Name = "Son",
+                             Age = 42
+                         })
                          .Produces<Person>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("CreatePersonParameterized.json")
                          .ExecuteAsync();
@@ -273,10 +273,10 @@ namespace Controllers.Test.Api.Persons.V1.Create
             var person = TestHelpers.CreateValidPerson();
 
             var expected = person with
-                           {
-                               Name = "WrongName",
-                               FirstName = "WrongFirstName"
-                           };
+            {
+                Name = "WrongName",
+                FirstName = "WrongFirstName"
+            };
 
             return Client.AssertPost("api/v1/persons")
                          .Accepts(person)

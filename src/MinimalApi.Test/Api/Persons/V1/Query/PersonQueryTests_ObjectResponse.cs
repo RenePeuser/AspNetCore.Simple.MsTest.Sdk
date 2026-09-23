@@ -22,10 +22,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         public Task ObjectResponse_Should_Query_Persons()
         {
             var queryRequest = new
-                               {
-                                   Name = "Son",
-                                   MinAge = 50
-                               };
+            {
+                Name = "Son",
+                MinAge = 50
+            };
 
             var expectedPersons = new[]
                                   {

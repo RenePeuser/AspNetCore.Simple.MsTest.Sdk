@@ -36,8 +36,8 @@ namespace Controllers.Test
         [TestMethod]
         public void WithoutFilterArrayOrderIsStillADifference()
         {
-            var expected = """{ "items": [ { "$ref": "TypeA" }, { "$ref": "TypeB" } ] }""";
-            var current = """{ "items": [ { "$ref": "TypeB" }, { "$ref": "TypeA" } ] }""";
+            var expected = /*lang=json,strict*/ """{ "items": [ { "$ref": "TypeA" }, { "$ref": "TypeB" } ] }""";
+            var current = /*lang=json,strict*/ """{ "items": [ { "$ref": "TypeB" }, { "$ref": "TypeA" } ] }""";
 
             var diffs = _jsonDiffer.FindDifferences(expected, current);
 
@@ -56,8 +56,8 @@ namespace Controllers.Test
         [TestMethod]
         public void ReorderedSetIsNotADifference()
         {
-            var expected = """{ "anyOf": [ { "$ref": "TypeA" }, { "$ref": "TypeB" }, { "$ref": "TypeC" } ] }""";
-            var current = """{ "anyOf": [ { "$ref": "TypeC" }, { "$ref": "TypeA" }, { "$ref": "TypeB" } ] }""";
+            var expected = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeA" }, { "$ref": "TypeB" }, { "$ref": "TypeC" } ] }""";
+            var current = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeC" }, { "$ref": "TypeA" }, { "$ref": "TypeB" } ] }""";
 
             var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
 
@@ -72,8 +72,8 @@ namespace Controllers.Test
             // Both documents describe the same outer multiset { {1,2}, {1,3} }. Reordering top down
             // builds the outer key from still-unsorted inner arrays and lands on two different
             // orders - which is why the canonical signature is computed by recursing first.
-            var expected = """{ "outer": [ { "inner": [2,1] }, { "inner": [1,3] } ] }""";
-            var current = """{ "outer": [ { "inner": [1,2] }, { "inner": [3,1] } ] }""";
+            var expected = /*lang=json,strict*/ """{ "outer": [ { "inner": [2,1] }, { "inner": [1,3] } ] }""";
+            var current = /*lang=json,strict*/ """{ "outer": [ { "inner": [1,2] }, { "inner": [3,1] } ] }""";
 
             var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("outer", "inner"));
 
@@ -88,8 +88,8 @@ namespace Controllers.Test
             // JsonDiffer never treated property order as a difference (see
             // FindDifferencesShouldIgnoreDifferentPropertyOrder). A raw ToString() key does, which
             // made the matching disagree with the equality it is supposed to implement.
-            var expected = """{ "anyOf": [ { "a": 1, "b": 2 }, { "a": 2, "b": 1 } ] }""";
-            var current = """{ "anyOf": [ { "b": 1, "a": 2 }, { "b": 2, "a": 1 } ] }""";
+            var expected = /*lang=json,strict*/ """{ "anyOf": [ { "a": 1, "b": 2 }, { "a": 2, "b": 1 } ] }""";
+            var current = /*lang=json,strict*/ """{ "anyOf": [ { "b": 1, "a": 2 }, { "b": 2, "a": 1 } ] }""";
 
             var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
 
@@ -101,8 +101,8 @@ namespace Controllers.Test
         [TestMethod]
         public void MissingElementIsStillReportedAtItsExpectedIndex()
         {
-            var expected = """{ "anyOf": [ { "$ref": "TypeA" }, { "$ref": "TypeB" }, { "$ref": "TypeC" } ] }""";
-            var current = """{ "anyOf": [ { "$ref": "TypeA" }, { "$ref": "TypeB" } ] }""";
+            var expected = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeA" }, { "$ref": "TypeB" }, { "$ref": "TypeC" } ] }""";
+            var current = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeA" }, { "$ref": "TypeB" } ] }""";
 
             var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
 
@@ -125,8 +125,8 @@ namespace Controllers.Test
         [TestMethod]
         public void ExtraElementIsReportedAtItsCurrentIndex()
         {
-            var expected = """{ "anyOf": [ { "$ref": "TypeA" } ] }""";
-            var current = """{ "anyOf": [ { "$ref": "TypeB" }, { "$ref": "TypeA" }, { "$ref": "TypeC" } ] }""";
+            var expected = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeA" } ] }""";
+            var current = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeB" }, { "$ref": "TypeA" }, { "$ref": "TypeC" } ] }""";
 
             var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
 
@@ -150,7 +150,7 @@ namespace Controllers.Test
             // A matched pair that sits at different indices is exactly the case that makes
             // Difference.CurrentMemberPath necessary: reading from expected and patching current
             // need different paths.
-            var expected = """
+            var expected = /*lang=json,strict*/ """
                            {
                                "anyOf": [
                                    { "name": "A", "description": "a" },
@@ -160,7 +160,7 @@ namespace Controllers.Test
                            }
                            """;
 
-            var current = """
+            var current = /*lang=json,strict*/ """
                           {
                               "anyOf": [
                                   { "name": "C", "description": "c" },
@@ -196,8 +196,8 @@ namespace Controllers.Test
         [TestMethod]
         public void IdenticallyAddressedDifferenceCarriesNoCurrentPath()
         {
-            var expected = """{ "anyOf": [ { "name": "A", "value": 1 } ] }""";
-            var current = """{ "anyOf": [ { "name": "A", "value": 2 } ] }""";
+            var expected = /*lang=json,strict*/ """{ "anyOf": [ { "name": "A", "value": 1 } ] }""";
+            var current = /*lang=json,strict*/ """{ "anyOf": [ { "name": "A", "value": 2 } ] }""";
 
             var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
 
@@ -214,8 +214,8 @@ namespace Controllers.Test
         [TestMethod]
         public void DuplicatesAreComparedAsAMultiset()
         {
-            var expected = """{ "tags": ["a", "a", "b"] }""";
-            var current = """{ "tags": ["a", "b", "b"] }""";
+            var expected = /*lang=json,strict*/ """{ "tags": ["a", "a", "b"] }""";
+            var current = /*lang=json,strict*/ """{ "tags": ["a", "b", "b"] }""";
 
             var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("tags"));
 
@@ -228,14 +228,14 @@ namespace Controllers.Test
         [TestMethod]
         public void OnlyTheMatchedArraysBecomeOrderIndependent()
         {
-            var expected = """
+            var expected = /*lang=json,strict*/ """
                            {
                                "anyOf": [ { "$ref": "TypeB" }, { "$ref": "TypeA" } ],
                                "items": [ { "$ref": "TypeX" }, { "$ref": "TypeY" } ]
                            }
                            """;
 
-            var current = """
+            var current = /*lang=json,strict*/ """
                           {
                               "anyOf": [ { "$ref": "TypeA" }, { "$ref": "TypeB" } ],
                               "items": [ { "$ref": "TypeY" }, { "$ref": "TypeX" } ]
@@ -258,14 +258,14 @@ namespace Controllers.Test
         [TestMethod]
         public void PathScopesTheFilterToOneArrayOnly()
         {
-            var expected = """
+            var expected = /*lang=json,strict*/ """
                            {
                                "a": { "anyOf": ["1", "2"] },
                                "b": { "anyOf": ["1", "2"] }
                            }
                            """;
 
-            var current = """
+            var current = /*lang=json,strict*/ """
                           {
                               "a": { "anyOf": ["2", "1"] },
                               "b": { "anyOf": ["2", "1"] }
@@ -288,7 +288,7 @@ namespace Controllers.Test
         [TestMethod]
         public void PathIsIndexFreeSoItCanBeWrittenDownInAPredicate()
         {
-            var expected = """
+            var expected = /*lang=json,strict*/ """
                            {
                                "items": [
                                    { "tags": ["x", "y"] },
@@ -297,7 +297,7 @@ namespace Controllers.Test
                            }
                            """;
 
-            var current = """
+            var current = /*lang=json,strict*/ """
                           {
                               "items": [
                                   { "tags": ["y", "x"] },
@@ -330,8 +330,8 @@ namespace Controllers.Test
         [TestMethod]
         public void FilterThatNeverMatchesBehavesLikeNoFilter()
         {
-            var expected = """{ "anyOf": [1, 2] }""";
-            var current = """{ "anyOf": [2, 1] }""";
+            var expected = /*lang=json,strict*/ """{ "anyOf": [1, 2] }""";
+            var current = /*lang=json,strict*/ """{ "anyOf": [2, 1] }""";
 
             var withoutFilter = _jsonDiffer.FindDifferences(expected, current);
             var neverMatches = _jsonDiffer.FindDifferences(expected, current, _ => false);

@@ -1,6 +1,6 @@
-using Extensions.Pack;
 using System;
 using System.Net.Mime;
+using Extensions.Pack;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

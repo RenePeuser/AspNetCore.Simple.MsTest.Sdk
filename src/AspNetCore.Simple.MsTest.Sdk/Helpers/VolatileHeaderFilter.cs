@@ -40,13 +40,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
                                                                        TestSdkSettings settings)
         {
             return message with
-                   {
-                       Headers = message.Headers.WithoutVolatileHeaders(settings),
-                       TrailingHeaders = message.TrailingHeaders.WithoutVolatileHeaders(settings),
-                       Content = message.Content.IsNull()
+            {
+                Headers = message.Headers.WithoutVolatileHeaders(settings),
+                TrailingHeaders = message.TrailingHeaders.WithoutVolatileHeaders(settings),
+                Content = message.Content.IsNull()
                                      ? message.Content
                                      : message.Content with { Headers = message.Content.Headers.WithoutVolatileHeaders(settings) }
-                   };
+            };
         }
     }
 }

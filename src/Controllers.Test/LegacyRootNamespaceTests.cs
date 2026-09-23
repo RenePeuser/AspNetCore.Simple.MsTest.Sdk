@@ -105,19 +105,19 @@ namespace Controllers.Test
                 var writer = new ResponseWriter([new OverwriteAllResponseWriter(new ParameterReplacer(), new SnapshotPlaceholderGuard())]);
 
                 var request = new WriteResponseRequest
-                              {
-                                  CallingAssembly = assembly,
-                                  CurrentResponseAsString = /*lang=json,strict*/ """{"id":2,"name":"Rewritten"}""",
-                                  ExpectedResult = fileInfo,
-                                  Parameters = [],
-                                  DifferenceFunc = differences => differences,
-                                  Mode = ResponseWriteMode.OverwriteAll,
-                                  CallerFilePath = callerFilePath,
-                                  CallerLineNumber = 0,
-                                  ExpectedResultParameterName = nameof(SnapshotReference),
-                                  ExpectedType = typeof(object),
-                                  ExpectedObject = null
-                              };
+                {
+                    CallingAssembly = assembly,
+                    CurrentResponseAsString = /*lang=json,strict*/ """{"id":2,"name":"Rewritten"}""",
+                    ExpectedResult = fileInfo,
+                    Parameters = [],
+                    DifferenceFunc = differences => differences,
+                    Mode = ResponseWriteMode.OverwriteAll,
+                    CallerFilePath = callerFilePath,
+                    CallerLineNumber = 0,
+                    ExpectedResultParameterName = nameof(SnapshotReference),
+                    ExpectedType = typeof(object),
+                    ExpectedObject = null
+                };
 
                 writer.Write(request);
 

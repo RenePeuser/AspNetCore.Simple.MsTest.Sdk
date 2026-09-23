@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http;
 using Extensions.Pack;

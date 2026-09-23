@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
 using Controllers.Api.Persons;

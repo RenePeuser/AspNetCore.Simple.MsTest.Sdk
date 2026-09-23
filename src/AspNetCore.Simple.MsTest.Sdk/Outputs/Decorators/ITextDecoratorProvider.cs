@@ -49,7 +49,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Decorators
                 return AnsiDecorator;
             }
 
-            return consumerAssembly!.IsCompiledInDebug() ? PlainDecorator : AnsiDecorator;
+            return consumerAssembly.IsCompiledInDebug() ? PlainDecorator : AnsiDecorator;
         }
     }
 }

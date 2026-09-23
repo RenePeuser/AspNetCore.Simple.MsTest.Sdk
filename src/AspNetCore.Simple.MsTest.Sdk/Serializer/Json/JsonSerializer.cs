@@ -17,13 +17,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
         internal static JsonSerializerOptions CreateDefaultOptions()
         {
             return new JsonSerializerOptions
-                   {
-                       PropertyNameCaseInsensitive = true,
-                       PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                       DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                       NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                       Converters = { new JsonStringEnumConverter() }
-                   };
+            {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                Converters = { new JsonStringEnumConverter() }
+            };
         }
     }
 

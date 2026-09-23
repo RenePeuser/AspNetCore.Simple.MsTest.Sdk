@@ -20,10 +20,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
             var test = new CSharpCodeFixTest<UnawaitedFluentTerminalAnalyzer,
                            UnawaitedFluentTerminalCodeFixProvider,
                            DefaultVerifier>
-                       {
-                           TestCode = testCode,
-                           FixedCode = fixedCode
-                       };
+            {
+                TestCode = testCode,
+                FixedCode = fixedCode
+            };
 
             return test.RunAsync();
         }

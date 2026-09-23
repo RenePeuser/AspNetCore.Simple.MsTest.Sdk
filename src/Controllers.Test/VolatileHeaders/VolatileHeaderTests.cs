@@ -49,19 +49,19 @@ namespace Controllers.Test.VolatileHeaders
         public void EveryHeaderCollectionOfTheWrittenEnvelopeMustBeFiltered()
         {
             var content = new SimpleHttpContent
-                          {
-                              Headers = ImmutableList.Create(Header("Date", "Tue, 26 Aug 2025 09:14:07 GMT"),
+            {
+                Headers = ImmutableList.Create(Header("Date", "Tue, 26 Aug 2025 09:14:07 GMT"),
                                                              Header("Content-Type", "application/json")),
-                              Value = "{}"
-                          };
+                Value = "{}"
+            };
 
             var response = new SimpleHttpResponseMessage
-                           {
-                               StatusCode = HttpStatusCode.OK,
-                               Headers = ImmutableList.Create(Header("traceparent", "00-abc-01"), Header("X-Keep", "a")),
-                               TrailingHeaders = ImmutableList.Create(Header("Server-Timing", "app;dur=12"), Header("X-Keep", "b")),
-                               Content = content
-                           };
+            {
+                StatusCode = HttpStatusCode.OK,
+                Headers = ImmutableList.Create(Header("traceparent", "00-abc-01"), Header("X-Keep", "a")),
+                TrailingHeaders = ImmutableList.Create(Header("Server-Timing", "app;dur=12"), Header("X-Keep", "b")),
+                Content = content
+            };
 
             var filtered = response.WithoutVolatileHeaders(new TestSdkSettings());
 

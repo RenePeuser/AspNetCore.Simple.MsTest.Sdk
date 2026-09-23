@@ -1,5 +1,5 @@
-using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;

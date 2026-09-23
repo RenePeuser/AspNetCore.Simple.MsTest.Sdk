@@ -50,10 +50,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         public Task PerAssertFilter_Should_Ignore_Filtered_Difference()
         {
             var queryRequest = new
-                               {
-                                   Name = "Son",
-                                   MinAge = 50
-                               };
+            {
+                Name = "Son",
+                MinAge = 50
+            };
 
             // Expected age is wrong (42 vs 99) - the per-assert filter drops the age difference.
             var expectedPersons = ExpectedSonPersons(age: 42);
@@ -72,10 +72,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         public async Task PerAssertFilter_Should_Not_Hide_Unrelated_Difference()
         {
             var queryRequest = new
-                               {
-                                   Name = "Son",
-                                   MinAge = 50
-                               };
+            {
+                Name = "Son",
+                MinAge = 50
+            };
 
             // name is wrong; the filter only ignores age, so the name difference must still fail.
             var expectedPersons = ExpectedSonPersons(age: 42, name: "WrongName");
@@ -97,10 +97,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         public Task PerAssertFilter_That_Ignores_Everything_Should_Pass()
         {
             var queryRequest = new
-                               {
-                                   Name = "Son",
-                                   MinAge = 50
-                               };
+            {
+                Name = "Son",
+                MinAge = 50
+            };
 
             // Every field differs, but a filter that keeps nothing makes the assert pass.
             var expectedPersons = new[]
@@ -126,10 +126,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         public Task DifferenceFilterOnly_Twin_Should_Ignore_Filtered_Difference()
         {
             var queryRequest = new
-                               {
-                                   Name = "Son",
-                                   MinAge = 50
-                               };
+            {
+                Name = "Son",
+                MinAge = 50
+            };
 
             // Exercises the differenceFilter-only twin (no differenceFunc) added to Query.AsObjectResponse.
             var expectedPersons = ExpectedSonPersons(age: 42);

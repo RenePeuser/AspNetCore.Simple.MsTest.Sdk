@@ -1138,27 +1138,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with the expected object directly - avoids serialization roundtrip
             var context = new ObjectAssertContext<T>
-                          {
-                              CallerFilePath = callerFilePath,
-                              CallerLineNumber = callerLineNumber,
-                              CallerMemberName = callerMemberName,
-                              CallingAssembly = callingAssembly,
-                              Current = currentObject,
-                              CurrentObject = currentObject,
-                              CurrentResultParameterName = currentResultParameterName,
-                              DifferenceFunc = differenceFunc,
-                              DifferenceFilter = differenceFilter ?? (static _ => true),
-                              Expected = expectedObject, // Direct object reference - no serialization needed
-                              ExpectedType = typeof(T),
-                              ExpectedObjectAsJson = expectedObjectAsJson,
-                              ExpectedResultFile = expectedFile,
-                              ExpectedResultParameterName = expectedResultParameterName,
-                              OrderFunc = comparisonFunc,
-                              Parameters = parameters,
-                              ResolvedExpectedJson = resolvedExpectedJson,
-                              TypeIsPrimitiveType = targetIsPrimitiveType,
-                              WriteResponse = writeResponse,
-                          };
+            {
+                CallerFilePath = callerFilePath,
+                CallerLineNumber = callerLineNumber,
+                CallerMemberName = callerMemberName,
+                CallingAssembly = callingAssembly,
+                Current = currentObject,
+                CurrentObject = currentObject,
+                CurrentResultParameterName = currentResultParameterName,
+                DifferenceFunc = differenceFunc,
+                DifferenceFilter = differenceFilter ?? (static _ => true),
+                Expected = expectedObject, // Direct object reference - no serialization needed
+                ExpectedType = typeof(T),
+                ExpectedObjectAsJson = expectedObjectAsJson,
+                ExpectedResultFile = expectedFile,
+                ExpectedResultParameterName = expectedResultParameterName,
+                OrderFunc = comparisonFunc,
+                Parameters = parameters,
+                ResolvedExpectedJson = resolvedExpectedJson,
+                TypeIsPrimitiveType = targetIsPrimitiveType,
+                WriteResponse = writeResponse,
+            };
 
             ObjectsAreEqual(assert, context);
         }
@@ -1240,10 +1240,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             return context with
-                   {
-                       Expected = context.OrderFunc.IsNull() ? context.Current : context.OrderFunc(context.Current),
-                       ResolvedExpectedJson = null
-                   };
+            {
+                Expected = context.OrderFunc.IsNull() ? context.Current : context.OrderFunc(context.Current),
+                ResolvedExpectedJson = null
+            };
         }
 
         private static void ObjectsAreEqualInternal<T>(ObjectAssertContext<T> context)

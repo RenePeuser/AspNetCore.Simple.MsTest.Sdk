@@ -711,11 +711,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                        ? schemaPath
                                        : schemaPath[(lastSeparator + 1)..];
 
-                return isOrderIndependentArray!.Invoke(new JsonArrayContext
-                                                       {
-                                                           PropertyName = propertyName,
-                                                           Path = schemaPath
-                                                       });
+                return isOrderIndependentArray.Invoke(new JsonArrayContext
+                {
+                    PropertyName = propertyName,
+                    Path = schemaPath
+                });
             }
 
             private void Add(JToken? value1,

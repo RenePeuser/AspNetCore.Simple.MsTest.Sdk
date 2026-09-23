@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;

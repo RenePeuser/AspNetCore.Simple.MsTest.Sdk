@@ -19,10 +19,10 @@ namespace Controllers.Api.DynamicRows
         public DynamicRowsResponse GetRows()
         {
             return new DynamicRowsResponse
-                   {
-                       Page = new RowPage
-                              {
-                                  Items =
+            {
+                Page = new RowPage
+                {
+                    Items =
                                   [
                                       new Dictionary<string, object?>
                                       {
@@ -31,9 +31,9 @@ namespace Controllers.Api.DynamicRows
                                           ["Amount"] = 30499.0
                                       }
                                   ],
-                                  TotalItems = 1
-                              }
-                   };
+                    TotalItems = 1
+                }
+            };
         }
     }
 
