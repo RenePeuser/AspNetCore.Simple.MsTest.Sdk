@@ -13,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     /// Printing the short name for both puts the identical string on either side of a "does not match"
     /// marker, which reads like a bug in the sdk instead of the version mix-up it actually is.
     /// </summary>
-    internal static class TypeNameFormatter
+    public static class TypeNameFormatter
     {
         /// <summary>
         /// Short, generic-aware name - e.g. <c>IEnumerable&lt;Person&gt;</c> instead of <c>IEnumerable`1</c>.

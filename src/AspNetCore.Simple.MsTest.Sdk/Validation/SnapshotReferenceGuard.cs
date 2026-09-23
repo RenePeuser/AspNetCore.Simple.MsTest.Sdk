@@ -2,9 +2,36 @@ using System;
 using System.Reflection;
 using System.Text.Json;
 using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
+    public static class AddSnapshotReferenceGuardExtension
+    {
+        public static void AddSnapshotReferenceGuard(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<ISnapshotReferenceGuard, SnapshotReferenceGuard>();
+        }
+    }
+
+    internal interface ISnapshotReferenceGuard
+    {
+        void EnsurePayloadExists(EmbeddedFileInfo? file,
+                                 string reference,
+                                 string parameterName,
+                                 Assembly callingAssembly);
+
+        void EnsureSnapshotExists(EmbeddedFileInfo? file,
+                                  string reference,
+                                  string parameterName,
+                                  Assembly callingAssembly,
+                                  bool writeResponse);
+
+        void EnsureParseable(EmbeddedFileInfo? file,
+                             string? resolvedContent,
+                             bool isPayload);
+    }
+
     /// <summary>
     /// The two checks that have to run before any comparison touches a snapshot reference.
     ///
@@ -14,15 +41,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     /// "Persons.json" binds to "GetAllPersons.json" and the test goes green against a foreign snapshot.
     /// Both routes now call the same guard.
     /// </summary>
-    internal static class SnapshotReferenceGuard
+    internal sealed class SnapshotReferenceGuard : ISnapshotReferenceGuard
     {
         /// <summary>
         /// A payload can never be created on the fly - it is input, not a recording.
         /// </summary>
-        public static void EnsurePayloadExists(EmbeddedFileInfo? file,
-                                               string reference,
-                                               string parameterName,
-                                               Assembly callingAssembly)
+        public void EnsurePayloadExists(EmbeddedFileInfo? file,
+                                        string reference,
+                                        string parameterName,
+                                        Assembly callingAssembly)
         {
             if (file.IsNull() || file.Resolved)
             {
@@ -39,11 +66,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// <summary>
         /// A missing snapshot is legitimate while recording - that is what write response is for.
         /// </summary>
-        public static void EnsureSnapshotExists(EmbeddedFileInfo? file,
-                                                string reference,
-                                                string parameterName,
-                                                Assembly callingAssembly,
-                                                bool writeResponse)
+        public void EnsureSnapshotExists(EmbeddedFileInfo? file,
+                                         string reference,
+                                         string parameterName,
+                                         Assembly callingAssembly,
+                                         bool writeResponse)
         {
             if (file.IsNull() || file.Resolved || writeResponse)
             {
@@ -64,9 +91,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// Validates the PARAMETER RESOLVED content: a parameterized snapshot legitimately carries bare
         /// placeholders ("age": $Age$) which are not json until the parameters are applied.
         /// </summary>
-        public static void EnsureParseable(EmbeddedFileInfo? file,
-                                           string? resolvedContent,
-                                           bool isPayload)
+        public void EnsureParseable(EmbeddedFileInfo? file,
+                                    string? resolvedContent,
+                                    bool isPayload)
         {
             // Only content that came from a *.json file is checked - inline json and text snapshots are
             // not this method's business, and an unresolved reference was already rejected above.

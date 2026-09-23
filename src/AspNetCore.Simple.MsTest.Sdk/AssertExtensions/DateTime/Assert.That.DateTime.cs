@@ -211,26 +211,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             int callerLineNumber,
                                                             Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
             var title = $"DATETIME COMPARISON - EXPECTED {comparisonType}";
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = comparisonType == "AFTER"
                               ? "Expected DateTime to be after the comparison value but it was not."
                               : "Expected DateTime to be before the comparison value but it was not.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {actualName}");
             sb.AppendLine($"{"Actual",-10} : {actual:O}");
             sb.AppendLine($"{"Expected",-10} : {comparisonType} {expected:O}");
@@ -241,7 +241,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = comparisonType == "AFTER"
@@ -256,11 +256,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               "Consider if you should be using UTC times for consistent comparisons"
                                           };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -277,22 +277,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        int callerLineNumber,
                                                        Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
-            AssertOutputHelper.BuildHeader(sb, "DATETIME RANGE - VALUE OUT OF RANGE", textDecorator);
+            assertOutputHelper.BuildHeader(sb, "DATETIME RANGE - VALUE OUT OF RANGE");
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = "Expected DateTime to be within the specified range but it was outside the bounds.";
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {actualName}");
             sb.AppendLine($"{"Actual",-10} : {actual:O}");
             sb.AppendLine($"{"Range Start",-10} : {start:O}");
@@ -315,7 +315,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[]
@@ -324,11 +324,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         "Consider widening the acceptable range if edge cases are valid", "Verify that the range boundaries (start/end) are correctly defined"
                                     };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -346,22 +346,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            int callerLineNumber,
                                                            Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
-            AssertOutputHelper.BuildHeader(sb, "DATETIME TOLERANCE - EXCEEDED THRESHOLD", textDecorator);
+            assertOutputHelper.BuildHeader(sb, "DATETIME TOLERANCE - EXCEEDED THRESHOLD");
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = "Expected DateTime to be close to the target value within tolerance but the difference exceeded the threshold.";
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {actualName}");
             sb.AppendLine($"{"Actual",-10} : {actual:O}");
             sb.AppendLine($"{"Expected",-10} : {expected:O}");
@@ -373,7 +373,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[]
@@ -382,11 +382,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         "Verify that both DateTime values are using the same timezone (UTC vs Local)", $"Review the logic that sets '{actualName}' to reduce the time difference", "Consider using DateTime.UtcNow instead of DateTime.Now for more predictable comparisons"
                                     };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -528,23 +528,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       int callerLineNumber,
                                                       Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
             var title = $"DATETIME KIND - EXPECTED {expectedKind.ToString().ToUpperInvariant()}";
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = $"Expected DateTime to have Kind = {expectedKind} but it was {actual.Kind}.";
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {actualName}");
             sb.AppendLine($"{"Value",-10} : {actual:O}");
             sb.AppendLine($"{"Expected",-10} : DateTimeKind.{expectedKind}");
@@ -552,7 +552,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = expectedKind switch
@@ -575,11 +575,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 _ => Array.Empty<string>()
             };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

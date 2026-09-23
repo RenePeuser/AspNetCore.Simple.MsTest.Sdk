@@ -20,6 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             // Note: ITextDecorator is registered separately based on build configuration
 
             // Register service itself
+            services.AddTestContextHelper();
             services.AddSingletonIfNotExists<IAssertOutputStrategy, ObjectOutputStrategy>();
         }
     }
@@ -32,7 +33,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
 #pragma warning disable IDE0060 // Remove unused parameter - jsonSectionBuilder kept for future use
     internal sealed class ObjectOutputStrategy(IDifferencesTableBuilder differencesTableBuilder,
                                                IJsonSectionBuilder jsonSectionBuilder,
-                                               ITextDecorator textDecorator) : IAssertOutputStrategy
+                                               ITextDecorator textDecorator,
+                                               ITestContextHelper testContextHelper) : IAssertOutputStrategy
 #pragma warning restore IDE0060
     {
         public bool CanHandle(IObjectAssertContext context)
@@ -93,7 +95,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
                                  ImmutableList<Difference> differences)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var className = TestContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
+            var className = testContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
             var methodName = context.CallerMemberName;
 
             stringBuilder.AppendLine();

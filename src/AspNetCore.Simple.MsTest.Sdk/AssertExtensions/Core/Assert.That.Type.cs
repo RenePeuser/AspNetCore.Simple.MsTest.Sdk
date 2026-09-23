@@ -227,7 +227,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        int callerLineNumber,
                                                        Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
@@ -240,11 +240,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 _ => "TYPE MISMATCH"
             };
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = assertionType switch
@@ -260,10 +260,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 _ => "Type mismatch detected."
             };
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-15} : {objName}");
             sb.AppendLine($"{"Expected Type",-15} : {expectedType.FullName ?? expectedType.Name}");
             sb.AppendLine($"{"Actual Type",-15} : {(actualType is not null ? (actualType.FullName ?? actualType.Name) : "null")}");
@@ -286,7 +286,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = assertionType switch
@@ -298,11 +298,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 _ => Array.Empty<string>()
             };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

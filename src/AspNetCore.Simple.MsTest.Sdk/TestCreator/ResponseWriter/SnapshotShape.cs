@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// An existing snapshot therefore keeps the shape it has. Only a snapshot that is created now gets
     /// the envelope.
     /// </summary>
-    internal static class SnapshotShape
+    public static class SnapshotShape
     {
         /// <summary>
         /// Reduces <paramref name="currentResponseAsString"/> to the shape <paramref name="existingContent"/>

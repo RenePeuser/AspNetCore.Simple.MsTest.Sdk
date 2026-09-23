@@ -203,7 +203,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                          int callerLineNumber,
                                                          Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Determine check type labels
@@ -220,21 +220,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             ? $"STRING CHECK FAILED - EXPECTED {checkTypeNameUpper}"
                             : $"STRING CHECK FAILED - EXPECTED NON-{checkTypeNameUpper}";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = expectNullOrEmpty
                               ? $"Expected string to be {checkTypeName} but it contains content."
                               : $"Expected string to have content but it was {checkTypeName}.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {valueName}");
             sb.AppendLine($"{"Type",-10} : string");
 
@@ -265,7 +265,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             string[] additionalOptions;
@@ -307,11 +307,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
             }
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

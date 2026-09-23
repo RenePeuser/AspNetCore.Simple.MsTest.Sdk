@@ -2,10 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
-using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -102,7 +99,7 @@ namespace Controllers.Test
 
             try
             {
-                var writer = new ResponseWriter([new OverwriteAllResponseWriter(new ParameterReplacer(), new SnapshotPlaceholderGuard())]);
+                var writer = HttpClientAssertExtensions.GetService<IResponseWriter>(assembly);
 
                 var request = new WriteResponseRequest
                 {
@@ -141,7 +138,7 @@ namespace Controllers.Test
             var assembly = typeof(LegacyRootNamespaceTests).Assembly;
             var projectFolder = new FileInfo(callerFilePath).Directory;
 
-            var resolver = new ResourceRootNamespaceResolver();
+            var resolver = HttpClientAssertExtensions.GetService<IResourceRootNamespaceResolver>(assembly);
 
             // The LogicalName fixture votes for "Pulse.Legacy.Root", every other resource of this
             // project votes for "Controllers.Test". The majority decides, otherwise a single legacy
@@ -157,13 +154,9 @@ namespace Controllers.Test
                                  fix: "ResolveForResource must derive the namespace from the given resource name itself instead of returning the project-wide majority.");
         }
 
-        private static EmbeddedFileLocalizer CreateLocalizer()
+        private static IEmbeddedFileLocalizer CreateLocalizer()
         {
-            return new EmbeddedFileLocalizer(new TestSdkSettings(),
-                                             new JsonSerializerOptions(),
-                                             new PlainTextDecorator(),
-                                             new SourceCodeExtractor(),
-                                             new ResourceRootNamespaceResolver());
+            return HttpClientAssertExtensions.GetService<IEmbeddedFileLocalizer>(typeof(LegacyRootNamespaceTests).Assembly);
         }
 
         private static string ThisFile([CallerFilePath] string callerFilePath = "")

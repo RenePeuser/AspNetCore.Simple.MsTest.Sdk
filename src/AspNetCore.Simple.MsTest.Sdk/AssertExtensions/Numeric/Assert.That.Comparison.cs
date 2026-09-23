@@ -213,23 +213,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        int callerLineNumber,
                                                        Assembly callingAssembly) where T : IComparable<T>
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
             var title = $"COMPARISON FAILED - EXPECTED {comparisonType}";
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = $"Expected value to be {comparisonType.ToLowerInvariant()} threshold but comparison failed.";
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {valueName}");
             sb.AppendLine($"{"Type",-10} : {typeof(T).Name}");
             sb.AppendLine($"{"Actual",-10} : {value?.ToString() ?? "null"}");
@@ -239,7 +239,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[]
@@ -248,11 +248,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         "Consider boundary conditions and edge cases in the code under test"
                                     };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

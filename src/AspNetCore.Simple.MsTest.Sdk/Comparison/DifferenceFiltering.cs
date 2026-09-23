@@ -12,6 +12,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
         public static void AddDifferenceFiltering(this IServiceCollection services)
         {
             services.AddTestSdkSettings();
+
             services.AddSingletonIfNotExists<IDifferenceFiltering, DifferenceFiltering>();
         }
     }
@@ -20,7 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     /// Decides which differences survive before an assert decides pass or fail - and, for the
     /// response writers, which current values must not reach a snapshot.
     /// </summary>
-    internal interface IDifferenceFiltering
+    public interface IDifferenceFiltering
     {
         /// <summary>
         /// Applies the global <see cref="TestSdkSettings.DifferenceFunc"/>, then the per-assert func,

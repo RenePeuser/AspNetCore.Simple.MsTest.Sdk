@@ -72,23 +72,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       int callerLineNumber,
                                                       Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
-            AssertOutputHelper.BuildHeader(sb, "EXCEPTION THROWN - EXPECTED NO EXCEPTION", textDecorator);
+            assertOutputHelper.BuildHeader(sb, "EXCEPTION THROWN - EXPECTED NO EXCEPTION");
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
-            AssertOutputHelper.BuildProblemSection(sb,
-                                                   "Expected action to execute without throwing an exception, but an exception was thrown.",
-                                                   textDecorator);
+            assertOutputHelper.BuildProblemSection(sb,
+                                                   "Expected action to execute without throwing an exception, but an exception was thrown.");
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Action",-15} : {actionName}");
             sb.AppendLine($"{"Exception Type",-15} : {thrownException.GetType().Name}");
             sb.AppendLine($"{"Message",-15} : {thrownException.Message}");
@@ -124,7 +123,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[]
@@ -135,11 +134,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                                                  : "Add defensive checks to prevent this exception condition"
                                     };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

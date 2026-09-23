@@ -13,6 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
         /// </summary>
         public static void AddHttpFailureOutputHelper(this IServiceCollection services)
         {
+            services.AddTestContextHelper();
             services.AddSingletonIfNotExists<IHttpFailureOutputHelper, HttpFailureOutputHelper>();
         }
     }
@@ -45,14 +46,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
     /// Default implementation of HTTP failure output helper.
     /// Provides common formatting and utility functions used across all failure strategies.
     /// </summary>
-    internal sealed class HttpFailureOutputHelper : IHttpFailureOutputHelper
+    internal sealed class HttpFailureOutputHelper(ITestContextHelper testContextHelper) : IHttpFailureOutputHelper
     {
         public void BuildTestInfoSection(StringBuilder sb,
                                          IHttpResponseContext context,
                                          ITextDecorator textDecorator)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var className = TestContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
+            var className = testContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
             var methodName = context.CallerMemberName;
             var fileUri = $"file:///{context.CallerFilePath.Replace('\\', '/')}:{context.CallerLineNumber}";
 

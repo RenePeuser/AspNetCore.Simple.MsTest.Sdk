@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
+using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
 using AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers;
@@ -201,7 +202,15 @@ namespace Controllers.Test.ErrorHandling
         [TestMethod]
         public async Task AHandlerThatCannotServeTheContextMustNotBlockTheNextOne()
         {
-            var strategy = new TestErrorHandlingStrategy([new SilentHandler(), new DefaultErrorHandler()]);
+            // Build a provider with specific handlers: SilentHandler first, DefaultErrorHandler second
+            var services = new ServiceCollection();
+            services.AddSingletonIfNotExists<IConfiguration>(new ConfigurationBuilder().Build());
+            services.AddTestClassNameResolver();
+            services.AddSingleton<ITestErrorHandler, SilentHandler>();
+            services.AddSingleton<ITestErrorHandler, DefaultErrorHandler>();
+            services.AddSingleton<ITestErrorHandlingStrategy, TestErrorHandlingStrategy>();
+
+            var strategy = services.BuildServiceProvider().GetRequiredService<ITestErrorHandlingStrategy>();
 
             var output = await strategy.HandleAsync(Context(), new InvalidOperationException("passed along")).ConfigureAwait(false);
 
@@ -219,7 +228,11 @@ namespace Controllers.Test.ErrorHandling
         [TestMethod]
         public async Task WithNoHandlerAtAllTheFallbackMustStillNameTheException()
         {
-            var strategy = new TestErrorHandlingStrategy([]);
+            // Build a provider with NO handlers to test the fallback logic
+            var services = new ServiceCollection();
+            services.AddSingleton<ITestErrorHandlingStrategy, TestErrorHandlingStrategy>();
+
+            var strategy = services.BuildServiceProvider().GetRequiredService<ITestErrorHandlingStrategy>();
 
             var output = await strategy.HandleAsync(Context(), new InvalidOperationException("nothing left")).ConfigureAwait(false);
 

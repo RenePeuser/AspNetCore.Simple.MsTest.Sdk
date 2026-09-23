@@ -97,8 +97,12 @@ That's it. `ApiTestBase<TStartup>` performs both required steps internally:
 
 1. `services.AddAssertableHttpClient(configuration)` — registers `IAssertableHttpClient`, the endpoint
    registry used for validation, the diff engine and the failure reporters.
-2. `HttpClientAssertExtensions.Setup(serviceProvider)` — hands those resolved services to the static
-   `Assert…Async` extension methods.
+2. `HttpClientAssertExtensions.Setup(serviceProvider)` — hands that provider to the static
+   `Assert…Async` extension methods. They resolve from it on every assert, so it has to stay alive for
+   the whole test run - never dispose it right after `Setup`.
+
+Global settings (json options, difference filters, output mode, ...) are configured once through
+`TestSdkSettings` - see [Configuration via TestSdkSettings](#configuration-via-testsdksettings).
 
 ### Bringing your own host? Then do these two steps yourself
 
@@ -1501,52 +1505,6 @@ This is small, but on large suites it removes a lot of repetitive noise.
 
 ---
 
-### Configuring the SDK: `TestSdkSettings`
-
-Every global setting lives in one class, `TestSdkSettings`, configured once per test project.
-Precedence: defaults, then the `TestSdkSettings` configuration section (appsettings, environment
-variables), then code.
-
-With `ApiTestBase<TStartup>`, register the settings in your `registerServices` callback - it runs before
-the SDK registers itself, so your settings win:
-
-```csharp
-_apiTestBase = new ApiTestBase<Program>("Development",
-                                        (services, configuration) =>
-                                        {
-                                            services.AddTestSdkSettings(configuration, settings =>
-                                            {
-                                                settings.JsonSerializerOptions = MyApiJsonOptions.Create();
-                                                settings.DifferenceFilter = difference => difference.MemberPath != "Content.Value.Id";
-                                            });
-                                        });
-```
-
-With your own host, pass them to `AddAssertableHttpClient`:
-
-```csharp
-services.AddAssertableHttpClient(configuration, settings => settings.ShowTokenInCurl = true);
-```
-
-Without any host (pure `Assert.That.ObjectsAreEqual` tests), configure them once in `[AssemblyInitialize]`:
-
-```csharp
-HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = difference => !difference.MemberPath.Contains("timestamp"));
-```
-
-| Setting | Configuration / environment variable | Purpose |
-|---|---|---|
-| `OutputMode` | `TestSdkSettings__OutputMode=ai` | Human, Ai or Hybrid failure output |
-| `WriteResponse` | `TestSdkSettings__WriteResponse=true` | Record every snapshot (Debug builds only) |
-| `SkipEndpointValidation` | `TestSdkSettings__SkipEndpointValidation=true` | Skip the endpoint validation for every assert |
-| `ShowTokenInCurl` | `TestSdkSettings__ShowTokenInCurl=true` | Print the bearer token in curl output |
-| `ResponseFolderName`, `VolatileHeaderNames`, ... | `TestSdkSettings:...` in appsettings | Snapshot conventions |
-| `JsonSerializerOptions` | code only | The api's json options |
-| `DifferenceFunc`, `DifferenceFilter`, `OrderIndependentArrayFilter` | code only | Global difference handling |
-| `LogAction` | code only | Where curl commands and diagnostics go |
-
----
-
 ### Snapshot auto-update mode
 
 When an API change is intentional, updating snapshots should be easy.
@@ -1561,7 +1519,7 @@ await Client.AssertPostAsync<CreateUserResponse>(
     writeResponse: true);
 ```
 
-Or globally:
+Or globally (see [Configuration via TestSdkSettings](#configuration-via-testsdksettings)):
 
 ```csharp
 services.AddTestSdkSettings(configuration, settings => settings.WriteResponse = true);
@@ -1734,8 +1692,12 @@ public Task Should_Return_No_Users_If_No_One_Was_Added()
 
 ### Ignore generated IDs
 
+Register it once for the whole test project with
+`services.AddTestSdkSettings(configuration, settings => settings.DifferenceFunc = IgnoreId);`,
+or pass it per assert as `differenceFunc: IgnoreId`.
+
 ```csharp
-private static IEnumerable<Difference> IgnoreId(IImmutableList<Difference> differences)
+private static IEnumerable<Difference> IgnoreId(ImmutableList<Difference> differences)
 {
     foreach (var difference in differences)
     {
@@ -1849,11 +1811,15 @@ services.AddComparisonStrategy(); // Adds built-in strategies (String + JSON)
 
 ## Configuration via TestSdkSettings
 
-The SDK uses a centralized `TestSdkSettings` configuration that can be configured via:
+Every global setting of the SDK lives in one class, `TestSdkSettings`, configured once per test project.
+There are no static settings properties. Precedence, lowest first:
 
-1. **Environment variables** (useful for CI/CD)
-2. **appsettings.json** (useful for local development)
-3. **Code** (for test-specific overrides)
+1. **Defaults**
+2. **appsettings.json / environment variables** - section `TestSdkSettings` (useful for CI/CD)
+3. **Code** - an `Action<TestSdkSettings>` for everything that cannot come from configuration
+
+Per-test deviations go through the per-assert parameters (`differenceFilter:`, `differenceFunc:`,
+`skipEndpointValidation:`, `writeResponse:`, ...) - never by changing global settings inside a test.
 
 ### Available Settings
 
@@ -1866,12 +1832,21 @@ The SDK uses a centralized `TestSdkSettings` configuration that can be configure
 | `VolatileHeaderNames`     | `string[]`     | See defaults    | HTTP headers to ignore in snapshot comparison             |
 | `LegacyResponseFolderNames` | `string[]`   | Various         | Legacy folder names for backward compatibility            |
 | `LegacyRequestFolderName` | `string[]`     | Various         | Legacy request folder names for backward compatibility    |
+| `WriteResponse`           | `bool`         | `false`         | Record every snapshot (Debug builds only)                 |
+| `SkipEndpointValidation`  | `bool`         | `false`         | Skip the endpoint validation for every assert             |
+| `ShowTokenInCurl`         | `bool`         | `false`         | Print the bearer token in curl output instead of masking  |
+| `JsonSerializerOptions`   | `JsonSerializerOptions` | camelCase, enums as strings | The api's json options - code only |
+| `DifferenceFunc`          | `Func<...>`    | keep all        | Global list transform over the differences - code only    |
+| `DifferenceFilter`        | `Predicate<Difference>` | keep all | Global per-difference predicate - code only              |
+| `OrderIndependentArrayFilter` | `Predicate<JsonArrayContext>?` | `null` | Arrays compared as sets - code only          |
+| `LogAction`               | `Action<string>` | `Console.WriteLine` | Where curl commands and diagnostics go - code only    |
 
 ### Configuration Examples
 
 **Via Environment Variable:**
 ```bash
 TestSdkSettings__OutputMode=Ai
+TestSdkSettings__WriteResponse=true
 TestSdkSettings__ResponseFolderName=ExpectedResponses
 ```
 
@@ -1894,11 +1869,41 @@ TestSdkSettings__ResponseFolderName=ExpectedResponses
 **Note:** When overriding array properties like `VolatileHeaderNames`, you **replace** the defaults entirely. 
 List every header name you want to ignore - the defaults are not merged.
 
+**Via code - with `ApiTestBase<TStartup>`**, in the `registerServices` callback. It runs before the SDK
+registers itself, so your settings win:
+
+```csharp
+_apiTestBase = new ApiTestBase<Program>("Development",
+                                        (services, configuration) =>
+                                        {
+                                            services.AddTestSdkSettings(configuration, settings =>
+                                            {
+                                                settings.JsonSerializerOptions = MyApiJsonOptions.Create();
+                                                settings.DifferenceFilter = difference => difference.MemberPath != "Content.Value.Id";
+                                            });
+                                        });
+```
+
+**Via code - with your own host:**
+
+```csharp
+services.AddAssertableHttpClient(configuration, settings => settings.ShowTokenInCurl = true);
+```
+
+**Via code - without any host** (pure `Assert.That.ObjectsAreEqual` tests), once in `[AssemblyInitialize]`:
+
+```csharp
+HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = difference => !difference.MemberPath.Contains("timestamp"));
+```
+
+**Replacing the assertable client:** register your own `IAssertableHttpClient` before
+`AddAssertableHttpClient` - the SDK keeps an existing registration.
+
 ### Type-Safe Configuration
 
-`TestSdkSettings` is a record with init-only properties, providing:
+`TestSdkSettings` is a plain settings record - data only, no logic - providing:
 - ✅ **Type safety** - Enums like `OutputMode` instead of strings
-- ✅ **Immutability** - Settings are frozen after initialization
+- ✅ **One source** - one instance per test project, injected wherever the SDK needs it
 - ✅ **IntelliSense** - Full IDE support in configuration files
 - ✅ **Automatic binding** - ASP.NET Core configuration system handles the rest
 

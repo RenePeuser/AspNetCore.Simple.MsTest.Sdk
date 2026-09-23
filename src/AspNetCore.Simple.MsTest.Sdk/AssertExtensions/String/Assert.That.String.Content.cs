@@ -217,7 +217,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        int callerLineNumber,
                                                        Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
@@ -225,21 +225,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             ? "STRING CONTENT - EXPECTED TO CONTAIN SUBSTRING"
                             : "STRING CONTENT - EXPECTED NOT TO CONTAIN SUBSTRING";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = expectContains
                               ? $"Expected string to contain substring but it was not found."
                               : $"Expected string to NOT contain substring but it was found.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-15} : {textName}");
             sb.AppendLine($"{"Text",-15} : {(text is null ? "null" : $"\"{text}\"")}");
             sb.AppendLine($"{"Substring",-15} : \"{substring}\"");
@@ -255,7 +255,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = expectContains
@@ -266,11 +266,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           }
                                         : new[] { $"Ensure the code generating '{textName}' does not include \"{substring}\"", $"Review the string building logic to prevent this substring from appearing", $"Check if the substring check is case-sensitive (currently using {comparison})" };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -288,7 +288,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             int callerLineNumber,
                                                             Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
@@ -296,20 +296,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             ? "STRING PREFIX - EXPECTED TO START WITH"
                             : "STRING SUFFIX - EXPECTED TO END WITH";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var label = checkType == "StartsWith" ? "prefix" : "suffix";
             var problem = $"Expected string to {checkType.ToLowerInvariant()} the expected {label} but it did not.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-15} : {textName}");
             sb.AppendLine($"{"Text",-15} : {(text is null ? "null" : $"\"{text}\"")}");
             sb.AppendLine($"{"Expected",-15} : \"{expected}\" ({label})");
@@ -341,7 +341,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = checkType == "StartsWith"
@@ -356,11 +356,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               $"Consider using a different StringComparison mode if case/culture matters (currently {comparison})"
                                           };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
@@ -1143,7 +1142,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static void EnsureSnapshotReferenceIsUsable<T>(ObjectAssertContext<T> context)
         {
-            SnapshotReferenceGuard.EnsureSnapshotExists(context.ExpectedResultFile,
+            HttpClientAssertExtensions.GetService<ISnapshotReferenceGuard>(context.CallingAssembly).EnsureSnapshotExists(context.ExpectedResultFile,
                                                         context.ExpectedObjectAsJson,
                                                         context.ExpectedResultParameterName,
                                                         context.CallingAssembly,
@@ -1151,7 +1150,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // A file that exists but is not parseable json must say so. Otherwise the shape checks look
             // at the first character only and report a structure mismatch for a plain syntax error.
-            SnapshotReferenceGuard.EnsureParseable(context.ExpectedResultFile,
+            HttpClientAssertExtensions.GetService<ISnapshotReferenceGuard>(context.CallingAssembly).EnsureParseable(context.ExpectedResultFile,
                                                    context.ResolvedExpectedJson,
                                                    isPayload: false);
         }
@@ -1206,7 +1205,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine("──────────────────────────────────────────────────────────────");
             sb.AppendLine();
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var fullClassName = TestClassNameResolver.Resolve(context.CallerFilePath, projectName);
+            var fullClassName = HttpClientAssertExtensions.GetService<ITestClassNameResolver>(context.CallingAssembly).Resolve(context.CallerFilePath, projectName);
             sb.AppendLine($"{"Project",-10} : {projectName}");
             sb.AppendLine($"{"Class",-10} : {fullClassName}");
             sb.AppendLine($"{"Method",-10} : {context.CallerMemberName}");

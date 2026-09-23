@@ -709,8 +709,8 @@ auf der Overload-API + einer handgeschriebenen Domain-Wrapper-Schicht (`SdcTestC
 - **Domain-Wrapper** (`TestClient.Capabilities.V1.AssertCreateAsync`) bleiben projektspezifisch —
   die Fluent-API ist die Basis, auf der solche Wrapper dünner werden, ersetzt sie aber nicht.
 - **Mock-Setup / Test-Host-Bootstrap** (`MockRegistry`, `WebApplicationFactory`) — außerhalb Scope.
-- **Reuse der bestehenden Pipeline:** Fluent-Kette soll `IAssertableHttpClient` /
-  `HttpClientAssertExtensions.CustomAssertableHttpClient` + `IEmbeddedFileLocalizer` +
+- **Reuse der bestehenden Pipeline:** Fluent-Kette soll `IAssertableHttpClient` (aus dem Container,
+  aufgelöst über `HttpClientAssertExtensions.GetService`) + `IEmbeddedFileLocalizer` +
   `Difference`-Modell WIEDERVERWENDEN, nicht neu bauen (die Fassade-über-Engine-Strategie steht schon
   so im Prototyp — beibehalten).
 

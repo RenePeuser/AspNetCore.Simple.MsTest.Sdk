@@ -103,7 +103,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  int callerLineNumber,
                                                  Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
@@ -111,39 +111,39 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             ? "CONDITION FAILED - EXPECTED TRUE"
                             : "CONDITION FAILED - EXPECTED FALSE";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = expectTrue
                               ? "Expected condition to be TRUE but it was FALSE."
                               : "Expected condition to be FALSE but it was TRUE.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Condition",-10} : {conditionName}");
             sb.AppendLine($"{"Result",-10} : {!expectTrue}");
             sb.AppendLine($"{"Expected",-10} : {expectTrue}");
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = expectTrue
                                         ? new[] { $"Review the logic in '{conditionName}' to ensure it returns true", "Check the values being compared in the condition", "Verify that prerequisites for this condition are met" }
                                         : new[] { $"Review the logic in '{conditionName}' to ensure it returns false", "Check if the condition should be inverted", "Verify the expected state for this test scenario" };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

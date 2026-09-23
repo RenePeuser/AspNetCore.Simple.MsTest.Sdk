@@ -1,6 +1,5 @@
 using System;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -14,20 +13,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
             serviceCollection.AddSingletonIfNotExists<JsonSerializer>();
 
             // The options live in TestSdkSettings - one set per application, never a second copy.
-            serviceCollection.TryAddSingleton(serviceProvider => serviceProvider.GetService<TestSdkSettings>()?.JsonSerializerOptions ??
-                                                                 CreateDefaultOptions());
-        }
-
-        internal static JsonSerializerOptions CreateDefaultOptions()
-        {
-            return new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                Converters = { new JsonStringEnumConverter() }
-            };
+            serviceCollection.AddTestSdkSettings();
+            serviceCollection.TryAddSingleton(serviceProvider => serviceProvider.GetRequiredService<TestSdkSettings>().JsonSerializerOptions);
         }
     }
 

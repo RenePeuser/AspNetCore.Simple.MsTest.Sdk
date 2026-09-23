@@ -2,13 +2,33 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 {
+    public static class AddTestContextHelperExtension
+    {
+        public static void AddTestContextHelper(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<ITestContextHelper, TestContextHelper>();
+        }
+    }
+
+    internal interface ITestContextHelper
+    {
+        /// <summary>
+        /// The fully qualified class name of the test, built from the assembly name and the folder
+        /// structure below the project folder. Example: MinimalApi.Test.Api.Persons.PersonEndpointsTests
+        /// </summary>
+        string ExtractFullyQualifiedClassName(string callerFilePath,
+                                              Assembly callingAssembly);
+    }
+
     /// <summary>
-    /// Helper methods for extracting test context information.
+    /// Extracts test context information.
     /// </summary>
-    internal static class TestContextHelper
+    internal sealed class TestContextHelper : ITestContextHelper
     {
         /// <summary>
         /// Extracts the fully qualified class name from the test context.
@@ -18,7 +38,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
         /// <param name="callerFilePath">Full file path of the test class</param>
         /// <param name="callingAssembly">Assembly containing the test</param>
         /// <returns>Fully qualified class name (namespace + class name)</returns>
-        public static string ExtractFullyQualifiedClassName(string callerFilePath,
+        public string ExtractFullyQualifiedClassName(string callerFilePath,
                                                             Assembly callingAssembly)
         {
             var assemblyName = callingAssembly.GetName().Name ?? "Unknown";
@@ -78,14 +98,5 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
             return fileName;
         }
 
-        /// <summary>
-        /// Extracts just the class name (without namespace) from the file path.
-        /// </summary>
-        /// <param name="callerFilePath">Full file path of the test class</param>
-        /// <returns>Simple class name without namespace</returns>
-        public static string ExtractSimpleClassName(string callerFilePath)
-        {
-            return Path.GetFileNameWithoutExtension(callerFilePath).Replace(".cs", string.Empty);
-        }
     }
 }

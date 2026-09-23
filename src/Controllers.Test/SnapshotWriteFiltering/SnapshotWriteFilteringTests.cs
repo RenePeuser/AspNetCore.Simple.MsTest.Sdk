@@ -6,7 +6,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using Controllers.Api.Persons;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -53,15 +52,9 @@ namespace Controllers.Test.SnapshotWriteFiltering
         /// file in <see cref="ResponseWriteMode.DifferencesOnly"/> only the difference writer may claim
         /// the request - <see cref="ResponseWriter"/> throws when two writers do.
         /// </summary>
-        private static ResponseWriter CreateWriter()
+        private static IResponseWriter CreateWriter()
         {
-            return new ResponseWriter([
-                                          new DifferenceResponseWriter(new JsonDiffer(), new JsonPathWriter(), new ParameterReplacer(),
-                                                                       new SnapshotPlaceholderGuard(),
-                                                                       HttpClientAssertExtensions.GetService<TestSdkSettings>(typeof(SnapshotWriteFilteringTests).Assembly),
-                                                                       HttpClientAssertExtensions.GetService<IDifferenceFiltering>(typeof(SnapshotWriteFilteringTests).Assembly)),
-                                          new OverwriteAllResponseWriter(new ParameterReplacer(), new SnapshotPlaceholderGuard())
-                                      ]);
+            return HttpClientAssertExtensions.GetService<IResponseWriter>(typeof(SnapshotWriteFilteringTests).Assembly);
         }
 
         // ============================================================

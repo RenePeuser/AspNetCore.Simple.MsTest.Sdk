@@ -2,9 +2,25 @@ using System;
 using System.IO;
 using System.Linq;
 using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 {
+    public static class AddTestClassNameResolverExtension
+    {
+        public static void AddTestClassNameResolver(this IServiceCollection services)
+        {
+            services.AddSourceLocationHelper();
+            services.AddSingletonIfNotExists<ITestClassNameResolver, TestClassNameResolver>();
+        }
+    }
+
+    public interface ITestClassNameResolver
+    {
+        string Resolve(string callerFilePath,
+                       string projectName);
+    }
+
     /// <summary>
     /// Turns a caller file path into the fully qualified test class name shown in error output.
     ///
@@ -14,10 +30,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
     /// in <see cref="EmbeddedFileLocalizer"/>. The nearest folder holding a csproj is the project root
     /// by definition, so that is what is used first.
     /// </summary>
-    internal static class TestClassNameResolver
+    public sealed class TestClassNameResolver(ISourceLocationHelper sourceLocationHelper) : ITestClassNameResolver
     {
-        public static string Resolve(string callerFilePath,
-                                     string projectName)
+        public string Resolve(string callerFilePath,
+                              string projectName)
         {
             try
             {
@@ -49,16 +65,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
             }
         }
 
-        private static string? ResolveByProjectFolder(string? directory,
-                                                      string fileName,
-                                                      string projectName)
+        private string? ResolveByProjectFolder(string? directory,
+                                               string fileName,
+                                               string projectName)
         {
             if (directory.IsNullOrWhiteSpace())
             {
                 return null;
             }
 
-            var projectFolder = SourceLocationHelper.FindFirstCsprojDirectory(directory);
+            var projectFolder = sourceLocationHelper.FindFirstCsprojDirectory(directory);
 
             if (projectFolder.IsNullOrWhiteSpace())
             {

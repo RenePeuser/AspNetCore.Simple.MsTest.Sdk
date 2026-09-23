@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
 using AspNetCore.Simple.MsTest.Sdk.Outputs.Builders;
@@ -56,11 +57,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             services.AddEmptyAnonymousObjectDetector();
             services.AddJsonFileExtensionValidator();
             services.AddJsonTypeMismatchOutputBuilder();
+            services.AddAssertOutputHelper();
+            services.AddJsonStringResolver();
 
             // 3. Register error handling strategy (with all specific handlers)
             services.AddTestErrorHandlingStrategy();
 
             // 4. Register the service itself
+            services.AddSnapshotReferenceGuard();
             services.AddSingletonIfNotExists<IAssertableHttpClient, AssertableHttpClient>();
         }
     }
@@ -95,7 +99,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                                JsonSerializerOptions jsonSerializerOptions,
                                                IEndpointValidator endpointValidator,
                                                IWriteResponseService writeResponseService,
-                                               ITestErrorHandlingStrategy testErrorHandlingStrategy) : IAssertableHttpClient
+                                               ITestErrorHandlingStrategy testErrorHandlingStrategy,
+                                               ISnapshotReferenceGuard snapshotReferenceGuard) : IAssertableHttpClient
 #pragma warning restore IDE0060 // Remove unused parameter
     {
         /// <inheritdoc />
@@ -201,51 +206,51 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Build context with deserialized result - HttpResponseMessage stays alive until pipeline completes
             var responseContext = new HttpResponseContext<TResult>
-            {
-                AbsoluteUrl = absoluteUrl,
-                ApiVersion = context.ApiVersion,
-                CallerFilePath = context.CallerFilePath,
-                CallerLineNumber = context.CallerLineNumber,
-                CallerMemberName = context.CallerMemberName,
-                CallingAssembly = context.CallingAssembly,
-                Client = context.Client,
-                ContentAsString = contentAsString,
-                ContentAsStringParameterized = resolvedParametersJsonString,
-                Current = currentResult,
-                CurrentObject = currentResult,
-                CurrentResult = currentResult,
-                CurrentResultParameterName = context.CurrentResultParameterName,
-                DifferenceFunc = context.DifferenceFunc,
-                DifferenceFilter = context.DifferenceFilter,
-                ExpectedType = context.ExpectedType,
-                ExpectedObjectAsJson = context.ExpectedObjectAsJson,
-                ExpectedResultFile = context.ExpectedResultFile,
-                ExpectedResultParameterName = context.ExpectedResultParameterName,
-                HttpMethod = context.HttpMethod,
-                IgnoreResponse = context.IgnoreResponse,
-                HttpResponseMessage = httpResponseMessage,
-                HttpStatusCode = httpResponseMessage.StatusCode,
-                IsExpectedStatusCode = isExpectedStatusCode,
-                IsSuccessStatusCode = context.IsSuccessStatusCode,
-                OrderFunc = context.OrderFunc,
-                Parameters = context.Parameters,
-                PayloadAsJson = context.PayloadAsJson,
-                PayloadFile = context.PayloadFile,
-                PayloadParameterName = context.PayloadParameterName,
-                ResolvedExpectedJson = context.ResolvedExpectedJson,
-                ResolvedPayload = context.ResolvedPayload,
-                ShowTokenInCurl = context.ShowTokenInCurl,
-                TypeIsPrimitiveType = targetIsPrimitiveType,
-                Url = context.Url,
-                WriteResponse = context.WriteResponse,
-                SkipEndpointValidation = context.SkipEndpointValidation,
-                ExpectedHttpStatusCode = context.ExpectedHttpStatusCode,
-                FailureType = HttpAssertionFailureType.None,
-                ExpectedStatusCode = (int?)context.ExpectedHttpStatusCode,
-                ActualStatusCode = null,
-                Expected = context.Expected,
-                IsEmptyAnonymousObjectForCodeGeneration = context.IsEmptyAnonymousObjectForCodeGeneration
-            };
+                                  {
+                                      AbsoluteUrl = absoluteUrl,
+                                      ApiVersion = context.ApiVersion,
+                                      CallerFilePath = context.CallerFilePath,
+                                      CallerLineNumber = context.CallerLineNumber,
+                                      CallerMemberName = context.CallerMemberName,
+                                      CallingAssembly = context.CallingAssembly,
+                                      Client = context.Client,
+                                      ContentAsString = contentAsString,
+                                      ContentAsStringParameterized = resolvedParametersJsonString,
+                                      Current = currentResult,
+                                      CurrentObject = currentResult,
+                                      CurrentResult = currentResult,
+                                      CurrentResultParameterName = context.CurrentResultParameterName,
+                                      DifferenceFunc = context.DifferenceFunc,
+                                      DifferenceFilter = context.DifferenceFilter,
+                                      ExpectedType = context.ExpectedType,
+                                      ExpectedObjectAsJson = context.ExpectedObjectAsJson,
+                                      ExpectedResultFile = context.ExpectedResultFile,
+                                      ExpectedResultParameterName = context.ExpectedResultParameterName,
+                                      HttpMethod = context.HttpMethod,
+                                      IgnoreResponse = context.IgnoreResponse,
+                                      HttpResponseMessage = httpResponseMessage,
+                                      HttpStatusCode = httpResponseMessage.StatusCode,
+                                      IsExpectedStatusCode = isExpectedStatusCode,
+                                      IsSuccessStatusCode = context.IsSuccessStatusCode,
+                                      OrderFunc = context.OrderFunc,
+                                      Parameters = context.Parameters,
+                                      PayloadAsJson = context.PayloadAsJson,
+                                      PayloadFile = context.PayloadFile,
+                                      PayloadParameterName = context.PayloadParameterName,
+                                      ResolvedExpectedJson = context.ResolvedExpectedJson,
+                                      ResolvedPayload = context.ResolvedPayload,
+                                      ShowTokenInCurl = context.ShowTokenInCurl,
+                                      TypeIsPrimitiveType = targetIsPrimitiveType,
+                                      Url = context.Url,
+                                      WriteResponse = context.WriteResponse,
+                                      SkipEndpointValidation = context.SkipEndpointValidation,
+                                      ExpectedHttpStatusCode = context.ExpectedHttpStatusCode,
+                                      FailureType = HttpAssertionFailureType.None,
+                                      ExpectedStatusCode = (int?)context.ExpectedHttpStatusCode,
+                                      ActualStatusCode = null,
+                                      Expected = context.Expected,
+                                      IsEmptyAnonymousObjectForCodeGeneration = context.IsEmptyAnonymousObjectForCodeGeneration
+                                  };
 
             // From here on the response is known - every error message may show it.
             reporter.Context = responseContext;
@@ -265,20 +270,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             return result;
         }
 
-        private static void EnsureReferencedFilesAreParseable<TResult>(HttpAssertContext<TResult> context)
+        private void EnsureReferencedFilesAreParseable<TResult>(HttpAssertContext<TResult> context)
         {
-            SnapshotReferenceGuard.EnsureParseable(context.PayloadFile, context.ResolvedPayload, isPayload: true);
-            SnapshotReferenceGuard.EnsureParseable(context.ExpectedResultFile, context.ResolvedExpectedJson, isPayload: false);
+            snapshotReferenceGuard.EnsureParseable(context.PayloadFile, context.ResolvedPayload, isPayload: true);
+            snapshotReferenceGuard.EnsureParseable(context.ExpectedResultFile, context.ResolvedExpectedJson, isPayload: false);
         }
 
         private void EnsureReferencedFilesExist<TResult>(HttpAssertContext<TResult> context)
         {
-            SnapshotReferenceGuard.EnsurePayloadExists(context.PayloadFile,
+            snapshotReferenceGuard.EnsurePayloadExists(context.PayloadFile,
                                                        context.PayloadAsJson ?? string.Empty,
                                                        context.PayloadParameterName,
                                                        context.CallingAssembly);
 
-            SnapshotReferenceGuard.EnsureSnapshotExists(context.ExpectedResultFile,
+            snapshotReferenceGuard.EnsureSnapshotExists(context.ExpectedResultFile,
                                                         context.ExpectedObjectAsJson,
                                                         context.ExpectedResultParameterName,
                                                         context.CallingAssembly,

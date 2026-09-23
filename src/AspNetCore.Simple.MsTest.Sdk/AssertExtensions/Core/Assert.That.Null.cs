@@ -112,7 +112,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                           int callerLineNumber,
                                                           Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
@@ -120,21 +120,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             ? "NULL REFERENCE - EXPECTED NULL"
                             : "NULL REFERENCE - EXPECTED NON-NULL";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = expectNull
                               ? "Expected value to be null but received a non-null object."
                               : "Expected value to be non-null but received null.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {valueName}");
             sb.AppendLine($"{"Type",-10} : {actualType.Name}");
             sb.AppendLine($"{"Value",-10} : {(actualValue is null ? "null" : actualValue.ToString() ?? "(no ToString)")}");
@@ -142,18 +142,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = expectNull
                                         ? new[] { $"Ensure the code that sets '{valueName}' returns null for this scenario", $"Review the logic that creates or assigns '{valueName}'" }
                                         : new[] { $"Verify that '{valueName}' is properly initialized before this assertion", $"Check for null returns in methods that populate '{valueName}'", "Add null checks or default values in the code under test" };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

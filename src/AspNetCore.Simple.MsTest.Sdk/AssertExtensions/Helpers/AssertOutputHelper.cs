@@ -3,22 +3,62 @@ using System.Reflection;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Helpers;
+using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
 {
+    public static class AddAssertOutputHelperExtension
+    {
+        public static void AddAssertOutputHelper(this IServiceCollection services)
+        {
+            services.AddTestContextHelper();
+            services.AddSingletonIfNotExists<IAssertOutputHelper, AssertOutputHelper>();
+        }
+    }
+
     /// <summary>
-    /// Shared helper for building beautiful, consistent assert failure outputs.
-    /// Provides standard sections: Header, Test Info, Problem, Details, Context, Fix.
+    /// Builds the standard sections of an assert failure: Header, Test Info, Problem, Details, Context, Fix.
     /// </summary>
-    internal static class AssertOutputHelper
+    internal interface IAssertOutputHelper
+    {
+        void BuildHeader(StringBuilder sb,
+                         string failureTitle);
+
+        void BuildTestInfoSection(StringBuilder sb,
+                                  string callerFilePath,
+                                  string callerMemberName,
+                                  int callerLineNumber,
+                                  Assembly? callingAssembly = null);
+
+        void BuildProblemSection(StringBuilder sb,
+                                 string problemDescription);
+
+        void BuildDetailsSectionHeader(StringBuilder sb);
+
+        void BuildContextSection(StringBuilder sb,
+                                 string because);
+
+        void BuildFixSection(StringBuilder sb,
+                             string primaryFix,
+                             params string[] additionalOptions);
+
+        void BuildFooter(StringBuilder sb);
+    }
+
+    /// <summary>
+    /// Shared builder for beautiful, consistent assert failure outputs. The decorator is the one bound
+    /// to the consumer test assembly - see AddTextDecorator.
+    /// </summary>
+    internal sealed class AssertOutputHelper(ITextDecorator textDecorator,
+                                             ITestContextHelper testContextHelper) : IAssertOutputHelper
     {
         /// <summary>
         /// Builds the standard header section for assert failures.
         /// Format: ❌ {failureTitle}
         /// </summary>
-        public static void BuildHeader(StringBuilder sb,
-                                       string failureTitle,
-                                       ITextDecorator textDecorator)
+        public void BuildHeader(StringBuilder sb,
+                                       string failureTitle)
         {
             sb.AppendLine();
             sb.AppendLine();
@@ -32,17 +72,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
         /// Builds the standard Test Information section.
         /// Shows: Project, Class, Method, Line, File (clickable URI)
         /// </summary>
-        public static void BuildTestInfoSection(StringBuilder sb,
+        public void BuildTestInfoSection(StringBuilder sb,
                                                 string callerFilePath,
                                                 string callerMemberName,
                                                 int callerLineNumber,
-                                                ITextDecorator textDecorator,
                                                 Assembly? callingAssembly = null)
         {
             var projectName = callingAssembly?.GetName().Name ?? GetProjectNameFromPath(callerFilePath);
 
             var className = callingAssembly != null
-                                ? TestContextHelper.ExtractFullyQualifiedClassName(callerFilePath, callingAssembly)
+                                ? testContextHelper.ExtractFullyQualifiedClassName(callerFilePath, callingAssembly)
                                 : GetClassNameFromPath(callerFilePath);
 
             var fileUri = $"file:///{callerFilePath.Replace('\\', '/')}:{callerLineNumber}";
@@ -61,9 +100,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
         /// <summary>
         /// Builds the Problem section header.
         /// </summary>
-        public static void BuildProblemSection(StringBuilder sb,
-                                               string problemDescription,
-                                               ITextDecorator textDecorator)
+        public void BuildProblemSection(StringBuilder sb,
+                                               string problemDescription)
         {
             sb.AppendLine(textDecorator.SectionTitle("⚠️ Problem"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
@@ -75,8 +113,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
         /// <summary>
         /// Builds the Details section header (caller must add detail lines).
         /// </summary>
-        public static void BuildDetailsSectionHeader(StringBuilder sb,
-                                                     ITextDecorator textDecorator)
+        public void BuildDetailsSectionHeader(StringBuilder sb)
         {
             sb.AppendLine(textDecorator.SectionTitle("📊 Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
@@ -86,9 +123,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
         /// <summary>
         /// Builds the Context (Why) section.
         /// </summary>
-        public static void BuildContextSection(StringBuilder sb,
-                                               string because,
-                                               ITextDecorator textDecorator)
+        public void BuildContextSection(StringBuilder sb,
+                                               string because)
         {
             sb.AppendLine(textDecorator.SectionTitle("💭 Context (Why this matters)"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
@@ -100,9 +136,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
         /// <summary>
         /// Builds the Fix (How) section with multiple options.
         /// </summary>
-        public static void BuildFixSection(StringBuilder sb,
+        public void BuildFixSection(StringBuilder sb,
                                            string primaryFix,
-                                           ITextDecorator textDecorator,
                                            params string[] additionalOptions)
         {
             sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
@@ -125,8 +160,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
         /// <summary>
         /// Builds the standard footer.
         /// </summary>
-        public static void BuildFooter(StringBuilder sb,
-                                       ITextDecorator textDecorator)
+        public void BuildFooter(StringBuilder sb)
         {
             sb.AppendLine(textDecorator.Dim("══════════════════════════════════════════════════════════════"));
         }

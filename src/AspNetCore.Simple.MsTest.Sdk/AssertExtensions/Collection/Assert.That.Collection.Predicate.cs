@@ -282,7 +282,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                 int callerLineNumber,
                                                                 Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
@@ -295,11 +295,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 _ => "COLLECTION PREDICATE FAILED"
             };
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = predicateType switch
@@ -313,10 +313,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 _ => "Collection predicate assertion failed."
             };
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Collection",-15} : {collectionName}");
             sb.AppendLine($"{"Predicate",-15} : {predicateDescription}");
             sb.AppendLine($"{"Total Items",-15} : {totalCount}");
@@ -351,7 +351,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = predicateType switch
@@ -365,11 +365,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 _ => new[] { $"Review the items in '{collectionName}'", "Verify the predicate logic is correct" }
             };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

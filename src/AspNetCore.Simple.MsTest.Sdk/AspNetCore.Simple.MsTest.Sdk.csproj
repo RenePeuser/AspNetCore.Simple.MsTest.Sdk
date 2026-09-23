@@ -60,19 +60,13 @@
         <Folder Include="AssertExtensions\" />
     </ItemGroup>
 
-    <!-- Make internal classes visible to test projects -->
-    <ItemGroup>
-        <InternalsVisibleTo Include="Controllers.Test" />
-        <InternalsVisibleTo Include="MinimalApi.Test" />
-    </ItemGroup>
-
     <!-- ALPHA-ONLY fluent API (strategy: release the fluent API in alpha/prerelease only, until its
          final shape is decided — see FluentAssertions/README.md). The FLUENT_ALPHA symbol flips the
          entry points from internal to public. It is defined when:
            * the build produces a prerelease version, e.g. /develop → "…-alpha.N"
              (GitVersion_PreReleaseTag is non-empty), OR
            * FluentAlpha=true is passed explicitly (dotnet build -p:FluentAlpha=true / local dev).
-         In-repo test projects always reach the API via InternalsVisibleTo, so tests build regardless.
+         In-repo test projects reach the API via the public contract only, enforcing real-world usage.
 
          IMPORTANT — timing: GitVersion.MsBuild sets GitVersion_* in a TARGET (GetVersion), not at
          project-evaluation time. A plain <PropertyGroup Condition="…GitVersion_…"> would evaluate too

@@ -18,6 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             // Register dependencies
             services.AddTableBuilder();
+            services.AddCharacterDiff();
 
             // Register service itself
             services.AddSingletonIfNotExists<IDifferencesTableBuilder, DifferencesTableBuilder>();
@@ -43,7 +44,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     }
 
     internal sealed class DifferencesTableBuilder(ITableBuilder tableBuilder,
-                                                  ITextDecorator textDecorator) : IDifferencesTableBuilder
+                                                  ITextDecorator textDecorator,
+                                                  ICharacterDiff characterDiff) : IDifferencesTableBuilder
     {
         /// <summary>
         /// Maximum number of characters a value may occupy inside a table cell. Anything longer is
@@ -57,8 +59,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// ValueDifference is too long to be shown as a whole.
         /// </summary>
         private const int DiffContextLength = 40;
-
-        private readonly CharacterDiff _characterDiff = new CharacterDiff(textDecorator);
 
         public string Build(IHttpResponseContext context,
                             ImmutableList<Difference> differences)
@@ -230,7 +230,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             if (difference.MismatchType == MismatchType.ValueDifference)
             {
                 var (windowedExpected, windowedCurrent, windowed) = FocusOnDifference(value1, value2);
-                var (decoratedExpected, decoratedActual) = _characterDiff.HighlightDifferences(windowedExpected, windowedCurrent);
+                var (decoratedExpected, decoratedActual) = characterDiff.HighlightDifferences(windowedExpected, windowedCurrent);
 
                 return new RenderedDifference
                 {

@@ -1,10 +1,7 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
-using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Controllers.Test.SnapshotResolution
@@ -26,13 +23,9 @@ namespace Controllers.Test.SnapshotResolution
     [TestCategory("SnapshotResolution")]
     public sealed class DottedReferenceOverlapTests
     {
-        private static EmbeddedFileLocalizer CreateLocalizer()
+        private static IEmbeddedFileLocalizer CreateLocalizer()
         {
-            return new EmbeddedFileLocalizer(new TestSdkSettings(),
-                                             new JsonSerializerOptions(),
-                                             new PlainTextDecorator(),
-                                             new SourceCodeExtractor(),
-                                             new ResourceRootNamespaceResolver());
+            return HttpClientAssertExtensions.GetService<IEmbeddedFileLocalizer>(typeof(DottedReferenceOverlapTests).Assembly);
         }
 
         [TestMethod]

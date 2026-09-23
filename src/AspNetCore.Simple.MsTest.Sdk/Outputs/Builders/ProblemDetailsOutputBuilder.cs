@@ -19,6 +19,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddCurlBuilder();
             services.AddCurlFormatter();
             services.AddSourceCodeExtractor();
+            services.AddTestContextHelper();
+            services.AddSourceLocationHelper();
             services.AddSingletonIfNotExists<IProblemDetailsOutputBuilder, ProblemDetailsOutputBuilder>();
         }
     }
@@ -37,7 +39,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       ICurlBuilder curlBuilder,
                                                       ICurlFormatter curlFormatter,
                                                       ISourceCodeExtractor sourceCodeExtractor,
-                                                      ITextDecorator textDecorator) : IProblemDetailsOutputBuilder
+                                                      ITextDecorator textDecorator,
+                                                      ITestContextHelper testContextHelper,
+                                                      ISourceLocationHelper sourceLocationHelper) : IProblemDetailsOutputBuilder
     {
         public string BuildUnexpectedError(IHttpAssertContext context,
                                            TestSdkProblemDetailsException exception,
@@ -94,7 +98,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var className = TestContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
+            var className = testContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
             var methodName = context.CallerMemberName;
 
             sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
@@ -129,7 +133,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (endpoint?.SourceLocation.IsNotNullOrWhiteSpace() ?? false)
             {
-                var clickableSource = SourceLocationHelper.ToClickableUri(endpoint.SourceLocation, context.CallingAssembly);
+                var clickableSource = sourceLocationHelper.ToClickableUri(endpoint.SourceLocation, context.CallingAssembly);
                 sb.AppendLine($"{"Source",-10} : {clickableSource}");
             }
         }

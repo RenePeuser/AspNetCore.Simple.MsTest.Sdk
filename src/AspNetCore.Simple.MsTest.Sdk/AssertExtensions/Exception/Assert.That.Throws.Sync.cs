@@ -140,7 +140,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             Assembly callingAssembly,
                                                             bool exactType = false) where TException : Exception
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // A derived type only matters when the assertion demanded the exact one - for Throws it
@@ -154,11 +154,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                 ? "EXCEPTION ASSERTION - EXACT TYPE MISMATCH"
                                 : "EXCEPTION ASSERTION - TYPE MISMATCH";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             string problem;
@@ -185,10 +185,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 problem = "Unexpected exception assertion failure.";
             }
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Action",-15} : {actionName}");
             sb.AppendLine($"{"Expected Type",-15} : {typeof(TException).Name}");
             sb.AppendLine($"{"Match Mode",-15} : {(exactType ? "exact type only" : "type or any derived type")}");
@@ -213,7 +213,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             string[] additionalOptions;
@@ -239,11 +239,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 additionalOptions = new[] { $"Review the exception handling logic in '{actionName}'", "Check for unexpected exception types or missing throws" };
             }
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

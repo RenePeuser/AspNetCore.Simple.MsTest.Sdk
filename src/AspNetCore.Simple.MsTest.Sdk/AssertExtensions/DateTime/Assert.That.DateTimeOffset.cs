@@ -342,26 +342,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   int callerLineNumber,
                                                                   Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
             var title = $"DATETIMEOFFSET COMPARISON - EXPECTED {comparisonType}";
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = comparisonType == "AFTER"
                               ? "Expected DateTimeOffset to be after the comparison value but it was not."
                               : "Expected DateTimeOffset to be before the comparison value but it was not.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {actualName}");
             sb.AppendLine($"{"Actual",-10} : {actual:O}");
             sb.AppendLine($"{"Expected",-10} : {comparisonType} {expected:O}");
@@ -375,7 +375,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = comparisonType == "AFTER"
@@ -390,11 +390,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               "DateTimeOffset comparisons are timezone-aware and compare absolute points in time"
                                           };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -411,22 +411,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                              int callerLineNumber,
                                                              Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
-            AssertOutputHelper.BuildHeader(sb, "DATETIMEOFFSET RANGE - VALUE OUT OF RANGE", textDecorator);
+            assertOutputHelper.BuildHeader(sb, "DATETIMEOFFSET RANGE - VALUE OUT OF RANGE");
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = "Expected DateTimeOffset to be within the specified range but it was outside the bounds.";
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {actualName}");
             sb.AppendLine($"{"Actual",-10} : {actual:O}");
             sb.AppendLine($"{"Range Start",-10} : {start:O}");
@@ -449,7 +449,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[]
@@ -458,11 +458,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         "Consider widening the acceptable range if edge cases are valid", "Verify that the range boundaries (start/end) are correctly defined"
                                     };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -480,22 +480,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                  int callerLineNumber,
                                                                  Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
-            AssertOutputHelper.BuildHeader(sb, "DATETIMEOFFSET TOLERANCE - EXCEEDED THRESHOLD", textDecorator);
+            assertOutputHelper.BuildHeader(sb, "DATETIMEOFFSET TOLERANCE - EXCEEDED THRESHOLD");
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = "Expected DateTimeOffset to be close to the target value within tolerance but the difference exceeded the threshold.";
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {actualName}");
             sb.AppendLine($"{"Actual",-10} : {actual:O}");
             sb.AppendLine($"{"Expected",-10} : {expected:O}");
@@ -507,7 +507,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[]
@@ -516,11 +516,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         "DateTimeOffset comparisons are timezone-aware and compare absolute points in time", $"Review the logic that sets '{actualName}' to reduce the time difference"
                                     };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -537,26 +537,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               Assembly callingAssembly,
                                                               bool isLocalCheck = false)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
             var title = isLocalCheck ? "DATETIMEOFFSET OFFSET - EXPECTED LOCAL TIMEZONE" : "DATETIMEOFFSET OFFSET - UNEXPECTED OFFSET";
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = isLocalCheck
                               ? $"Expected DateTimeOffset to have local timezone offset but it did not."
                               : $"Expected DateTimeOffset to have offset UTC{(expectedOffset >= TimeSpan.Zero ? "+" : "")}{expectedOffset:hh\\:mm} but it had a different offset.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-15} : {actualName}");
             sb.AppendLine($"{"Value",-15} : {actual:O}");
             sb.AppendLine($"{"Expected Offset",-15} : UTC{(expectedOffset >= TimeSpan.Zero ? "+" : "")}{expectedOffset:hh\\:mm}");
@@ -570,7 +570,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = expectedOffset == TimeSpan.Zero
@@ -591,11 +591,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   "Check if timezone conversion is happening unexpectedly"
                                               };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

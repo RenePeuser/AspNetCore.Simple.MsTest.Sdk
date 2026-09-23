@@ -1,6 +1,6 @@
 using System.Reflection;
-using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Decorators
 {
@@ -19,8 +19,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Decorators
 
             services.AddTextDecoratorProvider();
 
-            services.AddSingletonIfNotExists<ITextDecorator>(new ConsumerTextDecorator(new TextDecoratorProvider(),
-                                                                                       consumerAssembly));
+            // Resolved through the container, so a replaced ITextDecoratorProvider takes effect here too.
+            services.TryAddSingleton<ITextDecorator>(serviceProvider => new ConsumerTextDecorator(serviceProvider.GetRequiredService<ITextDecoratorProvider>(),
+                                                                                                  consumerAssembly));
         }
     }
 

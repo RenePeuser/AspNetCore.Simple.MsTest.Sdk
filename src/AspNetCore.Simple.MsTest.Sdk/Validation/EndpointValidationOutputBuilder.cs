@@ -20,6 +20,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             services.AddCurlBuilder();
             services.AddCurlFormatter();
             services.AddSourceCodeExtractor();
+            services.AddTestContextHelper();
+            services.AddSourceLocationHelper();
             services.AddSingletonIfNotExists<IEndpointValidationOutputBuilder, EndpointValidationOutputBuilder>();
         }
     }
@@ -73,7 +75,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                                           ICurlBuilder curlBuilder,
                                                           ICurlFormatter curlFormatter,
                                                           ISourceCodeExtractor sourceCodeExtractor,
-                                                          ITextDecorator textDecorator) : IEndpointValidationOutputBuilder
+                                                          ITextDecorator textDecorator,
+                                                          ITestContextHelper testContextHelper,
+                                                          ISourceLocationHelper sourceLocationHelper) : IEndpointValidationOutputBuilder
     {
         public string BuildEndpointNotFound(IHttpAssertContext context,
                                             ImmutableList<EndpointInfo> availableEndpoints)
@@ -593,7 +597,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                    IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var className = TestContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
+            var className = testContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
             var methodName = context.CallerMemberName;
 
             sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
@@ -683,7 +687,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             if (endpoint?.SourceLocation.IsNotNullOrWhiteSpace() ?? false)
             {
-                var clickableSource = SourceLocationHelper.ToClickableUri(endpoint.SourceLocation, context.CallingAssembly);
+                var clickableSource = sourceLocationHelper.ToClickableUri(endpoint.SourceLocation, context.CallingAssembly);
                 sb.AppendLine($"{"Source",-10} : {clickableSource}");
             }
         }

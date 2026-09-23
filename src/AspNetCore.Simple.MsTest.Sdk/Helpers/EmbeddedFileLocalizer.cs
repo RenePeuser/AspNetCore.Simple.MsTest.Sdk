@@ -25,6 +25,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddSourceCodeExtractor();
             services.AddResourceRootNamespaceResolver();
 
+            services.AddSourceLocationHelper();
+
             services.AddSingletonIfNotExists<IEmbeddedFileLocalizer, EmbeddedFileLocalizer>();
         }
     }
@@ -113,7 +115,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                 JsonSerializerOptions jsonSerializerOptions,
                                                 ITextDecorator textDecorator,
                                                 ISourceCodeExtractor sourceCodeExtractor,
-                                                IResourceRootNamespaceResolver rootNamespaceResolver)
+                                                IResourceRootNamespaceResolver rootNamespaceResolver,
+                                                ISourceLocationHelper sourceLocationHelper)
         : IEmbeddedFileLocalizer
     {
         // ============================================================
@@ -821,7 +824,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // Project Folder Detection
         // ============================================================
 
-        private static DirectoryInfo? FindProjectFolder(DirectoryInfo? dir,
+        private DirectoryInfo? FindProjectFolder(DirectoryInfo? dir,
                                                         Assembly assembly)
         {
             var byName = FindProjectFolderByName(dir, assembly);
@@ -838,7 +841,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Legacy projects can have a folder name that differs from the assembly name. The nearest
             // folder holding a csproj is the project root by definition.
-            var csprojFolder = SourceLocationHelper.FindFirstCsprojDirectory(dir.FullName);
+            var csprojFolder = sourceLocationHelper.FindFirstCsprojDirectory(dir.FullName);
 
             return csprojFolder.IsNullOrWhiteSpace() ? null : new DirectoryInfo(csprojFolder);
         }

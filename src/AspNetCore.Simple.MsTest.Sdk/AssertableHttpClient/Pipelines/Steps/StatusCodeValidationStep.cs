@@ -15,6 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         {
             // 1. Register dependencies
             services.AddAssertOutputBuilder();
+            services.AddJsonStringResolver();
 
             // 2. Register the step itself
             services.AddSingletonIfNotExists<IHttpAssertionStep, StatusCodeValidationStep>();
@@ -26,7 +27,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
     /// Fast-fail step: if the status code is unexpected, the test fails immediately.
     /// Uses IAssertOutputBuilder to build error output (strategy resolved automatically).
     /// </summary>
-    internal sealed class StatusCodeValidationStep(IAssertOutputBuilder assertOutputBuilder) : IHttpAssertionStep
+    internal sealed class StatusCodeValidationStep(IAssertOutputBuilder assertOutputBuilder,
+                                                   IJsonStringResolver jsonStringResolver) : IHttpAssertionStep
     {
         /// <inheritdoc />
         public void Execute<TResult>(HttpResponseContext<TResult> context)
@@ -51,9 +53,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Status code mismatch - build error message and fail fast
             // Get expected result for comparison (simplified, no complex processing)
-            var expectedJson = context.ExpectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(context.ContentAsString,
-                                                                                                      context.CallingAssembly,
-                                                                                                      context.ExpectedResultParameterName) ?? string.Empty;
+            var expectedJson = jsonStringResolver.GetJsonStringOrDefaultFrom<TResult>(context.ExpectedResultFile.Content,
+                                                                                      context.ContentAsString,
+                                                                                      context.CallingAssembly,
+                                                                                      context.ExpectedResultParameterName) ?? string.Empty;
 
             var currentJson = context.ContentAsString;
 

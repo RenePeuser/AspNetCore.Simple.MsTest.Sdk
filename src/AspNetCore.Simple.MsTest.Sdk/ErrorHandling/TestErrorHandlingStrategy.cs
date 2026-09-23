@@ -11,7 +11,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
     /// <summary>
     /// Provides extension methods for registering the test error handling strategy.
     /// </summary>
-    internal static class AddTestErrorHandlingStrategyExtension
+    public static class AddTestErrorHandlingStrategyExtension
     {
         /// <summary>
         /// Registers all error handlers and the error handling strategy in the DI container.
@@ -63,7 +63,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
     /// 3. If no specific handler is found, use the default handler as fallback
     /// 4. Return the formatted error message for display in test output
     /// </summary>
-    internal sealed class TestErrorHandlingStrategy(IEnumerable<ITestErrorHandler> testErrorHandlers) : ITestErrorHandlingStrategy
+    public sealed class TestErrorHandlingStrategy(IEnumerable<ITestErrorHandler> testErrorHandlers) : ITestErrorHandlingStrategy
     {
         /// <summary>
         /// Handles the exception by finding the most suitable handler and returning a formatted error message.

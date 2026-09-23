@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.Json;
-using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
+using System.Text.Json.Serialization;
 using Extensions.Pack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -152,7 +152,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <summary>
         /// The api's json options - both sides of every diff are written with them. Code only.
         /// </summary>
-        public JsonSerializerOptions JsonSerializerOptions { get; set; } = JsonSerializerExtension.CreateDefaultOptions();
+        public JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+            Converters = { new JsonStringEnumConverter() }
+        };
 
         /// <summary>
         /// Global list transform applied to every set of differences before the per-assert

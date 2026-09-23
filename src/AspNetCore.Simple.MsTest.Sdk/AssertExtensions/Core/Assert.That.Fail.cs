@@ -37,27 +37,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
-            AssertOutputHelper.BuildHeader(sb, "ASSERTION FAILED - UNREACHABLE STATE", textDecorator);
+            assertOutputHelper.BuildHeader(sb, "ASSERTION FAILED - UNREACHABLE STATE");
 
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
-            AssertOutputHelper.BuildProblemSection(sb, "The test reached a point it was never supposed to reach.",
-                                                   textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, "The test reached a point it was never supposed to reach.");
 
             if (!string.IsNullOrWhiteSpace(details))
             {
-                AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+                assertOutputHelper.BuildDetailsSectionHeader(sb);
                 sb.AppendLine(details);
                 sb.AppendLine();
             }
 
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator);
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
+            assertOutputHelper.BuildFixSection(sb, fix);
+            assertOutputHelper.BuildFooter(sb);
 
             throw new AssertFailedException(sb.ToString());
         }

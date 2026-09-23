@@ -12,7 +12,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
     {
         public static void AddPrimitiveOutputStrategy(this IServiceCollection services)
         {
-            // No dependencies needed for primitive output
+            services.AddCharacterDiff();
+            services.AddTestContextHelper();
             services.AddSingletonIfNotExists<IAssertOutputStrategy, PrimitiveOutputStrategy>();
         }
     }
@@ -21,10 +22,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
     /// Output strategy for primitive type comparisons (int, string, bool, etc.).
     /// Builds simple assertion failure output showing expected vs current value.
     /// </summary>
-    internal sealed class PrimitiveOutputStrategy(ITextDecorator textDecorator) : IAssertOutputStrategy
+    internal sealed class PrimitiveOutputStrategy(ITextDecorator textDecorator,
+                                                  ICharacterDiff characterDiff,
+                                                  ITestContextHelper testContextHelper) : IAssertOutputStrategy
     {
-        private readonly CharacterDiff _characterDiff = new CharacterDiff(textDecorator);
-
         public bool CanHandle(IObjectAssertContext context)
         {
             // Exclude HTTP response contexts - they have their own specialized strategy
@@ -76,7 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine();
 
             // Apply character-level diff for string comparisons
-            var (decoratedExpected, decoratedCurrent) = _characterDiff.HighlightDifferences(expectedJson, currentJson);
+            var (decoratedExpected, decoratedCurrent) = characterDiff.HighlightDifferences(expectedJson, currentJson);
 
             stringBuilder.AppendLine($"{textDecorator.Highlight("Expected")} : {decoratedExpected}");
             stringBuilder.AppendLine($"{textDecorator.Highlight("Current")}  : {decoratedCurrent}");
@@ -86,7 +87,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
                                  IObjectAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var className = TestContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
+            var className = testContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
             var methodName = context.CallerMemberName;
 
             stringBuilder.AppendLine();

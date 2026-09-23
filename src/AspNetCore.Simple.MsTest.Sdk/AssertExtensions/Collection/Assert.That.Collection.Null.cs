@@ -191,41 +191,41 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                         int callerLineNumber,
                                                         Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
             var title = "COLLECTION NULL - EXPECTED NON-NULL COLLECTION";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = "Expected collection to be non-null but received null.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {collectionName}");
             sb.AppendLine($"{"Value",-10} : null");
             sb.AppendLine($"{"Expected",-10} : Non-null collection");
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[] { $"Verify that '{collectionName}' is properly initialized before this assertion", $"Check for null returns in methods that populate '{collectionName}'", "Add null checks or default empty collection in the code under test" };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -242,7 +242,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             int callerLineNumber,
                                                             Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
@@ -250,21 +250,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             ? "COLLECTION NOT EMPTY - EXPECTED EMPTY COLLECTION"
                             : "COLLECTION EMPTY - EXPECTED NON-EMPTY COLLECTION";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = expectEmpty
                               ? "Expected collection to be empty but it contains elements."
                               : "Expected collection to contain elements but it is empty.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {collectionName}");
             sb.AppendLine($"{"Type",-10} : {collection.GetType().Name}");
             sb.AppendLine($"{"Count",-10} : {actualCount}");
@@ -282,18 +282,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = expectEmpty
                                         ? new[] { $"Ensure the code that populates '{collectionName}' does not add elements for this scenario", $"Review the filter or query logic that produces '{collectionName}'", $"Check if elements should be removed before this assertion" }
                                         : new[] { $"Verify that the data source for '{collectionName}' contains elements", $"Check the filter or query logic that produces '{collectionName}'", $"Ensure the code that populates '{collectionName}' is executed before this assertion" };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -310,25 +310,25 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                   int callerLineNumber,
                                                                   Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
             var title = "COLLECTION HAS ELEMENTS - EXPECTED NULL OR EMPTY";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = "Expected collection to be null or empty but it contains elements.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {collectionName}");
             sb.AppendLine($"{"Type",-10} : {collection.GetType().Name}");
             sb.AppendLine($"{"Count",-10} : {actualCount}");
@@ -346,16 +346,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[] { $"Ensure the code that populates '{collectionName}' returns null or an empty collection for this scenario", $"Review the filter or query logic that produces '{collectionName}'", $"Check if '{collectionName}' should be cleared before this assertion" };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

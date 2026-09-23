@@ -1,9 +1,6 @@
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
-using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -110,11 +107,7 @@ namespace Controllers.Test.DottedPaths
         private static EmbeddedFileInfo Localize(string reference,
                                                  [CallerFilePath] string callerFilePath = "")
         {
-            var localizer = new EmbeddedFileLocalizer(new TestSdkSettings(),
-                                                      new JsonSerializerOptions(),
-                                                      new PlainTextDecorator(),
-                                                      new SourceCodeExtractor(),
-                                                      new ResourceRootNamespaceResolver());
+            var localizer = HttpClientAssertExtensions.GetService<IEmbeddedFileLocalizer>(typeof(DottedResourcePathTests).Assembly);
 
             return localizer.LocalizeResponseFile(reference, callerFilePath, typeof(DottedResourcePathTests).Assembly);
         }

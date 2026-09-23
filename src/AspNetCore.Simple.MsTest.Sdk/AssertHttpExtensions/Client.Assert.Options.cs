@@ -62,7 +62,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                           string callerMemberName,
                                                                           int callerLineNumber)
         {
-            var expectedHeaders = expectedHeadersAsJson.GetJsonStringFrom<object>(string.Empty, callingAssembly, string.Empty);
+            var expectedHeaders = GetService<IJsonStringResolver>(callingAssembly).GetJsonStringFrom<object>(expectedHeadersAsJson, string.Empty, callingAssembly, string.Empty);
 
             using var request = new HttpRequestMessage(HttpMethod.Options, url);
             var result = await client.SendAsync(request).ConfigureAwait(false);

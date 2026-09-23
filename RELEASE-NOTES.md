@@ -19,11 +19,19 @@ The static settings are gone. Configure them once through `TestSdkSettings` inst
 | `AssertObjectExtensions.WriteResponse` | `settings.WriteResponse` |
 | `AssertObjectExtensions.ResponseFileFullPath` | removed - it had no effect |
 | environment variable `AspNetCoreSimpleMsTestSdk__WriteResponse` | `TestSdkSettings__WriteResponse` |
+| `Tables.TableFormatter.From(...)` | removed - unused static helper; use `ITableBuilder` |
+| `Outputs.Formatters.JsonTypeMismatchFormatter` | removed - duplicate of `IJsonTypeMismatchOutputBuilder` |
 
 - `services.AddTestSdkSettings(configuration, settings => ...)` - with `ApiTestBase<T>`, from `registerServices`
 - `services.AddAssertableHttpClient(configuration, settings => ...)` - with your own host
 - `HttpClientAssertExtensions.Setup(settings => ...)` - without any host
 - The provider handed to `HttpClientAssertExtensions.Setup(provider)` must stay alive for the whole test run.
+
+### Fixed: dictionary responses in recording mode
+
+With `writeResponse` a `Dictionary<,>`/`IReadOnlyDictionary<,>` response was treated as an array, so an
+existing `{...}` snapshot failed with an "array/object mismatch". The expected json is now resolved by the
+one `IJsonStringResolver`, which already handled dictionaries and empty envelope values correctly.
 
 ## Upcoming Release - Assert.That Extensions
 

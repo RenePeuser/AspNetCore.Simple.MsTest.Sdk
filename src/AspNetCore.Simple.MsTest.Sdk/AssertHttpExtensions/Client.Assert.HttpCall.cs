@@ -64,7 +64,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <summary>
         ///     Resolves a service for an assert issued by <paramref name="consumerAssembly" />.
         /// </summary>
-        internal static T GetService<T>(Assembly consumerAssembly)
+        public static T GetService<T>(Assembly consumerAssembly)
             where T : notnull
         {
             var serviceProvider = Volatile.Read(ref _serviceProvider) ?? EnsureDefaultServiceProvider(consumerAssembly);

@@ -126,7 +126,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            int callerLineNumber,
                                                            Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
@@ -134,21 +134,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             ? "RANGE CHECK - VALUE OUT OF RANGE"
                             : "RANGE CHECK - VALUE IN RANGE";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = expectInRange
                               ? $"Expected value to be within range [{minValue}, {maxValue}] but it was outside."
                               : $"Expected value to be outside range [{minValue}, {maxValue}] but it was inside.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-10} : {valueName}");
             sb.AppendLine($"{"Type",-10} : {valueType.Name}");
             sb.AppendLine($"{"Value",-10} : {actualValue}");
@@ -158,7 +158,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = expectInRange
@@ -173,11 +173,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               $"Verify that edge cases don't accidentally fall within the restricted range"
                                           };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     }
 
     internal sealed class OverwriteAllResponseWriter(IParameterReplacer parameterReplacementService,
-                                                     SnapshotPlaceholderGuard snapshotPlaceholderGuard) : ISpecificResponseWriter
+                                                     ISnapshotPlaceholderGuard snapshotPlaceholderGuard) : ISpecificResponseWriter
     {
         public bool CanHandle(WriteResponseRequest context)
         {

@@ -121,7 +121,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                       int callerLineNumber,
                                                       Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
@@ -129,21 +129,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             ? "PATTERN MISMATCH - EXPECTED MATCH"
                             : "PATTERN MATCH - EXPECTED NO MATCH";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = expectMatch
                               ? "Expected text to match the regular expression pattern but it did not match."
                               : "Expected text to NOT match the regular expression pattern but it matched.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Variable",-15} : {textName}");
             sb.AppendLine($"{"Text",-15} : {text ?? "(null)"}");
             sb.AppendLine($"{"Pattern",-15} : {pattern}");
@@ -165,7 +165,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = expectMatch
@@ -176,11 +176,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           }
                                         : new[] { $"Ensure '{textName}' does not contain the pattern '{pattern}'", "Review the regex pattern to ensure it correctly identifies invalid input", $"Verify that validation logic properly sanitizes '{textName}'" };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

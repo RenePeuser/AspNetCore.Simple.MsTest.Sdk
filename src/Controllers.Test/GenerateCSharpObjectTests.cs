@@ -58,8 +58,8 @@ namespace Controllers.Test
         [TestMethod]
         public void TestCSharpCodeGeneratorDirectly()
         {
-            // Direct test of the CSharpCodeGenerator
-            var generator = new CSharpCodeGenerator();
+            // Direct test of the CSharpCodeGenerator via DI
+            var generator = HttpClientAssertExtensions.GetService<ICSharpCodeGenerator>(typeof(GenerateCSharpObjectTests).Assembly);
 
             var json = /*lang=json,strict*/ @"{
                 ""id"": 1,
@@ -98,8 +98,8 @@ namespace Controllers.Test
         [TestMethod]
         public void TestEmptyAnonymousObjectDetection()
         {
-            // Test the detector directly
-            var detector = new EmptyAnonymousObjectDetector();
+            // Test the detector via DI
+            var detector = HttpClientAssertExtensions.GetService<IEmptyAnonymousObjectDetector>(typeof(GenerateCSharpObjectTests).Assembly);
 
             // Test 1: Empty anonymous object should be detected
             var empty = new { };

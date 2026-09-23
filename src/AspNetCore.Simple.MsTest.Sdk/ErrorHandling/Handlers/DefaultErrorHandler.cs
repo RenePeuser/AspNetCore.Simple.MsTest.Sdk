@@ -15,6 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         public static void AddDefaultErrorHandler(this IServiceCollection services)
         {
             // Default handler must be registered LAST so it acts as a catch-all
+            services.AddTestClassNameResolver();
             services.AddSingletonIfNotExists<ITestErrorHandler, DefaultErrorHandler>();
         }
     }
@@ -23,7 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     /// Catch-all error handler for any exception that doesn't have a specific handler.
     /// This handles SDK bugs, network errors, serialization issues, and any other unexpected exceptions.
     /// </summary>
-    internal sealed class DefaultErrorHandler : TestErrorHandler<Exception>
+    public sealed class DefaultErrorHandler(ITestClassNameResolver testClassNameResolver) : TestErrorHandler<Exception>
     {
         protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              Exception exception)
@@ -36,8 +37,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
         /// <summary>
         /// Builds a formatted error message for unexpected SDK errors (bugs, network issues, etc.)
         /// </summary>
-        private static string BuildUnexpectedSdkError(IObjectAssertContext context,
-                                                      Exception exception)
+        private string BuildUnexpectedSdkError(IObjectAssertContext context,
+                                               Exception exception)
         {
             var sb = new StringBuilder();
 
@@ -73,11 +74,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             return sb.ToString();
         }
 
-        private static void BuildTestInfo(StringBuilder sb,
-                                          IObjectAssertContext context)
+        private void BuildTestInfo(StringBuilder sb,
+                                   IObjectAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
-            var fullClassName = TestClassNameResolver.Resolve(context.CallerFilePath, projectName);
+            var fullClassName = testClassNameResolver.Resolve(context.CallerFilePath, projectName);
 
             sb.AppendLine("📦 Test Information");
             sb.AppendLine("──────────────────────────────────────────────────────────────");

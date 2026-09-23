@@ -22,6 +22,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             services.AddWriteResponseService();
             services.AddJsonSerializer();
             services.AddTestSdkSettings();
+            services.AddJsonStringResolver();
 
             // 2. Register the step itself
             services.AddSingletonIfNotExists<IHttpAssertionStep, JsonComparisonStep>();
@@ -38,7 +39,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
                                              IParameterReplacer parameterReplacementService,
                                              IWriteResponseService writeResponseService,
                                              TestSdkSettings testSdkSettings,
-                                             JsonSerializerOptions apiJsonSerializerOptions) : IHttpAssertionStep
+                                             JsonSerializerOptions apiJsonSerializerOptions,
+                                             IJsonStringResolver jsonStringResolver) : IHttpAssertionStep
     {
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
@@ -178,12 +180,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             if (shouldWriteResponse)
             {
-                expectedResultAsJson = expectedResultFile.Content.GetJsonStringOrDefaultFrom<TResult>(context.ContentAsString,
-                                                                                                      context.CallingAssembly,
-                                                                                                      context.ExpectedResultParameterName,
-                                                                                                      context.CallerFilePath,
-                                                                                                      context.CallerLineNumber,
-                                                                                                      context.CallerMemberName);
+                expectedResultAsJson = jsonStringResolver.GetJsonStringOrDefaultFrom<TResult>(expectedResultFile.Content,
+                                                                                              context.ContentAsString,
+                                                                                              context.CallingAssembly,
+                                                                                              context.ExpectedResultParameterName,
+                                                                                              context.CallerFilePath,
+                                                                                              context.CallerLineNumber,
+                                                                                              context.CallerMemberName);
 
                 if (expectedResultAsJson.IsNull())
                 {
@@ -192,12 +195,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             }
             else
             {
-                expectedResultAsJson = expectedResultFile.Content.GetJsonStringFrom<TResult>(context.ContentAsString,
-                                                                                             context.CallingAssembly,
-                                                                                             context.ExpectedResultParameterName,
-                                                                                             context.CallerFilePath,
-                                                                                             context.CallerLineNumber,
-                                                                                             context.CallerMemberName);
+                expectedResultAsJson = jsonStringResolver.GetJsonStringFrom<TResult>(expectedResultFile.Content,
+                                                                                     context.ContentAsString,
+                                                                                     context.CallingAssembly,
+                                                                                     context.ExpectedResultParameterName,
+                                                                                     context.CallerFilePath,
+                                                                                     context.CallerLineNumber,
+                                                                                     context.CallerMemberName);
             }
 
             return expectedResultAsJson;

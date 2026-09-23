@@ -2,13 +2,32 @@ using System;
 using System.IO;
 using System.Reflection;
 using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 {
+    public static class AddSourceLocationHelperExtension
+    {
+        public static void AddSourceLocationHelper(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<ISourceLocationHelper, SourceLocationHelper>();
+        }
+    }
+
+    public interface ISourceLocationHelper
+    {
+#pragma warning disable CA1055 // Returns string for logging/output purposes, not for navigation
+        string ToClickableUri(string? sourceLocation,
+                              Assembly callingAssembly);
+#pragma warning restore CA1055
+
+        string? FindFirstCsprojDirectory(string startDirectory);
+    }
+
     /// <summary>
     /// Helper methods for converting source locations (type names) to clickable file URIs.
     /// </summary>
-    internal static class SourceLocationHelper
+    public sealed class SourceLocationHelper : ISourceLocationHelper
     {
         /// <summary>
         /// Tries to convert a source location string (type name or method name) to a clickable file:/// URI.
@@ -17,8 +36,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
         /// <param name="sourceLocation">Source location like "MinimalApi.Api.Persons.V1.CreatePersonEndpoint" or "MinimalApi.Api.Persons.V1.CreatePersonEndpoint.Handle"</param>
         /// <param name="callingAssembly">Assembly to search for the type</param>
         /// <returns>Clickable file:/// URI if found, otherwise the original source location</returns>
-        public static string ToClickableUri(string? sourceLocation,
-                                            Assembly callingAssembly)
+#pragma warning disable CA1055 // Returns string for logging/output purposes, not for navigation
+        public string ToClickableUri(string? sourceLocation,
+                                     Assembly callingAssembly)
+#pragma warning restore CA1055
         {
             if (sourceLocation.IsNullOrWhiteSpace())
             {
@@ -210,7 +231,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
             if (solutionRoot.IsNullOrWhiteSpace())
             {
                 // Fallback: just find the first .csproj going up
-                return FindFirstCsprojDirectory(startDirectory);
+                return FindFirstCsprojDirectoryFrom(startDirectory);
             }
 
             return solutionRoot;
@@ -250,7 +271,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
             return null;
         }
 
-        internal static string? FindFirstCsprojDirectory(string startDirectory)
+        public string? FindFirstCsprojDirectory(string startDirectory)
+        {
+            return FindFirstCsprojDirectoryFrom(startDirectory);
+        }
+
+        private static string? FindFirstCsprojDirectoryFrom(string startDirectory)
         {
             var directory = startDirectory;
 

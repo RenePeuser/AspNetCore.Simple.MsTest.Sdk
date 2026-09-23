@@ -9,8 +9,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddSnapshotPlaceholderGuard(this IServiceCollection services)
         {
-            services.AddSingletonIfNotExists<SnapshotPlaceholderGuard>();
+            services.AddSingletonIfNotExists<ISnapshotPlaceholderGuard, SnapshotPlaceholderGuard>();
         }
+    }
+
+    /// <summary>
+    ///     Guards against losing placeholders when overwriting snapshots.
+    /// </summary>
+    public interface ISnapshotPlaceholderGuard
+    {
+        /// <summary>
+        ///     Throws when <paramref name="contentToWrite" /> would drop a placeholder that
+        ///     <paramref name="existingContent" /> still has.
+        /// </summary>
+        void EnsureNoPlaceholderIsLost(EmbeddedFileInfo? expectedResult,
+                                      string? existingContent,
+                                      string contentToWrite,
+                                      IEnumerable<(string Key, object? Value)> parameters);
     }
 
     /// <summary>
@@ -23,7 +38,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     ///     reason: a parameter named after something that is not a property, a value that no longer matches,
     ///     a renamed field.
     /// </summary>
-    internal class SnapshotPlaceholderGuard
+    internal sealed class SnapshotPlaceholderGuard : ISnapshotPlaceholderGuard
     {
         /// <summary>
         ///     Throws when <paramref name="contentToWrite" /> would drop a placeholder that

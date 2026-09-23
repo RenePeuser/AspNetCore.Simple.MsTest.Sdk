@@ -299,7 +299,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      int callerLineNumber,
                                                      Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
@@ -307,21 +307,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             ? "COLLECTION CONTAINS - ITEM NOT FOUND"
                             : "COLLECTION CONTAINS - UNEXPECTED ITEM FOUND";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = expectContains
                               ? "Expected collection to contain the item but it was not found."
                               : "Expected collection to NOT contain the item but it was found.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Collection",-15} : {collectionName}");
             sb.AppendLine($"{"Item Type",-15} : {typeof(T).Name}");
             sb.AppendLine($"{"Searched For",-15} : {FormatItem(item)}");
@@ -340,7 +340,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = expectContains
@@ -351,11 +351,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           }
                                         : new[] { $"Check why '{FormatItem(item)}' is present in '{collectionName}'", $"Review the filtering logic that should exclude this item", $"Verify that items are being removed correctly from '{collectionName}'" };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -374,22 +374,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                         int callerLineNumber,
                                                         Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
-            AssertOutputHelper.BuildHeader(sb, "COLLECTION CONTAINS ALL - MISSING ITEMS", textDecorator);
+            assertOutputHelper.BuildHeader(sb, "COLLECTION CONTAINS ALL - MISSING ITEMS");
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = $"Expected collection to contain all {expectedItems.Count} items but {missingItems.Count} were missing.";
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Collection",-15} : {collectionName}");
             sb.AppendLine($"{"Item Type",-15} : {typeof(T).Name}");
             sb.AppendLine($"{"Collection Size",-15} : {collection.Count}");
@@ -411,7 +411,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[]
@@ -420,11 +420,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         "Review the logic that builds or filters the collection", $"Check if items are being removed unexpectedly from '{collectionName}'"
                                     };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -442,22 +442,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                         int callerLineNumber,
                                                         Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
-            AssertOutputHelper.BuildHeader(sb, "COLLECTION CONTAINS ANY - NO MATCHES", textDecorator);
+            assertOutputHelper.BuildHeader(sb, "COLLECTION CONTAINS ANY - NO MATCHES");
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = $"Expected collection to contain at least one of {expectedItems.Count} items but none were found.";
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Collection",-15} : {collectionName}");
             sb.AppendLine($"{"Item Type",-15} : {typeof(T).Name}");
             sb.AppendLine($"{"Collection Size",-15} : {collection.Count}");
@@ -488,7 +488,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[]
@@ -497,11 +497,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         "Review the logic that builds or filters the collection", "Verify that the expected items list is correct"
                                     };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -517,27 +517,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                 int callerLineNumber,
                                                                 Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
-            AssertOutputHelper.BuildHeader(sb, $"COLLECTION {methodName.ToUpperInvariant()} - NULL COLLECTION", textDecorator);
+            assertOutputHelper.BuildHeader(sb, $"COLLECTION {methodName.ToUpperInvariant()} - NULL COLLECTION");
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
-            AssertOutputHelper.BuildProblemSection(sb, "Cannot check collection contents because the collection is null.", textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, "Cannot check collection contents because the collection is null.");
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Collection",-15} : {collectionName}");
             sb.AppendLine($"{"Value",-15} : null");
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[]
@@ -546,11 +546,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         $"Consider using Assert.That.IsNotNull('{collectionName}') before this assertion"
                                     };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -565,36 +565,36 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            int callerLineNumber,
                                                            Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
-            AssertOutputHelper.BuildHeader(sb, $"COLLECTION {methodName.ToUpperInvariant()} - NULL ITEMS", textDecorator);
+            assertOutputHelper.BuildHeader(sb, $"COLLECTION {methodName.ToUpperInvariant()} - NULL ITEMS");
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
-            AssertOutputHelper.BuildProblemSection(sb, "Cannot check collection contents because the items parameter is null.", textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, "Cannot check collection contents because the items parameter is null.");
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Collection",-15} : {collectionName}");
             sb.AppendLine($"{"Items Param",-15} : null");
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = new[] { "Verify that the items parameter is properly initialized before this assertion", "Check for null returns in methods that provide the expected items", "Add null checks or default values in the test code" };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

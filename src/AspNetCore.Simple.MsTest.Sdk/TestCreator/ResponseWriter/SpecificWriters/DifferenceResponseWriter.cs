@@ -28,7 +28,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class DifferenceResponseWriter(IJsonDiffer jsonDiffer,
                                                    IJsonPathWriter jsonPathWriter,
                                                    IParameterReplacer parameterReplacementService,
-                                                   SnapshotPlaceholderGuard snapshotPlaceholderGuard,
+                                                   ISnapshotPlaceholderGuard snapshotPlaceholderGuard,
                                                    TestSdkSettings testSdkSettings,
                                                    IDifferenceFiltering differenceFiltering) : ISpecificResponseWriter
     {

@@ -57,7 +57,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     /// <summary>
     ///     Shared utilities for endpoint parsing.
     /// </summary>
-    internal static class EndpointParsingHelpers
+    public static class EndpointParsingHelpers
     {
         public static Type UnwrapTaskType(Type type)
         {

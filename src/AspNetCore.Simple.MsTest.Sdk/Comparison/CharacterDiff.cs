@@ -1,9 +1,18 @@
 using System;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 {
+    public static class AddCharacterDiffExtension
+    {
+        public static void AddCharacterDiff(this IServiceCollection services)
+        {
+            services.AddSingletonIfNotExists<ICharacterDiff, CharacterDiff>();
+        }
+    }
+
     /// <summary>
     /// Provides character-level diff highlighting for string comparisons.
     /// Uses LCS (Longest Common Subsequence) algorithm to find differences.

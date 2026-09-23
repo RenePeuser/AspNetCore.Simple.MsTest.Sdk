@@ -242,7 +242,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                      int callerLineNumber,
                                                      Assembly callingAssembly)
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Detect if we're comparing collections (but not strings)
@@ -258,11 +258,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    ? "EQUALITY FAILED - VALUES NOT EQUAL"
                                    : "EQUALITY FAILED - VALUES ARE EQUAL");
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = isCollectionComparison
@@ -273,10 +273,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      ? "Expected values to be equal but they differ."
                                      : "Expected values to be different but they are equal.");
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
 
             if (isCollectionComparison && expectEqual)
             {
@@ -344,7 +344,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = isCollectionComparison
@@ -363,11 +363,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  }
                                                : new[] { $"Ensure '{actualName}' generates unique values for this scenario", $"Check if '{expectedName}' and '{actualName}' should use different sources", "Verify the logic that differentiates these values" });
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }
@@ -385,7 +385,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               int callerLineNumber,
                                                               Assembly callingAssembly) where T : class
         {
-            var textDecorator = TextDecoratorHelper.GetTextDecorator(callingAssembly);
+            var assertOutputHelper = HttpClientAssertExtensions.GetService<IAssertOutputHelper>(callingAssembly);
             var sb = new StringBuilder();
 
             // Header
@@ -393,21 +393,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             ? "REFERENCE EQUALITY FAILED - DIFFERENT INSTANCES"
                             : "REFERENCE EQUALITY FAILED - SAME INSTANCE";
 
-            AssertOutputHelper.BuildHeader(sb, title, textDecorator);
+            assertOutputHelper.BuildHeader(sb, title);
 
             // Test Information
-            AssertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
-                                                    callerLineNumber, textDecorator);
+            assertOutputHelper.BuildTestInfoSection(sb, callerFilePath, callerMemberName,
+                                                    callerLineNumber);
 
             // Problem
             var problem = expectSame
                               ? "Expected both references to point to the same object instance, but they reference different instances."
                               : "Expected references to point to different object instances, but they reference the same instance.";
 
-            AssertOutputHelper.BuildProblemSection(sb, problem, textDecorator);
+            assertOutputHelper.BuildProblemSection(sb, problem);
 
             // Details
-            AssertOutputHelper.BuildDetailsSectionHeader(sb, textDecorator);
+            assertOutputHelper.BuildDetailsSectionHeader(sb);
             sb.AppendLine($"{"Expected",-10} : {expectedName}");
             sb.AppendLine($"{"Actual",-10} : {actualName}");
             sb.AppendLine($"{"Type",-10} : {typeof(T).Name}");
@@ -419,7 +419,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Context (Why)
-            AssertOutputHelper.BuildContextSection(sb, because, textDecorator);
+            assertOutputHelper.BuildContextSection(sb, because);
 
             // Fix (How)
             var additionalOptions = expectSame
@@ -434,11 +434,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               "Review instance creation to ensure independence"
                                           };
 
-            AssertOutputHelper.BuildFixSection(sb, fix, textDecorator,
+            assertOutputHelper.BuildFixSection(sb, fix,
                                                additionalOptions);
 
             // Footer
-            AssertOutputHelper.BuildFooter(sb, textDecorator);
+            assertOutputHelper.BuildFooter(sb);
 
             return sb.ToString();
         }

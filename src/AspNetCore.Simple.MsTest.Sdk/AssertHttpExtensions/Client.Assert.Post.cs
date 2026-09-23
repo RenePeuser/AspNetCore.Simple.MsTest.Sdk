@@ -1443,7 +1443,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (body.IsNotNull())
             {
-                newBody = body.ToJson(JsonSerializerOptionsFor(callingAssembly)).ResolveParameters(parameters);
+                newBody = GetService<IParameterReplacer>(callingAssembly).ResolveParameters(body.ToJson(JsonSerializerOptionsFor(callingAssembly)), parameters);
             }
 
             using var stringContent = new StringContent(content: newBody, encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json);
