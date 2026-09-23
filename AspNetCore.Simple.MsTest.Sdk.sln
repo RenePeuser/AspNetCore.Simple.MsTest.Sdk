@@ -19,6 +19,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CICD", "CICD", "{AB505E12-1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{E02E5A70-4C4F-4DB9-8E02-6315FD1E2FAB}"
 	ProjectSection(SolutionItems) = preProject
+		docu\ai-diagnostics-vision.md = docu\ai-diagnostics-vision.md
+		docu\assert-helper.md = docu\assert-helper.md
+		docu\base-classes.md = docu\base-classes.md
+		docu\extenstions-and-utils.md = docu\extenstions-and-utils.md
+		docu\http-client-extensions.md = docu\http-client-extensions.md
 		readme.md = readme.md
 	EndProjectSection
 EndProject
