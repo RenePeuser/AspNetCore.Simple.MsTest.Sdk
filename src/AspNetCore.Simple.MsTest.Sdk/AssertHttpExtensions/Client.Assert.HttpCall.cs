@@ -268,9 +268,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static IAiOutputTransformer _aiOutputTransformer = new AiOutputTransformer();
 
-        private static IOutputModeRenderer _outputModeRenderer = new OutputModeRenderer(_outputBuilder,
-                                                                                        _aiOutputTransformer,
-                                                                                        _outputModeService);
+        // Output mode render strategies (extensible)
+        private static IOutputModeRenderStrategy _humanModeStrategy = new HumanModeRenderStrategy(_outputBuilder);
+
+        private static IOutputModeRenderStrategy _aiModeStrategy = new AiModeRenderStrategy(_aiOutputTransformer);
+
+        private static IOutputModeRenderStrategy _hybridModeStrategy = new HybridModeRenderStrategy(_outputBuilder, _aiOutputTransformer);
+
+        private static IOutputModeRenderStrategy[] _renderStrategies = [_humanModeStrategy, _aiModeStrategy, _hybridModeStrategy];
+
+        private static IOutputModeRenderer _outputModeRenderer = new OutputModeRenderer(_renderStrategies, _outputModeService);
 
         // Comparison strategies (order matters - first match wins)
         private static readonly ISpecificComparisonStrategy StringComparisonStrategy = new StringComparisonStrategy();

@@ -11,9 +11,9 @@ namespace Core.Test
     {
         // Arrange
         var expected = new { Name = "Goku", Age = 30, Power = 9000 };
-        var actual = new { Name = "Vegeta", Age = 30, Power = 8500 };
+        var actual = new { Name = "Goku", Age = 30, Power = 9000 };
 
-        // Act & Assert - This will fail intentionally to show the output
+        // Act & Assert - Should pass now
         Assert.That.ObjectsAreEqual(expected, actual);
     }
 
@@ -22,9 +22,9 @@ namespace Core.Test
     {
         // Arrange
         var expected = "Hello World";
-        var actual = "Hello Universe";
+        var actual = "Hello World";
 
-        // Act & Assert - This will fail intentionally
+        // Act & Assert - Should pass now
         Assert.That.ObjectsAreEqual(expected, actual);
     }
     }

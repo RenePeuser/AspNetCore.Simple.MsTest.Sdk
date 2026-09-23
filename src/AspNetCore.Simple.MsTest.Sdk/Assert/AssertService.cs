@@ -46,11 +46,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // 6. Register output mode infrastructure
             services.AddOutputModeService();
             services.AddAiOutputTransformer();
+
+            // 7. Register output mode render strategies (extensible - consumers can add their own)
+            services.AddHumanModeRenderStrategy();
+            services.AddAiModeRenderStrategy();
+            services.AddHybridModeRenderStrategy();
+
+            // 8. Register output mode renderer (delegates to strategies)
             services.AddOutputModeRenderer();
 
             // Note: IEmbeddedFileLocalizer registration requires IConfiguration and should be done at app startup
 
-            // 7. Register the service itself (now depends on IOutputModeRenderer)
+            // 9. Register the service itself (now depends on IOutputModeRenderer)
             services.AddSingletonIfNotExists<IAssertService, AssertService>();
         }
     }

@@ -141,7 +141,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Build output mode infrastructure
             var outputModeService = new OutputModeService();
             var aiOutputTransformer = new AiOutputTransformer();
-            var outputModeRenderer = new OutputModeRenderer(outputBuilder, aiOutputTransformer, outputModeService);
+
+            // Build output mode render strategies (extensible)
+            var humanModeStrategy = new HumanModeRenderStrategy(outputBuilder);
+            var aiModeStrategy = new AiModeRenderStrategy(aiOutputTransformer);
+            var hybridModeStrategy = new HybridModeRenderStrategy(outputBuilder, aiOutputTransformer);
+            var renderStrategies = new IOutputModeRenderStrategy[] { humanModeStrategy, aiModeStrategy, hybridModeStrategy };
+
+            var outputModeRenderer = new OutputModeRenderer(renderStrategies, outputModeService);
 
             return new AssertService(ComparisonStrategy, ResponseWriter, WriteResponseService, outputModeRenderer);
         }
