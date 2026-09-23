@@ -29,15 +29,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <summary>
         /// Registers the one settings instance of the sdk. Precedence: defaults, then the
         /// <c>TestSdkSettings</c> configuration section (appsettings, environment variables such as
-        /// <c>TestSdkSettings__OutputMode</c>), then <paramref name="configureSettings"/>.
-        /// The first configured registration wins - call it before <c>AddAssertableHttpClient</c> to
-        /// configure the settings from your own <c>registerServices</c> callback.
+        /// <c>TestSdkSettings__OutputMode</c>), then every <paramref name="configureSettings"/> in call order.
+        /// The configuration section is bound once by the first configured registration; later calls
+        /// apply their <paramref name="configureSettings"/> to that same instance.
         /// </summary>
         public static void AddTestSdkSettings(this IServiceCollection services,
                                               IConfiguration configuration,
                                               Action<TestSdkSettings>? configureSettings = null)
         {
             var registered = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(TestSdkSettings));
+
+            // Already configured - e.g. by AddEmbeddedFileLocalizer(configuration) before AddAssertableHttpClient.
+            // Dropping configureSettings here would silently lose the consumer's DifferenceFunc, WriteResponse, ...
+            if (registered?.ImplementationInstance is TestSdkSettings configured)
+            {
+                configureSettings?.Invoke(configured);
+                return;
+            }
 
             if (registered is not null && ReferenceEquals(registered.ImplementationFactory, DefaultSettings).IsFalse())
             {
