@@ -2201,6 +2201,206 @@ which.
 
 ---
 
+## Output Modes: Human, AI, and Hybrid
+
+The SDK supports three output modes to optimize assertion failure output for different consumers. Configure the mode via environment variable to control how test failures are formatted.
+
+### Available Modes
+
+| Mode       | Description                                  | Output Format          | Use Case                                  |
+|------------|----------------------------------------------|------------------------|-------------------------------------------|
+| **Human**  | Beautiful console output (default)           | Formatted text         | Local development, manual debugging       |
+| **AI**     | Structured JSON for machine parsing          | JSON                   | AI agents, automated debugging tools      |
+| **Hybrid** | Both human-readable and JSON simultaneously  | Text + JSON            | Teams using both manual and AI workflows  |
+
+### Configuration
+
+Set the output mode using the environment variable:
+
+```bash
+# PowerShell
+$env:AspNetCoreSimpleMsTestSdk__OutputMode = "ai"
+
+# Bash
+export AspNetCoreSimpleMsTestSdk__OutputMode=ai
+
+# Windows Command Prompt
+set AspNetCoreSimpleMsTestSdk__OutputMode=ai
+```
+
+Valid values (case-insensitive):
+- `human` - Human-readable formatted output (default)
+- `ai` - Structured JSON output
+- `hybrid` - Both formats combined
+
+### Human Mode (Default)
+
+The traditional beautiful console output optimized for human debugging:
+
+```plaintext
+══════════════════════════════════════════════════════════════
+📸 SNAPSHOT MISMATCH
+══════════════════════════════════════════════════════════════
+
+⚠️ Failure Details
+──────────────────────────────────────────────────────────────
+JSON values differ from the expected snapshot.
+
+📦 Test Information
+──────────────────────────────────────────────────────────────
+Project    : MinimalApi.Test
+Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
+Method     : Should_Create_Person
+Line       : 65
+File       : file:///D:/path/to/test.cs:65
+
+🔍 Differences (Count 1)
+──────────────────────────────────────────────────────────────
+┌────────────────────┬──────────┬───────────────┬─────────────────┐
+│ MemberPath         │ Expected │ Actual        │ MismatchType    │
+├────────────────────┼──────────┼───────────────┼─────────────────┤
+│ content.value.name │ Goku     │ Son           │ ValueDifference │
+└────────────────────┴──────────┴───────────────┴─────────────────┘
+
+✅ Suggested Fix
+──────────────────────────────────────────────────────────────
+Update the expected value at path 'content.value.name' from 'Goku' to 'Son'.
+
+══════════════════════════════════════════════════════════════
+```
+
+### AI Mode
+
+Structured JSON output optimized for AI agents and automated debugging tools:
+
+```json
+{
+  "errorCode": "HTTP_SNAPSHOT_MISMATCH",
+  "severity": "error",
+  "project": "MinimalApi.Test",
+  "class": "MinimalApi.Test.PersonEndpointsTests",
+  "method": "Should_Create_Person",
+  "file": "D:\\path\\to\\test.cs",
+  "line": 65,
+  "expectedType": "MinimalApi.Models.Person",
+  "actualType": "MinimalApi.Models.Person",
+  "differences": [
+    {
+      "path": "content.value.name",
+      "expected": "Goku",
+      "actual": "Son",
+      "mismatchType": "ValueDifference"
+    }
+  ],
+  "expectedJson": "{\"content\":{\"value\":{\"name\":\"Goku\",...}}}",
+  "actualJson": "{\"content\":{\"value\":{\"name\":\"Son\",...}}}",
+  "suggestedFix": "Update the expected value at path 'content.value.name' from 'Goku' to 'Son'.",
+  "httpMethod": "POST",
+  "url": "http://localhost/api/v1/persons",
+  "statusCode": "Created",
+  "httpFailureType": "SnapshotMismatch",
+  "expectedStatusCode": "Created",
+  "actualStatusCode": "Created"
+}
+```
+
+### Error Codes in AI Mode
+
+The AI mode includes structured error codes for precise categorization:
+
+| Error Code                       | Meaning                                      |
+|----------------------------------|----------------------------------------------|
+| `HTTP_STATUS_CODE_MISMATCH`      | HTTP status code differs from expectation    |
+| `HTTP_SCHEMA_MISMATCH`           | Response structure differs (breaking change) |
+| `HTTP_SNAPSHOT_MISMATCH`         | Response values differ from snapshot         |
+| `HTTP_CONTENT_TYPE_MISMATCH`     | Content-Type header mismatch                 |
+| `HTTP_ASSERTION_FAILED`          | General HTTP assertion failure               |
+| `OBJECT_COMPARISON_FAILED`       | Object comparison failed (non-HTTP)          |
+| `VALUE_COMPARISON_FAILED`        | Primitive value comparison failed            |
+
+### Hybrid Mode
+
+Combines both human-readable and JSON output. Perfect for teams using both manual debugging and AI-assisted workflows:
+
+```plaintext
+══════════════════════════════════════════════════════════════
+📸 SNAPSHOT MISMATCH
+══════════════════════════════════════════════════════════════
+[... human-readable output ...]
+
+──────────────────────────────────────────────────────────────
+🤖 AI-PARSEABLE OUTPUT
+──────────────────────────────────────────────────────────────
+{
+  "errorCode": "HTTP_SNAPSHOT_MISMATCH",
+  "severity": "error",
+  [... JSON output ...]
+}
+══════════════════════════════════════════════════════════════
+```
+
+### When to Use Each Mode
+
+**Human Mode:**
+- Local development
+- Manual debugging
+- CI/CD logs meant for developers
+- Traditional test-driven development workflows
+
+**AI Mode:**
+- AI-assisted test fixing
+- Automated debugging tools
+- Machine learning pipelines
+- Integration with LLM-based code assistants
+- CI/CD integration with automated fix suggestions
+
+**Hybrid Mode:**
+- Teams transitioning to AI-assisted workflows
+- Debugging sessions where both manual and automated analysis are needed
+- Training AI models while maintaining human-readable logs
+- Preserving both formats for compliance or audit trails
+
+### CI/CD Integration
+
+Configure the output mode in your CI/CD pipeline:
+
+**GitHub Actions:**
+```yaml
+- name: Run Tests
+  env:
+    AspNetCoreSimpleMsTestSdk__OutputMode: ai
+  run: dotnet test
+```
+
+**Azure DevOps:**
+```yaml
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+  env:
+    AspNetCoreSimpleMsTestSdk__OutputMode: ai
+```
+
+**Jenkins:**
+```groovy
+environment {
+    AspNetCoreSimpleMsTestSdk__OutputMode = 'ai'
+}
+```
+
+### Benefits for AI Agents
+
+The AI mode enables AI agents to:
+
+1. **Precise error identification** - Structured error codes instead of parsing text
+2. **Exact path resolution** - Direct `MemberPath` access for targeted fixes
+3. **Type information** - Full type names for better code understanding
+4. **Contextual fixes** - Suggested fix strings optimized for AI interpretation
+5. **HTTP context** - Complete request/response information for API debugging
+6. **Batch processing** - JSON arrays of differences for bulk analysis
+
+---
+
 ## Coming Soon — Fluent Assert API (Alpha) 🧪
 
 A declarative, type-safe fluent API for HTTP contract testing is in the works. A test should read like the
