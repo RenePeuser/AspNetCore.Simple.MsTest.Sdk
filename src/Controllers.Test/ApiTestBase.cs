@@ -36,12 +36,13 @@ namespace Controllers.Test
                                                     (services,
                                                      configuration) =>
                                                     {
+                                                        // Registered before the sdk's own registration, so it wins.
+                                                        services.AddTestSdkSettings(configuration,
+                                                                                    settings => settings.DifferenceFunc = TestHelpers.IgnoreIdDifferences);
                                                     }); // Configure environment variables
 
             Client = _apiTestBase.CreateClient();
             AssertableHttpClient = _apiTestBase.Services.GetRequiredService<IAssertableHttpClient>();
-
-            AssertObjectExtensions.DifferenceFunc = TestHelpers.IgnoreIdDifferences;
         }
 
         [AssemblyCleanup]

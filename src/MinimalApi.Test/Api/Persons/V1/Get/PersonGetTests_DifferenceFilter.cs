@@ -9,12 +9,12 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
 {
     /// <summary>
     /// Tests for the new per-assert <c>differenceFilter</c> predicate and the global
-    /// <see cref="AssertObjectExtensions.DifferenceFilter"/> predicate.
+    /// <see cref="TestSdkSettings.DifferenceFilter"/> predicate.
     ///
     /// The endpoint GET /api/v1/persons/1 always returns
     /// Person(1, "Son", "Goku", 99, [alf@gmx.de/GMX, abc@hotmail.de/Microsoft]).
     ///
-    /// Note: the assembly-wide <see cref="AssertObjectExtensions.DifferenceFunc"/> is set to
+    /// Note: the assembly-wide <see cref="TestSdkSettings.DifferenceFunc"/> is set to
     /// <c>IgnoreIdDifferences</c> in <see cref="ApiTestBase"/>, so <c>id</c> differences are
     /// already ignored before the filter runs.
     /// </summary>
@@ -78,19 +78,21 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
         [TestCategory("DifferenceFilter")]
         public async Task GlobalFilter_Should_Ignore_Filtered_Difference()
         {
-            // The global DifferenceFilter is static state - set it for this test only and always restore it.
-            var originalFilter = AssertObjectExtensions.DifferenceFilter;
+            // The global DifferenceFilter lives in the one TestSdkSettings instance - set it for this test
+            // only and always restore it.
+            var settings = HttpClientAssertExtensions.GetService<TestSdkSettings>(typeof(PersonGetTestsDifferenceFilter).Assembly);
+            var originalFilter = settings.DifferenceFilter;
 
             try
             {
-                AssertObjectExtensions.DifferenceFilter = d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase);
+                settings.DifferenceFilter = d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase);
 
                 // Wrong age is ignored purely via the global filter (no per-assert filter passed).
                 await Client.AssertGetAsync(PersonUrl, ExpectedPerson(age: 42)).ConfigureAwait(false);
             }
             finally
             {
-                AssertObjectExtensions.DifferenceFilter = originalFilter;
+                settings.DifferenceFilter = originalFilter;
             }
         }
 

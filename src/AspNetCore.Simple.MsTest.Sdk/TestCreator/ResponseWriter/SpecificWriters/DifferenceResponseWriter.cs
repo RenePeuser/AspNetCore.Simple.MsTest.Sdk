@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using AspNetCore.Simple.MsTest.Sdk.Converters;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddJsonPathWriter();
             services.AddParameterReplacer();
             services.AddSnapshotPlaceholderGuard();
+            services.AddTestSdkSettings();
+            services.AddDifferenceFiltering();
 
             services.AddSingletonIfNotExists<ISpecificResponseWriter, DifferenceResponseWriter>();
         }
@@ -25,7 +28,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class DifferenceResponseWriter(IJsonDiffer jsonDiffer,
                                                    IJsonPathWriter jsonPathWriter,
                                                    IParameterReplacer parameterReplacementService,
-                                                   SnapshotPlaceholderGuard snapshotPlaceholderGuard) : ISpecificResponseWriter
+                                                   SnapshotPlaceholderGuard snapshotPlaceholderGuard,
+                                                   TestSdkSettings testSdkSettings,
+                                                   IDifferenceFiltering differenceFiltering) : ISpecificResponseWriter
     {
         public bool CanHandle(WriteResponseRequest context)
         {
@@ -81,16 +86,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var diffs = jsonDiffer.FindDifferences(expectedRoot.ToString(),
                                                    currentRoot.ToString(),
                                                    context.OrderIndependentArrayFilter ??
-                                                   AssertObjectExtensions.OrderIndependentArrayFilter);
+                                                   testSdkSettings.OrderIndependentArrayFilter);
 
             if (!diffs.Any())
             {
                 return;
             }
 
-            var finalDiffs = AssertObjectExtensions.ApplyDifferenceFiltering(diffs,
-                                                                             context.DifferenceFunc,
-                                                                             context.DifferenceFilter);
+            var finalDiffs = differenceFiltering.Apply(diffs,
+                                                       context.DifferenceFunc,
+                                                       context.DifferenceFilter);
 
             var ignoredDifferences = diffs.Except(finalDiffs)
                                           .Where(difference => difference.MemberPath.IsNullOrWhiteSpace().IsFalse());

@@ -58,7 +58,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         public IHttpRequestConfiguring Accepts<T>(T body)
         {
-            _body = JsonSerializer.Serialize(body, HttpClientAssertExtensions.JsonSerializerOptions);
+            _body = JsonSerializer.Serialize(body, HttpClientAssertExtensions.JsonSerializerOptionsFor(_callingAssembly));
 
             return this;
         }

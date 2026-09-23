@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
 using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
@@ -16,71 +15,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #pragma warning disable IDE0060 // Remove unused parameter
     public static partial class AssertObjectExtensions
     {
-        // One set of options for both routes - see HttpClientAssertExtensions.JsonSerializerOptions.
-        public static JsonSerializerOptions JsonSerializerOptions
-        {
-            get => HttpClientAssertExtensions.JsonSerializerOptions;
-
-            set => HttpClientAssertExtensions.JsonSerializerOptions = value;
-        }
-
-        public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
-
-        /// <summary>
-        /// Global per-difference predicate. Return <c>true</c> to keep a difference,
-        /// <c>false</c> to ignore it. The SDK iterates internally, so you only describe
-        /// the condition (e.g. <c>d => d.MemberPath != "id"</c>) instead of writing a loop.
-        /// Applied in addition to (and after) <see cref="DifferenceFunc"/> and any
-        /// per-assert filter. Defaults to keeping every difference.
-        /// </summary>
-        public static Predicate<Difference> DifferenceFilter { get; set; } = _ => true;
-
-        /// <summary>
-        /// Global predicate marking arrays whose element ORDER carries no meaning - an OpenAPI
-        /// <c>anyOf</c>, a set of tags, anything a producer emits in a different order per run.
-        /// Their elements are MATCHED against each other instead of compared index by index, so a
-        /// pure reordering is no longer a difference while a missing or changed element still is.
-        /// Neither document is reordered, which keeps every reported path pointing at the element
-        /// it names.
-        /// <para>
-        /// Decide per array, not per bare name: <c>array => array.PropertyName is "anyOf"</c> makes
-        /// EVERY anyOf order blind, <c>array => array.Path == "components.schemas.Pet.anyOf"</c>
-        /// only that one. <see cref="JsonArrayContext.Path"/> is index free.
-        /// </para>
-        /// <para>
-        /// This is the escape hatch for payloads you do not control. When the type is yours, the
-        /// per-assert <c>orderFunc</c> is the better tool: it is type safe and it also normalizes
-        /// what gets WRITTEN into the snapshot. And when the producer's order is nondeterministic
-        /// at all, every client sees that - fixing it at the source beats hiding it in the test.
-        /// </para>
-        /// Defaults to <c>null</c>, which compares every array by index.
-        /// </summary>
-        public static Predicate<JsonArrayContext>? OrderIndependentArrayFilter { get; set; }
-
-        /// <summary>
-        /// Applies the configured difference filtering to a set of raw differences:
-        /// the global <see cref="DifferenceFunc"/>, the per-assert difference func,
-        /// and finally the global + per-assert <see cref="DifferenceFilter"/> predicates
-        /// (a difference is kept only when both predicates return <c>true</c>).
-        /// </summary>
-        internal static ImmutableList<Difference> ApplyDifferenceFiltering(ImmutableList<Difference> differences,
-                                                                           Func<ImmutableList<Difference>, IEnumerable<Difference>> perAssertFunc,
-                                                                           Predicate<Difference>? perAssertFilter)
-        {
-            var afterGlobalFunc = DifferenceFunc(differences).ToImmutableList();
-            var afterFunc = perAssertFunc(afterGlobalFunc).ToImmutableList();
-
-            return afterFunc.Where(difference => DifferenceFilter(difference) &&
-                                                 (perAssertFilter?.Invoke(difference) ?? true))
-                            .ToImmutableList();
-        }
-
-        // GlobalWriteResponse
-        // NEW Env variable WriteResponse = true -> For Ai Usage
-        public static bool WriteResponse { get; set; }
-
-        public static bool ResponseFileFullPath { get; set; }
-
         public static void ObjectsAreEqual<T>(this Assert assert,
                                               T? expectedObject,
                                               T? currentObject,

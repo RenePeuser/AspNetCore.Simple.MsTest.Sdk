@@ -9,7 +9,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
-using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.Extensions.Configuration;
@@ -20,15 +19,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     ///     The one place every static assert entry - http and object route alike - resolves its services
-    ///     from. There is no second container and no hand-wired copy anywhere else.
+    ///     and its <see cref="TestSdkSettings" /> from. There is no second container, no hand-wired copy
+    ///     and no global setting anywhere else.
     /// </summary>
     public static partial class HttpClientAssertExtensions
     {
         private static readonly Lock ServiceProviderGate = new();
 
         private static IServiceProvider? _serviceProvider;
-
-        private static bool _serviceProviderIsDefault;
 
         /// <summary>
         ///     Hands the host's provider to all static assert extensions.
@@ -42,9 +40,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
             lock (ServiceProviderGate)
             {
                 _serviceProvider = serviceProvider;
-                _serviceProviderIsDefault = false;
-                _jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
-                _customAssertableHttpClient = null;
+            }
+        }
+
+        /// <summary>
+        ///     Configures the sdk for test projects without a host - pure object asserts, for example.
+        ///     Call it once in [AssemblyInitialize]; calling it again replaces the settings.
+        ///     With a host, pass the settings to <c>AddAssertableHttpClient</c> / <c>AddTestSdkSettings</c> instead.
+        /// </summary>
+        /// <param name="configureSettings">Code-only settings applied on top of the environment variables.</param>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void Setup(Action<TestSdkSettings> configureSettings)
+        {
+            // The last frame where the consumer is still the caller - see ITextDecoratorProvider.
+            var consumerAssembly = Assembly.GetCallingAssembly();
+
+            lock (ServiceProviderGate)
+            {
+                _serviceProvider = CreateDefaultServiceProvider(consumerAssembly, configureSettings);
             }
         }
 
@@ -59,17 +72,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return serviceProvider.GetRequiredService<T>();
         }
 
+        /// <summary>
+        ///     The json options of the application - they live in <see cref="TestSdkSettings" />.
+        /// </summary>
+        internal static JsonSerializerOptions JsonSerializerOptionsFor(Assembly consumerAssembly)
+        {
+            return GetService<JsonSerializerOptions>(consumerAssembly);
+        }
+
         private static IServiceProvider EnsureDefaultServiceProvider(Assembly consumerAssembly)
         {
             lock (ServiceProviderGate)
             {
-                if (_serviceProvider.IsNull())
-                {
-                    _serviceProvider = CreateDefaultServiceProvider(consumerAssembly);
-                    _serviceProviderIsDefault = true;
-                }
-
-                return _serviceProvider;
+                return _serviceProvider ??= CreateDefaultServiceProvider(consumerAssembly, configureSettings: null);
             }
         }
 
@@ -81,7 +96,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         ///     Without a host there is no endpoint registry - the first endpoint validation then reports
         ///     the missing Setup instead of failing cryptically.
         /// </summary>
-        private static ServiceProvider CreateDefaultServiceProvider(Assembly consumerAssembly)
+        private static ServiceProvider CreateDefaultServiceProvider(Assembly consumerAssembly,
+                                                                    Action<TestSdkSettings>? configureSettings)
         {
             // Without a host the environment is the only configuration source - TestSdkSettings__OutputMode
             // and friends bind exactly as they do in a host.
@@ -89,10 +105,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var services = new ServiceCollection();
 
-            services.AddAssertableHttpClient(configuration, consumerAssembly);
+            services.AddAssertableHttpClient(configuration, configureSettings, consumerAssembly);
 
-            // No host registers the api's options here - they are handed in through the property.
-            services.Replace(ServiceDescriptor.Singleton(_jsonSerializerOptions));
+            // No EndpointDataSource without a host.
             services.Replace(ServiceDescriptor.Singleton<IEndpointProvider, EmptyEndpointProvider>());
 
             return services.BuildServiceProvider();
@@ -103,58 +118,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         // Quickfix to hold the whole api compatible
         private const string IgnoreResponseComparison = "IgnoreResponse";
-
-        private static JsonSerializerOptions _jsonSerializerOptions = JsonSerializerExtension.CreateDefaultOptions();
-
-        private static IAssertableHttpClient? _customAssertableHttpClient;
-
-        public static bool SkipEndpointValidation { get; set; }
-
-        /// <summary>
-        ///     The api's json options - one set for the http and the object route.
-        ///     With a host, register them in its service collection - Setup() takes them from there.
-        ///     Without one, assign them here: the sdk's own container is rebuilt with them on the next assert.
-        /// </summary>
-        public static JsonSerializerOptions JsonSerializerOptions
-        {
-            get => _jsonSerializerOptions;
-
-            set
-            {
-                lock (ServiceProviderGate)
-                {
-                    _jsonSerializerOptions = value;
-
-                    if (_serviceProviderIsDefault)
-                    {
-                        _serviceProvider = null;
-                    }
-                }
-            }
-        }
-
-        // Output function
-        public static Action<string> LogAction { get; set; } = Console.WriteLine;
-
-        // Here you can control the visibility of the token in the curl outputs.
-        public static bool ShowTokenInCurl { get; set; }
-
-        /// <summary>
-        ///     Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.
-        ///     Allows developers to plug in their own assertion logic while maintaining type safety.
-        ///     Defaults to the standard AssertableHttpClient implementation. Setup() resets it to that default.
-        /// </summary>
-        public static IAssertableHttpClient CustomAssertableHttpClient
-        {
-            get => AssertableHttpClientFor(Assembly.GetCallingAssembly());
-
-            set => _customAssertableHttpClient = value;
-        }
-
-        private static IAssertableHttpClient AssertableHttpClientFor(Assembly consumerAssembly)
-        {
-            return _customAssertableHttpClient ?? GetService<IAssertableHttpClient>(consumerAssembly);
-        }
 
 #pragma warning disable CA1859
         internal static async Task AssertHttpCallAsync(this HttpClient client,
@@ -217,7 +180,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 PayloadParameterName = payloadAsJsonParameterName,
                 ResolvedExpectedJson = resolvedExpectedJson,
                 ResolvedPayload = resolvedPayload,
-                ShowTokenInCurl = ShowTokenInCurl,
+                ShowTokenInCurl = GetService<TestSdkSettings>(callingAssembly).ShowTokenInCurl,
                 TypeIsPrimitiveType = true,
                 Url = resolvedUrl,
                 WriteResponse = writeResponse,
@@ -229,7 +192,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 RequestHeaders = requestHeaders
             };
 
-            await AssertableHttpClientFor(callingAssembly).AssertAsync(context).ConfigureAwait(false);
+            await GetService<IAssertableHttpClient>(callingAssembly).AssertAsync(context).ConfigureAwait(false);
         }
 
         private static Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
@@ -462,7 +425,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 PayloadParameterName = payloadAsJsonParameterName,
                 ResolvedExpectedJson = resolvedExpectedJson,
                 ResolvedPayload = resolvedPayload,
-                ShowTokenInCurl = ShowTokenInCurl,
+                ShowTokenInCurl = GetService<TestSdkSettings>(callingAssembly).ShowTokenInCurl,
                 TypeIsPrimitiveType = targetIsPrimitiveType,
                 Url = resolvedUrl,
                 WriteResponse = writeResponse,
@@ -475,7 +438,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 RequestHeaders = requestHeaders
             };
 
-            var result = await AssertableHttpClientFor(callingAssembly).AssertAsync(context).ConfigureAwait(false);
+            var result = await GetService<IAssertableHttpClient>(callingAssembly).AssertAsync(context).ConfigureAwait(false);
 
             return result;
         }

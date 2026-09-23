@@ -15,7 +15,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Delete
     /// <c>AssertDeleteAsync&lt;T&gt;(url, expectedResult, differenceFilter)</c> — the only filter path DELETE
     /// exposes (DELETE has no object-based expected overload with a filter, so the expected value is JSON).
     ///
-    /// Note: the assembly-wide <see cref="AssertObjectExtensions.DifferenceFunc"/> is set to
+    /// Note: the assembly-wide <see cref="TestSdkSettings.DifferenceFunc"/> is set to
     /// <c>IgnoreIdDifferences</c> in <see cref="ApiTestBase"/>, which already drops <c>id</c> and
     /// <c>deletedAt</c> differences before the filter runs.
     /// </summary>

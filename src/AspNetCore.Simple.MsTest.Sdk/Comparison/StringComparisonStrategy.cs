@@ -11,6 +11,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     {
         public static void AddStringComparisonStrategy(this IServiceCollection services)
         {
+            services.AddDifferenceFiltering();
             services.AddSingletonIfNotExists<ISpecificComparisonStrategy, StringComparisonStrategy>();
         }
     }
@@ -19,7 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     /// Comparison strategy for string values.
     /// Performs line-by-line comparison similar to git diff.
     /// </summary>
-    internal sealed class StringComparisonStrategy : ComparisonStrategyBase<string>
+    internal sealed class StringComparisonStrategy(IDifferenceFiltering differenceFiltering) : ComparisonStrategyBase<string>
     {
         protected override ComparisonResult CompareTyped(ObjectAssertContext<string> context)
         {
@@ -73,9 +74,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             var differences = FindLineDifferences(expectedLines, currentLines);
 
             // Filter differences using context filters (global func + per-assert func + global/per-assert predicate)
-            var filteredDifferences = AssertObjectExtensions.ApplyDifferenceFiltering(differences,
-                                                                                      context.DifferenceFunc,
-                                                                                      context.DifferenceFilter);
+            var filteredDifferences = differenceFiltering.Apply(differences,
+                                                                context.DifferenceFunc,
+                                                                context.DifferenceFilter);
 
             // Schema mismatch if line counts differ significantly (more than just trailing whitespace)
             var hasSchemaMismatch = filteredDifferences.Any(d =>

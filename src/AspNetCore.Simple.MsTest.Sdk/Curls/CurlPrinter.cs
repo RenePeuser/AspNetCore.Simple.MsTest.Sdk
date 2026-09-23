@@ -7,6 +7,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddCurlPrinter(this IServiceCollection services)
         {
+            services.AddTestSdkSettings();
             services.AddSingletonIfNotExists<ICurlPrinter, CurlPrinter>();
         }
     }
@@ -21,7 +22,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     }
 
     internal sealed class CurlPrinter(ICurlFormatter curlFormatter,
-                                      ICurlBuilder curlBuilder) : ICurlPrinter
+                                      ICurlBuilder curlBuilder,
+                                      TestSdkSettings testSdkSettings) : ICurlPrinter
     {
         public void PrintCurl<TResult>(AssertableHttpClient.HttpResponseContext<TResult> context)
         {
@@ -35,7 +37,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (curlAsString.IsNotNullOrWhiteSpace())
             {
-                HttpClientAssertExtensions.LogAction(curlAsString);
+                testSdkSettings.LogAction(curlAsString);
             }
         }
     }

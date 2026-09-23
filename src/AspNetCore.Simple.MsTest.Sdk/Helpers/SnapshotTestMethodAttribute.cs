@@ -11,13 +11,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                     [CallerFilePath] string callerFilePath = "",
                                                     [CallerLineNumber] int callerLineNumber = -1) : TestMethodAttribute(callerFilePath, callerLineNumber)
     {
-        private static readonly WriteResponseService WriteResponseService = new WriteResponseService();
-
         public override async Task<TestResult[]> ExecuteAsync(ITestMethod testMethod)
         {
             var callingAssembly = testMethod.MethodInfo.DeclaringType!.Assembly;
 
-            var retries = WriteResponseService.ShouldWriteResponse(false, callingAssembly)
+            var writeResponseService = HttpClientAssertExtensions.GetService<IWriteResponseService>(callingAssembly);
+
+            var retries = writeResponseService.ShouldWriteResponse(false, callingAssembly)
                               ? maxRetries
                               : 1;
 

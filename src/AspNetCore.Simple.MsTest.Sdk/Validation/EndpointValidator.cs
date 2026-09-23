@@ -16,6 +16,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // EndpointDataSource is registered by the host application
             services.AddEndpointProvider();
             services.AddEndpointValidationOutputBuilder();
+            services.AddTestSdkSettings();
             services.AddSingletonIfNotExists<IEndpointValidator, EndpointValidator>();
         }
     }
@@ -33,16 +34,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     }
 
     internal sealed class EndpointValidator(IEndpointProvider endpointProvider,
-                                            IEndpointValidationOutputBuilder outputBuilder) : IEndpointValidator
+                                            IEndpointValidationOutputBuilder outputBuilder,
+                                            TestSdkSettings testSdkSettings) : IEndpointValidator
     {
         public void Validate<TResult>(IHttpAssertContext context)
         {
             // Scope or global skip endpoint validation
             if (context.SkipEndpointValidation ||
-                HttpClientAssertExtensions.SkipEndpointValidation)
+                testSdkSettings.SkipEndpointValidation)
             {
-                HttpClientAssertExtensions
-                    .LogAction($"Endpoint validation skipped for this test. Context.SkipEndpointValidation: {context.SkipEndpointValidation}, HttpClientAssertExtensions.SkipEndpointValidation: {HttpClientAssertExtensions.SkipEndpointValidation}");
+                testSdkSettings.LogAction($"Endpoint validation skipped for this test. Context.SkipEndpointValidation: {context.SkipEndpointValidation}, TestSdkSettings.SkipEndpointValidation: {testSdkSettings.SkipEndpointValidation}");
 
                 return;
             }

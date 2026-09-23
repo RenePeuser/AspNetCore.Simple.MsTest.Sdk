@@ -152,7 +152,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
                 sb.AppendLine("If this snapshot is supposed to be new, let the sdk write it:");
                 sb.AppendLine();
                 sb.AppendLine(textDecorator.Success("  • pass writeResponse: true on this assert, or"));
-                sb.AppendLine(textDecorator.Success("  • set AspNetCoreSimpleMsTestSdk__WriteResponse=true"));
+                sb.AppendLine(textDecorator.Success("  • set TestSdkSettings__WriteResponse=true"));
                 sb.AppendLine();
 
                 // Recording is gated on a Debug build and the gate returns false without a word - so in

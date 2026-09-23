@@ -105,10 +105,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            [CallerMemberName] string callerMemberName = "",
                                            [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             _ = Assembly.GetCallingAssembly();
 
             return client.AssertPostAsync(url: url,
-                                          payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                          payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                           parameters: [],
                                           writeResponse: writeResponse,
                                           payloadAsJsonParameterName: payloadAsObjectParameterName,
@@ -132,10 +134,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            [CallerMemberName] string callerMemberName = "",
                                            [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             _ = Assembly.GetCallingAssembly();
 
             return client.AssertPostAsync(url: url,
-                                          payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                          payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                           parameters: parameters,
                                           writeResponse: writeResponse,
                                           payloadAsJsonParameterName: payloadAsObjectParameterName,
@@ -241,7 +245,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPostAsync(url: url,
-                                          payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                          payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                           parameters: [],
                                           callingAssembly: callingAssembly,
                                           writeResponse: writeResponse,
@@ -268,7 +272,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync(url: url,
-                                              payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                              payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                               httpMethod: HttpMethod.Post,
                                               parameters: parameters,
                                               callingAssembly: callingAssembly,

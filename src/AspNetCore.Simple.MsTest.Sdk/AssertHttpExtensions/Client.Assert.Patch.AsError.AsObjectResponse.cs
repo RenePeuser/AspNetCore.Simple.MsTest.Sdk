@@ -22,11 +22,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerMemberName] string callerMemberName = "",
                                                                      [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPatchAsErrorAsync<TResult>(url: url,
-                                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
-                                                           expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
+                                                           expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                            parameters: [],
-                                                           callingAssembly: Assembly.GetCallingAssembly(),
+                                                           callingAssembly: callingAssembly,
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsObjectParameterName,
                                                            expectedResultParameterName: nameof(expectedResponse),
@@ -50,11 +52,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerMemberName] string callerMemberName = "",
                                                                      [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPatchAsErrorAsync<TResult>(url: url,
                                                            payloadAsJson: payloadAsJson,
-                                                           expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                           expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                            parameters: [],
-                                                           callingAssembly: Assembly.GetCallingAssembly(),
+                                                           callingAssembly: callingAssembly,
                                                            writeResponse: writeResponse,
                                                            payloadAsJsonParameterName: payloadAsJsonParameterName,
                                                            expectedResultParameterName: nameof(expectedResponse),

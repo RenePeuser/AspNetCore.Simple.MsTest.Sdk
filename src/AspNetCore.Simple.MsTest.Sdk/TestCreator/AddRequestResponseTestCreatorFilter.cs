@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           IConfiguration configuration,
                                           Action<string> logAction)
         {
-            HttpClientAssertExtensions.LogAction = logAction;
+            services.AddTestSdkSettings(configuration, settings => settings.LogAction = logAction);
 
             services.AddPostWithBodyTestCreator(configuration);
             services.AddRequestTestCreator();

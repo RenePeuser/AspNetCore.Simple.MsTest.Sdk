@@ -1501,6 +1501,52 @@ This is small, but on large suites it removes a lot of repetitive noise.
 
 ---
 
+### Configuring the SDK: `TestSdkSettings`
+
+Every global setting lives in one class, `TestSdkSettings`, configured once per test project.
+Precedence: defaults, then the `TestSdkSettings` configuration section (appsettings, environment
+variables), then code.
+
+With `ApiTestBase<TStartup>`, register the settings in your `registerServices` callback - it runs before
+the SDK registers itself, so your settings win:
+
+```csharp
+_apiTestBase = new ApiTestBase<Program>("Development",
+                                        (services, configuration) =>
+                                        {
+                                            services.AddTestSdkSettings(configuration, settings =>
+                                            {
+                                                settings.JsonSerializerOptions = MyApiJsonOptions.Create();
+                                                settings.DifferenceFilter = difference => difference.MemberPath != "Content.Value.Id";
+                                            });
+                                        });
+```
+
+With your own host, pass them to `AddAssertableHttpClient`:
+
+```csharp
+services.AddAssertableHttpClient(configuration, settings => settings.ShowTokenInCurl = true);
+```
+
+Without any host (pure `Assert.That.ObjectsAreEqual` tests), configure them once in `[AssemblyInitialize]`:
+
+```csharp
+HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = difference => !difference.MemberPath.Contains("timestamp"));
+```
+
+| Setting | Configuration / environment variable | Purpose |
+|---|---|---|
+| `OutputMode` | `TestSdkSettings__OutputMode=ai` | Human, Ai or Hybrid failure output |
+| `WriteResponse` | `TestSdkSettings__WriteResponse=true` | Record every snapshot (Debug builds only) |
+| `SkipEndpointValidation` | `TestSdkSettings__SkipEndpointValidation=true` | Skip the endpoint validation for every assert |
+| `ShowTokenInCurl` | `TestSdkSettings__ShowTokenInCurl=true` | Print the bearer token in curl output |
+| `ResponseFolderName`, `VolatileHeaderNames`, ... | `TestSdkSettings:...` in appsettings | Snapshot conventions |
+| `JsonSerializerOptions` | code only | The api's json options |
+| `DifferenceFunc`, `DifferenceFilter`, `OrderIndependentArrayFilter` | code only | Global difference handling |
+| `LogAction` | code only | Where curl commands and diagnostics go |
+
+---
+
 ### Snapshot auto-update mode
 
 When an API change is intentional, updating snapshots should be easy.
@@ -1518,13 +1564,13 @@ await Client.AssertPostAsync<CreateUserResponse>(
 Or globally:
 
 ```csharp
-AssertObjectExtensions.WriteResponse = true;
+services.AddTestSdkSettings(configuration, settings => settings.WriteResponse = true);
 ```
 
 Or via environment variable:
 
 ```plaintext
-AspNetCoreSimpleMsTestSdk__WriteResponse=true
+TestSdkSettings__WriteResponse=true
 ```
 
 Use it when:
@@ -1542,18 +1588,8 @@ Some values are dynamic and should not break the test: timestamps, GUIDs, trace 
 Global ignore example:
 
 ```csharp
-AssertObjectExtensions.DifferenceFunc = differences =>
-{
-    foreach (var difference in differences)
-    {
-        if (difference.MemberPath.Contains("timestamp"))
-        {
-            continue;
-        }
-
-        yield return difference;
-    }
-};
+services.AddTestSdkSettings(configuration, settings =>
+    settings.DifferenceFunc = differences => differences.Where(difference => !difference.MemberPath.Contains("timestamp")));
 ```
 
 Scoped ignore example:
@@ -1589,7 +1625,8 @@ Global:
 
 ```csharp
 // Keep every difference except database-generated ids.
-AssertObjectExtensions.DifferenceFilter = difference => difference.MemberPath != "Content.Value.Id";
+services.AddTestSdkSettings(configuration, settings =>
+    settings.DifferenceFilter = difference => difference.MemberPath != "Content.Value.Id");
 ```
 
 Scoped (per assert):

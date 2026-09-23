@@ -8,22 +8,23 @@ namespace Core.Test.Core
 {
     /// <summary>
     /// Truth-table tests for the core difference-filtering combinator
-    /// <c>AssertObjectExtensions.ApplyDifferenceFiltering</c>, exercised through the
+    /// <c>IDifferenceFiltering.Apply</c>, exercised through the
     /// non-HTTP <c>Assert.That.ObjectsAreEqual(expected, current, differenceFunc, differenceFilter)</c>
     /// overload.
     ///
     /// Four orthogonal mechanisms can drop a difference before the assert decides pass/fail:
-    ///   1. the global <see cref="AssertObjectExtensions.DifferenceFunc"/>            (list → list)
+    ///   1. the global <see cref="TestSdkSettings.DifferenceFunc"/>                   (list → list)
     ///   2. the per-assert <c>differenceFunc</c>                                       (list → list)
-    ///   3. the global <see cref="AssertObjectExtensions.DifferenceFilter"/>           (per-item predicate)
+    ///   3. the global <see cref="TestSdkSettings.DifferenceFilter"/>                  (per-item predicate)
     ///   4. the per-assert <c>differenceFilter</c>                                     (per-item predicate)
     ///
     /// Composition order is: globalFunc → perAssertFunc → (globalFilter AND perAssertFilter).
     /// A difference is KEPT (and thus fails the assert) only if it survives every stage; the two
     /// filters combine with AND semantics — either returning <c>false</c> drops the difference.
     ///
-    /// Tests that mutate the static globals are <see cref="DoNotParallelizeAttribute"/> and restore
-    /// the originals in a finally block (Core.Test runs MethodLevel parallelization).
+    /// Tests that configure the global settings via <c>HttpClientAssertExtensions.Setup(settings => ...)</c>
+    /// are <see cref="DoNotParallelizeAttribute"/> and reset them in a finally block
+    /// (Core.Test runs MethodLevel parallelization).
     /// </summary>
     [TestClass]
     [TestCategory("DifferenceFilter")]
@@ -112,12 +113,10 @@ namespace Core.Test.Core
         [DoNotParallelize]
         public void GlobalFunc_Alone_ShouldDropDifference()
         {
-            var originalFunc = AssertObjectExtensions.DifferenceFunc;
+            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFunc = diffs => DropAgeFunc(diffs));
 
             try
             {
-                AssertObjectExtensions.DifferenceFunc = diffs => DropAgeFunc(diffs);
-
                 var expected = Actual with { Age = 42 };
 
                 // No per-assert func/filter: only the global func drops the age difference.
@@ -125,7 +124,7 @@ namespace Core.Test.Core
             }
             finally
             {
-                AssertObjectExtensions.DifferenceFunc = originalFunc;
+                HttpClientAssertExtensions.Setup(_ => { });
             }
         }
 
@@ -133,19 +132,17 @@ namespace Core.Test.Core
         [DoNotParallelize]
         public void GlobalFilter_Alone_ShouldDropDifference()
         {
-            var originalFilter = AssertObjectExtensions.DifferenceFilter;
+            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = KeepUnlessAge);
 
             try
             {
-                AssertObjectExtensions.DifferenceFilter = KeepUnlessAge;
-
                 var expected = Actual with { Age = 42 };
 
                 Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc);
             }
             finally
             {
-                AssertObjectExtensions.DifferenceFilter = originalFilter;
+                HttpClientAssertExtensions.Setup(_ => { });
             }
         }
 
@@ -185,13 +182,11 @@ namespace Core.Test.Core
         [DoNotParallelize]
         public void GlobalFilterKeeps_PerAssertFilterDrops_ShouldPass_AndSemantics()
         {
-            var originalFilter = AssertObjectExtensions.DifferenceFilter;
+            // Global keeps everything (true), per-assert drops age (false) → AND → dropped.
+            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = static _ => true);
 
             try
             {
-                // Global keeps everything (true), per-assert drops age (false) → AND → dropped.
-                AssertObjectExtensions.DifferenceFilter = static _ => true;
-
                 var expected = Actual with { Age = 42 };
 
                 Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
@@ -199,7 +194,7 @@ namespace Core.Test.Core
             }
             finally
             {
-                AssertObjectExtensions.DifferenceFilter = originalFilter;
+                HttpClientAssertExtensions.Setup(_ => { });
             }
         }
 
@@ -207,13 +202,11 @@ namespace Core.Test.Core
         [DoNotParallelize]
         public void GlobalFilterDrops_PerAssertFilterKeeps_ShouldPass_AndSemantics()
         {
-            var originalFilter = AssertObjectExtensions.DifferenceFilter;
+            // Global drops age (false), per-assert keeps everything (true) → AND → dropped.
+            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = KeepUnlessAge);
 
             try
             {
-                // Global drops age (false), per-assert keeps everything (true) → AND → dropped.
-                AssertObjectExtensions.DifferenceFilter = KeepUnlessAge;
-
                 var expected = Actual with { Age = 42 };
 
                 Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
@@ -221,7 +214,7 @@ namespace Core.Test.Core
             }
             finally
             {
-                AssertObjectExtensions.DifferenceFilter = originalFilter;
+                HttpClientAssertExtensions.Setup(_ => { });
             }
         }
 
@@ -229,13 +222,11 @@ namespace Core.Test.Core
         [DoNotParallelize]
         public void GlobalFilterKeeps_PerAssertFilterKeeps_ShouldFail()
         {
-            var originalFilter = AssertObjectExtensions.DifferenceFilter;
+            // Both keep the age difference → it survives → assert fails.
+            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = static _ => true);
 
             try
             {
-                // Both keep the age difference → it survives → assert fails.
-                AssertObjectExtensions.DifferenceFilter = static _ => true;
-
                 var expected = Actual with { Age = 42 };
 
                 AssertThrows(() => Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
@@ -244,7 +235,7 @@ namespace Core.Test.Core
             }
             finally
             {
-                AssertObjectExtensions.DifferenceFilter = originalFilter;
+                HttpClientAssertExtensions.Setup(_ => { });
             }
         }
 
@@ -256,14 +247,12 @@ namespace Core.Test.Core
         [DoNotParallelize]
         public void GlobalFunc_And_PerAssertFilter_ShouldCombine()
         {
-            var originalFunc = AssertObjectExtensions.DifferenceFunc;
+            // Global func drops "name"; per-assert filter drops "age". Both differ → both dropped → pass.
+            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFunc = diffs =>
+                diffs.Where(d => !d.MemberPath.Contains("name", StringComparison.OrdinalIgnoreCase)));
 
             try
             {
-                // Global func drops "name"; per-assert filter drops "age". Both differ → both dropped → pass.
-                AssertObjectExtensions.DifferenceFunc = diffs =>
-                    diffs.Where(d => !d.MemberPath.Contains("name", StringComparison.OrdinalIgnoreCase));
-
                 var expected = new Sample(Name: "Vegeta", Age: 42);
 
                 Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
@@ -271,7 +260,7 @@ namespace Core.Test.Core
             }
             finally
             {
-                AssertObjectExtensions.DifferenceFunc = originalFunc;
+                HttpClientAssertExtensions.Setup(_ => { });
             }
         }
 
@@ -283,15 +272,13 @@ namespace Core.Test.Core
         [DoNotParallelize]
         public void GlobalFunc_RunsBefore_PerAssertFunc()
         {
-            var originalFunc = AssertObjectExtensions.DifferenceFunc;
+            // Global func drops "name". Per-assert func asserts it never sees a name difference
+            // (proving order) and then drops "age". Both differ → pass, and the order invariant holds.
+            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFunc = diffs =>
+                diffs.Where(d => !d.MemberPath.Contains("name", StringComparison.OrdinalIgnoreCase)));
 
             try
             {
-                // Global func drops "name". Per-assert func asserts it never sees a name difference
-                // (proving order) and then drops "age". Both differ → pass, and the order invariant holds.
-                AssertObjectExtensions.DifferenceFunc = diffs =>
-                    diffs.Where(d => !d.MemberPath.Contains("name", StringComparison.OrdinalIgnoreCase));
-
                 var expected = new Sample(Name: "Vegeta", Age: 42);
 
                 Assert.That.ObjectsAreEqual(expected,
@@ -306,7 +293,7 @@ namespace Core.Test.Core
             }
             finally
             {
-                AssertObjectExtensions.DifferenceFunc = originalFunc;
+                HttpClientAssertExtensions.Setup(_ => { });
             }
         }
 
@@ -314,7 +301,7 @@ namespace Core.Test.Core
         // String-comparison path (StringComparisonStrategy): line-by-line filtering.
         //
         // When T is string, StringComparisonStrategy emits differences with MemberPath "Line N" and runs
-        // them through the same ApplyDifferenceFiltering combinator. The expected string, however, first
+        // them through the same IDifferenceFiltering.Apply combinator. The expected string, however, first
         // passes through EmbeddedFileLocalizer, which treats a non-raw-JSON string as a FILE reference.
         // So a plain multi-line string must be wrapped so IsRawJson() sees it as raw content (starts+ends
         // with a quote) — otherwise the localizer tries to load it as a file and throws before comparison.

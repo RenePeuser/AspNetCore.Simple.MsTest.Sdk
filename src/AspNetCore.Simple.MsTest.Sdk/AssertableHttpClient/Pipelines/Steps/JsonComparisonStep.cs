@@ -21,6 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             services.AddParameterReplacer();
             services.AddWriteResponseService();
             services.AddJsonSerializer();
+            services.AddTestSdkSettings();
 
             // 2. Register the step itself
             services.AddSingletonIfNotExists<IHttpAssertionStep, JsonComparisonStep>();

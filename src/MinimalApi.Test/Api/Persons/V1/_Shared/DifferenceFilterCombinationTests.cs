@@ -18,7 +18,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Shared
     ///     verbs the MinimalApi sample exposes an error endpoint for).
     ///
     /// GET /api/v1/persons/1 always returns Person(1, "Son", "Goku", 99, [alf@gmx.de/GMX, abc@hotmail.de/Microsoft]).
-    /// The assembly-wide <see cref="AssertObjectExtensions.DifferenceFunc"/> already ignores <c>id</c>.
+    /// The assembly-wide <see cref="TestSdkSettings.DifferenceFunc"/> already ignores <c>id</c>.
     /// </summary>
     [TestClass]
     [TestCategory("Minimal Api")]

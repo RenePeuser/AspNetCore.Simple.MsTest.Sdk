@@ -17,7 +17,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
     /// differenceFilter)</c> overloads (added to close the Query.AsObjectResponse gap), so the expected
     /// value is a typed <see cref="Person"/> list rather than a JSON string.
     ///
-    /// Note: the assembly-wide <see cref="AssertObjectExtensions.DifferenceFunc"/> is set to
+    /// Note: the assembly-wide <see cref="TestSdkSettings.DifferenceFunc"/> is set to
     /// <c>IgnoreIdDifferences</c> in <see cref="ApiTestBase"/>, so <c>id</c> differences are already
     /// ignored before the filter runs.
     /// </summary>

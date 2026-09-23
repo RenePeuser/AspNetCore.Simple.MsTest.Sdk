@@ -63,7 +63,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 registerServices(services, configuration);
 
                 // NEW self registration
-                services.AddAssertableHttpClient(configuration, _consumerAssembly);
+                services.AddAssertableHttpClient(configuration, consumerAssembly: _consumerAssembly);
 
                 // NEW self setup - the static extensions resolve from this provider on every assert,
                 // so it must outlive this callback and is deliberately never disposed here.

@@ -525,7 +525,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPatchAsErrorAsync<TResult>(url: url,
-                                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                            expectedResult: expectedResult,
                                                            filterFunc: null,
                                                            differenceFunc: difference => difference,
@@ -559,7 +559,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPatchAsErrorAsync<TResult>(url: url,
-                                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                            expectedResult: expectedResult,
                                                            filterFunc: null,
                                                            differenceFunc: difference => difference,
@@ -594,7 +594,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPatchAsErrorAsync<TResult>(url: url,
-                                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                            expectedResult: expectedResult,
                                                            filterFunc: null,
                                                            differenceFunc: differenceFunc,
@@ -631,7 +631,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPatchAsErrorAsync<TResult>(url: url,
-                                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                            expectedResult: expectedResult,
                                                            filterFunc: null,
                                                            differenceFunc: differenceFunc,

@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
 {
@@ -11,7 +12,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
         internal static void AddJsonSerializer(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingletonIfNotExists<JsonSerializer>();
-            serviceCollection.AddSingletonIfNotExists(CreateDefaultOptions());
+
+            // The options live in TestSdkSettings - one set per application, never a second copy.
+            serviceCollection.TryAddSingleton(serviceProvider => serviceProvider.GetService<TestSdkSettings>()?.JsonSerializerOptions ??
+                                                                 CreateDefaultOptions());
         }
 
         internal static JsonSerializerOptions CreateDefaultOptions()

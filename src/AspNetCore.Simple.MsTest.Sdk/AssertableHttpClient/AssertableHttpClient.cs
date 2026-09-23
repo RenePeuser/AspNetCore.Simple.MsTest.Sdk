@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading;
@@ -21,7 +21,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         /// Feature-based registration following the dependency tree pattern.
         /// </summary>
         /// <param name="services">The service collection to register into.</param>
-        /// <param name="configuration">Configuration used by the embedded file localizer.</param>
+        /// <param name="configuration">Configuration the <c>TestSdkSettings</c> section is bound from.</param>
+        /// <param name="configureSettings">Code-only settings (json options, difference filters, ...) applied on top of the configuration.</param>
         /// <param name="consumerAssembly">
         /// The test assembly the sdk is serving. Defaults to the direct caller, which is correct for a
         /// test project registering the sdk itself; <c>ApiTestBase&lt;T&gt;</c> hands its own caller in
@@ -29,11 +30,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         /// </param>
         public static void AddAssertableHttpClient(this IServiceCollection services,
                                                    IConfiguration configuration,
+                                                   Action<TestSdkSettings>? configureSettings = null,
                                                    Assembly? consumerAssembly = null)
         {
             consumerAssembly ??= Assembly.GetCallingAssembly();
 
-            // 1. Register all dependencies via their own extensions
+            // 1. The one settings instance first - every registration below depends on it
+            services.AddTestSdkSettings(configuration, configureSettings);
+
+            // 2. Register all dependencies via their own extensions
             services.AddTextDecorator(consumerAssembly);
             services.AddHttpOutputFormatter();
             services.AddCurlBuilder();
@@ -52,10 +57,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             services.AddJsonFileExtensionValidator();
             services.AddJsonTypeMismatchOutputBuilder();
 
-            // 2. Register error handling strategy (with all specific handlers)
+            // 3. Register error handling strategy (with all specific handlers)
             services.AddTestErrorHandlingStrategy();
 
-            // 3. Register the service itself
+            // 4. Register the service itself
             services.AddSingletonIfNotExists<IAssertableHttpClient, AssertableHttpClient>();
         }
     }

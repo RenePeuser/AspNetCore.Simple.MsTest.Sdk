@@ -19,9 +19,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             IImmutableDictionary<string, ImmutableList<string>> expectedHeaderStructure = expectedHeaders.ToImmutableDictionary(item => item.Key, item => item.Value.AsImmutableList());
 
-            return client.AssertOptionsAsync(url, expectedHeaderStructure.ToJson(JsonSerializerOptions),
+            return client.AssertOptionsAsync(url, expectedHeaderStructure.ToJson(JsonSerializerOptionsFor(callingAssembly)), callingAssembly,
                                              callerFilePath, callerMemberName,
                                              callerLineNumber);
         }
@@ -33,7 +35,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerMemberName] string callerMemberName = "",
                                                                    [CallerLineNumber] int callerLineNumber = 0)
         {
-            return client.AssertOptionsAsync(url, expectedHeaders.ToJson(JsonSerializerOptions),
+            var callingAssembly = Assembly.GetCallingAssembly();
+
+            return client.AssertOptionsAsync(url, expectedHeaders.ToJson(JsonSerializerOptionsFor(callingAssembly)), callingAssembly,
                                              callerFilePath, callerMemberName,
                                              callerLineNumber);
         }

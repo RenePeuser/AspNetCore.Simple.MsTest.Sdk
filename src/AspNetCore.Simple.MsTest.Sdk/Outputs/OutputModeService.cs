@@ -7,6 +7,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddOutputModeService(this IServiceCollection services)
         {
+            services.AddTestSdkSettings();
             services.AddSingletonIfNotExists<IOutputModeService, OutputModeService>();
         }
     }

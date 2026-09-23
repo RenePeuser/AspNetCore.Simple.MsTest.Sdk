@@ -400,11 +400,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerMemberName] string callerMemberName = "",
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPatchAsync<TResult>(url: url,
-                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                     expectedResult: expectedResult,
                                                     parameters: [],
-                                                    callingAssembly: Assembly.GetCallingAssembly(),
+                                                    callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
                                                     skipEndpointValidation: skipEndpointValidation,
                                                     payloadAsJsonParameterName: payloadAsObjectParameterName,
@@ -431,11 +433,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerMemberName] string callerMemberName = "",
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPatchAsync<TResult>(url: url,
-                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                     expectedResult: expectedResult,
                                                     parameters: parameters,
-                                                    callingAssembly: Assembly.GetCallingAssembly(),
+                                                    callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
                                                     skipEndpointValidation: skipEndpointValidation,
                                                     payloadAsJsonParameterName: payloadAsObjectParameterName,
@@ -525,7 +529,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPatchAsync<TResult>(client: client,
                                              url: url,
-                                             payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                             payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                              expectedResult: expectedResult,
                                              filterFunc: result => result,
                                              parameters: [],
@@ -559,7 +563,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPatchAsync<TResult>(client: client,
                                              url: url,
-                                             payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                             payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                              expectedResult: expectedResult,
                                              filterFunc: result => result,
                                              parameters: parameters,
@@ -661,7 +665,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPatchAsync<TResult>(client: client,
                                              url: url,
-                                             payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                             payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                              expectedResult: expectedResult,
                                              filterFunc: result => result,
                                              differenceFunc: differenceFunc,
@@ -699,7 +703,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return AssertPatchAsync<TResult>(client: client,
                                              url: url,
-                                             payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                             payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                              expectedResult: expectedResult,
                                              filterFunc: result => result,
                                              differenceFunc: differenceFunc,
@@ -807,12 +811,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerMemberName] string callerMemberName = "",
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPatchAsync(url: url,
-                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                            expectedResult: expectedResult,
                                            filterFunc: filterFunc,
                                            parameters: [],
-                                           callingAssembly: Assembly.GetCallingAssembly(),
+                                           callingAssembly: callingAssembly,
                                            writeResponse: writeResponse,
                                            skipEndpointValidation: skipEndpointValidation,
                                            payloadAsJsonParameterName: payloadAsObjectParameterName,
@@ -840,12 +846,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerMemberName] string callerMemberName = "",
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPatchAsync(url: url,
-                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                            expectedResult: expectedResult,
                                            filterFunc: filterFunc,
                                            parameters: parameters,
-                                           callingAssembly: Assembly.GetCallingAssembly(),
+                                           callingAssembly: callingAssembly,
                                            writeResponse: writeResponse,
                                            skipEndpointValidation: skipEndpointValidation,
                                            payloadAsJsonParameterName: payloadAsObjectParameterName,
@@ -938,14 +946,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerMemberName] string callerMemberName = "",
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPatchAsync<TResult>(url: url,
-                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                     expectedResult: expectedResult,
                                                     filterFunc: null,
                                                     differenceFunc: differenceFunc,
                                                     differenceFilter: differenceFilter,
                                                     parameters: [],
-                                                    callingAssembly: Assembly.GetCallingAssembly(),
+                                                    callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
                                                     skipEndpointValidation: skipEndpointValidation,
                                                     payloadAsJsonParameterName: payloadAsObjectParameterName,
@@ -974,14 +984,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerMemberName] string callerMemberName = "",
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPatchAsync<TResult>(url: url,
-                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                     expectedResult: expectedResult,
                                                     filterFunc: null,
                                                     differenceFunc: differenceFunc,
                                                     differenceFilter: differenceFilter,
                                                     parameters: parameters,
-                                                    callingAssembly: Assembly.GetCallingAssembly(),
+                                                    callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
                                                     skipEndpointValidation: skipEndpointValidation,
                                                     payloadAsJsonParameterName: payloadAsObjectParameterName,
@@ -1081,7 +1093,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPatchAsync(url: url,
-                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                            expectedResult: expectedResult,
                                            filterFunc: filterFunc,
                                            differenceFunc: difference => difference,
@@ -1116,7 +1128,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPatchAsync(url: url,
-                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                            expectedResult: expectedResult,
                                            filterFunc: filterFunc,
                                            differenceFunc: difference => difference,
@@ -1221,7 +1233,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertPatchAsync(url: url,
-                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                           payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                            expectedResult: expectedResult,
                                            filterFunc: filterFunc,
                                            differenceFunc: differenceFunc,
@@ -1260,7 +1272,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
             return client.AssertHttpCallAsync(url: url,
-                                              payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                              payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                               expectedResult: expectedResult,
                                               filterFunc: filterFunc,
                                               httpMethod: HttpMethod.Patch,
@@ -1457,14 +1469,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerMemberName] string callerMemberName = "",
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPatchAsync<TResult>(url: url,
-                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                     expectedResult: expectedResult,
                                                     filterFunc: null,
                                                     differenceFunc: difference => difference,
                                                     differenceFilter: differenceFilter,
                                                     parameters: [],
-                                                    callingAssembly: Assembly.GetCallingAssembly(),
+                                                    callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
                                                     skipEndpointValidation: skipEndpointValidation,
                                                     payloadAsJsonParameterName: payloadAsObjectParameterName,
@@ -1493,14 +1507,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                               [CallerMemberName] string callerMemberName = "",
                                                               [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertPatchAsync<TResult>(url: url,
-                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptions),
+                                                    payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                     expectedResult: expectedResult,
                                                     filterFunc: null,
                                                     differenceFunc: difference => difference,
                                                     differenceFilter: differenceFilter,
                                                     parameters: parameters,
-                                                    callingAssembly: Assembly.GetCallingAssembly(),
+                                                    callingAssembly: callingAssembly,
                                                     writeResponse: writeResponse,
                                                     skipEndpointValidation: skipEndpointValidation,
                                                     payloadAsJsonParameterName: payloadAsObjectParameterName,

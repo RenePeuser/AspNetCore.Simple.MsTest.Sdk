@@ -26,7 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertGetAsync<TResult>(url: url,
-                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                   parameters: [],
                                                   callingAssembly: callingAssembly,
                                                   ignoreResponse: ignoreResponse,
@@ -54,7 +54,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertGetAsync<TResult>(url: url,
-                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                   parameters: parameters,
                                                   callingAssembly: callingAssembly,
                                                   ignoreResponse: ignoreResponse,
@@ -82,7 +82,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertGetAsync<TResult>(url: url,
-                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                   differenceFunc: differenceFunc,
                                                   parameters: [],
                                                   callingAssembly: callingAssembly,
@@ -112,7 +112,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertGetAsync<TResult>(url: url,
-                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                   differenceFunc: differenceFunc,
                                                   parameters: parameters,
                                                   callingAssembly: callingAssembly,
@@ -140,7 +140,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertGetAsync(url: url,
-                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                          filterFunc: filterFunc,
                                          parameters: [],
                                          callingAssembly: callingAssembly,
@@ -168,7 +168,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertGetAsync(url: url,
-                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                          filterFunc: filterFunc,
                                          parameters: parameters,
                                          callingAssembly: callingAssembly,
@@ -197,7 +197,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertGetAsync(url: url,
-                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                          filterFunc: filterFunc,
                                          differenceFunc: differenceFunc,
                                          parameters: [],
@@ -229,7 +229,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertGetAsync(url: url,
-                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                         expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                          filterFunc: filterFunc,
                                          differenceFunc: differenceFunc,
                                          parameters: parameters,
@@ -259,7 +259,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertGetAsync<TResult>(url: url,
-                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                   differenceFunc: difference => difference,
                                                   parameters: [],
                                                   callingAssembly: callingAssembly,
@@ -289,7 +289,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertGetAsync<TResult>(url: url,
-                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                  expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                   differenceFunc: difference => difference,
                                                   parameters: parameters,
                                                   callingAssembly: callingAssembly,

@@ -50,7 +50,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         /// <summary>
         /// Optional per-assert override for
-        /// <see cref="AssertObjectExtensions.OrderIndependentArrayFilter"/>. Null falls back to
+        /// <see cref="TestSdkSettings.OrderIndependentArrayFilter"/>. Null falls back to
         /// that global filter.
         /// </summary>
         Predicate<JsonArrayContext>? OrderIndependentArrayFilter { get; init; }
@@ -165,7 +165,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         /// <summary>
         /// Optional per-assert override for
-        /// <see cref="AssertObjectExtensions.OrderIndependentArrayFilter"/>. Null falls back to
+        /// <see cref="TestSdkSettings.OrderIndependentArrayFilter"/>. Null falls back to
         /// that global filter, so a test only sets this when it needs different array semantics
         /// than the rest of the suite.
         /// </summary>

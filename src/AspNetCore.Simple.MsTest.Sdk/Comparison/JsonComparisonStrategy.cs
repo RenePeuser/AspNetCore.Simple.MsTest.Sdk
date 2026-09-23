@@ -14,6 +14,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
         {
             services.AddJsonSerializer();
             services.AddJsonDiffer();
+            services.AddTestSdkSettings();
+            services.AddDifferenceFiltering();
             services.AddSingletonIfNotExists<ISpecificComparisonStrategy, JsonComparisonStrategy>();
         }
     }
@@ -35,7 +37,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     /// </remarks>
     internal sealed class JsonComparisonStrategy(IJsonDiffer jsonDiffer,
                                                  Serializer.Json.JsonSerializer jsonSerializer,
-                                                 JsonSerializerOptions jsonSerializerOptions) : ISpecificComparisonStrategy
+                                                 JsonSerializerOptions jsonSerializerOptions,
+                                                 TestSdkSettings testSdkSettings,
+                                                 IDifferenceFiltering differenceFiltering) : ISpecificComparisonStrategy
     {
         private readonly IJsonDiffer _jsonDiffer = jsonDiffer;
 
@@ -150,7 +154,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             // 5. Find differences. The per-assert filter wins over the global one, so a single test
             // can treat an array as a set without making every other test in the suite order blind.
             var orderIndependentArrayFilter = context.OrderIndependentArrayFilter ??
-                                              AssertObjectExtensions.OrderIndependentArrayFilter;
+                                              testSdkSettings.OrderIndependentArrayFilter;
 
             var differences = _jsonDiffer.FindDifferences(expectedOrderedJson,
                                                           currentOrderedJson,
@@ -177,9 +181,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             }
 
             // 8. Apply difference filtering (global func + per-assert func + global/per-assert predicate)
-            var filteredDifferences = AssertObjectExtensions.ApplyDifferenceFiltering(differences,
-                                                                                      context.DifferenceFunc,
-                                                                                      context.DifferenceFilter);
+            var filteredDifferences = differenceFiltering.Apply(differences,
+                                                                context.DifferenceFunc,
+                                                                context.DifferenceFilter);
 
             return new ComparisonResult
             {

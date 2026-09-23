@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
+using AspNetCore.Simple.MsTest.Sdk.Comparison;
 using Controllers.Api.Persons;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,8 +35,8 @@ namespace Controllers.Test.SnapshotWriteFiltering
     /// under full control, which no endpoint can offer. <see cref="TheDifferenceFuncOfAnAssertMustReachTheWriter"/>
     /// closes the loop and proves the func an author passes to an assert really arrives at the writer.
     ///
-    /// Note on the global func: <c>ApplyDifferenceFiltering</c> also runs
-    /// <see cref="AssertObjectExtensions.DifferenceFunc"/>, and this project sets it to
+    /// Note on the global func: <c>IDifferenceFiltering.Apply</c> also runs
+    /// <see cref="TestSdkSettings.DifferenceFunc"/>, and this project sets it to
     /// <c>TestHelpers.IgnoreIdDifferences</c> in <see cref="ApiTestBase"/> - it drops every path
     /// containing "id" or "deletedAt". The fixtures below therefore avoid those names, so that what a
     /// test proves is caused by the mechanism the test is about.
@@ -56,7 +57,9 @@ namespace Controllers.Test.SnapshotWriteFiltering
         {
             return new ResponseWriter([
                                           new DifferenceResponseWriter(new JsonDiffer(), new JsonPathWriter(), new ParameterReplacer(),
-                                                                       new SnapshotPlaceholderGuard()),
+                                                                       new SnapshotPlaceholderGuard(),
+                                                                       HttpClientAssertExtensions.GetService<TestSdkSettings>(typeof(SnapshotWriteFilteringTests).Assembly),
+                                                                       HttpClientAssertExtensions.GetService<IDifferenceFiltering>(typeof(SnapshotWriteFilteringTests).Assembly)),
                                           new OverwriteAllResponseWriter(new ParameterReplacer(), new SnapshotPlaceholderGuard())
                                       ]);
         }
@@ -180,7 +183,7 @@ namespace Controllers.Test.SnapshotWriteFiltering
             Assert.That.AreEqual("99",
                                  written["age"]?.ToString(),
                                  because: "differenceFunc and differenceFilter are two spellings of the same intent. A snapshot protected by the filter but rewritten by the func would make the choice between them a trap.",
-                                 fix: "Check that DifferenceResponseWriter derives the ignored paths from ApplyDifferenceFiltering (which runs both mechanisms) instead of from the filter alone.");
+                                 fix: "Check that DifferenceResponseWriter derives the ignored paths from IDifferenceFiltering.Apply (which runs both mechanisms) instead of from the filter alone.");
 
             Assert.That.AreEqual("Vegeta",
                                  written["name"]?.ToString(),

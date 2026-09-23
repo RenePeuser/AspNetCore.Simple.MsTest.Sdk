@@ -13,9 +13,9 @@ namespace Controllers.Test.Api.Persons.V1.Get
     ///
     /// IMPORTANT: Controllers.Test runs <c>Parallelize(Scope = ExecutionScope.ClassLevel)</c>, so these
     /// tests deliberately use ONLY the per-assert <c>differenceFilter</c> — never the static global
-    /// <see cref="AssertObjectExtensions.DifferenceFilter"/>, which would race across parallel classes.
+    /// <see cref="TestSdkSettings.DifferenceFilter"/>, which would race across parallel classes.
     ///
-    /// The assembly-wide <see cref="AssertObjectExtensions.DifferenceFunc"/> is set to
+    /// The assembly-wide <see cref="TestSdkSettings.DifferenceFunc"/> is set to
     /// <c>IgnoreIdDifferences</c> in <see cref="ApiTestBase"/>, so <c>id</c> differences are already ignored.
     /// </summary>
     [TestClass]

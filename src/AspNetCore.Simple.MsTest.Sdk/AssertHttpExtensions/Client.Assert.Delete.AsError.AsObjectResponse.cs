@@ -19,10 +19,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       [CallerMemberName] string callerMemberName = "",
                                                                       [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertDeleteAsErrorAsync<TResult>(url: url,
-                                                            expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                            expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                             parameters: [],
-                                                            callingAssembly: Assembly.GetCallingAssembly(),
+                                                            callingAssembly: callingAssembly,
                                                             writeResponse: writeResponse,
                                                             expectedResultParameterName: nameof(expectedResponse),
                                                             skipEndpointValidation: skipEndpointValidation,
@@ -43,10 +45,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                       [CallerMemberName] string callerMemberName = "",
                                                                       [CallerLineNumber] int callerLineNumber = 0)
         {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
             return client.AssertDeleteAsErrorAsync<TResult>(url: url,
-                                                            expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                            expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                             parameters: parameters,
-                                                            callingAssembly: Assembly.GetCallingAssembly(),
+                                                            callingAssembly: callingAssembly,
                                                             writeResponse: writeResponse,
                                                             expectedResultParameterName: nameof(expectedResponse),
                                                             skipEndpointValidation: skipEndpointValidation,

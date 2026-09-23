@@ -85,7 +85,7 @@ public Task $testmethodname$()
             var outputWithSeparators = testOutput.Replace("$separator$", separator)
                                                  .Replace("$testattribute$", testSdkSettings.TestMethodAttribute);
 
-            HttpClientAssertExtensions.LogAction(outputWithSeparators);
+            testSdkSettings.LogAction(outputWithSeparators);
 
             logger.LogDebug(outputWithSeparators);
 

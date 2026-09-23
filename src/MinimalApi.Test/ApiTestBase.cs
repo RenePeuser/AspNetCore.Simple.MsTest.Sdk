@@ -24,11 +24,13 @@ namespace MinimalApi.Test
                                                      configuration) =>
                                                     {
                                                         ServiceCollection = services;
+
+                                                        // Registered before the sdk's own registration, so it wins.
+                                                        services.AddTestSdkSettings(configuration,
+                                                                                    settings => settings.DifferenceFunc = TestHelpers.IgnoreIdDifferences);
                                                     });
 
             Client = _apiTestBase.CreateClient();
-
-            AssertObjectExtensions.DifferenceFunc = TestHelpers.IgnoreIdDifferences;
         }
 
         protected static HttpClient Client { get; private set; } = null!;

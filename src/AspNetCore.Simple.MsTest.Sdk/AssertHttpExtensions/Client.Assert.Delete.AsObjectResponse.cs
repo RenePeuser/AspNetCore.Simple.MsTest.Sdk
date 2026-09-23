@@ -22,7 +22,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertDeleteAsync<TResult>(url: url,
-                                                     expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                     expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                      parameters: [],
                                                      callingAssembly: callingAssembly,
                                                      writeResponse: writeResponse,
@@ -48,7 +48,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var callingAssembly = Assembly.GetCallingAssembly();
 
             return client.AssertDeleteAsync<TResult>(url: url,
-                                                     expectedResult: expectedResponse.ToJson(JsonSerializerOptions),
+                                                     expectedResult: expectedResponse.ToJson(JsonSerializerOptionsFor(callingAssembly)),
                                                      parameters: parameters,
                                                      callingAssembly: callingAssembly,
                                                      writeResponse: writeResponse,

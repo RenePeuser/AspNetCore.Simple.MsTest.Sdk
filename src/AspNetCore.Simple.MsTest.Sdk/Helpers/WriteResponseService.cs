@@ -1,4 +1,3 @@
-using System;
 using System.Reflection;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +8,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddWriteResponseService(this IServiceCollection services)
         {
+            services.AddTestSdkSettings();
             services.AddSingletonIfNotExists<IWriteResponseService, WriteResponseService>();
         }
     }
@@ -26,7 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         bool ShouldWriteResponse(IObjectAssertContext context);
     }
 
-    internal sealed class WriteResponseService : IWriteResponseService
+    internal sealed class WriteResponseService(TestSdkSettings testSdkSettings) : IWriteResponseService
     {
         public bool ShouldWriteResponse(bool scopedWriteResponse,
                                         Assembly callingAssembly)
@@ -56,21 +56,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Whether recording was asked for at all, ignoring the Debug gate. Kept apart from the gate so
         /// "you did not ask" and "you asked and it was refused" stay two different answers.
         /// </summary>
-        private static bool WasRequested(bool scopedWriteResponse)
+        private bool WasRequested(bool scopedWriteResponse)
         {
-            if (scopedWriteResponse)
-            {
-                return true;
-            }
-
-            if (AssertObjectExtensions.WriteResponse)
-            {
-                return true;
-            }
-
-            var envVariable = Environment.GetEnvironmentVariable("AspNetCoreSimpleMsTestSdk__WriteResponse")?.ToBool();
-
-            return envVariable ?? false;
+            // Bound from the TestSdkSettings__WriteResponse environment variable as well.
+            return scopedWriteResponse || testSdkSettings.WriteResponse;
         }
 
         public bool ShouldWriteResponse(IObjectAssertContext context)

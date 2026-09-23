@@ -1,5 +1,30 @@
 # Release Notes
 
+## Upcoming Release - One settings class instead of static globals
+
+### Breaking: all global settings moved into `TestSdkSettings`
+
+The static settings are gone. Configure them once through `TestSdkSettings` instead - see
+"Configuring the SDK" in the README.
+
+| Removed | Replacement |
+|---|---|
+| `HttpClientAssertExtensions.JsonSerializerOptions` | `settings.JsonSerializerOptions` |
+| `AssertObjectExtensions.JsonSerializerOptions` | `settings.JsonSerializerOptions` |
+| `HttpClientAssertExtensions.SkipEndpointValidation` | `settings.SkipEndpointValidation` |
+| `HttpClientAssertExtensions.ShowTokenInCurl` | `settings.ShowTokenInCurl` |
+| `HttpClientAssertExtensions.LogAction` | `settings.LogAction` |
+| `HttpClientAssertExtensions.CustomAssertableHttpClient` | register your own `IAssertableHttpClient` before `AddAssertableHttpClient` |
+| `AssertObjectExtensions.DifferenceFunc` / `DifferenceFilter` / `OrderIndependentArrayFilter` | same names on `TestSdkSettings` |
+| `AssertObjectExtensions.WriteResponse` | `settings.WriteResponse` |
+| `AssertObjectExtensions.ResponseFileFullPath` | removed - it had no effect |
+| environment variable `AspNetCoreSimpleMsTestSdk__WriteResponse` | `TestSdkSettings__WriteResponse` |
+
+- `services.AddTestSdkSettings(configuration, settings => ...)` - with `ApiTestBase<T>`, from `registerServices`
+- `services.AddAssertableHttpClient(configuration, settings => ...)` - with your own host
+- `HttpClientAssertExtensions.Setup(settings => ...)` - without any host
+- The provider handed to `HttpClientAssertExtensions.Setup(provider)` must stay alive for the whole test run.
+
 ## Upcoming Release - Assert.That Extensions
 
 ### New: AI-Friendly Assertion Library

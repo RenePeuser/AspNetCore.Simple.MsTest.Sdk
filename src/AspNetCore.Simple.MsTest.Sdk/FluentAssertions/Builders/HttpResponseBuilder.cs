@@ -91,7 +91,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         public IHttpComparisonConfiguring<TResult> ExpectedResponse(TResult expected)
         {
-            _expectedJson = JsonSerializer.Serialize(expected, HttpClientAssertExtensions.JsonSerializerOptions);
+            _expectedJson = JsonSerializer.Serialize(expected, HttpClientAssertExtensions.JsonSerializerOptionsFor(_callingAssembly));
 
             return this;
         }
