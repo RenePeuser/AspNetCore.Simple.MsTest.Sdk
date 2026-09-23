@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using AspNetCore.Simple.MsTest.Sdk;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,11 @@ namespace MinimalApi.Test
         private static ApiTestBase<Program> _apiTestBase = null!;
 
         protected static IServiceCollection ServiceCollection { get; private set; } = null!;
+
+        /// <summary>
+        ///     The host's provider - the very container the static asserts resolve from.
+        /// </summary>
+        protected static IServiceProvider Services => _apiTestBase.Services;
 
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext _)

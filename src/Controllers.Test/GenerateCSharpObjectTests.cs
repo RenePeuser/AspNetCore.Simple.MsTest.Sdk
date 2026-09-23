@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Controllers.Test
@@ -59,7 +60,7 @@ namespace Controllers.Test
         public void TestCSharpCodeGeneratorDirectly()
         {
             // Direct test of the CSharpCodeGenerator via DI
-            var generator = HttpClientAssertExtensions.GetService<ICSharpCodeGenerator>(typeof(GenerateCSharpObjectTests).Assembly);
+            var generator = Services.GetRequiredService<ICSharpCodeGenerator>();
 
             var json = /*lang=json,strict*/ @"{
                 ""id"": 1,
@@ -99,7 +100,7 @@ namespace Controllers.Test
         public void TestEmptyAnonymousObjectDetection()
         {
             // Test the detector via DI
-            var detector = HttpClientAssertExtensions.GetService<IEmptyAnonymousObjectDetector>(typeof(GenerateCSharpObjectTests).Assembly);
+            var detector = Services.GetRequiredService<IEmptyAnonymousObjectDetector>();
 
             // Test 1: Empty anonymous object should be detected
             var empty = new { };

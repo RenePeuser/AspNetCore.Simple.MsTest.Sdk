@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
 using Controllers.Api.Persons;
 using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -54,7 +55,7 @@ namespace Controllers.Test.SnapshotWriteFiltering
         /// </summary>
         private static IResponseWriter CreateWriter()
         {
-            return HttpClientAssertExtensions.GetService<IResponseWriter>(typeof(SnapshotWriteFilteringTests).Assembly);
+            return Services.GetRequiredService<IResponseWriter>();
         }
 
         // ============================================================

@@ -1,6 +1,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using AspNetCore.Simple.MsTest.Sdk;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -19,7 +20,7 @@ namespace Controllers.Test.DottedPaths
     /// </summary>
     [TestClass]
     [TestCategory("DottedResourcePaths")]
-    public sealed class DottedResourcePathTests
+    public sealed class DottedResourcePathTests : SdkTestBase
     {
         [TestMethod]
         public void AFolderWithADotMustMapToThatOneFolder()
@@ -107,7 +108,7 @@ namespace Controllers.Test.DottedPaths
         private static EmbeddedFileInfo Localize(string reference,
                                                  [CallerFilePath] string callerFilePath = "")
         {
-            var localizer = HttpClientAssertExtensions.GetService<IEmbeddedFileLocalizer>(typeof(DottedResourcePathTests).Assembly);
+            var localizer = Services.GetRequiredService<IEmbeddedFileLocalizer>();
 
             return localizer.LocalizeResponseFile(reference, callerFilePath, typeof(DottedResourcePathTests).Assembly);
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
@@ -21,6 +22,11 @@ namespace Controllers.Test
         protected static IAssertableHttpClient AssertableHttpClient { get; private set; } = null!;
 
         /// <summary>
+        ///     The host's provider - the very container the static asserts resolve from.
+        /// </summary>
+        protected static IServiceProvider Services => _apiTestBase.Services;
+
+        /// <summary>
         ///     Initializes the test assembly by setting up the API test environment.
         ///     Import this happens one time before all tests are running. This is
         ///     like your prod case. Because your API is running continuously.
@@ -42,7 +48,7 @@ namespace Controllers.Test
                                                     }); // Configure environment variables
 
             Client = _apiTestBase.CreateClient();
-            AssertableHttpClient = _apiTestBase.Services.GetRequiredService<IAssertableHttpClient>();
+            AssertableHttpClient = Services.GetRequiredService<IAssertableHttpClient>();
         }
 
         [AssemblyCleanup]

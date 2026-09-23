@@ -2,6 +2,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using AspNetCore.Simple.MsTest.Sdk;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Controllers.Test.SnapshotResolution
@@ -21,11 +22,11 @@ namespace Controllers.Test.SnapshotResolution
     /// </summary>
     [TestClass]
     [TestCategory("SnapshotResolution")]
-    public sealed class DottedReferenceOverlapTests
+    public sealed class DottedReferenceOverlapTests : SdkTestBase
     {
         private static IEmbeddedFileLocalizer CreateLocalizer()
         {
-            return HttpClientAssertExtensions.GetService<IEmbeddedFileLocalizer>(typeof(DottedReferenceOverlapTests).Assembly);
+            return Services.GetRequiredService<IEmbeddedFileLocalizer>();
         }
 
         [TestMethod]

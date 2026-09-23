@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -62,18 +63,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 registerServices(services, configuration);
 
-                // NEW self registration
                 services.AddAssertableHttpClient(configuration, consumerAssembly: _consumerAssembly);
-
-                // NEW self setup - the static extensions resolve from this provider on every assert,
-                // so it must outlive this callback and is deliberately never disposed here.
-#pragma warning disable CA2000
-                var serviceProvider = services.BuildServiceProvider();
-#pragma warning restore CA2000
-                HttpClientAssertExtensions.Setup(serviceProvider);
             });
 
             builder.UseEnvironment(EnvironmentName);
+        }
+
+        /// <summary>
+        ///     Hands the host's own provider to the static assert extensions - one container, so the
+        ///     asserts see exactly the singletons the application under test sees.
+        /// </summary>
+        protected override IHost CreateHost(IHostBuilder builder)
+        {
+            var host = base.CreateHost(builder);
+
+            HttpClientAssertExtensions.Setup(host.Services);
+
+            return host;
         }
 
         protected override void Dispose(bool disposing)

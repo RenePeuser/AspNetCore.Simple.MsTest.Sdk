@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using AspNetCore.Simple.MsTest.Sdk;
 using Extensions.Pack;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -23,7 +24,7 @@ namespace Controllers.Test
     /// </summary>
     [TestClass]
     [TestCategory("LegacyRootNamespace")]
-    public sealed class LegacyRootNamespaceTests
+    public sealed class LegacyRootNamespaceTests : SdkTestBase
     {
         private const string ExpectedResourceName = "Pulse.Legacy.Root.Legacy.V1.Results.LegacyRootNamespace.json";
 
@@ -99,7 +100,7 @@ namespace Controllers.Test
 
             try
             {
-                var writer = HttpClientAssertExtensions.GetService<IResponseWriter>(assembly);
+                var writer = Services.GetRequiredService<IResponseWriter>();
 
                 var request = new WriteResponseRequest
                 {
@@ -138,7 +139,7 @@ namespace Controllers.Test
             var assembly = typeof(LegacyRootNamespaceTests).Assembly;
             var projectFolder = new FileInfo(callerFilePath).Directory;
 
-            var resolver = HttpClientAssertExtensions.GetService<IResourceRootNamespaceResolver>(assembly);
+            var resolver = Services.GetRequiredService<IResourceRootNamespaceResolver>();
 
             // The LogicalName fixture votes for "Pulse.Legacy.Root", every other resource of this
             // project votes for "Controllers.Test". The majority decides, otherwise a single legacy
@@ -156,7 +157,7 @@ namespace Controllers.Test
 
         private static IEmbeddedFileLocalizer CreateLocalizer()
         {
-            return HttpClientAssertExtensions.GetService<IEmbeddedFileLocalizer>(typeof(LegacyRootNamespaceTests).Assembly);
+            return Services.GetRequiredService<IEmbeddedFileLocalizer>();
         }
 
         private static string ThisFile([CallerFilePath] string callerFilePath = "")

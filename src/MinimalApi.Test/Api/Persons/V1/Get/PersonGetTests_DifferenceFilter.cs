@@ -2,6 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MinimalApi.Api.Persons.V1;
 
@@ -80,7 +81,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Get
         {
             // The global DifferenceFilter lives in the one TestSdkSettings instance - set it for this test
             // only and always restore it.
-            var settings = HttpClientAssertExtensions.GetService<TestSdkSettings>(typeof(PersonGetTestsDifferenceFilter).Assembly);
+            var settings = Services.GetRequiredService<TestSdkSettings>();
             var originalFilter = settings.DifferenceFilter;
 
             try
