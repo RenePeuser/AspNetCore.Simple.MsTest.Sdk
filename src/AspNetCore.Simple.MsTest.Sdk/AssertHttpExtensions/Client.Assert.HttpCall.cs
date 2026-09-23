@@ -94,7 +94,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _assertService = new AssertService(comparisonStrategy,
                                                _responseWriter,
                                                _writeResponseService,
-                                               _outputBuilder);
+                                               _outputModeRenderer);
 
             // 6. Resolve HTTP handler and update _httpCallHandler
             var httpCallHandler = serviceProvider.GetRequiredService<IHttpCallHandler>();
@@ -263,6 +263,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static IAssertOutputBuilder _outputBuilder = new AssertOutputBuilder(OutputStrategies);
 
+        // Output mode infrastructure
+        private static IOutputModeService _outputModeService = new OutputModeService();
+
+        private static IAiOutputTransformer _aiOutputTransformer = new AiOutputTransformer();
+
+        private static IOutputModeRenderer _outputModeRenderer = new OutputModeRenderer(_outputBuilder,
+                                                                                        _aiOutputTransformer,
+                                                                                        _outputModeService);
+
         // Comparison strategies (order matters - first match wins)
         private static readonly ISpecificComparisonStrategy StringComparisonStrategy = new StringComparisonStrategy();
 
@@ -282,7 +291,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static IAssertService _assertService = new AssertService(ComparisonStrategy,
                                                                          _responseWriter,
                                                                          _writeResponseService,
-                                                                         _outputBuilder);
+                                                                         _outputModeRenderer);
 
         // Pipeline (contains all steps internally)
         private static IHttpAssertionPipeline _httpAssertionPipeline = new HttpAssertionPipeline(new IHttpAssertionStep[]

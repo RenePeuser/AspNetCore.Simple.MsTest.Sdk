@@ -40,12 +40,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddObjectOutputStrategy();
             services.AddHttpResponseOutputStrategy();
 
-            // 5. Register output builder
+            // 5. Register output builder (unchanged - still needed for Human mode)
             services.AddAssertOutputBuilder();
+
+            // 6. Register output mode infrastructure
+            services.AddOutputModeService();
+            services.AddAiOutputTransformer();
+            services.AddOutputModeRenderer();
 
             // Note: IEmbeddedFileLocalizer registration requires IConfiguration and should be done at app startup
 
-            // 6. Register the service itself
+            // 7. Register the service itself (now depends on IOutputModeRenderer)
             services.AddSingletonIfNotExists<IAssertService, AssertService>();
         }
     }
@@ -72,7 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class AssertService(IComparisonStrategy comparisonStrategy,
                                         IResponseWriter responseWriter,
                                         IWriteResponseService writeResponseService,
-                                        IAssertOutputBuilder outputBuilder) : IAssertService
+                                        IOutputModeRenderer outputModeRenderer) : IAssertService
     {
         public void ObjectsAreEqual<T>(ObjectAssertContext<T> context)
         {
@@ -131,7 +136,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 // Build comprehensive output using the comparison result
-                var error = outputBuilder.BuildOutput(context,
+                // Output mode renderer delegates to human builder (default) or AI transformer based on mode
+                var error = outputModeRenderer.Render(context,
                                                       result.Differences,
                                                       result.FormattedExpected,
                                                       result.FormattedCurrent);

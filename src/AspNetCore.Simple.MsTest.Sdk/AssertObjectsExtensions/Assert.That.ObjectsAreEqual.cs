@@ -138,7 +138,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                             new ObjectOutputStrategy(differencesTableBuilder, jsonSectionBuilder, textDecorator)
                                                         ]);
 
-            return new AssertService(ComparisonStrategy, ResponseWriter, WriteResponseService, outputBuilder);
+            // Build output mode infrastructure
+            var outputModeService = new OutputModeService();
+            var aiOutputTransformer = new AiOutputTransformer();
+            var outputModeRenderer = new OutputModeRenderer(outputBuilder, aiOutputTransformer, outputModeService);
+
+            return new AssertService(ComparisonStrategy, ResponseWriter, WriteResponseService, outputModeRenderer);
         }
 
         /// <summary>
