@@ -94,7 +94,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _assertService = new AssertService(comparisonStrategy,
                                                _responseWriter,
                                                _writeResponseService,
-                                               _outputModeRenderer);
+                                               OutputModeRenderer);
 
             // 6. Resolve HTTP handler and update _httpCallHandler
             var httpCallHandler = serviceProvider.GetRequiredService<IHttpCallHandler>();
@@ -135,7 +135,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _emptyAnonymousObjectDetector = serviceProvider.GetRequiredService<IEmptyAnonymousObjectDetector>();
 
             // 9. Resolve error handling strategy
-            _testErrorHandlingStrategy = serviceProvider.GetRequiredService<ITestErrorHandlingStrategy>();
+            TestErrorHandlingStrategy = serviceProvider.GetRequiredService<ITestErrorHandlingStrategy>();
 
             // 10. Most important: Rebuild AssertableHttpClient with all updated components
             _assertableHttpClientDefault = new AssertableHttpClient.AssertableHttpClient(_httpCallHandler,
@@ -145,7 +145,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                          _jsonSerializerOptions,
                                                                                          _endpointValidator,
                                                                                          _writeResponseService,
-                                                                                         _testErrorHandlingStrategy);
+                                                                                         TestErrorHandlingStrategy);
 
             CustomAssertableHttpClient = _assertableHttpClientDefault;
 
@@ -226,27 +226,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static ICurlPrinter _curlPrinter = new CurlPrinter(_curlFormatter, _curlBuilder);
 
         // HTTP failure output helper (default plain text decorator)
-        private static readonly IHttpFailureOutputHelper _httpFailureOutputHelper = new HttpFailureOutputHelper();
+        private static readonly IHttpFailureOutputHelper HttpFailureOutputHelper = new HttpFailureOutputHelper();
 
         // HTTP failure strategies (default plain text decorator)
-        private static readonly IHttpFailureOutputStrategy[] _httpFailureStrategies =
+        private static readonly IHttpFailureOutputStrategy[] HttpFailureStrategies =
         [
-            new StatusCodeMismatchOutputStrategy(_plainTextDecorator, _httpFailureOutputHelper),
-            new SchemaMismatchOutputStrategy(_plainTextDecorator, _httpFailureOutputHelper),
-            new SnapshotMismatchOutputStrategy(_plainTextDecorator, _httpFailureOutputHelper),
-            new ContentTypeMismatchOutputStrategy(_plainTextDecorator, _httpFailureOutputHelper)
+            new StatusCodeMismatchOutputStrategy(_plainTextDecorator, HttpFailureOutputHelper),
+            new SchemaMismatchOutputStrategy(_plainTextDecorator, HttpFailureOutputHelper),
+            new SnapshotMismatchOutputStrategy(_plainTextDecorator, HttpFailureOutputHelper),
+            new ContentTypeMismatchOutputStrategy(_plainTextDecorator, HttpFailureOutputHelper)
         ];
 
-        private static readonly DefaultHttpFailureOutputStrategy _defaultHttpFailureStrategy = new(_plainTextDecorator, _httpFailureOutputHelper);
+        private static readonly DefaultHttpFailureOutputStrategy DefaultHttpFailureStrategy = new(_plainTextDecorator, HttpFailureOutputHelper);
 
-        private static readonly HttpFailureOutputBuilder _httpFailureOutputBuilder = new(_httpFailureStrategies, _defaultHttpFailureStrategy);
+        private static readonly HttpFailureOutputBuilder HttpFailureOutputBuilder = new(HttpFailureStrategies, DefaultHttpFailureStrategy);
 
         // Output strategies for AssertService
         private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new(_plainTextDecorator);
 
         private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(_differencesTableBuilder, _jsonSectionBuilder, _plainTextDecorator);
 
-        private static readonly HttpResponseOutputStrategy HttpResponseOutputStrategy = new(_httpFailureOutputBuilder,
+        private static readonly HttpResponseOutputStrategy HttpResponseOutputStrategy = new(HttpFailureOutputBuilder,
                                                                                             _httpCallInfoTableBuilder,
                                                                                             _differencesTableBuilder,
                                                                                             _jsonSectionBuilder,
@@ -264,20 +264,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static IAssertOutputBuilder _outputBuilder = new AssertOutputBuilder(OutputStrategies);
 
         // Output mode infrastructure
-        private static IOutputModeService _outputModeService = new OutputModeService();
+        private static readonly IOutputModeService OutputModeService = new OutputModeService();
 
-        private static IAiOutputTransformer _aiOutputTransformer = new AiOutputTransformer();
+        private static readonly IAiOutputTransformer AiOutputTransformer = new AiOutputTransformer();
 
         // Output mode render strategies (extensible)
-        private static IOutputModeRenderStrategy _humanModeStrategy = new HumanModeRenderStrategy(_outputBuilder);
+        private static readonly IOutputModeRenderStrategy HumanModeStrategy = new HumanModeRenderStrategy(_outputBuilder);
 
-        private static IOutputModeRenderStrategy _aiModeStrategy = new AiModeRenderStrategy(_aiOutputTransformer);
+        private static readonly IOutputModeRenderStrategy AiModeStrategy = new AiModeRenderStrategy(AiOutputTransformer);
 
-        private static IOutputModeRenderStrategy _hybridModeStrategy = new HybridModeRenderStrategy(_outputBuilder, _aiOutputTransformer);
+        private static readonly IOutputModeRenderStrategy HybridModeStrategy = new HybridModeRenderStrategy(_outputBuilder, AiOutputTransformer);
 
-        private static IOutputModeRenderStrategy[] _renderStrategies = [_humanModeStrategy, _aiModeStrategy, _hybridModeStrategy];
+        private static readonly IOutputModeRenderStrategy[] RenderStrategies = [HumanModeStrategy, AiModeStrategy, HybridModeStrategy];
 
-        private static IOutputModeRenderer _outputModeRenderer = new OutputModeRenderer(_renderStrategies, _outputModeService);
+        private static readonly IOutputModeRenderer OutputModeRenderer = new OutputModeRenderer(RenderStrategies, OutputModeService);
 
         // Comparison strategies (order matters - first match wins)
         private static readonly ISpecificComparisonStrategy StringComparisonStrategy = new StringComparisonStrategy();
@@ -298,7 +298,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static IAssertService _assertService = new AssertService(ComparisonStrategy,
                                                                          _responseWriter,
                                                                          _writeResponseService,
-                                                                         _outputModeRenderer);
+                                                                         OutputModeRenderer);
 
         // Pipeline (contains all steps internally)
         private static IHttpAssertionPipeline _httpAssertionPipeline = new HttpAssertionPipeline(new IHttpAssertionStep[]
@@ -328,7 +328,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // Error handling strategy - will be properly initialized in Setup()
         // Default implementation for static initialization
-        internal static ITestErrorHandlingStrategy _testErrorHandlingStrategy = CreateDefaultErrorHandlingStrategy();
+        internal static ITestErrorHandlingStrategy TestErrorHandlingStrategy = CreateDefaultErrorHandlingStrategy();
 
         private static IAssertableHttpClient _assertableHttpClientDefault = new AssertableHttpClient.AssertableHttpClient(_httpCallHandler,
                                                                                                                           _parameterReplacer,
@@ -337,7 +337,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                                                                           JsonSerializerOptions,
                                                                                                                           _endpointValidator,
                                                                                                                           _writeResponseService,
-                                                                                                                          _testErrorHandlingStrategy);
+                                                                                                                          TestErrorHandlingStrategy);
 
         // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions

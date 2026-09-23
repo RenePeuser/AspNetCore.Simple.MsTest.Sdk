@@ -71,8 +71,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             // Exactly one strategy found - use it
-            return matchingStrategies[0].Render(context, differences, expectedJson,
-                                                currentJson);
+            var render = matchingStrategies[0].Render(context, differences, expectedJson,
+                                                      currentJson);
+
+            return render;
         }
     }
 }

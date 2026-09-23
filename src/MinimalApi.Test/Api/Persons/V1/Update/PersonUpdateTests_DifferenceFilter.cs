@@ -14,7 +14,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Update
     /// </summary>
     [TestClass]
     [TestCategory("Minimal Api")]
-    public partial class PersonUpdateTests_DifferenceFilter : ApiTestBase
+    public partial class PersonUpdateTestsDifferenceFilter : ApiTestBase
     {
         private static Person PersonToUpdate()
         {

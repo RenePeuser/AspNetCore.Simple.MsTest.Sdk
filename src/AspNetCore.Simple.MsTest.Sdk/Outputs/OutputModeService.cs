@@ -49,7 +49,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             SdkTrace.WriteLine($"[OutputModeService] Initialized with mode: {_mode} (env var: '{envVar ?? "<not set>"}')");
         }
 
-        public OutputMode GetOutputMode() => _mode;
+        public OutputMode GetOutputMode()
+        {
+            return _mode;
+        }
 
         private static OutputMode DetermineDefaultForInvalidValue(string invalidValue)
         {

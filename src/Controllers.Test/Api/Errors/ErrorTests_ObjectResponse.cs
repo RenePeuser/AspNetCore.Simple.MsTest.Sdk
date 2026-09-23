@@ -14,7 +14,7 @@ namespace Controllers.Test.Api.Errors
     [TestClass]
     [TestCategory("Controller")]
     [TestCategory("Errors")]
-    public partial class ErrorTests_ObjectResponse : ApiTestBase
+    public partial class ErrorTestsObjectResponse : ApiTestBase
     {
         [TestMethod]
         [TestCategory("ObjectResponse")]

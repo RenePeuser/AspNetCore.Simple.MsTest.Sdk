@@ -14,7 +14,7 @@ namespace MinimalApi.Test.Api.Errors
     [TestClass]
     [TestCategory("Minimal Api")]
     [TestCategory("Errors")]
-    public partial class ErrorTests_ObjectResponse : ApiTestBase
+    public partial class ErrorTestsObjectResponse : ApiTestBase
     {
         [TestMethod]
         [TestCategory("ObjectResponse")]

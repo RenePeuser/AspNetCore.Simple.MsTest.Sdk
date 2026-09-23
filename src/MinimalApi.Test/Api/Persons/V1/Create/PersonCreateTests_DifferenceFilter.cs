@@ -14,7 +14,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
     /// </summary>
     [TestClass]
     [TestCategory("Minimal Api")]
-    public partial class PersonCreateTests_DifferenceFilter : ApiTestBase
+    public partial class PersonCreateTestsDifferenceFilter : ApiTestBase
     {
         private static Person PersonToCreate()
         {

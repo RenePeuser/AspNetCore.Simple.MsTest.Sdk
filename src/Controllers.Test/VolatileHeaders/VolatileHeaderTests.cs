@@ -128,12 +128,12 @@ namespace Controllers.Test.VolatileHeaders
                               .Select(header => header["key"]!.ToString())
                               .ToList();
 
-            const string Because = "ASnapshotThatStillCarriesVolatileHeadersMustStayGreen only proves something if the fixture really carries these headers. Once they are gone from the file that test passes for the wrong reason.";
-            const string Fix = "Restore the volatile headers in VolatileHeaders\\Responses\\StaleVolatileHeaders.json - the fixture deliberately represents a snapshot recorded before the filter existed and must not be re-recorded.";
+            const string because = "ASnapshotThatStillCarriesVolatileHeadersMustStayGreen only proves something if the fixture really carries these headers. Once they are gone from the file that test passes for the wrong reason.";
+            const string fix = "Restore the volatile headers in VolatileHeaders\\Responses\\StaleVolatileHeaders.json - the fixture deliberately represents a snapshot recorded before the filter existed and must not be re-recorded.";
 
-            Assert.That.Contains(names, "traceparent", because: Because, fix: Fix);
-            Assert.That.Contains(names, "X-Amzn-Trace-Id", because: Because, fix: Fix);
-            Assert.That.Contains(names, "Date", because: Because, fix: Fix);
+            Assert.That.Contains(names, "traceparent", because: because, fix: fix);
+            Assert.That.Contains(names, "X-Amzn-Trace-Id", because: because, fix: fix);
+            Assert.That.Contains(names, "Date", because: because, fix: fix);
         }
 
         private static KeyValuePair<string, ImmutableList<string>> Header(string name,

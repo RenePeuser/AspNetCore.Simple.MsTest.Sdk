@@ -45,7 +45,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string currentJson)
         {
             // Build HTTP-specific context if available
-            IHttpResponseContext? httpContext = context as IHttpResponseContext;
+            var httpContext = context as IHttpResponseContext;
 
             var output = new
             {

@@ -23,7 +23,7 @@ namespace MinimalApi.Test.Api.Errors
     [TestCategory("Minimal Api")]
     [TestCategory("Fluent")]
     [TestCategory("Error")]
-    public sealed class ErrorsEndpointsTests_Fluent : ApiTestBase
+    public sealed class ErrorsEndpointsTestsFluent : ApiTestBase
     {
         private const string NotImplementedUrl = "api/v1/errors/not-implemented";
 

@@ -12,7 +12,7 @@ namespace Controllers.Test.Api.Persons.V1.Delete
     /// </summary>
     [TestClass]
     [TestCategory("Controller")]
-    public partial class PersonDeleteTests_ObjectResponse : ApiTestBase
+    public partial class PersonDeleteTestsObjectResponse : ApiTestBase
     {
         [TestMethod]
         [TestCategory("ObjectResponse")]

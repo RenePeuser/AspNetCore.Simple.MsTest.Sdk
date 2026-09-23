@@ -14,7 +14,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
     /// </summary>
     [TestClass]
     [TestCategory("Minimal Api")]
-    public partial class PersonQueryTests_ObjectResponse : ApiTestBase
+    public partial class PersonQueryTestsObjectResponse : ApiTestBase
     {
         [TestMethod]
         [TestCategory("ObjectResponse")]

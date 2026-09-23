@@ -112,15 +112,15 @@ namespace Controllers.Test.SnapshotFormat
         [TestMethod]
         public void MatchExistingMustLeaveANewSnapshotAsAnEnvelope()
         {
-            const string Envelope = /*lang=json,strict*/ """{ "content": { "value": [1,2] }, "statusCode": "OK" }""";
+            const string envelope = /*lang=json,strict*/ """{ "content": { "value": [1,2] }, "statusCode": "OK" }""";
 
             // No existing content - nothing to preserve, the envelope stays.
-            Assert.That.AreEqual(Envelope,
-                                 SnapshotShape.MatchExisting(Envelope, existingContent: null),
+            Assert.That.AreEqual(envelope,
+                                 SnapshotShape.MatchExisting(envelope, existingContent: null),
                                  because: "With no existing content there is no shape to preserve, so the new snapshot keeps the envelope - that is the richer format and the intended default for anything created from now on.",
                                  fix: "Check the null branch in SnapshotShape.MatchExisting: it has to return the envelope unchanged instead of unwrapping by default.");
 
-            var unwrapped = SnapshotShape.MatchExisting(Envelope, existingContent: "[1,2]");
+            var unwrapped = SnapshotShape.MatchExisting(envelope, existingContent: "[1,2]");
 
             Assert.That.AreEqual(new[] { 1, 2 },
                                  JArray.Parse(unwrapped).Select(item => (int)item).ToList(),

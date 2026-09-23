@@ -14,7 +14,7 @@ namespace Controllers.Test.Api.Persons.V1.Query
     /// </summary>
     [TestClass]
     [TestCategory("Controller")]
-    public partial class PersonQueryTests_ObjectResponse : ApiTestBase
+    public partial class PersonQueryTestsObjectResponse : ApiTestBase
     {
         [TestMethod]
         [TestCategory("ObjectResponse")]

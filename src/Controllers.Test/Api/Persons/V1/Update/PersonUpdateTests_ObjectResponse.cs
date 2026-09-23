@@ -12,7 +12,7 @@ namespace Controllers.Test.Api.Persons.V1.Update
     /// </summary>
     [TestClass]
     [TestCategory("Controller")]
-    public partial class PersonUpdateTests_ObjectResponse : ApiTestBase
+    public partial class PersonUpdateTestsObjectResponse : ApiTestBase
     {
         [TestMethod]
         [TestCategory("ObjectResponse")]

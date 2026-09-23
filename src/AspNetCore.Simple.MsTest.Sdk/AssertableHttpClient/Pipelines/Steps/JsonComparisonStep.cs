@@ -45,7 +45,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
         /// The current side of the diff is the raw response body, so nothing on this side may rename
         /// anything the api did not rename itself - see <see cref="ComparisonJsonOptions"/>.
         /// </summary>
-        private readonly JsonSerializerOptions jsonSerializerOptions = apiJsonSerializerOptions.ForComparison();
+        private readonly JsonSerializerOptions _jsonSerializerOptions = apiJsonSerializerOptions.ForComparison();
 
         /// <inheritdoc />
         public void Execute<TResult>(HttpResponseContext<TResult> context)
@@ -74,12 +74,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // Build SimpleHttpResponseMessage from HttpResponseMessage (needed for snapshot comparison)
             // Volatile headers are stripped here, before anything is compared or recorded - see
             // VolatileHeaderFilter.
-            var simpleHttpResponseMessage = context.HttpResponseMessage.ToJson(jsonSerializerOptions)
-                                                   .FromJsonStringAs<SimpleHttpResponseMessage>(jsonSerializerOptions)
+            var simpleHttpResponseMessage = context.HttpResponseMessage.ToJson(_jsonSerializerOptions)
+                                                   .FromJsonStringAs<SimpleHttpResponseMessage>(_jsonSerializerOptions)
                                                    .WithoutVolatileHeaders(testSdkSettings);
 
-            var contentHeaders = context.HttpResponseMessage.Content.Headers.ToJson(jsonSerializerOptions)
-                                        .FromJsonStringAs<ImmutableList<KeyValuePair<string, ImmutableList<string>>>>(jsonSerializerOptions)
+            var contentHeaders = context.HttpResponseMessage.Content.Headers.ToJson(_jsonSerializerOptions)
+                                        .FromJsonStringAs<ImmutableList<KeyValuePair<string, ImmutableList<string>>>>(_jsonSerializerOptions)
                                         .WithoutVolatileHeaders(testSdkSettings);
 
             // Build HTTP-specific comparison structures
@@ -90,7 +90,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             // Prepare expected JSON for AssertService
             // For HttpResponse asserts we need both: the object AND the JSON (for WriteResponse/debugging)
-            var expectedJson = expectedResponse.ToJson(jsonSerializerOptions);
+            var expectedJson = expectedResponse.ToJson(_jsonSerializerOptions);
 
             // Build context for AssertService and delegate all comparison logic
             // Optimization: Pass both expectedResponse object AND expectedJson for flexibility
@@ -158,8 +158,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             var expectedResultFile = context.ExpectedResultFile;
 
             // Build current simple HTTP response for comparison
-            var simpleHttpResponseMessage = context.HttpResponseMessage.ToJson(jsonSerializerOptions).FromJsonStringAs<SimpleHttpResponseMessage>(jsonSerializerOptions);
-            var contentHeaders = context.HttpResponseMessage.Content.Headers.ToJson(jsonSerializerOptions).FromJsonStringAs<ImmutableList<KeyValuePair<string, ImmutableList<string>>>>(jsonSerializerOptions);
+            var simpleHttpResponseMessage = context.HttpResponseMessage.ToJson(_jsonSerializerOptions).FromJsonStringAs<SimpleHttpResponseMessage>(_jsonSerializerOptions);
+            var contentHeaders = context.HttpResponseMessage.Content.Headers.ToJson(_jsonSerializerOptions).FromJsonStringAs<ImmutableList<KeyValuePair<string, ImmutableList<string>>>>(_jsonSerializerOptions);
 
             var currentResolvedSimpleHttpResponse = simpleHttpResponseMessage with
             {
@@ -185,7 +185,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
                 if (expectedResultAsJson.IsNull())
                 {
-                    expectedResultAsJson = currentResolvedSimpleHttpResponse.ToJson(jsonSerializerOptions);
+                    expectedResultAsJson = currentResolvedSimpleHttpResponse.ToJson(_jsonSerializerOptions);
                 }
             }
             else
@@ -258,11 +258,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // Build expected type
             var expectedType = targetIsPrimitiveType
                                    ? primitiveTypeConverter.ConvertTo<TResult>(expectedResultAsJsonParameterized)
-                                   : expectedResultAsJsonParameterized.FromJsonStringOrDefault<TResult>(jsonSerializerOptions);
+                                   : expectedResultAsJsonParameterized.FromJsonStringOrDefault<TResult>(_jsonSerializerOptions);
 
             var filteredExpectedType = expectedType.IsNotNull() && context.OrderFunc.IsNotNull() ? context.OrderFunc(expectedType) : expectedType;
 
-            var expectedResultAsSimpleResponse = expectedResultAsJsonParameterized.FromJsonStringOrDefault<SimpleHttpResponseMessage>(jsonSerializerOptions);
+            var expectedResultAsSimpleResponse = expectedResultAsJsonParameterized.FromJsonStringOrDefault<SimpleHttpResponseMessage>(_jsonSerializerOptions);
 
             // A snapshot recorded before volatile headers were filtered still carries them. Dropping
             // them on this side too is what keeps those snapshots green instead of failing on a

@@ -16,7 +16,7 @@ namespace Controllers.Test.Api.Persons.V1.Delete
     /// </summary>
     [TestClass]
     [TestCategory("Controller")]
-    public partial class PersonDeleteTests_DifferenceFilter : ApiTestBase
+    public partial class PersonDeleteTestsDifferenceFilter : ApiTestBase
     {
         private const string DeleteUrl = "api/v1/persons/1/with-response";
 

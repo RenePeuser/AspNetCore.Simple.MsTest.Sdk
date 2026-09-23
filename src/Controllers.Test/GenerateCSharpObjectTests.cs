@@ -72,14 +72,14 @@ namespace Controllers.Test
             var csharpCode = generator.GenerateAnonymousObjectInitializer(json, 12);
 
             // Verify the generated code contains expected properties
-            const string Because = "The generated initializer is pasted straight into the test source, so every json property has to appear with C# syntax and the right literal form - a number unquoted, a string quoted, a bool lowercase.";
-            const string Fix = "Check the per-JTokenType branches in CSharpCodeGenerator.GenerateAnonymousObjectInitializer - a missing property means its token type has no branch.";
+            const string because = "The generated initializer is pasted straight into the test source, so every json property has to appear with C# syntax and the right literal form - a number unquoted, a string quoted, a bool lowercase.";
+            const string fix = "Check the per-JTokenType branches in CSharpCodeGenerator.GenerateAnonymousObjectInitializer - a missing property means its token type has no branch.";
 
-            Assert.That.Contains(csharpCode, "id = 1", because: Because, fix: Fix);
-            Assert.That.Contains(csharpCode, "name = \"John Doe\"", because: Because, fix: Fix);
-            Assert.That.Contains(csharpCode, "age = 30", because: Because, fix: Fix);
-            Assert.That.Contains(csharpCode, "isActive = true", because: Because, fix: Fix);
-            Assert.That.Contains(csharpCode, "tags = ", because: Because, fix: Fix);
+            Assert.That.Contains(csharpCode, "id = 1", because: because, fix: fix);
+            Assert.That.Contains(csharpCode, "name = \"John Doe\"", because: because, fix: fix);
+            Assert.That.Contains(csharpCode, "age = 30", because: because, fix: fix);
+            Assert.That.Contains(csharpCode, "isActive = true", because: because, fix: fix);
+            Assert.That.Contains(csharpCode, "tags = ", because: because, fix: fix);
 
             // Output for visual inspection
             Console.WriteLine("Generated C# Code:");

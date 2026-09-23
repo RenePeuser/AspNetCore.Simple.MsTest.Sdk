@@ -29,7 +29,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class PostWithBodyTestCreator(ILogger<PostWithBodyTestCreator> logger,
                                                   TestSdkSettings testSdkSettings) : ISpecificTestCreator
     {
-        private readonly string NoPayloadTestTemplate = @"
+        private readonly string _noPayloadTestTemplate = @"
 $testattribute$
 public Task $testmethodname$()
 {
@@ -40,7 +40,7 @@ public Task $testmethodname$()
 
         // ToDo: Optimize template creation => Strategy :)
 
-        private readonly string TestTemplate = @"
+        private readonly string _testTemplate = @"
 $testattribute$
 public Task $testmethodname$()
 {
@@ -50,7 +50,7 @@ public Task $testmethodname$()
 }
 ";
 
-        private readonly string UrlOnlyTemplate = @"
+        private readonly string _urlOnlyTemplate = @"
 $testattribute$
 public Task $testmethodname$()
 {
@@ -58,7 +58,7 @@ public Task $testmethodname$()
 }
 ";
 
-        private readonly string UrlWithPayloadNoResponse = @"
+        private readonly string _urlWithPayloadNoResponse = @"
 $testattribute$
 public Task $testmethodname$()
 {
@@ -178,15 +178,15 @@ public Task $testmethodname$()
             {
                 if (responseInfo.Body.IsNotNullOrWhiteSpace())
                 {
-                    return UrlOnlyTemplate.Replace("<$responseType$>", string.Empty)
+                    return _urlOnlyTemplate.Replace("<$responseType$>", string.Empty)
                                           .Replace("$testmethodname$", "Should_Return_Unauthorized_If_Call_Is_Not_Authorized");
                 }
 
-                return UrlWithPayloadNoResponse.Replace("<$responseType$>", string.Empty)
+                return _urlWithPayloadNoResponse.Replace("<$responseType$>", string.Empty)
                                                .Replace("$testmethodname$", "Should_Return_Unauthorized_If_Call_Is_Not_Authorized");
             }
 
-            var template = requestInfo.Body.IsNullOrWhiteSpace() ? NoPayloadTestTemplate : TestTemplate;
+            var template = requestInfo.Body.IsNullOrWhiteSpace() ? _noPayloadTestTemplate : _testTemplate;
 
             if (responseInfo.StatusCode is >= 200 and < 300)
             {

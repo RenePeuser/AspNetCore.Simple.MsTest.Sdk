@@ -20,7 +20,7 @@ namespace Controllers.Test.Api.Persons.V1.Get
     /// </summary>
     [TestClass]
     [TestCategory("Controller")]
-    public partial class PersonGetTests_DifferenceFilter : ApiTestBase
+    public partial class PersonGetTestsDifferenceFilter : ApiTestBase
     {
         private const string PersonUrl = "api/v1/persons/1";
 

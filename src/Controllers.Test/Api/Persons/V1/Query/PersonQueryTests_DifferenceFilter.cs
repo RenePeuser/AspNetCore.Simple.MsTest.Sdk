@@ -18,7 +18,7 @@ namespace Controllers.Test.Api.Persons.V1.Query
     /// </summary>
     [TestClass]
     [TestCategory("Controller")]
-    public partial class PersonQueryTests_DifferenceFilter : ApiTestBase
+    public partial class PersonQueryTestsDifferenceFilter : ApiTestBase
     {
         private const string SearchUrl = "api/v1/persons/search";
 
