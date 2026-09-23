@@ -28,7 +28,9 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         private const string SearchUrl = "api/v1/persons/search";
 
         // Query {Name="Son", MinAge=50} returns exactly Person 1 (Son/Goku/99).
-        private static Person[] ExpectedSonPersons(int age = 99, string name = "Son", string firstName = "Goku")
+        private static Person[] ExpectedSonPersons(int age = 99,
+                                                   string name = "Son",
+                                                   string firstName = "Goku")
         {
             return
             [
@@ -47,17 +49,20 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         [TestCategory("DifferenceFilter")]
         public Task PerAssertFilter_Should_Ignore_Filtered_Difference()
         {
-            var queryRequest = new { Name = "Son", MinAge = 50 };
+            var queryRequest = new
+                               {
+                                   Name = "Son",
+                                   MinAge = 50
+                               };
 
             // Expected age is wrong (42 vs 99) - the per-assert filter drops the age difference.
             var expectedPersons = ExpectedSonPersons(age: 42);
 
-            return Client.AssertQueryAsync<IEnumerable<Person>>(
-                       SearchUrl,
-                       queryRequest,
-                       expectedPersons,
-                       differenceFunc: diffs => diffs,
-                       differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase));
+            return Client.AssertQueryAsync<IEnumerable<Person>>(SearchUrl,
+                                                                queryRequest,
+                                                                expectedPersons,
+                                                                differenceFunc: diffs => diffs,
+                                                                differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase));
         }
 
         [TestMethod]
@@ -66,21 +71,23 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         [TestCategory("DifferenceFilter")]
         public async Task PerAssertFilter_Should_Not_Hide_Unrelated_Difference()
         {
-            var queryRequest = new { Name = "Son", MinAge = 50 };
+            var queryRequest = new
+                               {
+                                   Name = "Son",
+                                   MinAge = 50
+                               };
 
             // name is wrong; the filter only ignores age, so the name difference must still fail.
             var expectedPersons = ExpectedSonPersons(age: 42, name: "WrongName");
 
-            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(
-                           () => Client.AssertQueryAsync<IEnumerable<Person>>(
-                                     SearchUrl,
-                                     queryRequest,
-                                     expectedPersons,
-                                     differenceFunc: diffs => diffs,
-                                     differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)),
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertQueryAsync<IEnumerable<Person>>(SearchUrl,
+                                                                                                                           queryRequest,
+                                                                                                                           expectedPersons,
+                                                                                                                           differenceFunc: diffs => diffs,
+                                                                                                                           differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase)),
                                                                         because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
                                                                         fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.")
-                  .ConfigureAwait(false);
+                        .ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -89,7 +96,11 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         [TestCategory("DifferenceFilter")]
         public Task PerAssertFilter_That_Ignores_Everything_Should_Pass()
         {
-            var queryRequest = new { Name = "Son", MinAge = 50 };
+            var queryRequest = new
+                               {
+                                   Name = "Son",
+                                   MinAge = 50
+                               };
 
             // Every field differs, but a filter that keeps nothing makes the assert pass.
             var expectedPersons = new[]
@@ -101,12 +112,11 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
                                                  Emails: ImmutableList<Email>.Empty)
                                   };
 
-            return Client.AssertQueryAsync<IEnumerable<Person>>(
-                       SearchUrl,
-                       queryRequest,
-                       expectedPersons,
-                       differenceFunc: diffs => diffs,
-                       differenceFilter: _ => false);
+            return Client.AssertQueryAsync<IEnumerable<Person>>(SearchUrl,
+                                                                queryRequest,
+                                                                expectedPersons,
+                                                                differenceFunc: diffs => diffs,
+                                                                differenceFilter: _ => false);
         }
 
         [TestMethod]
@@ -115,16 +125,19 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
         [TestCategory("DifferenceFilter")]
         public Task DifferenceFilterOnly_Twin_Should_Ignore_Filtered_Difference()
         {
-            var queryRequest = new { Name = "Son", MinAge = 50 };
+            var queryRequest = new
+                               {
+                                   Name = "Son",
+                                   MinAge = 50
+                               };
 
             // Exercises the differenceFilter-only twin (no differenceFunc) added to Query.AsObjectResponse.
             var expectedPersons = ExpectedSonPersons(age: 42);
 
-            return Client.AssertQueryAsync<IEnumerable<Person>>(
-                       SearchUrl,
-                       queryRequest,
-                       expectedPersons,
-                       differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase));
+            return Client.AssertQueryAsync<IEnumerable<Person>>(SearchUrl,
+                                                                queryRequest,
+                                                                expectedPersons,
+                                                                differenceFilter: d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase));
         }
     }
 }

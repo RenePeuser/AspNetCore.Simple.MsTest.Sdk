@@ -17,8 +17,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Renders the output for the given mode.
         /// </summary>
         string Render(IObjectAssertContext context,
-                     ImmutableList<Difference> differences,
-                     string expectedJson,
-                     string currentJson);
+                      ImmutableList<Difference> differences,
+                      string expectedJson,
+                      string currentJson);
     }
 }

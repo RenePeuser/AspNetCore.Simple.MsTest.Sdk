@@ -49,7 +49,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         /// <summary>
-        ///     Resolves a service for an assert issued by <paramref name="consumerAssembly"/>.
+        ///     Resolves a service for an assert issued by <paramref name="consumerAssembly" />.
         /// </summary>
         internal static T GetService<T>(Assembly consumerAssembly)
             where T : notnull
@@ -101,14 +101,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
     public static partial class HttpClientAssertExtensions
     {
-        public static bool SkipEndpointValidation { get; set; }
-
         // Quickfix to hold the whole api compatible
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
         private static JsonSerializerOptions _jsonSerializerOptions = JsonSerializerExtension.CreateDefaultOptions();
 
         private static IAssertableHttpClient? _customAssertableHttpClient;
+
+        public static bool SkipEndpointValidation { get; set; }
 
         /// <summary>
         ///     The api's json options - one set for the http and the object route.
@@ -147,6 +147,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public static IAssertableHttpClient CustomAssertableHttpClient
         {
             get => AssertableHttpClientFor(Assembly.GetCallingAssembly());
+
             set => _customAssertableHttpClient = value;
         }
 
@@ -157,21 +158,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
 #pragma warning disable CA1859
         internal static async Task AssertHttpCallAsync(this HttpClient client,
-                                                      string url,
-                                                      string payloadAsJson,
-                                                      HttpMethod httpMethod,
-                                                      (string Key, object? Value)[] parameters,
-                                                      Assembly callingAssembly,
-                                                      [CallerArgumentExpression(nameof(payloadAsJson))]
-                                                      string payloadAsJsonParameterName = "",
-                                                      [CallerFilePath] string callerFilePath = "",
-                                                      bool isSuccessStatusCode = true,
-                                                      bool writeResponse = false,
-                                                      bool skipEndpointValidation = false,
-                                                      HttpStatusCode? expectedHttpStatusCode = null,
-                                                      IReadOnlyDictionary<string, string>? requestHeaders = null,
-                                                      [CallerMemberName] string callerMemberName = "",
-                                                      [CallerLineNumber] int callerLineNumber = 0)
+                                                       string url,
+                                                       string payloadAsJson,
+                                                       HttpMethod httpMethod,
+                                                       (string Key, object? Value)[] parameters,
+                                                       Assembly callingAssembly,
+                                                       [CallerArgumentExpression(nameof(payloadAsJson))]
+                                                       string payloadAsJsonParameterName = "",
+                                                       [CallerFilePath] string callerFilePath = "",
+                                                       bool isSuccessStatusCode = true,
+                                                       bool writeResponse = false,
+                                                       bool skipEndpointValidation = false,
+                                                       HttpStatusCode? expectedHttpStatusCode = null,
+                                                       IReadOnlyDictionary<string, string>? requestHeaders = null,
+                                                       [CallerMemberName] string callerMemberName = "",
+                                                       [CallerLineNumber] int callerLineNumber = 0)
 #pragma warning restore CA1859
         {
             // Non-generic overload for endpoints without response body (e.g., 204 NoContent)
@@ -194,39 +195,39 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with ExpectedType = typeof(void) for NoContent scenarios
             var context = new HttpAssertContext<string>
-            {
-                CallerFilePath = callerFilePath,
-                CallerMemberName = callerMemberName,
-                CallerLineNumber = callerLineNumber,
-                CallingAssembly = callingAssembly,
-                Client = client,
-                Current = null,
-                CurrentObject = null,
-                CurrentResultParameterName = "Current response",
-                DifferenceFunc = difference => difference,
-                ExpectedType = typeof(void), // <-- Key difference: void for NoContent
-                ExpectedObjectAsJson = IgnoreResponseComparison,
-                ExpectedResultFile = expectedResultFile,
-                ExpectedResultParameterName = string.Empty,
-                HttpMethod = httpMethod,
-                IsSuccessStatusCode = isSuccessStatusCode,
-                Parameters = parameters,
-                PayloadAsJson = payloadAsJson,
-                PayloadFile = payloadFile,
-                PayloadParameterName = payloadAsJsonParameterName,
-                ResolvedExpectedJson = resolvedExpectedJson,
-                ResolvedPayload = resolvedPayload,
-                ShowTokenInCurl = ShowTokenInCurl,
-                TypeIsPrimitiveType = true,
-                Url = resolvedUrl,
-                WriteResponse = writeResponse,
-                ApiVersion = apiVersion,
-                IgnoreResponse = false,
-                SkipEndpointValidation = skipEndpointValidation,
-                ExpectedHttpStatusCode = expectedHttpStatusCode,
-                Expected = null,
-                RequestHeaders = requestHeaders
-            };
+                          {
+                              CallerFilePath = callerFilePath,
+                              CallerMemberName = callerMemberName,
+                              CallerLineNumber = callerLineNumber,
+                              CallingAssembly = callingAssembly,
+                              Client = client,
+                              Current = null,
+                              CurrentObject = null,
+                              CurrentResultParameterName = "Current response",
+                              DifferenceFunc = difference => difference,
+                              ExpectedType = typeof(void), // <-- Key difference: void for NoContent
+                              ExpectedObjectAsJson = IgnoreResponseComparison,
+                              ExpectedResultFile = expectedResultFile,
+                              ExpectedResultParameterName = string.Empty,
+                              HttpMethod = httpMethod,
+                              IsSuccessStatusCode = isSuccessStatusCode,
+                              Parameters = parameters,
+                              PayloadAsJson = payloadAsJson,
+                              PayloadFile = payloadFile,
+                              PayloadParameterName = payloadAsJsonParameterName,
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              ResolvedPayload = resolvedPayload,
+                              ShowTokenInCurl = ShowTokenInCurl,
+                              TypeIsPrimitiveType = true,
+                              Url = resolvedUrl,
+                              WriteResponse = writeResponse,
+                              ApiVersion = apiVersion,
+                              IgnoreResponse = false,
+                              SkipEndpointValidation = skipEndpointValidation,
+                              ExpectedHttpStatusCode = expectedHttpStatusCode,
+                              Expected = null,
+                              RequestHeaders = requestHeaders
+                          };
 
             await AssertableHttpClientFor(callingAssembly).AssertAsync(context).ConfigureAwait(false);
         }
@@ -399,10 +400,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // EARLY VALIDATION: Check .json extension BEFORE any other processing
             // This provides the best error message with full context and suggested fix
             GetService<IJsonFileExtensionValidator>(callingAssembly).ValidatePayloadAndExpectedResult(payloadAsJson,
-                                                                         expectedResult,
-                                                                         targetIsPrimitiveType,
-                                                                         callerFilePath,
-                                                                         callerLineNumber);
+                                                                                                      expectedResult,
+                                                                                                      targetIsPrimitiveType,
+                                                                                                      callerFilePath,
+                                                                                                      callerLineNumber);
 
             var embeddedFileLocalizer = GetService<IEmbeddedFileLocalizer>(callingAssembly);
             var parameterReplacer = GetService<IParameterReplacer>(callingAssembly);
@@ -432,50 +433,51 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var detectedIsEmptyAnonymous = (isEmptyAnonymous ?? (resolvedExpectedJson == "{}")) &&
                                            expectationIsSnapshotFile.IsFalse();
+
             SdkTrace.WriteLine($"[HttpCall] resolvedExpectedJson='{resolvedExpectedJson}', isEmptyAnonymous={detectedIsEmptyAnonymous} (provided={isEmptyAnonymous})");
 
             // Create public context directly - no need for internal context
             var context = new HttpAssertContext<TResult>
-            {
-                CallerFilePath = callerFilePath,
-                CallerMemberName = callerMemberName,
-                CallerLineNumber = callerLineNumber,
-                CallingAssembly = callingAssembly,
-                Client = client,
-                Current = default,
-                CurrentObject = null,
-                CurrentResultParameterName = "Current response",
-                DifferenceFunc = differenceFunc,
-                DifferenceFilter = differenceFilter ?? (static _ => true),
-                ExpectedType = typeof(TResult),
-                ExpectedObjectAsJson = expectedResult,
-                ExpectedResultFile = expectedResultFile,
-                ExpectedResultParameterName = expectedResultParameterName,
-                HttpMethod = httpMethod,
-                IsSuccessStatusCode = isSuccessStatusCode,
-                OrderFunc = filterFunc,
-                Parameters = parameters,
-                PayloadAsJson = payloadAsJson,
-                PayloadFile = payloadFile,
-                PayloadParameterName = payloadAsJsonParameterName,
-                ResolvedExpectedJson = resolvedExpectedJson,
-                ResolvedPayload = resolvedPayload,
-                ShowTokenInCurl = ShowTokenInCurl,
-                TypeIsPrimitiveType = targetIsPrimitiveType,
-                Url = resolvedUrl,
-                WriteResponse = writeResponse,
-                ApiVersion = apiVersion,
-                IgnoreResponse = ignoreResponse,
-                SkipEndpointValidation = skipEndpointValidation,
-                ExpectedHttpStatusCode = expectedHttpStatusCode,
-                Expected = default,
-                IsEmptyAnonymousObjectForCodeGeneration = detectedIsEmptyAnonymous,
-                RequestHeaders = requestHeaders
-            };
+                          {
+                              CallerFilePath = callerFilePath,
+                              CallerMemberName = callerMemberName,
+                              CallerLineNumber = callerLineNumber,
+                              CallingAssembly = callingAssembly,
+                              Client = client,
+                              Current = default,
+                              CurrentObject = null,
+                              CurrentResultParameterName = "Current response",
+                              DifferenceFunc = differenceFunc,
+                              DifferenceFilter = differenceFilter ?? (static _ => true),
+                              ExpectedType = typeof(TResult),
+                              ExpectedObjectAsJson = expectedResult,
+                              ExpectedResultFile = expectedResultFile,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              HttpMethod = httpMethod,
+                              IsSuccessStatusCode = isSuccessStatusCode,
+                              OrderFunc = filterFunc,
+                              Parameters = parameters,
+                              PayloadAsJson = payloadAsJson,
+                              PayloadFile = payloadFile,
+                              PayloadParameterName = payloadAsJsonParameterName,
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              ResolvedPayload = resolvedPayload,
+                              ShowTokenInCurl = ShowTokenInCurl,
+                              TypeIsPrimitiveType = targetIsPrimitiveType,
+                              Url = resolvedUrl,
+                              WriteResponse = writeResponse,
+                              ApiVersion = apiVersion,
+                              IgnoreResponse = ignoreResponse,
+                              SkipEndpointValidation = skipEndpointValidation,
+                              ExpectedHttpStatusCode = expectedHttpStatusCode,
+                              Expected = default,
+                              IsEmptyAnonymousObjectForCodeGeneration = detectedIsEmptyAnonymous,
+                              RequestHeaders = requestHeaders
+                          };
 
             var result = await AssertableHttpClientFor(callingAssembly).AssertAsync(context).ConfigureAwait(false);
 
             return result;
         }
     }
-}
+}

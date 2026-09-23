@@ -429,18 +429,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             // Create EndpointInfo for each HTTP method
             var endpointInfos = httpMethods.Select(httpMethod => new EndpointInfo
-            {
-                HttpMethod = httpMethod,
-                Url = resolvedUrl,
-                ApiVersion = apiVersion,
-                ResponseType = responseType,
-                ResponseTypesByStatusCode = responseTypesByStatusCode,
-                Tags = tags,
-                Name = name,
-                Description = description,
-                Summary = summary,
-                SourceLocation = sourceLocation
-            }).ToImmutableList();
+                                                                 {
+                                                                     HttpMethod = httpMethod,
+                                                                     Url = resolvedUrl,
+                                                                     ApiVersion = apiVersion,
+                                                                     ResponseType = responseType,
+                                                                     ResponseTypesByStatusCode = responseTypesByStatusCode,
+                                                                     Tags = tags,
+                                                                     Name = name,
+                                                                     Description = description,
+                                                                     Summary = summary,
+                                                                     SourceLocation = sourceLocation
+                                                                 }).ToImmutableList();
 
             return endpointInfos;
         }
@@ -613,18 +613,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             // Create EndpointInfo for each HTTP method
             var endpointInfos = httpMethods.Select(httpMethod => new EndpointInfo
-            {
-                HttpMethod = httpMethod,
-                Url = resolvedUrl,
-                ApiVersion = apiVersion,
-                ResponseType = responseType,
-                ResponseTypesByStatusCode = responseTypesByStatusCode,
-                Tags = tags,
-                Name = name,
-                Description = description,
-                Summary = summary,
-                SourceLocation = sourceLocation
-            }).ToImmutableList();
+                                                                 {
+                                                                     HttpMethod = httpMethod,
+                                                                     Url = resolvedUrl,
+                                                                     ApiVersion = apiVersion,
+                                                                     ResponseType = responseType,
+                                                                     ResponseTypesByStatusCode = responseTypesByStatusCode,
+                                                                     Tags = tags,
+                                                                     Name = name,
+                                                                     Description = description,
+                                                                     Summary = summary,
+                                                                     SourceLocation = sourceLocation
+                                                                 }).ToImmutableList();
 
             return endpointInfos;
         }
@@ -666,10 +666,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var producesAttributes = EndpointParsingHelpers.GetProducesResponseMetadata(routeEndpoint)
                                                            .Select(metadata => EndpointParsingHelpers.TryGetStatusCodeAndType(metadata, out var statusCode, out var responseType)
                                                                                    ? new
-                                                                                   {
-                                                                                       StatusCode = statusCode,
-                                                                                       Type = responseType
-                                                                                   }
+                                                                                     {
+                                                                                         StatusCode = statusCode,
+                                                                                         Type = responseType
+                                                                                     }
                                                                                    : null)
                                                            .Where(x => x.IsNotNull())
                                                            .Select(x => x!)

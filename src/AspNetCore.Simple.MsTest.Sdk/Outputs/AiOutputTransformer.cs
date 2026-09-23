@@ -28,9 +28,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <param name="currentJson">Current/actual result as JSON string</param>
         /// <returns>Structured JSON string with error code, severity, differences, and suggested fixes</returns>
         string TransformToJson(IObjectAssertContext context,
-                              ImmutableList<Difference> differences,
-                              string expectedJson,
-                              string currentJson);
+                               ImmutableList<Difference> differences,
+                               string expectedJson,
+                               string currentJson);
     }
 
     /// <summary>
@@ -40,48 +40,49 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class AiOutputTransformer : IAiOutputTransformer
     {
         public string TransformToJson(IObjectAssertContext context,
-                                     ImmutableList<Difference> differences,
-                                     string expectedJson,
-                                     string currentJson)
+                                      ImmutableList<Difference> differences,
+                                      string expectedJson,
+                                      string currentJson)
         {
             // Build HTTP-specific context if available
             var httpContext = context as IHttpResponseContext;
 
             var output = new
-            {
-                errorCode = DetermineErrorCode(context, httpContext),
-                severity = "error",
-                project = context.CallingAssembly.GetName().Name,
-                @class = ExtractClassName(context),
-                method = context.CallerMemberName,
-                file = context.CallerFilePath,
-                line = context.CallerLineNumber,
-                expectedType = context.ExpectedType.FullName,
-                actualType = context.CurrentObject?.GetType().FullName,
-                differences = differences.Select(d => new
-                {
-                    path = d.MemberPath,
-                    expected = d.Value1,
-                    actual = d.Value2,
-                    mismatchType = d.MismatchType.ToString()
-                }),
-                expectedJson,
-                actualJson = currentJson,
-                suggestedFix = GenerateSuggestedFix(context, differences),
+                         {
+                             errorCode = DetermineErrorCode(context, httpContext),
+                             severity = "error",
+                             project = context.CallingAssembly.GetName().Name,
+                             @class = ExtractClassName(context),
+                             method = context.CallerMemberName,
+                             file = context.CallerFilePath,
+                             line = context.CallerLineNumber,
+                             expectedType = context.ExpectedType.FullName,
+                             actualType = context.CurrentObject?.GetType().FullName,
+                             differences = differences.Select(d => new
+                                                                   {
+                                                                       path = d.MemberPath,
+                                                                       expected = d.Value1,
+                                                                       actual = d.Value2,
+                                                                       mismatchType = d.MismatchType.ToString()
+                                                                   }),
+                             expectedJson,
+                             actualJson = currentJson,
+                             suggestedFix = GenerateSuggestedFix(context, differences),
 
-                // HTTP-specific fields (null for non-HTTP contexts)
-                httpMethod = httpContext?.HttpResponseMessage.RequestMessage?.Method.ToString(),
-                url = httpContext?.AbsoluteUrl,
-                statusCode = httpContext?.HttpStatusCode,
-                httpFailureType = httpContext?.FailureType,
-                expectedStatusCode = httpContext?.ExpectedStatusCode,
-                actualStatusCode = httpContext?.ActualStatusCode
-            };
+                             // HTTP-specific fields (null for non-HTTP contexts)
+                             httpMethod = httpContext?.HttpResponseMessage.RequestMessage?.Method.ToString(),
+                             url = httpContext?.AbsoluteUrl,
+                             statusCode = httpContext?.HttpStatusCode,
+                             httpFailureType = httpContext?.FailureType,
+                             expectedStatusCode = httpContext?.ExpectedStatusCode,
+                             actualStatusCode = httpContext?.ActualStatusCode
+                         };
 
             return JsonConvert.SerializeObject(output, Formatting.Indented);
         }
 
-        private static string DetermineErrorCode(IObjectAssertContext context, IHttpResponseContext? httpContext)
+        private static string DetermineErrorCode(IObjectAssertContext context,
+                                                 IHttpResponseContext? httpContext)
         {
             // Primitive value comparison - check if the expected type is a primitive
             var expectedType = context.ExpectedType;
@@ -131,7 +132,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return "UnknownClass";
         }
 
-        private static string GenerateSuggestedFix(IObjectAssertContext context, ImmutableList<Difference> differences)
+        private static string GenerateSuggestedFix(IObjectAssertContext context,
+                                                   ImmutableList<Difference> differences)
         {
             // No differences - likely schema mismatch
             if (differences.Count == 0)

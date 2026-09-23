@@ -68,8 +68,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers
             // Span the invocation including the trailing semicolon for consistency with CodeFix expectations.
             var start = invocation.Span.Start;
             var end = expressionStatement.SemicolonToken.Span.End;
+
             var location = Location.Create(expressionStatement.SyntaxTree,
                                            Microsoft.CodeAnalysis.Text.TextSpan.FromBounds(start, end));
+
             context.ReportDiagnostic(Diagnostic.Create(Rule, location));
         }
     }

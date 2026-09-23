@@ -173,7 +173,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var literals = PlaceholderJson.SplitOnPlaceholders(template).Select(Regex.Escape);
             var pattern = $"^{string.Join("(.+?)", literals)}$";
 
-            return Regex.IsMatch(text, pattern, RegexOptions.Singleline, MatchTimeout);
+            return Regex.IsMatch(text, pattern, RegexOptions.Singleline,
+                                 MatchTimeout);
         }
     }
 }

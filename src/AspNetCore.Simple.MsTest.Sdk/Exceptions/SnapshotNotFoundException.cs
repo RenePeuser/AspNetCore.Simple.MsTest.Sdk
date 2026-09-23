@@ -111,8 +111,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// the snapshot they have to create goes unmentioned.
         /// </summary>
         private static ImmutableList<string> FindCandidates(string reference,
-                                                             Assembly callingAssembly,
-                                                             IImmutableSet<string>? allowedFolders)
+                                                            Assembly callingAssembly,
+                                                            IImmutableSet<string>? allowedFolders)
         {
             var resources = callingAssembly.GetManifestResourceNames();
 
@@ -129,10 +129,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         .ToArray();
 
             var ranked = inRole.Select(resource => new
-            {
-                Resource = resource,
-                Score = Score(ResourceFileName(resource), wantedFileName)
-            })
+                                                   {
+                                                       Resource = resource,
+                                                       Score = Score(ResourceFileName(resource), wantedFileName)
+                                                   })
                                .Where(entry => entry.Score <= MaxDistance(wantedFileName))
                                .OrderBy(entry => entry.Score)
                                .ThenBy(entry => entry.Resource.Length)

@@ -68,7 +68,8 @@ namespace Controllers.Test
 
             var projectFolder = new FileInfo(callerFilePath).Directory!;
 
-            Assert.That.AreEqual(Path.Combine("Legacy", "V1", "Results", "LegacyRootNamespace.json"),
+            Assert.That.AreEqual(Path.Combine("Legacy", "V1", "Results",
+                                              "LegacyRootNamespace.json"),
                                  Path.GetRelativePath(projectFolder.FullName, fileInfo.EmbeddedFile.FullName),
                                  because: "The dotted resource name has to map back to exactly the folder structure it was embedded from - one segment too many or too few and write response would create a second, orphaned snapshot.",
                                  fix: "Check how the resource name is split into folders: the part belonging to the foreign root namespace must be dropped before the rest becomes the path.");
@@ -104,19 +105,19 @@ namespace Controllers.Test
                 var writer = new ResponseWriter([new OverwriteAllResponseWriter(new ParameterReplacer(), new SnapshotPlaceholderGuard())]);
 
                 var request = new WriteResponseRequest
-                {
-                    CallingAssembly = assembly,
-                    CurrentResponseAsString = /*lang=json,strict*/ """{"id":2,"name":"Rewritten"}""",
-                    ExpectedResult = fileInfo,
-                    Parameters = [],
-                    DifferenceFunc = differences => differences,
-                    Mode = ResponseWriteMode.OverwriteAll,
-                    CallerFilePath = callerFilePath,
-                    CallerLineNumber = 0,
-                    ExpectedResultParameterName = nameof(SnapshotReference),
-                    ExpectedType = typeof(object),
-                    ExpectedObject = null
-                };
+                              {
+                                  CallingAssembly = assembly,
+                                  CurrentResponseAsString = /*lang=json,strict*/ """{"id":2,"name":"Rewritten"}""",
+                                  ExpectedResult = fileInfo,
+                                  Parameters = [],
+                                  DifferenceFunc = differences => differences,
+                                  Mode = ResponseWriteMode.OverwriteAll,
+                                  CallerFilePath = callerFilePath,
+                                  CallerLineNumber = 0,
+                                  ExpectedResultParameterName = nameof(SnapshotReference),
+                                  ExpectedType = typeof(object),
+                                  ExpectedObject = null
+                              };
 
                 writer.Write(request);
 

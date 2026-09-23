@@ -38,7 +38,8 @@ namespace Controllers.Test.DottedPaths
                                   because: "A flat dotted resource name has to map back to a real file on disk - without it write response has nothing to write to.",
                                   fix: "EmbeddedFileLocalizer must not give up when a segment carries a dot; check the path reconstruction for the '_1' segment.");
 
-            Assert.That.AreEqual(Path.Combine("DottedPaths", "V3.1", "Responses", "DottedFolder.json"),
+            Assert.That.AreEqual(Path.Combine("DottedPaths", "V3.1", "Responses",
+                                              "DottedFolder.json"),
                                  RelativeToProject(fileInfo.EmbeddedFile),
                                  because: "'V3._1' has to fold back into the single folder 'V3.1'. Splitting blindly on '.' turns it into V3\\_1 - one of the two shapes this class exists for.",
                                  fix: "Check the resource-name-to-path logic in EmbeddedFileLocalizer: it has to match candidate segments against folders that really exist instead of splitting on every dot.");

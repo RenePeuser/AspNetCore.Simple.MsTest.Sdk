@@ -23,11 +23,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public string Render(IObjectAssertContext context,
-                            ImmutableList<Difference> differences,
-                            string expectedJson,
-                            string currentJson)
+                             ImmutableList<Difference> differences,
+                             string expectedJson,
+                             string currentJson)
         {
-            return aiOutputTransformer.TransformToJson(context, differences, expectedJson, currentJson);
+            return aiOutputTransformer.TransformToJson(context, differences, expectedJson,
+                                                       currentJson);
         }
     }
 }

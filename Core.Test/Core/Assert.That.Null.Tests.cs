@@ -53,10 +53,10 @@ namespace Core.Test.Core
         {
             // Arrange
             var user = new TestUser
-            {
-                Id = 1,
-                Name = "Goku"
-            };
+                       {
+                           Id = 1,
+                           Name = "Goku"
+                       };
 
             // Act
             try
@@ -166,11 +166,11 @@ namespace Core.Test.Core
         {
             // Arrange
             var user = new TestUser
-            {
-                Id = 42,
-                Name = "Vegeta",
-                Email = "vegeta@saiyan.com"
-            };
+                       {
+                           Id = 42,
+                           Name = "Vegeta",
+                           Email = "vegeta@saiyan.com"
+                       };
 
             // Act & Assert - Should NOT throw
             Assert.That.IsNotNull(user,

@@ -539,6 +539,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // For string types, parse the JSON to get the expected value
             T? expectedValue = default;
+
             if (typeof(T) == typeof(string) && !string.IsNullOrEmpty(resolvedExpectedJson))
             {
                 try
@@ -555,27 +556,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Create context with preprocessed data - no further logic needed in AssertService
             var context = new ObjectAssertContext<T>
-            {
-                CallerFilePath = callerFilePath,
-                CallerLineNumber = callerLineNumber,
-                CallerMemberName = callerMemberName,
-                CallingAssembly = callingAssembly,
-                Current = currentObject,
-                CurrentObject = currentObject,
-                CurrentResultParameterName = currentResultParameterName,
-                DifferenceFunc = differenceFunc,
-                DifferenceFilter = differenceFilter ?? (static _ => true),
-                ExpectedType = typeof(T),
-                ExpectedObjectAsJson = expectedObjectAsJson,
-                ExpectedResultFile = expectedFile,
-                ExpectedResultParameterName = expectedResultParameterName,
-                OrderFunc = orderFunc,
-                Parameters = parameters,
-                ResolvedExpectedJson = resolvedExpectedJson,
-                TypeIsPrimitiveType = targetIsPrimitiveType,
-                WriteResponse = writeResponse,
-                Expected = expectedValue,
-            };
+                          {
+                              CallerFilePath = callerFilePath,
+                              CallerLineNumber = callerLineNumber,
+                              CallerMemberName = callerMemberName,
+                              CallingAssembly = callingAssembly,
+                              Current = currentObject,
+                              CurrentObject = currentObject,
+                              CurrentResultParameterName = currentResultParameterName,
+                              DifferenceFunc = differenceFunc,
+                              DifferenceFilter = differenceFilter ?? (static _ => true),
+                              ExpectedType = typeof(T),
+                              ExpectedObjectAsJson = expectedObjectAsJson,
+                              ExpectedResultFile = expectedFile,
+                              ExpectedResultParameterName = expectedResultParameterName,
+                              OrderFunc = orderFunc,
+                              Parameters = parameters,
+                              ResolvedExpectedJson = resolvedExpectedJson,
+                              TypeIsPrimitiveType = targetIsPrimitiveType,
+                              WriteResponse = writeResponse,
+                              Expected = expectedValue,
+                          };
 
             ObjectsAreEqual(assert, context);
         }

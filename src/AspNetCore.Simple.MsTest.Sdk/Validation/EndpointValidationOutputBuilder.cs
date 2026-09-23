@@ -223,7 +223,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine(textDecorator.Dim("Note: No HTTP call was made. Validation failed before executing the request."));
             sb.AppendLine();
 
-            BuildHttpCallTable(sb, context, "Endpoint Validation Failed", endpoint);
+            BuildHttpCallTable(sb, context, "Endpoint Validation Failed",
+                               endpoint);
+
             sb.AppendLine();
 
             sb.AppendLine(textDecorator.SectionTitle("🚦 Status Code"));
@@ -260,6 +262,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine(textDecorator.Success("         return NoContent();"));
             sb.AppendLine(textDecorator.Success("     }"));
             sb.AppendLine();
+
             // No response body means there is nothing to compare, so the expected result argument is
             // dropped entirely - neither a generic type argument nor an empty string belongs here.
             // Only the request body (POST/PUT/PATCH) stays, it is unrelated to the response.
@@ -886,6 +889,5 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             return sb.ToString();
         }
-
     }
 }

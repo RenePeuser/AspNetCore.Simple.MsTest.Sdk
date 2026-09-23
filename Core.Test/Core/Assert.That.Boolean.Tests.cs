@@ -88,10 +88,10 @@ namespace Core.Test.Core
         {
             // Arrange
             var user = new TestUser
-            {
-                IsActive = false,
-                IsVerified = true
-            };
+                       {
+                           IsActive = false,
+                           IsVerified = true
+                       };
 
             // Act
             try
@@ -189,10 +189,10 @@ namespace Core.Test.Core
         {
             // Arrange
             var response = new ApiResponse
-            {
-                IsError = true,
-                StatusCode = 500
-            };
+                           {
+                               IsError = true,
+                               StatusCode = 500
+                           };
 
             // Act
             try

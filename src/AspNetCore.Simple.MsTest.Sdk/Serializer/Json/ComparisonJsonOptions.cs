@@ -42,10 +42,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
                 return options;
             }
 
-            return Cache.GetValue(options, source => new JsonSerializerOptions(source)
-            {
-                DictionaryKeyPolicy = null
-            });
+            return Cache.GetValue(options, source => new JsonSerializerOptions(source) { DictionaryKeyPolicy = null });
         }
     }
 }

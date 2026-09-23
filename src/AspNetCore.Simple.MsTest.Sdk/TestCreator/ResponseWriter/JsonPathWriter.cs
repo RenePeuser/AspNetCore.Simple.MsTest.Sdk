@@ -241,17 +241,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             public static PathSegment Property(string name)
             {
-                return new(false, false, name, -1);
+                return new(false, false, name,
+                           -1);
             }
 
             public static PathSegment AtIndex(int index)
             {
-                return new(true, false, null, index);
+                return new(true, false, null,
+                           index);
             }
 
             public static PathSegment Key(string key)
             {
-                return new(false, true, key, -1);
+                return new(false, true, key,
+                           -1);
             }
         }
     }

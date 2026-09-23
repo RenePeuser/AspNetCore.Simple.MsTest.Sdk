@@ -21,10 +21,10 @@ namespace Controllers.Test
             // Act & Assert: Pass an empty anonymous object as expected response
             // This should trigger the CSharpObjectResponseWriter to generate code
             var result = await Client.AssertPostAsync("api/v1/persons", personToCreate, new
-            {
-                content = new
-                {
-                    headers = new[]
+                                                                                        {
+                                                                                            content = new
+                                                                                                      {
+                                                                                                          headers = new[]
                                                                                                                     {
                                                                                                                         new
                                                                                                                         {
@@ -32,20 +32,20 @@ namespace Controllers.Test
                                                                                                                             value = new[] { "application/json; charset=utf-8" }
                                                                                                                         }
                                                                                                                     },
-                    value = new
-                    {
-                        id = 0,
-                        name = "John Doe",
-                        firstName = (string?)null,
-                        age = 30,
-                        emails = (string[]?)null
-                    }
-                },
-                statusCode = "OK",
-                headers = Array.Empty<object>(),
-                trailingHeaders = Array.Empty<object>(),
-                isSuccessStatusCode = true
-            },
+                                                                                                          value = new
+                                                                                                                  {
+                                                                                                                      id = 0,
+                                                                                                                      name = "John Doe",
+                                                                                                                      firstName = (string?)null,
+                                                                                                                      age = 30,
+                                                                                                                      emails = (string[]?)null
+                                                                                                                  }
+                                                                                                      },
+                                                                                            statusCode = "OK",
+                                                                                            headers = Array.Empty<object>(),
+                                                                                            trailingHeaders = Array.Empty<object>(),
+                                                                                            isSuccessStatusCode = true
+                                                                                        },
                                                       true,
                                                       skipEndpointValidation: true).ConfigureAwait(false); // Manually enable writeResponse for prototype
 
@@ -75,11 +75,20 @@ namespace Controllers.Test
             const string because = "The generated initializer is pasted straight into the test source, so every json property has to appear with C# syntax and the right literal form - a number unquoted, a string quoted, a bool lowercase.";
             const string fix = "Check the per-JTokenType branches in CSharpCodeGenerator.GenerateAnonymousObjectInitializer - a missing property means its token type has no branch.";
 
-            Assert.That.Contains(csharpCode, "id = 1", because: because, fix: fix);
-            Assert.That.Contains(csharpCode, "name = \"John Doe\"", because: because, fix: fix);
-            Assert.That.Contains(csharpCode, "age = 30", because: because, fix: fix);
-            Assert.That.Contains(csharpCode, "isActive = true", because: because, fix: fix);
-            Assert.That.Contains(csharpCode, "tags = ", because: because, fix: fix);
+            Assert.That.Contains(csharpCode, "id = 1", because: because,
+                                 fix: fix);
+
+            Assert.That.Contains(csharpCode, "name = \"John Doe\"", because: because,
+                                 fix: fix);
+
+            Assert.That.Contains(csharpCode, "age = 30", because: because,
+                                 fix: fix);
+
+            Assert.That.Contains(csharpCode, "isActive = true", because: because,
+                                 fix: fix);
+
+            Assert.That.Contains(csharpCode, "tags = ", because: because,
+                                 fix: fix);
 
             // Output for visual inspection
             Console.WriteLine("Generated C# Code:");

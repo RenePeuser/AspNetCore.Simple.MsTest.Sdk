@@ -25,13 +25,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public string Render(IObjectAssertContext context,
-                            ImmutableList<Difference> differences,
-                            string expectedJson,
-                            string currentJson)
+                             ImmutableList<Difference> differences,
+                             string expectedJson,
+                             string currentJson)
         {
             // Build both human and AI outputs
-            var humanOutput = humanOutputBuilder.BuildOutput(context, differences, expectedJson, currentJson);
-            var aiOutput = aiOutputTransformer.TransformToJson(context, differences, expectedJson, currentJson);
+            var humanOutput = humanOutputBuilder.BuildOutput(context, differences, expectedJson,
+                                                             currentJson);
+
+            var aiOutput = aiOutputTransformer.TransformToJson(context, differences, expectedJson,
+                                                               currentJson);
 
             // Combine with clear separator
             return $"{humanOutput}\n\n{'='.Repeat(80)}\n===== AI OUTPUT (JSON) =====\n{'='.Repeat(80)}\n\n{aiOutput}";

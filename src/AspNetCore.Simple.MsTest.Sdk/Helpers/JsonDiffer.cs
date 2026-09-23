@@ -257,6 +257,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     {
                         var stringValue = property.Value.ToString();
                         var normalized = stringValue.Replace("\r\n", "\n");
+
                         if (normalized != stringValue)
                         {
                             property.Value = new JValue(normalized);
@@ -274,10 +275,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 for (var i = 0; i < array.Count; i++)
                 {
                     var item = array[i];
+
                     if (item.Type == JTokenType.String)
                     {
                         var stringValue = item.ToString();
                         var normalized = stringValue.Replace("\r\n", "\n");
+
                         if (normalized != stringValue)
                         {
                             array[i] = new JValue(normalized);
@@ -383,14 +386,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // Handle cases where one token is missing.
                 if (token1.IsNull())
                 {
-                    Add(null, token2, path, MismatchType.MissingInFirst);
+                    Add(null, token2, path,
+                        MismatchType.MissingInFirst);
 
                     return;
                 }
 
                 if (token2.IsNull())
                 {
-                    Add(token1, null, path, MismatchType.MissingInSecond);
+                    Add(token1, null, path,
+                        MismatchType.MissingInSecond);
 
                     return;
                 }
@@ -400,7 +405,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     case JTokenType.Object:
                         if (token2.Type.NotEqualsTo(JTokenType.Object))
                         {
-                            Add(token1, token2, path, MismatchType.ValueDifference);
+                            Add(token1, token2, path,
+                                MismatchType.ValueDifference);
 
                             return;
                         }
@@ -412,7 +418,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     case JTokenType.Array:
                         if (token2.Type.NotEqualsTo(JTokenType.Array))
                         {
-                            Add(token1, token2, path, MismatchType.ValueDifference);
+                            Add(token1, token2, path,
+                                MismatchType.ValueDifference);
 
                             return;
                         }
@@ -423,7 +430,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                     default:
                         // For primitive types, record the difference as a value difference.
-                        Add(token1, token2, path, MismatchType.ValueDifference);
+                        Add(token1, token2, path,
+                            MismatchType.ValueDifference);
 
                         break;
                 }
@@ -441,7 +449,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                     if (token2Value.IsNull())
                     {
-                        Add(property.Value, null, propertyPath, MismatchType.MissingInSecond);
+                        Add(property.Value, null, propertyPath,
+                            MismatchType.MissingInSecond);
                     }
                     else
                     {
@@ -454,7 +463,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     if (obj1[property.Key].IsNull())
                     {
-                        Add(null, property.Value, path.Property(property.Key), MismatchType.MissingInFirst);
+                        Add(null, property.Value, path.Property(property.Key),
+                            MismatchType.MissingInFirst);
                     }
                 }
             }
@@ -495,11 +505,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                     if (i >= array1.Count)
                     {
-                        Add(null, array2[i], indexPath, MismatchType.MissingInFirst);
+                        Add(null, array2[i], indexPath,
+                            MismatchType.MissingInFirst);
                     }
                     else if (i >= array2.Count)
                     {
-                        Add(array1[i], null, indexPath, MismatchType.MissingInSecond);
+                        Add(array1[i], null, indexPath,
+                            MismatchType.MissingInSecond);
                     }
                     else
                     {
@@ -558,7 +570,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
                 // Everything from here only decides how a difference is DESCRIBED. The verdict was
                 // settled above: equal multisets left nothing over.
-                PairLeftovers(expected, current, leftoverExpected, leftoverCurrent, path);
+                PairLeftovers(expected, current, leftoverExpected,
+                              leftoverCurrent, path);
             }
 
             private void PairLeftovers(JArray expected,
@@ -608,14 +621,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 {
                     var index = $"[{leftoverExpected[i]}]";
 
-                    Add(expected[leftoverExpected[i]], null, path.Index(index, index), MismatchType.MissingInSecond);
+                    Add(expected[leftoverExpected[i]], null, path.Index(index, index),
+                        MismatchType.MissingInSecond);
                 }
 
                 for (var i = pairedCount; i < leftoverCurrent.Count; i++)
                 {
                     var index = $"[{leftoverCurrent[i]}]";
 
-                    Add(null, current[leftoverCurrent[i]], path.Index(index, index), MismatchType.MissingInFirst);
+                    Add(null, current[leftoverCurrent[i]], path.Index(index, index),
+                        MismatchType.MissingInFirst);
                 }
             }
 
@@ -712,7 +727,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                       ? null
                                       : path.Current;
 
-                _differences.Add(new DifferenceEntry(path.Expected, currentPath, value1, value2, mismatchType));
+                _differences.Add(new DifferenceEntry(path.Expected, currentPath, value1,
+                                                     value2, mismatchType));
             }
         }
     }

@@ -49,19 +49,19 @@ namespace Controllers.Test.VolatileHeaders
         public void EveryHeaderCollectionOfTheWrittenEnvelopeMustBeFiltered()
         {
             var content = new SimpleHttpContent
-            {
-                Headers = ImmutableList.Create(Header("Date", "Tue, 26 Aug 2025 09:14:07 GMT"),
-                                               Header("Content-Type", "application/json")),
-                Value = "{}"
-            };
+                          {
+                              Headers = ImmutableList.Create(Header("Date", "Tue, 26 Aug 2025 09:14:07 GMT"),
+                                                             Header("Content-Type", "application/json")),
+                              Value = "{}"
+                          };
 
             var response = new SimpleHttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Headers = ImmutableList.Create(Header("traceparent", "00-abc-01"), Header("X-Keep", "a")),
-                TrailingHeaders = ImmutableList.Create(Header("Server-Timing", "app;dur=12"), Header("X-Keep", "b")),
-                Content = content
-            };
+                           {
+                               StatusCode = HttpStatusCode.OK,
+                               Headers = ImmutableList.Create(Header("traceparent", "00-abc-01"), Header("X-Keep", "a")),
+                               TrailingHeaders = ImmutableList.Create(Header("Server-Timing", "app;dur=12"), Header("X-Keep", "b")),
+                               Content = content
+                           };
 
             var filtered = response.WithoutVolatileHeaders(new TestSdkSettings());
 
@@ -123,7 +123,9 @@ namespace Controllers.Test.VolatileHeaders
         [TestMethod]
         public void TheFixtureMustReallyContainVolatileHeaders()
         {
-            var snapshot = Path.Combine(ProjectFolder(), "VolatileHeaders", "Responses", "StaleVolatileHeaders.json");
+            var snapshot = Path.Combine(ProjectFolder(), "VolatileHeaders", "Responses",
+                                        "StaleVolatileHeaders.json");
+
             var names = JToken.Parse(File.ReadAllText(snapshot))["headers"]!
                               .Select(header => header["key"]!.ToString())
                               .ToList();
@@ -131,9 +133,14 @@ namespace Controllers.Test.VolatileHeaders
             const string because = "ASnapshotThatStillCarriesVolatileHeadersMustStayGreen only proves something if the fixture really carries these headers. Once they are gone from the file that test passes for the wrong reason.";
             const string fix = "Restore the volatile headers in VolatileHeaders\\Responses\\StaleVolatileHeaders.json - the fixture deliberately represents a snapshot recorded before the filter existed and must not be re-recorded.";
 
-            Assert.That.Contains(names, "traceparent", because: because, fix: fix);
-            Assert.That.Contains(names, "X-Amzn-Trace-Id", because: because, fix: fix);
-            Assert.That.Contains(names, "Date", because: because, fix: fix);
+            Assert.That.Contains(names, "traceparent", because: because,
+                                 fix: fix);
+
+            Assert.That.Contains(names, "X-Amzn-Trace-Id", because: because,
+                                 fix: fix);
+
+            Assert.That.Contains(names, "Date", because: because,
+                                 fix: fix);
         }
 
         private static KeyValuePair<string, ImmutableList<string>> Header(string name,

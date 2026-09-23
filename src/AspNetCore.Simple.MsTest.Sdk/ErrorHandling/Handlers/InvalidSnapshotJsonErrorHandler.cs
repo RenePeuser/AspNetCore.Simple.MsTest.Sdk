@@ -72,6 +72,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine(textDecorator.SectionTitle("⚠️ Parser"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
+
             // System.Text.Json appends its own zero based "LineNumber: x | BytePositionInLine: y".
             // Printing that next to our one based line number contradicts itself - keep the reason,
             // state the position ourselves.

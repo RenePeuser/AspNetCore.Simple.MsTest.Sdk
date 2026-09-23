@@ -137,6 +137,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
 
             return VerifyAsync(source);
         }
+
         // ---------------------------------------------------------------
         // Dead configuration AFTER the terminal — what DESIGN_VISION §5 sketched as MSTESTSDK003.
         // No separate diagnostic is needed: the direct form does not compile (ExecuteAsync returns a

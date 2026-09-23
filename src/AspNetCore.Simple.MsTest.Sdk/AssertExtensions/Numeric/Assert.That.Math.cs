@@ -146,7 +146,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                         $"Verify that '{valueName}' is set to a value greater than zero", $"Check calculations or operations that produce '{valueName}' for correctness", "Add validation to ensure positive values before this assertion",
                                                                         $"Consider using Math.Abs() if '{valueName}' should always be positive"
                                                                     },
-                                                                    callingAssembly: callingAssembly);
+                                                 callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -197,7 +197,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                         $"Verify that '{valueName}' is set to a value less than zero", $"Check calculations or operations that produce '{valueName}' for correctness", "Add validation to ensure negative values before this assertion",
                                                                         "Review the business logic that should produce negative values"
                                                                     },
-                                                                    callingAssembly: callingAssembly);
+                                                 callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }
@@ -248,7 +248,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                         $"Ensure '{valueName}' is explicitly set to zero for this test scenario", $"Check that calculations involving '{valueName}' correctly result in zero", "Review the initialization or reset logic for this value",
                                                                         "Verify that default values are properly configured to zero"
                                                                     },
-                                                                    callingAssembly: callingAssembly);
+                                                 callingAssembly: callingAssembly);
 
             throw new AssertFailedException(output);
         }

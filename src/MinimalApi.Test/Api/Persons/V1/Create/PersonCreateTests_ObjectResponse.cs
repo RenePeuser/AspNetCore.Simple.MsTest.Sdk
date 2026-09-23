@@ -76,7 +76,8 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         {
             var personToCreate = TestHelpers.CreateValidPerson();
 
-            var expectedPerson = new Person(1, "Son", "Goku", 42, []);
+            var expectedPerson = new Person(1, "Son", "Goku",
+                                            42, []);
 
             return Client.AssertPostAsync("api/v1/persons",
                                           personToCreate,

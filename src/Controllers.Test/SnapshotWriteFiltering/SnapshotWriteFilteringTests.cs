@@ -54,8 +54,11 @@ namespace Controllers.Test.SnapshotWriteFiltering
         /// </summary>
         private static ResponseWriter CreateWriter()
         {
-            return new ResponseWriter([new DifferenceResponseWriter(new JsonDiffer(), new JsonPathWriter(), new ParameterReplacer(), new SnapshotPlaceholderGuard()),
-                                       new OverwriteAllResponseWriter(new ParameterReplacer(), new SnapshotPlaceholderGuard())]);
+            return new ResponseWriter([
+                                          new DifferenceResponseWriter(new JsonDiffer(), new JsonPathWriter(), new ParameterReplacer(),
+                                                                       new SnapshotPlaceholderGuard()),
+                                          new OverwriteAllResponseWriter(new ParameterReplacer(), new SnapshotPlaceholderGuard())
+                                      ]);
         }
 
         // ============================================================
@@ -226,7 +229,7 @@ namespace Controllers.Test.SnapshotWriteFiltering
         {
             // The strictest form of the promise, and the one a reviewer actually sees: not "the values
             // are equal again" but "git reports nothing at all" - byte for byte, formatting included.
-            var expected = Indented(/*lang=json,strict*/ """{"name":"Son","age":99,"city":"West City"}""");
+            var expected = Indented( /*lang=json,strict*/ """{"name":"Son","age":99,"city":"West City"}""");
 
             var written = WriteRaw(expected: expected,
                                    current: /*lang=json,strict*/ """{"name":"Vegeta","age":100,"city":"East City"}""",
@@ -289,13 +292,12 @@ namespace Controllers.Test.SnapshotWriteFiltering
             try
             {
                 // firstName differs and is compared, so the assert fails - after the writer ran.
-                await Assert.That.ThrowsExactlyAsync<AssertFailedException>(
-                          () => Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons",
-                                                                           SnapshotReference,
-                                                                           differenceFunc: DropAge,
-                                                                           writeResponse: true),
-                          because: "'firstName' is not filtered out and the fixture holds 'Stale', so the assert has to fail. If it passes, the comparison never saw the snapshot and everything below would be measuring nothing.",
-                          fix: "Check that the snapshot reference resolves and that differenceFunc only drops the age differences.")
+                await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons",
+                                                                                                                             SnapshotReference,
+                                                                                                                             differenceFunc: DropAge,
+                                                                                                                             writeResponse: true),
+                                                                            because: "'firstName' is not filtered out and the fixture holds 'Stale', so the assert has to fail. If it passes, the comparison never saw the snapshot and everything below would be measuring nothing.",
+                                                                            fix: "Check that the snapshot reference resolves and that differenceFunc only drops the age differences.")
                             .ConfigureAwait(false);
 
                 var written = JToken.Parse(await File.ReadAllTextAsync(snapshot).ConfigureAwait(false));
@@ -340,7 +342,8 @@ namespace Controllers.Test.SnapshotWriteFiltering
                                     Func<ImmutableList<Difference>, IEnumerable<Difference>>? differenceFunc = null,
                                     Predicate<Difference>? differenceFilter = null)
         {
-            return JToken.Parse(WriteRaw(expected, current, differenceFunc, differenceFilter));
+            return JToken.Parse(WriteRaw(expected, current, differenceFunc,
+                                         differenceFilter));
         }
 
         /// <summary>
@@ -378,20 +381,20 @@ namespace Controllers.Test.SnapshotWriteFiltering
                                                     Predicate<Difference>? differenceFilter = null)
         {
             return new WriteResponseRequest
-            {
-                CallingAssembly = typeof(SnapshotWriteFilteringTests).Assembly,
-                CurrentResponseAsString = current,
-                ExpectedResult = new EmbeddedFileInfo("Responses.Snapshot.json", expected, file),
-                Parameters = [],
-                DifferenceFunc = differenceFunc ?? (differences => differences),
-                DifferenceFilter = differenceFilter ?? (static _ => true),
-                Mode = mode,
-                CallerFilePath = ThisFile(),
-                CallerLineNumber = 0,
-                ExpectedResultParameterName = nameof(SnapshotReference),
-                ExpectedType = typeof(object),
-                ExpectedObject = null
-            };
+                   {
+                       CallingAssembly = typeof(SnapshotWriteFilteringTests).Assembly,
+                       CurrentResponseAsString = current,
+                       ExpectedResult = new EmbeddedFileInfo("Responses.Snapshot.json", expected, file),
+                       Parameters = [],
+                       DifferenceFunc = differenceFunc ?? (differences => differences),
+                       DifferenceFilter = differenceFilter ?? (static _ => true),
+                       Mode = mode,
+                       CallerFilePath = ThisFile(),
+                       CallerLineNumber = 0,
+                       ExpectedResultParameterName = nameof(SnapshotReference),
+                       ExpectedType = typeof(object),
+                       ExpectedObject = null
+                   };
         }
 
         private static string SnapshotPath(string fileName,

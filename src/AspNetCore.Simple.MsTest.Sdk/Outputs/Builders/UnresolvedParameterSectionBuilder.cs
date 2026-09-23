@@ -128,6 +128,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             stringBuilder.AppendLine();
             stringBuilder.AppendLine("What went wrong");
+
             stringBuilder.AppendLine(supplied.IsEmpty
                                          ? "  The assert was called without any parameters, so the placeholder stayed in the"
                                          : "  No parameter of that name was supplied, so the placeholder stayed in the");

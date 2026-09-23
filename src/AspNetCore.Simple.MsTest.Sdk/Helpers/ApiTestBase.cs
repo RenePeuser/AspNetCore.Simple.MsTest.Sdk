@@ -71,7 +71,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var serviceProvider = services.BuildServiceProvider();
 #pragma warning restore CA2000
                 HttpClientAssertExtensions.Setup(serviceProvider);
-
             });
 
             builder.UseEnvironment(EnvironmentName);

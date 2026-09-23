@@ -179,11 +179,11 @@ public Task $testmethodname$()
                 if (responseInfo.Body.IsNotNullOrWhiteSpace())
                 {
                     return _urlOnlyTemplate.Replace("<$responseType$>", string.Empty)
-                                          .Replace("$testmethodname$", "Should_Return_Unauthorized_If_Call_Is_Not_Authorized");
+                                           .Replace("$testmethodname$", "Should_Return_Unauthorized_If_Call_Is_Not_Authorized");
                 }
 
                 return _urlWithPayloadNoResponse.Replace("<$responseType$>", string.Empty)
-                                               .Replace("$testmethodname$", "Should_Return_Unauthorized_If_Call_Is_Not_Authorized");
+                                                .Replace("$testmethodname$", "Should_Return_Unauthorized_If_Call_Is_Not_Authorized");
             }
 
             var template = requestInfo.Body.IsNullOrWhiteSpace() ? _noPayloadTestTemplate : _testTemplate;

@@ -69,9 +69,10 @@ namespace Core.Test.Core
 
                 // Verify key information is present
                 Assert.IsTrue(message.Contains("expected") || message.Contains("Expected"),
-                             "Error message should reference expected value");
+                              "Error message should reference expected value");
+
                 Assert.IsTrue(message.Contains("current") || message.Contains("Current"),
-                             "Error message should reference current value");
+                              "Error message should reference current value");
             }
         }
 
@@ -96,9 +97,10 @@ namespace Core.Test.Core
 
                 // Verify key information is present
                 Assert.IsTrue(message.Contains("expected") || message.Contains("Expected"),
-                             "Error message should reference expected value");
+                              "Error message should reference expected value");
+
                 Assert.IsTrue(message.Contains("current") || message.Contains("Current"),
-                             "Error message should reference current value");
+                              "Error message should reference current value");
             }
         }
 

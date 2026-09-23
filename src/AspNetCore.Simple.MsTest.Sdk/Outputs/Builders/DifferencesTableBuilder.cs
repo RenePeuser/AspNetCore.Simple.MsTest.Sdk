@@ -233,26 +233,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var (decoratedExpected, decoratedActual) = _characterDiff.HighlightDifferences(windowedExpected, windowedCurrent);
 
                 return new RenderedDifference
-                {
-                    Difference = difference,
-                    ExpectedCell = decoratedExpected,
-                    CurrentCell = decoratedActual,
-                    DetailExpected = windowed ? difference.Value1 : null,
-                    DetailCurrent = windowed ? difference.Value2 : null
-                };
+                       {
+                           Difference = difference,
+                           ExpectedCell = decoratedExpected,
+                           CurrentCell = decoratedActual,
+                           DetailExpected = windowed ? difference.Value1 : null,
+                           DetailCurrent = windowed ? difference.Value2 : null
+                       };
             }
 
             var (expectedCell, expectedTruncated) = Shorten(value1);
             var (currentCell, currentTruncated) = Shorten(value2);
 
             return new RenderedDifference
-            {
-                Difference = difference,
-                ExpectedCell = expectedCell,
-                CurrentCell = currentCell,
-                DetailExpected = expectedTruncated ? difference.Value1 : null,
-                DetailCurrent = currentTruncated ? difference.Value2 : null
-            };
+                   {
+                       Difference = difference,
+                       ExpectedCell = expectedCell,
+                       CurrentCell = currentCell,
+                       DetailExpected = expectedTruncated ? difference.Value1 : null,
+                       DetailCurrent = currentTruncated ? difference.Value2 : null
+                   };
         }
 
         /// <summary>
@@ -449,12 +449,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 var value2 = currentLength == 0 ? "[] (0 items)" : $"[{currentLength} item(s)]";
 
                 consolidated.Add(new Difference
-                {
-                    MemberPath = $"{arrayPath} (index {indices})",
-                    Value1 = allMissingInFirst ? value1 : JoinElements(arrayDifferences, first: true),
-                    Value2 = allMissingInFirst ? JoinElements(arrayDifferences, first: false) : value2,
-                    MismatchType = mismatchType
-                });
+                                 {
+                                     MemberPath = $"{arrayPath} (index {indices})",
+                                     Value1 = allMissingInFirst ? value1 : JoinElements(arrayDifferences, first: true),
+                                     Value2 = allMissingInFirst ? JoinElements(arrayDifferences, first: false) : value2,
+                                     MismatchType = mismatchType
+                                 });
             }
 
             return consolidated.ToImmutableList();

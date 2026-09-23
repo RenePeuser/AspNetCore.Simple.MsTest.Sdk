@@ -44,10 +44,10 @@ namespace Controllers.Test.Api.Persons.V1.Query
         public Task PerAssertFilter_Should_Ignore_Filtered_Difference()
         {
             var queryRequest = new
-            {
-                Name = "Son",
-                MinAge = 50
-            };
+                               {
+                                   Name = "Son",
+                                   MinAge = 50
+                               };
 
             return Client.AssertQueryAsync<IEnumerable<Person>>(SearchUrl,
                                                                 queryRequest,
@@ -63,10 +63,10 @@ namespace Controllers.Test.Api.Persons.V1.Query
         public async Task PerAssertFilter_Should_Not_Hide_Unrelated_Difference()
         {
             var queryRequest = new
-            {
-                Name = "Son",
-                MinAge = 50
-            };
+                               {
+                                   Name = "Son",
+                                   MinAge = 50
+                               };
 
             await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertQueryAsync<IEnumerable<Person>>(SearchUrl,
                                                                                                                            queryRequest,
@@ -85,10 +85,10 @@ namespace Controllers.Test.Api.Persons.V1.Query
         public Task DifferenceFilterOnly_Twin_Should_Ignore_Filtered_Difference()
         {
             var queryRequest = new
-            {
-                Name = "Son",
-                MinAge = 50
-            };
+                               {
+                                   Name = "Son",
+                                   MinAge = 50
+                               };
 
             return Client.AssertQueryAsync<IEnumerable<Person>>(SearchUrl,
                                                                 queryRequest,

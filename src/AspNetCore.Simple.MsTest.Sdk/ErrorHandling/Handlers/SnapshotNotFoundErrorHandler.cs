@@ -68,6 +68,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
             sb.AppendLine(textDecorator.SectionTitle("⚠️ Problem"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
+
             // CallerArgumentExpression yields the literal itself when the reference was inlined -
             // printing it twice adds nothing.
             if (exception.ParameterName.IsNotNullOrWhiteSpace() &&

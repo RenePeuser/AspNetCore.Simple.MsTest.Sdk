@@ -224,11 +224,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
             else if (caughtDerivedType)
             {
-                additionalOptions = new[]
-                                    {
-                                        $"Expect the concrete type instead: ThrowsExactly<{caughtException.GetType().Name}>(...)", $"Switch to Throws<{typeof(TException).Name}>(...) if a derived type is acceptable here",
-                                        $"Stop the code in '{actionName}' from throwing the more specific {caughtException.GetType().Name}"
-                                    };
+                additionalOptions = new[] { $"Expect the concrete type instead: ThrowsExactly<{caughtException.GetType().Name}>(...)", $"Switch to Throws<{typeof(TException).Name}>(...) if a derived type is acceptable here", $"Stop the code in '{actionName}' from throwing the more specific {caughtException.GetType().Name}" };
             }
             else if (caughtException is not TException)
             {

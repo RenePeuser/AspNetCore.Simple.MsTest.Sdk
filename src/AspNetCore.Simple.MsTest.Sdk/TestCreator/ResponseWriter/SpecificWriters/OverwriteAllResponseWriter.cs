@@ -120,11 +120,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             try
             {
                 using var reader = new JsonTextReader(new StringReader(json))
-                {
-                    // Keep dates, times and big numbers exactly as the api wrote them.
-                    DateParseHandling = DateParseHandling.None,
-                    FloatParseHandling = FloatParseHandling.Decimal
-                };
+                                   {
+                                       // Keep dates, times and big numbers exactly as the api wrote them.
+                                       DateParseHandling = DateParseHandling.None,
+                                       FloatParseHandling = FloatParseHandling.Decimal
+                                   };
 
                 return JToken.Load(reader).ToString(Formatting.Indented);
             }

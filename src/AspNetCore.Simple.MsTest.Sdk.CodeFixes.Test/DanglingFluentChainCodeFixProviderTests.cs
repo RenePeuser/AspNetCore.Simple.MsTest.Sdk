@@ -19,10 +19,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.CodeFixes.Test
             var test = new CSharpCodeFixTest<DanglingFluentChainAnalyzer,
                            DanglingFluentChainCodeFixProvider,
                            DefaultVerifier>
-            {
-                TestCode = testCode,
-                FixedCode = fixedCode
-            };
+                       {
+                           TestCode = testCode,
+                           FixedCode = fixedCode
+                       };
 
             return test.RunAsync();
         }

@@ -119,7 +119,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 response.Response.Body.Seek(0, SeekOrigin.Begin);
 
                 // leaveOpen - the caller still needs this stream to copy the response back.
-                using var streamReader = new StreamReader(response.Response.Body, Encoding.UTF8, true, 1024, leaveOpen: true);
+                using var streamReader = new StreamReader(response.Response.Body, Encoding.UTF8, true,
+                                                          1024, leaveOpen: true);
+
                 bodyAsText = await streamReader.ReadToEndAsync().ConfigureAwait(false);
                 response.Response.Body.Seek(0, SeekOrigin.Begin);
             }

@@ -28,6 +28,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 
             // Priority 1: If ResolvedExpectedJson is available, use it (for FromFile-based asserts)
             var resolvedJson = context.ResolvedExpectedJson;
+
             if (!string.IsNullOrEmpty(resolvedJson))
             {
                 // If it's a JSON string (starts and ends with quotes), parse it
@@ -81,12 +82,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
                                                                 d.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond);
 
             return new ComparisonResult
-            {
-                Differences = filteredDifferences,
-                FormattedExpected = expectedString,
-                FormattedCurrent = currentString,
-                HasSchemaMismatch = hasSchemaMismatch
-            };
+                   {
+                       Differences = filteredDifferences,
+                       FormattedExpected = expectedString,
+                       FormattedCurrent = currentString,
+                       HasSchemaMismatch = hasSchemaMismatch
+                   };
         }
 
         private static string NormalizeLineEndings(string text)
@@ -109,34 +110,34 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
                 {
                     // Line exists in current but not in expected
                     differences.Add(new Difference
-                    {
-                        MemberPath = $"Line {i + 1}",
-                        Value1 = string.Empty,
-                        Value2 = currentLine,
-                        MismatchType = MismatchType.MissingInFirst
-                    });
+                                    {
+                                        MemberPath = $"Line {i + 1}",
+                                        Value1 = string.Empty,
+                                        Value2 = currentLine,
+                                        MismatchType = MismatchType.MissingInFirst
+                                    });
                 }
                 else if (expectedLine.IsNotNull() && currentLine.IsNull())
                 {
                     // Line exists in expected but not in current
                     differences.Add(new Difference
-                    {
-                        MemberPath = $"Line {i + 1}",
-                        Value1 = expectedLine,
-                        Value2 = string.Empty,
-                        MismatchType = MismatchType.MissingInSecond
-                    });
+                                    {
+                                        MemberPath = $"Line {i + 1}",
+                                        Value1 = expectedLine,
+                                        Value2 = string.Empty,
+                                        MismatchType = MismatchType.MissingInSecond
+                                    });
                 }
                 else if (expectedLine.IsNotNull() && currentLine.IsNotNull() && expectedLine != currentLine)
                 {
                     // Line differs
                     differences.Add(new Difference
-                    {
-                        MemberPath = $"Line {i + 1}",
-                        Value1 = expectedLine,
-                        Value2 = currentLine,
-                        MismatchType = MismatchType.ValueDifference
-                    });
+                                    {
+                                        MemberPath = $"Line {i + 1}",
+                                        Value1 = expectedLine,
+                                        Value2 = currentLine,
+                                        MismatchType = MismatchType.ValueDifference
+                                    });
                 }
             }
 

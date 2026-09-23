@@ -61,15 +61,14 @@ namespace Controllers.Test.SnapshotWriteFiltering
             try
             {
                 // firstName is compared and stale, so the chain fails - but only AFTER the writer ran.
-                await Assert.That.ThrowsExactlyAsync<AssertFailedException>(
-                          () => Client.AssertGet("api/v1/persons")
-                                      .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
-                                      .ExpectedResponseFromEmbeddedJson(SnapshotReference)
-                                      .IgnoreDifferences(DropAge)
-                                      .WriteSnapshot()
-                                      .ExecuteAsync(),
-                          because: "'firstName' is not filtered out and the fixture holds 'Stale', so the comparison has to fail. If it passes, the snapshot was never compared and everything below would be measuring nothing.",
-                          fix: "Check that the embedded snapshot reference resolves and that IgnoreDifferences only drops the age differences.")
+                await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGet("api/v1/persons")
+                                                                                        .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
+                                                                                        .ExpectedResponseFromEmbeddedJson(SnapshotReference)
+                                                                                        .IgnoreDifferences(DropAge)
+                                                                                        .WriteSnapshot()
+                                                                                        .ExecuteAsync(),
+                                                                            because: "'firstName' is not filtered out and the fixture holds 'Stale', so the comparison has to fail. If it passes, the snapshot was never compared and everything below would be measuring nothing.",
+                                                                            fix: "Check that the embedded snapshot reference resolves and that IgnoreDifferences only drops the age differences.")
                             .ConfigureAwait(false);
 
                 var written = JToken.Parse(await File.ReadAllTextAsync(snapshot).ConfigureAwait(false));
@@ -98,15 +97,14 @@ namespace Controllers.Test.SnapshotWriteFiltering
 
             try
             {
-                await Assert.That.ThrowsExactlyAsync<AssertFailedException>(
-                          () => Client.AssertGet("api/v1/persons")
-                                      .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
-                                      .ExpectedResponseFromEmbeddedJson(SnapshotReference)
-                                      .IgnoreDifferences(DropAge)
-                                      .WriteSnapshot(false)
-                                      .ExecuteAsync(),
-                          because: "The stale firstName still has to fail the comparison - WriteSnapshot(false) only turns off re-recording, not the assertion.",
-                          fix: "Check that writeResponse false leaves the comparison untouched.")
+                await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGet("api/v1/persons")
+                                                                                        .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
+                                                                                        .ExpectedResponseFromEmbeddedJson(SnapshotReference)
+                                                                                        .IgnoreDifferences(DropAge)
+                                                                                        .WriteSnapshot(false)
+                                                                                        .ExecuteAsync(),
+                                                                            because: "The stale firstName still has to fail the comparison - WriteSnapshot(false) only turns off re-recording, not the assertion.",
+                                                                            fix: "Check that writeResponse false leaves the comparison untouched.")
                             .ConfigureAwait(false);
 
                 var after = await File.ReadAllTextAsync(snapshot).ConfigureAwait(false);

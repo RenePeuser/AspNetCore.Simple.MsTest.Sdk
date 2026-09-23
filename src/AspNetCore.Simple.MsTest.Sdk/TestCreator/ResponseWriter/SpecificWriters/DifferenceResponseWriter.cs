@@ -79,9 +79,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // difference at all here, so the snapshot keeps the order its author chose instead of
             // being rewritten on every recording.
             var diffs = jsonDiffer.FindDifferences(expectedRoot.ToString(),
-                                                  currentRoot.ToString(),
-                                                  context.OrderIndependentArrayFilter ??
-                                                  AssertObjectExtensions.OrderIndependentArrayFilter);
+                                                   currentRoot.ToString(),
+                                                   context.OrderIndependentArrayFilter ??
+                                                   AssertObjectExtensions.OrderIndependentArrayFilter);
 
             if (!diffs.Any())
             {
@@ -127,10 +127,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // Use custom serializer settings to handle currentValue un-escaping
             var serializerSettings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
-            };
+                                     {
+                                         Formatting = Formatting.Indented,
+                                         Converters = new List<JsonConverter> { new CurrentValueJsonConverter() }
+                                     };
 
             // Which placeholder belongs where, and how it was spelled, is read off the file being updated
             // - per json path, so the same name can be a bare number here and a quoted string there. See

@@ -49,7 +49,11 @@ namespace Controllers.Test.FilterFunc
                 return person;
             }
 
-            return person with { Name = NormalizedName, Age = 0 };
+            return person with
+                   {
+                       Name = NormalizedName,
+                       Age = 0
+                   };
         }
 
         [TestMethod]

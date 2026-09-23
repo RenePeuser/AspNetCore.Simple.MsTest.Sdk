@@ -30,6 +30,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 // LineNumber is zero based.
                 LineNumber = (int)jsonException.LineNumber.Value + 1;
+
                 Position = jsonException.BytePositionInLine.HasValue
                                ? (int)jsonException.BytePositionInLine.Value + 1
                                : null;

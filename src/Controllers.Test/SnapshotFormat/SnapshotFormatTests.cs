@@ -33,8 +33,8 @@ namespace Controllers.Test.SnapshotFormat
             try
             {
                 await Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons",
-                                                                  "Responses.BareBody.json",
-                                                                  writeResponse: true)
+                                                                 "Responses.BareBody.json",
+                                                                 writeResponse: true)
                             .ConfigureAwait(false);
 
                 var written = JToken.Parse(await File.ReadAllTextAsync(snapshot).ConfigureAwait(false));
@@ -71,8 +71,8 @@ namespace Controllers.Test.SnapshotFormat
             try
             {
                 await Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons",
-                                                                  "Responses.Envelope.json",
-                                                                  writeResponse: true)
+                                                                 "Responses.Envelope.json",
+                                                                 writeResponse: true)
                             .ConfigureAwait(false);
 
                 var written = JToken.Parse(await File.ReadAllTextAsync(snapshot).ConfigureAwait(false));
@@ -129,7 +129,8 @@ namespace Controllers.Test.SnapshotFormat
         }
 
         private static string SnapshotPath(string fileName,
-                                           [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
+                                           [System.Runtime.CompilerServices.CallerFilePath]
+                                           string callerFilePath = "")
         {
             return Path.Combine(new FileInfo(callerFilePath).Directory!.FullName, "Responses", fileName);
         }

@@ -561,6 +561,7 @@ namespace Controllers.Test
                                  diffs1,
                                  because: "Empty array with space should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",
                                  fix: NormalizationFix);
+
             Assert.That.HasCount(0,
                                  diffs2,
                                  because: "Empty array with newline should not affect comparison. Formatting is not data - a snapshot written with different indentation, line breaks or property order still describes the same response, so reporting a difference here would make every reformatted snapshot fail.",

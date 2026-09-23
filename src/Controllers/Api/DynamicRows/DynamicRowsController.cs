@@ -19,21 +19,21 @@ namespace Controllers.Api.DynamicRows
         public DynamicRowsResponse GetRows()
         {
             return new DynamicRowsResponse
-            {
-                Page = new RowPage
-                {
-                    Items =
-                    [
-                        new Dictionary<string, object?>
-                        {
-                            ["Transition"] = "FC_TOP_GBS_SMO",
-                            ["Comment"] = "Volume increase ME",
-                            ["Amount"] = 30499.0
-                        }
-                    ],
-                    TotalItems = 1
-                }
-            };
+                   {
+                       Page = new RowPage
+                              {
+                                  Items =
+                                  [
+                                      new Dictionary<string, object?>
+                                      {
+                                          ["Transition"] = "FC_TOP_GBS_SMO",
+                                          ["Comment"] = "Volume increase ME",
+                                          ["Amount"] = 30499.0
+                                      }
+                                  ],
+                                  TotalItems = 1
+                              }
+                   };
         }
     }
 

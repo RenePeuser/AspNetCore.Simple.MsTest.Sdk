@@ -60,8 +60,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         public static IHttpRequestConfiguring AssertGet(this HttpClient client,
                                                         string url,
                                                         [CallerFilePath] string callerFilePath = "",
-                                                         [CallerMemberName] string callerMemberName = "",
-                                                         [CallerLineNumber] int callerLineNumber = 0)
+                                                        [CallerMemberName] string callerMemberName = "",
+                                                        [CallerLineNumber] int callerLineNumber = 0)
         {
             return new HttpRequestBuilder(client, HttpMethod.Get, url,
                                           Assembly.GetCallingAssembly(), callerFilePath,
@@ -72,8 +72,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         public static IHttpRequestConfiguring AssertPut(this HttpClient client,
                                                         string url,
                                                         [CallerFilePath] string callerFilePath = "",
-                                                         [CallerMemberName] string callerMemberName = "",
-                                                         [CallerLineNumber] int callerLineNumber = 0)
+                                                        [CallerMemberName] string callerMemberName = "",
+                                                        [CallerLineNumber] int callerLineNumber = 0)
         {
             return new HttpRequestBuilder(client, HttpMethod.Put, url,
                                           Assembly.GetCallingAssembly(), callerFilePath,
@@ -84,8 +84,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         public static IHttpRequestConfiguring AssertPatch(this HttpClient client,
                                                           string url,
                                                           [CallerFilePath] string callerFilePath = "",
-                                                         [CallerMemberName] string callerMemberName = "",
-                                                         [CallerLineNumber] int callerLineNumber = 0)
+                                                          [CallerMemberName] string callerMemberName = "",
+                                                          [CallerLineNumber] int callerLineNumber = 0)
         {
             return new HttpRequestBuilder(client, HttpMethod.Patch, url,
                                           Assembly.GetCallingAssembly(), callerFilePath,
@@ -96,8 +96,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
         public static IHttpRequestConfiguring AssertDelete(this HttpClient client,
                                                            string url,
                                                            [CallerFilePath] string callerFilePath = "",
-                                                         [CallerMemberName] string callerMemberName = "",
-                                                         [CallerLineNumber] int callerLineNumber = 0)
+                                                           [CallerMemberName] string callerMemberName = "",
+                                                           [CallerLineNumber] int callerLineNumber = 0)
         {
             return new HttpRequestBuilder(client, HttpMethod.Delete, url,
                                           Assembly.GetCallingAssembly(), callerFilePath,

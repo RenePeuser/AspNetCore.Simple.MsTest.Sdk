@@ -70,7 +70,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (content is not JObject contentObject ||
                 (contentObject.ContainsKey("value").IsFalse() &&
-                contentObject.GetValue("value", StringComparison.OrdinalIgnoreCase).IsNull()))
+                 contentObject.GetValue("value", StringComparison.OrdinalIgnoreCase).IsNull()))
             {
                 return false;
             }

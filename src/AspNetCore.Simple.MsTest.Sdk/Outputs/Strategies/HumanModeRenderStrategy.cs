@@ -24,11 +24,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         public string Render(IObjectAssertContext context,
-                            ImmutableList<Difference> differences,
-                            string expectedJson,
-                            string currentJson)
+                             ImmutableList<Difference> differences,
+                             string expectedJson,
+                             string currentJson)
         {
-            return humanOutputBuilder.BuildOutput(context, differences, expectedJson, currentJson);
+            return humanOutputBuilder.BuildOutput(context, differences, expectedJson,
+                                                  currentJson);
         }
     }
 }

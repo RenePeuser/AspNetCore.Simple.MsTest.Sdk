@@ -81,6 +81,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                                callingAssembly: _callingAssembly,
                                                callerFilePath: _callerFilePath,
                                                isSuccessStatusCode: isSuccessTest,
+
                                                // Produces(code) deliberately names NO response type — it asserts the
                                                // status and nothing else. The endpoint validator compares the declared
                                                // return type against the expected one, so with nothing to compare it

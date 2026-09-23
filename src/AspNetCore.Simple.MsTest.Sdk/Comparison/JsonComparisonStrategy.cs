@@ -119,12 +119,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 
                     // Return error result - caller will handle assertion failure
                     return new ComparisonResult
-                    {
-                        Differences = ImmutableList<Difference>.Empty,
-                        FormattedExpected = expectedJson,
-                        FormattedCurrent = currentJson,
-                        HasSchemaMismatch = true
-                    };
+                           {
+                               Differences = ImmutableList<Difference>.Empty,
+                               FormattedExpected = expectedJson,
+                               FormattedCurrent = currentJson,
+                               HasSchemaMismatch = true
+                           };
                 }
             }
 
@@ -132,12 +132,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             if (expectedObject.IsNull())
             {
                 return new ComparisonResult
-                {
-                    Differences = ImmutableList<Difference>.Empty,
-                    FormattedExpected = expectedJson,
-                    FormattedCurrent = "null",
-                    HasSchemaMismatch = true
-                };
+                       {
+                           Differences = ImmutableList<Difference>.Empty,
+                           FormattedExpected = expectedJson,
+                           FormattedCurrent = "null",
+                           HasSchemaMismatch = true
+                       };
             }
 
             // 4. Apply ordering function
@@ -153,8 +153,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
                                               AssertObjectExtensions.OrderIndependentArrayFilter;
 
             var differences = _jsonDiffer.FindDifferences(expectedOrderedJson,
-                                                         currentOrderedJson,
-                                                         orderIndependentArrayFilter);
+                                                          currentOrderedJson,
+                                                          orderIndependentArrayFilter);
 
             // 6. Check for schema mismatches
             var hasSchemaMismatch = differences.Any(item =>
@@ -168,8 +168,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             if (contentValueDifference.IsNotNull())
             {
                 differences = _jsonDiffer.FindDifferences(contentValueDifference.Value1 ?? string.Empty,
-                                                         contentValueDifference.Value2 ?? string.Empty,
-                                                         orderIndependentArrayFilter);
+                                                          contentValueDifference.Value2 ?? string.Empty,
+                                                          orderIndependentArrayFilter);
 
                 hasSchemaMismatch = differences.Any(item =>
                                                         (item.MismatchType is MismatchType.MissingInFirst or MismatchType.MissingInSecond) &&
@@ -182,12 +182,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
                                                                                       context.DifferenceFilter);
 
             return new ComparisonResult
-            {
-                Differences = filteredDifferences,
-                FormattedExpected = expectedOrderedJson,
-                FormattedCurrent = currentOrderedJson,
-                HasSchemaMismatch = hasSchemaMismatch
-            };
+                   {
+                       Differences = filteredDifferences,
+                       FormattedExpected = expectedOrderedJson,
+                       FormattedCurrent = currentOrderedJson,
+                       HasSchemaMismatch = hasSchemaMismatch
+                   };
         }
 
         /// <summary>
@@ -204,30 +204,30 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             if (expectedString == currentString)
             {
                 return new ComparisonResult
-                {
-                    Differences = ImmutableList<Difference>.Empty,
-                    FormattedExpected = expectedString,
-                    FormattedCurrent = currentString,
-                    HasSchemaMismatch = false
-                };
+                       {
+                           Differences = ImmutableList<Difference>.Empty,
+                           FormattedExpected = expectedString,
+                           FormattedCurrent = currentString,
+                           HasSchemaMismatch = false
+                       };
             }
 
             // Strings differ - create a single difference
             var difference = new Difference
-            {
-                MemberPath = "Value",
-                Value1 = expectedString,
-                Value2 = currentString,
-                MismatchType = MismatchType.ValueDifference
-            };
+                             {
+                                 MemberPath = "Value",
+                                 Value1 = expectedString,
+                                 Value2 = currentString,
+                                 MismatchType = MismatchType.ValueDifference
+                             };
 
             return new ComparisonResult
-            {
-                Differences = ImmutableList.Create(difference),
-                FormattedExpected = expectedString,
-                FormattedCurrent = currentString,
-                HasSchemaMismatch = true
-            };
+                   {
+                       Differences = ImmutableList.Create(difference),
+                       FormattedExpected = expectedString,
+                       FormattedCurrent = currentString,
+                       HasSchemaMismatch = true
+                   };
         }
     }
 }
