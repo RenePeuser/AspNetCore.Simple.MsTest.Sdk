@@ -530,10 +530,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerLineNumber] int callerLineNumber = 0)
         {
             // Resolve embedded files once here - this avoids duplicate resolution later in the pipeline
-            var expectedFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedObjectAsJson, callerFilePath, callingAssembly);
+            var expectedFile = HttpClientAssertExtensions.GetService<IEmbeddedFileLocalizer>(callingAssembly).LocalizeResponseFile(expectedObjectAsJson, callerFilePath, callingAssembly);
 
             // Resolve parameters in expected JSON once here - ready-to-use for comparison
-            var resolvedExpectedJson = ParameterReplacer.ResolveParameters(expectedFile.Content, parameters);
+            var resolvedExpectedJson = HttpClientAssertExtensions.GetService<IParameterReplacer>(callingAssembly).ResolveParameters(expectedFile.Content, parameters);
 
             var targetIsPrimitiveType = typeof(T).IsPrimitive || typeof(T).EqualsTo(typeof(string));
 

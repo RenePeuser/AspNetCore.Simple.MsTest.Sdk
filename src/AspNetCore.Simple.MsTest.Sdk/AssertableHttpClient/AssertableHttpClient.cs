@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
+using AspNetCore.Simple.MsTest.Sdk.Outputs.Builders;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.Extensions.Configuration;
@@ -48,6 +49,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             services.AddApiVersionResolver();
             services.AddEndpointValidator();
             services.AddEmptyAnonymousObjectDetector();
+            services.AddJsonFileExtensionValidator();
+            services.AddJsonTypeMismatchOutputBuilder();
 
             // 2. Register error handling strategy (with all specific handlers)
             services.AddTestErrorHandlingStrategy();

@@ -65,8 +65,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // NEW self registration
                 services.AddAssertableHttpClient(configuration, _consumerAssembly);
 
-                // NEW self setup
-                using var serviceProvider = services.BuildServiceProvider();
+                // NEW self setup - the static extensions resolve from this provider on every assert,
+                // so it must outlive this callback and is deliberately never disposed here.
+#pragma warning disable CA2000
+                var serviceProvider = services.BuildServiceProvider();
+#pragma warning restore CA2000
                 HttpClientAssertExtensions.Setup(serviceProvider);
 
             });

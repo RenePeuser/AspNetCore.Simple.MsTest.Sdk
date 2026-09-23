@@ -6,150 +6,96 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
-using AspNetCore.Simple.MsTest.Sdk.Comparison;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
-using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
-using AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers;
-using AspNetCore.Simple.MsTest.Sdk.Outputs.Builders;
-using AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http;
-using AspNetCore.Simple.MsTest.Sdk.Strategies;
-using AspNetCore.Simple.MsTest.Sdk.Tables;
+using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using JsonSerializer = AspNetCore.Simple.MsTest.Sdk.Serializer.Json.JsonSerializer;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
+    /// <summary>
+    ///     The one place every static assert entry - http and object route alike - resolves its services
+    ///     from. There is no second container and no hand-wired copy anywhere else.
+    /// </summary>
     public static partial class HttpClientAssertExtensions
     {
+        private static readonly object ServiceProviderGate = new();
+
+        private static IServiceProvider? _serviceProvider;
+
+        private static bool _serviceProviderIsDefault;
+
         /// <summary>
-        ///     Initializes all internal static fields with services resolved from the DI container.
+        ///     Hands the host's provider to all static assert extensions.
         ///     Call this method once during test initialization (e.g., in [AssemblyInitialize])
         ///     after registering services via services.AddAssertableHttpClient().
+        ///     The provider has to stay alive for the whole test run - it is resolved from on every assert.
         /// </summary>
         /// <param name="serviceProvider">The service provider containing registered services</param>
         public static void Setup(IServiceProvider serviceProvider)
         {
-            // 1. Resolve core services. The decorator was bound to the consumer test assembly when
-            //    the services were registered - see AddTextDecorator.
-            _textDecorator = serviceProvider.GetRequiredService<ITextDecorator>();
+            lock (ServiceProviderGate)
+            {
+                _serviceProvider = serviceProvider;
+                _serviceProviderIsDefault = false;
+                _jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
+                _customAssertableHttpClient = null;
+            }
+        }
 
-            _primitiveTypeConverter = serviceProvider.GetRequiredService<IPrimitiveTypeConverter>();
-            _jsonDiffer = serviceProvider.GetRequiredService<IJsonDiffer>();
-            _parameterReplacer = serviceProvider.GetRequiredService<IParameterReplacer>();
-            _writeResponseService = serviceProvider.GetRequiredService<IWriteResponseService>();
-            _jsonSerializerInstance = serviceProvider.GetRequiredService<JsonSerializer>();
-            _embeddedFileLocalizer = serviceProvider.GetRequiredService<IEmbeddedFileLocalizer>();
-            _responseWriter = serviceProvider.GetRequiredService<IResponseWriter>();
+        /// <summary>
+        ///     Resolves a service for an assert issued by <paramref name="consumerAssembly"/>.
+        /// </summary>
+        internal static T GetService<T>(Assembly consumerAssembly)
+            where T : notnull
+        {
+            var serviceProvider = Volatile.Read(ref _serviceProvider) ?? EnsureDefaultServiceProvider(consumerAssembly);
 
-            // 2. Update JsonSerializerOptions from DI
-            _jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
+            return serviceProvider.GetRequiredService<T>();
+        }
 
-            // 3. Resolve builders - use the correct text decorator
-            var tableBuilder = new TableBuilder();
-            _httpCallInfoTableBuilder = new HttpCallInfoTableBuilder(_textDecorator);
-            _differencesTableBuilder = new DifferencesTableBuilder(tableBuilder, _textDecorator);
-            _jsonSectionBuilder = new JsonSectionBuilder(_textDecorator);
-            _unresolvedParameterSectionBuilder = new UnresolvedParameterSectionBuilder(_textDecorator);
-            JsonTypeMismatchOutputBuilder = new JsonTypeMismatchOutputBuilder(_textDecorator);
-            _curlBuilder = serviceProvider.GetRequiredService<ICurlBuilder>();
-            _curlFormatter = new CurlFormatter(_textDecorator);
-            _curlPrinter = serviceProvider.GetRequiredService<ICurlPrinter>();
+        private static IServiceProvider EnsureDefaultServiceProvider(Assembly consumerAssembly)
+        {
+            lock (ServiceProviderGate)
+            {
+                if (_serviceProvider.IsNull())
+                {
+                    _serviceProvider = CreateDefaultServiceProvider(consumerAssembly);
+                    _serviceProviderIsDefault = true;
+                }
 
-            // 3.1. Create HTTP failure strategies
-            var httpFailureOutputHelper = new HttpFailureOutputHelper();
+                return _serviceProvider!;
+            }
+        }
 
-            var httpFailureStrategies = new IHttpFailureOutputStrategy[]
-                                        {
-                                            new StatusCodeMismatchOutputStrategy(_textDecorator, httpFailureOutputHelper), new SchemaMismatchOutputStrategy(_textDecorator, httpFailureOutputHelper), new SnapshotMismatchOutputStrategy(_textDecorator, httpFailureOutputHelper),
-                                            new ContentTypeMismatchOutputStrategy(_textDecorator, httpFailureOutputHelper)
-                                        };
+        /// <summary>
+        ///     Until a test hands over its host's provider - and for pure object asserts, which never do -
+        ///     the extensions run on the sdk's own container, built from the very same registrations.
+        ///     It is bound to the first consumer assembly asking: every test assembly runs in its own
+        ///     test host process, so that one decides plain vs ANSI output for the whole run.
+        ///     Without a host there is no endpoint registry - the first endpoint validation then reports
+        ///     the missing Setup instead of failing cryptically.
+        /// </summary>
+        private static ServiceProvider CreateDefaultServiceProvider(Assembly consumerAssembly)
+        {
+            // Without a host the environment is the only configuration source - TestSdkSettings__OutputMode
+            // and friends bind exactly as they do in a host.
+            var configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build();
 
-            var defaultHttpFailureStrategy = new DefaultHttpFailureOutputStrategy(_textDecorator, httpFailureOutputHelper);
-            var httpFailureOutputBuilder = new HttpFailureOutputBuilder(httpFailureStrategies, defaultHttpFailureStrategy);
+            var services = new ServiceCollection();
 
-            // 4. Rebuild output strategies with the correct decorator
-            var primitiveOutputStrategy = new PrimitiveOutputStrategy(_textDecorator);
-            var objectOutputStrategy = new ObjectOutputStrategy(_differencesTableBuilder, _jsonSectionBuilder, _textDecorator);
+            services.AddAssertableHttpClient(configuration, consumerAssembly);
 
-            var httpResponseOutputStrategy = new HttpResponseOutputStrategy(httpFailureOutputBuilder,
-                                                                            _httpCallInfoTableBuilder,
-                                                                            _differencesTableBuilder,
-                                                                            _jsonSectionBuilder,
-                                                                            _unresolvedParameterSectionBuilder,
-                                                                            _curlBuilder,
-                                                                            _curlFormatter);
+            // No host registers the api's options here - they are handed in through the property.
+            services.Replace(ServiceDescriptor.Singleton(_jsonSerializerOptions));
+            services.Replace(ServiceDescriptor.Singleton<IEndpointProvider, EmptyEndpointProvider>());
 
-            var outputStrategies = new IAssertOutputStrategy[] { primitiveOutputStrategy, objectOutputStrategy, httpResponseOutputStrategy };
-
-            // 5. Create output builder and assert service with rebuilt strategies
-            _outputBuilder = new AssertOutputBuilder(outputStrategies);
-
-            var comparisonStrategy = new ComparisonStrategy(SpecificComparisonStrategies);
-
-            _assertService = new AssertService(comparisonStrategy,
-                                               _responseWriter,
-                                               _writeResponseService,
-                                               OutputModeRenderer);
-
-            // 6. Resolve HTTP handler and update _httpCallHandler
-            var httpCallHandler = serviceProvider.GetRequiredService<IHttpCallHandler>();
-            _httpCallHandler = (HttpCallHandler)httpCallHandler;
-
-            // Settings carry the project's volatile header list - take the configured one, not defaults.
-            _testSdkSettings = serviceProvider.GetService<TestSdkSettings>() ?? new TestSdkSettings();
-
-            // 7. Rebuild pipeline with the updated components
-            _httpAssertionPipeline = new HttpAssertionPipeline([
-                                                                   new StatusCodeValidationStep(_outputBuilder),
-                                                                   new ContentTypeHeaderValidationStep(_outputBuilder),
-                                                                   new ContentFormatValidationStep(_outputBuilder),
-                                                                   new JsonComparisonStep(_primitiveTypeConverter,
-                                                                                          _assertService,
-                                                                                          _parameterReplacer,
-                                                                                          _writeResponseService,
-                                                                                          _testSdkSettings,
-                                                                                          _jsonSerializerOptions),
-                                                                   new SuccessfulTestCurlPrinter(_curlPrinter)
-                                                               ]);
-
-            // 8. Resolve validation services
-            _apiVersionResolver = serviceProvider.GetRequiredService<IApiVersionResolver>();
-
-            _emptyEndpointProvider = serviceProvider.GetRequiredService<IEndpointProvider>();
-            _sourceCodeExtractor = serviceProvider.GetRequiredService<ISourceCodeExtractor>();
-
-            _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(tableBuilder, _curlBuilder, _curlFormatter,
-                                                                                   _sourceCodeExtractor, _textDecorator);
-
-            _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
-
-            // 8.1. Create JSON file extension validator
-            _jsonFileExtensionValidator = new JsonFileExtensionValidator(_sourceCodeExtractor, _textDecorator);
-
-            // 8.2. Resolve empty anonymous object detector
-            _emptyAnonymousObjectDetector = serviceProvider.GetRequiredService<IEmptyAnonymousObjectDetector>();
-
-            // 9. Resolve error handling strategy
-            TestErrorHandlingStrategy = serviceProvider.GetRequiredService<ITestErrorHandlingStrategy>();
-
-            // 10. Most important: Rebuild AssertableHttpClient with all updated components
-            _assertableHttpClientDefault = new AssertableHttpClient.AssertableHttpClient(_httpCallHandler,
-                                                                                         _parameterReplacer,
-                                                                                         _httpAssertionPipeline,
-                                                                                         _primitiveTypeConverter,
-                                                                                         _jsonSerializerOptions,
-                                                                                         _endpointValidator,
-                                                                                         _writeResponseService,
-                                                                                         TestErrorHandlingStrategy);
-
-            CustomAssertableHttpClient = _assertableHttpClientDefault;
-
-            _plainTextDecorator = new PlainTextDecorator();
+            return services.BuildServiceProvider();
         }
     }
 
@@ -157,197 +103,33 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static bool SkipEndpointValidation { get; set; }
 
-        /// <summary>
-        /// Gets the JSON type mismatch output builder for beautiful error formatting.
-        /// Initialized via Setup() method.
-        /// </summary>
-        internal static IJsonTypeMismatchOutputBuilder JsonTypeMismatchOutputBuilder { get; private set; } = new JsonTypeMismatchOutputBuilder(new PlainTextDecorator());
-
         // Quickfix to hold the whole api compatible
         private const string IgnoreResponseComparison = "IgnoreResponse";
 
-        private static ITextDecorator _textDecorator = new PlainTextDecorator();
+        private static JsonSerializerOptions _jsonSerializerOptions = JsonSerializerExtension.CreateDefaultOptions();
 
-        private static IPrimitiveTypeConverter _primitiveTypeConverter = new PrimitiveTypeConverter();
-
-        private static IJsonDiffer _jsonDiffer = new JsonDiffer();
-
-        private static IParameterReplacer _parameterReplacer = new ParameterReplacer();
-
-        private static IResponseWriter _responseWriter = new ResponseWriter([
-                                                                                new DifferenceResponseWriter(_jsonDiffer, new JsonPathWriter(), _parameterReplacer, new SnapshotPlaceholderGuard()),
-                                                                                new OverwriteAllResponseWriter(_parameterReplacer, new SnapshotPlaceholderGuard())
-                                                                            ]);
-
-        private static IWriteResponseService _writeResponseService = new WriteResponseService();
-
-        private static HttpCallHandler _httpCallHandler = new(new HttpRequestMessageBuilder(new JsonSerializer(JsonSerializerOptions)));
-
-        private static JsonSerializerOptions _jsonSerializerOptions = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters = { new JsonStringEnumConverter() }
-        };
-
-        private static IEmbeddedFileLocalizer _embeddedFileLocalizer = new EmbeddedFileLocalizer(new TestSdkSettings(), JsonSerializerOptions, new PlainTextDecorator(),
-                                                                                                 new SourceCodeExtractor(),
-                                                                                                 new ResourceRootNamespaceResolver());
+        private static IAssertableHttpClient? _customAssertableHttpClient;
 
         /// <summary>
-        /// Defaults until the container hands over the project's own settings when the service provider
-        /// is applied - the volatile header list is configurable per project.
+        ///     The api's json options - one set for the http and the object route.
+        ///     With a host, register them in its service collection - Setup() takes them from there.
+        ///     Without one, assign them here: the sdk's own container is rebuilt with them on the next assert.
         /// </summary>
-        private static TestSdkSettings _testSdkSettings = new();
-
-        private static JsonSerializer _jsonSerializerInstance = new(JsonSerializerOptions);
-
-        private static IEmptyAnonymousObjectDetector _emptyAnonymousObjectDetector = new EmptyAnonymousObjectDetector();
-
-        private static ITextDecorator _plainTextDecorator = new PlainTextDecorator();
-
-        private static ICurlFormatter _curlFormatter = new CurlFormatter(_plainTextDecorator);
-
-        // Builders for output strategies
-        private static readonly TableBuilder StaticTableBuilder = new();
-
-        private static IHttpCallInfoTableBuilder _httpCallInfoTableBuilder = new HttpCallInfoTableBuilder(_textDecorator);
-
-        private static IDifferencesTableBuilder _differencesTableBuilder = new DifferencesTableBuilder(StaticTableBuilder, _textDecorator);
-
-        private static IJsonSectionBuilder _jsonSectionBuilder = new JsonSectionBuilder(_textDecorator);
-
-        private static IUnresolvedParameterSectionBuilder _unresolvedParameterSectionBuilder = new UnresolvedParameterSectionBuilder(_textDecorator);
-
-        private static ICurlBuilder _curlBuilder = new CurlBuilder();
-
-        private static ICurlPrinter _curlPrinter = new CurlPrinter(_curlFormatter, _curlBuilder);
-
-        // HTTP failure output helper (default plain text decorator)
-        private static readonly IHttpFailureOutputHelper HttpFailureOutputHelper = new HttpFailureOutputHelper();
-
-        // HTTP failure strategies (default plain text decorator)
-        private static readonly IHttpFailureOutputStrategy[] HttpFailureStrategies =
-        [
-            new StatusCodeMismatchOutputStrategy(_plainTextDecorator, HttpFailureOutputHelper),
-            new SchemaMismatchOutputStrategy(_plainTextDecorator, HttpFailureOutputHelper),
-            new SnapshotMismatchOutputStrategy(_plainTextDecorator, HttpFailureOutputHelper),
-            new ContentTypeMismatchOutputStrategy(_plainTextDecorator, HttpFailureOutputHelper)
-        ];
-
-        private static readonly DefaultHttpFailureOutputStrategy DefaultHttpFailureStrategy = new(_plainTextDecorator, HttpFailureOutputHelper);
-
-        private static readonly HttpFailureOutputBuilder HttpFailureOutputBuilder = new(HttpFailureStrategies, DefaultHttpFailureStrategy);
-
-        // Output strategies for AssertService
-        private static readonly PrimitiveOutputStrategy PrimitiveOutputStrategy = new(_plainTextDecorator);
-
-        private static readonly ObjectOutputStrategy ObjectOutputStrategy = new(_differencesTableBuilder, _jsonSectionBuilder, _plainTextDecorator);
-
-        private static readonly HttpResponseOutputStrategy HttpResponseOutputStrategy = new(HttpFailureOutputBuilder,
-                                                                                            _httpCallInfoTableBuilder,
-                                                                                            _differencesTableBuilder,
-                                                                                            _jsonSectionBuilder,
-                                                                                            _unresolvedParameterSectionBuilder,
-                                                                                            _curlBuilder,
-                                                                                            _curlFormatter);
-
-        private static readonly IAssertOutputStrategy[] OutputStrategies =
-        [
-            PrimitiveOutputStrategy,
-            ObjectOutputStrategy,
-            HttpResponseOutputStrategy
-        ];
-
-        private static IAssertOutputBuilder _outputBuilder = new AssertOutputBuilder(OutputStrategies);
-
-        // Output mode infrastructure
-        private static readonly IOutputModeService OutputModeService = new OutputModeService();
-
-        private static readonly IAiOutputTransformer AiOutputTransformer = new AiOutputTransformer();
-
-        // Output mode render strategies (extensible)
-        private static readonly IOutputModeRenderStrategy HumanModeStrategy = new HumanModeRenderStrategy(_outputBuilder);
-
-        private static readonly IOutputModeRenderStrategy AiModeStrategy = new AiModeRenderStrategy(AiOutputTransformer);
-
-        private static readonly IOutputModeRenderStrategy HybridModeStrategy = new HybridModeRenderStrategy(_outputBuilder, AiOutputTransformer);
-
-        private static readonly IOutputModeRenderStrategy[] RenderStrategies = [HumanModeStrategy, AiModeStrategy, HybridModeStrategy];
-
-        private static readonly IOutputModeRenderer OutputModeRenderer = new OutputModeRenderer(RenderStrategies, OutputModeService);
-
-        // Comparison strategies (order matters - first match wins)
-        private static readonly ISpecificComparisonStrategy StringComparisonStrategy = new StringComparisonStrategy();
-
-        // Reads JsonSerializerOptions per comparison, not once here: this field initializer runs long
-        // before a test hands the SDK the api's options, and both sides of the diff have to be written
-        // with the very options the api writes with.
-        private static readonly ISpecificComparisonStrategy JsonComparisonStrategy = new JsonComparisonStrategy(_jsonDiffer, _jsonSerializerInstance, () => JsonSerializerOptions);
-
-        private static readonly ISpecificComparisonStrategy[] SpecificComparisonStrategies =
-        [
-            StringComparisonStrategy,
-            JsonComparisonStrategy
-        ];
-
-        private static readonly IComparisonStrategy ComparisonStrategy = new ComparisonStrategy(SpecificComparisonStrategies);
-
-        private static IAssertService _assertService = new AssertService(ComparisonStrategy,
-                                                                         _responseWriter,
-                                                                         _writeResponseService,
-                                                                         OutputModeRenderer);
-
-        // Pipeline (contains all steps internally)
-        private static IHttpAssertionPipeline _httpAssertionPipeline = new HttpAssertionPipeline(new IHttpAssertionStep[]
-                                                                                                 {
-                                                                                                     new StatusCodeValidationStep(_outputBuilder), new ContentTypeHeaderValidationStep(_outputBuilder), new ContentFormatValidationStep(_outputBuilder),
-                                                                                                     new JsonComparisonStep(_primitiveTypeConverter,
-                                                                                                                            _assertService,
-                                                                                                                            _parameterReplacer,
-                                                                                                                            _writeResponseService,
-                                                                                                                            _testSdkSettings,
-                                                                                                                            JsonSerializerOptions)
-                                                                                                 });
-
-        private static IApiVersionResolver _apiVersionResolver = new ApiVersionResolver();
-
-        private static IEndpointProvider _emptyEndpointProvider = new EmptyEndpointProvider();
-
-        private static ISourceCodeExtractor _sourceCodeExtractor = new SourceCodeExtractor();
-
-        // Note: Uses _plainTextDecorator as placeholder - will be recreated in Setup() with correct decorator based on calling assembly
-        private static IEndpointValidationOutputBuilder _endpointValidationOutputBuilder = new EndpointValidationOutputBuilder(StaticTableBuilder, _curlBuilder, _curlFormatter,
-                                                                                                                               _sourceCodeExtractor, _plainTextDecorator);
-
-        private static IEndpointValidator _endpointValidator = new EndpointValidator(_emptyEndpointProvider, _endpointValidationOutputBuilder);
-
-        private static JsonFileExtensionValidator _jsonFileExtensionValidator = new JsonFileExtensionValidator(_sourceCodeExtractor, _plainTextDecorator);
-
-        // Error handling strategy - will be properly initialized in Setup()
-        // Default implementation for static initialization
-        internal static ITestErrorHandlingStrategy TestErrorHandlingStrategy = CreateDefaultErrorHandlingStrategy();
-
-        private static IAssertableHttpClient _assertableHttpClientDefault = new AssertableHttpClient.AssertableHttpClient(_httpCallHandler,
-                                                                                                                          _parameterReplacer,
-                                                                                                                          _httpAssertionPipeline,
-                                                                                                                          _primitiveTypeConverter,
-                                                                                                                          JsonSerializerOptions,
-                                                                                                                          _endpointValidator,
-                                                                                                                          _writeResponseService,
-                                                                                                                          TestErrorHandlingStrategy);
-
-        // You have the possible to set and pass the api settings specific json options
         public static JsonSerializerOptions JsonSerializerOptions
         {
             get => _jsonSerializerOptions;
 
             set
             {
-                _jsonSerializerOptions = value;
-                _httpCallHandler = new HttpCallHandler(new HttpRequestMessageBuilder(new JsonSerializer(_jsonSerializerOptions)));
+                lock (ServiceProviderGate)
+                {
+                    _jsonSerializerOptions = value;
+
+                    if (_serviceProviderIsDefault)
+                    {
+                        _serviceProvider = null;
+                    }
+                }
             }
         }
 
@@ -360,32 +142,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <summary>
         ///     Custom implementation of IAssertableHttpClient for intercepting HTTP assertions.
         ///     Allows developers to plug in their own assertion logic while maintaining type safety.
-        ///     Defaults to the standard AssertableHttpClient implementation.
+        ///     Defaults to the standard AssertableHttpClient implementation. Setup() resets it to that default.
         /// </summary>
-        public static IAssertableHttpClient CustomAssertableHttpClient { get; set; } = _assertableHttpClientDefault;
-
-        /// <summary>
-        ///     Creates a default error handling strategy for static initialization.
-        ///     This will be replaced with the proper DI-based strategy in Setup().
-        /// </summary>
-        private static TestErrorHandlingStrategy CreateDefaultErrorHandlingStrategy()
+        public static IAssertableHttpClient CustomAssertableHttpClient
         {
-            // Create minimal handlers for static initialization
-            var tableBuilder = new TableBuilder();
-            var curlBuilder = new CurlBuilder();
-            var curlFormatter = new CurlFormatter(_plainTextDecorator);
-            var sourceCodeExtractor = new SourceCodeExtractor();
+            get => AssertableHttpClientFor(Assembly.GetCallingAssembly());
+            set => _customAssertableHttpClient = value;
+        }
 
-            var problemDetailsOutputBuilder = new ProblemDetailsOutputBuilder(tableBuilder, curlBuilder, curlFormatter,
-                                                                              sourceCodeExtractor, _plainTextDecorator);
-
-            var handlers = new ITestErrorHandler[]
-                           {
-                               new ProblemDetailsErrorHandler(problemDetailsOutputBuilder), new InvalidJsonErrorHandler(curlBuilder, curlFormatter, sourceCodeExtractor), new JsonSerializationErrorHandler(curlBuilder, curlFormatter, sourceCodeExtractor),
-                               new DefaultErrorHandler()
-                           };
-
-            return new TestErrorHandlingStrategy(handlers);
+        private static IAssertableHttpClient AssertableHttpClientFor(Assembly consumerAssembly)
+        {
+            return _customAssertableHttpClient ?? GetService<IAssertableHttpClient>(consumerAssembly);
         }
 
 #pragma warning disable CA1859
@@ -410,18 +177,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Non-generic overload for endpoints without response body (e.g., 204 NoContent)
             // Creates context with ExpectedType = typeof(void) to match endpoint signature
 
+            var parameterReplacer = GetService<IParameterReplacer>(callingAssembly);
+
             // Resolve embedded files once here
-            var payloadFile = _embeddedFileLocalizer.LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
+            var payloadFile = GetService<IEmbeddedFileLocalizer>(callingAssembly).LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
             var expectedResultFile = new EmbeddedFileInfo(string.Empty, string.Empty, null);
 
             // Resolve parameters in payload
-            var resolvedPayload = _parameterReplacer.ResolveParameters(payloadFile.Content, parameters);
+            var resolvedPayload = parameterReplacer.ResolveParameters(payloadFile.Content, parameters);
             var resolvedExpectedJson = string.Empty;
 
             // URL parameter replacement
-            var resolvedUrl = _parameterReplacer.ReplaceInUrl(url, parameters);
+            var resolvedUrl = parameterReplacer.ReplaceInUrl(url, parameters);
 
-            var apiVersion = _apiVersionResolver.Resolve(url, client);
+            var apiVersion = GetService<IApiVersionResolver>(callingAssembly).Resolve(url, client);
 
             // Create context with ExpectedType = typeof(void) for NoContent scenarios
             var context = new HttpAssertContext<string>
@@ -459,7 +228,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 RequestHeaders = requestHeaders
             };
 
-            await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
+            await AssertableHttpClientFor(callingAssembly).AssertAsync(context).ConfigureAwait(false);
         }
 
         private static Task<TResult> AssertHttpCallAsync<TResult>(this HttpClient client,
@@ -528,7 +297,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                    [CallerLineNumber] int callerLineNumber = 0)
         {
             // Detect if expectedResponse should trigger C# code generation
-            var isEmptyAnonymous = _emptyAnonymousObjectDetector.IsEmptyAnonymousObject(expectedResponse, expectedResponseParameterName);
+            var isEmptyAnonymous = GetService<IEmptyAnonymousObjectDetector>(callingAssembly).IsEmptyAnonymousObject(expectedResponse, expectedResponseParameterName);
             SdkTrace.WriteLine($"[HttpCall with object] expectedResponseParameterName='{expectedResponseParameterName}', isEmptyAnonymous={isEmptyAnonymous}");
 
             return client.AssertHttpCallAsyncWithDetection(url,
@@ -629,26 +398,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // EARLY VALIDATION: Check .json extension BEFORE any other processing
             // This provides the best error message with full context and suggested fix
-            _jsonFileExtensionValidator.ValidatePayloadAndExpectedResult(payloadAsJson,
+            GetService<IJsonFileExtensionValidator>(callingAssembly).ValidatePayloadAndExpectedResult(payloadAsJson,
                                                                          expectedResult,
                                                                          targetIsPrimitiveType,
                                                                          callerFilePath,
                                                                          callerLineNumber);
 
+            var embeddedFileLocalizer = GetService<IEmbeddedFileLocalizer>(callingAssembly);
+            var parameterReplacer = GetService<IParameterReplacer>(callingAssembly);
+
             // Resolve embedded files once here - this avoids duplicate resolution later in the pipeline
-            var payloadFile = _embeddedFileLocalizer.LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
-            var expectedResultFile = _embeddedFileLocalizer.LocalizeResponseFile(expectedResult, callerFilePath, callingAssembly);
+            var payloadFile = embeddedFileLocalizer.LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
+            var expectedResultFile = embeddedFileLocalizer.LocalizeResponseFile(expectedResult, callerFilePath, callingAssembly);
 
             // Resolve parameters in payload once here - ready-to-use for HTTP call
-            var resolvedPayload = _parameterReplacer.ResolveParameters(payloadFile.Content, parameters);
+            var resolvedPayload = parameterReplacer.ResolveParameters(payloadFile.Content, parameters);
 
-            var resolvedExpectedJson = _parameterReplacer.ResolveParameters(expectedResultFile.Content, parameters);
+            var resolvedExpectedJson = parameterReplacer.ResolveParameters(expectedResultFile.Content, parameters);
 
             // URL parameter replacement - replace placeholders in URL with actual values
             // This is the only preprocessing needed here, all other logic is handled by AssertableHttpClient
-            var resolvedUrl = _parameterReplacer.ReplaceInUrl(url, parameters);
+            var resolvedUrl = parameterReplacer.ReplaceInUrl(url, parameters);
 
-            var apiVersion = _apiVersionResolver.Resolve(url, client);
+            var apiVersion = GetService<IApiVersionResolver>(callingAssembly).Resolve(url, client);
 
             // PROTOTYPE: Detect empty anonymous object for code generation
             // Use provided detection result or fallback to JSON check.
@@ -701,9 +473,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 RequestHeaders = requestHeaders
             };
 
-            var result = await CustomAssertableHttpClient.AssertAsync(context).ConfigureAwait(false);
+            var result = await AssertableHttpClientFor(callingAssembly).AssertAsync(context).ConfigureAwait(false);
 
             return result;
         }
     }
-}
+}

@@ -5,14 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using AspNetCore.Simple.MsTest.Sdk.Comparison;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
-using AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers;
 using AspNetCore.Simple.MsTest.Sdk.Helpers;
-using AspNetCore.Simple.MsTest.Sdk.Strategies;
-using AspNetCore.Simple.MsTest.Sdk.Tables;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,26 +16,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #pragma warning disable IDE0060 // Remove unused parameter
     public static partial class AssertObjectExtensions
     {
-        private static readonly JsonDiffer JsonDiffer = new();
-
-        private static readonly ParameterReplacer ParameterReplacer = new();
-
-        private static readonly ResponseWriter ResponseWriter = new ResponseWriter([
-                                                                                       new DifferenceResponseWriter(JsonDiffer, new JsonPathWriter(), ParameterReplacer, new SnapshotPlaceholderGuard()),
-                                                                                       new OverwriteAllResponseWriter(ParameterReplacer, new SnapshotPlaceholderGuard())
-                                                                                   ]);
-
-        private static readonly WriteResponseService WriteResponseService = new WriteResponseService();
-
-        // You have the possible to set and pass the api settings specific json options
-        public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
+        // One set of options for both routes - see HttpClientAssertExtensions.JsonSerializerOptions.
+        public static JsonSerializerOptions JsonSerializerOptions
         {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            Converters = { new JsonStringEnumConverter() }
-        };
+            get => HttpClientAssertExtensions.JsonSerializerOptions;
+            set => HttpClientAssertExtensions.JsonSerializerOptions = value;
+        }
 
         public static Func<ImmutableList<Difference>, IEnumerable<Difference>> DifferenceFunc { get; set; } = item => item;
 
@@ -93,78 +73,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                  (perAssertFilter?.Invoke(difference) ?? true))
                             .ToImmutableList();
         }
-
-        private static readonly EmbeddedFileLocalizer EmbeddedFileLocalizer = new EmbeddedFileLocalizer(new TestSdkSettings(), JsonSerializerOptions, new PlainTextDecorator(),
-                                                                                                        new SourceCodeExtractor(),
-                                                                                                        new ResourceRootNamespaceResolver());
-
-        private static readonly Serializer.Json.JsonSerializer JsonSerializer = new(JsonSerializerOptions);
-
-        // The object route has neither a container nor a Setup call, so the consumer assembly is only
-        // known per assert. The output stack is therefore built per assert in BuildAssertService -
-        // cheap objects on a failure path, and no shared decorator state anywhere.
-        private static readonly TextDecoratorProvider TextDecoratorProvider = new TextDecoratorProvider();
-
-        private static readonly TableBuilder StaticTableBuilder = new();
-
-        // Comparison strategies (order matters - first match wins)
-        private static readonly ISpecificComparisonStrategy StringComparisonStrategy = new StringComparisonStrategy();
-
-        // Reads JsonSerializerOptions per comparison, not once here: this field initializer runs long
-        // before a test hands the SDK the api's options, and both sides of the diff have to be written
-        // with the very options the api writes with.
-        private static readonly ISpecificComparisonStrategy JsonComparisonStrategy = new JsonComparisonStrategy(JsonDiffer, JsonSerializer, () => JsonSerializerOptions);
-
-        private static readonly ISpecificComparisonStrategy[] SpecificComparisonStrategies =
-        [
-            StringComparisonStrategy,
-            JsonComparisonStrategy
-        ];
-
-        private static readonly IComparisonStrategy ComparisonStrategy = new ComparisonStrategy(SpecificComparisonStrategies);
-
-        /// <summary>
-        /// Builds the output stack for one assert, bound to the decorator the consumer assembly asks
-        /// for. Constructing it here instead of in a static field is what keeps the plain-vs-ANSI
-        /// choice a function of the caller rather than of how the sdk itself was compiled.
-        /// </summary>
-        private static AssertService BuildAssertService(ITextDecorator textDecorator)
-        {
-            var differencesTableBuilder = new DifferencesTableBuilder(StaticTableBuilder, textDecorator);
-            var jsonSectionBuilder = new JsonSectionBuilder(textDecorator);
-
-            var outputBuilder = new AssertOutputBuilder([
-                                                            new PrimitiveOutputStrategy(textDecorator),
-                                                            new ObjectOutputStrategy(differencesTableBuilder, jsonSectionBuilder, textDecorator)
-                                                        ]);
-
-            // Build output mode infrastructure
-            var outputModeService = new OutputModeService();
-            var aiOutputTransformer = new AiOutputTransformer();
-
-            // Build output mode render strategies (extensible)
-            var humanModeStrategy = new HumanModeRenderStrategy(outputBuilder);
-            var aiModeStrategy = new AiModeRenderStrategy(aiOutputTransformer);
-            var hybridModeStrategy = new HybridModeRenderStrategy(outputBuilder, aiOutputTransformer);
-            var renderStrategies = new IOutputModeRenderStrategy[] { humanModeStrategy, aiModeStrategy, hybridModeStrategy };
-
-            var outputModeRenderer = new OutputModeRenderer(renderStrategies, outputModeService);
-
-            return new AssertService(ComparisonStrategy, ResponseWriter, WriteResponseService, outputModeRenderer);
-        }
-
-        /// <summary>
-        /// The object route has no DI container, so the handlers that can serve a context without a
-        /// request are wired up by hand - in the same order the container registers them, catch-all
-        /// last. The http-only handlers are left out: they answer with an empty string for a plain
-        /// object context anyway.
-        /// </summary>
-        private static readonly TestErrorHandlingStrategy ErrorHandlingStrategy =
-            new TestErrorHandlingStrategy([
-                                              new SnapshotNotFoundErrorHandler(TextDecoratorProvider, new SourceCodeExtractor()),
-                                              new InvalidSnapshotJsonErrorHandler(TextDecoratorProvider),
-                                              new DefaultErrorHandler()
-                                          ]);
 
         // GlobalWriteResponse
         // NEW Env variable WriteResponse = true -> For Ai Usage
@@ -1220,10 +1128,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            : string.Empty;
 
             // For embedded file resolution (used in FromFile overloads)
-            var expectedFile = EmbeddedFileLocalizer.LocalizeResponseFile(expectedObjectAsJson, callerFilePath, callingAssembly);
+            var expectedFile = HttpClientAssertExtensions.GetService<IEmbeddedFileLocalizer>(callingAssembly).LocalizeResponseFile(expectedObjectAsJson, callerFilePath, callingAssembly);
 
             // Resolve parameters (no-op if expectedObjectAsJson is empty)
-            var resolvedExpectedJson = ParameterReplacer.ResolveParameters(expectedFile.Content, parameters);
+            var resolvedExpectedJson = HttpClientAssertExtensions.GetService<IParameterReplacer>(callingAssembly).ResolveParameters(expectedFile.Content, parameters);
 
             var targetIsPrimitiveType = typeof(T).IsPrimitive || typeof(T).EqualsTo(typeof(string));
 
@@ -1284,7 +1192,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // The handlers are shared with the http route - a missing or broken snapshot reads the
                 // same no matter which assert found it. Only the generic fallback differs, because
                 // there is no request and no response to print here.
-                var errorOutput = ErrorHandlingStrategy.HandleAsync(context, exception)
+                var errorHandlingStrategy = HttpClientAssertExtensions.GetService<ITestErrorHandlingStrategy>(context.CallingAssembly);
+
+                var errorOutput = errorHandlingStrategy.HandleAsync(context, exception)
                                                        .GetAwaiter()
                                                        .GetResult();
 
@@ -1302,7 +1212,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                         context.ExpectedObjectAsJson,
                                                         context.ExpectedResultParameterName,
                                                         context.CallingAssembly,
-                                                        WriteResponseService.ShouldWriteResponse(context.WriteResponse, context.CallingAssembly));
+                                                        HttpClientAssertExtensions.GetService<IWriteResponseService>(context.CallingAssembly).ShouldWriteResponse(context.WriteResponse, context.CallingAssembly));
 
             // A file that exists but is not parseable json must say so. Otherwise the shape checks look
             // at the first character only and report a structure mismatch for a plain syntax error.
@@ -1323,7 +1233,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static ObjectAssertContext<T> PrepareForRecording<T>(ObjectAssertContext<T> context)
         {
             if (context.ExpectedResultFile.Resolved ||
-                WriteResponseService.ShouldWriteResponse(context).IsFalse())
+                HttpClientAssertExtensions.GetService<IWriteResponseService>(context.CallingAssembly).ShouldWriteResponse(context).IsFalse())
             {
                 return context;
             }
@@ -1337,9 +1247,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private static void ObjectsAreEqualInternal<T>(ObjectAssertContext<T> context)
         {
-            var textDecorator = TextDecoratorProvider.For(context.CallingAssembly);
-
-            BuildAssertService(textDecorator).ObjectsAreEqual(context);
+            HttpClientAssertExtensions.GetService<IAssertService>(context.CallingAssembly).ObjectsAreEqual(context);
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
+using AspNetCore.Simple.MsTest.Sdk.Outputs.Builders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -12,13 +13,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
     {
         public static void AddJsonStringResolver(this IServiceCollection services)
         {
+            services.AddJsonTypeMismatchOutputBuilder();
             services.AddSingletonIfNotExists<IJsonStringResolver, JsonStringResolver>();
         }
     }
 
     /// <summary>
     /// Service for resolving and validating JSON strings with enhanced error formatting.
-    /// Uses the globally initialized JsonTypeMismatchOutputBuilder from HttpClientAssertExtensions.Setup().
     /// </summary>
     public interface IJsonStringResolver
     {
@@ -47,7 +48,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               [CallerMemberName] string memberName = "");
     }
 
-    internal sealed class JsonStringResolver : IJsonStringResolver
+    internal sealed class JsonStringResolver(IJsonTypeMismatchOutputBuilder jsonTypeMismatchOutputBuilder) : IJsonStringResolver
     {
         public string GetJsonStringFrom<T>(string expectedObjectAsJson,
                                            string currentObject,
@@ -153,13 +154,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 trimmedJsonValue.EndWith("]") &&
                 mustBeAnArray.IsFalse())
             {
-                Assert.That.FailWithObjectToArrayMismatch(expectedResultParameterName,
-                                                          targetTypeInfo.FullName ?? targetTypeInfo.Name,
-                                                          trimmedJsonValue,
-                                                          currentObject,
-                                                          sourceFilePath,
-                                                          sourceLineNumber,
-                                                          memberName);
+                throw new AssertFailedException(jsonTypeMismatchOutputBuilder.BuildObjectToArrayMismatch(expectedResultParameterName,
+                                                                                                         targetTypeInfo.FullName ?? targetTypeInfo.Name,
+                                                                                                         trimmedJsonValue,
+                                                                                                         currentObject,
+                                                                                                         sourceFilePath,
+                                                                                                         sourceLineNumber,
+                                                                                                         memberName));
             }
 
             // 8. JSON OBJECT to ARRAY TYPE - Enhanced error formatting!
@@ -167,13 +168,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 trimmedJsonValue.EndWith("}") &&
                 mustBeAnArray)
             {
-                Assert.That.FailWithArrayToObjectMismatch(expectedResultParameterName,
-                                                          targetTypeInfo.FullName ?? targetTypeInfo.Name,
-                                                          trimmedJsonValue,
-                                                          currentObject,
-                                                          sourceFilePath,
-                                                          sourceLineNumber,
-                                                          memberName);
+                throw new AssertFailedException(jsonTypeMismatchOutputBuilder.BuildArrayToObjectMismatch(expectedResultParameterName,
+                                                                                                         targetTypeInfo.FullName ?? targetTypeInfo.Name,
+                                                                                                         trimmedJsonValue,
+                                                                                                         currentObject,
+                                                                                                         sourceFilePath,
+                                                                                                         sourceLineNumber,
+                                                                                                         memberName));
             }
 
             // 9. If json notation is fine so return it

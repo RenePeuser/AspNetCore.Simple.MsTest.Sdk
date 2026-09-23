@@ -81,6 +81,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // Changes with every build or host, never with the behaviour under test.
                 "X-Powered-By"
             ];
+
+        /// <summary>
+        /// Controls the output format for assertion failures.
+        ///
+        /// - Human: Beautiful console output optimized for human debugging (default)
+        /// - Ai: Structured JSON output optimized for AI agents and automated debugging
+        /// - Hybrid: Both human-readable and JSON output combined
+        ///
+        /// Configure via:
+        /// - Environment variable: TestSdkSettings__OutputMode=ai
+        /// - appsettings.json: "TestSdkSettings": { "OutputMode": "Ai" }
+        /// </summary>
+        public OutputMode OutputMode { get; init; } = OutputMode.Human;
     }
 #pragma warning restore CA1819 // Properties should not return arrays
 }

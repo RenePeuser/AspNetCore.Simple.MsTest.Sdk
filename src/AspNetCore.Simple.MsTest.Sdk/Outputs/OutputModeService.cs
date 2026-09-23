@@ -24,41 +24,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
     }
 
     /// <summary>
-    /// Implementation that reads the output mode from environment variable on initialization.
-    /// The mode is read once and cached for the lifetime of the service.
+    /// Implementation that reads the output mode from TestSdkSettings.
+    /// The settings are injected via DI and the mode is resolved from configuration
+    /// (environment variable, appsettings.json, etc.).
     /// </summary>
     internal sealed class OutputModeService : IOutputModeService
     {
         private readonly OutputMode _mode;
 
-        public OutputModeService()
+        public OutputModeService(TestSdkSettings settings)
         {
-            // Read environment variable following the SDK naming convention
-            var envVar = Environment.GetEnvironmentVariable("AspNetCoreSimpleMsTestSdk__OutputMode");
+            _mode = settings.OutputMode;
 
-            // Parse the value (case-insensitive), default to Human mode
-            _mode = envVar?.ToLower() switch
-            {
-                "ai" => OutputMode.Ai,
-                "hybrid" => OutputMode.Hybrid,
-                "human" => OutputMode.Human,
-                null => OutputMode.Human,  // No env var set
-                _ => DetermineDefaultForInvalidValue(envVar)
-            };
-
-            SdkTrace.WriteLine($"[OutputModeService] Initialized with mode: {_mode} (env var: '{envVar ?? "<not set>"}')");
+            SdkTrace.WriteLine($"[OutputModeService] Initialized with mode: {_mode}");
         }
 
         public OutputMode GetOutputMode()
         {
             return _mode;
-        }
-
-        private static OutputMode DetermineDefaultForInvalidValue(string invalidValue)
-        {
-            SdkTrace.WriteLine($"[OutputModeService] Invalid value '{invalidValue}' for AspNetCoreSimpleMsTestSdk__OutputMode. Defaulting to Human mode. Valid values: Human, Ai, Hybrid");
-
-            return OutputMode.Human;
         }
     }
 }

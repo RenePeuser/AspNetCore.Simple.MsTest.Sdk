@@ -1,4 +1,6 @@
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using AspNetCore.Simple.MsTest.Sdk.Outputs.Builders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -24,7 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         /// <summary>
         /// Fails the test with a beautifully formatted JSON type mismatch error (object to array).
-        /// Uses the globally initialized JsonTypeMismatchOutputBuilder from HttpClientAssertExtensions.Setup().
+        /// Resolves the JsonTypeMismatchOutputBuilder from the central provider of HttpClientAssertExtensions.
         /// </summary>
         /// <param name="_">just placeholder to use it as extension</param>
         /// <param name="expectedResultParameterName">Name of the parameter that contains the expected result</param>
@@ -43,20 +45,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                          [CallerLineNumber] int sourceLineNumber = 0,
                                                          [CallerMemberName] string memberName = "")
         {
-            var message = HttpClientAssertExtensions.JsonTypeMismatchOutputBuilder.BuildObjectToArrayMismatch(expectedResultParameterName,
-                                                                                                              targetTypeFullName,
-                                                                                                              expectedJson,
-                                                                                                              currentJson,
-                                                                                                              sourceFilePath,
-                                                                                                              sourceLineNumber,
-                                                                                                              memberName);
+            var jsonTypeMismatchOutputBuilder = HttpClientAssertExtensions.GetService<IJsonTypeMismatchOutputBuilder>(Assembly.GetCallingAssembly());
+
+            var message = jsonTypeMismatchOutputBuilder.BuildObjectToArrayMismatch(expectedResultParameterName,
+                                                                                   targetTypeFullName,
+                                                                                   expectedJson,
+                                                                                   currentJson,
+                                                                                   sourceFilePath,
+                                                                                   sourceLineNumber,
+                                                                                   memberName);
 
             throw new AssertFailedException(message);
         }
 
         /// <summary>
         /// Fails the test with a beautifully formatted JSON type mismatch error (array to object).
-        /// Uses the globally initialized JsonTypeMismatchOutputBuilder from HttpClientAssertExtensions.Setup().
+        /// Resolves the JsonTypeMismatchOutputBuilder from the central provider of HttpClientAssertExtensions.
         /// </summary>
         /// <param name="_">just placeholder to use it as extension</param>
         /// <param name="expectedResultParameterName">Name of the parameter that contains the expected result</param>
@@ -75,13 +79,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                          [CallerLineNumber] int sourceLineNumber = 0,
                                                          [CallerMemberName] string memberName = "")
         {
-            var message = HttpClientAssertExtensions.JsonTypeMismatchOutputBuilder.BuildArrayToObjectMismatch(expectedResultParameterName,
-                                                                                                              targetTypeFullName,
-                                                                                                              expectedJson,
-                                                                                                              currentJson,
-                                                                                                              sourceFilePath,
-                                                                                                              sourceLineNumber,
-                                                                                                              memberName);
+            var jsonTypeMismatchOutputBuilder = HttpClientAssertExtensions.GetService<IJsonTypeMismatchOutputBuilder>(Assembly.GetCallingAssembly());
+
+            var message = jsonTypeMismatchOutputBuilder.BuildArrayToObjectMismatch(expectedResultParameterName,
+                                                                                   targetTypeFullName,
+                                                                                   expectedJson,
+                                                                                   currentJson,
+                                                                                   sourceFilePath,
+                                                                                   sourceLineNumber,
+                                                                                   memberName);
 
             throw new AssertFailedException(message);
         }

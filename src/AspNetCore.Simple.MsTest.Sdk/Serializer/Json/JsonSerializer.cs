@@ -11,8 +11,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
         internal static void AddJsonSerializer(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingletonIfNotExists<JsonSerializer>();
+            serviceCollection.AddSingletonIfNotExists(CreateDefaultOptions());
+        }
 
-            var serializeOptions = new JsonSerializerOptions
+        internal static JsonSerializerOptions CreateDefaultOptions()
+        {
+            return new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -20,8 +24,6 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
                 NumberHandling = JsonNumberHandling.AllowReadingFromString,
                 Converters = { new JsonStringEnumConverter() }
             };
-
-            serviceCollection.AddSingletonIfNotExists(serializeOptions);
         }
     }
 

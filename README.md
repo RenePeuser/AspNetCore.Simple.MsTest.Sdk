@@ -1808,6 +1808,63 @@ services.AddSingleton<ISpecificComparisonStrategy, CsvComparisonStrategy>();
 services.AddComparisonStrategy(); // Adds built-in strategies (String + JSON)
 ```
 
+---
+
+## Configuration via TestSdkSettings
+
+The SDK uses a centralized `TestSdkSettings` configuration that can be configured via:
+
+1. **Environment variables** (useful for CI/CD)
+2. **appsettings.json** (useful for local development)
+3. **Code** (for test-specific overrides)
+
+### Available Settings
+
+| Setting                   | Type           | Default         | Description                                               |
+|---------------------------|----------------|-----------------|-----------------------------------------------------------|
+| `OutputMode`              | `OutputMode`   | `Human`         | Output format: Human, Ai, or Hybrid                       |
+| `TestMethodAttribute`     | `string`       | `[TestMethod]`  | Test method attribute for code generation                 |
+| `ResponseFolderName`      | `string`       | `Responses`     | Folder name for response snapshots                        |
+| `RequestFolderName`       | `string`       | `Requests`      | Folder name for request payloads                          |
+| `VolatileHeaderNames`     | `string[]`     | See defaults    | HTTP headers to ignore in snapshot comparison             |
+| `LegacyResponseFolderNames` | `string[]`   | Various         | Legacy folder names for backward compatibility            |
+| `LegacyRequestFolderName` | `string[]`     | Various         | Legacy request folder names for backward compatibility    |
+
+### Configuration Examples
+
+**Via Environment Variable:**
+```bash
+TestSdkSettings__OutputMode=Ai
+TestSdkSettings__ResponseFolderName=ExpectedResponses
+```
+
+**Via appsettings.json:**
+```json
+{
+  "TestSdkSettings": {
+    "OutputMode": "Ai",
+    "ResponseFolderName": "ExpectedResponses",
+    "RequestFolderName": "Payloads",
+    "VolatileHeaderNames": [
+      "traceparent",
+      "X-Correlation-Id",
+      "X-My-Custom-Header"
+    ]
+  }
+}
+```
+
+**Note:** When overriding array properties like `VolatileHeaderNames`, you **replace** the defaults entirely. 
+List every header name you want to ignore - the defaults are not merged.
+
+### Type-Safe Configuration
+
+`TestSdkSettings` is a record with init-only properties, providing:
+- ✅ **Type safety** - Enums like `OutputMode` instead of strings
+- ✅ **Immutability** - Settings are frozen after initialization
+- ✅ **IntelliSense** - Full IDE support in configuration files
+- ✅ **Automatic binding** - ASP.NET Core configuration system handles the rest
+
 **Why use `ComparisonStrategyBase<T>`?**
 
 - Automatic type checking via `CanCompare()`
@@ -2215,23 +2272,35 @@ The SDK supports three output modes to optimize assertion failure output for dif
 
 ### Configuration
 
-Set the output mode using the environment variable:
+Configure the output mode via environment variable or configuration file:
+
+**Environment Variable:**
 
 ```bash
 # PowerShell
-$env:AspNetCoreSimpleMsTestSdk__OutputMode = "ai"
+$env:TestSdkSettings__OutputMode = "Ai"
 
 # Bash
-export AspNetCoreSimpleMsTestSdk__OutputMode=ai
+export TestSdkSettings__OutputMode=Ai
 
 # Windows Command Prompt
-set AspNetCoreSimpleMsTestSdk__OutputMode=ai
+set TestSdkSettings__OutputMode=Ai
 ```
 
-Valid values (case-insensitive):
-- `human` - Human-readable formatted output (default)
-- `ai` - Structured JSON output
-- `hybrid` - Both formats combined
+**Configuration File (appsettings.json):**
+
+```json
+{
+  "TestSdkSettings": {
+    "OutputMode": "Ai"
+  }
+}
+```
+
+Valid values:
+- `Human` - Human-readable formatted output (default)
+- `Ai` - Structured JSON output
+- `Hybrid` - Both formats combined
 
 ### Human Mode (Default)
 
@@ -2368,7 +2437,7 @@ Configure the output mode in your CI/CD pipeline:
 ```yaml
 - name: Run Tests
   env:
-    AspNetCoreSimpleMsTestSdk__OutputMode: ai
+    TestSdkSettings__OutputMode: Ai
   run: dotnet test
 ```
 
@@ -2378,13 +2447,13 @@ Configure the output mode in your CI/CD pipeline:
   inputs:
     command: 'test'
   env:
-    AspNetCoreSimpleMsTestSdk__OutputMode: ai
+    TestSdkSettings__OutputMode: Ai
 ```
 
 **Jenkins:**
 ```groovy
 environment {
-    AspNetCoreSimpleMsTestSdk__OutputMode = 'ai'
+    TestSdkSettings__OutputMode = 'Ai'
 }
 ```
 

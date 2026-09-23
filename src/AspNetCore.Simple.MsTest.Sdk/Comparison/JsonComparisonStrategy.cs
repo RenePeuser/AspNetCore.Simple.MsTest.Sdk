@@ -27,33 +27,19 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     /// Should be registered LAST in DI so specific strategies are checked first.
     /// </summary>
     /// <remarks>
-    /// Reads the options per comparison instead of capturing them once.
-    /// </remarks>
-    /// <remarks>
-    /// The static holders in <c>HttpClientAssertExtensions</c> and <c>AssertObjectExtensions</c>
-    /// build their strategy in a field initializer, long before a test assigns the api's
-    /// <see cref="JsonSerializerOptions"/>. An instance captured there stays the SDK default
-    /// forever - and the default knows nothing about the api's polymorphic type hierarchies, so
-    /// the expected side would silently be written as the declared base type while the current
-    /// side, a raw JsonElement, keeps everything the api wrote. That shows up as the derived
-    /// properties "missing in expected", not as a serialization error.
+    /// The options are the api's own ones, resolved from the container. Both sides of the diff have
+    /// to be written with them - the SDK default knows nothing about the api's polymorphic type
+    /// hierarchies, so the expected side would silently be written as the declared base type while
+    /// the current side, a raw JsonElement, keeps everything the api wrote. That shows up as the
+    /// derived properties "missing in expected", not as a serialization error.
     /// </remarks>
     internal sealed class JsonComparisonStrategy(IJsonDiffer jsonDiffer,
-                                  Serializer.Json.JsonSerializer jsonSerializer,
-                                  Func<JsonSerializerOptions> jsonSerializerOptionsProvider) : ISpecificComparisonStrategy
+                                                 Serializer.Json.JsonSerializer jsonSerializer,
+                                                 JsonSerializerOptions jsonSerializerOptions) : ISpecificComparisonStrategy
     {
         private readonly IJsonDiffer _jsonDiffer = jsonDiffer;
 
         private readonly Serializer.Json.JsonSerializer _jsonSerializer = jsonSerializer;
-
-        private readonly Func<JsonSerializerOptions> _jsonSerializerOptionsProvider = jsonSerializerOptionsProvider;
-
-        public JsonComparisonStrategy(IJsonDiffer jsonDiffer,
-                                      Serializer.Json.JsonSerializer jsonSerializer,
-                                      JsonSerializerOptions jsonSerializerOptions)
-            : this(jsonDiffer, jsonSerializer, () => jsonSerializerOptions)
-        {
-        }
 
         public bool CanCompare<T>(ObjectAssertContext<T> context)
         {
@@ -74,7 +60,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 
             // Dictionary keys are data, not clr member names - see ComparisonJsonOptions. Renaming them
             // on the expected side only is what makes a dictionary payload permanently red.
-            var jsonSerializerOptions = _jsonSerializerOptionsProvider().ForComparison();
+            var comparisonJsonSerializerOptions = jsonSerializerOptions.ForComparison();
 
             var currentObject = context.CurrentObject;
 
@@ -84,7 +70,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 
             try
             {
-                currentJson = currentObject.ToJson(jsonSerializerOptions);
+                currentJson = currentObject.ToJson(comparisonJsonSerializerOptions);
             }
 #pragma warning disable CA1031
             catch (Exception)
@@ -158,8 +144,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
             var orderedExpected = context.OrderFunc.IsNull() ? expectedObject : context.OrderFunc(expectedObject);
             var orderedCurrent = context.OrderFunc.IsNull() ? context.Current : context.OrderFunc(context.Current);
 
-            var expectedOrderedJson = orderedExpected.ToJson(jsonSerializerOptions);
-            var currentOrderedJson = orderedCurrent.ToJson(jsonSerializerOptions);
+            var expectedOrderedJson = orderedExpected.ToJson(comparisonJsonSerializerOptions);
+            var currentOrderedJson = orderedCurrent.ToJson(comparisonJsonSerializerOptions);
 
             // 5. Find differences. The per-assert filter wins over the global one, so a single test
             // can treat an array as a set without making every other test in the suite order blind.
