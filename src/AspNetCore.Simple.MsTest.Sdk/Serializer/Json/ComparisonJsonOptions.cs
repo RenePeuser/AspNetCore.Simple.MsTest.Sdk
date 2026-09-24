@@ -25,6 +25,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
     ///
     /// Comparing and recording therefore run with the api's options minus the dictionary key policy.
     /// Keys stay the way the json spells them, on both sides, in both directions.
+    ///
+    /// The copy is a SNAPSHOT of the source. An api is free to keep configuring its options until
+    /// they are first used - a type info modifier teaching STJ its polymorphic hierarchies is the
+    /// typical late addition. A copy cached before that stays non polymorphic for the rest of the
+    /// run: every declared base type is written with its base properties only, on both sides, so
+    /// all derived properties silently drop out of the comparison and the assert stays green on
+    /// data it never looked at. The copy is therefore only cached once the source is read only and
+    /// can no longer change underneath it.
     /// </summary>
     internal static class ComparisonJsonOptions
     {
@@ -42,7 +50,23 @@ namespace AspNetCore.Simple.MsTest.Sdk.Serializer.Json
                 return options;
             }
 
-            return Cache.GetValue(options, source => new JsonSerializerOptions(source) { DictionaryKeyPolicy = null });
+            // Still configurable - a cached copy would freeze today's configuration for good.
+            if (options.IsReadOnly.IsFalse())
+            {
+                return CreateComparisonCopy(options);
+            }
+
+            return Cache.GetValue(options, CreateComparisonCopy);
+        }
+
+        private static JsonSerializerOptions CreateComparisonCopy(JsonSerializerOptions source)
+        {
+            var comparisonOptions = new JsonSerializerOptions(source)
+            {
+                DictionaryKeyPolicy = null
+            };
+
+            return comparisonOptions;
         }
     }
 }

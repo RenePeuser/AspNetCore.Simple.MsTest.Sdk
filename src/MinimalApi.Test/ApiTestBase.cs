@@ -33,7 +33,10 @@ namespace MinimalApi.Test
 
                                                         // Registered before the sdk's own registration, so it wins.
                                                         services.AddTestSdkSettings(configuration,
-                                                                                    settings => settings.DifferenceFunc = TestHelpers.IgnoreIdDifferences);
+                                                                                    settings =>
+                                                                                    {
+                                                                                        settings.DifferenceFunc = TestHelpers.IgnoreIdDifferences;
+                                                                                    });
                                                     });
 
             Client = _apiTestBase.CreateClient();
