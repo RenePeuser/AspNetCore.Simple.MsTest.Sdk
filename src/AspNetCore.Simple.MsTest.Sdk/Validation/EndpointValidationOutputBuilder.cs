@@ -8,6 +8,7 @@ using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using AspNetCore.Simple.MsTest.Sdk.Tables;
 using Extensions.Pack;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
@@ -326,14 +327,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // TYPE VALIDATION Table - Show problem first
-            var peers = new[] { endpoint.ResponseType, expectedType }.OfType<Type>().ToList();
+            // ResponseType is deprecated - use ResponseTypesByStatusCode as fallback
+            var actualResponseType = endpoint.ResponseType
+                                     ?? (endpoint.ResponseTypesByStatusCode.TryGetValue(StatusCodes.Status200OK, out var type200) ? type200 : null);
 
-            var actualEndpointTypeName = endpoint.ResponseType.IsNotNull()
-                                             ? TypeNameFormatter.Format(endpoint.ResponseType, peers)
+            var peers = new[] { actualResponseType, expectedType }.OfType<Type>().ToList();
+
+            var actualEndpointTypeName = actualResponseType.IsNotNull()
+                                             ? TypeNameFormatter.Format(actualResponseType, peers)
                                              : "object";
 
             var declaredTestTypeName = TypeNameFormatter.Format(expectedType, peers);
-            var endpointReturnsVoid = endpoint.ResponseType.IsNull();
+            var endpointReturnsVoid = actualResponseType.IsNull();
 
             var typeColumns = new[] { "Source", "Actual Endpoint Type", "Declared Test Type" };
 
@@ -369,17 +374,26 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 string suggestedFix;
 
                 // Check if source code already has generic type parameter
-                if (sourceCode.Contains($"<{declaredTestTypeName}>"))
+                // Case-insensitive check because source may use 'object' keyword while type name is 'Object'
+                if (sourceCode.Contains($"<{declaredTestTypeName}>", StringComparison.OrdinalIgnoreCase))
                 {
                     if (endpointReturnsVoid)
                     {
                         // Endpoint returns void (204 NoContent) - remove type parameter
-                        suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", string.Empty);
+                        suggestedFix = System.Text.RegularExpressions.Regex.Replace(
+                            sourceCode,
+                            $"<{System.Text.RegularExpressions.Regex.Escape(declaredTestTypeName)}>",
+                            string.Empty,
+                            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                     }
                     else
                     {
                         // Replace existing type parameter
-                        suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", $"<{actualEndpointTypeName}>");
+                        suggestedFix = System.Text.RegularExpressions.Regex.Replace(
+                            sourceCode,
+                            $"<{System.Text.RegularExpressions.Regex.Escape(declaredTestTypeName)}>",
+                            $"<{actualEndpointTypeName}>",
+                            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                     }
                 }
                 else
@@ -468,8 +482,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             // Find first matching type as suggestion
             var firstRelevantType = relevantStatusCodes.FirstOrDefault().Value;
-            var suggestedTypeName = firstRelevantType.IsNotNull() ? TypeNameFormatter.Format(firstRelevantType, shownTypes) : "object";
-            var endpointReturnsVoid = firstRelevantType.IsNull();
+            // ResponseType is deprecated - use ResponseTypesByStatusCode as fallback
+            var fallbackType = firstRelevantType
+                               ?? endpoint.ResponseType
+                               ?? (endpoint.ResponseTypesByStatusCode.TryGetValue(StatusCodes.Status200OK, out var type200) ? type200 : null);
+            var suggestedTypeName = fallbackType.IsNotNull() ? TypeNameFormatter.Format(fallbackType, shownTypes) : "object";
+            var endpointReturnsVoid = fallbackType.IsNull();
 
             sb.AppendLine(textDecorator.SectionTitle("🔍 Type Validation"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
@@ -540,17 +558,26 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 string suggestedFix;
 
                 // Check if source code already has generic type parameter
-                if (sourceCode.Contains($"<{declaredTestTypeName}>"))
+                // Case-insensitive check because source may use 'object' keyword while type name is 'Object'
+                if (sourceCode.Contains($"<{declaredTestTypeName}>", StringComparison.OrdinalIgnoreCase))
                 {
                     if (endpointReturnsVoid)
                     {
                         // Endpoint returns void (204 NoContent) - remove type parameter
-                        suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", string.Empty);
+                        suggestedFix = System.Text.RegularExpressions.Regex.Replace(
+                            sourceCode,
+                            $"<{System.Text.RegularExpressions.Regex.Escape(declaredTestTypeName)}>",
+                            string.Empty,
+                            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                     }
                     else
                     {
                         // Replace existing type parameter
-                        suggestedFix = sourceCode.Replace($"<{declaredTestTypeName}>", $"<{suggestedTypeName}>");
+                        suggestedFix = System.Text.RegularExpressions.Regex.Replace(
+                            sourceCode,
+                            $"<{System.Text.RegularExpressions.Regex.Escape(declaredTestTypeName)}>",
+                            $"<{suggestedTypeName}>",
+                            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                     }
                 }
                 else
