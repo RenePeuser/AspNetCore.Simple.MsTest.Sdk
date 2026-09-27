@@ -80,6 +80,40 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    callerLineNumber: callerLineNumber);
         }
 
+        /// <summary>
+        /// Clean API: POST with type parameter and payload object, no expectedResult - validates endpoint and ignores response.
+        /// Useful when you only care about endpoint validation (correct response type) without comparing response content.
+        /// </summary>
+        public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
+                                                             string url,
+                                                             object payloadAsObject,
+                                                             bool writeResponse = false,
+                                                             bool skipEndpointValidation = false,
+                                                             HttpStatusCode? expectedHttpStatusCode = null,
+                                                             [CallerArgumentExpression(nameof(payloadAsObject))]
+                                                             string payloadAsObjectParameterName = "",
+                                                             [CallerFilePath] string callerFilePath = "",
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                             [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var callingAssembly = Assembly.GetCallingAssembly();
+
+            return client.AssertPostAsync<TResult>(url: url,
+                                                   payloadAsJson: payloadAsObject.ToJson(JsonSerializerOptionsFor(callingAssembly)),
+                                                   expectedResult: string.Empty,
+                                                   parameters: [],
+                                                   callingAssembly: callingAssembly,
+                                                   writeResponse: writeResponse,
+                                                   ignoreResponse: true,
+                                                   payloadAsJsonParameterName: payloadAsObjectParameterName,
+                                                   expectedResultParameterName: string.Empty,
+                                                   skipEndpointValidation: skipEndpointValidation,
+                                                   expectedHttpStatusCode: expectedHttpStatusCode,
+                                                   callerFilePath: callerFilePath,
+                                                   callerMemberName: callerMemberName,
+                                                   callerLineNumber: callerLineNumber);
+        }
+
         public static Task<TResult> AssertPostAsync<TResult>(this HttpClient client,
                                                              string url,
                                                              string expectedResult,

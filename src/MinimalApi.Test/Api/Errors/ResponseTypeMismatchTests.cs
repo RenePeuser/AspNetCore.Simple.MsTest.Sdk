@@ -1,8 +1,6 @@
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MinimalApi.Api.Persons.V1;
 
 namespace MinimalApi.Test.Api.Errors
 {
@@ -35,14 +33,14 @@ namespace MinimalApi.Test.Api.Errors
         public async Task Suggested_Fix_Should_Show_Actual_Endpoint_Type_Not_Object_When_Using_Lowercase_Object_Keyword()
         {
             // ARRANGE: Endpoint declares .Produces<Person>(201) but test uses <object> (lowercase keyword)
-            var person = new Person(Id: 1, Name: "Test", FirstName: "User", Age: 25, Emails: ImmutableList<Email>.Empty);
+            // Use JSON strings to match the API signature
 
             // ACT: Call with wrong generic type parameter
             var exception = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() =>
                                                                                             Client.AssertPostAsync<object>("api/v1/persons",
-                                                                                                                          person,
-                                                                                                                          writeResponse: false,
-                                                                                                                          expectedHttpStatusCode: System.Net.HttpStatusCode.Created),
+                                                                                                                           /*lang=json*/ """{"id":1,"name":"Test","firstName":"User","age":25}""",
+                                                                                                                           writeResponse: false,
+                                                                                                                           expectedHttpStatusCode: System.Net.HttpStatusCode.Created),
                                                                                         because: "The endpoint declares Produces<Person>(201) for 201 Created, but the test uses <object>. This type mismatch must fail before the HTTP call.",
                                                                                         fix: "Check that endpoint validation runs before the HTTP call and compares the generic type argument against the endpoint's declared response type.")
                                         .ConfigureAwait(false);
@@ -83,13 +81,12 @@ namespace MinimalApi.Test.Api.Errors
         public async Task Suggested_Fix_Should_Replace_Lowercase_Object_Keyword_With_Correct_Type()
         {
             // ACT: Endpoint expects Person but test uses <object> (lowercase C# keyword)
-            var person = new Person(Id: 1, Name: "Test", FirstName: "User", Age: 25, Emails: ImmutableList<Email>.Empty);
 
             var exception = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() =>
                                                                                             Client.AssertPostAsync<object>("api/v1/persons",
-                                                                                                                          person,
-                                                                                                                          writeResponse: false,
-                                                                                                                          expectedHttpStatusCode: System.Net.HttpStatusCode.Created),
+                                                                                                                           /*lang=json*/ """{"id":1,"name":"Test","firstName":"User","age":25}""",
+                                                                                                                           writeResponse: false,
+                                                                                                                           expectedHttpStatusCode: System.Net.HttpStatusCode.Created),
                                                                                         because: "Testing case-insensitive replacement.",
                                                                                         fix: "N/A")
                                         .ConfigureAwait(false);
@@ -112,8 +109,8 @@ namespace MinimalApi.Test.Api.Errors
             // ACT: GET endpoint declares .Produces<Person>(200) but test uses <object>
             var exception = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() =>
                                                                                             Client.AssertGetAsync<object>("api/v1/persons/1",
-                                                                                                                         writeResponse: false,
-                                                                                                                         expectedHttpStatusCode: System.Net.HttpStatusCode.OK),
+                                                                                                                          writeResponse: false,
+                                                                                                                          expectedHttpStatusCode: System.Net.HttpStatusCode.OK),
                                                                                         because: "Same type mismatch, different HTTP verb (GET instead of POST).",
                                                                                         fix: "Verify the fix is HTTP-verb agnostic.")
                                         .ConfigureAwait(false);
@@ -142,13 +139,11 @@ namespace MinimalApi.Test.Api.Errors
             // The endpoint declares .Produces<Person>(201), which populates
             // ResponseTypesByStatusCode[201] but leaves ResponseType as null.
 
-            var person = new Person(Id: 1, Name: "Test", FirstName: "User", Age: 25, Emails: ImmutableList<Email>.Empty);
-
             var exception = await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() =>
                                                                                             Client.AssertPostAsync<object>("api/v1/persons",
-                                                                                                                          person,
-                                                                                                                          writeResponse: false,
-                                                                                                                          expectedHttpStatusCode: System.Net.HttpStatusCode.Created),
+                                                                                                                           /*lang=json*/ """{"id":1,"name":"Test","firstName":"User","age":25}""",
+                                                                                                                           writeResponse: false,
+                                                                                                                           expectedHttpStatusCode: System.Net.HttpStatusCode.Created),
                                                                                         because: "Validating fallback to ResponseTypesByStatusCode.",
                                                                                         fix: "N/A")
                                         .ConfigureAwait(false);
