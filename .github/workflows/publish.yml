@@ -1,0 +1,56 @@
+name: Publish to NuGet.org
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v3.1.1
+        with:
+          versionSpec: '5.x'
+
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v3.1.1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build
+
+      - name: Pack
+        run: |
+          dotnet pack src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj --configuration Release --no-build --output ./nupkgs
+          dotnet pack src/AspNetCore.Simple.MsTest.Sdk.Analyzers/AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj --configuration Release --no-build --output ./nupkgs
+          dotnet pack src/AspNetCore.Simple.MsTest.Sdk.CodeFixes/AspNetCore.Simple.MsTest.Sdk.CodeFixes.csproj --configuration Release --no-build --output ./nupkgs
+
+      - name: Push to NuGet.org
+        run: dotnet nuget push ./nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Tag release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ steps.gitversion.outputs.nuGetVersionV2 }}"
+          git push origin "v${{ steps.gitversion.outputs.nuGetVersionV2 }}"
