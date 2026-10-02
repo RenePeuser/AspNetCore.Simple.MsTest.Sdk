@@ -28,7 +28,7 @@
     <!-- Build & Analysis Tools -->
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />
     <PackageVersion Include="GitVersion.MsBuild" Version="[5.12.0]" />
-    <PackageVersion Include="Microsoft.SourceLink.AzureRepos.Git" Version="10.0.401" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <!-- Security Overrides -->
     <PackageVersion Include="KubernetesClient" Version="19.0.2" />
   </ItemGroup>
