@@ -1,5 +1,11 @@
-# `AspNetCore.Simple.MsTest.Sdk`
+﻿# AspNetCore.Simple.MsTest.Sdk
 
+[![Build](https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk/actions/workflows/build.yml/badge.svg)](https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk/actions/workflows/build.yml)
+[![NuGet](https://img.shields.io/nuget/v/AspNetCore.Simple.MsTest.Sdk.svg)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/)
+[![Downloads](https://img.shields.io/nuget/dt/AspNetCore.Simple.MsTest.Sdk.svg)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/)
+[![Build](https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk/actions/workflows/build.yml/badge.svg)](https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk/actions/workflows/build.yml)
+[![NuGet](https://img.shields.io/nuget/v/AspNetCore.Simple.MsTest.Sdk.svg)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/)
+[![Downloads](https://img.shields.io/nuget/dt/AspNetCore.Simple.MsTest.Sdk.svg)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/)
 [![NuGet](https://img.shields.io/badge/nuget-AspNetCore.Simple.MsTest.Sdk-blue)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk)
 [![.NET 10](https://img.shields.io/badge/.NET-10-purple)](https://dotnet.microsoft.com/)
 [![HTTP QUERY](https://img.shields.io/badge/RFC%2010008-HTTP%20QUERY-green)](https://datatracker.ietf.org/doc/html/rfc10008)
@@ -24,7 +30,7 @@ public Task Should_Create_User(string useCase)
 }
 ```
 
-The same test with the fluent API — it reads like the endpoint contract it verifies:
+The same test with the fluent API â€” it reads like the endpoint contract it verifies:
 
 ```csharp
 // Alpha version only
@@ -40,7 +46,7 @@ public Task Should_Create_User(string useCase)
 }
 ```
 
-> ⚠️ The fluent entry points (`AssertPost`, `AssertGet`, …) are `public` only in prerelease builds
+> âš ï¸ The fluent entry points (`AssertPost`, `AssertGet`, â€¦) are `public` only in prerelease builds
 > (`FLUENT_ALPHA`); in stable packages they stay `internal`.
 > See [Fluent Assert API (Alpha)](#coming-soon--fluent-assert-api-alpha-).
 
@@ -56,7 +62,7 @@ dotnet add package AspNetCore.Simple.MsTest.Sdk
 
 ### Minimal setup
 
-Use the SDK's `ApiTestBase<TStartup>` and there is **nothing to wire up** — it registers and initializes
+Use the SDK's `ApiTestBase<TStartup>` and there is **nothing to wire up** â€” it registers and initializes
 everything the assert extensions need:
 
 ```csharp
@@ -95,10 +101,10 @@ public abstract class ApiTestBase
 
 That's it. `ApiTestBase<TStartup>` performs both required steps internally:
 
-1. `services.AddAssertableHttpClient(configuration)` — registers `IAssertableHttpClient`, the endpoint
+1. `services.AddAssertableHttpClient(configuration)` â€” registers `IAssertableHttpClient`, the endpoint
    registry used for validation, the diff engine and the failure reporters.
-2. `HttpClientAssertExtensions.Setup(serviceProvider)` — hands that provider to the static
-   `Assert…Async` extension methods. They resolve from it on every assert, so it has to stay alive for
+2. `HttpClientAssertExtensions.Setup(serviceProvider)` â€” hands that provider to the static
+   `Assertâ€¦Async` extension methods. They resolve from it on every assert, so it has to stay alive for
    the whole test run - never dispose it right after `Setup`.
 
 Global settings (json options, difference filters, output mode, ...) are configured once through
@@ -106,8 +112,8 @@ Global settings (json options, difference filters, output mode, ...) are configu
 
 ### Bringing your own host? Then do these two steps yourself
 
-If you don't use `ApiTestBase<TStartup>` — e.g. you have your own `WebApplicationFactory<T>`, a custom
-fixture, or a hand-rolled host — the SDK cannot hook itself in. You have to make both calls explicitly,
+If you don't use `ApiTestBase<TStartup>` â€” e.g. you have your own `WebApplicationFactory<T>`, a custom
+fixture, or a hand-rolled host â€” the SDK cannot hook itself in. You have to make both calls explicitly,
 exactly once, in `[AssemblyInitialize]`:
 
 ```csharp
@@ -151,7 +157,7 @@ public abstract class ApiTestBase
 Miss either step and the first assert call tells you so instead of failing cryptically:
 
 ```text
-⚠️  MISSING REGISTRATION
+âš ï¸  MISSING REGISTRATION
 
 The AssertableHttpClient requires endpoint registration to validate HTTP calls.
 Please ensure the following registrations exist in your test setup:
@@ -290,13 +296,13 @@ Complete feature matrix showing what's supported out of the box:
 
 | Method                                                                | With Body | Success Response           | Error Response                    |
 |-----------------------------------------------------------------------|-----------|----------------------------|-----------------------------------|
-| **GET**                                                               | ❌         | ✅ `AssertGetAsync<T>()`    | ✅ `AssertGetAsErrorAsync<T>()`    |
-| **QUERY** [RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008) | ✅         | ✅ `AssertQueryAsync<T>()`  | ✅ `AssertQueryAsErrorAsync<T>()`  |
-| **POST**                                                              | ✅         | ✅ `AssertPostAsync<T>()`   | ✅ `AssertPostAsErrorAsync<T>()`   |
-| **PUT**                                                               | ✅         | ✅ `AssertPutAsync<T>()`    | ✅ `AssertPutAsErrorAsync<T>()`    |
-| **PATCH**                                                             | ✅         | ✅ `AssertPatchAsync<T>()`  | ✅ `AssertPatchAsErrorAsync<T>()`  |
-| **DELETE**                                                            | ❌         | ✅ `AssertDeleteAsync<T>()` | ✅ `AssertDeleteAsErrorAsync<T>()` |
-| **OPTIONS**                                                           | ❌         | ✅ `AssertOptionsAsync()`   | ❌                                 |
+| **GET**                                                               | âŒ         | âœ… `AssertGetAsync<T>()`    | âœ… `AssertGetAsErrorAsync<T>()`    |
+| **QUERY** [RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008) | âœ…         | âœ… `AssertQueryAsync<T>()`  | âœ… `AssertQueryAsErrorAsync<T>()`  |
+| **POST**                                                              | âœ…         | âœ… `AssertPostAsync<T>()`   | âœ… `AssertPostAsErrorAsync<T>()`   |
+| **PUT**                                                               | âœ…         | âœ… `AssertPutAsync<T>()`    | âœ… `AssertPutAsErrorAsync<T>()`    |
+| **PATCH**                                                             | âœ…         | âœ… `AssertPatchAsync<T>()`  | âœ… `AssertPatchAsErrorAsync<T>()`  |
+| **DELETE**                                                            | âŒ         | âœ… `AssertDeleteAsync<T>()` | âœ… `AssertDeleteAsErrorAsync<T>()` |
+| **OPTIONS**                                                           | âŒ         | âœ… `AssertOptionsAsync()`   | âŒ                                 |
 
 **Note**: POST, PUT, PATCH, DELETE also support NoContent (204) variants without `<T>` generic parameter.
 
@@ -304,32 +310,32 @@ Complete feature matrix showing what's supported out of the box:
 
 | Content Type                          | Request | Response | Snapshot Format | Status              |
 |---------------------------------------|---------|----------|-----------------|---------------------|
-| **application/json**                  | ✅       | ✅        | `.json` files   | ✅ Full support      |
-| **application/xml**                   | ❌       | ❌        | N/A             | ⏳ Planned           |
-| **multipart/form-data**               | ❌       | N/A      | N/A             | ⏳ Planned           |
-| **application/x-www-form-urlencoded** | ❌       | N/A      | N/A             | ⏳ Planned           |
-| **text/plain**                        | ✅       | ✅        | `.txt` files    | ✅ String comparison |
+| **application/json**                  | âœ…       | âœ…        | `.json` files   | âœ… Full support      |
+| **application/xml**                   | âŒ       | âŒ        | N/A             | â³ Planned           |
+| **multipart/form-data**               | âŒ       | N/A      | N/A             | â³ Planned           |
+| **application/x-www-form-urlencoded** | âŒ       | N/A      | N/A             | â³ Planned           |
+| **text/plain**                        | âœ…       | âœ…        | `.txt` files    | âœ… String comparison |
 
 ### Features
 
 | Feature                      | Support | Notes                                  |
 |------------------------------|---------|----------------------------------------|
-| **Request body validation**  | ✅       | JSON snapshots                         |
-| **Response body validation** | ✅       | Deep object comparison                 |
-| **Status code validation**   | ✅       | Expected vs actual                     |
-| **Header validation**        | ✅       | Full HTTP response snapshots           |
-| **Query parameters**         | ✅       | URL parameters + parameter replacement |
-| **Dynamic parameters**       | ✅       | `$placeholder$` replacement in JSON    |
-| **File upload**              | ❌       | Multipart not yet supported            |
-| **Binary responses**         | ❌       | Text/JSON only                         |
-| **Streaming**                | ❌       | Snapshot-based only                    |
-| **WebSockets**               | ❌       | HTTP only                              |
+| **Request body validation**  | âœ…       | JSON snapshots                         |
+| **Response body validation** | âœ…       | Deep object comparison                 |
+| **Status code validation**   | âœ…       | Expected vs actual                     |
+| **Header validation**        | âœ…       | Full HTTP response snapshots           |
+| **Query parameters**         | âœ…       | URL parameters + parameter replacement |
+| **Dynamic parameters**       | âœ…       | `$placeholder$` replacement in JSON    |
+| **File upload**              | âŒ       | Multipart not yet supported            |
+| **Binary responses**         | âŒ       | Text/JSON only                         |
+| **Streaming**                | âŒ       | Snapshot-based only                    |
+| **WebSockets**               | âŒ       | HTTP only                              |
 
 **Legend:**
 
-- ✅ = Fully supported
-- ⏳ = Planned for future releases
-- ❌ = Not supported
+- âœ… = Fully supported
+- â³ = Planned for future releases
+- âŒ = Not supported
 
 **Current focus**: JSON-based REST APIs with full snapshot testing support for all standard HTTP methods including the
 new QUERY method.
@@ -381,11 +387,11 @@ public class UserApiTests : ApiTestBase
 
 All methods support:
 
-- ✅ Full response snapshots
-- ✅ Error scenarios with `AsErrorAsync` variants
-- ✅ Dynamic parameter replacement
-- ✅ Ignore strategies for dynamic values
-- ✅ Endpoint validation against `[ProducesResponseType]`
+- âœ… Full response snapshots
+- âœ… Error scenarios with `AsErrorAsync` variants
+- âœ… Dynamic parameter replacement
+- âœ… Ignore strategies for dynamic values
+- âœ… Endpoint validation against `[ProducesResponseType]`
 
 ---
 
@@ -431,12 +437,12 @@ Example structure:
 
 ```plaintext
 Api/
-├─ Persons/
-│  └─ Requests/SonGoku.json      ← Test in Persons namespace uses this
-├─ Errors/
-│  └─ Requests/SonGoku.json
-└─ NativeTypes/
-   └─ Requests/SonGoku.json
+â”œâ”€ Persons/
+â”‚  â””â”€ Requests/SonGoku.json      â† Test in Persons namespace uses this
+â”œâ”€ Errors/
+â”‚  â””â”€ Requests/SonGoku.json
+â””â”€ NativeTypes/
+   â””â”€ Requests/SonGoku.json
 ```
 
 When you reference `"Requests.SonGoku.json"` from a test in the `Api.Persons` namespace, the SDK automatically picks
@@ -463,19 +469,19 @@ This means you get:
 
 ```plaintext
 Api
-└─ Users
-   └─ V1
-      └─ Create
-         └─ Status_200_Ok
-            ├─ Requests
-            │  ├─ ValidUser.json
-            │  ├─ AdminUser.json
-            │  └─ GuestUser.json
-            ├─ Responses
-            │  ├─ ValidUser.json
-            │  ├─ AdminUser.json
-            │  └─ GuestUser.json
-            └─ CreateUser_Status_200_OK_Test.cs
+â””â”€ Users
+   â””â”€ V1
+      â””â”€ Create
+         â””â”€ Status_200_Ok
+            â”œâ”€ Requests
+            â”‚  â”œâ”€ ValidUser.json
+            â”‚  â”œâ”€ AdminUser.json
+            â”‚  â””â”€ GuestUser.json
+            â”œâ”€ Responses
+            â”‚  â”œâ”€ ValidUser.json
+            â”‚  â”œâ”€ AdminUser.json
+            â”‚  â””â”€ GuestUser.json
+            â””â”€ CreateUser_Status_200_OK_Test.cs
 ```
 
 ### Why this structure works well
@@ -521,15 +527,15 @@ dedicated format with actionable information.
 
 | Icon | Failure Type                    | When It Occurs       | What It Means                                          |
 |------|---------------------------------|----------------------|--------------------------------------------------------|
-| 📸   | **SNAPSHOT MISMATCH**           | JSON values differ   | Business logic produces different values               |
-| 📋   | **SCHEMA MISMATCH**             | Structure differs    | API contract changed (breaking change)                 |
-| 🚫   | **UNEXPECTED STATUS CODE**      | Wrong HTTP status    | Status code doesn't match expectation                  |
-| 📄   | **CONTENT TYPE MISMATCH**       | Wrong Content-Type   | Response is not JSON (HTML, XML, etc.)                 |
-| ❌    | **ASSERT METHOD MISMATCH**      | Wrong assertion type | Using success assert with error status (or vice versa) |
-| ❌    | **HTTP RESPONSE TYPE MISMATCH** | Wrong response type  | Test type doesn't match endpoint contract              |
+| ðŸ“¸   | **SNAPSHOT MISMATCH**           | JSON values differ   | Business logic produces different values               |
+| ðŸ“‹   | **SCHEMA MISMATCH**             | Structure differs    | API contract changed (breaking change)                 |
+| ðŸš«   | **UNEXPECTED STATUS CODE**      | Wrong HTTP status    | Status code doesn't match expectation                  |
+| ðŸ“„   | **CONTENT TYPE MISMATCH**       | Wrong Content-Type   | Response is not JSON (HTML, XML, etc.)                 |
+| âŒ    | **ASSERT METHOD MISMATCH**      | Wrong assertion type | Using success assert with error status (or vice versa) |
+| âŒ    | **HTTP RESPONSE TYPE MISMATCH** | Wrong response type  | Test type doesn't match endpoint contract              |
 
-All errors follow the same structure: Header → Failure Details → Test Info → HTTP Context → Problem Details → Suggested
-Fix → Curl Command
+All errors follow the same structure: Header â†’ Failure Details â†’ Test Info â†’ HTTP Context â†’ Problem Details â†’ Suggested
+Fix â†’ Curl Command
 
 **Note:** The `File` field in Test Information contains a clickable `file://` URI that works in most IDEs (Rider, VS
 Code, Visual Studio). Click it to jump directly to the failing test line.
@@ -539,18 +545,18 @@ Code, Visual Studio). Click it to jump directly to the failing test line.
 When JSON values differ from the expected snapshot:
 
 ```plaintext
-══════════════════════════════════════════════════════════════
-📸 SNAPSHOT MISMATCH
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+ðŸ“¸ SNAPSHOT MISMATCH
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-⚠️ Failure Details
-──────────────────────────────────────────────────────────────
+âš ï¸ Failure Details
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 JSON values differ from the expected snapshot.
 All properties exist but have different values.
 
-📦 Test Information
-──────────────────────────────────────────────────────────────
+ðŸ“¦ Test Information
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Project    : MinimalApi.Test
 Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
@@ -558,8 +564,8 @@ Method     : Should_Be_Able_To_Post_A_Person_Object
 Line       : 65
 File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:65
 
-🌍 HTTP
-──────────────────────────────────────────────────────────────
+ðŸŒ HTTP
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Method   : POST
 Url      : http://localhost/api/v1/persons
@@ -567,27 +573,27 @@ Status   : 201 Created
 Body     : {"id":1,"name":"Son","firstName":"Goku","age":42,"emails":[]}
 Response : NewPerson.json
 
-🔍 Differences (Count 1)
-──────────────────────────────────────────────────────────────
+ðŸ” Differences (Count 1)
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-┌────────────────────┬────────────────┬───────────────┬─────────────────┐
-│ MemberPath         │ NewPerson.json │ CurrentResult │ MismatchType    │
-├────────────────────┼────────────────┼───────────────┼─────────────────┤
-│ content.value.name │ Son Test       │ Son           │ ValueDifference │
-└────────────────────┴────────────────┴───────────────┴─────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ MemberPath         â”‚ NewPerson.json â”‚ CurrentResult â”‚ MismatchType    â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ content.value.name â”‚ Son Test       â”‚ Son           â”‚ ValueDifference â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
-📄 Expected Snapshot
-──────────────────────────────────────────────────────────────
+ðŸ“„ Expected Snapshot
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 {"content":{"headers":[...],"value":{"id":1,"name":"Son Test","firstName":"Goku",...}}}
 
-📄 Current Result
-──────────────────────────────────────────────────────────────
+ðŸ“„ Current Result
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 {"content":{"headers":[...],"value":{"id":1,"name":"Son","firstName":"Goku",...}}}
 
-🔁 Reproduce Locally
-──────────────────────────────────────────────────────────────
+ðŸ” Reproduce Locally
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 curl \
 --location \
@@ -595,7 +601,7 @@ curl \
 --header 'Content-Type: application/json' \
 --data-raw '{"id":1,"name":"Son","firstName":"Goku","age":42,"emails":[]}'
 
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 ### Schema Mismatch (Structural Differences)
@@ -603,18 +609,18 @@ curl \
 When the response structure doesn't match (missing properties, type mismatches):
 
 ```plaintext
-══════════════════════════════════════════════════════════════
-📋 SCHEMA MISMATCH
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+ðŸ“‹ SCHEMA MISMATCH
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-⚠️ Failure Details
-──────────────────────────────────────────────────────────────
+âš ï¸ Failure Details
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Structure doesn't match expected type schema.
 Properties missing, extra properties, or type mismatches detected.
 
-📦 Test Information
-──────────────────────────────────────────────────────────────
+ðŸ“¦ Test Information
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Project    : MinimalApi.Test
 Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
@@ -622,31 +628,31 @@ Method     : Should_Get_Person_By_Id
 Line       : 42
 File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:42
 
-🌍 HTTP
-──────────────────────────────────────────────────────────────
+ðŸŒ HTTP
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Method   : GET
 Url      : http://localhost/api/v1/persons/1
 Status   : 200 OK
 
-🔍 Differences (Count 2)
-──────────────────────────────────────────────────────────────
+ðŸ” Differences (Count 2)
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-┌──────────────────────┬──────────────────┬───────────────┬────────────────┐
-│ MemberPath           │ Expected         │ Current       │ MismatchType   │
-├──────────────────────┼──────────────────┼───────────────┼────────────────┤
-│ content.value.emails │ [email array]    │ null          │ MissingInFirst │
-│ content.value.age    │ 42               │ null          │ MissingInFirst │
-└──────────────────────┴──────────────────┴───────────────┴────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ MemberPath           â”‚ Expected         â”‚ Current       â”‚ MismatchType   â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ content.value.emails â”‚ [email array]    â”‚ null          â”‚ MissingInFirst â”‚
+â”‚ content.value.age    â”‚ 42               â”‚ null          â”‚ MissingInFirst â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
-🔁 Reproduce Locally
-──────────────────────────────────────────────────────────────
+ðŸ” Reproduce Locally
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 curl \
 --location \
 --request GET 'http://localhost/api/v1/persons/1'
 
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 ### Assert Method Mismatch
@@ -654,12 +660,12 @@ curl \
 When using success assertion (`AssertPostAsync`) with error status code:
 
 ```plaintext
-══════════════════════════════════════════════════════════════
-❌ ASSERT METHOD MISMATCH - SUCCESS EXPECTED
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+âŒ ASSERT METHOD MISMATCH - SUCCESS EXPECTED
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-📦 Test Information
-──────────────────────────────────────────────────────────────
+ðŸ“¦ Test Information
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Project    : MinimalApi.Test
 Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
@@ -667,28 +673,28 @@ Method     : Should_Create_Person
 Line       : 88
 File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:88
 
-🌍 HTTP
-──────────────────────────────────────────────────────────────
+ðŸŒ HTTP
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Method     : POST
 Url        : http://localhost/api/v1/persons
 Status     : Test Type Mismatch
 
-⚠️ Problem
-──────────────────────────────────────────────────────────────
+âš ï¸ Problem
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 The test is declared as a SUCCESS test (AssertPostAsync, AssertGetAsync, etc.)
 but the expected response has status code 500 (InternalServerError) which is an ERROR status.
 
-📊 Details
-──────────────────────────────────────────────────────────────
+ðŸ“Š Details
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Test Type            : Success (expects 2xx)
 Expected Status      : 500 (InternalServerError)
 Status Range         : Error (4xx/5xx)
 
-✅ Suggested Fix
-──────────────────────────────────────────────────────────────
+âœ… Suggested Fix
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Option 1: Use error assertion method instead
   - Use AssertPostAsErrorAsync() or similar error assertion method
@@ -696,7 +702,7 @@ Option 1: Use error assertion method instead
 Option 2: Update expected response status code
   - Change the expected response to have a success status code (200, 201, etc.)
 
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 ### Unexpected Status Code
@@ -704,18 +710,18 @@ Option 2: Update expected response status code
 When the HTTP status code doesn't match expectations:
 
 ```plaintext
-══════════════════════════════════════════════════════════════
-🚫 UNEXPECTED STATUS CODE
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+ðŸš« UNEXPECTED STATUS CODE
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-⚠️ Failure Details
-──────────────────────────────────────────────────────────────
+âš ï¸ Failure Details
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Expected   : 200 (Success)
 Actual     : 400 (Bad Request)
 
-📦 Test Information
-──────────────────────────────────────────────────────────────
+ðŸ“¦ Test Information
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Project    : MinimalApi.Test
 Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
@@ -723,15 +729,15 @@ Method     : Should_Create_Person
 Line       : 65
 File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:65
 
-🌍 HTTP
-──────────────────────────────────────────────────────────────
+ðŸŒ HTTP
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Method   : POST
 Url      : http://localhost/api/v1/persons
 Status   : 400 Bad Request
 
-🔁 Reproduce Locally
-──────────────────────────────────────────────────────────────
+ðŸ” Reproduce Locally
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 curl \
 --location \
@@ -739,7 +745,7 @@ curl \
 --header 'Content-Type: application/json' \
 --data-raw '{"name":"Invalid"}'
 
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 ### Why This Matters
@@ -756,7 +762,7 @@ You immediately see:
 That is a completely different debugging experience from:
 
 ```csharp
-Assert.AreEqual("Son", response.Name);  // ❌ No context, no curl, no path
+Assert.AreEqual("Son", response.Name);  // âŒ No context, no curl, no path
 ```
 
 This SDK does not just tell you that something failed. It tells you **what kind of failure**, **where**, **what changed
@@ -767,12 +773,12 @@ This SDK does not just tell you that something failed. It tells you **what kind 
 When test's response type doesn't match endpoint contract:
 
 ```plaintext
-══════════════════════════════════════════════════════════════
-❌ HTTP RESPONSE TYPE MISMATCH
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+âŒ HTTP RESPONSE TYPE MISMATCH
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-📦 Test Information
-──────────────────────────────────────────────────────────────
+ðŸ“¦ Test Information
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Project    : MinimalApi.Test
 Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
@@ -780,46 +786,46 @@ Method     : Should_Create_Person
 Line       : 65
 File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:65
 
-🌍 HTTP
-──────────────────────────────────────────────────────────────
+ðŸŒ HTTP
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Method     : POST
 Url        : http://localhost/api/v1/persons
 Status     : Type Mismatch
 Source     : MinimalApi.Api.Persons.V1.CreatePersonEndpoint
 
-🔍 Type Validation
-──────────────────────────────────────────────────────────────
+ðŸ” Type Validation
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-┌─────────────┬────────────────────────┬────────────────────┬───────┐
-│ Status Code │ Endpoint Response Type │ Declared Test Type │ Match │
-├─────────────┼────────────────────────┼────────────────────┼───────┤
-│ 201         │ Person                 │ UnknownResponse    │ ✗     │
-└─────────────┴────────────────────────┴────────────────────┴───────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Status Code â”‚ Endpoint Response Type â”‚ Declared Test Type â”‚ Match â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ 201         â”‚ Person                 â”‚ UnknownResponse    â”‚ âœ—     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”˜
 
 The test is a success (2xx) test and declares response type 'UnknownResponse',
 but none of the endpoint's success (2xx) status codes return this type.
 
-Endpoint defines: 201 → Person
+Endpoint defines: 201 â†’ Person
 
-📝 Assert Call
-──────────────────────────────────────────────────────────────
+ðŸ“ Assert Call
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 return Client.AssertPostAsync<UnknownResponse>("api/v1/persons",
                                                new Person(1, "Son", "Goku",
                                                           42, ImmutableList<Email>.Empty),
                                                "NewPerson.json");
 
-✅ Suggested Fix
-──────────────────────────────────────────────────────────────
+âœ… Suggested Fix
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 return Client.AssertPostAsync<Person>("api/v1/persons",
                                       new Person(1, "Son", "Goku",
                                                  42, ImmutableList<Email>.Empty),
                                       "NewPerson.json");
 
-🔁 Reproduce Locally
-──────────────────────────────────────────────────────────────
+ðŸ” Reproduce Locally
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 curl \
 --location \
@@ -827,7 +833,7 @@ curl \
 --header 'Content-Type: application/json' \
 --data-raw '{"id":1,"name":"Son","firstName":"Goku","age":42,"emails":[]}'
 
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 ### Smart endpoint validation with fallback
@@ -874,12 +880,12 @@ The SDK catches when the assertion method doesn't align with the expected status
 error format as other failures:
 
 ```plaintext
-══════════════════════════════════════════════════════════════
-❌ ASSERT METHOD MISMATCH - SUCCESS EXPECTED
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+âŒ ASSERT METHOD MISMATCH - SUCCESS EXPECTED
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-📦 Test Information
-──────────────────────────────────────────────────────────────
+ðŸ“¦ Test Information
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Project    : MinimalApi.Test
 Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
@@ -887,28 +893,28 @@ Method     : Should_Create_Person
 Line       : 88
 File       : file:///D:/AzureDevOps/AspNetCore.Simple.MsTest.Sdk/src/MinimalApi.Test/Api/Persons/PersonEndpointsTests.cs:88
 
-🌍 HTTP
-──────────────────────────────────────────────────────────────
+ðŸŒ HTTP
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Method     : POST
 Url        : http://localhost/api/v1/persons
 Status     : Test Type Mismatch
 
-⚠️ Problem
-──────────────────────────────────────────────────────────────
+âš ï¸ Problem
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 The test is declared as a SUCCESS test (AssertPostAsync, AssertGetAsync, etc.)
 but the expected response has status code 500 (InternalServerError) which is an ERROR status.
 
-📊 Details
-──────────────────────────────────────────────────────────────
+ðŸ“Š Details
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Test Type            : Success (expects 2xx)
 Expected Status      : 500 (InternalServerError)
 Status Range         : Error (4xx/5xx)
 
-✅ Suggested Fix
-──────────────────────────────────────────────────────────────
+âœ… Suggested Fix
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Option 1: Use error assertion method instead
   - Use AssertPostAsErrorAsync() or similar error assertion method
@@ -916,7 +922,7 @@ Option 1: Use error assertion method instead
 Option 2: Update expected response status code
   - Change the expected response to have a success status code (200, 201, etc.)
 
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 This catches common mistakes like using `AssertPostAsync` when you meant `AssertPostAsErrorAsync`, or vice versa. The
@@ -958,11 +964,11 @@ await Client.AssertGetAsync<GetAllNodesResponse>("api/v1/nodes",
 
 **What gets validated:**
 
-- ✅ Endpoint exists and is reachable
-- ✅ Response type matches endpoint contract
-- ✅ HTTP status code is success (2xx)
-- ✅ Request executes without errors
-- ⏭️ Response content comparison skipped
+- âœ… Endpoint exists and is reachable
+- âœ… Response type matches endpoint contract
+- âœ… HTTP status code is success (2xx)
+- âœ… Request executes without errors
+- â­ï¸ Response content comparison skipped
 
 **Why this matters:**
 
@@ -1046,12 +1052,12 @@ public Task Should_Create_Person()
 
 **Benefits:**
 
-- ✅ **Type safety**: Compiler catches errors before runtime
-- ✅ **Refactoring support**: Rename properties with IDE refactoring tools
-- ✅ **IntelliSense**: Full autocomplete for object properties
-- ✅ **Less boilerplate**: No need to create JSON files for simple cases
-- ✅ **Same validation**: Full HTTP response snapshots, structured diffs, curl generation
-- ✅ **Flexible**: Mix and match with JSON files as needed
+- âœ… **Type safety**: Compiler catches errors before runtime
+- âœ… **Refactoring support**: Rename properties with IDE refactoring tools
+- âœ… **IntelliSense**: Full autocomplete for object properties
+- âœ… **Less boilerplate**: No need to create JSON files for simple cases
+- âœ… **Same validation**: Full HTTP response snapshots, structured diffs, curl generation
+- âœ… **Flexible**: Mix and match with JSON files as needed
 
 **Supported methods:**
 
@@ -1123,7 +1129,7 @@ public Task Should_Create_Person_Ignore_Id()
 }
 ```
 
-Or use the `differenceFilter` predicate shorthand — same result, no manual `Where`:
+Or use the `differenceFilter` predicate shorthand â€” same result, no manual `Where`:
 
 ```csharp
 return Client.AssertPostAsync("api/v1/persons",
@@ -1199,11 +1205,11 @@ await Client.AssertPostAsync<CustomResponse>(
 
 **What gets validated when skipped:**
 
-- ✅ HTTP status code matches expectation (success vs error)
-- ✅ Response content comparison (if `expectedResult` provided)
-- ✅ Request executes successfully
-- ⏭️ Endpoint metadata validation skipped
-- ⏭️ Response type contract checking skipped
+- âœ… HTTP status code matches expectation (success vs error)
+- âœ… Response content comparison (if `expectedResult` provided)
+- âœ… Request executes successfully
+- â­ï¸ Endpoint metadata validation skipped
+- â­ï¸ Response type contract checking skipped
 
 **What gets skipped:**
 
@@ -1215,9 +1221,9 @@ await Client.AssertPostAsync<CustomResponse>(
 
 | Feature                                  | `ignoreResponse: true`                | `skipEndpointValidation: true`         |
 |------------------------------------------|---------------------------------------|----------------------------------------|
-| Validates endpoint exists                | ✅ Yes                                 | ❌ No                                   |
-| Validates response type matches endpoint | ✅ Yes                                 | ❌ No                                   |
-| Compares response content                | ❌ No                                  | ✅ Yes (if expectedResult provided)     |
+| Validates endpoint exists                | âœ… Yes                                 | âŒ No                                   |
+| Validates response type matches endpoint | âœ… Yes                                 | âŒ No                                   |
+| Compares response content                | âŒ No                                  | âœ… Yes (if expectedResult provided)     |
 | Use case                                 | Process tests where call must succeed | External APIs or custom response types |
 
 **Example: Testing external API**
@@ -1576,7 +1582,7 @@ This lets you keep snapshots strict where they should be strict and flexible whe
 #### Predicate shorthand: `differenceFilter`
 
 The `DifferenceFunc` examples above require you to iterate the differences yourself. If you only want to
-decide per difference whether to keep it, use the `differenceFilter` predicate instead — the SDK does the
+decide per difference whether to keep it, use the `differenceFilter` predicate instead â€” the SDK does the
 iteration for you. **Return `true` to keep a difference, `false` to ignore it** (same semantics as LINQ `Where`).
 
 Global:
@@ -1599,10 +1605,10 @@ await Client.AssertPostAsync<AddUserReponse>(
 
 `differenceFilter` runs in addition to `DifferenceFunc`: a difference is reported only when the global
 `DifferenceFunc`, the per-assert `differenceFunc`, and both (global + scoped) `differenceFilter` predicates
-all keep it. You can mix and match — use `DifferenceFunc` when you need full control over the sequence, and
+all keep it. You can mix and match â€” use `DifferenceFunc` when you need full control over the sequence, and
 `differenceFilter` when a simple per-item condition is enough.
 
-Order of evaluation: global `DifferenceFunc` → per-assert `differenceFunc` → global `DifferenceFilter`
+Order of evaluation: global `DifferenceFunc` â†’ per-assert `differenceFunc` â†’ global `DifferenceFilter`
 **and** per-assert `differenceFilter`.
 
 > **`MemberPath` format:** it is the camelCase JSON path exactly as printed in the differences table,
@@ -1925,10 +1931,10 @@ HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = differe
 ### Type-Safe Configuration
 
 `TestSdkSettings` is a plain settings record - data only, no logic - providing:
-- ✅ **Type safety** - Enums like `OutputMode` instead of strings
-- ✅ **One source** - one instance per test project, injected wherever the SDK needs it
-- ✅ **IntelliSense** - Full IDE support in configuration files
-- ✅ **Automatic binding** - ASP.NET Core configuration system handles the rest
+- âœ… **Type safety** - Enums like `OutputMode` instead of strings
+- âœ… **One source** - one instance per test project, injected wherever the SDK needs it
+- âœ… **IntelliSense** - Full IDE support in configuration files
+- âœ… **Automatic binding** - ASP.NET Core configuration system handles the rest
 
 ### Upgrading from 9.5.x (breaking changes)
 
@@ -2021,8 +2027,8 @@ await Client.AssertDeleteAsync("api/v1/items/123");
 await Client.AssertPostAsync("api/v1/items", "NewItem.json");
 await Client.AssertPutAsync("api/v1/items/123", "UpdatedItem.json");
 await Client.AssertPatchAsync("api/v1/items/123", "PatchItem.json");
-// → ExpectedType = typeof(void)
-// → Validates endpoint returns 204 NoContent
+// â†’ ExpectedType = typeof(void)
+// â†’ Validates endpoint returns 204 NoContent
 ```
 
 **Generic methods = Typed responses (200, 201, etc.):**
@@ -2040,8 +2046,8 @@ await Client.AssertPutAsync<UpdateItemResponse>("api/v1/items/123",
 await Client.AssertPatchAsync<PatchItemResponse>("api/v1/items/123",
                                                   "PatchItem.json",
                                                   "Expected.json");
-// → ExpectedType = typeof(ResponseType)
-// → Validates endpoint returns 2xx with response body
+// â†’ ExpectedType = typeof(ResponseType)
+// â†’ Validates endpoint returns 2xx with response body
 ```
 
 **Why this distinction matters:**
@@ -2054,11 +2060,11 @@ HTTP semantics demand different handling:
 Using the wrong method signature catches real bugs:
 
 ```csharp
-// ❌ Bug: Test expects void but endpoint returns 200 with body
+// âŒ Bug: Test expects void but endpoint returns 200 with body
 await Client.AssertPostAsync("api/v1/items", "NewItem.json");
-// → Validator Error: "Expected void, got CreateItemResponse"
+// â†’ Validator Error: "Expected void, got CreateItemResponse"
 
-// ✅ Fix: Use correct generic signature
+// âœ… Fix: Use correct generic signature
 await Client.AssertPostAsync<CreateItemResponse>("api/v1/items", 
                                                   "NewItem.json",
                                                   "Expected.json");
@@ -2240,9 +2246,9 @@ app.MapMethods("api/v1/users/search", new[] { "QUERY" },
 
 | Method    | Use When                      | Body  | Safe  | Cacheable |
 |-----------|-------------------------------|-------|-------|-----------|
-| **GET**   | Simple queries (query params) | ❌ No  | ✅ Yes | ✅ Yes     |
-| **QUERY** | Complex queries (need body)   | ✅ Yes | ✅ Yes | ✅ Yes     |
-| **POST**  | Creating/modifying data       | ✅ Yes | ❌ No  | ❌ No      |
+| **GET**   | Simple queries (query params) | âŒ No  | âœ… Yes | âœ… Yes     |
+| **QUERY** | Complex queries (need body)   | âœ… Yes | âœ… Yes | âœ… Yes     |
+| **POST**  | Creating/modifying data       | âœ… Yes | âŒ No  | âŒ No      |
 
 The SDK makes QUERY a first-class citizen with the same full support as GET, POST, PUT, PATCH, and DELETE.
 
@@ -2276,40 +2282,40 @@ Assert.That.IsTrue(user.IsActive && user.IsVerified,
 ### Failure output
 
 ```plaintext
-══════════════════════════════════════════════════════════════
-⚠️  CONDITION FAILED - EXPECTED TRUE
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+âš ï¸  CONDITION FAILED - EXPECTED TRUE
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-📦 Test Information
-──────────────────────────────────────────────────────────────
+ðŸ“¦ Test Information
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 File     : UserTests.cs:42
 Method   : Should_Grant_Access_To_Active_Users
 Condition: user.IsActive && user.IsVerified
 
-⚠️ Problem
-──────────────────────────────────────────────────────────────
+âš ï¸ Problem
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Expected condition to be TRUE but it was FALSE.
 
-📊 Details
-──────────────────────────────────────────────────────────────
+ðŸ“Š Details
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Condition  : user.IsActive && user.IsVerified
 Result     : False
 Expected   : True
 
-💭 Context (Why)
-──────────────────────────────────────────────────────────────
+ðŸ’­ Context (Why)
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Active and verified users should have full access
 
-✅ Suggested Fix (How)
-──────────────────────────────────────────────────────────────
+âœ… Suggested Fix (How)
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Activate the user account in the admin panel
 
 Additional suggestions:
-  • Review the logic in 'user.IsActive && user.IsVerified' to ensure it returns true
-  • Check the values being compared in the condition
-  • Verify that prerequisites for this condition are met
+  â€¢ Review the logic in 'user.IsActive && user.IsVerified' to ensure it returns true
+  â€¢ Check the values being compared in the condition
+  â€¢ Verify that prerequisites for this condition are met
 
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 ### Available assertions
@@ -2334,7 +2340,7 @@ Additional suggestions:
 | **Object diff**    | `ObjectsAreEqual`                                                                                            | Deep comparison with `MemberPath`   |
 | **Escape hatch**   | `Fail`                                                                                                       | Explicit failure with context       |
 
-`Throws*` and `DoesNotThrow*` come in sync and async pairs — use the `…Async` variants for
+`Throws*` and `DoesNotThrow*` come in sync and async pairs â€” use the `â€¦Async` variants for
 `Func<Task>` so the exception is observed instead of swallowed by an unawaited task.
 
 ### Why not `AiAssert.*`?
@@ -2396,35 +2402,35 @@ Valid values:
 The traditional beautiful console output optimized for human debugging:
 
 ```plaintext
-══════════════════════════════════════════════════════════════
-📸 SNAPSHOT MISMATCH
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+ðŸ“¸ SNAPSHOT MISMATCH
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-⚠️ Failure Details
-──────────────────────────────────────────────────────────────
+âš ï¸ Failure Details
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 JSON values differ from the expected snapshot.
 
-📦 Test Information
-──────────────────────────────────────────────────────────────
+ðŸ“¦ Test Information
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Project    : MinimalApi.Test
 Class      : MinimalApi.Test.Api.Persons.PersonEndpointsTests
 Method     : Should_Create_Person
 Line       : 65
 File       : file:///D:/path/to/test.cs:65
 
-🔍 Differences (Count 1)
-──────────────────────────────────────────────────────────────
-┌────────────────────┬──────────┬───────────────┬─────────────────┐
-│ MemberPath         │ Expected │ Actual        │ MismatchType    │
-├────────────────────┼──────────┼───────────────┼─────────────────┤
-│ content.value.name │ Goku     │ Son           │ ValueDifference │
-└────────────────────┴──────────┴───────────────┴─────────────────┘
+ðŸ” Differences (Count 1)
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ MemberPath         â”‚ Expected â”‚ Actual        â”‚ MismatchType    â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ content.value.name â”‚ Goku     â”‚ Son           â”‚ ValueDifference â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
-✅ Suggested Fix
-──────────────────────────────────────────────────────────────
+âœ… Suggested Fix
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Update the expected value at path 'content.value.name' from 'Goku' to 'Son'.
 
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 ### AI Mode
@@ -2481,20 +2487,20 @@ The AI mode includes structured error codes for precise categorization:
 Combines both human-readable and JSON output. Perfect for teams using both manual debugging and AI-assisted workflows:
 
 ```plaintext
-══════════════════════════════════════════════════════════════
-📸 SNAPSHOT MISMATCH
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+ðŸ“¸ SNAPSHOT MISMATCH
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 [... human-readable output ...]
 
-──────────────────────────────────────────────────────────────
-🤖 AI-PARSEABLE OUTPUT
-──────────────────────────────────────────────────────────────
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ðŸ¤– AI-PARSEABLE OUTPUT
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 {
   "errorCode": "HTTP_SNAPSHOT_MISMATCH",
   "severity": "error",
   [... JSON output ...]
 }
-══════════════════════════════════════════════════════════════
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 ### When to Use Each Mode
@@ -2559,7 +2565,7 @@ The AI mode enables AI agents to:
 
 ---
 
-## Coming Soon — Fluent Assert API (Alpha) 🧪
+## Coming Soon â€” Fluent Assert API (Alpha) ðŸ§ª
 
 A declarative, type-safe fluent API for HTTP contract testing is in the works. A test should read like the
 endpoint contract it verifies:
@@ -2574,25 +2580,25 @@ await Client.AssertPost("api/v1/persons")
 
 Already implemented in the alpha:
 
-- **Entry points** — `AssertPost`, `AssertGet`, `AssertPut`, `AssertPatch`, `AssertDelete` on `HttpClient`.
-- **Endpoint-mirroring vocabulary** — `Accepts` / `Produces` / `ExpectedResponse` line up with ASP.NET Core
+- **Entry points** â€” `AssertPost`, `AssertGet`, `AssertPut`, `AssertPatch`, `AssertDelete` on `HttpClient`.
+- **Endpoint-mirroring vocabulary** â€” `Accepts` / `Produces` / `ExpectedResponse` line up with ASP.NET Core
   Minimal API metadata.
-- **Type-state builder** — comparison config (`IgnoreProperty`, `FilterResponse`, `IgnoreDifferences`,
+- **Type-state builder** â€” comparison config (`IgnoreProperty`, `FilterResponse`, `IgnoreDifferences`,
   `DifferenceFilter`, `WriteSnapshot`) is only reachable *after* an expected response, enforced by the compiler.
-- **Analyzer-protected terminal** — a forgotten `ExecuteAsync()` is a build error (`MSTESTSDK001`), not a
+- **Analyzer-protected terminal** â€” a forgotten `ExecuteAsync()` is a build error (`MSTESTSDK001`), not a
   silently green test. A code fix appends the missing terminal.
-- **Type-safe property ignore** — `.IgnoreProperty<Person>(p => p.Id)` instead of magic strings.
-- **Three input shapes each** — object, raw JSON string, or embedded file: `Accepts` /
-  `AcceptsFromJsonString` / `AcceptsFromEmbeddedJson`, and the matching `ExpectedResponse…` trio.
-- **Placeholders and headers** — `WithParameter`, `WithParameters` (tuples or an object), `WithHeader`.
-- **Body-less path** — `Produces(HttpStatusCode.Created)` without `<T>` asserts status only.
+- **Type-safe property ignore** â€” `.IgnoreProperty<Person>(p => p.Id)` instead of magic strings.
+- **Three input shapes each** â€” object, raw JSON string, or embedded file: `Accepts` /
+  `AcceptsFromJsonString` / `AcceptsFromEmbeddedJson`, and the matching `ExpectedResponseâ€¦` trio.
+- **Placeholders and headers** â€” `WithParameter`, `WithParameters` (tuples or an object), `WithHeader`.
+- **Body-less path** â€” `Produces(HttpStatusCode.Created)` without `<T>` asserts status only.
 
 Still on the roadmap (not in the alpha yet):
 
-- **QUERY entry point** — `AssertQuery(...)`; use the classic `AssertQueryAsync<T>(…)` in the meantime.
-- **Error-response chains** — the `AsErrorAsync` equivalents.
-- **Property predicates** — `.MatchesProperty(p => p.Id, id => id != Guid.Empty)`.
-- **Endpoint metadata assertions** — `Client.AssertEndpoint(...)` to verify names, tags, auth, produced
+- **QUERY entry point** â€” `AssertQuery(...)`; use the classic `AssertQueryAsync<T>(â€¦)` in the meantime.
+- **Error-response chains** â€” the `AsErrorAsync` equivalents.
+- **Property predicates** â€” `.MatchesProperty(p => p.Id, id => id != Guid.Empty)`.
+- **Endpoint metadata assertions** â€” `Client.AssertEndpoint(...)` to verify names, tags, auth, produced
   responses and more, without sending a request.
 
 Full method reference:
@@ -2610,17 +2616,17 @@ await Client.AssertPost("api/v1/persons")
             .ExecuteAsync();
 ```
 
-> ⚠️ **Alpha only.** The fluent entry points are `public` only in prerelease builds (`FLUENT_ALPHA`); in
+> âš ï¸ **Alpha only.** The fluent entry points are `public` only in prerelease builds (`FLUENT_ALPHA`); in
 > stable packages they stay `internal` until the shape is final. Signatures may still change. For stable
-> tests, keep using the classic `AssertPostAsync<T>(…)` API.
+> tests, keep using the classic `AssertPostAsync<T>(â€¦)` API.
 
 ```sh
 dotnet add package AspNetCore.Simple.MsTest.Sdk --version 9.6.0-alpha.19
 ```
 
 Full walkthrough, the complete method idea collection, and design notes:
-[`FluentAssertions/HOWTO.md`](src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/HOWTO.md) ·
-[`README.md`](src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/README.md) ·
+[`FluentAssertions/HOWTO.md`](src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/HOWTO.md) Â·
+[`README.md`](src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/README.md) Â·
 [`DESIGN_VISION.md`](src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/DESIGN_VISION.md).
 
 ---

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <PackageLicenseFile>License.txt</PackageLicenseFile>
@@ -6,8 +6,8 @@
         <Company>Rene Peuser Softwaresolutions</Company>
         <Descriptiotn>A simple sdk to write easy and fast tests for your web api's</Descriptiotn>
         <Copyright>Copyright 2021 (c) Rene Peuser. All rights reserved.</Copyright>
-        <PackageProjectUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
-        <RepositoryUrl>https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>aspnetcore;testing;snapshot-testing;snapshot;mstest;api-testing;integration-testing;http-testing;test-framework;regression-testing;web-api;rest-api;test-automation;test-sdk;aspnetcore-testing;api-snapshots;http-assertions;minimal-api;webapi-testing;contract-testing;response-validation;csharp;dotnet;json;json-comparison;diff;approval-testing;unit-testing;curl;http-client;testhost;</PackageTags>
         <PackageReleaseNotes>
             BREAKING CHANGES:
@@ -66,7 +66,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
         <PackageReference Include="Microsoft.AspNetCore.TestHost" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-        <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
         <PackageReference Include="MSTest.TestFramework" />
         <PackageReference Include="System.CodeDom" />
     </ItemGroup>
@@ -77,15 +77,15 @@
     </ItemGroup>
 
     <!-- ALPHA-ONLY fluent API (strategy: release the fluent API in alpha/prerelease only, until its
-         final shape is decided — see FluentAssertions/README.md). The FLUENT_ALPHA symbol flips the
+         final shape is decided â€” see FluentAssertions/README.md). The FLUENT_ALPHA symbol flips the
          entry points from internal to public. It is defined when:
-           * the build produces a prerelease version, e.g. /develop → "…-alpha.N"
+           * the build produces a prerelease version, e.g. /develop â†’ "â€¦-alpha.N"
              (GitVersion_PreReleaseTag is non-empty), OR
            * FluentAlpha=true is passed explicitly (dotnet build -p:FluentAlpha=true / local dev).
          In-repo test projects reach the API via the public contract only, enforcing real-world usage.
 
-         IMPORTANT — timing: GitVersion.MsBuild sets GitVersion_* in a TARGET (GetVersion), not at
-         project-evaluation time. A plain <PropertyGroup Condition="…GitVersion_…"> would evaluate too
+         IMPORTANT â€” timing: GitVersion.MsBuild sets GitVersion_* in a TARGET (GetVersion), not at
+         project-evaluation time. A plain <PropertyGroup Condition="â€¦GitVersion_â€¦"> would evaluate too
          early and never see the value. So the constant is appended in a target that runs AFTER
          GetVersion and BEFORE CoreCompile. -->
     <PropertyGroup Condition="'$(FluentAlpha)' == 'true'">
@@ -96,7 +96,7 @@
         <PropertyGroup>
             <DefineConstants>$(DefineConstants);FLUENT_ALPHA</DefineConstants>
         </PropertyGroup>
-        <Message Importance="high" Text="FLUENT_ALPHA enabled — prerelease build '$(GitVersion_NuGetVersion)' (fluent API is public)." />
+        <Message Importance="high" Text="FLUENT_ALPHA enabled â€” prerelease build '$(GitVersion_NuGetVersion)' (fluent API is public)." />
     </Target>
 
     <!-- Ship the fluent-API analyzer (MSTESTSDK001) and its code fix as analyzer assets inside the
