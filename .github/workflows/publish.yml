@@ -40,10 +40,7 @@ jobs:
         run: dotnet test --configuration Release --no-build
 
       - name: Pack
-        run: |
-          dotnet pack src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj --configuration Release --no-build --output ./nupkgs
-          dotnet pack src/AspNetCore.Simple.MsTest.Sdk.Analyzers/AspNetCore.Simple.MsTest.Sdk.Analyzers.csproj --configuration Release --no-build --output ./nupkgs
-          dotnet pack src/AspNetCore.Simple.MsTest.Sdk.CodeFixes/AspNetCore.Simple.MsTest.Sdk.CodeFixes.csproj --configuration Release --no-build --output ./nupkgs
+        run: dotnet pack src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj --configuration Release --no-build --output ./nupkgs
 
       - name: Push to NuGet.org
         run: dotnet nuget push ./nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
