@@ -56,6 +56,8 @@ git push origin develop
 3. Branch: `develop`
 4. Optional: Grund eingeben
 5. Klicke: **Run workflow**
+6. ⏸️ **Workflow pausiert** bei "Waiting for approval"
+7. ✅ **Review & Approve** im UI
 
 ➡️ **Ergebnis**: `10.0.x-alpha.N` wird auf NuGet.org gepusht
 
@@ -79,6 +81,8 @@ git push origin master
 3. Branch: `master`
 4. Optional: Grund eingeben
 5. Klicke: **Run workflow**
+6. ⏸️ **Workflow pausiert** bei "Waiting for approval"
+7. ✅ **Review & Approve** im UI
 
 ➡️ **Ergebnis**: 
 - `10.0.x` wird auf NuGet.org gepusht
