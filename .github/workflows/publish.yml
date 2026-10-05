@@ -2,6 +2,11 @@ name: Publish to NuGet.org
 
 on:
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual release'
+        required: false
+        type: string
 
 permissions:
   id-token: write
@@ -25,6 +30,13 @@ jobs:
         id: gitversion
         uses: gittools/actions/gitversion/execute@v3.1.1
 
+      - name: Display Version Info
+        run: |
+          echo "Branch: ${{ github.ref_name }}"
+          echo "NuGetVersionV2: ${{ steps.gitversion.outputs.nuGetVersionV2 }}"
+          echo "PreReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}"
+          echo "Is PreRelease: ${{ steps.gitversion.outputs.preReleaseTag != '' }}"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -33,21 +45,57 @@ jobs:
       - name: Restore
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
+      - name: Build (Debug for tests)
+        run: dotnet build --configuration Debug --no-restore
 
-      - name: Test
-        run: dotnet test --configuration Release --no-build
+      - name: Test (Debug)
+        run: dotnet test --configuration Debug --no-build
+
+      - name: Build (Release for package)
+        run: dotnet build --configuration Release --no-restore
 
       - name: Pack
         run: dotnet pack src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj --configuration Release --no-build --output ./nupkgs
 
       - name: Push to NuGet.org
-        run: dotnet nuget push ./nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
-      - name: Tag release
+      - name: Create Git Tag (stable releases only)
+        if: steps.gitversion.outputs.preReleaseTag == ''
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag "v${{ steps.gitversion.outputs.nuGetVersionV2 }}"
           git push origin "v${{ steps.gitversion.outputs.nuGetVersionV2 }}"
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        if: steps.gitversion.outputs.preReleaseTag == ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.gitversion.outputs.nuGetVersionV2 }}
+          release_name: Release ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+          body: |
+            ## Release ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+
+            Published from branch: ${{ github.ref_name }}
+            Reason: ${{ github.event.inputs.reason || 'Manual release' }}
+
+            ### NuGet Package
+            https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/${{ steps.gitversion.outputs.nuGetVersionV2 }}
+          draft: false
+          prerelease: false
+
+      - name: Summary
+        run: |
+          echo "## 🚀 Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.gitversion.outputs.nuGetVersionV2 }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Type:** ${{ steps.gitversion.outputs.preReleaseTag != '' && 'Preview (Alpha)' || 'Stable Release' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 NuGet Package" >> $GITHUB_STEP_SUMMARY
+          echo "https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/${{ steps.gitversion.outputs.nuGetVersionV2 }}" >> $GITHUB_STEP_SUMMARY

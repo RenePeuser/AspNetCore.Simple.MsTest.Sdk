@@ -14,4 +14,16 @@ commits-since-version-source-padding: 4
 commit-message-incrementing: Enabled
 commit-date-format: 'yyyy-MM-dd'
 merge-message-formats: { }
-next-version: 1.0.0
+
+# Branch-specific configuration
+branches:
+  master:
+    mode: ContinuousDelivery
+    increment: Patch
+    is-mainline: true
+
+  develop:
+    mode: ContinuousDeployment
+    tag: alpha
+    increment: Minor
+    is-mainline: false
