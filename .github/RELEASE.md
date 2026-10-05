@@ -9,14 +9,28 @@ Dieses Projekt nutzt **GitVersion** für automatische Versionierung und **GitHub
 
 ## Voraussetzungen
 
-### NuGet API Key einrichten
+### Trusted Publisher auf NuGet.org einrichten
 
-1. Erstelle einen API Key auf [nuget.org](https://www.nuget.org/account/apikeys)
-2. Füge ihn als GitHub Secret hinzu:
-   - Gehe zu: **Repository → Settings → Secrets and variables → Actions**
-   - Klicke: **New repository secret**
-   - Name: `NUGET_API_KEY`
-   - Value: Dein NuGet API Key
+Dieses Projekt nutzt **Trusted Publishers** (OIDC) - keine API Keys mehr nötig! 🔐
+
+**Einmalige Einrichtung:**
+
+1. Gehe zu [nuget.org](https://www.nuget.org) und melde dich an
+2. Navigiere zu deinem Package (oder reserviere den Namen):
+   - https://www.nuget.org/packages/manage/upload
+3. **Bei bestehendem Package:**
+   - Gehe zu: **Package → Trusted publishers**
+   - Klicke: **Add trusted publisher**
+4. **Bei neuem Package:**
+   - Klicke: **Reserve prefix** und folge dem Wizard
+5. **Trusted Publisher konfigurieren:**
+   - **Repository owner**: `RenePeuser`
+   - **Repository name**: `AspNetCore.Simple.MsTest.Sdk`
+   - **Workflow name**: `publish.yml`
+   - **Environment** (optional): leer lassen
+6. Klicke: **Register**
+
+✅ **Fertig!** GitHub Actions kann jetzt direkt über OIDC publishen - ohne API Keys!
 
 ## Release erstellen
 
@@ -117,9 +131,15 @@ graph TD
 
 ## Troubleshooting
 
-### "NuGet API Key not found"
-- Prüfe, ob das Secret `NUGET_API_KEY` existiert
-- Stelle sicher, dass der API Key nicht abgelaufen ist
+### "The repository is not trusted by the package owner"
+- Prüfe, ob der Trusted Publisher korrekt auf NuGet.org konfiguriert ist
+- Stelle sicher, dass Repository Owner, Name und Workflow exakt übereinstimmen
+- Warte einige Minuten nach der Registrierung
+
+### Erstes Release schlägt fehl
+- Beim **ersten Release** musst du das Package manuell über nuget.org hochladen
+- Danach funktioniert Trusted Publishers für alle weiteren Updates
+- Alternativ: API Key temporär nutzen für den ersten Upload
 
 ### Version wird nicht erhöht
 - Prüfe Commit-Message-Format (muss `feat:`, `fix:`, etc. enthalten)
@@ -136,3 +156,15 @@ graph TD
 - **NuGet Package**: https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk
 - **GitHub Releases**: https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk/releases
 - **GitVersion Docs**: https://gitversion.net/docs/
+- **NuGet Trusted Publishers**: https://devblogs.microsoft.com/nuget/introducing-package-source-mapping-and-package-source-authentication/
+
+---
+
+## ℹ️ Warum Trusted Publishers?
+
+**Vorteile gegenüber API Keys:**
+- ✅ Keine Secrets im Repository nötig
+- ✅ OIDC-basierte Authentifizierung direkt über GitHub
+- ✅ Nur der konfigurierte Workflow kann publishen
+- ✅ Automatische Rotation - keine abgelaufenen Keys
+- ✅ Audit-Trail auf NuGet.org
