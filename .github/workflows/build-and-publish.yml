@@ -1,16 +1,24 @@
-name: Publish to NuGet.org
+name: Build & Publish to NuGet
 
 on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
   workflow_dispatch:
     inputs:
+      publish:
+        description: Publish to NuGet
+        type: boolean
+        default: false
+        required: true
       reason:
         description: 'Reason for manual release'
         required: false
         type: string
 
 permissions:
-  id-token: write
-  contents: write
+  contents: read
 
 jobs:
   build-and-pack:
@@ -62,6 +70,10 @@ jobs:
       - name: Build (Release for package)
         run: dotnet build src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj --configuration Release --no-restore
 
+      # This command reports vulnerabilities; it does not fail the job solely for findings.
+      - name: Vulnerability check
+        run: dotnet list package --include-transitive --vulnerable
+
       - name: Pack
         run: dotnet pack src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj --configuration Release --no-build --output ./nupkgs
 
@@ -81,64 +93,73 @@ jobs:
           echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Type:** ${{ steps.gitversion.outputs.preReleaseTag != '' && 'Preview (Alpha)' || 'Stable Release' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Package ready for deployment approval" >> $GITHUB_STEP_SUMMARY
+          echo "Publishing is enabled only for manual runs with Publish to NuGet selected on master or develop." >> $GITHUB_STEP_SUMMARY
 
   deploy:
     name: Deploy to NuGet.org
-    runs-on: ubuntu-latest
     needs: build-and-pack
+    if: >-
+      github.event_name == 'workflow_dispatch' && inputs.publish &&
+      (github.ref_name == 'master' || github.ref_name == 'develop')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # tag + GitHub release
+      id-token: write   # NuGet trusted publishing
     environment:
       name: production
       url: https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/${{ needs.build-and-pack.outputs.version }}
+    concurrency:
+      group: nuget-publish
+      cancel-in-progress: false
+    env:
+      VERSION: ${{ needs.build-and-pack.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Download NuGet Package
         uses: actions/download-artifact@v4
         with:
           name: nuget-package
           path: ./nupkgs
 
+      - name: NuGet login (trusted publishing)
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Push to NuGet.org
-        run: dotnet nuget push ./nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: >-
+          dotnet nuget push ./nupkgs/*.nupkg
+          --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
 
-      - name: Create Git Tag (stable releases only)
-        if: needs.build-and-pack.outputs.prerelease == ''
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "v${{ needs.build-and-pack.outputs.version }}"
-          git push origin "v${{ needs.build-and-pack.outputs.version }}"
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
+      # gh creates the tag v<version> on the built commit, so no checkout or manual git tag is needed.
+      - name: Create GitHub Release (stable releases only)
         if: needs.build-and-pack.outputs.prerelease == ''
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ needs.build-and-pack.outputs.version }}
-          release_name: Release ${{ needs.build-and-pack.outputs.version }}
-          body: |
-            ## Release ${{ needs.build-and-pack.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
+          REASON: ${{ inputs.reason || 'Manual release' }}
+        run: |
+          gh release create "v$VERSION" ./nupkgs/*.nupkg \
+            --repo "${{ github.repository }}" \
+            --target "${{ github.sha }}" \
+            --title "Release $VERSION" \
+            --notes "## Release $VERSION
 
-            Published from branch: ${{ github.ref_name }}
-            Reason: ${{ github.event.inputs.reason || 'Manual release' }}
+          Published from branch: ${{ github.ref_name }}
+          Reason: $REASON
 
-            ### NuGet Package
-            https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/${{ needs.build-and-pack.outputs.version }}
-          draft: false
-          prerelease: false
+          ### NuGet Package
+          https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/$VERSION"
 
       - name: Deployment Summary
         run: |
           echo "## 🚀 Deployment Successful" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** ${{ needs.build-and-pack.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** $VERSION" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Type:** ${{ needs.build-and-pack.outputs.prerelease != '' && 'Preview (Alpha)' || 'Stable Release' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📦 NuGet Package" >> $GITHUB_STEP_SUMMARY
-          echo "https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/${{ needs.build-and-pack.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/$VERSION" >> $GITHUB_STEP_SUMMARY
