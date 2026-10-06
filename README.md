@@ -9,7 +9,7 @@
 [![NuGet](https://img.shields.io/badge/nuget-AspNetCore.Simple.MsTest.Sdk-blue)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk)
 [![.NET 10](https://img.shields.io/badge/.NET-10-purple)](https://dotnet.microsoft.com/)
 [![HTTP QUERY](https://img.shields.io/badge/RFC%2010008-HTTP%20QUERY-green)](https://datatracker.ietf.org/doc/html/rfc10008)
-[![License](https://img.shields.io/badge/license-Proprietary-red)]()
+[![License](https://img.shields.io/badge/license-PolyForm%20Shield%201.0.0-blue)](License.txt)
 
 > **API snapshot testing so productive it feels like cheating.**  
 > Add a JSON file. A test appears. When it fails, you get the exact diff, full HTTP context, and a ready-to-run `curl`.
@@ -2635,10 +2635,15 @@ Full walkthrough, the complete method idea collection, and design notes:
 
 This SDK is battle-tested in production environments.
 
-Repository: `https://renepeuser.visualstudio.com/_git/AspNetCore.Simple.MsTest.Sdk`
+Repository: `https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk`
 
 ---
 
 ## License
 
-Copyright 2021-2026 (c) Rene Peuser. All rights reserved.
+Copyright 2021-2026 (c) Rene Peuser.
+
+Licensed under the [PolyForm Shield License 1.0.0](License.txt). You may use, change and
+distribute the SDK, including in commercial projects, but you may not use it to provide a
+product that competes with it, for example by selling or publishing it, or a derivative of it,
+as your own product.
