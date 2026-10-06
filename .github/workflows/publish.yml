@@ -49,14 +49,18 @@ jobs:
       - name: Restore
         run: dotnet restore
 
+      # Test projects exercise the alpha-only fluent API, which is public only with FLUENT_ALPHA.
+      # Stable branches (master) get no prerelease tag from GitVersion, so force it for tests.
       - name: Build (Debug for tests)
-        run: dotnet build --configuration Debug --no-restore
+        run: dotnet build --configuration Debug --no-restore -p:FluentAlpha=true
 
       - name: Test (Debug)
         run: dotnet test --configuration Debug --no-build
 
+      # Package build: SDK project only and WITHOUT FluentAlpha, so stable packages keep the
+      # fluent API internal (GitVersion still enables it for prerelease versions).
       - name: Build (Release for package)
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj --configuration Release --no-restore
 
       - name: Pack
         run: dotnet pack src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj --configuration Release --no-build --output ./nupkgs
