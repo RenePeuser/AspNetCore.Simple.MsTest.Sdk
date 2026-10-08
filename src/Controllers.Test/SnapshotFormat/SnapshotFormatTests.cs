@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
 using Controllers.Api.Persons;
+using Controllers.Api.SdkScenarios;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -26,7 +26,7 @@ namespace Controllers.Test.SnapshotFormat
             var snapshot = SnapshotPath("BareBody.json");
             var original = await File.ReadAllTextAsync(snapshot).ConfigureAwait(false);
 
-            Assert.That.IsFalse(SnapshotShape.IsEnvelope(JToken.Parse(original)),
+            Assert.That.IsFalse(IsEnvelope(JToken.Parse(original)),
                                 because: "This test is about NOT migrating a bare body to the envelope. If the fixture already is an envelope there is nothing left to migrate and the test would pass for the wrong reason.",
                                 fix: "Restore Responses\\BareBody.json to a bare body (a plain array of persons, no 'content'/'statusCode' wrapper). A previous run may have rewritten it - that is the very bug under test.");
 
@@ -39,7 +39,7 @@ namespace Controllers.Test.SnapshotFormat
 
                 var written = JToken.Parse(await File.ReadAllTextAsync(snapshot).ConfigureAwait(false));
 
-                Assert.That.IsFalse(SnapshotShape.IsEnvelope(written),
+                Assert.That.IsFalse(IsEnvelope(written),
                                     because: "An existing snapshot has to keep the shape it has. Writing always emitted the envelope, so with write response enabled globally one run rewrote whole folders of bare-body snapshots.",
                                     fix: "Check SnapshotShape.MatchExisting: when the existing content is a bare body the envelope has to be unwrapped again before writing.");
 
@@ -91,41 +91,82 @@ namespace Controllers.Test.SnapshotFormat
             }
         }
 
+        /// <summary>
+        /// A body may well carry a property called "content" with a "value" inside - a blog post is the
+        /// obvious case. Only the envelope pairs that with a status code. Mistaking such a bare body for
+        /// an envelope would keep writing the envelope over it - the migration this class exists to stop.
+        /// </summary>
         [TestMethod]
-        public void ShapeDetectionMustNotMistakeABodyForAnEnvelope()
+        public async Task ABareBodyThatCarriesAContentPropertyMustStayABareBody()
         {
-            // A body may well carry a property called "content" - only the envelope pairs it with a
-            // "value" AND a status code.
-            var body = JToken.Parse("""{ "content": { "value": "a blog post" } }""");
+            var snapshot = SnapshotPath("BlogPostBareBody.json");
+            var original = await File.ReadAllTextAsync(snapshot).ConfigureAwait(false);
 
-            Assert.That.IsFalse(SnapshotShape.IsEnvelope(body),
-                                because: "A perfectly ordinary body may carry a property called 'content' - a blog post is the obvious case. Treating it as an envelope would unwrap the real payload away.",
-                                fix: "SnapshotShape.IsEnvelope must require content, content.value AND a statusCode together - any single one of them is not enough.");
+            try
+            {
+                // title is stale and compared, so the assert fails - after the writer ran.
+                await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<BlogPost>("api/v1/sdk-scenarios/blog-post",
+                                                                                                                  "Responses.BlogPostBareBody.json",
+                                                                                                                  writeResponse: true),
+                                                                            because: "The fixture holds the title 'Stale', so the comparison has to fail. If it passes, the snapshot was never compared.",
+                                                                            fix: "Restore SnapshotFormat\\Responses\\BlogPostBareBody.json - its title has to be 'Stale'.")
+                            .ConfigureAwait(false);
 
-            var envelope = JToken.Parse("""{ "content": { "value": {} }, "statusCode": "OK" }""");
+                var written = JToken.Parse(await File.ReadAllTextAsync(snapshot).ConfigureAwait(false));
 
-            Assert.That.IsTrue(SnapshotShape.IsEnvelope(envelope),
-                               because: "The full triple content + content.value + statusCode only occurs in the envelope, so this shape has to be recognised - otherwise every envelope would be rewritten as a bare body.",
-                               fix: "Check the property lookups in SnapshotShape.IsEnvelope - an empty 'value' object still counts as present.");
+                Assert.That.IsFalse(IsEnvelope(written),
+                                    because: "A perfectly ordinary body may carry 'content.value'. Treating it as an envelope would rewrite the bare body as an envelope - exactly the silent migration this class exists for.",
+                                    fix: "SnapshotShape.IsEnvelope must require content, content.value AND a statusCode together - any single one of them is not enough.");
+
+                Assert.That.AreEqual("a blog post",
+                                     written["content"]?["value"]?.ToString(),
+                                     because: "The body's own 'content.value' is payload, not a wrapper - it must not be unwrapped away.",
+                                     fix: "SnapshotShape.MatchExisting must only unwrap the sdk's envelope, never a body's own properties.");
+
+                Assert.That.AreEqual("Fresh",
+                                     written["title"]?.ToString(),
+                                     because: "The compared property has to be re-recorded - otherwise the writer never ran and the checks above prove nothing.",
+                                     fix: "Check that write response runs before the assert throws.");
+            }
+            finally
+            {
+                await File.WriteAllTextAsync(snapshot, original).ConfigureAwait(false);
+            }
         }
 
         [TestMethod]
-        public void MatchExistingMustLeaveANewSnapshotAsAnEnvelope()
+        public async Task ANewSnapshotMustBeWrittenAsAnEnvelope()
         {
-            const string envelope = /*lang=json,strict*/ """{ "content": { "value": [1,2] }, "statusCode": "OK" }""";
+            var snapshot = SnapshotPath("ZzNewSnapshotShape.json");
 
-            // No existing content - nothing to preserve, the envelope stays.
-            Assert.That.AreEqual(envelope,
-                                 SnapshotShape.MatchExisting(envelope, existingContent: null),
-                                 because: "With no existing content there is no shape to preserve, so the new snapshot keeps the envelope - that is the richer format and the intended default for anything created from now on.",
-                                 fix: "Check the null branch in SnapshotShape.MatchExisting: it has to return the envelope unchanged instead of unwrapping by default.");
+            try
+            {
+                await Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons",
+                                                                 "Responses.ZzNewSnapshotShape.json",
+                                                                 writeResponse: true)
+                            .ConfigureAwait(false);
 
-            var unwrapped = SnapshotShape.MatchExisting(envelope, existingContent: "[1,2]");
+                Assert.That.IsTrue(File.Exists(snapshot),
+                                   because: "writeResponse on a reference that does not exist yet has to create the snapshot.",
+                                   fix: $"Expected the snapshot at {snapshot}.");
 
-            Assert.That.AreEqual(new[] { 1, 2 },
-                                 JArray.Parse(unwrapped).Select(item => (int)item).ToList(),
-                                 because: "When the existing snapshot is a bare body the envelope has to be unwrapped down to exactly its payload - same elements, same order, nothing of the wrapper left over.",
-                                 fix: "Check that SnapshotShape.MatchExisting returns content.value verbatim when the existing content is not an envelope.");
+                Assert.That.IsTrue(IsEnvelope(JToken.Parse(await File.ReadAllTextAsync(snapshot).ConfigureAwait(false))),
+                                   because: "With no existing content there is no shape to preserve, so the new snapshot keeps the envelope - that is the richer format and the intended default for anything created from now on.",
+                                   fix: "Check the null branch in SnapshotShape.MatchExisting: it has to return the envelope unchanged instead of unwrapping by default.");
+            }
+            finally
+            {
+                if (File.Exists(snapshot))
+                {
+                    File.Delete(snapshot);
+                }
+            }
+        }
+
+        // The envelope is content + content.value + statusCode together.
+        private static bool IsEnvelope(JToken token)
+        {
+            return token is JObject envelope && envelope["content"]?["value"] is not null && envelope["statusCode"] is not null;
         }
 
         private static string SnapshotPath(string fileName,

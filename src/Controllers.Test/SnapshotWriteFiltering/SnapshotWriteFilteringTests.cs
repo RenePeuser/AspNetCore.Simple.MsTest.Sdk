@@ -4,13 +4,12 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
 using Controllers.Api.Persons;
 using Extensions.Pack;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Controllers.Test.SnapshotWriteFiltering
@@ -28,36 +27,19 @@ namespace Controllers.Test.SnapshotWriteFiltering
     ///   3. snapshot exists, some properties ignored   -> keep the snapshot value for those,
     ///                                                    update every other property
     ///
-    /// Case 3 is the anti-noise guarantee and lives in <see cref="DifferenceResponseWriter"/>: the
-    /// ignored paths get their value copied back from the expected snapshot before the file is written.
+    /// Every test drives the real thing from the outside: an <c>Assert.That.ObjectsAreEqual</c> with
+    /// <c>writeResponse: true</c> against its OWN embedded fixture, then reads the file the writer
+    /// produced and restores it. Fixtures that are compared must stay stale - a re-record destroys them.
     ///
-    /// Most tests drive the writer directly against a temp file - that keeps expected and current
-    /// under full control, which no endpoint can offer. <see cref="TheDifferenceFuncOfAnAssertMustReachTheWriter"/>
-    /// closes the loop and proves the func an author passes to an assert really arrives at the writer.
-    ///
-    /// Note on the global func: <c>IDifferenceFiltering.Apply</c> also runs
-    /// <see cref="TestSdkSettings.DifferenceFunc"/>, and this project sets it to
+    /// Note on the global func: this project sets <see cref="TestSdkSettings.DifferenceFunc"/> to
     /// <c>TestHelpers.IgnoreIdDifferences</c> in <see cref="ApiTestBase"/> - it drops every path
-    /// containing "id" or "deletedAt". The fixtures below therefore avoid those names, so that what a
-    /// test proves is caused by the mechanism the test is about.
+    /// containing "id" or "deletedAt". The fixtures therefore avoid those names, so that what a test
+    /// proves is caused by the mechanism the test is about.
     /// </summary>
     [TestClass]
     [TestCategory("SnapshotWriteFiltering")]
     public sealed class SnapshotWriteFilteringTests : ApiTestBase
     {
-        private const string SnapshotReference = "Responses.StaleFilteredWrite.json";
-
-        /// <summary>
-        /// The full set of json writers, exactly as <c>AddResponseWriter</c> registers them. Using the
-        /// set instead of a single writer means every test also proves the selection: for an existing
-        /// file in <see cref="ResponseWriteMode.DifferencesOnly"/> only the difference writer may claim
-        /// the request - <see cref="ResponseWriter"/> throws when two writers do.
-        /// </summary>
-        private static IResponseWriter CreateWriter()
-        {
-            return Services.GetRequiredService<IResponseWriter>();
-        }
-
         // ============================================================
         // Guard - the writers are a DEBUG only feature.
         // ============================================================
@@ -71,26 +53,54 @@ namespace Controllers.Test.SnapshotWriteFiltering
         }
 
         // ============================================================
+        // The gate - nothing is written unless asked for.
+        // ============================================================
+
+        [TestMethod]
+        public void WithoutAnyRequestNothingIsWritten()
+        {
+            var recording = Record("WriteFilteringFlat.json",
+                                   current: /*lang=json,strict*/ """{"name":"Vegeta","age":100}""",
+                                   writeResponse: false);
+
+            Assert.That.IsTrue(recording.AssertFailed,
+                               because: "name and age both differ, so the comparison has to fail - writeResponse false only turns off recording, not the assertion.",
+                               fix: "Check that the fixture WriteFilteringFlat.json still holds name 'Son' and age 99.");
+
+            Assert.That.AreEqual(recording.Original,
+                                 recording.Written,
+                                 because: "writeResponse false is the default and must leave the file byte-identical. A test run that silently re-records turns every later run green and destroys the fixture for everyone else.",
+                                 fix: "Check the write gate in WriteResponseService - without writeResponse and without TestSdkSettings.WriteResponse it has to refuse.");
+        }
+
+        // ============================================================
         // Case 1 - the snapshot does not exist yet: write everything.
         // ============================================================
 
         [TestMethod]
         public void ASnapshotThatDoesNotExistYetMustBeWrittenInFull()
         {
-            var folder = Directory.CreateTempSubdirectory("snapshot-write-filtering");
+            var snapshot = SnapshotPath("WriteFilteringNotRecordedYet.json");
+
+            if (File.Exists(snapshot))
+            {
+                File.Delete(snapshot);
+            }
 
             try
             {
-                var file = new FileInfo(Path.Combine(folder.FullName, "Snapshot.json"));
-
                 // Nothing to preserve and nothing to compare against - a filter must not cost content here.
-                CreateWriter().Write(Request(file,
-                                             expected: string.Empty,
-                                             current: /*lang=json,strict*/ """{"name":"Son","age":99}""",
-                                             mode: ResponseWriteMode.OverwriteAll,
-                                             differenceFilter: static _ => false));
+                Assert.That.ObjectsAreEqual("Responses.WriteFilteringNotRecordedYet.json",
+                                            JsonNode.Parse( /*lang=json,strict*/ """{"name":"Son","age":99}"""),
+                                            differences => differences,
+                                            differenceFilter: static _ => false,
+                                            writeResponse: true);
 
-                var written = JToken.Parse(File.ReadAllText(file.FullName));
+                Assert.That.IsTrue(File.Exists(snapshot),
+                                   because: "writeResponse on a reference that does not exist yet has to create the snapshot.",
+                                   fix: $"Expected the snapshot at {snapshot}. Check the writeResponse exemption in SnapshotReferenceGuard and that OverwriteAllResponseWriter claims a file that does not exist.");
+
+                var written = JToken.Parse(File.ReadAllText(snapshot));
 
                 Assert.That.AreEqual("Son",
                                      written["name"]?.ToString(),
@@ -104,7 +114,10 @@ namespace Controllers.Test.SnapshotWriteFiltering
             }
             finally
             {
-                folder.Delete(recursive: true);
+                if (File.Exists(snapshot))
+                {
+                    File.Delete(snapshot);
+                }
             }
         }
 
@@ -115,8 +128,8 @@ namespace Controllers.Test.SnapshotWriteFiltering
         [TestMethod]
         public void WithoutAnyFilteringEveryDifferenceMustBeWritten()
         {
-            var written = Write(expected: /*lang=json,strict*/ """{"name":"Son","age":99}""",
-                                current: /*lang=json,strict*/ """{"name":"Vegeta","age":100}""");
+            var written = Record("WriteFilteringFlat.json",
+                                 current: /*lang=json,strict*/ """{"name":"Vegeta","age":100}""").Json;
 
             Assert.That.AreEqual("Vegeta",
                                  written["name"]?.ToString(),
@@ -136,9 +149,9 @@ namespace Controllers.Test.SnapshotWriteFiltering
         [TestMethod]
         public void AnIgnoredPropertyMustKeepItsSnapshotValue()
         {
-            var written = Write(expected: /*lang=json,strict*/ """{"name":"Son","age":99}""",
-                                current: /*lang=json,strict*/ """{"name":"Son","age":100}""",
-                                differenceFilter: KeepUnlessAge);
+            var written = Record("WriteFilteringFlat.json",
+                                 current: /*lang=json,strict*/ """{"name":"Son","age":100}""",
+                                 differenceFilter: KeepUnlessAge).Json;
 
             Assert.That.AreEqual("99",
                                  written["age"]?.ToString(),
@@ -150,9 +163,9 @@ namespace Controllers.Test.SnapshotWriteFiltering
         public void AnIgnoredPropertyMustNotStopItsNeighbourFromBeingUpdated()
         {
             // The real world case: one volatile property, one that genuinely changed.
-            var written = Write(expected: /*lang=json,strict*/ """{"name":"Son","age":99}""",
-                                current: /*lang=json,strict*/ """{"name":"Vegeta","age":100}""",
-                                differenceFilter: KeepUnlessAge);
+            var written = Record("WriteFilteringFlat.json",
+                                 current: /*lang=json,strict*/ """{"name":"Vegeta","age":100}""",
+                                 differenceFilter: KeepUnlessAge).Json;
 
             Assert.That.AreEqual("99",
                                  written["age"]?.ToString(),
@@ -170,9 +183,9 @@ namespace Controllers.Test.SnapshotWriteFiltering
         {
             // Two ways to say the same thing - a func that drops from the list, a predicate per item.
             // The writer must not care which one the author used.
-            var written = Write(expected: /*lang=json,strict*/ """{"name":"Son","age":99}""",
-                                current: /*lang=json,strict*/ """{"name":"Vegeta","age":100}""",
-                                differenceFunc: DropAge);
+            var written = Record("WriteFilteringFlat.json",
+                                 current: /*lang=json,strict*/ """{"name":"Vegeta","age":100}""",
+                                 differenceFunc: DropAge).Json;
 
             Assert.That.AreEqual("99",
                                  written["age"]?.ToString(),
@@ -188,9 +201,9 @@ namespace Controllers.Test.SnapshotWriteFiltering
         [TestMethod]
         public void AnIgnoredNestedPropertyMustKeepItsSnapshotValue()
         {
-            var written = Write(expected: /*lang=json,strict*/ """{"person":{"name":"Son","age":99}}""",
-                                current: /*lang=json,strict*/ """{"person":{"name":"Vegeta","age":100}}""",
-                                differenceFilter: KeepUnlessAge);
+            var written = Record("WriteFilteringNested.json",
+                                 current: /*lang=json,strict*/ """{"person":{"name":"Vegeta","age":100}}""",
+                                 differenceFilter: KeepUnlessAge).Json;
 
             Assert.That.AreEqual("99",
                                  written["person"]?["age"]?.ToString(),
@@ -206,9 +219,10 @@ namespace Controllers.Test.SnapshotWriteFiltering
         [TestMethod]
         public void AnIgnoredArrayElementMustKeepItsSnapshotValue()
         {
-            var written = Write(expected: /*lang=json,strict*/ """{"values":["a","b"]}""",
-                                current: /*lang=json,strict*/ """{"values":["a","CHANGED"]}""",
-                                differenceFilter: static difference => difference.MemberPath.Contains("[1]", StringComparison.Ordinal).IsFalse());
+            // name differs and is compared - proof that the writer really ran.
+            var written = Record("WriteFilteringValues.json",
+                                 current: /*lang=json,strict*/ """{"name":"Vegeta","values":["a","CHANGED"]}""",
+                                 differenceFilter: static difference => difference.MemberPath.Contains("[1]", StringComparison.Ordinal).IsFalse()).Json;
 
             Assert.That.AreEqual("b",
                                  written["values"]?[1]?.ToString(),
@@ -219,22 +233,29 @@ namespace Controllers.Test.SnapshotWriteFiltering
                                  written["values"]?[0]?.ToString(),
                                  because: "The untouched element must survive the restore - writing an index must not rebuild or truncate the array.",
                                  fix: "Check that AddOrUpdate only assigns the one index instead of replacing the JArray.");
+
+            Assert.That.AreEqual("Vegeta",
+                                 written["name"]?.ToString(),
+                                 because: "The compared property has to be re-recorded - otherwise the writer never ran and the two checks above prove nothing.",
+                                 fix: "Check that write response runs before the assert throws in AssertService.ObjectsAreEqual.");
         }
 
         [TestMethod]
         public void AWriteWhereEveryDifferenceIsIgnoredMustLeaveTheFileUnchanged()
         {
             // The strictest form of the promise, and the one a reviewer actually sees: not "the values
-            // are equal again" but "git reports nothing at all" - byte for byte, formatting included.
-            var expected = Indented( /*lang=json,strict*/ """{"name":"Son","age":99,"city":"West City"}""");
-
-            var written = WriteRaw(expected: expected,
+            // are equal again" but "git reports nothing at all" - formatting included.
+            var recording = Record("WriteFilteringAllIgnored.json",
                                    current: /*lang=json,strict*/ """{"name":"Vegeta","age":100,"city":"East City"}""",
                                    differenceFilter: static _ => false);
 
-            Assert.That.AreEqual(expected,
-                                 written,
-                                 because: "When every difference is ignored the re-record has nothing to record. The file has to come out byte identical - a reordered property or a changed indentation is git noise just like a changed value.",
+            Assert.That.IsFalse(recording.AssertFailed,
+                                because: "Every difference is ignored, so the assert has to pass. A failure here means the snapshot was not resolved at all - and an unresolved snapshot would leave the file unchanged for the wrong reason.",
+                                fix: "Check that Responses.WriteFilteringAllIgnored.json is embedded and resolves.");
+
+            Assert.That.AreEqual(Normalized(recording.Original),
+                                 Normalized(recording.Written),
+                                 because: "When every difference is ignored the re-record has nothing to record. The file has to come out unchanged - a reordered property or a changed indentation is git noise just like a changed value.",
                                  fix: "Check DifferenceResponseWriter.Write: the result is the current response with all ignored paths restored, serialized indented. If only the values match but the text does not, compare the serializer settings with the format the snapshot was written in.");
         }
 
@@ -245,13 +266,18 @@ namespace Controllers.Test.SnapshotWriteFiltering
         [TestMethod]
         public void AnIgnoredPropertyThatOnlyExistsInTheResponseMustNotBeAdded()
         {
-            var written = Write(expected: /*lang=json,strict*/ """{"name":"Son"}""",
-                                current: /*lang=json,strict*/ """{"name":"Son","trace":"7f3a-91"}""",
-                                differenceFilter: static difference => difference.MemberPath.Contains("trace", StringComparison.OrdinalIgnoreCase).IsFalse());
+            var written = Record("WriteFilteringNameOnly.json",
+                                 current: /*lang=json,strict*/ """{"name":"Vegeta","trace":"7f3a-91"}""",
+                                 differenceFilter: static difference => difference.MemberPath.Contains("trace", StringComparison.OrdinalIgnoreCase).IsFalse()).Json;
 
             Assert.That.IsNull(written["trace"],
                                because: "A property that appears in the response but is ignored must not enter the snapshot. 'trace' is the textbook case - a value that is new on every call. Recording it once means a diff on every re-record from then on, which is the noise the filtering was supposed to prevent.",
                                fix: "Check DifferenceResponseWriter.Write: for an ignored path the expected snapshot has no token to copy back, so the branch is skipped and the new property survives in the result. That case has to remove the path from the result instead - see JsonPathWriter.Remove.");
+
+            Assert.That.AreEqual("Vegeta",
+                                 written["name"]?.ToString(),
+                                 because: "The compared property has to be re-recorded - otherwise the writer never ran and the check above proves nothing.",
+                                 fix: "Check that write response runs before the assert throws in AssertService.ObjectsAreEqual.");
         }
 
         [TestMethod]
@@ -259,18 +285,23 @@ namespace Controllers.Test.SnapshotWriteFiltering
         {
             // JsonDiffer addresses key-value arrays by key instead of by index, so the ignored path
             // reads settings["theme"].Value - a shape JsonPathWriter has to understand as well.
-            var written = Write(expected: /*lang=json,strict*/ """{"settings":[{"Key":"theme","Value":"dark"}]}""",
-                                current: /*lang=json,strict*/ """{"settings":[{"Key":"theme","Value":"light"}]}""",
-                                differenceFilter: static _ => false);
+            var written = Record("WriteFilteringKeyValue.json",
+                                 current: /*lang=json,strict*/ """{"name":"Vegeta","settings":[{"Key":"theme","Value":"light"}]}""",
+                                 differenceFilter: static difference => difference.MemberPath.Contains("settings", StringComparison.OrdinalIgnoreCase).IsFalse()).Json;
 
             Assert.That.AreEqual("dark",
                                  written["settings"]?[0]?["Value"]?.ToString(),
                                  because: "Key-value arrays are a normal payload shape, and an ignored difference in one has to be protected like any other - otherwise the guarantee silently depends on how the diff happened to spell the path.",
                                  fix: "JsonDiffer builds 'settings[\"theme\"].Value' for these arrays. Check that both the SelectToken lookup in DifferenceResponseWriter and JsonPathWriter.GetParentPath/GetLastSegment can resolve a quoted key segment, not only a numeric index.");
+
+            Assert.That.AreEqual("Vegeta",
+                                 written["name"]?.ToString(),
+                                 because: "The compared property has to be re-recorded - otherwise the writer never ran and the check above proves nothing.",
+                                 fix: "Check that write response runs before the assert throws in AssertService.ObjectsAreEqual.");
         }
 
         // ============================================================
-        // End to end - the func an author writes has to reach the writer.
+        // End to end over http - the func an author writes has to reach the writer.
         // ============================================================
 
         [TestMethod]
@@ -290,7 +321,7 @@ namespace Controllers.Test.SnapshotWriteFiltering
             {
                 // firstName differs and is compared, so the assert fails - after the writer ran.
                 await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<IEnumerable<Person>>("api/v1/persons",
-                                                                                                                             SnapshotReference,
+                                                                                                                             "Responses.StaleFilteredWrite.json",
                                                                                                                              differenceFunc: DropAge,
                                                                                                                              writeResponse: true),
                                                                             because: "'firstName' is not filtered out and the fixture holds 'Stale', so the assert has to fail. If it passes, the comparison never saw the snapshot and everything below would be measuring nothing.",
@@ -319,6 +350,52 @@ namespace Controllers.Test.SnapshotWriteFiltering
         // Helpers
         // ============================================================
 
+        private sealed record Recording(string Original,
+                                        string Written,
+                                        bool AssertFailed)
+        {
+            public JToken Json => JToken.Parse(Written);
+        }
+
+        /// <summary>
+        /// Asserts <paramref name="current" /> against the embedded fixture with write response on, hands
+        /// back the file as the writer left it - as text, so a test can also look at the formatting - and
+        /// restores the fixture. A compared difference fails the assert AFTER the writer ran.
+        /// </summary>
+        private static Recording Record(string fixture,
+                                        string current,
+                                        Func<ImmutableList<Difference>, IEnumerable<Difference>>? differenceFunc = null,
+                                        Predicate<Difference>? differenceFilter = null,
+                                        bool writeResponse = true)
+        {
+            var snapshot = SnapshotPath(fixture);
+            var original = File.ReadAllText(snapshot);
+
+            try
+            {
+                var assertFailed = false;
+
+                try
+                {
+                    Assert.That.ObjectsAreEqual($"Responses.{fixture}",
+                                                JsonNode.Parse(current),
+                                                differenceFunc ?? (differences => differences),
+                                                differenceFilter,
+                                                writeResponse: writeResponse);
+                }
+                catch (AssertFailedException)
+                {
+                    assertFailed = true;
+                }
+
+                return new Recording(original, File.ReadAllText(snapshot), assertFailed);
+            }
+            finally
+            {
+                File.WriteAllText(snapshot, original);
+            }
+        }
+
         private static IEnumerable<Difference> DropAge(ImmutableList<Difference> differences)
         {
             return differences.Where(difference => difference.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase).IsFalse());
@@ -329,80 +406,16 @@ namespace Controllers.Test.SnapshotWriteFiltering
             return difference.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase).IsFalse();
         }
 
-        private static string Indented(string json)
+        // Git may check the fixture out with either line ending - the promise is about content and layout.
+        private static string Normalized(string text)
         {
-            return JToken.Parse(json).ToString(Formatting.Indented);
-        }
-
-        private static JToken Write(string expected,
-                                    string current,
-                                    Func<ImmutableList<Difference>, IEnumerable<Difference>>? differenceFunc = null,
-                                    Predicate<Difference>? differenceFilter = null)
-        {
-            return JToken.Parse(WriteRaw(expected, current, differenceFunc,
-                                         differenceFilter));
-        }
-
-        /// <summary>
-        /// Runs the writers against a temp snapshot and hands back the file as it was written - as text,
-        /// so a test can also look at the formatting.
-        /// </summary>
-        private static string WriteRaw(string expected,
-                                       string current,
-                                       Func<ImmutableList<Difference>, IEnumerable<Difference>>? differenceFunc = null,
-                                       Predicate<Difference>? differenceFilter = null)
-        {
-            var folder = Directory.CreateTempSubdirectory("snapshot-write-filtering");
-
-            try
-            {
-                var file = new FileInfo(Path.Combine(folder.FullName, "Snapshot.json"));
-                File.WriteAllText(file.FullName, expected);
-
-                CreateWriter().Write(Request(file, expected, current,
-                                             ResponseWriteMode.DifferencesOnly, differenceFunc, differenceFilter));
-
-                return File.ReadAllText(file.FullName);
-            }
-            finally
-            {
-                folder.Delete(recursive: true);
-            }
-        }
-
-        private static WriteResponseRequest Request(FileInfo file,
-                                                    string expected,
-                                                    string current,
-                                                    ResponseWriteMode mode,
-                                                    Func<ImmutableList<Difference>, IEnumerable<Difference>>? differenceFunc = null,
-                                                    Predicate<Difference>? differenceFilter = null)
-        {
-            return new WriteResponseRequest
-            {
-                CallingAssembly = typeof(SnapshotWriteFilteringTests).Assembly,
-                CurrentResponseAsString = current,
-                ExpectedResult = new EmbeddedFileInfo("Responses.Snapshot.json", expected, file),
-                Parameters = [],
-                DifferenceFunc = differenceFunc ?? (differences => differences),
-                DifferenceFilter = differenceFilter ?? (static _ => true),
-                Mode = mode,
-                CallerFilePath = ThisFile(),
-                CallerLineNumber = 0,
-                ExpectedResultParameterName = nameof(SnapshotReference),
-                ExpectedType = typeof(object),
-                ExpectedObject = null
-            };
+            return text.Replace("\r\n", "\n", StringComparison.Ordinal).TrimEnd();
         }
 
         private static string SnapshotPath(string fileName,
                                            [CallerFilePath] string callerFilePath = "")
         {
             return Path.Combine(new FileInfo(callerFilePath).Directory!.FullName, "Responses", fileName);
-        }
-
-        private static string ThisFile([CallerFilePath] string callerFilePath = "")
-        {
-            return callerFilePath;
         }
     }
 }

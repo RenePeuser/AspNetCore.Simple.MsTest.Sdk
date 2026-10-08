@@ -1,8 +1,8 @@
 using AspNetCore.Simple.MsTest.Sdk;
-using Microsoft.Extensions.DependencyInjection;
+using Core.Test.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Controllers.Test
+namespace Core.Test.JsonDiffing
 {
     /// <summary>
     /// Challenge tests for JSON diff logic:
@@ -22,15 +22,6 @@ namespace Controllers.Test
 
         private const string CountFix = "Compare the reported paths in the Details above with the two documents: too many findings means JsonDiffer also reports properties that are identical, too few means it stops descending too early.";
 
-        private static IJsonDiffer _jsonDiffer = null!;
-
-        [TestInitialize]
-        public void Initialize()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddJsonDiffer();
-            _jsonDiffer = serviceCollection.BuildServiceProvider().GetRequiredService<IJsonDiffer>();
-        }
 
         #region Properties in Current/Response missing in Expected (MissingInFirst)
 
@@ -54,7 +45,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(1,
                                  diffs,
@@ -92,7 +83,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(4,
                                  diffs,
@@ -143,7 +134,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(1,
                                  diffs,
@@ -186,7 +177,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(1,
                                  diffs,
@@ -225,7 +216,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(1,
                                  diffs,
@@ -263,7 +254,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(4,
                                  diffs,
@@ -314,7 +305,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(1,
                                  diffs,
@@ -357,7 +348,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(1,
                                  diffs,
@@ -395,7 +386,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(2,
                                  diffs,
@@ -444,7 +435,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             // Expected differences:
             // 1. user.name: ValueDifference (Alice vs Bob)
@@ -507,7 +498,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(2,
                                  diffs,
@@ -535,7 +526,7 @@ namespace Controllers.Test
             // Current: empty object
             var current = /*lang=json,strict*/ """{}""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(2,
                                  diffs,
@@ -578,7 +569,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(2,
                                  diffs,

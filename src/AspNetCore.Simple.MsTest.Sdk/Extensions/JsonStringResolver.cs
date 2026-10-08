@@ -134,8 +134,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                   .TrimEnd(Environment.NewLine.ToCharArray());
             }
 
-            // 6. Handle SimpleHttpResponseMessage special case
-            if (targetTypeInfo.NotEqualsTo(typeof(SimpleHttpResponseMessage)))
+            // 6. Handle SimpleHttpResponseMessage special case - only for a real envelope. A body may
+            //    carry 'content.value' itself (a blog post); unwrapping that would hand back a fragment.
+            if (targetTypeInfo.NotEqualsTo(typeof(SimpleHttpResponseMessage)) &&
+                SnapshotShape.IsEnvelope(trimmedJsonValue))
             {
                 var httpResponseMessage = trimmedJsonValue.FromJsonStringOrDefault<SimpleHttpResponseMessage>();
 

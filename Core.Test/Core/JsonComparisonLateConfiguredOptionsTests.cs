@@ -1,12 +1,10 @@
 using System;
+using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.Comparison;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Controllers.Test
+namespace Core.Test.Core
 {
     /// <summary>
     /// An api may keep configuring its <see cref="JsonSerializerOptions"/> until they are first used -
@@ -15,11 +13,12 @@ namespace Controllers.Test
     /// </summary>
     [TestClass]
     [TestCategory("JsonComparison")]
+    [DoNotParallelize] // GlobalTestSdkSettings swaps the global settings.
     public sealed class JsonComparisonLateConfiguredOptionsTests
     {
-        private const string Because = "The comparison serializes both sides through the declared base type. Without the api's polymorphism only the base properties are written, so every derived property silently drops out of the diff and the assert passes on data it never looked at.";
+        private const string Because = "The comparison serializes both sides through the declared base type. Without the api's polymorphism only the base properties are written, so every derived property silently drops out of the comparison.";
 
-        private const string Fix = "Check ComparisonJsonOptions.ForComparison: it may only cache its copy once the source options are read only. A copy cached earlier is a snapshot that never sees a TypeInfoResolver the api adds afterwards. Also check that no caller captures the result of ForComparison in a field.";
+        private const string Fix = "Check ComparisonJsonOptions.ForComparison: it may only cache its copy once the source options are read only. A copy cached earlier is a snapshot that never sees a TypeInfoResolver configured afterwards.";
 
         [TestMethod]
         public void ShouldCompareDerivedProperties_WhenPolymorphismIsConfiguredAfterFirstComparison()
@@ -31,11 +30,7 @@ namespace Controllers.Test
                 DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
             };
 
-            var services = new ServiceCollection();
-            services.AddSingleton(apiJsonSerializerOptions);
-            services.AddComparisonStrategy();
-
-            var comparisonStrategy = services.BuildServiceProvider().GetRequiredService<IComparisonStrategy>();
+            using var globalSettings = GlobalTestSdkSettings.Use(settings => settings.JsonSerializerOptions = apiJsonSerializerOptions);
 
             Animal expected = new Dog
             {
@@ -49,16 +44,26 @@ namespace Controllers.Test
                 Toy = "ball"
             };
 
-            // 1. A comparison before the api has finished configuring its options
-            comparisonStrategy.Compare(CreateContext(expected, current));
+            // 1. A comparison before the api has finished configuring its options - only the base
+            //    properties are known, so it passes.
+            Assert.That.ObjectsAreEqual(expected, current);
 
             // 2. The api adds its polymorphism afterwards - the options were never used for serialization yet
             apiJsonSerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver().WithAddedModifier(AddAnimalPolymorphism);
 
             // 3. Every comparison from now on has to see the derived properties
-            var result = comparisonStrategy.Compare(CreateContext(expected, current));
+            var differences = ImmutableList<Difference>.Empty;
 
-            Assert.That.Any(result.Differences,
+            Assert.That.ObjectsAreEqual(expected,
+                                        current,
+                                        differenceFunc: found =>
+                                        {
+                                            differences = found;
+
+                                            return [];
+                                        });
+
+            Assert.That.Any(differences,
                             difference => difference.MemberPath.Contains("toy", StringComparison.OrdinalIgnoreCase),
                             predicateDescription: "a difference on the derived property 'toy'",
                             because: Because,
@@ -80,33 +85,6 @@ namespace Controllers.Test
             polymorphismOptions.DerivedTypes.Add(new JsonDerivedType(typeof(Dog), "dog"));
 
             jsonTypeInfo.PolymorphismOptions = polymorphismOptions;
-        }
-
-        private static ObjectAssertContext<Animal> CreateContext(Animal expected,
-                                                                 Animal current)
-        {
-            var context = new ObjectAssertContext<Animal>
-            {
-                CallerFilePath = string.Empty,
-                CallerLineNumber = 0,
-                CallerMemberName = string.Empty,
-                CallingAssembly = typeof(JsonComparisonLateConfiguredOptionsTests).Assembly,
-                Current = current,
-                CurrentObject = current,
-                CurrentResultParameterName = nameof(current),
-                DifferenceFunc = differences => differences,
-                Expected = expected,
-                ExpectedObjectAsJson = string.Empty,
-                ExpectedResultFile = new EmbeddedFileInfo(string.Empty, string.Empty, null),
-                ExpectedResultParameterName = nameof(expected),
-                ExpectedType = typeof(Animal),
-                Parameters = [],
-                ResolvedExpectedJson = null,
-                TypeIsPrimitiveType = false,
-                WriteResponse = false
-            };
-
-            return context;
         }
 
         internal abstract record Animal

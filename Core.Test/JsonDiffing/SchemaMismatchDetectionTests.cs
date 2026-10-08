@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
 using AspNetCore.Simple.MsTest.Sdk;
-using Microsoft.Extensions.DependencyInjection;
+using Core.Test.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Controllers.Test
+namespace Core.Test.JsonDiffing
 {
     /// <summary>
     /// Challenge tests for Schema Mismatch Detection Logic:
@@ -29,15 +29,6 @@ namespace Controllers.Test
 
         private const string RuleFix = "The rule lives wherever hasSchemaMismatch is computed: a difference counts as a schema mismatch only when its MismatchType is not ValueDifference AND its MemberPath does not end with ']'. Check both halves - and check what JsonDiffer reported as MismatchType and MemberPath in the Details above.";
 
-        private static IJsonDiffer _jsonDiffer = null!;
-
-        [TestInitialize]
-        public void Initialize()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddJsonDiffer();
-            _jsonDiffer = serviceCollection.BuildServiceProvider().GetRequiredService<IJsonDiffer>();
-        }
 
         #region Schema Mismatch Indicators (MissingInFirst or MissingInSecond)
 
@@ -52,7 +43,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "id": 1 }""";
             var current = /*lang=json,strict*/ """{ "id": 1, "email": "test@example.com" }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             var emailDiff = diffs.FirstOrDefault(d => d.MemberPath == "email");
 
@@ -77,7 +68,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "id": 1, "email": "test@example.com" }""";
             var current = /*lang=json,strict*/ """{ "id": 1 }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             var emailDiff = diffs.FirstOrDefault(d => d.MemberPath == "email");
 
@@ -102,7 +93,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "name": "Expected" }""";
             var current = /*lang=json,strict*/ """{ "name": "Current" }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             var nameDiff = diffs.FirstOrDefault(d => d.MemberPath == "name");
 
@@ -126,7 +117,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "id": 1 }""";
             var current = /*lang=json,strict*/ """{ "id": 1, "extra": "value" }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.Any(diffs,
                             SchemaMismatchRule,
@@ -141,7 +132,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "id": 1, "required": "value" }""";
             var current = /*lang=json,strict*/ """{ "id": 1 }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.Any(diffs,
                             SchemaMismatchRule,
@@ -156,7 +147,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "name": "Expected", "value": 1 }""";
             var current = /*lang=json,strict*/ """{ "name": "Current", "value": 2 }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.None(diffs,
                              SchemaMismatchRule,
@@ -171,7 +162,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "id": 1, "name": "Test" }""";
             var current = /*lang=json,strict*/ """{ "id": 1, "name": "Test" }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.IsEmpty(diffs,
                                 because: "The two documents are identical, so the differ must report nothing at all - a phantom difference here would make every unchanged snapshot fail.",
@@ -196,7 +187,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "items": [1, 2] }""";
             var current = /*lang=json,strict*/ """{ "items": [1, 2, 3] }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.Any(diffs,
                             d => d.MemberPath.EndsWith(']'),
@@ -228,7 +219,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.Any(diffs,
                             d => d.MemberPath.Contains('[') && !d.MemberPath.EndsWith(']'),
@@ -265,7 +256,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.Any(diffs,
                             d => d.MismatchType == MismatchType.MissingInFirst,
@@ -304,7 +295,7 @@ namespace Controllers.Test
                                                }
                                                """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.None(diffs,
                              SchemaMismatchRule,
@@ -321,7 +312,7 @@ namespace Controllers.Test
 
             foreach (var testCase in testCases)
             {
-                var diffs = _jsonDiffer.FindDifferences(testCase.Expected, testCase.Current);
+                var diffs = JsonDifferences.Of(testCase.Expected, testCase.Current);
 
                 Assert.That.Any(diffs,
                                 SchemaMismatchRule,
@@ -335,7 +326,7 @@ namespace Controllers.Test
 
             foreach (var testCase in noSchemaMismatchCases)
             {
-                var diffs = _jsonDiffer.FindDifferences(testCase.Expected, testCase.Current);
+                var diffs = JsonDifferences.Of(testCase.Expected, testCase.Current);
 
                 Assert.That.None(diffs,
                                  SchemaMismatchRule,

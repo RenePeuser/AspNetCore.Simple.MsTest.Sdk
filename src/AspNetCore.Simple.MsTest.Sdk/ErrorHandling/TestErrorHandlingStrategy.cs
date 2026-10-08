@@ -72,9 +72,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
                                               Exception exception)
         {
             // 1. Find all handlers that can handle this exception type, in registration order.
-            //    The default handler is registered last so it acts as a catch-all.
+            //    The default handler is the catch-all - it goes last even when a consumer registers
+            //    its own ITestErrorHandler after AddAssertableHttpClient.
             var compatibleHandlers = testErrorHandlers
                                      .Where(handler => handler.CanHandle(exception))
+                                     .OrderBy(handler => handler is DefaultErrorHandler)
                                      .ToList();
 
             // 2. Ask them in turn. An empty answer means "I have nothing useful to say about THIS

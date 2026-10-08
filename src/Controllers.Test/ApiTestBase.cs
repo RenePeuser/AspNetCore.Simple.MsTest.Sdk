@@ -2,7 +2,9 @@ using System;
 using System.Net.Http;
 using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
+using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
 using Controllers.Test.Api.Persons.V1.Shared;
+using Controllers.Test.ErrorHandling;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 [assembly: Parallelize(Scope = ExecutionScope.ClassLevel)]
@@ -44,6 +46,10 @@ namespace Controllers.Test
                                                     {
                                                         services.AddAssertableHttpClient(configuration,
                                                                                          settings => settings.DifferenceFunc = TestHelpers.IgnoreIdDifferences);
+
+                                                        // Own error handlers - see ErrorHandling\ErrorHandlerSelectionTests.
+                                                        services.AddSingleton<ITestErrorHandler, DomainRuleErrorHandler>();
+                                                        services.AddSingleton<ITestErrorHandler, SilentErrorHandler>();
                                                     }); // Configure environment variables
 
             Client = _apiTestBase.CreateClient();

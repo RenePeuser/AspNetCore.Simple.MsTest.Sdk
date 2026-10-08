@@ -6,7 +6,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
     /// <summary>
     /// Defines a contract for handling specific exception types in test assertions.
     /// </summary>
-    internal interface ITestErrorHandler
+    public interface ITestErrorHandler
     {
         /// <summary>
         /// Determines whether this handler can process the specified exception.
@@ -38,7 +38,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
     /// Provides automatic type checking and delegation to derived classes.
     /// </summary>
     /// <typeparam name="TException">The specific exception type this handler processes.</typeparam>
-    internal abstract class TestErrorHandler<TException> : ITestErrorHandler where TException : Exception
+    public abstract class TestErrorHandler<TException> : ITestErrorHandler where TException : Exception
     {
         /// <summary>
         /// Determines whether this handler can process the specified exception.

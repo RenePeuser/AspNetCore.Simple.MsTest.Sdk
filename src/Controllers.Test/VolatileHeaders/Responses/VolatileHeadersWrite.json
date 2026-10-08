@@ -1,0 +1,29 @@
+{
+  "content": {
+    "headers": [
+      {
+        "key": "Content-Type",
+        "value": [
+          "application/json; charset=utf-8"
+        ]
+      }
+    ],
+    "value": {
+      "content": {
+        "value": "a blog post"
+      },
+      "title": "Stale"
+    }
+  },
+  "statusCode": "OK",
+  "headers": [
+    {
+      "key": "X-Business-Relevant",
+      "value": [
+        "keep me"
+      ]
+    }
+  ],
+  "trailingHeaders": [],
+  "isSuccessStatusCode": true
+}

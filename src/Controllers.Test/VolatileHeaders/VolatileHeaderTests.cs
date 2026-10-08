@@ -1,12 +1,13 @@
+using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using Controllers.Api.Persons;
+using Controllers.Api.SdkScenarios;
+using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -25,88 +26,55 @@ namespace Controllers.Test.VolatileHeaders
     [TestCategory("VolatileHeaders")]
     public sealed class VolatileHeaderTests : ApiTestBase
     {
+        private const string Url = "api/v1/sdk-scenarios/volatile-headers";
+
         [TestMethod]
-        public void TheFilterMustDropTheConfiguredNamesAndKeepEverythingElse()
+        public async Task ARecordedEnvelopeMustNotCarryVolatileHeaders()
         {
-            var headers = ImmutableList.Create(Header("traceparent", "00-abc-def-01"),
-                                               Header("X-AMZN-TRACE-ID", "Root=1-2-3"), // casing must not matter
-                                               Header("Content-Type", "application/json"),
-                                               Header("X-Business-Relevant", "keep me"));
+            Assert.That.IsTrue(typeof(VolatileHeaderTests).Assembly.IsCompiledInDebug(),
+                               because: "Every response writer bails out for non DEBUG assemblies - in a RELEASE build nothing would be written.",
+                               fix: "Run this test from a DEBUG build, or exclude it from RELEASE runs.");
 
-            var filtered = headers.WithoutVolatileHeaders(new TestSdkSettings());
+            var snapshot = SnapshotPath("VolatileHeadersWrite.json");
+            var original = await File.ReadAllTextAsync(snapshot).ConfigureAwait(false);
 
-            Assert.That.AreEquivalent(new[] { "Content-Type", "X-Business-Relevant" },
-                                      filtered.Select(header => header.Key).ToList(),
-                                      because: "The filter has to drop exactly the configured names - case-insensitively, hence X-AMZN-TRACE-ID in upper case - and leave every other header untouched. Dropping too much would lose business-relevant headers, dropping too little keeps the re-record noise.",
-                                      fix: "Check WithoutVolatileHeaders in VolatileHeaderFilter: the name comparison has to be case-insensitive and must only consider TestSdkSettings.VolatileHeaderNames.");
-        }
-
-        /// <summary>
-        /// The envelope is what gets written, so every header bearing part of it has to be covered -
-        /// missing one would leave the noise in the file it was supposed to keep clean.
-        /// </summary>
-        [TestMethod]
-        public void EveryHeaderCollectionOfTheWrittenEnvelopeMustBeFiltered()
-        {
-            var content = new SimpleHttpContent
+            try
             {
-                Headers = ImmutableList.Create(Header("Date", "Tue, 26 Aug 2025 09:14:07 GMT"),
-                                                             Header("Content-Type", "application/json")),
-                Value = "{}"
-            };
+                // title is stale and compared, so the assert fails - after the writer ran.
+                await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGetAsync<BlogPost>(Url,
+                                                                                                                  "Responses.VolatileHeadersWrite.json",
+                                                                                                                  writeResponse: true),
+                                                                            because: "The fixture holds the title 'Stale', so the comparison has to fail. If it passes, the snapshot was never compared.",
+                                                                            fix: "Restore VolatileHeaders\\Responses\\VolatileHeadersWrite.json - its title has to be 'Stale'.")
+                            .ConfigureAwait(false);
 
-            var response = new SimpleHttpResponseMessage
+                var written = JToken.Parse(await File.ReadAllTextAsync(snapshot).ConfigureAwait(false));
+
+                Assert.That.AreEqual("Fresh",
+                                     written["content"]?["value"]?["title"]?.ToString(),
+                                     because: "The compared property has to be re-recorded - otherwise the writer never ran and the header checks below prove nothing.",
+                                     fix: "Check that write response runs for an envelope snapshot over http.");
+
+                var names = HeaderNames(written);
+
+                Assert.That.DoesNotContain(names,
+                                           "traceparent",
+                                           because: "The endpoint sends a new traceparent on every call. Recording it means a changed file on every re-record - noise for a header that is never compared.",
+                                           fix: "Check that the written envelope runs through WithoutVolatileHeaders with TestSdkSettings.VolatileHeaderNames.");
+
+                Assert.That.IsFalse(names.Any(name => name.Equals("X-Amzn-Trace-Id", StringComparison.OrdinalIgnoreCase)),
+                                    because: "The endpoint sends the header as X-AMZN-TRACE-ID. Header names are case-insensitive, so the filter has to drop it regardless of casing.",
+                                    fix: "Check that WithoutVolatileHeaders compares header names case-insensitively.");
+
+                Assert.That.Contains(names,
+                                     "X-Business-Relevant",
+                                     because: "Only the configured volatile names may be dropped. Losing a business-relevant header would remove information the author recorded on purpose.",
+                                     fix: "Check that WithoutVolatileHeaders only considers TestSdkSettings.VolatileHeaderNames.");
+            }
+            finally
             {
-                StatusCode = HttpStatusCode.OK,
-                Headers = ImmutableList.Create(Header("traceparent", "00-abc-01"), Header("X-Keep", "a")),
-                TrailingHeaders = ImmutableList.Create(Header("Server-Timing", "app;dur=12"), Header("X-Keep", "b")),
-                Content = content
-            };
-
-            var filtered = response.WithoutVolatileHeaders(new TestSdkSettings());
-
-            Assert.That.AreEquivalent(new[] { "X-Keep" },
-                                      filtered.Headers.Select(header => header.Key).ToList(),
-                                      because: "The response headers are part of the written envelope, so 'traceparent' has to be gone from them - one unfiltered collection is enough to keep the noise in the file.",
-                                      fix: "Check that WithoutVolatileHeaders(SimpleHttpResponseMessage) filters the Headers collection, not only the content headers.");
-
-            Assert.That.AreEquivalent(new[] { "X-Keep" },
-                                      filtered.TrailingHeaders.Select(header => header.Key).ToList(),
-                                      because: "TrailingHeaders end up in the envelope just like the normal ones, so 'Server-Timing' has to be dropped there too.",
-                                      fix: "Check that WithoutVolatileHeaders(SimpleHttpResponseMessage) also runs over TrailingHeaders - it is the collection most easily forgotten.");
-
-            Assert.That.AreEquivalent(new[] { "Content-Type" },
-                                      filtered.Content!.Headers.Select(header => header.Key).ToList(),
-                                      because: "The content headers are written as well, so 'Date' has to be dropped there - and Content-Type has to survive, it is not volatile.",
-                                      fix: "Check that WithoutVolatileHeaders(SimpleHttpResponseMessage) rebuilds Content.Headers through the same filter.");
-        }
-
-        [TestMethod]
-        public void AnEmptyConfiguredListMustKeepEveryHeader()
-        {
-            var headers = ImmutableList.Create(Header("traceparent", "00-abc-def-01"));
-
-            var filtered = headers.WithoutVolatileHeaders(new TestSdkSettings { VolatileHeaderNames = [] });
-
-            Assert.That.HasCount(1,
-                                 filtered,
-                                 because: "An empty VolatileHeaderNames list means the project opted out of filtering, so even 'traceparent' has to survive. A hard-coded default list would silently ignore that opt-out.",
-                                 fix: "Check that WithoutVolatileHeaders reads the names from the passed TestSdkSettings only and never falls back to a built-in list when that collection is empty.");
-        }
-
-        [TestMethod]
-        public void AProjectMustBeAbleToAddItsOwnName()
-        {
-            var headers = ImmutableList.Create(Header("X-My-Correlation-Id", "42"), Header("X-Keep", "a"));
-
-            var settings = new TestSdkSettings { VolatileHeaderNames = ["X-My-Correlation-Id"] };
-
-            var filtered = headers.WithoutVolatileHeaders(settings);
-
-            Assert.That.AreEquivalent(new[] { "X-Keep" },
-                                      filtered.Select(header => header.Key).ToList(),
-                                      because: "A project has to be able to name its own volatile header. Only 'X-My-Correlation-Id' was configured here, so the built-in names must not be added on top and X-Keep has to survive.",
-                                      fix: "Check that WithoutVolatileHeaders uses exactly the configured TestSdkSettings.VolatileHeaderNames instead of merging them with a default set.");
+                await File.WriteAllTextAsync(snapshot, original).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
@@ -123,12 +91,7 @@ namespace Controllers.Test.VolatileHeaders
         [TestMethod]
         public void TheFixtureMustReallyContainVolatileHeaders()
         {
-            var snapshot = Path.Combine(ProjectFolder(), "VolatileHeaders", "Responses",
-                                        "StaleVolatileHeaders.json");
-
-            var names = JToken.Parse(File.ReadAllText(snapshot))["headers"]!
-                              .Select(header => header["key"]!.ToString())
-                              .ToList();
+            var names = HeaderNames(JToken.Parse(File.ReadAllText(SnapshotPath("StaleVolatileHeaders.json"))));
 
             const string because = "ASnapshotThatStillCarriesVolatileHeadersMustStayGreen only proves something if the fixture really carries these headers. Once they are gone from the file that test passes for the wrong reason.";
             const string fix = "Restore the volatile headers in VolatileHeaders\\Responses\\StaleVolatileHeaders.json - the fixture deliberately represents a snapshot recorded before the filter existed and must not be re-recorded.";
@@ -143,15 +106,16 @@ namespace Controllers.Test.VolatileHeaders
                                  fix: fix);
         }
 
-        private static KeyValuePair<string, ImmutableList<string>> Header(string name,
-                                                                          string value)
+        private static List<string> HeaderNames(JToken envelope)
         {
-            return new KeyValuePair<string, ImmutableList<string>>(name, ImmutableList.Create(value));
+            return envelope["headers"]!.Select(header => header["key"]!.ToString())
+                                       .ToList();
         }
 
-        private static string ProjectFolder([System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
+        private static string SnapshotPath(string fileName,
+                                           [CallerFilePath] string callerFilePath = "")
         {
-            return new FileInfo(callerFilePath).Directory!.Parent!.FullName;
+            return Path.Combine(new FileInfo(callerFilePath).Directory!.FullName, "Responses", fileName);
         }
     }
 }

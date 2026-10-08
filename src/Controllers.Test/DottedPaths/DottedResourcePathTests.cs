@@ -1,7 +1,8 @@
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Nodes;
 using AspNetCore.Simple.MsTest.Sdk;
-using Microsoft.Extensions.DependencyInjection;
+using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -16,69 +17,50 @@ namespace Controllers.Test.DottedPaths
     /// • a file carrying extra dots - "my.dotted.file.json" mapped to my\dotted\file.json
     ///
     /// Both are pre-existing, and both became reachable far more often once resolution started
-    /// succeeding for the cases it used to give up on.
+    /// succeeding for the cases it used to give up on. Seen from the outside the mapping decides two
+    /// things: which snapshot an assert compares against, and which file write response rewrites.
     /// </summary>
     [TestClass]
     [TestCategory("DottedResourcePaths")]
-    public sealed class DottedResourcePathTests : SdkTestBase
+    public sealed class DottedResourcePathTests
     {
         [TestMethod]
-        public void AFolderWithADotMustMapToThatOneFolder()
+        public void AFolderWithADotMustResolveToItsSnapshot()
         {
-            var fileInfo = Localize("Responses.DottedFolder.json");
-
-            Assert.That.AreEqual("Controllers.Test.DottedPaths.V3._1.Responses.DottedFolder.json",
-                                 fileInfo.EmbeddedFileName,
-                                 because: "MSBuild embeds the folder 'V3.1' as the two segments 'V3._1'. If the resource is not found under that name the fixture this test needs is not embedded at all.",
-                                 fix: "Check that the folder DottedPaths\\V3.1 with Responses\\DottedFolder.json still exists and is still picked up as an EmbeddedResource in Controllers.Test.csproj.");
-
-            Assert.That.IsNotNull(fileInfo.EmbeddedFile,
-                                  because: "A flat dotted resource name has to map back to a real file on disk - without it write response has nothing to write to.",
-                                  fix: "EmbeddedFileLocalizer must not give up when a segment carries a dot; check the path reconstruction for the '_1' segment.");
-
-            Assert.That.AreEqual(Path.Combine("DottedPaths", "V3.1", "Responses",
-                                              "DottedFolder.json"),
-                                 RelativeToProject(fileInfo.EmbeddedFile),
-                                 because: "'V3._1' has to fold back into the single folder 'V3.1'. Splitting blindly on '.' turns it into V3\\_1 - one of the two shapes this class exists for.",
-                                 fix: "Check the resource-name-to-path logic in EmbeddedFileLocalizer: it has to match candidate segments against folders that really exist instead of splitting on every dot.");
-
-            Assert.That.IsTrue(fileInfo.EmbeddedFile.Exists,
-                               because: "The reconstructed path is only correct if a file really sits there - a plausible but wrong path would otherwise pass the comparison above.",
-                               fix: $"Expected the fixture at {fileInfo.EmbeddedFile.FullName}. Either it was moved or the segment folding produced the wrong folder.");
-
-            Assert.That.AreEqual("DottedFolder",
-                                 JToken.Parse(fileInfo.Content)["name"]?.ToString(),
-                                 because: "Resolving the right path is only half the job - the content has to come from that very file, otherwise a wrong-but-existing sibling would go unnoticed.",
-                                 fix: "Check which resource stream EmbeddedFileLocalizer actually reads; the marker property 'name' identifies the fixture.");
+            // Passes only if the reference found the resource embedded as 'V3._1' and read its json.
+            Assert.That.ObjectsAreEqual("Responses.DottedFolder.json",
+                                        JsonNode.Parse( /*lang=json,strict*/ """{"name":"DottedFolder"}"""));
         }
 
         [TestMethod]
-        public void AFileNameWithExtraDotsMustStayOneFileName()
+        public void AFolderWithADotMustMapToThatOneFolderWhenWritten()
         {
-            var fileInfo = Localize("Responses.my.dotted.file.json");
+            var written = Rewrite("Responses.DottedFolder.json",
+                                  Path.Combine(ProjectFolder(), "DottedPaths", "V3.1", "Responses", "DottedFolder.json"));
 
-            Assert.That.AreEqual("Controllers.Test.DottedPaths.Responses.my.dotted.file.json",
-                                 fileInfo.EmbeddedFileName,
-                                 because: "A file name carrying extra dots embeds verbatim, so the reference has to resolve to exactly this resource - anything else means the fixture is missing.",
-                                 fix: "Check that DottedPaths\\Responses\\my.dotted.file.json still exists and is still embedded by Controllers.Test.csproj.");
+            Assert.That.AreEqual("Rewritten",
+                                 written,
+                                 because: "'V3._1' has to fold back into the single folder 'V3.1'. Splitting blindly on '.' turns it into V3\\_1 - write response then writes somewhere nothing reads and the fixture stays untouched.",
+                                 fix: "Check the resource-name-to-path logic in EmbeddedFileLocalizer: it has to match candidate segments against folders that really exist instead of splitting on every dot.");
+        }
 
-            Assert.That.IsNotNull(fileInfo.EmbeddedFile,
-                                  because: "A flat dotted resource name has to map back to a real file on disk - without it write response has nothing to write to.",
-                                  fix: "EmbeddedFileLocalizer must not give up when the file name itself carries dots.");
+        [TestMethod]
+        public void AFileNameWithExtraDotsMustResolveToItsSnapshot()
+        {
+            Assert.That.ObjectsAreEqual("Responses.my.dotted.file.json",
+                                        JsonNode.Parse( /*lang=json,strict*/ """{"name":"DottedFile"}"""));
+        }
 
-            Assert.That.AreEqual(Path.Combine("DottedPaths", "Responses", "my.dotted.file.json"),
-                                 RelativeToProject(fileInfo.EmbeddedFile),
-                                 because: "Taking the last two segments as the file name turns 'my.dotted.file.json' into my\\dotted\\file.json - the second of the two shapes this class exists for.",
+        [TestMethod]
+        public void AFileNameWithExtraDotsMustStayOneFileNameWhenWritten()
+        {
+            var written = Rewrite("Responses.my.dotted.file.json",
+                                  Path.Combine(ProjectFolder(), "DottedPaths", "Responses", "my.dotted.file.json"));
+
+            Assert.That.AreEqual("Rewritten",
+                                 written,
+                                 because: "Taking the last two segments as the file name turns 'my.dotted.file.json' into my\\dotted\\file.json - the second of the two shapes this class exists for. Write response would then miss the real file.",
                                  fix: "Check the resource-name-to-path logic in EmbeddedFileLocalizer: it has to keep every segment after the folder part as one file name instead of assuming exactly two.");
-
-            Assert.That.IsTrue(fileInfo.EmbeddedFile.Exists,
-                               because: "The reconstructed path is only correct if a file really sits there - a plausible but wrong path would otherwise pass the comparison above.",
-                               fix: $"Expected the fixture at {fileInfo.EmbeddedFile.FullName}. Either it was moved or the file name was split into folders.");
-
-            Assert.That.AreEqual("DottedFile",
-                                 JToken.Parse(fileInfo.Content)["name"]?.ToString(),
-                                 because: "Resolving the right path is only half the job - the content has to come from that very file, otherwise a wrong-but-existing sibling would go unnoticed.",
-                                 fix: "Check which resource stream EmbeddedFileLocalizer actually reads; the marker property 'name' identifies the fixture.");
         }
 
         /// <summary>
@@ -87,38 +69,67 @@ namespace Controllers.Test.DottedPaths
         /// otherwise write response could not create it.
         /// </summary>
         [TestMethod]
-        public void ASnapshotThatDoesNotExistYetMustStillGetATargetPath()
+        public void ASnapshotThatDoesNotExistYetMustBeCreatedNextToItsSiblings()
         {
-            var fileInfo = Localize("Responses.ZzDoesNotExistYet.json");
+            var target = Path.Combine(ProjectFolder(), "DottedPaths", "Responses", "ZzDoesNotExistYet.json");
 
-            Assert.That.IsNotNull(fileInfo.EmbeddedFile,
-                                  because: "A snapshot that does not exist yet has no folder on disk to match against, but write response still needs a target path to create it at.",
-                                  fix: "When nothing matches, EmbeddedFileLocalizer has to fall back to the plain reading (last segment is the file name) instead of returning null.");
+            Assert.That.ThrowsExactly<AssertFailedException>(() => Assert.That.ObjectsAreEqual("Responses.ZzDoesNotExistYet.json",
+                                                                                               JsonNode.Parse("{}")),
+                                                             because: "Nothing is embedded under that name. Treating it as resolved would compare against an empty snapshot instead of reporting the missing one.",
+                                                             fix: "EmbeddedFileLocalizer has to set Resolved only when a manifest resource was really found - a usable target path alone is not enough.");
 
-            Assert.That.AreEqual(Path.Combine("DottedPaths", "Responses", "ZzDoesNotExistYet.json"),
-                                 RelativeToProject(fileInfo.EmbeddedFile),
-                                 because: "The fallback target path is where write response would create the file, so it has to land next to its siblings in Responses.",
-                                 fix: "Check the fallback branch in EmbeddedFileLocalizer - it has to keep the folder part of the reference and treat only the trailing name.extension as the file.");
+            try
+            {
+                Assert.That.ObjectsAreEqual("Responses.ZzDoesNotExistYet.json",
+                                            JsonNode.Parse( /*lang=json,strict*/ """{"name":"Created"}"""),
+                                            writeResponse: true);
 
-            Assert.That.IsFalse(fileInfo.Resolved,
-                                because: "Nothing is embedded under that name. Reporting it as resolved would make a comparison run against an empty snapshot instead of triggering the missing-snapshot path.",
-                                fix: "EmbeddedFileLocalizer has to set Resolved only when a manifest resource was really found - a usable target path alone is not enough.");
+                Assert.That.IsTrue(File.Exists(target),
+                                   because: "The fallback target path is where write response creates the file, so it has to land next to its siblings in Responses.",
+                                   fix: "When nothing matches, EmbeddedFileLocalizer has to fall back to the plain reading (last segment is the file name) - keep the folder part of the reference and treat only the trailing name.extension as the file.");
+            }
+            finally
+            {
+                if (File.Exists(target))
+                {
+                    File.Delete(target);
+                }
+            }
         }
 
-        private static EmbeddedFileInfo Localize(string reference,
-                                                 [CallerFilePath] string callerFilePath = "")
+        /// <summary>
+        /// Rewrites the snapshot behind <paramref name="reference" /> through write response and hands
+        /// back the 'name' found at <paramref name="expectedFile" /> - then restores the fixture.
+        /// </summary>
+        private static string? Rewrite(string reference,
+                                       string expectedFile)
         {
-            var localizer = Services.GetRequiredService<IEmbeddedFileLocalizer>();
+            Assert.That.IsTrue(typeof(DottedResourcePathTests).Assembly.IsCompiledInDebug(),
+                               because: "Every response writer bails out for non DEBUG assemblies - in a RELEASE build nothing would be written.",
+                               fix: "Run this test from a DEBUG build, or exclude it from RELEASE runs.");
 
-            return localizer.LocalizeResponseFile(reference, callerFilePath, typeof(DottedResourcePathTests).Assembly);
+            var original = File.ReadAllText(expectedFile);
+
+            try
+            {
+                // name differs and is compared, so the assert fails - after the writer ran.
+                Assert.That.ThrowsExactly<AssertFailedException>(() => Assert.That.ObjectsAreEqual(reference,
+                                                                                                   JsonNode.Parse( /*lang=json,strict*/ """{"name":"Rewritten"}"""),
+                                                                                                   writeResponse: true),
+                                                                 because: "The fixture holds a different name, so the comparison has to fail. If it passes, the snapshot was never compared.",
+                                                                 fix: $"Check that {reference} still resolves.");
+
+                return JToken.Parse(File.ReadAllText(expectedFile))["name"]?.ToString();
+            }
+            finally
+            {
+                File.WriteAllText(expectedFile, original);
+            }
         }
 
-        private static string RelativeToProject(FileSystemInfo file,
-                                                [CallerFilePath] string callerFilePath = "")
+        private static string ProjectFolder([CallerFilePath] string callerFilePath = "")
         {
-            var projectFolder = new FileInfo(callerFilePath).Directory!.Parent!;
-
-            return Path.GetRelativePath(projectFolder.FullName, file.FullName);
+            return new FileInfo(callerFilePath).Directory!.Parent!.FullName;
         }
     }
 }

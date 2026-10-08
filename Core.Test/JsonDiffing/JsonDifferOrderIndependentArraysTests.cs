@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AspNetCore.Simple.MsTest.Sdk;
-using Microsoft.Extensions.DependencyInjection;
+using Core.Test.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Controllers.Test
+namespace Core.Test.JsonDiffing
 {
     /// <summary>
     /// An order-independent array is compared by MATCHING its elements, not by reordering either
@@ -14,19 +14,11 @@ namespace Controllers.Test
     /// culture, and the indices it produces address elements that exist in neither document.
     /// </summary>
     [TestClass]
+    [DoNotParallelize] // JsonDifferences.Of with a predicate swaps the global settings.
     [TestCategory("JsonDiffer")]
     [TestCategory("OrderIndependentArrays")]
     public sealed class JsonDifferOrderIndependentArraysTests
     {
-        private static IJsonDiffer _jsonDiffer = null!;
-
-        [TestInitialize]
-        public void Initialize()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddJsonDiffer();
-            _jsonDiffer = serviceCollection.BuildServiceProvider().GetRequiredService<IJsonDiffer>();
-        }
 
         private static Predicate<JsonArrayContext> ByName(params string[] names)
         {
@@ -39,7 +31,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "items": [ { "$ref": "TypeA" }, { "$ref": "TypeB" } ] }""";
             var current = /*lang=json,strict*/ """{ "items": [ { "$ref": "TypeB" }, { "$ref": "TypeA" } ] }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current);
+            var diffs = JsonDifferences.Of(expected, current);
 
             Assert.That.HasCount(2,
                                  diffs,
@@ -59,7 +51,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeA" }, { "$ref": "TypeB" }, { "$ref": "TypeC" } ] }""";
             var current = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeC" }, { "$ref": "TypeA" }, { "$ref": "TypeB" } ] }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
+            var diffs = JsonDifferences.Of(expected, current, ByName("anyOf"));
 
             Assert.That.IsEmpty(diffs,
                                 because: "Both sides hold the same three elements. For an order-independent array that is equality, whatever order the producer emitted them in.",
@@ -75,7 +67,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "outer": [ { "inner": [2,1] }, { "inner": [1,3] } ] }""";
             var current = /*lang=json,strict*/ """{ "outer": [ { "inner": [1,2] }, { "inner": [3,1] } ] }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("outer", "inner"));
+            var diffs = JsonDifferences.Of(expected, current, ByName("outer", "inner"));
 
             Assert.That.IsEmpty(diffs,
                                 because: "Outer and inner are both order independent, so both documents describe the same nested set.",
@@ -91,7 +83,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "anyOf": [ { "a": 1, "b": 2 }, { "a": 2, "b": 1 } ] }""";
             var current = /*lang=json,strict*/ """{ "anyOf": [ { "b": 1, "a": 2 }, { "b": 2, "a": 1 } ] }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
+            var diffs = JsonDifferences.Of(expected, current, ByName("anyOf"));
 
             Assert.That.IsEmpty(diffs,
                                 because: "The same two objects are present on both sides; only the order of their properties and of the elements differs, and neither is a difference.",
@@ -104,7 +96,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeA" }, { "$ref": "TypeB" }, { "$ref": "TypeC" } ] }""";
             var current = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeA" }, { "$ref": "TypeB" } ] }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
+            var diffs = JsonDifferences.Of(expected, current, ByName("anyOf"));
 
             Assert.That.HasCount(1,
                                  diffs,
@@ -128,7 +120,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeA" } ] }""";
             var current = /*lang=json,strict*/ """{ "anyOf": [ { "$ref": "TypeB" }, { "$ref": "TypeA" }, { "$ref": "TypeC" } ] }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
+            var diffs = JsonDifferences.Of(expected, current, ByName("anyOf"));
 
             var missingInFirst = diffs.Where(difference => difference.MismatchType == MismatchType.MissingInFirst).ToList();
 
@@ -170,7 +162,7 @@ namespace Controllers.Test
                           }
                           """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
+            var diffs = JsonDifferences.Of(expected, current, ByName("anyOf"));
 
             Assert.That.HasCount(1,
                                  diffs,
@@ -199,7 +191,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "anyOf": [ { "name": "A", "value": 1 } ] }""";
             var current = /*lang=json,strict*/ """{ "anyOf": [ { "name": "A", "value": 2 } ] }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
+            var diffs = JsonDifferences.Of(expected, current, ByName("anyOf"));
 
             Assert.That.HasCount(1,
                                  diffs,
@@ -217,7 +209,7 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "tags": ["a", "a", "b"] }""";
             var current = /*lang=json,strict*/ """{ "tags": ["a", "b", "b"] }""";
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("tags"));
+            var diffs = JsonDifferences.Of(expected, current, ByName("tags"));
 
             Assert.That.HasCount(1,
                                  diffs,
@@ -242,7 +234,7 @@ namespace Controllers.Test
                           }
                           """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current, ByName("anyOf"));
+            var diffs = JsonDifferences.Of(expected, current, ByName("anyOf"));
 
             Assert.That.IsNotEmpty(diffs,
                                    because: "items was not declared order independent, so its swap is still a difference.",
@@ -272,7 +264,7 @@ namespace Controllers.Test
                           }
                           """;
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current, array => array.Path == "a.anyOf");
+            var diffs = JsonDifferences.Of(expected, current, array => array.Path == "a.anyOf");
 
             Assert.That.IsNotEmpty(diffs,
                                    because: "Only a.anyOf was declared order independent, so b.anyOf keeps index semantics.",
@@ -308,7 +300,7 @@ namespace Controllers.Test
 
             var seenPaths = new List<string>();
 
-            var diffs = _jsonDiffer.FindDifferences(expected, current,
+            var diffs = JsonDifferences.Of(expected, current,
                                                     array =>
                                                     {
                                                         seenPaths.Add(array.Path);
@@ -333,9 +325,9 @@ namespace Controllers.Test
             var expected = /*lang=json,strict*/ """{ "anyOf": [1, 2] }""";
             var current = /*lang=json,strict*/ """{ "anyOf": [2, 1] }""";
 
-            var withoutFilter = _jsonDiffer.FindDifferences(expected, current);
-            var neverMatches = _jsonDiffer.FindDifferences(expected, current, _ => false);
-            var alwaysMatches = _jsonDiffer.FindDifferences(expected, current, _ => true);
+            var withoutFilter = JsonDifferences.Of(expected, current);
+            var neverMatches = JsonDifferences.Of(expected, current, _ => false);
+            var alwaysMatches = JsonDifferences.Of(expected, current, _ => true);
 
             Assert.That.IsNotEmpty(withoutFilter,
                                    because: "Without a filter every array is compared by index.",

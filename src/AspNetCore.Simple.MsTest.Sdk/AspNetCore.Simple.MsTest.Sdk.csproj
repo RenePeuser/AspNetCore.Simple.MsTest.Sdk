@@ -88,6 +88,12 @@
          project-evaluation time. A plain <PropertyGroup Condition="â€¦GitVersion_â€¦"> would evaluate too
          early and never see the value. So the constant is appended in a target that runs AFTER
          GetVersion and BEFORE CoreCompile. -->
+    <!-- Local Debug builds (IDE, in-repo tests) see the fluent API without passing FluentAlpha by hand.
+         The package is built in Release, so what it ships still follows the prerelease rule below. -->
+    <PropertyGroup Condition="'$(FluentAlpha)' == '' and '$(Configuration)' == 'Debug'">
+        <FluentAlpha>true</FluentAlpha>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(FluentAlpha)' == 'true'">
         <DefineConstants>$(DefineConstants);FLUENT_ALPHA</DefineConstants>
     </PropertyGroup>

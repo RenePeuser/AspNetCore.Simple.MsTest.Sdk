@@ -22,8 +22,8 @@ namespace Core.Test.Core
     /// A difference is KEPT (and thus fails the assert) only if it survives every stage; the two
     /// filters combine with AND semantics — either returning <c>false</c> drops the difference.
     ///
-    /// Tests that configure the global settings via <c>HttpClientAssertExtensions.Setup(settings => ...)</c>
-    /// are <see cref="DoNotParallelizeAttribute"/> and reset them in a finally block
+    /// Tests that configure the global settings via <see cref="GlobalTestSdkSettings"/>
+    /// are <see cref="DoNotParallelizeAttribute"/> and reset them on dispose
     /// (Core.Test runs MethodLevel parallelization).
     /// </summary>
     [TestClass]
@@ -113,37 +113,23 @@ namespace Core.Test.Core
         [DoNotParallelize]
         public void GlobalFunc_Alone_ShouldDropDifference()
         {
-            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFunc = diffs => DropAgeFunc(diffs));
+            using var globalSettings = GlobalTestSdkSettings.Use(settings => settings.DifferenceFunc = diffs => DropAgeFunc(diffs));
 
-            try
-            {
-                var expected = Actual with { Age = 42 };
+            var expected = Actual with { Age = 42 };
 
-                // No per-assert func/filter: only the global func drops the age difference.
-                Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc);
-            }
-            finally
-            {
-                HttpClientAssertExtensions.Setup(_ => { });
-            }
+            // No per-assert func/filter: only the global func drops the age difference.
+            Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc);
         }
 
         [TestMethod]
         [DoNotParallelize]
         public void GlobalFilter_Alone_ShouldDropDifference()
         {
-            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = KeepUnlessAge);
+            using var globalSettings = GlobalTestSdkSettings.Use(settings => settings.DifferenceFilter = KeepUnlessAge);
 
-            try
-            {
-                var expected = Actual with { Age = 42 };
+            var expected = Actual with { Age = 42 };
 
-                Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc);
-            }
-            finally
-            {
-                HttpClientAssertExtensions.Setup(_ => { });
-            }
+            Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc);
         }
 
         // ============================================================
@@ -183,19 +169,12 @@ namespace Core.Test.Core
         public void GlobalFilterKeeps_PerAssertFilterDrops_ShouldPass_AndSemantics()
         {
             // Global keeps everything (true), per-assert drops age (false) → AND → dropped.
-            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = static _ => true);
+            using var globalSettings = GlobalTestSdkSettings.Use(settings => settings.DifferenceFilter = static _ => true);
 
-            try
-            {
-                var expected = Actual with { Age = 42 };
+            var expected = Actual with { Age = 42 };
 
-                Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
-                                            differenceFilter: KeepUnlessAge);
-            }
-            finally
-            {
-                HttpClientAssertExtensions.Setup(_ => { });
-            }
+            Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
+                                        differenceFilter: KeepUnlessAge);
         }
 
         [TestMethod]
@@ -203,19 +182,12 @@ namespace Core.Test.Core
         public void GlobalFilterDrops_PerAssertFilterKeeps_ShouldPass_AndSemantics()
         {
             // Global drops age (false), per-assert keeps everything (true) → AND → dropped.
-            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = KeepUnlessAge);
+            using var globalSettings = GlobalTestSdkSettings.Use(settings => settings.DifferenceFilter = KeepUnlessAge);
 
-            try
-            {
-                var expected = Actual with { Age = 42 };
+            var expected = Actual with { Age = 42 };
 
-                Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
-                                            differenceFilter: static _ => true);
-            }
-            finally
-            {
-                HttpClientAssertExtensions.Setup(_ => { });
-            }
+            Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
+                                        differenceFilter: static _ => true);
         }
 
         [TestMethod]
@@ -223,20 +195,13 @@ namespace Core.Test.Core
         public void GlobalFilterKeeps_PerAssertFilterKeeps_ShouldFail()
         {
             // Both keep the age difference → it survives → assert fails.
-            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = static _ => true);
+            using var globalSettings = GlobalTestSdkSettings.Use(settings => settings.DifferenceFilter = static _ => true);
 
-            try
-            {
-                var expected = Actual with { Age = 42 };
+            var expected = Actual with { Age = 42 };
 
-                AssertThrows(() => Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
-                                                               differenceFilter: static _ => true),
-                             "When neither filter drops the difference it must fail the assert.");
-            }
-            finally
-            {
-                HttpClientAssertExtensions.Setup(_ => { });
-            }
+            AssertThrows(() => Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
+                                                           differenceFilter: static _ => true),
+                         "When neither filter drops the difference it must fail the assert.");
         }
 
         // ============================================================
@@ -248,20 +213,13 @@ namespace Core.Test.Core
         public void GlobalFunc_And_PerAssertFilter_ShouldCombine()
         {
             // Global func drops "name"; per-assert filter drops "age". Both differ → both dropped → pass.
-            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFunc = diffs =>
+            using var globalSettings = GlobalTestSdkSettings.Use(settings => settings.DifferenceFunc = diffs =>
                 diffs.Where(d => !d.MemberPath.Contains("name", StringComparison.OrdinalIgnoreCase)));
 
-            try
-            {
-                var expected = new Sample(Name: "Vegeta", Age: 42);
+            var expected = new Sample(Name: "Vegeta", Age: 42);
 
-                Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
-                                            differenceFilter: KeepUnlessAge);
-            }
-            finally
-            {
-                HttpClientAssertExtensions.Setup(_ => { });
-            }
+            Assert.That.ObjectsAreEqual(expected, Actual, differenceFunc: KeepAllFunc,
+                                        differenceFilter: KeepUnlessAge);
         }
 
         // ============================================================
@@ -274,27 +232,20 @@ namespace Core.Test.Core
         {
             // Global func drops "name". Per-assert func asserts it never sees a name difference
             // (proving order) and then drops "age". Both differ → pass, and the order invariant holds.
-            HttpClientAssertExtensions.Setup(settings => settings.DifferenceFunc = diffs =>
+            using var globalSettings = GlobalTestSdkSettings.Use(settings => settings.DifferenceFunc = diffs =>
                 diffs.Where(d => !d.MemberPath.Contains("name", StringComparison.OrdinalIgnoreCase)));
 
-            try
-            {
-                var expected = new Sample(Name: "Vegeta", Age: 42);
+            var expected = new Sample(Name: "Vegeta", Age: 42);
 
-                Assert.That.ObjectsAreEqual(expected,
-                                            Actual,
-                                            differenceFunc: incoming =>
-                                            {
-                                                Assert.IsFalse(incoming.Any(d => d.MemberPath.Contains("name", StringComparison.OrdinalIgnoreCase)),
-                                                               "Per-assert func must receive the list AFTER the global func removed the name difference.");
+            Assert.That.ObjectsAreEqual(expected,
+                                        Actual,
+                                        differenceFunc: incoming =>
+                                        {
+                                            Assert.IsFalse(incoming.Any(d => d.MemberPath.Contains("name", StringComparison.OrdinalIgnoreCase)),
+                                                           "Per-assert func must receive the list AFTER the global func removed the name difference.");
 
-                                                return DropAgeFunc(incoming);
-                                            });
-            }
-            finally
-            {
-                HttpClientAssertExtensions.Setup(_ => { });
-            }
+                                            return DropAgeFunc(incoming);
+                                        });
         }
 
         // ============================================================

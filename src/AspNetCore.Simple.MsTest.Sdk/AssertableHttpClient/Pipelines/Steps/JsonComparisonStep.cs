@@ -267,7 +267,11 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 
             var filteredExpectedType = expectedType.IsNotNull() && context.OrderFunc.IsNotNull() ? context.OrderFunc(expectedType) : expectedType;
 
-            var expectedResultAsSimpleResponse = expectedResultAsJsonParameterized.FromJsonStringOrDefault<SimpleHttpResponseMessage>(ComparisonJsonSerializerOptions);
+            // Only a real envelope - a bare body may carry 'content.value' itself (a blog post), and
+            // reading it as an envelope would compare a fragment of it as the whole response.
+            var expectedResultAsSimpleResponse = SnapshotShape.IsEnvelope(expectedResultAsJsonParameterized)
+                                                     ? expectedResultAsJsonParameterized.FromJsonStringOrDefault<SimpleHttpResponseMessage>(ComparisonJsonSerializerOptions)
+                                                     : null;
 
             // A snapshot recorded before volatile headers were filtered still carries them. Dropping
             // them on this side too is what keeps those snapshots green instead of failing on a

@@ -59,6 +59,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <c>value</c>. A bare body could only look like this by carrying those very names itself,
         /// which is why <c>statusCode</c> is required as a second marker.
         /// </summary>
+        public static bool IsEnvelope(string json)
+        {
+            return IsEnvelope(TryParse(json));
+        }
+
+        /// <inheritdoc cref="IsEnvelope(string)" />
         public static bool IsEnvelope(JToken? token)
         {
             if (token is not JObject jsonObject)

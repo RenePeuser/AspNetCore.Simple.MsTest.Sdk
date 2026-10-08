@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Nodes;
 using AspNetCore.Simple.MsTest.Sdk;
 using Extensions.Pack;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -18,13 +18,12 @@ namespace Controllers.Test
     /// The fixture reproduces that with a LogicalName override in Controllers.Test.csproj:
     /// "Legacy\V1\Results\LegacyRootNamespace.json" is embedded as
     /// "Pulse.Legacy.Root.Legacy.V1.Results.LegacyRootNamespace.json".
-    /// Stripping the assembly name from that name yields nothing, which used to leave
-    /// EmbeddedFileInfo.EmbeddedFile null - and a null physical file silently disables write
-    /// response, because every ISpecificResponseWriter requires it.
+    /// Stripping the assembly name from that name yields nothing, which used to leave the snapshot
+    /// without a physical file - and that silently disabled write response.
     /// </summary>
     [TestClass]
     [TestCategory("LegacyRootNamespace")]
-    public sealed class LegacyRootNamespaceTests : SdkTestBase
+    public sealed class LegacyRootNamespaceTests
     {
         private const string ExpectedResourceName = "Pulse.Legacy.Root.Legacy.V1.Results.LegacyRootNamespace.json";
 
@@ -44,125 +43,72 @@ namespace Controllers.Test
         }
 
         [TestMethod]
-        public void LocalizeResponseFileShouldMapAForeignRootNamespaceToItsPhysicalFile()
+        public void AReferenceUnderAForeignRootNamespaceShouldResolveToItsContent()
         {
-            var callerFilePath = ThisFile();
-            var assembly = typeof(LegacyRootNamespaceTests).Assembly;
-
-            var fileInfo = CreateLocalizer().LocalizeResponseFile(SnapshotReference, callerFilePath, assembly);
-
-            Assert.That.AreEqual(ExpectedResourceName,
-                                 fileInfo.EmbeddedFileName,
-                                 because: "The reference 'Results.LegacyRootNamespace.json' has to resolve to the resource embedded under the foreign root namespace 'Pulse.Legacy.Root', not to one built from the assembly name.",
-                                 fix: "Check EmbeddedFileLocalizer/ResourceRootNamespaceResolver: the resource name must be resolved against the root namespace that actually owns the resource, not against the assembly name.");
-
-            Assert.That.IsNotNull(fileInfo.EmbeddedFile,
-                                  because: "Without a physical file no response writer can handle the request - write response would silently do nothing, which is exactly the bug this class covers.",
-                                  fix: "Stripping the assembly name off a foreign resource name yields nothing; EmbeddedFileLocalizer has to fall back to the resource's own root namespace when mapping back to a path.");
-
-            Assert.That.IsTrue(fileInfo.EmbeddedFile.Exists,
-                               because: "The mapped path only proves the mapping is right if the file it points at is really there.",
-                               fix: $"Expected the snapshot at {fileInfo.EmbeddedFile.FullName}. Either the fixture was moved/renamed or the resource-name-to-path mapping produced the wrong folder.");
-
-            var projectFolder = new FileInfo(callerFilePath).Directory!;
-
-            Assert.That.AreEqual(Path.Combine("Legacy", "V1", "Results",
-                                              "LegacyRootNamespace.json"),
-                                 Path.GetRelativePath(projectFolder.FullName, fileInfo.EmbeddedFile.FullName),
-                                 because: "The dotted resource name has to map back to exactly the folder structure it was embedded from - one segment too many or too few and write response would create a second, orphaned snapshot.",
-                                 fix: "Check how the resource name is split into folders: the part belonging to the foreign root namespace must be dropped before the rest becomes the path.");
-
-            // The content has to be the json, not the file name that was passed in.
-            Assert.That.AreEqual("LegacySnapshot",
-                                 JToken.Parse(fileInfo.Content)["name"]?.ToString(),
-                                 because: "EmbeddedFileInfo.Content must carry the resolved json. Getting the reference string back instead would mean the resource was never actually read.",
-                                 fix: "Check that EmbeddedFileLocalizer reads the manifest resource stream and does not fall through to returning the passed-in reference.");
+            // Passes only if the reference reached the resource embedded under 'Pulse.Legacy.Root' and
+            // its json was read - an unresolved reference fails with "snapshot not found".
+            Assert.That.ObjectsAreEqual(SnapshotReference,
+                                        JsonNode.Parse( /*lang=json,strict*/ """{"id":1,"name":"LegacySnapshot"}"""));
         }
 
         [TestMethod]
-        public void ResponseWriterShouldUpdateASnapshotUnderAForeignRootNamespace()
+        public void WriteResponseShouldUpdateASnapshotUnderAForeignRootNamespace()
         {
-            var callerFilePath = ThisFile();
-            var assembly = typeof(LegacyRootNamespaceTests).Assembly;
-
             // Every writer bails out for non DEBUG assemblies - write response is a developer feature.
-            Assert.That.IsTrue(assembly.IsCompiledInDebug(),
+            Assert.That.IsTrue(typeof(LegacyRootNamespaceTests).Assembly.IsCompiledInDebug(),
                                because: "Every response writer bails out for non DEBUG assemblies - write response is a developer feature, so in a RELEASE build this test would pass without exercising anything.",
                                fix: "Run this test from a DEBUG build, or exclude it from RELEASE runs.");
 
-            var fileInfo = CreateLocalizer().LocalizeResponseFile(SnapshotReference, callerFilePath, assembly);
-
-            Assert.That.IsNotNull(fileInfo.EmbeddedFile,
-                                  because: "The writer needs the physical file to overwrite; a null one is how this bug used to manifest - write response did nothing and the test stayed green.",
-                                  fix: "See LocalizeResponseFileShouldMapAForeignRootNamespaceToItsPhysicalFile - the resource name has to be mapped back to a path via its own root namespace.");
-
-            var originalContent = File.ReadAllText(fileInfo.EmbeddedFile.FullName);
+            var snapshot = Path.Combine(ProjectFolder(), "Legacy", "V1", "Results", "LegacyRootNamespace.json");
+            var originalContent = File.ReadAllText(snapshot);
 
             try
             {
-                var writer = Services.GetRequiredService<IResponseWriter>();
+                // name differs and is compared, so the assert fails - after the writer ran.
+                Assert.That.ThrowsExactly<AssertFailedException>(() => Assert.That.ObjectsAreEqual(SnapshotReference,
+                                                                                                   JsonNode.Parse( /*lang=json,strict*/ """{"id":1,"name":"Rewritten"}"""),
+                                                                                                   writeResponse: true),
+                                                                 because: "The fixture holds 'LegacySnapshot', so the comparison has to fail. If it passes, the snapshot was never compared.",
+                                                                 fix: "Check that the reference resolves to the resource under the foreign root namespace.");
 
-                var request = new WriteResponseRequest
-                {
-                    CallingAssembly = assembly,
-                    CurrentResponseAsString = /*lang=json,strict*/ """{"id":2,"name":"Rewritten"}""",
-                    ExpectedResult = fileInfo,
-                    Parameters = [],
-                    DifferenceFunc = differences => differences,
-                    Mode = ResponseWriteMode.OverwriteAll,
-                    CallerFilePath = callerFilePath,
-                    CallerLineNumber = 0,
-                    ExpectedResultParameterName = nameof(SnapshotReference),
-                    ExpectedType = typeof(object),
-                    ExpectedObject = null
-                };
-
-                writer.Write(request);
-
-                var written = JToken.Parse(File.ReadAllText(fileInfo.EmbeddedFile.FullName));
+                var written = JToken.Parse(File.ReadAllText(snapshot));
 
                 Assert.That.AreEqual("Rewritten",
                                      written["name"]?.ToString(),
-                                     because: "Write response has to reach the snapshot even when it lives under a foreign root namespace - still reading the old value means the writer silently did nothing.",
-                                     fix: "Check that OverwriteAllResponseWriter received a non-null ExpectedResult.EmbeddedFile and that ResponseWriter picked a writer at all for this request.");
+                                     because: "Write response has to reach the snapshot even when it lives under a foreign root namespace - still reading the old value means the resource name was never mapped back to its physical file and the writer silently did nothing.",
+                                     fix: "Stripping the assembly name off a foreign resource name yields nothing; EmbeddedFileLocalizer has to fall back to the resource's own root namespace when mapping back to a path (Legacy\\V1\\Results\\LegacyRootNamespace.json).");
             }
             finally
             {
-                File.WriteAllText(fileInfo.EmbeddedFile.FullName, originalContent);
+                File.WriteAllText(snapshot, originalContent);
             }
         }
 
         [TestMethod]
         public void OneForeignResourceMustNotHijackTheProjectWideRootNamespace()
         {
-            var callerFilePath = ThisFile();
-            var assembly = typeof(LegacyRootNamespaceTests).Assembly;
-            var projectFolder = new FileInfo(callerFilePath).Directory;
-
-            var resolver = Services.GetRequiredService<IResourceRootNamespaceResolver>();
-
             // The LogicalName fixture votes for "Pulse.Legacy.Root", every other resource of this
             // project votes for "Controllers.Test". The majority decides, otherwise a single legacy
             // file would break the resource names built for snapshots that do not exist yet.
-            Assert.That.AreEqual("Controllers.Test",
-                                 resolver.ResolveForAssembly(assembly, projectFolder),
+            var failure = Assert.That.ThrowsExactly<AssertFailedException>(() => Assert.That.ObjectsAreEqual("Responses.NotRecordedUnderAnyNamespace.json",
+                                                                                                             JsonNode.Parse("{}")),
+                                                                           because: "The reference does not exist, so the assert has to fail and name where the snapshot was expected.",
+                                                                           fix: "Check SnapshotReferenceGuard - an unresolved reference must raise SnapshotNotFoundException.");
+
+            Assert.That.Contains(failure.Message,
+                                 "Controllers.Test.Responses.NotRecordedUnderAnyNamespace.json",
                                  because: "The project-wide root namespace is decided by majority vote. One legacy file voting for 'Pulse.Legacy.Root' must not win, otherwise every snapshot that does not exist yet would get its resource name built from the wrong namespace.",
                                  fix: "Check the tallying in ResourceRootNamespaceResolver.ResolveForAssembly - it has to pick the most frequent candidate, not the first or the odd one out.");
 
-            Assert.That.AreEqual("Pulse.Legacy.Root",
-                                 resolver.ResolveForResource(ExpectedResourceName, assembly, projectFolder),
-                                 because: "Per resource the answer is the opposite of the project-wide one: this single file really does live under 'Pulse.Legacy.Root' and has to be resolved against it.",
-                                 fix: "ResolveForResource must derive the namespace from the given resource name itself instead of returning the project-wide majority.");
+            Assert.That.DoesNotContain(failure.Message,
+                                       "Pulse.Legacy.Root.Responses",
+                                       because: "The legacy namespace only owns the one resource it was given - it must not leak into the name of an unrelated snapshot.",
+                                       fix: "ResolveForResource is per resource; the project-wide answer must come from ResolveForAssembly.");
         }
 
-        private static IEmbeddedFileLocalizer CreateLocalizer()
+        private static string ProjectFolder([CallerFilePath] string callerFilePath = "")
         {
-            return Services.GetRequiredService<IEmbeddedFileLocalizer>();
-        }
-
-        private static string ThisFile([CallerFilePath] string callerFilePath = "")
-        {
-            return callerFilePath;
+            return new FileInfo(callerFilePath).Directory!.FullName;
         }
     }
 }

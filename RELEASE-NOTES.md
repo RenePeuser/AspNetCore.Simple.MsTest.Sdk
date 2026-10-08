@@ -52,6 +52,15 @@ services.AddAssertableHttpClient(configuration, settings =>
 - `TestSdkSettings` properties are now settable (`set` instead of `init`).
 - The running host's own provider is handed to the assert extensions - asserts and the application
   under test share one container (previously a separate, immediately disposed provider).
+- **Own error handlers** - `ITestErrorHandler` / `TestErrorHandler<TException>` are public. Register one to
+  explain failures only your project understands; it is asked before the SDK's catch-all, no matter whether
+  it was registered before or after `AddAssertableHttpClient`.
+
+### Fixed: a body carrying `content.value` was taken for the response envelope
+
+A response body with its own `content.value` (a blog post, a CMS page) was read as the SDK's snapshot
+envelope: the comparison unwrapped the fragment and failed with "INVALID JSON FORMAT" or an unexpected
+parse error. Only a real envelope - `content.value` together with `statusCode` - is unwrapped now.
 
 ### Fixed: dictionary responses in recording mode
 

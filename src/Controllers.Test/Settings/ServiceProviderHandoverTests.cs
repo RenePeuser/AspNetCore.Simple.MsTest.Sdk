@@ -1,5 +1,5 @@
+using System.Text.Json.Nodes;
 using AspNetCore.Simple.MsTest.Sdk;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Controllers.Test.Settings
@@ -14,14 +14,12 @@ namespace Controllers.Test.Settings
     public sealed class ServiceProviderHandoverTests : ApiTestBase
     {
         [TestMethod]
-        public void StaticAssertsMustResolveFromTheStartedHost()
+        public void StaticAssertsMustUseTheSettingsOfTheStartedHost()
         {
-            var hostSettings = Services.GetRequiredService<TestSdkSettings>();
-            var assertSettings = HttpClientAssertExtensions.GetService<TestSdkSettings>(typeof(ServiceProviderHandoverTests).Assembly);
-
-            Assert.That.IsTrue(ReferenceEquals(hostSettings, assertSettings),
-                               because: "The static asserts must see exactly the settings the consumer passed to AddAssertableHttpClient.",
-                               fix: "AddAssertableHttpClient must register the ServiceProviderHandover, which hands the started host's provider over.");
+            // ApiTestBase registers TestHelpers.IgnoreIdDifferences as the global DifferenceFunc. The
+            // fallback container has no such func - there the differing id fails the assert.
+            Assert.That.ObjectsAreEqual(JsonNode.Parse( /*lang=json,strict*/ """{"id":1,"name":"Son"}"""),
+                                        JsonNode.Parse( /*lang=json,strict*/ """{"id":2,"name":"Son"}"""));
         }
     }
 }

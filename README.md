@@ -1924,6 +1924,20 @@ from the environment - e.g. `TestSdkSettings__OutputMode=Ai`. The code-only sett
 **Replacing the assertable client:** register your own `IAssertableHttpClient` before
 `AddAssertableHttpClient` - the SDK keeps an existing registration.
 
+**Explaining your own failures:** derive from `TestErrorHandler<TException>` and register it as
+`ITestErrorHandler` - before or after `AddAssertableHttpClient`. It is asked before the SDK's catch-all;
+return an empty string to pass the exception on to the next handler.
+
+```csharp
+public sealed class DomainRuleErrorHandler : TestErrorHandler<DomainRuleViolatedException>
+{
+    protected override Task<string> HandleExceptionAsync(IObjectAssertContext context, DomainRuleViolatedException exception)
+        => Task.FromResult($"DOMAIN RULE VIOLATED: {exception.Message}");
+}
+
+services.AddSingleton<ITestErrorHandler, DomainRuleErrorHandler>();
+```
+
 ### Type-Safe Configuration
 
 `TestSdkSettings` is a plain settings record - data only, no logic - providing:
