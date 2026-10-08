@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 {
-    public static class AddContentTypeHeaderValidationStepExtension
+    internal static class AddContentTypeHeaderValidationStepExtension
     {
         /// <summary>
         /// Registers the content type header validation step and its dependencies.

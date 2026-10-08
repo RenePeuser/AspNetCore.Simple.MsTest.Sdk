@@ -5,6 +5,7 @@ using AspNetCore.Simple.MsTest.Sdk;
 using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Controllers.Test.Settings
@@ -72,6 +73,34 @@ namespace Controllers.Test.Settings
                                  settings.RequestFolderName,
                                  because: "A configureSettings touching another property must not be lost.",
                                  fix: "Apply every configureSettings to the one instance, in call order.");
+        }
+
+        [TestMethod]
+        public void AddAssertableHttpClientCalledTwiceMustApplyBothSettingsAndHandOverOnce()
+        {
+            var configuration = new ConfigurationBuilder().Build();
+            var services = new ServiceCollection();
+
+            // The consumer from registerServices, then ApiTestBase<T> itself.
+            services.AddAssertableHttpClient(configuration, settings => settings.WriteResponse = false);
+            services.AddAssertableHttpClient(configuration, settings => settings.ResponseFolderName = "Snapshots");
+
+            using var provider = services.BuildServiceProvider();
+            var settings = provider.GetRequiredService<TestSdkSettings>();
+
+            Assert.That.AreEqual(1,
+                                 services.Count(descriptor => descriptor.ServiceType == typeof(IHostedService)),
+                                 because: "The provider is handed to the static asserts once per host, no matter how often the sdk is registered.",
+                                 fix: "Register the ServiceProviderHandover via TryAddEnumerable.");
+
+            Assert.That.AreEqual("Snapshots",
+                                 settings.ResponseFolderName,
+                                 because: "The second configureSettings must reach the one settings instance as well.",
+                                 fix: "AddTestSdkSettings(configuration, configureSettings) must apply configureSettings to an already configured instance.");
+
+            Assert.That.IsFalse(settings.WriteResponse,
+                                because: "The first configureSettings must survive the second registration.",
+                                fix: "AddTestSdkSettings(configuration, configureSettings) must never replace an already configured instance.");
         }
 
         private static IEnumerable<Difference> IgnoreEverything(ImmutableList<Difference> differences)

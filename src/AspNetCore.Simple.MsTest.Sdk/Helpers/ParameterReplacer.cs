@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddParameterReplacerExtension
+    internal static class AddParameterReplacerExtension
     {
         public static void AddParameterReplacer(this IServiceCollection services)
         {
@@ -20,7 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// Service for replacing parameters in JSON strings.
     /// Handles both directions: placeholder → value (for comparison) and value → placeholder (for snapshot writing).
     /// </summary>
-    public interface IParameterReplacer
+    internal interface IParameterReplacer
     {
         /// <summary>
         /// Replaces placeholders with actual values in a JSON string.

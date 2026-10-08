@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 {
-    public static class AddStatusCodeValidationStepExtension
+    internal static class AddStatusCodeValidationStepExtension
     {
         /// <summary>
         /// Registers the status code validation step and its dependencies.

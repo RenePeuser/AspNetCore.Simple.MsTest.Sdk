@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddPrimitiveTypeConverterExtension
+    internal static class AddPrimitiveTypeConverterExtension
     {
         public static void AddPrimitiveTypeConverter(this IServiceCollection services)
         {
@@ -13,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface IPrimitiveTypeConverter
+    internal interface IPrimitiveTypeConverter
     {
         object ConvertTo(object source,
                          Type targetType);

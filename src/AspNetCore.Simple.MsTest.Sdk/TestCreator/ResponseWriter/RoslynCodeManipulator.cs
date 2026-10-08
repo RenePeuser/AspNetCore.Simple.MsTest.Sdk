@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public interface IRoslynCodeManipulator
+    internal interface IRoslynCodeManipulator
     {
         void ReplaceEmptyAnonymousObject(string filePath,
                                          int lineNumber,
@@ -194,7 +194,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public static class AddRoslynCodeManipulatorExtension
+    internal static class AddRoslynCodeManipulatorExtension
     {
         public static void AddRoslynCodeManipulator(this IServiceCollection services)
         {

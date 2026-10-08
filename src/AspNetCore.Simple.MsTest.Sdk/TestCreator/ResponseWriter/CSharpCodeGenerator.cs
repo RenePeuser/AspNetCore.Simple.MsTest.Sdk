@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public interface ICSharpCodeGenerator
+    internal interface ICSharpCodeGenerator
     {
         string GenerateAnonymousObjectInitializer(string jsonContent,
                                                   int baseIndentation);
@@ -24,7 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                int baseIndentation);
     }
 
-    public sealed class CSharpCodeGenerator : ICSharpCodeGenerator
+    internal sealed class CSharpCodeGenerator : ICSharpCodeGenerator
     {
         public string GenerateAnonymousObjectInitializer(string jsonContent,
                                                          int baseIndentation)
@@ -405,7 +405,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public static class AddCSharpCodeGeneratorExtension
+    internal static class AddCSharpCodeGeneratorExtension
     {
         public static void AddCSharpCodeGenerator(this IServiceCollection services)
         {

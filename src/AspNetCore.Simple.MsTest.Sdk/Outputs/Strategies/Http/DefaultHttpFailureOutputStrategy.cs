@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
-    public static class AddDefaultHttpFailureOutputStrategyExtension
+    internal static class AddDefaultHttpFailureOutputStrategyExtension
     {
         /// <summary>
         /// Registers the default HTTP failure output strategy.

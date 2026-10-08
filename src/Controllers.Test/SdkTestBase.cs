@@ -21,7 +21,7 @@ namespace Controllers.Test
 
             var services = new ServiceCollection();
 
-            services.AddAssertableHttpClient(configuration, consumerAssembly: typeof(SdkTestBase).Assembly);
+            services.AddAssertableHttpClient(configuration);
 
             return services.BuildServiceProvider();
         }

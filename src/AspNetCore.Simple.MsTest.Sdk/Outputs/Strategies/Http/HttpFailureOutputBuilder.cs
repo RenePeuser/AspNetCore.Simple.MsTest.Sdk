@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
-    public static class AddHttpFailureOutputBuilderExtension
+    internal static class AddHttpFailureOutputBuilderExtension
     {
         /// <summary>
         /// Registers the HTTP failure output builder service.

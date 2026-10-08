@@ -23,13 +23,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private static IServiceProvider? _serviceProvider;
 
         /// <summary>
-        ///     Hands the host's provider to all static assert extensions.
-        ///     Call this method once during test initialization (e.g., in [AssemblyInitialize])
-        ///     after registering services via services.AddAssertableHttpClient().
+        ///     Hands the host's provider to all static assert extensions. Called by the
+        ///     <see cref="ServiceProviderHandover" /> once a host registered via AddAssertableHttpClient starts.
         ///     The provider has to stay alive for the whole test run - it is resolved from on every assert.
         /// </summary>
         /// <param name="serviceProvider">The service provider containing registered services</param>
-        public static void Setup(IServiceProvider serviceProvider)
+        internal static void Setup(IServiceProvider serviceProvider)
         {
             lock (ServiceProviderGate)
             {
@@ -38,13 +37,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         /// <summary>
-        ///     Configures the sdk for test projects without a host - pure object asserts, for example.
-        ///     Call it once in [AssemblyInitialize]; calling it again replaces the settings.
-        ///     With a host, pass the settings to <c>AddAssertableHttpClient</c> / <c>AddTestSdkSettings</c> instead.
+        ///     Replaces the sdk's own container (no host) with one built from <paramref name="configureSettings" />.
+        ///     Calling it again replaces the settings. Consumers pass their settings to <c>AddAssertableHttpClient</c>.
         /// </summary>
         /// <param name="configureSettings">Code-only settings applied on top of the environment variables.</param>
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void Setup(Action<TestSdkSettings> configureSettings)
+        internal static void Setup(Action<TestSdkSettings> configureSettings)
         {
             // The last frame where the consumer is still the caller - see ITextDecoratorProvider.
             var consumerAssembly = Assembly.GetCallingAssembly();
@@ -83,12 +81,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         /// <summary>
-        ///     Until a test hands over its host's provider - and for pure object asserts, which never do -
+        ///     Until a host registered via AddAssertableHttpClient starts - and for pure object asserts, which never start one -
         ///     the extensions run on the sdk's own container, built from the very same registrations.
         ///     It is bound to the first consumer assembly asking: every test assembly runs in its own
         ///     test host process, so that one decides plain vs ANSI output for the whole run.
         ///     Without a host there is no endpoint registry - the first endpoint validation then reports
-        ///     the missing Setup instead of failing cryptically.
+        ///     the missing host registration instead of failing cryptically.
         /// </summary>
         private static ServiceProvider CreateDefaultServiceProvider(Assembly consumerAssembly,
                                                                     Action<TestSdkSettings>? configureSettings)

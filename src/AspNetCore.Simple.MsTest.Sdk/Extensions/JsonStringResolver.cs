@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddJsonStringResolverExtension
+    internal static class AddJsonStringResolverExtension
     {
         public static void AddJsonStringResolver(this IServiceCollection services)
         {
@@ -21,7 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// <summary>
     /// Service for resolving and validating JSON strings with enhanced error formatting.
     /// </summary>
-    public interface IJsonStringResolver
+    internal interface IJsonStringResolver
     {
         /// <summary>
         /// Gets and validates JSON string from various sources with type checking.

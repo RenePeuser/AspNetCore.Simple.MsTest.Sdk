@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
-    public static class AddHttpFailureOutputHelperExtension
+    internal static class AddHttpFailureOutputHelperExtension
     {
         /// <summary>
         /// Registers the HTTP failure output helper service.
@@ -22,7 +22,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
     /// Provides helper methods for building HTTP failure output.
     /// This interface allows customers to override default formatting behavior.
     /// </summary>
-    public interface IHttpFailureOutputHelper
+    internal interface IHttpFailureOutputHelper
     {
         /// <summary>
         /// Builds the standard Test Information section with project, class, method, line, file, and failure type.

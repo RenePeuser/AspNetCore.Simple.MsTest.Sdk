@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 {
-    public static class AddSourceLocationHelperExtension
+    internal static class AddSourceLocationHelperExtension
     {
         public static void AddSourceLocationHelper(this IServiceCollection services)
         {
@@ -14,7 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
         }
     }
 
-    public interface ISourceLocationHelper
+    internal interface ISourceLocationHelper
     {
 #pragma warning disable CA1055 // Returns string for logging/output purposes, not for navigation
         string ToClickableUri(string? sourceLocation,
@@ -27,7 +27,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
     /// <summary>
     /// Helper methods for converting source locations (type names) to clickable file URIs.
     /// </summary>
-    public sealed class SourceLocationHelper : ISourceLocationHelper
+    internal sealed class SourceLocationHelper : ISourceLocationHelper
     {
         /// <summary>
         /// Tries to convert a source location string (type name or method name) to a clickable file:/// URI.

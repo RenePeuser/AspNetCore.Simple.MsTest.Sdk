@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
-    public static class AddSnapshotReferenceGuardExtension
+    internal static class AddSnapshotReferenceGuardExtension
     {
         public static void AddSnapshotReferenceGuard(this IServiceCollection services)
         {

@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddSnapshotPlaceholderGuardExtension
+    internal static class AddSnapshotPlaceholderGuardExtension
     {
         public static void AddSnapshotPlaceholderGuard(this IServiceCollection services)
         {
@@ -16,7 +16,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// <summary>
     ///     Guards against losing placeholders when overwriting snapshots.
     /// </summary>
-    public interface ISnapshotPlaceholderGuard
+    internal interface ISnapshotPlaceholderGuard
     {
         /// <summary>
         ///     Throws when <paramref name="contentToWrite" /> would drop a placeholder that

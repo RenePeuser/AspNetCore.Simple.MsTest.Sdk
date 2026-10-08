@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Strategies
 {
-    public static class AddHttpResponseOutputStrategyExtension
+    internal static class AddHttpResponseOutputStrategyExtension
     {
         public static void AddHttpResponseOutputStrategy(this IServiceCollection services)
         {

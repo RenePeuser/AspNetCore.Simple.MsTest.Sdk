@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddResourceRootNamespaceResolverExtension
+    internal static class AddResourceRootNamespaceResolverExtension
     {
         public static void AddResourceRootNamespaceResolver(this IServiceCollection services)
         {
@@ -26,7 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// "Pulse.DataManagement.Test.API.V1.Results.Foo.json".
     /// Assuming the assembly name would map such a resource to no physical file at all.
     /// </summary>
-    public interface IResourceRootNamespaceResolver
+    internal interface IResourceRootNamespaceResolver
     {
         /// <summary>
         /// The root namespace shared by the majority of the assembly's manifest resources.

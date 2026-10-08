@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddCurlFormatterExtension
+    internal static class AddCurlFormatterExtension
     {
         public static void AddCurlFormatter(this IServiceCollection services)
         {
@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface ICurlFormatter
+    internal interface ICurlFormatter
     {
         string GetCurlAsFormattedString(string curl);
     }

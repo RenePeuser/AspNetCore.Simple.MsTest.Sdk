@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddDifferencesTableBuilderExtension
+    internal static class AddDifferencesTableBuilderExtension
     {
         public static void AddDifferencesTableBuilder(this IServiceCollection services)
         {
@@ -25,7 +25,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface IDifferencesTableBuilder
+    internal interface IDifferencesTableBuilder
     {
         /// <summary>
         /// Builds differences table from list of differences.

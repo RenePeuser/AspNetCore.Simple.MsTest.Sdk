@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddHumanModeRenderStrategyExtension
+    internal static class AddHumanModeRenderStrategyExtension
     {
         public static void AddHumanModeRenderStrategy(this IServiceCollection services)
         {

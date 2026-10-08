@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddObjectSpecificOutputFormatterExtension
+    internal static class AddObjectSpecificOutputFormatterExtension
     {
         public static void AddObjectSpecificOutputFormatter(this IServiceCollection services)
         {

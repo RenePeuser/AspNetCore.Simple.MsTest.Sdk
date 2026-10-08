@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Strategies
 {
-    public static class AddPrimitiveOutputStrategyExtension
+    internal static class AddPrimitiveOutputStrategyExtension
     {
         public static void AddPrimitiveOutputStrategy(this IServiceCollection services)
         {

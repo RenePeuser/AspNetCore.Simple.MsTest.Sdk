@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using AspNetCore.Simple.MsTest.Sdk;
+using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MinimalApi.Test.Api.Persons.V1.Shared;
@@ -31,12 +32,11 @@ namespace MinimalApi.Test
                                                     {
                                                         ServiceCollection = services;
 
-                                                        // Registered before the sdk's own registration, so it wins.
-                                                        services.AddTestSdkSettings(configuration,
-                                                                                    settings =>
-                                                                                    {
-                                                                                        settings.DifferenceFunc = TestHelpers.IgnoreIdDifferences;
-                                                                                    });
+                                                        services.AddAssertableHttpClient(configuration,
+                                                                                         settings =>
+                                                                                         {
+                                                                                             settings.DifferenceFunc = TestHelpers.IgnoreIdDifferences;
+                                                                                         });
                                                     });
 
             Client = _apiTestBase.CreateClient();

@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Decorators
 {
-    public static class AddPlainTextDecoratorExtension
+    internal static class AddPlainTextDecoratorExtension
     {
         public static void AddPlainTextDecorator(this IServiceCollection services)
         {

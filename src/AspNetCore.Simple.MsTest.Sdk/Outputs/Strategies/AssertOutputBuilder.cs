@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Strategies
 {
-    public static class AddAssertOutputBuilderExtension
+    internal static class AddAssertOutputBuilderExtension
     {
         public static void AddAssertOutputBuilder(this IServiceCollection services)
         {
@@ -21,7 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
     /// Ensures exactly one strategy matches - throws if zero or multiple strategies are found.
     /// Encapsulates both strategy resolution and output building.
     /// </summary>
-    public interface IAssertOutputBuilder
+    internal interface IAssertOutputBuilder
     {
         /// <summary>
         /// Builds formatted assertion failure output using the appropriate strategy.

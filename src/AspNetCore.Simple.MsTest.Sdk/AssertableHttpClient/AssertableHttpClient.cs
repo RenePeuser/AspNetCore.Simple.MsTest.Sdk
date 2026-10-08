@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,24 +19,34 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
     public static class AddAssertableHttpClientExtension
     {
         /// <summary>
-        /// Registers all assertable HTTP client services and their dependencies in the DI container.
-        /// Feature-based registration following the dependency tree pattern.
+        /// The one entry point of the sdk: registers every service it needs and its settings. Nothing else
+        /// has to be called - once the host starts, the static asserts resolve from this very container.
+        /// Calling it more than once is safe; every <paramref name="configureSettings"/> is applied in call order.
         /// </summary>
         /// <param name="services">The service collection to register into.</param>
         /// <param name="configuration">Configuration the <c>TestSdkSettings</c> section is bound from.</param>
         /// <param name="configureSettings">Code-only settings (json options, difference filters, ...) applied on top of the configuration.</param>
-        /// <param name="consumerAssembly">
-        /// The test assembly the sdk is serving. Defaults to the direct caller, which is correct for a
-        /// test project registering the sdk itself; <c>ApiTestBase&lt;T&gt;</c> hands its own caller in
-        /// because otherwise the "calling assembly" would be the sdk.
-        /// </param>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static void AddAssertableHttpClient(this IServiceCollection services,
                                                    IConfiguration configuration,
-                                                   Action<TestSdkSettings>? configureSettings = null,
-                                                   Assembly? consumerAssembly = null)
+                                                   Action<TestSdkSettings>? configureSettings = null)
         {
-            consumerAssembly ??= Assembly.GetCallingAssembly();
+            // The last frame where the consumer is still the caller - see ITextDecoratorProvider.
+            services.AddAssertableHttpClient(configuration, configureSettings, Assembly.GetCallingAssembly());
+        }
 
+        /// <param name="services">The service collection to register into.</param>
+        /// <param name="configuration">Configuration the <c>TestSdkSettings</c> section is bound from.</param>
+        /// <param name="configureSettings">Code-only settings applied on top of the configuration.</param>
+        /// <param name="consumerAssembly">
+        /// The test assembly the sdk is serving. <c>ApiTestBase&lt;T&gt;</c> hands its own caller in
+        /// because otherwise the "calling assembly" would be the sdk.
+        /// </param>
+        internal static void AddAssertableHttpClient(this IServiceCollection services,
+                                                     IConfiguration configuration,
+                                                     Action<TestSdkSettings>? configureSettings,
+                                                     Assembly consumerAssembly)
+        {
             // 1. The one settings instance first - every registration below depends on it
             services.AddTestSdkSettings(configuration, configureSettings);
 
@@ -66,6 +77,9 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
             // 4. Register the service itself
             services.AddSnapshotReferenceGuard();
             services.AddSingletonIfNotExists<IAssertableHttpClient, AssertableHttpClient>();
+
+            // 5. Hand the started host's provider to the static asserts - no manual Setup call
+            services.AddServiceProviderHandover();
         }
     }
 

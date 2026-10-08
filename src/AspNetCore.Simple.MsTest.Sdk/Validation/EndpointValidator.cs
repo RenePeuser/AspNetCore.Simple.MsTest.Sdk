@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
-    public static class AddEndpointValidatorExtension
+    internal static class AddEndpointValidatorExtension
     {
         public static void AddEndpointValidator(this IServiceCollection services)
         {
@@ -21,7 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         }
     }
 
-    public interface IEndpointValidator
+    internal interface IEndpointValidator
     {
         /// <summary>
         /// Validates the HTTP assert context against the registered endpoints.

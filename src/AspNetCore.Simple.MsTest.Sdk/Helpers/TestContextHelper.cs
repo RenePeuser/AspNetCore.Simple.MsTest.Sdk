@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 {
-    public static class AddTestContextHelperExtension
+    internal static class AddTestContextHelperExtension
     {
         public static void AddTestContextHelper(this IServiceCollection services)
         {

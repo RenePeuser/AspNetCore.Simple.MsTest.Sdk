@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddCurlPrinterExtension
+    internal static class AddCurlPrinterExtension
     {
         public static void AddCurlPrinter(this IServiceCollection services)
         {

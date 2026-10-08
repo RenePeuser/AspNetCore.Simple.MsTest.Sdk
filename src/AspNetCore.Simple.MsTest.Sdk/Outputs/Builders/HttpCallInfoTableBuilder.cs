@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddHttpCallInfoTableBuilderExtension
+    internal static class AddHttpCallInfoTableBuilderExtension
     {
         public static void AddHttpCallInfoTableBuilder(this IServiceCollection services)
         {
@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface IHttpCallInfoTableBuilder
+    internal interface IHttpCallInfoTableBuilder
     {
         /// <summary>
         /// Builds HTTP call information table from HTTP response context.

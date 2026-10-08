@@ -99,22 +99,18 @@ public abstract class ApiTestBase
 }
 ```
 
-That's it. `ApiTestBase<TStartup>` performs both required steps internally:
-
-1. `services.AddAssertableHttpClient(configuration)` — registers `IAssertableHttpClient`, the endpoint
-   registry used for validation, the diff engine and the failure reporters.
-2. `HttpClientAssertExtensions.Setup(serviceProvider)` — hands that provider to the static
-   `Assert…Async` extension methods. They resolve from it on every assert, so it has to stay alive for
-   the whole test run - never dispose it right after `Setup`.
+That's it. `ApiTestBase<TStartup>` calls `services.AddAssertableHttpClient(configuration)` for you — it
+registers `IAssertableHttpClient`, the endpoint registry used for validation, the diff engine and the
+failure reporters. As soon as the host starts, the static `Assert…Async` extension methods resolve from
+that very container - there is nothing else to call.
 
 Global settings (json options, difference filters, output mode, ...) are configured once through
 `TestSdkSettings` - see [Configuration via TestSdkSettings](#configuration-via-testsdksettings).
 
-### Bringing your own host? Then do these two steps yourself
+### Bringing your own host? One call
 
 If you don't use `ApiTestBase<TStartup>` — e.g. you have your own `WebApplicationFactory<T>`, a custom
-fixture, or a hand-rolled host — the SDK cannot hook itself in. You have to make both calls explicitly,
-exactly once, in `[AssemblyInitialize]`:
+fixture, or a hand-rolled host — register the SDK in that host yourself. It is the only call:
 
 ```csharp
 [TestClass]
@@ -131,16 +127,17 @@ public abstract class ApiTestBase
                 builder.ConfigureServices((context,
                                            services) =>
                 {
-                    // 1. REQUIRED: endpoint validation + assertable HTTP client features
-                    services.AddAssertableHttpClient(context.Configuration);
+                    // The one registration - settings included. Once the host starts,
+                    // every static assert resolves from this container.
+                    services.AddAssertableHttpClient(context.Configuration, settings =>
+                    {
+                        settings.DifferenceFunc = GlobalDifferenceFunc;
+                        settings.WriteResponse = false;
+                    });
                 });
             });
 
         Client = _factory.CreateClient();
-
-        // 2. REQUIRED: makes all HttpClientAssertExtensions 100% functional.
-        //    Must run *after* the host is built, and must use the *real* provider of the running host.
-        HttpClientAssertExtensions.Setup(_factory.Services);
     }
 
     protected static HttpClient Client { get; private set; } = null!;
@@ -154,16 +151,17 @@ public abstract class ApiTestBase
 }
 ```
 
-Miss either step and the first assert call tells you so instead of failing cryptically:
+Keep the factory alive for the whole test run - the asserts resolve from its provider on every call.
+Forget the registration and the first assert call tells you so instead of failing cryptically:
 
 ```text
 ⚠️  MISSING REGISTRATION
 
 The AssertableHttpClient requires endpoint registration to validate HTTP calls.
-Please ensure the following registrations exist in your test setup:
+Please ensure the sdk is registered in the host under test and the host is started
+(ApiTestBase<T> or your own WebApplicationFactory) before the first assert:
 
-  1. services.AddAssertableHttpClient(configuration);
-  2. HttpClientAssertExtensions.Setup(_apiTestBase.Services);
+  services.AddAssertableHttpClient(configuration, settings => { ... });
 ```
 
 ### First test
@@ -1528,7 +1526,7 @@ await Client.AssertPostAsync<CreateUserResponse>(
 Or globally (see [Configuration via TestSdkSettings](#configuration-via-testsdksettings)):
 
 ```csharp
-services.AddTestSdkSettings(configuration, settings => settings.WriteResponse = true);
+services.AddAssertableHttpClient(configuration, settings => settings.WriteResponse = true);
 ```
 
 Or via environment variable:
@@ -1552,7 +1550,7 @@ Some values are dynamic and should not break the test: timestamps, GUIDs, trace 
 Global ignore example:
 
 ```csharp
-services.AddTestSdkSettings(configuration, settings =>
+services.AddAssertableHttpClient(configuration, settings =>
     settings.DifferenceFunc = differences => differences.Where(difference => !difference.MemberPath.Contains("timestamp")));
 ```
 
@@ -1589,7 +1587,7 @@ Global:
 
 ```csharp
 // Keep every difference except database-generated ids.
-services.AddTestSdkSettings(configuration, settings =>
+services.AddAssertableHttpClient(configuration, settings =>
     settings.DifferenceFilter = difference => difference.MemberPath != "content.value.id");
 ```
 
@@ -1623,7 +1621,7 @@ instead of compared index by index, so a pure reordering is no difference, while
 still is:
 
 ```csharp
-services.AddTestSdkSettings(configuration, settings =>
+services.AddAssertableHttpClient(configuration, settings =>
     settings.OrderIndependentArrayFilter = array => array.Path == "content.value.tags");
 ```
 
@@ -1722,7 +1720,7 @@ public Task Should_Return_No_Users_If_No_One_Was_Added()
 ### Ignore generated IDs
 
 Register it once for the whole test project with
-`services.AddTestSdkSettings(configuration, settings => settings.DifferenceFunc = IgnoreId);`,
+`services.AddAssertableHttpClient(configuration, settings => settings.DifferenceFunc = IgnoreId);`,
 or pass it per assert as `differenceFunc: IgnoreId`.
 
 ```csharp
@@ -1898,14 +1896,14 @@ TestSdkSettings__ResponseFolderName=ExpectedResponses
 **Note:** When overriding array properties like `VolatileHeaderNames`, you **replace** the defaults entirely. 
 List every header name you want to ignore - the defaults are not merged.
 
-**Via code - with `ApiTestBase<TStartup>`**, in the `registerServices` callback. It runs before the SDK
-registers itself, so your settings win:
+**Via code** - always the same call. With `ApiTestBase<TStartup>` you make it in the `registerServices`
+callback; the base class registers the SDK once more afterwards and keeps your settings:
 
 ```csharp
 _apiTestBase = new ApiTestBase<Program>("Development",
                                         (services, configuration) =>
                                         {
-                                            services.AddTestSdkSettings(configuration, settings =>
+                                            services.AddAssertableHttpClient(configuration, settings =>
                                             {
                                                 settings.JsonSerializerOptions = MyApiJsonOptions.Create();
                                                 settings.DifferenceFilter = difference => difference.MemberPath != "content.value.id";
@@ -1913,17 +1911,15 @@ _apiTestBase = new ApiTestBase<Program>("Development",
                                         });
 ```
 
-**Via code - with your own host:**
+**With your own host** - the very same call:
 
 ```csharp
 services.AddAssertableHttpClient(configuration, settings => settings.ShowTokenInCurl = true);
 ```
 
-**Via code - without any host** (pure `Assert.That.ObjectsAreEqual` tests), once in `[AssemblyInitialize]`:
-
-```csharp
-HttpClientAssertExtensions.Setup(settings => settings.DifferenceFilter = difference => !difference.MemberPath.Contains("timestamp"));
-```
+**Without any host** (pure `Assert.That.ObjectsAreEqual` tests) the SDK runs on its own container, configured
+from the environment - e.g. `TestSdkSettings__OutputMode=Ai`. The code-only settings (`DifferenceFunc`,
+`JsonSerializerOptions`, ...) need a host registered via `AddAssertableHttpClient`.
 
 **Replacing the assertable client:** register your own `IAssertableHttpClient` before
 `AddAssertableHttpClient` - the SDK keeps an existing registration.
@@ -1951,12 +1947,13 @@ The static settings properties are gone - every global setting now lives on `Tes
 | `AssertObjectExtensions.WriteResponse`                                                       | `settings.WriteResponse`                                                  |
 | `AssertObjectExtensions.ResponseFileFullPath`                                                | removed - it had no effect                                                |
 | env var `AspNetCoreSimpleMsTestSdk__WriteResponse`                                           | `TestSdkSettings__WriteResponse`                                          |
-| `Tables.TableFormatter`, `Outputs.Formatters.JsonTypeMismatchFormatter`                      | removed - use `ITableBuilder` / `IJsonTypeMismatchOutputBuilder`          |
+| `Tables.TableFormatter`, `Outputs.Formatters.JsonTypeMismatchFormatter`                      | removed - internal helpers                                                |
+| `HttpClientAssertExtensions.Setup(provider)`                                                 | removed - the started host's provider is handed over automatically        |
+| `AddAssertableHttpClientFactory()` and the other `services.Add…()` building blocks           | internal - `AddAssertableHttpClient` registers everything                 |
 
-Where to configure instead: `services.AddTestSdkSettings(configuration, settings => ...)` (with
-`ApiTestBase<T>`), `services.AddAssertableHttpClient(configuration, settings => ...)` (own host) or
-`HttpClientAssertExtensions.Setup(settings => ...)` (no host). The provider passed to
-`HttpClientAssertExtensions.Setup(provider)` must stay alive for the whole test run.
+Where to configure instead: `services.AddAssertableHttpClient(configuration, settings => ...)` - from the
+`registerServices` callback of `ApiTestBase<T>` or in your own host. It is the only registration call; the
+started host's provider is handed to the static asserts automatically.
 
 Full details: [RELEASE-NOTES.md](RELEASE-NOTES.md).
 

@@ -7,7 +7,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     /// <summary>
     /// Represents a parsed endpoint with resolved metadata.
     /// </summary>
-    public sealed record EndpointInfo
+    internal sealed record EndpointInfo
     {
         /// <summary>
         /// HTTP method (GET, POST, PUT, DELETE, etc.)

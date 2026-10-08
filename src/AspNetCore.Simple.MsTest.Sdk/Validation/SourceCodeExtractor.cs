@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
-    public static class AddSourceCodeExtractorExtension
+    internal static class AddSourceCodeExtractorExtension
     {
         public static void AddSourceCodeExtractor(this IServiceCollection services)
         {
@@ -14,7 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         }
     }
 
-    public interface ISourceCodeExtractor
+    internal interface ISourceCodeExtractor
     {
         /// <summary>
         /// Extracts the test call code starting from the given line number.

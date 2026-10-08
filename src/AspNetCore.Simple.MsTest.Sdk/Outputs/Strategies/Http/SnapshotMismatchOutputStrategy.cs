@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
-    public static class AddSnapshotMismatchOutputStrategyExtension
+    internal static class AddSnapshotMismatchOutputStrategyExtension
     {
         /// <summary>
         /// Registers the snapshot mismatch output strategy.

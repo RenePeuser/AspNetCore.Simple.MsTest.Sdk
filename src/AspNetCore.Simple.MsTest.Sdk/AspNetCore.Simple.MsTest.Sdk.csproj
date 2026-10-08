@@ -19,13 +19,13 @@
             - AssertObjectExtensions.ResponseFileFullPath removed (had no effect).
             - Environment variable AspNetCoreSimpleMsTestSdk__WriteResponse renamed to TestSdkSettings__WriteResponse.
             - Public helpers Tables.TableFormatter and Outputs.Formatters.JsonTypeMismatchFormatter removed.
-            Configure via services.AddTestSdkSettings(configuration, s =&gt; ...), services.AddAssertableHttpClient(configuration, s =&gt; ...)
-            or HttpClientAssertExtensions.Setup(s =&gt; ...) when there is no host.
+            - services.AddAssertableHttpClient(configuration, s =&gt; ...) is the only public registration; it is all you call.
+              HttpClientAssertExtensions.Setup, AddAssertableHttpClientFactory, AddTestSdkSettings and all other
+              services.Add...() building blocks are no longer public - the started host's provider is handed over automatically.
 
             NEW FEATURES:
             - Output modes: TestSdkSettings.OutputMode = Human | Ai | Hybrid (env var TestSdkSettings__OutputMode=Ai) for structured, AI-parseable failures.
-            - HttpClientAssertExtensions.Setup(Action&lt;TestSdkSettings&gt;) for tests without a host.
-            - ApiTestBase&lt;T&gt; shares the running host's service provider with the assert extensions.
+            - The running host's service provider is shared with the assert extensions - ApiTestBase&lt;T&gt; and custom hosts alike.
 
             FIXES:
             - Dictionary responses in recording mode (writeResponse) no longer fail with an array/object mismatch.

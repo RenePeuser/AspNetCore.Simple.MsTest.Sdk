@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
-    public static class AddSchemaMismatchOutputStrategyExtension
+    internal static class AddSchemaMismatchOutputStrategyExtension
     {
         /// <summary>
         /// Registers the schema mismatch output strategy.

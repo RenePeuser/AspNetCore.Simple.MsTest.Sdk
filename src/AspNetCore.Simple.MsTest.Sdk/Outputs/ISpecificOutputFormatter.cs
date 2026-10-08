@@ -4,7 +4,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// Strategy interface for context-specific output formatting.
     /// Each implementation handles formatting for a specific assertion context type.
     /// </summary>
-    public interface ISpecificOutputFormatter
+    internal interface ISpecificOutputFormatter
     {
         /// <summary>
         /// Checks if this formatter can handle the given context.

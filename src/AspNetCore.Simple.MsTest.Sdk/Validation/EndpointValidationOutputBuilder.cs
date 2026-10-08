@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
-    public static class AddEndpointValidationOutputBuilderExtension
+    internal static class AddEndpointValidationOutputBuilderExtension
     {
         public static void AddEndpointValidationOutputBuilder(this IServiceCollection services)
         {
@@ -27,7 +27,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         }
     }
 
-    public interface IEndpointValidationOutputBuilder
+    internal interface IEndpointValidationOutputBuilder
     {
         /// <summary>
         /// Builds error message for endpoint not found.
@@ -653,10 +653,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine(textDecorator.Highlight("⚠️  MISSING REGISTRATION"));
                 sb.AppendLine();
                 sb.AppendLine("The AssertableHttpClient requires endpoint registration to validate HTTP calls.");
-                sb.AppendLine("Please ensure the following registrations exist in your test setup:");
+                sb.AppendLine("Please ensure the sdk is registered in the host under test and the host is started");
+                sb.AppendLine("(ApiTestBase<T> or your own WebApplicationFactory) before the first assert:");
                 sb.AppendLine();
-                sb.AppendLine(textDecorator.Success("  1. services.AddAssertableHttpClient(configuration);"));
-                sb.AppendLine(textDecorator.Success("  2. HttpClientAssertExtensions.Setup(_apiTestBase.Services);"));
+                sb.AppendLine(textDecorator.Success("  services.AddAssertableHttpClient(configuration, settings => { ... });"));
                 sb.AppendLine();
                 sb.AppendLine();
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
@@ -670,7 +670,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine(textDecorator.Success("    .AssertGetAsync<MyType>(url, skipEndpointValidation: true)"));
                 sb.AppendLine();
                 sb.AppendLine("  Globally:");
-                sb.AppendLine(textDecorator.Success("    services.AddTestSdkSettings(configuration, settings => settings.SkipEndpointValidation = true);"));
+                sb.AppendLine(textDecorator.Success("    services.AddAssertableHttpClient(configuration, settings => settings.SkipEndpointValidation = true);"));
                 sb.AppendLine();
                 sb.AppendLine(textDecorator.Error("    ⚠️  Use with caution! Skipping validation disables type-safety checks."));
             }

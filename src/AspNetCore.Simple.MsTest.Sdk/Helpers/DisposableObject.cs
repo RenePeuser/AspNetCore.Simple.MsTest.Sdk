@@ -2,7 +2,7 @@ using System;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public abstract class DisposableObject : IDisposable
+    internal abstract class DisposableObject : IDisposable
     {
         private bool _isDisposed;
 

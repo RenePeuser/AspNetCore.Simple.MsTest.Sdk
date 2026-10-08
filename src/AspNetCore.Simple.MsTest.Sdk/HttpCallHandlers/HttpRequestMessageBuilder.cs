@@ -10,7 +10,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddHttpRequestMessageBuilderExtension
+    internal static class AddHttpRequestMessageBuilderExtension
     {
         public static void AddHttpRequestMessageBuilder(this IServiceCollection services)
         {
@@ -22,7 +22,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface IHttpRequestMessageBuilder
+    internal interface IHttpRequestMessageBuilder
     {
         HttpRequestMessage BuildFrom(HttpMethod method,
                                      string uri,

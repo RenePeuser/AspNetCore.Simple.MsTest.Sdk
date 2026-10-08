@@ -6,7 +6,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
     /// Orchestrator that coordinates HTTP failure output strategies.
     /// Selects the appropriate strategy based on failure type and delegates header building.
     /// </summary>
-    public interface IHttpFailureOutputBuilder
+    internal interface IHttpFailureOutputBuilder
     {
         /// <summary>
         /// Builds the header section by delegating to the appropriate strategy.

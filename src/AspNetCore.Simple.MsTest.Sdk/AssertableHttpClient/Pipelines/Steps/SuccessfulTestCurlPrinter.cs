@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 {
-    public static class AddSuccessfulTestCurlPrinterExtension
+    internal static class AddSuccessfulTestCurlPrinterExtension
     {
         /// <summary>
         /// Registers the curl printer step and its dependencies.

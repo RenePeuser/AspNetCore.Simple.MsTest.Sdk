@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 {
-    public static class AddTestClassNameResolverExtension
+    internal static class AddTestClassNameResolverExtension
     {
         public static void AddTestClassNameResolver(this IServiceCollection services)
         {
@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
         }
     }
 
-    public interface ITestClassNameResolver
+    internal interface ITestClassNameResolver
     {
         string Resolve(string callerFilePath,
                        string projectName);
@@ -30,7 +30,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
     /// in <see cref="EmbeddedFileLocalizer"/>. The nearest folder holding a csproj is the project root
     /// by definition, so that is what is used first.
     /// </summary>
-    public sealed class TestClassNameResolver(ISourceLocationHelper sourceLocationHelper) : ITestClassNameResolver
+    internal sealed class TestClassNameResolver(ISourceLocationHelper sourceLocationHelper) : ITestClassNameResolver
     {
         public string Resolve(string callerFilePath,
                               string projectName)

@@ -14,7 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// Enable with the environment variable <c>AspNetCoreSimpleMsTestSdk__Trace=true</c>, or by setting
     /// <see cref="Enabled"/> from a test.
     /// </summary>
-    public static class SdkTrace
+    internal static class SdkTrace
     {
         private static bool? _enabled;
 

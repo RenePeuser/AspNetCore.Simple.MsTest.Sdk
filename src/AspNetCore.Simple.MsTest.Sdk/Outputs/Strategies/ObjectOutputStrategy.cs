@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Strategies
 {
-    public static class AddObjectOutputStrategyExtension
+    internal static class AddObjectOutputStrategyExtension
     {
         public static void AddObjectOutputStrategy(this IServiceCollection services)
         {

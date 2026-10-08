@@ -5,13 +5,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public interface IEmptyAnonymousObjectDetector
+    internal interface IEmptyAnonymousObjectDetector
     {
         bool IsEmptyAnonymousObject<T>(T obj,
                                        string expressionText);
     }
 
-    public sealed class EmptyAnonymousObjectDetector : IEmptyAnonymousObjectDetector
+    internal sealed class EmptyAnonymousObjectDetector : IEmptyAnonymousObjectDetector
     {
         public bool IsEmptyAnonymousObject<T>(T obj,
                                               string expressionText)
@@ -59,7 +59,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public static class AddEmptyAnonymousObjectDetectorExtension
+    internal static class AddEmptyAnonymousObjectDetectorExtension
     {
         public static void AddEmptyAnonymousObjectDetector(this IServiceCollection services)
         {

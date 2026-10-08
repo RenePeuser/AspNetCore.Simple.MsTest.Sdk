@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
-    public static class AddApiVersionResolverExtension
+    internal static class AddApiVersionResolverExtension
     {
         public static void AddApiVersionResolver(this IServiceCollection services)
         {
@@ -14,7 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         }
     }
 
-    public interface IApiVersionResolver
+    internal interface IApiVersionResolver
     {
         /// <summary>
         /// Resolves the API version from the URL and HTTP client headers.

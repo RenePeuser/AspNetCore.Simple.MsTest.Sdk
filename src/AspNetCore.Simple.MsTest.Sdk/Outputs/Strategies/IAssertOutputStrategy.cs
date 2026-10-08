@@ -6,7 +6,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
     /// Strategy for building assertion failure output based on context type.
     /// Different context types (Object, HTTP, HttpResponse) produce different output formats.
     /// </summary>
-    public interface IAssertOutputStrategy
+    internal interface IAssertOutputStrategy
     {
         /// <summary>
         /// Determines whether this strategy can handle the given context type.

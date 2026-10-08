@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddHttpCallHandlerExtension
+    internal static class AddHttpCallHandlerExtension
     {
         public static void AddHttpCallHandler(this IServiceCollection services)
         {
@@ -18,7 +18,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface IHttpCallHandler
+    internal interface IHttpCallHandler
     {
         Task<HttpResponseMessage> CallAsync(IHttpAssertContext context,
                                             CancellationToken cancellationToken = default);

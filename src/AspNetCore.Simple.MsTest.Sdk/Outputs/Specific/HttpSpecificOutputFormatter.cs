@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddHttpSpecificOutputFormatterExtension
+    internal static class AddHttpSpecificOutputFormatterExtension
     {
         public static void AddHttpSpecificOutputFormatter(this IServiceCollection services)
         {

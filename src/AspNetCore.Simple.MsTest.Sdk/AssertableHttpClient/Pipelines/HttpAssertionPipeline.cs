@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 {
-    public static class AddHttpAssertionPipelineExtension
+    internal static class AddHttpAssertionPipelineExtension
     {
         /// <summary>
         /// Registers the HTTP assertion pipeline and its steps.

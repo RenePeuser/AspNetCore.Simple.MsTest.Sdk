@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddAiModeRenderStrategyExtension
+    internal static class AddAiModeRenderStrategyExtension
     {
         public static void AddAiModeRenderStrategy(this IServiceCollection services)
         {

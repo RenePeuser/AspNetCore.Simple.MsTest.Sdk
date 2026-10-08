@@ -6,7 +6,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     /// Orchestrator that delegates to specific comparison strategies.
     /// Uses first-match pattern: finds the first strategy that can handle the comparison.
     /// </summary>
-    public interface IComparisonStrategy
+    internal interface IComparisonStrategy
     {
         /// <summary>
         /// Compares expected and current objects using the appropriate specific strategy.
@@ -21,7 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     /// Defines a specific comparison strategy for certain types.
     /// Strategies are checked in registration order until one matches via CanCompare.
     /// </summary>
-    public interface ISpecificComparisonStrategy
+    internal interface ISpecificComparisonStrategy
     {
         /// <summary>
         /// Determines if this strategy can handle the comparison for the given context.
@@ -44,7 +44,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     /// <summary>
     /// Result of a comparison operation.
     /// </summary>
-    public sealed record ComparisonResult
+    internal sealed record ComparisonResult
     {
         /// <summary>
         /// List of differences found during comparison.

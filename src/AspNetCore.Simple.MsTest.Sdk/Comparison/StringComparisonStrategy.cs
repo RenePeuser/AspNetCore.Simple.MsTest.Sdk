@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 {
-    public static class AddStringComparisonStrategyExtension
+    internal static class AddStringComparisonStrategyExtension
     {
         public static void AddStringComparisonStrategy(this IServiceCollection services)
         {

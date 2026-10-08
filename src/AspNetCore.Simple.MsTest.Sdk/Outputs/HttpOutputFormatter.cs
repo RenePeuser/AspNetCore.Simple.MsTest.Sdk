@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddHttpOutputFormatterExtension
+    internal static class AddHttpOutputFormatterExtension
     {
         public static void AddHttpOutputFormatter(this IServiceCollection services)
         {
@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface IHttpOutputFormatter
+    internal interface IHttpOutputFormatter
     {
         string GetOutputString(string errorInfo,
                                HttpMethod httpMethod,

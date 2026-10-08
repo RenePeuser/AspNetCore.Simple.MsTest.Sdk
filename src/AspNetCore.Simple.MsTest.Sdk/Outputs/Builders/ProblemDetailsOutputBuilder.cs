@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddProblemDetailsOutputBuilderExtension
+    internal static class AddProblemDetailsOutputBuilderExtension
     {
         public static void AddProblemDetailsOutputBuilder(this IServiceCollection services)
         {
@@ -25,7 +25,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface IProblemDetailsOutputBuilder
+    internal interface IProblemDetailsOutputBuilder
     {
         /// <summary>
         /// Builds error message for unexpected ProblemDetails exception during deserialization.

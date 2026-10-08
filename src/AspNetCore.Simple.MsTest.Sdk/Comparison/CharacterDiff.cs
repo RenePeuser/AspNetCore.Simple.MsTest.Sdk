@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 {
-    public static class AddCharacterDiffExtension
+    internal static class AddCharacterDiffExtension
     {
         public static void AddCharacterDiff(this IServiceCollection services)
         {
@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     /// Provides character-level diff highlighting for string comparisons.
     /// Uses LCS (Longest Common Subsequence) algorithm to find differences.
     /// </summary>
-    public interface ICharacterDiff
+    internal interface ICharacterDiff
     {
         /// <summary>
         /// Highlights differences between two strings at character level.

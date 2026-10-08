@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
-    public static class AddJsonFileExtensionValidatorExtension
+    internal static class AddJsonFileExtensionValidatorExtension
     {
         public static void AddJsonFileExtensionValidator(this IServiceCollection services)
         {
@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         }
     }
 
-    public interface IJsonFileExtensionValidator
+    internal interface IJsonFileExtensionValidator
     {
         /// <summary>
         /// Validates that file references have the required .json extension.

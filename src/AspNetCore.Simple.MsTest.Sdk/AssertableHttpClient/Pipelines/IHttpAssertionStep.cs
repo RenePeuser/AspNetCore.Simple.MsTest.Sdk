@@ -5,7 +5,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
     /// Each step performs a specific validation (e.g., status code, schema, values).
     /// Steps are executed sequentially and can fail fast by throwing an assertion exception.
     /// </summary>
-    public interface IHttpAssertionStep
+    internal interface IHttpAssertionStep
     {
         /// <summary>
         /// Executes this assertion step on the given HTTP response context.

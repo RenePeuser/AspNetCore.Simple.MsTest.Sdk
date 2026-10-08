@@ -6,7 +6,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// Strategy interface for mode-specific output rendering.
     /// Each implementation handles rendering for a specific output mode.
     /// </summary>
-    public interface IOutputModeRenderStrategy
+    internal interface IOutputModeRenderStrategy
     {
         /// <summary>
         /// Checks if this strategy can handle the given output mode.

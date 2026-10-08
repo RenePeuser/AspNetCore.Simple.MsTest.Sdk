@@ -13,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
     /// only would trade recording noise for a permanently red test, and doing it at write time only
     /// would leave every snapshot recorded before this change failing.
     /// </summary>
-    public static class VolatileHeaderFilter
+    internal static class VolatileHeaderFilter
     {
         public static ImmutableList<KeyValuePair<string, ImmutableList<string>>> WithoutVolatileHeaders(
             this ImmutableList<KeyValuePair<string, ImmutableList<string>>>? headers,

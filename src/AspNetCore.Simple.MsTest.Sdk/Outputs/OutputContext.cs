@@ -8,7 +8,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// Contains all data needed for formatting assertion failure output.
     /// This is a pure data container - rendering/formatting decisions are separate.
     /// </summary>
-    public sealed record OutputContext
+    internal sealed record OutputContext
     {
         // ============================================================
         // Title & Error Information

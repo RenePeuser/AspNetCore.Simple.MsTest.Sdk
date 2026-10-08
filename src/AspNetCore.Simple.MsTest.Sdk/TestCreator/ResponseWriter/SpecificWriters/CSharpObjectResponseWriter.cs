@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddCSharpObjectResponseWriterExtension
+    internal static class AddCSharpObjectResponseWriterExtension
     {
         public static void AddCSharpObjectResponseWriter(this IServiceCollection services)
         {

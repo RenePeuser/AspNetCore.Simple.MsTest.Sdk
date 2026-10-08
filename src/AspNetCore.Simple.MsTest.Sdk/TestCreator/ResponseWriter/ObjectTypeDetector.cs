@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public enum ObjectConstructionType
+    internal enum ObjectConstructionType
     {
         Unknown,
 
@@ -18,13 +18,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         ClassNominal
     }
 
-    public interface IObjectTypeDetector
+    internal interface IObjectTypeDetector
     {
         ObjectConstructionType DetectConstructionType<T>(T obj,
                                                          string expressionText);
     }
 
-    public sealed class ObjectTypeDetector : IObjectTypeDetector
+    internal sealed class ObjectTypeDetector : IObjectTypeDetector
     {
         public ObjectConstructionType DetectConstructionType<T>(T obj,
                                                                 string expressionText)
@@ -126,7 +126,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public static class AddObjectTypeDetectorExtension
+    internal static class AddObjectTypeDetectorExtension
     {
         public static void AddObjectTypeDetector(this IServiceCollection services)
         {

@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddHybridModeRenderStrategyExtension
+    internal static class AddHybridModeRenderStrategyExtension
     {
         public static void AddHybridModeRenderStrategy(this IServiceCollection services)
         {

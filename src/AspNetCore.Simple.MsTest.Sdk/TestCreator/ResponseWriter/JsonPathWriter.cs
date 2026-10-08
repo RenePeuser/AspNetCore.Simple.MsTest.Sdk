@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddJsonPathWriterExtension
+    internal static class AddJsonPathWriterExtension
     {
         public static void AddJsonPathWriter(this IServiceCollection services)
         {
@@ -13,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface IJsonPathWriter
+    internal interface IJsonPathWriter
     {
         void AddOrUpdate(JToken root,
                          string path,

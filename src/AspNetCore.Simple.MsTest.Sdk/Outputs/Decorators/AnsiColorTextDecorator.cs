@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Decorators
 {
-    public static class AddAnsiColorTextDecoratorExtension
+    internal static class AddAnsiColorTextDecoratorExtension
     {
         public static void AddAnsiColorTextDecorator(this IServiceCollection services)
         {

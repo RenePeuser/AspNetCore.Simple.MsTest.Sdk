@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
-    public static class AddStatusCodeMismatchOutputStrategyExtension
+    internal static class AddStatusCodeMismatchOutputStrategyExtension
     {
         /// <summary>
         /// Registers the status code mismatch output strategy.

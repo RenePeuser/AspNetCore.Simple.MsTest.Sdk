@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddUnresolvedParameterSectionBuilderExtension
+    internal static class AddUnresolvedParameterSectionBuilderExtension
     {
         public static void AddUnresolvedParameterSectionBuilder(this IServiceCollection services)
         {
@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface IUnresolvedParameterSectionBuilder
+    internal interface IUnresolvedParameterSectionBuilder
     {
         /// <summary>
         /// A hint about placeholders the snapshot still carries because nobody supplied a parameter for

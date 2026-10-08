@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddTestSdkSettingsExtension
+    internal static class AddTestSdkSettingsExtension
     {
         // Identifies the fallback registration, so a configured one can replace exactly that.
         private static readonly Func<IServiceProvider, TestSdkSettings> DefaultSettings = _ => new TestSdkSettings();

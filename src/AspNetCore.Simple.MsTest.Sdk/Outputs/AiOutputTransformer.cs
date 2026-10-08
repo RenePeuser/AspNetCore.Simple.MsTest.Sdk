@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddAiOutputTransformerExtension
+    internal static class AddAiOutputTransformerExtension
     {
         public static void AddAiOutputTransformer(this IServiceCollection services)
         {
@@ -19,7 +19,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// <summary>
     /// Transforms assertion contexts into structured JSON output optimized for AI agents.
     /// </summary>
-    public interface IAiOutputTransformer
+    internal interface IAiOutputTransformer
     {
         /// <summary>
         /// Transforms the assertion context and comparison results into structured JSON.

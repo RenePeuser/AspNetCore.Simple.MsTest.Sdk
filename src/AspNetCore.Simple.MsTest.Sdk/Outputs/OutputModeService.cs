@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddOutputModeServiceExtension
+    internal static class AddOutputModeServiceExtension
     {
         public static void AddOutputModeService(this IServiceCollection services)
         {
@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// <summary>
     /// Service responsible for determining the output mode from environment configuration.
     /// </summary>
-    public interface IOutputModeService
+    internal interface IOutputModeService
     {
         /// <summary>
         /// Gets the configured output mode (Human, Ai, or Hybrid).

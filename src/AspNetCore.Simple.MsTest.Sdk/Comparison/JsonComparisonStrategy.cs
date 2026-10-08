@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 {
-    public static class AddJsonComparisonStrategyExtension
+    internal static class AddJsonComparisonStrategyExtension
     {
         public static void AddJsonComparisonStrategy(this IServiceCollection services)
         {

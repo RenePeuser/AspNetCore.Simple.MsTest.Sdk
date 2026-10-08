@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddAssertServiceExtension
+    internal static class AddAssertServiceExtension
     {
         /// <summary>
         /// Registers all assertion services and their dependencies in the DI container.
@@ -66,7 +66,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// Represents an assertion service for comparing objects in tests.
     /// Core service that performs deep object comparisons with automatic diff generation.
     /// </summary>
-    public interface IAssertService
+    internal interface IAssertService
     {
         /// <summary>
         /// Compares two objects and asserts they are equal using the provided context configuration.

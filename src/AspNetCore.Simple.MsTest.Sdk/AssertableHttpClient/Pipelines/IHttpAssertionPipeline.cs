@@ -5,7 +5,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
     /// Executes steps sequentially until one fails (Assert.Fail) or all succeed.
     /// Replaces the strategy pattern with a simpler, more extensible pipeline approach.
     /// </summary>
-    public interface IHttpAssertionPipeline
+    internal interface IHttpAssertionPipeline
     {
         /// <summary>
         /// Executes all assertion steps in sequence on the given HTTP response context.

@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Helpers
 {
-    public static class AddEndpointSourceResolverExtension
+    internal static class AddEndpointSourceResolverExtension
     {
         public static void AddEndpointSourceResolver(this IServiceCollection services)
         {
@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Helpers
         }
     }
 
-    public interface IEndpointSourceResolver
+    internal interface IEndpointSourceResolver
     {
         /// <summary>
         /// Resolves the source file of the endpoint that serves the http call, as a clickable file:/// URI.

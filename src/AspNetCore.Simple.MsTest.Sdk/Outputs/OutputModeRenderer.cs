@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddOutputModeRendererExtension
+    internal static class AddOutputModeRendererExtension
     {
         public static void AddOutputModeRenderer(this IServiceCollection services)
         {
@@ -19,7 +19,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     ///     Renders assertion failure output based on the configured output mode.
     ///     Uses the Strategy Pattern to delegate to mode-specific render strategies.
     /// </summary>
-    public interface IOutputModeRenderer
+    internal interface IOutputModeRenderer
     {
         /// <summary>
         ///     Renders assertion failure output based on the current output mode.

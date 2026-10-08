@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Builders
 {
-    public static class AddJsonTypeMismatchOutputBuilderExtension
+    internal static class AddJsonTypeMismatchOutputBuilderExtension
     {
         public static void AddJsonTypeMismatchOutputBuilder(this IServiceCollection services)
         {
@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Builders
         }
     }
 
-    public interface IJsonTypeMismatchOutputBuilder
+    internal interface IJsonTypeMismatchOutputBuilder
     {
         /// <summary>
         /// Builds a formatted error message for JSON type mismatches.

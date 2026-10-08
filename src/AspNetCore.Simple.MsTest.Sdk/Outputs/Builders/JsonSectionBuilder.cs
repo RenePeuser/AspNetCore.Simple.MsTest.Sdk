@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddJsonSectionBuilderExtension
+    internal static class AddJsonSectionBuilderExtension
     {
         public static void AddJsonSectionBuilder(this IServiceCollection services)
         {
@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface IJsonSectionBuilder
+    internal interface IJsonSectionBuilder
     {
         /// <summary>
         /// Builds expected result section with label including response filename.

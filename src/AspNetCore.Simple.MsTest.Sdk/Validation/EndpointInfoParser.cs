@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
-    public static class AddEndpointInfoParserExtension
+    internal static class AddEndpointInfoParserExtension
     {
         public static void AddEndpointInfoParser(this IServiceCollection services)
         {
@@ -29,7 +29,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         }
     }
 
-    public interface IEndpointInfoParser
+    internal interface IEndpointInfoParser
     {
         /// <summary>
         ///     Gets all parsed endpoints with resolved metadata.
@@ -41,7 +41,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     /// <summary>
     ///     Strategy interface for parsing specific types of route endpoints.
     /// </summary>
-    public interface IRouteEndpointParser
+    internal interface IRouteEndpointParser
     {
         /// <summary>
         ///     Determines if this parser can handle the given route endpoint.
@@ -57,7 +57,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     /// <summary>
     ///     Shared utilities for endpoint parsing.
     /// </summary>
-    public static class EndpointParsingHelpers
+    internal static class EndpointParsingHelpers
     {
         public static Type UnwrapTaskType(Type type)
         {
@@ -365,7 +365,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
     // ==================== Controller Endpoint Parser ====================
 
-    public static class AddControllerEndpointParserExtension
+    internal static class AddControllerEndpointParserExtension
     {
         public static void AddControllerEndpointParser(this IServiceCollection services)
         {
@@ -555,7 +555,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
     // ==================== Minimal API Endpoint Parser ====================
 
-    public static class AddMinimalApiEndpointParserExtension
+    internal static class AddMinimalApiEndpointParserExtension
     {
         public static void AddMinimalApiEndpointParser(this IServiceCollection services)
         {

@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddEmbeddedFileLocalizerExtension
+    internal static class AddEmbeddedFileLocalizerExtension
     {
         public static void AddEmbeddedFileLocalizer(this IServiceCollection services,
                                                     IConfiguration configuration)
@@ -56,7 +56,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                           bool Resolved = true,
                                           IImmutableSet<string>? AllowedFolders = null);
 
-    public interface IEmbeddedFileLocalizer
+    internal interface IEmbeddedFileLocalizer
     {
         T LocalizeRequest<T>(string embeddedFile,
                              [CallerFilePath] string callerFilePath = "",

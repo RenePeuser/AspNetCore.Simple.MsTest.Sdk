@@ -19,24 +19,39 @@ The static settings are gone. Configure them once through `TestSdkSettings` inst
 | `AssertObjectExtensions.WriteResponse` | `settings.WriteResponse` |
 | `AssertObjectExtensions.ResponseFileFullPath` | removed - it had no effect |
 | environment variable `AspNetCoreSimpleMsTestSdk__WriteResponse` | `TestSdkSettings__WriteResponse` |
-| `Tables.TableFormatter.From(...)` | removed - unused static helper; use `ITableBuilder` |
-| `Outputs.Formatters.JsonTypeMismatchFormatter` | removed - duplicate of `IJsonTypeMismatchOutputBuilder` |
+| `Tables.TableFormatter.From(...)` | removed - unused static helper |
+| `Outputs.Formatters.JsonTypeMismatchFormatter` | removed - duplicate of an internal builder |
 
-- `services.AddTestSdkSettings(configuration, settings => ...)` - with `ApiTestBase<T>`, from `registerServices`
-- `services.AddAssertableHttpClient(configuration, settings => ...)` - with your own host
-- `HttpClientAssertExtensions.Setup(settings => ...)` - without any host
-- The provider handed to `HttpClientAssertExtensions.Setup(provider)` must stay alive for the whole test run.
+Configure everything through the one registration call - from `registerServices` of `ApiTestBase<T>`
+or in your own host:
+
+```csharp
+services.AddAssertableHttpClient(configuration, settings =>
+{
+    settings.DifferenceFunc = GlobalDifferenceFunc;
+    settings.WriteResponse = false;
+});
+```
+
+### Breaking: `AddAssertableHttpClient` is the only public registration
+
+- The started host's provider is handed to the static asserts automatically - `HttpClientAssertExtensions.Setup(...)`
+  is no longer needed and no longer public. This works for `ApiTestBase<T>` and for your own `WebApplicationFactory`.
+- `AddAssertableHttpClientFactory()` removed - it registered the client without its dependencies.
+- The `consumerAssembly` parameter of `AddAssertableHttpClient` is gone.
+- All other `services.Add…()` building blocks (`AddTestSdkSettings`, `AddJsonDiffer`, `AddCurlBuilder`, ...) and the
+  service interfaces behind them are internal. `AddAssertableHttpClient` registers all of them; calling it more than
+  once is safe and applies every `settings => ...` in call order.
+- Without any host (pure `Assert.That.*` tests) the SDK configures itself from the environment
+  (`TestSdkSettings__OutputMode`, ...).
 
 ### New
 
 - **Output modes** - `TestSdkSettings.OutputMode` = `Human` (default), `Ai` (structured JSON with error codes
   and fix suggestions) or `Hybrid` (both). Configure via `TestSdkSettings__OutputMode=Ai` or appsettings.
-- `HttpClientAssertExtensions.Setup(Action<TestSdkSettings>)` - configure the SDK for tests without a host.
-- `services.AddTestSdkSettings(configuration, settings => ...)` is now public; the first configured
-  registration wins, so calling it from `registerServices` of `ApiTestBase<T>` overrides the SDK defaults.
 - `TestSdkSettings` properties are now settable (`set` instead of `init`).
-- `ApiTestBase<T>` hands the running host's own provider to the assert extensions - asserts and the
-  application under test share one container (previously a separate, immediately disposed provider).
+- The running host's own provider is handed to the assert extensions - asserts and the application
+  under test share one container (previously a separate, immediately disposed provider).
 
 ### Fixed: dictionary responses in recording mode
 

@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Comparison
 {
-    public static class AddDifferenceFilteringExtension
+    internal static class AddDifferenceFilteringExtension
     {
         public static void AddDifferenceFiltering(this IServiceCollection services)
         {
@@ -21,7 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Comparison
     /// Decides which differences survive before an assert decides pass or fail - and, for the
     /// response writers, which current values must not reach a snapshot.
     /// </summary>
-    public interface IDifferenceFiltering
+    internal interface IDifferenceFiltering
     {
         /// <summary>
         /// Applies the global <see cref="TestSdkSettings.DifferenceFunc"/>, then the per-assert func,

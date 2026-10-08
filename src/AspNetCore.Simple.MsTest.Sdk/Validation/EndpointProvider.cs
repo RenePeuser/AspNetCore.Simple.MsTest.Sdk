@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
-    public static class AddEndpointProviderExtension
+    internal static class AddEndpointProviderExtension
     {
         public static void AddEndpointProvider(this IServiceCollection services)
         {
@@ -16,7 +16,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         }
     }
 
-    public interface IEndpointProvider
+    internal interface IEndpointProvider
     {
         /// <summary>
         /// Finds the matching endpoint for the given HTTP request.

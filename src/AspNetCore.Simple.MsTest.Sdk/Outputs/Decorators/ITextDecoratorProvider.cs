@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Decorators
 {
-    public static class AddTextDecoratorProviderExtension
+    internal static class AddTextDecoratorProviderExtension
     {
         public static void AddTextDecoratorProvider(this IServiceCollection services)
         {
@@ -20,7 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Decorators
     /// about the test project consuming it - it is evaluated when the sdk is compiled. The answer is
     /// a property of the CONSUMER assembly, which is why every caller has to hand it in.
     /// </summary>
-    public interface ITextDecoratorProvider
+    internal interface ITextDecoratorProvider
     {
         /// <summary>
         /// The decorator matching <paramref name="consumerAssembly"/>. A null assembly means the

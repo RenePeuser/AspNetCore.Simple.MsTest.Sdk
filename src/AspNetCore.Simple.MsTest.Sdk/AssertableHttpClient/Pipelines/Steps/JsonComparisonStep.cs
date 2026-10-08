@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 {
-    public static class AddJsonComparisonStepExtension
+    internal static class AddJsonComparisonStepExtension
     {
         /// <summary>
         /// Registers the JSON comparison step and its dependencies.

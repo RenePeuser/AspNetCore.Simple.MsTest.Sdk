@@ -64,7 +64,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required string Path { get; init; }
     }
 
-    public static class AddJsonSerializationExtensions
+    internal static class AddJsonSerializationExtensions
     {
         public static void AddJsonDiffer(this IServiceCollection services)
         {
@@ -72,7 +72,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface IJsonDiffer
+    internal interface IJsonDiffer
     {
         ImmutableList<Difference> FindDifferences(JToken json1,
                                                   JToken json2);

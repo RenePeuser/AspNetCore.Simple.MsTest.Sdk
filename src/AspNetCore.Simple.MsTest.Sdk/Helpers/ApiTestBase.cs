@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -63,23 +62,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 registerServices(services, configuration);
 
-                services.AddAssertableHttpClient(configuration, consumerAssembly: _consumerAssembly);
+                // Hands the host's provider to the static asserts once it starts - see ServiceProviderHandover.
+                services.AddAssertableHttpClient(configuration, configureSettings: null, _consumerAssembly);
             });
 
             builder.UseEnvironment(EnvironmentName);
-        }
-
-        /// <summary>
-        ///     Hands the host's own provider to the static assert extensions - one container, so the
-        ///     asserts see exactly the singletons the application under test sees.
-        /// </summary>
-        protected override IHost CreateHost(IHostBuilder builder)
-        {
-            var host = base.CreateHost(builder);
-
-            HttpClientAssertExtensions.Setup(host.Services);
-
-            return host;
         }
 
         protected override void Dispose(bool disposing)

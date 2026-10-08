@@ -7,7 +7,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
     /// Each implementation handles one specific HttpAssertionFailureType and builds the header section
     /// (icon, title, test information, and failure-specific details).
     /// </summary>
-    public interface IHttpFailureOutputStrategy
+    internal interface IHttpFailureOutputStrategy
     {
         /// <summary>
         /// Determines if this strategy can handle the given failure type.

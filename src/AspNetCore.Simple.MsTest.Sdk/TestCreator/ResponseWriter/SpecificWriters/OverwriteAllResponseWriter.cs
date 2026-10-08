@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddOverwriteAllResponseWriterExtension
+    internal static class AddOverwriteAllResponseWriterExtension
     {
         public static void AddOverwriteAllResponseWriter(this IServiceCollection services)
         {

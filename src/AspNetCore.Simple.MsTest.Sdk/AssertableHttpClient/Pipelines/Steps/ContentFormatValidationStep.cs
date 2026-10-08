@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 {
-    public static class AddContentFormatValidationStepExtension
+    internal static class AddContentFormatValidationStepExtension
     {
         /// <summary>
         /// Registers the content format validation step and its dependencies.

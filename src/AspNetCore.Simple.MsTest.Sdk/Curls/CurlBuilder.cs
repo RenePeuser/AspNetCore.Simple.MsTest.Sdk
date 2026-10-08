@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public static class AddCurlBuilderExtension
+    internal static class AddCurlBuilderExtension
     {
         public static void AddCurlBuilder(this IServiceCollection services)
         {
@@ -15,7 +15,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    public interface ICurlBuilder
+    internal interface ICurlBuilder
     {
         /// <summary>
         /// Builds a curl command from HTTP response context interface.

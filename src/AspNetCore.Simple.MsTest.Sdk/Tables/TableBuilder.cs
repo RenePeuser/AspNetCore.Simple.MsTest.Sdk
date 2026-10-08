@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Tables
 {
-    public static class AddTableBuilderExtension
+    internal static class AddTableBuilderExtension
     {
         public static void AddTableBuilder(this IServiceCollection services)
         {
@@ -20,7 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Tables
     /// Service for building ASCII tables with customizable columns and rows.
     /// Replaces ConsoleTables package with a lightweight, dependency-free implementation.
     /// </summary>
-    public interface ITableBuilder
+    internal interface ITableBuilder
     {
         /// <summary>
         /// Builds an ASCII table from column headers and row data.

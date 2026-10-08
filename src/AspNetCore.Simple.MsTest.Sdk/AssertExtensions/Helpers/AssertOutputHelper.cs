@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
 {
-    public static class AddAssertOutputHelperExtension
+    internal static class AddAssertOutputHelperExtension
     {
         public static void AddAssertOutputHelper(this IServiceCollection services)
         {

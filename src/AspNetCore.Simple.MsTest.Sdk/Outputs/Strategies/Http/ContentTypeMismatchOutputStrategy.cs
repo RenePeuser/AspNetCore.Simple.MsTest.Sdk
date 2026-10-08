@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
 {
-    public static class AddContentTypeMismatchOutputStrategyExtension
+    internal static class AddContentTypeMismatchOutputStrategyExtension
     {
         /// <summary>
         /// Registers the content type mismatch output strategy.

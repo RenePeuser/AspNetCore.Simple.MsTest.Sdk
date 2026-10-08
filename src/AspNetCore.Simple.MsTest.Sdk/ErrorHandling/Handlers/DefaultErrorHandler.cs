@@ -25,7 +25,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
     /// Catch-all error handler for any exception that doesn't have a specific handler.
     /// This handles SDK bugs, network errors, serialization issues, and any other unexpected exceptions.
     /// </summary>
-    public sealed class DefaultErrorHandler(ITestClassNameResolver testClassNameResolver,
+    internal sealed class DefaultErrorHandler(ITestClassNameResolver testClassNameResolver,
                                             IEndpointSourceResolver endpointSourceResolver) : TestErrorHandler<Exception>
     {
         protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
