@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Decorators
 {
-    internal static class AddTextDecoratorExtension
+    public static class AddTextDecoratorExtension
     {
         /// <summary>
         /// Registers the decorator bound to the consumer test assembly. The assembly has to be handed

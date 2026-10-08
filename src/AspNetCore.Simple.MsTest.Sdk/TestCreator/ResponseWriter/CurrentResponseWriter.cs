@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    internal static class AddResponseWriterExtension
+    public static class AddResponseWriterExtension
     {
         public static void AddResponseWriter(this IServiceCollection services)
         {
@@ -20,7 +20,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    internal enum ResponseWriteMode
+    public enum ResponseWriteMode
     {
         DifferencesOnly,
 
@@ -29,7 +29,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         GenerateCSharpObject
     }
 
-    internal sealed record WriteResponseRequest
+    public sealed record WriteResponseRequest
     {
         public required string CurrentResponseAsString { get; init; }
 
@@ -65,14 +65,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required object? ExpectedObject { get; init; }
     }
 
-    internal interface ISpecificResponseWriter
+    public interface ISpecificResponseWriter
     {
         bool CanHandle(WriteResponseRequest writeResponseRequest);
 
         void Write(WriteResponseRequest writeResponseRequest);
     }
 
-    internal interface IResponseWriter
+    public interface IResponseWriter
     {
         void Write(WriteResponseRequest writeResponseRequest);
 
@@ -90,7 +90,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                    ResponseWriteMode mode = ResponseWriteMode.DifferencesOnly);
     }
 
-    internal sealed class ResponseWriter(IEnumerable<ISpecificResponseWriter> specificResponseWriters) : IResponseWriter
+    public sealed class ResponseWriter(IEnumerable<ISpecificResponseWriter> specificResponseWriters) : IResponseWriter
     {
         public void Write(WriteResponseRequest writeResponseRequest)
         {

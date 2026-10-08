@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    internal static class AddWriteResponseServiceExtension
+    public static class AddWriteResponseServiceExtension
     {
         public static void AddWriteResponseService(this IServiceCollection services)
         {
@@ -13,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
     }
 
-    internal interface IWriteResponseService
+    public interface IWriteResponseService
     {
         // Very important we do only write in DEBUG mode this is a pure Developer feature !
         bool ShouldWriteResponse(bool scopedWriteResponse,

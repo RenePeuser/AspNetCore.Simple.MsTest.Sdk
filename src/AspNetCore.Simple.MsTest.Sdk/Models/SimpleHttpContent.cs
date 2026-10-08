@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    internal sealed record SimpleHttpContent
+    public sealed record SimpleHttpContent
     {
         public ImmutableList<KeyValuePair<string, ImmutableList<string>>> Headers { get; init; } = ImmutableList<KeyValuePair<string, ImmutableList<string>>>.Empty;
 
