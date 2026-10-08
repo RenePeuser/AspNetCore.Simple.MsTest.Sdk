@@ -13,7 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
-    public sealed class FluentBuilderAttribute : Attribute
+    internal sealed class FluentBuilderAttribute : Attribute
     {
     }
 }

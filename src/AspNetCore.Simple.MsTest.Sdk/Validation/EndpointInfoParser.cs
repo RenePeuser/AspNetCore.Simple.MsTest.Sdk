@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AspNetCore.Simple.MsTest.Sdk.Validation
 {
@@ -24,8 +25,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             services.AddControllerEndpointParser();
             services.AddMinimalApiEndpointParser();
 
-            // EndpointDataSource is registered by the host application
-            services.AddSingletonIfNotExists<IEndpointInfoParser, EndpointInfoParser>();
+            // EndpointDataSource is registered by the host application - a plain (non-web) host has none,
+            // so fall back to no endpoints instead of failing container validation on build.
+            services.TryAddSingleton<IEndpointInfoParser>(serviceProvider => serviceProvider.GetService<EndpointDataSource>() is { } endpointDataSource
+                                                                                 ? new EndpointInfoParser(endpointDataSource,
+                                                                                                          serviceProvider.GetServices<IRouteEndpointParser>())
+                                                                                 : new EmptyEndpointInfoParser());
         }
     }
 

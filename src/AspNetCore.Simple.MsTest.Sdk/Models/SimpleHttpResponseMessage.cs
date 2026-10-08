@@ -4,7 +4,7 @@ using System.Net;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
-    public sealed record SimpleHttpResponseMessage
+    internal sealed record SimpleHttpResponseMessage
     {
         public SimpleHttpContent? Content { get; init; }
 
