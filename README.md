@@ -1946,6 +1946,17 @@ services.AddSingleton<ITestErrorHandler, DomainRuleErrorHandler>();
 - ✅ **IntelliSense** - Full IDE support in configuration files
 - ✅ **Automatic binding** - ASP.NET Core configuration system handles the rest
 
+### Upgrading from 10.x (breaking changes)
+
+`services.AddAssertableHttpClient(configuration, settings => ...)` is the only public registration now:
+
+| Removed from the public API                                                    | Replacement                                                                  |
+|--------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| `HttpClientAssertExtensions.Setup(provider)`                                   | nothing - the started host's provider is handed over automatically           |
+| `HttpClientAssertExtensions.Setup(settings => ...)`                            | `AddAssertableHttpClient(configuration, settings => ...)`                    |
+| `services.AddTestSdkSettings(...)`                                             | `AddAssertableHttpClient(configuration, settings => ...)`                    |
+| `AddAssertableHttpClientFactory()` and the other `services.Add…()` building blocks | internal - `AddAssertableHttpClient` registers everything                |
+
 ### Upgrading from 9.5.x (breaking changes)
 
 The static settings properties are gone - every global setting now lives on `TestSdkSettings`:
@@ -1962,8 +1973,6 @@ The static settings properties are gone - every global setting now lives on `Tes
 | `AssertObjectExtensions.ResponseFileFullPath`                                                | removed - it had no effect                                                |
 | env var `AspNetCoreSimpleMsTestSdk__WriteResponse`                                           | `TestSdkSettings__WriteResponse`                                          |
 | `Tables.TableFormatter`, `Outputs.Formatters.JsonTypeMismatchFormatter`                      | removed - internal helpers                                                |
-| `HttpClientAssertExtensions.Setup(provider)`                                                 | removed - the started host's provider is handed over automatically        |
-| `AddAssertableHttpClientFactory()` and the other `services.Add…()` building blocks           | internal - `AddAssertableHttpClient` registers everything                 |
 
 Where to configure instead: `services.AddAssertableHttpClient(configuration, settings => ...)` - from the
 `registerServices` callback of `ApiTestBase<T>` or in your own host. It is the only registration call; the

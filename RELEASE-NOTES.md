@@ -1,6 +1,46 @@
 # Release Notes
 
-## Upcoming Release - One settings class instead of static globals
+## Upcoming Release (11.0.0) - One public entry point
+
+Commit with `+semver: major` - this release breaks the public surface of 10.0.0.
+
+### Breaking: `AddAssertableHttpClient` is the only public registration
+
+Configure everything through the one registration call - from `registerServices` of `ApiTestBase<T>`
+or in your own host:
+
+```csharp
+services.AddAssertableHttpClient(configuration, settings =>
+{
+    settings.DifferenceFunc = GlobalDifferenceFunc;
+    settings.WriteResponse = false;
+});
+```
+
+| Removed from the public API (10.0.0) | Replacement |
+|---|---|
+| `HttpClientAssertExtensions.Setup(provider)` | nothing - the started host's provider is handed over automatically, for `ApiTestBase<T>` and your own `WebApplicationFactory` alike |
+| `HttpClientAssertExtensions.Setup(settings => ...)` | `AddAssertableHttpClient(configuration, settings => ...)`; without any host the environment (`TestSdkSettings__OutputMode`, ...) configures the SDK |
+| `services.AddTestSdkSettings(...)` | `AddAssertableHttpClient(configuration, settings => ...)` |
+| `AddAssertableHttpClientFactory()` | `AddAssertableHttpClient` - the factory registered the client without its dependencies |
+| the `consumerAssembly` parameter of `AddAssertableHttpClient` | none needed |
+| every other `services.Add...()` building block (`AddJsonDiffer`, `AddCurlBuilder`, ...) and the service interfaces behind them | internal - `AddAssertableHttpClient` registers all of them |
+
+Calling `AddAssertableHttpClient` more than once is safe and applies every `settings => ...` in call order.
+
+### New
+
+- **Own error handlers** - `ITestErrorHandler` / `TestErrorHandler<TException>` are public. Register one to
+  explain failures only your project understands; it is asked before the SDK's catch-all, no matter whether
+  it was registered before or after `AddAssertableHttpClient`.
+
+### Fixed: a body carrying `content.value` was taken for the response envelope
+
+A response body with its own `content.value` (a blog post, a CMS page) was read as the SDK's snapshot
+envelope: the comparison unwrapped the fragment and failed with "INVALID JSON FORMAT" or an unexpected
+parse error. Only a real envelope - `content.value` together with `statusCode` - is unwrapped now.
+
+## 10.0.0 - One settings class instead of static globals
 
 ### Breaking: all global settings moved into `TestSdkSettings`
 
@@ -19,48 +59,24 @@ The static settings are gone. Configure them once through `TestSdkSettings` inst
 | `AssertObjectExtensions.WriteResponse` | `settings.WriteResponse` |
 | `AssertObjectExtensions.ResponseFileFullPath` | removed - it had no effect |
 | environment variable `AspNetCoreSimpleMsTestSdk__WriteResponse` | `TestSdkSettings__WriteResponse` |
-| `Tables.TableFormatter.From(...)` | removed - unused static helper |
-| `Outputs.Formatters.JsonTypeMismatchFormatter` | removed - duplicate of an internal builder |
+| `Tables.TableFormatter.From(...)` | removed - unused static helper; use `ITableBuilder` |
+| `Outputs.Formatters.JsonTypeMismatchFormatter` | removed - duplicate of `IJsonTypeMismatchOutputBuilder` |
 
-Configure everything through the one registration call - from `registerServices` of `ApiTestBase<T>`
-or in your own host:
-
-```csharp
-services.AddAssertableHttpClient(configuration, settings =>
-{
-    settings.DifferenceFunc = GlobalDifferenceFunc;
-    settings.WriteResponse = false;
-});
-```
-
-### Breaking: `AddAssertableHttpClient` is the only public registration
-
-- The started host's provider is handed to the static asserts automatically - `HttpClientAssertExtensions.Setup(...)`
-  is no longer needed and no longer public. This works for `ApiTestBase<T>` and for your own `WebApplicationFactory`.
-- `AddAssertableHttpClientFactory()` removed - it registered the client without its dependencies.
-- The `consumerAssembly` parameter of `AddAssertableHttpClient` is gone.
-- All other `services.Add…()` building blocks (`AddTestSdkSettings`, `AddJsonDiffer`, `AddCurlBuilder`, ...) and the
-  service interfaces behind them are internal. `AddAssertableHttpClient` registers all of them; calling it more than
-  once is safe and applies every `settings => ...` in call order.
-- Without any host (pure `Assert.That.*` tests) the SDK configures itself from the environment
-  (`TestSdkSettings__OutputMode`, ...).
+- `services.AddTestSdkSettings(configuration, settings => ...)` - with `ApiTestBase<T>`, from `registerServices`
+- `services.AddAssertableHttpClient(configuration, settings => ...)` - with your own host
+- `HttpClientAssertExtensions.Setup(settings => ...)` - without any host
+- The provider handed to `HttpClientAssertExtensions.Setup(provider)` must stay alive for the whole test run.
 
 ### New
 
 - **Output modes** - `TestSdkSettings.OutputMode` = `Human` (default), `Ai` (structured JSON with error codes
   and fix suggestions) or `Hybrid` (both). Configure via `TestSdkSettings__OutputMode=Ai` or appsettings.
+- `HttpClientAssertExtensions.Setup(Action<TestSdkSettings>)` - configure the SDK for tests without a host.
+- `services.AddTestSdkSettings(configuration, settings => ...)` is now public; the first configured
+  registration wins, so calling it from `registerServices` of `ApiTestBase<T>` overrides the SDK defaults.
 - `TestSdkSettings` properties are now settable (`set` instead of `init`).
-- The running host's own provider is handed to the assert extensions - asserts and the application
-  under test share one container (previously a separate, immediately disposed provider).
-- **Own error handlers** - `ITestErrorHandler` / `TestErrorHandler<TException>` are public. Register one to
-  explain failures only your project understands; it is asked before the SDK's catch-all, no matter whether
-  it was registered before or after `AddAssertableHttpClient`.
-
-### Fixed: a body carrying `content.value` was taken for the response envelope
-
-A response body with its own `content.value` (a blog post, a CMS page) was read as the SDK's snapshot
-envelope: the comparison unwrapped the fragment and failed with "INVALID JSON FORMAT" or an unexpected
-parse error. Only a real envelope - `content.value` together with `statusCode` - is unwrapped now.
+- `ApiTestBase<T>` hands the running host's own provider to the assert extensions - asserts and the
+  application under test share one container (previously a separate, immediately disposed provider).
 
 ### Fixed: dictionary responses in recording mode
 

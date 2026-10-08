@@ -10,25 +10,18 @@
         <RepositoryUrl>https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>aspnetcore;testing;snapshot-testing;snapshot;mstest;api-testing;integration-testing;http-testing;test-framework;regression-testing;web-api;rest-api;test-automation;test-sdk;aspnetcore-testing;api-snapshots;http-assertions;minimal-api;webapi-testing;contract-testing;response-validation;csharp;dotnet;json;json-comparison;diff;approval-testing;unit-testing;curl;http-client;testhost;</PackageTags>
         <PackageReleaseNotes>
-            BREAKING CHANGES:
-            - All static settings removed; every global setting now lives on TestSdkSettings:
-              HttpClientAssertExtensions.JsonSerializerOptions / SkipEndpointValidation / ShowTokenInCurl / LogAction,
-              AssertObjectExtensions.JsonSerializerOptions / DifferenceFunc / DifferenceFilter / OrderIndependentArrayFilter / WriteResponse
-              -> same names on TestSdkSettings.
-            - HttpClientAssertExtensions.CustomAssertableHttpClient removed: register your own IAssertableHttpClient before AddAssertableHttpClient.
-            - AssertObjectExtensions.ResponseFileFullPath removed (had no effect).
-            - Environment variable AspNetCoreSimpleMsTestSdk__WriteResponse renamed to TestSdkSettings__WriteResponse.
-            - Public helpers Tables.TableFormatter and Outputs.Formatters.JsonTypeMismatchFormatter removed.
+            BREAKING CHANGES (11.0.0):
             - services.AddAssertableHttpClient(configuration, s =&gt; ...) is the only public registration; it is all you call.
-              HttpClientAssertExtensions.Setup, AddAssertableHttpClientFactory, AddTestSdkSettings and all other
-              services.Add...() building blocks are no longer public - the started host's provider is handed over automatically.
+              The started host's provider is handed to the asserts automatically.
+            - Removed from the public API: HttpClientAssertExtensions.Setup(provider), HttpClientAssertExtensions.Setup(s =&gt; ...),
+              services.AddTestSdkSettings, AddAssertableHttpClientFactory, the consumerAssembly parameter, and every other
+              services.Add...() building block with the service interfaces behind it.
 
             NEW FEATURES:
-            - Output modes: TestSdkSettings.OutputMode = Human | Ai | Hybrid (env var TestSdkSettings__OutputMode=Ai) for structured, AI-parseable failures.
-            - The running host's service provider is shared with the assert extensions - ApiTestBase&lt;T&gt; and custom hosts alike.
+            - Own error handlers: ITestErrorHandler / TestErrorHandler&lt;TException&gt; are public and asked before the catch-all.
 
             FIXES:
-            - Dictionary responses in recording mode (writeResponse) no longer fail with an array/object mismatch.
+            - A response body carrying its own content.value is no longer mistaken for the snapshot envelope.
 
             Full details: RELEASE-NOTES.md in the repository.
         </PackageReleaseNotes>
