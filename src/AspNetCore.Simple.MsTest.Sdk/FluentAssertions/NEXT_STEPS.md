@@ -66,9 +66,10 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
 
 - `HttpRequestBuilder` implements both; `With…` are explicit interface implementations sharing `AddParameters` /
   `AddParametersFrom` / `AddHeader`. `Produces…` and `Accepts…` are public (same signature on both stages).
-- `SkipEndpointValidation()` stays on the request stage — the `EndpointValidator` checks the ROUTE (verb/url/version)
-  before the response type, so it is about the whole endpoint, not `Produces<T>`. Idempotent, so not once-only
-  (once-only would double the request interfaces for no information gained).
+- `SkipEndpointValidation()` lives AFTER `Produces…` (`IHttpResponseConfiguring<T>`, `IHttpComparisonConfiguring<T>`,
+  `IHttpExpectationConfiguring`) - it drops the route AND the response-type check, so on the request stage it read as
+  "request only". Not on the request stages (compile tests in `FluentTypeStateCompileTests`). Idempotent, so not
+  once-only.
 - Repeated parameter name (ordinal, after `PlaceholderName.Wrap`) / header name (case-insensitive) →
   `ArgumentException` built by `Builders/FluentUsageError.cs` (what / why / how-to-fix / test info). Before: parameter
   first-wins (`ParameterReplacer` replaces the token once), header last-wins (`SetItem`). Consequence: overriding a

@@ -685,7 +685,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine("  • API version (if used) is correct");
                 sb.AppendLine();
                 sb.AppendLine("Testing a route that deliberately does not exist (404 / 405)? Skip the check for this call:");
-                sb.AppendLine(textDecorator.Success("    .SkipEndpointValidation()          // fluent"));
+                sb.AppendLine(textDecorator.Success("    .SkipEndpointValidation()          // fluent, after Produces…"));
                 sb.AppendLine(textDecorator.Success("    skipEndpointValidation: true       // classic"));
             }
         }

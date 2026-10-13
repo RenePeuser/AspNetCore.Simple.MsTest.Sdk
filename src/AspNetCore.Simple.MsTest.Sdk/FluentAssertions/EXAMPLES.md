@@ -276,15 +276,24 @@ await Client.AssertGet($"api/persons/{nonExistentId}")
 // endpoint metadata cannot describe the outcome → opt out of endpoint validation
 await Client.AssertPost("api/persons")
     .Accepts(invalidPerson)
-    .SkipEndpointValidation()
     .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+    .SkipEndpointValidation()
     .ExecuteAsync();
 
 // a route that deliberately does not exist: Produces(code) still validates the ROUTE,
 // so without SkipEndpointValidation() this reports "endpoint not found"
 await Client.AssertGet("api/unknown-route")
-    .SkipEndpointValidation()
     .Produces(StatusCodes.Status404NotFound)
+    .SkipEndpointValidation()
+    .ExecuteAsync();
+
+// SkipEndpointValidation() comes after Produces… - it also drops the response-type check -
+// and may stand last, after the comparison config
+await Client.AssertPost("api/v1/persons")
+    .Accepts(person)
+    .Produces<Person>(HttpStatusCode.Created)
+    .ExpectedResponseFromEmbeddedJson("CreatePersonFull.json")
+    .SkipEndpointValidation()
     .ExecuteAsync();
 ```
 

@@ -110,8 +110,10 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
   and `Produces(code).ExpectedResponse(obj)` skipped the whole endpoint validation because they name no response
   type - which also skipped the ROUTE check: a misspelled url (404), a wrong verb (405) or an unknown api version
   went green. Now verb, url and version are validated; the type still is not. A test that hits an unknown route on
-  purpose adds `.SkipEndpointValidation()` (the "endpoint not found" output says so). `.SkipEndpointValidation()`
-  before `Produces(code)` used to be ignored - it is honored now.
+  purpose adds `.SkipEndpointValidation()` (the "endpoint not found" output says so).
+- **Fluent API - `.SkipEndpointValidation()` comes after `Produces…`.** It switches off the route AND the
+  response-type check, so it is offered on the stages behind `Produces…` - also after `ExpectedResponse…`, as the
+  last call before `ExecuteAsync()`. Before `Produces…` it does not compile.
 
 ### Fixed: OPTIONS assertions - `Allow` and header name spelling (classic and fluent)
 

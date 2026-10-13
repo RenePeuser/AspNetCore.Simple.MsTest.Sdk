@@ -94,7 +94,7 @@ Before the call, the chain checks that the ROUTE exists (verb, url, api version)
 `T` against the type the endpoint declares; `Produces(code)` names no type, so it checks the route only — a
 misspelled url or a wrong verb is reported as "endpoint not found", not as a green 404 / 405. For outcomes the
 endpoint metadata cannot describe (an error raised by middleware, a route that deliberately does not exist), opt
-out — on the request stage, i.e. anywhere before `Produces…`:
+out — after `Produces…` (also after `ExpectedResponse…`), because it drops the response-type check, too:
 
 ```csharp
 .SkipEndpointValidation()                  // classic: skipEndpointValidation: true
@@ -102,8 +102,8 @@ out — on the request stage, i.e. anywhere before `Produces…`:
 
 ```csharp
 await Client.AssertGet("api/v1/unknown-route")      // a deliberate 404 test
-    .SkipEndpointValidation()
     .Produces(HttpStatusCode.NotFound)
+    .SkipEndpointValidation()
     .ExecuteAsync();
 ```
 
