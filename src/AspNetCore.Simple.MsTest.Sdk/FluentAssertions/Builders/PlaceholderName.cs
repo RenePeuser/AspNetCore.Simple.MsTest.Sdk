@@ -1,4 +1,4 @@
-namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Owns the placeholder delimiter convention (§10.1). Test code uses the NAKED name (<c>"Id"</c>);

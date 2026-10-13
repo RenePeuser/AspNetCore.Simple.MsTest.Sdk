@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Fluent state for configuring the body comparison. Reached ONLY after an <c>ExpectedResponse…</c>

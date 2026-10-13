@@ -18,14 +18,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Prints the curl command from HTTP response context.
         /// Only prints in DEBUG mode.
         /// </summary>
-        void PrintCurl<TResult>(AssertableHttpClient.HttpResponseContext<TResult> context);
+        void PrintCurl<TResult>(HttpResponseContext<TResult> context);
     }
 
     internal sealed class CurlPrinter(ICurlFormatter curlFormatter,
                                       ICurlBuilder curlBuilder,
                                       TestSdkSettings testSdkSettings) : ICurlPrinter
     {
-        public void PrintCurl<TResult>(AssertableHttpClient.HttpResponseContext<TResult> context)
+        public void PrintCurl<TResult>(HttpResponseContext<TResult> context)
         {
             if (context.CallingAssembly.IsCompiledInDebug().IsFalse())
             {

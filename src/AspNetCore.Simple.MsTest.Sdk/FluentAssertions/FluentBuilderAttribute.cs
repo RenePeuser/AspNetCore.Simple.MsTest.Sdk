@@ -1,6 +1,6 @@
 using System;
 
-namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Marks a fluent-builder interface whose chain MUST be terminated with <c>ExecuteAsync()</c>.

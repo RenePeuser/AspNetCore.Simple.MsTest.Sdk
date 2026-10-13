@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Fluent state after <c>Produces&lt;T&gt;(code)</c> (Endpoint-Stil, §15.6). The status + return type

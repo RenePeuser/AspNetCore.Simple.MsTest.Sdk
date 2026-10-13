@@ -1,7 +1,7 @@
 using System;
 using System.Net;
 
-namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Initial fluent state after <c>Client.AssertPost/AssertGet/…(url)</c> (Endpoint-Stil, §15).
@@ -77,6 +77,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
         /// <summary>Adds a custom HTTP request header.</summary>
         IHttpRequestConfiguring WithHeader(string key,
                                            string value);
+
+        /// <summary>
+        /// Skips the endpoint validation that compares the endpoint's declared return type with the
+        /// type given to <c>Produces&lt;T&gt;</c> — for endpoints whose metadata cannot describe the
+        /// outcome (e.g. an error raised by middleware). Mirrors the classic <c>skipEndpointValidation</c>.
+        /// </summary>
+        IHttpRequestConfiguring SkipEndpointValidation();
 
         // ============================================================
         // Transition to the response stage. Produces<T>(code) carries TYPE + STATUS + RETURN TYPE (§15.6).

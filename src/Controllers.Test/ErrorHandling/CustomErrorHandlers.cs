@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
 
 namespace Controllers.Test.ErrorHandling
 {

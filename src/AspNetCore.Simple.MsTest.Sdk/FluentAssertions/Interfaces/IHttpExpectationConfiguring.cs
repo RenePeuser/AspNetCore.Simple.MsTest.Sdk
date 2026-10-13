@@ -1,11 +1,17 @@
 using System.Threading.Tasks;
 
-namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
-    /// Fluent state after a body-less <c>Produces(code)</c> (Endpoint-Stil, §15.6) — status-only, no
-    /// response body. There is deliberately no <c>ExpectedResponse…</c> here (type-state): you cannot
-    /// compare a body that the endpoint does not return.
+    /// Fluent state after an untyped <c>Produces(code)</c> (Endpoint-Stil, §15.6) — the status is fixed,
+    /// but no response type is named.
+    ///
+    /// <para>
+    /// Going straight to <see cref="ExecuteAsync"/> asserts the status only (e.g. 204). Alternatively
+    /// <see cref="ExpectedResponse{TExpected}"/> takes the response type FROM the expected object —
+    /// typically an anonymous object that lists just the properties worth checking. There is no
+    /// file/raw-JSON variant here on purpose: those carry no type, so they need <c>Produces&lt;T&gt;</c>.
+    /// </para>
     ///
     /// <para>
     /// Not awaitable itself → a forgotten terminal is a dangling <see cref="FluentBuilderAttribute"/>
@@ -19,6 +25,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
     internal interface IHttpExpectationConfiguring
 #endif
     {
+        /// <summary>
+        /// Sets the expected response body from an object whose type becomes the response type —
+        /// the fluent counterpart of the classic <c>AssertGetAsErrorAsync(url, new { … })</c>:
+        /// <code>
+        /// .Produces(HttpStatusCode.NotFound)
+        /// .ExpectedResponse(new { Title = "Person not found", Status = 404 })
+        /// </code>
+        /// The response is deserialized into <typeparamref name="TExpected"/>, so only the properties
+        /// of the expected object take part in the comparison. Endpoint validation is skipped, because
+        /// <c>Produces(code)</c> named no type the endpoint could be checked against.
+        /// </summary>
+        /// <typeparam name="TExpected">The expected (often anonymous) type; also the return type of <c>ExecuteAsync()</c>.</typeparam>
+        IHttpComparisonConfiguring<TExpected> ExpectedResponse<TExpected>(TExpected expected);
+
         /// <summary>Executes the request and asserts the status code. The single terminal.</summary>
         Task ExecuteAsync();
     }

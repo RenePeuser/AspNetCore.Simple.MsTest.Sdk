@@ -28,6 +28,20 @@ services.AddAssertableHttpClient(configuration, settings =>
 
 Calling `AddAssertableHttpClient` more than once is safe and applies every `settings => ...` in call order.
 
+### Breaking: one namespace for the whole package
+
+Every public type now lives in `AspNetCore.Simple.MsTest.Sdk`. The sub-namespaces mirrored the SDK's folder
+structure, so any internal restructuring would have deleted a namespace your code imports. That cannot happen
+anymore - a contract test keeps every public type in the root namespace.
+
+| Removed namespace (10.x) | Types | What to do |
+|---|---|---|
+| `AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient` | `AddAssertableHttpClientExtension`, `IAssertableHttpClient`, `HttpResponseContext<T>` | delete the `using` - `using AspNetCore.Simple.MsTest.Sdk;` covers them |
+| `AspNetCore.Simple.MsTest.Sdk.ErrorHandling` | `ITestErrorHandler`, `TestErrorHandler<TException>` | same |
+| `AspNetCore.Simple.MsTest.Sdk.Decorators` | `AddTextDecoratorExtension` | same |
+
+The fix is mechanical: remove the old `using` lines and keep (or add) `using AspNetCore.Simple.MsTest.Sdk;`.
+
 ### New
 
 - **Own error handlers** - `ITestErrorHandler` / `TestErrorHandler<TException>` are public. Register one to

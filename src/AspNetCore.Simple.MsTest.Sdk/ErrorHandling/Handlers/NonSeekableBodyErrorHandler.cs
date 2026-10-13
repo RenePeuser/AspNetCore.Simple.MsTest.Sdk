@@ -1,12 +1,11 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     internal static class AddNonSeekableBodyErrorHandlerExtension
     {

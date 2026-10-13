@@ -6,7 +6,7 @@ using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     internal static class AddJsonComparisonStepExtension
     {

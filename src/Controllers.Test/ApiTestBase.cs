@@ -1,8 +1,6 @@
 using System;
 using System.Net.Http;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
-using AspNetCore.Simple.MsTest.Sdk.ErrorHandling;
 using Controllers.Test.Api.Persons.V1.Shared;
 using Controllers.Test.ErrorHandling;
 using Microsoft.Extensions.DependencyInjection;

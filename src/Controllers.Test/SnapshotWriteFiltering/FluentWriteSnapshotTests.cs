@@ -7,7 +7,6 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 using Controllers.Api.Persons;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

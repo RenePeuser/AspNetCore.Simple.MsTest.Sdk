@@ -2,7 +2,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Decorators
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static class AddTextDecoratorExtension
     {

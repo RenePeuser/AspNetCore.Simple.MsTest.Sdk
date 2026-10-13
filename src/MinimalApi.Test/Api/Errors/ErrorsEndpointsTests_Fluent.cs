@@ -2,7 +2,6 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

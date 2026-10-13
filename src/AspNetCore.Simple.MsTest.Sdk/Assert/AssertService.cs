@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using AspNetCore.Simple.MsTest.Sdk.Comparison;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using AspNetCore.Simple.MsTest.Sdk.Serializer.Json;
 using AspNetCore.Simple.MsTest.Sdk.Strategies;
 using Extensions.Pack;

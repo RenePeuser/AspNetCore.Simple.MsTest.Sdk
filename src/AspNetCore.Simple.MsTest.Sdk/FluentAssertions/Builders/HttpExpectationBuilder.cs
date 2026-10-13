@@ -3,9 +3,8 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 
-namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Builds a status-only expectation (body-less <c>Produces(code)</c>, Endpoint-Stil §15.6) — no
@@ -68,6 +67,22 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             _callerMemberName = callerMemberName;
             _callerLineNumber = callerLineNumber;
             _expectedStatusCode = expectedStatusCode;
+        }
+
+        public IHttpComparisonConfiguring<TExpected> ExpectedResponse<TExpected>(TExpected expected)
+        {
+            // The type comes from the expected object, not from the endpoint - there is nothing declared
+            // to validate against, so endpoint validation is skipped for the same reason as below.
+            var responseBuilder = new HttpResponseBuilder<TExpected>(_client, _method, _url,
+                                                                     _body, _parameters, _headers,
+                                                                     _callingAssembly,
+                                                                     _callerFilePath,
+                                                                     _callerMemberName,
+                                                                     _callerLineNumber,
+                                                                     _expectedStatusCode,
+                                                                     skipEndpointValidation: true);
+
+            return responseBuilder.ExpectedResponse(expected);
         }
 
         public Task ExecuteAsync()

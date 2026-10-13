@@ -5,7 +5,7 @@ using AspNetCore.Simple.MsTest.Sdk.Helpers;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Extension method for registering the default error handler.

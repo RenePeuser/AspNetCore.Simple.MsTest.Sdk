@@ -17,7 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers
         internal const string TerminalMethodName = "ExecuteAsync";
 
         private const string FluentBuilderAttributeName =
-            "AspNetCore.Simple.MsTest.Sdk.FluentAssertions.FluentBuilderAttribute";
+            "AspNetCore.Simple.MsTest.Sdk.FluentBuilderAttribute";
 
         /// <summary>
         ///     True when the type itself carries <c>[FluentBuilder]</c>, or implements an interface that

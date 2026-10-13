@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
+using AspNetCore.Simple.MsTest.Sdk;
 using Controllers.Api.Persons;
 using Controllers.Test.Api.Persons.V1.Shared;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

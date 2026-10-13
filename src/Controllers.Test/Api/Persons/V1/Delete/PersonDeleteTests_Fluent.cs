@@ -1,6 +1,6 @@
 using System.Net;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
+using AspNetCore.Simple.MsTest.Sdk;
 using Controllers.Api.Persons;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

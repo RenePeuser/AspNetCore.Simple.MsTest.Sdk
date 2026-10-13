@@ -4,9 +4,8 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 
-namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     ///     Builds the request stage of a fluent HTTP assertion chain (Endpoint-Stil, §15.6).
@@ -34,6 +33,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
         private readonly string _url;
 
         private string? _body;
+
+        private bool _skipEndpointValidation;
 
         internal HttpRequestBuilder(HttpClient client,
                                     HttpMethod method,
@@ -128,6 +129,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             return this;
         }
 
+        public IHttpRequestConfiguring SkipEndpointValidation()
+        {
+            _skipEndpointValidation = true;
+
+            return this;
+        }
+
         // ============================================================
         // Transition to the response stage. Produces<T>(code) carries type + status + return type.
         // ============================================================
@@ -144,7 +152,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                               _callerFilePath,
                                               _callerMemberName,
                                               _callerLineNumber,
-                                              statusCode);
+                                              statusCode,
+                                              _skipEndpointValidation);
         }
 
         public IHttpResponseConfiguring<T> Produces<T>(int statusCode)

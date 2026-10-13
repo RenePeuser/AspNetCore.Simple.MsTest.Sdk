@@ -1,10 +1,9 @@
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
+using AspNetCore.Simple.MsTest.Sdk.Http;
 
-namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Fluent API entry points on <see cref="HttpClient"/>. Each starts a chain that ends in exactly
@@ -100,6 +99,33 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions
                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return new HttpRequestBuilder(client, HttpMethod.Delete, url,
+                                          Assembly.GetCallingAssembly(), callerFilePath,
+                                          callerMemberName, callerLineNumber);
+        }
+
+        /// <summary>Starts a fluent QUERY assertion chain (safe, idempotent request with a body).</summary>
+        public static IHttpRequestConfiguring AssertQuery(this HttpClient client,
+                                                          string url,
+                                                          [CallerFilePath] string callerFilePath = "",
+                                                          [CallerMemberName] string callerMemberName = "",
+                                                          [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return new HttpRequestBuilder(client, HttpMethodExtensions.Query, url,
+                                          Assembly.GetCallingAssembly(), callerFilePath,
+                                          callerMemberName, callerLineNumber);
+        }
+
+        /// <summary>
+        /// Starts a fluent OPTIONS assertion chain. The endpoint has to answer 204 NoContent without a
+        /// body, and its response headers are compared against the ones given to <c>ExpectedHeaders…</c>.
+        /// </summary>
+        public static IHttpOptionsConfiguring AssertOptions(this HttpClient client,
+                                                            string url,
+                                                            [CallerFilePath] string callerFilePath = "",
+                                                            [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            return new HttpOptionsBuilder(client, url,
                                           Assembly.GetCallingAssembly(), callerFilePath,
                                           callerMemberName, callerLineNumber);
         }

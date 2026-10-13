@@ -69,7 +69,6 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -235,7 +234,6 @@ Option 3: {Another smart suggestion}
 For each implementation file, create a matching test file in `Core.Test/`:
 
 ```csharp
-using AspNetCore.Simple.MsTest.Sdk;
 
 namespace Core.Test.{Category}
 {
@@ -553,7 +551,6 @@ Read these for complete context:
 using System.Runtime.CompilerServices;
 using System.Text;
 using AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers;
-using AspNetCore.Simple.MsTest.Sdk.Decorators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -656,7 +653,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 **2. Create test file:** `Core.Test/Core/Assert.That.Boolean.Tests.cs`
 
 ```csharp
-using AspNetCore.Simple.MsTest.Sdk;
 
 namespace Core.Test.Core
 {

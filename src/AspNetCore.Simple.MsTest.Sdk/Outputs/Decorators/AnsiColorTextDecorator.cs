@@ -1,7 +1,7 @@
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Decorators
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     internal static class AddAnsiColorTextDecoratorExtension
     {

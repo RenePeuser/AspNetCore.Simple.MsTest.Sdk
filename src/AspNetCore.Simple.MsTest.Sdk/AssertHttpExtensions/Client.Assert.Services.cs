@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
-using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

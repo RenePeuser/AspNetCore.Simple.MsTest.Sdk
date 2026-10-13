@@ -10,7 +10,7 @@ Every example follows the one chain:
 `AssertX(url)` → `Accepts…` → `Produces<T>(code)` → `ExpectedResponse…` → `ExecuteAsync()`.
 
 ```csharp
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
+using AspNetCore.Simple.MsTest.Sdk;     // one namespace for the whole package
 using Microsoft.AspNetCore.Http;   // StatusCodes
 ```
 
@@ -41,7 +41,25 @@ var created = await Client.AssertPost("api/persons")
 
 ```csharp
 await Client.AssertDelete($"api/persons/{id}")
-    .Produces(StatusCodes.Status204NoContent)   // no <T> → no ExpectedResponse allowed
+    .Produces(StatusCodes.Status204NoContent)   // no <T> → status only
+    .ExecuteAsync();
+```
+
+### QUERY with request body
+
+```csharp
+await Client.AssertQuery("api/persons/search")
+    .AcceptsFromEmbeddedJson("QuerySearchRequest.json")
+    .Produces<IEnumerable<Person>>(StatusCodes.Status200OK)
+    .ExpectedResponseFromEmbeddedJson("GetPersonByQuery.json")
+    .ExecuteAsync();
+```
+
+### OPTIONS (headers are the payload)
+
+```csharp
+await Client.AssertOptions("api/persons")
+    .ExpectedHeaders(ImmutableDictionary<string, string>.Empty.Add("Allow", "GET, POST"))
     .ExecuteAsync();
 ```
 
@@ -185,6 +203,19 @@ await Client.AssertPost("api/persons")
 // 404 with ProblemDetails
 await Client.AssertGet($"api/persons/{nonExistentId}")
     .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
+    .ExecuteAsync();
+
+// 404, only selected properties checked — the anonymous object defines the type
+await Client.AssertGet($"api/persons/{nonExistentId}")
+    .Produces(StatusCodes.Status404NotFound)
+    .ExpectedResponse(new { Title = "Person not found", Status = 404 })
+    .ExecuteAsync();
+
+// endpoint metadata cannot describe the outcome → opt out of endpoint validation
+await Client.AssertPost("api/persons")
+    .Accepts(invalidPerson)
+    .SkipEndpointValidation()
+    .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
     .ExecuteAsync();
 ```
 

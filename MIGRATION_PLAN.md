@@ -209,8 +209,7 @@ public Task FluentEndpoint_Should_Get_All_Persons()
 ```csharp
 namespace MinimalApi.Test.Api.Persons.V1.Get
 {
-    using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
-    using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.EndpointStyle;
+    using AspNetCore.Simple.MsTest.Sdk;
 
     [TestClass]
     public class PersonGetTests : ApiTestBase

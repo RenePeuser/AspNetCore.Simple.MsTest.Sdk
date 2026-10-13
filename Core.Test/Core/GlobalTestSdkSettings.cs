@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using Microsoft.Extensions.Hosting;
 
 namespace Core.Test.Core

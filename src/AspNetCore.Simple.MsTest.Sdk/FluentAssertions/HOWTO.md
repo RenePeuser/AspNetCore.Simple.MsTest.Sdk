@@ -31,7 +31,7 @@ The intended reading is:
 ## Core Concept
 
 ```csharp
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
+using AspNetCore.Simple.MsTest.Sdk;     // one namespace for the whole package
 ```
 
 - **Entry point:** `Client.AssertPost`, `AssertGet`, `AssertPut`, `AssertPatch`, or `AssertDelete`.

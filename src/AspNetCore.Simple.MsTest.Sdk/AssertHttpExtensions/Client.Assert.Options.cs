@@ -54,13 +54,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              callerLineNumber);
         }
 
-        private static async Task<HttpResponseMessage> AssertOptionsAsync(this HttpClient client,
-                                                                          string url,
-                                                                          string expectedHeadersAsJson,
-                                                                          Assembly callingAssembly,
-                                                                          string callerFilePath,
-                                                                          string callerMemberName,
-                                                                          int callerLineNumber)
+        internal static async Task<HttpResponseMessage> AssertOptionsAsync(this HttpClient client,
+                                                                           string url,
+                                                                           string expectedHeadersAsJson,
+                                                                           Assembly callingAssembly,
+                                                                           string callerFilePath,
+                                                                           string callerMemberName,
+                                                                           int callerLineNumber)
         {
             var expectedHeaders = GetService<IJsonStringResolver>(callingAssembly).GetJsonStringFrom<object>(expectedHeadersAsJson, string.Empty, callingAssembly, string.Empty);
 

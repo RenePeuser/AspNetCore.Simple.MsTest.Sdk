@@ -5,7 +5,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
     ///
     /// <para>
     /// The analyzers key off the <c>[FluentBuilder]</c> attribute by its full display name
-    /// (<c>AspNetCore.Simple.MsTest.Sdk.FluentAssertions.FluentBuilderAttribute</c>), NOT off the real
+    /// (<c>AspNetCore.Simple.MsTest.Sdk.FluentBuilderAttribute</c>), NOT off the real
     /// SDK assembly. So the tests declare that exact type here and build only against this stub —
     /// isolated, fast, and free of the ASP.NET dependency graph.
     /// </para>
@@ -30,16 +30,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
                                      using System.Net;
                                      using System.Threading.Tasks;
 
-                                     namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions
+                                     namespace AspNetCore.Simple.MsTest.Sdk
                                      {
                                          [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = true)]
                                          public sealed class FluentBuilderAttribute : Attribute { }
                                      }
 
-                                     namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces
+                                     namespace AspNetCore.Simple.MsTest.Sdk
                                      {
-                                         using AspNetCore.Simple.MsTest.Sdk.FluentAssertions;
-
                                          [FluentBuilder]
                                          public interface IHttpRequestConfiguring
                                          {
@@ -79,7 +77,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
 
                                      namespace TestApp
                                      {
-                                         using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
+                                         using AspNetCore.Simple.MsTest.Sdk;
 
                                          public class Person { public int Id { get; set; } public string? Name { get; set; } }
 

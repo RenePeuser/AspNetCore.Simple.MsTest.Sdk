@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
 

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MinimalApi.Api.Persons.V1;
 using MinimalApi.Test.Api.Persons.V1.Shared;

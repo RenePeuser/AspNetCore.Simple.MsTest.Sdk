@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.ErrorHandling.Handlers;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Provides extension methods for registering the test error handling strategy.

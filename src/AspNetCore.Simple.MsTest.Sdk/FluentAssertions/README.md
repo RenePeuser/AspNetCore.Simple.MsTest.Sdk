@@ -21,7 +21,7 @@ the endpoint *describes* the contract, the test *verifies* it.
 One style (endpoint), one terminal (`ExecuteAsync()`). Type-state enforces the order:
 
 ```csharp
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Extensions;
+using AspNetCore.Simple.MsTest.Sdk;     // one namespace for the whole package
 using Microsoft.AspNetCore.Http;   // StatusCodes
 
 var created = await Client.AssertPost("api/v1/persons")
@@ -40,7 +40,11 @@ var created = await Client.AssertPost("api/v1/persons")
 
 ### Entry
 
-`Client.AssertPost / AssertGet / AssertPut / AssertPatch / AssertDelete(url)`
+`Client.AssertPost / AssertGet / AssertPut / AssertPatch / AssertDelete / AssertQuery(url)`
+
+`AssertQuery` sends the HTTP `QUERY` verb (RFC 10008) — a safe request that carries a body, so the
+`Accepts…` methods apply just like for POST. OPTIONS has its own short chain, see
+[OPTIONS](#options--headers-are-the-payload).
 
 ### Request body — explicit, no heuristic
 
@@ -59,12 +63,21 @@ var created = await Client.AssertPost("api/v1/persons")
 .WithHeader("X-Correlation-Id", id)
 ```
 
+### Endpoint validation
+
+By default `Produces<T>(code)` checks `T` against the type the endpoint declares. For outcomes the
+endpoint metadata cannot describe (e.g. an error raised by middleware), opt out:
+
+```csharp
+.SkipEndpointValidation()                  // classic: skipEndpointValidation: true
+```
+
 ### Status + type + return type
 
 ```csharp
 .Produces<Person>(StatusCodes.Status201Created)  // body as Person → Task<Person>
 .Produces<Person>(HttpStatusCode.OK)             // HttpStatusCode overload
-.Produces(StatusCodes.Status204NoContent)        // no body → Task; no ExpectedResponse allowed
+.Produces(StatusCodes.Status204NoContent)        // no type named → status only, Task
 ```
 
 The body type is generic — error outcomes carry their own type:
@@ -84,6 +97,22 @@ The body type is generic — error outcomes carry their own type:
 
 **Omitting it = body-less path:** assert the status only, still get the real response back typed.
 
+### Anonymous (partial) expected object — the type comes from the object
+
+When only a few properties matter, skip the type in `Produces` and let the expected object define it —
+the fluent counterpart of the classic `AssertGetAsErrorAsync(url, new { … })`:
+
+```csharp
+var error = await Client.AssertGet("api/v1/persons/999")
+    .Produces(StatusCodes.Status404NotFound)
+    .ExpectedResponse(new { Title = "Person not found", Status = 404, Id = 999 })
+    .ExecuteAsync();                                // → Task<anonymous type>, error.Id == 999
+```
+
+The response is deserialized into the anonymous type, so only its properties are compared. Endpoint
+validation is skipped here, because `Produces(code)` named no type to validate against. File and raw-JSON
+sources carry no type, so they stay on `Produces<T>(code)`.
+
 ### Comparison config — only reachable after `ExpectedResponse…` (type-state!)
 
 ```csharp
@@ -97,13 +126,24 @@ The body type is generic — error outcomes carry their own type:
 
 `.ExecuteAsync()` → `Task<T>` (with body) or `Task` (body-less). The only `await` point.
 
+### OPTIONS — headers are the payload
+
+An OPTIONS call has no body to compare; it must answer `204 NoContent` and its headers are checked:
+
+```csharp
+await Client.AssertOptions("api/v1/persons")
+    .ExpectedHeaders(ImmutableDictionary<string, string>.Empty.Add("Allow", "GET, POST"))
+    // or: .ExpectedHeadersFromJsonString("{ … }") / .ExpectedHeadersFromEmbeddedJson("Options.json")
+    .ExecuteAsync();                                // → Task<HttpResponseMessage>
+```
+
 ## Type-state (the compiler as the first line of defense)
 
 ```
 IHttpRequestConfiguring
-  ├─ Accepts… / WithParameter… / WithHeader  → stays here
+  ├─ Accepts… / WithParameter… / WithHeader / SkipEndpointValidation  → stays here
   ├─ Produces<T>(code)   → IHttpResponseConfiguring<T>
-  └─ Produces(code)      → IHttpExpectationConfiguring   (no body, no ExpectedResponse)
+  └─ Produces(code)      → IHttpExpectationConfiguring   (no type named)
 
 IHttpResponseConfiguring<T>
   ├─ ExpectedResponse…   → IHttpComparisonConfiguring<T>
@@ -114,7 +154,12 @@ IHttpComparisonConfiguring<T>
   └─ ExecuteAsync()      → Task<T>
 
 IHttpExpectationConfiguring
+  ├─ ExpectedResponse(obj) → IHttpComparisonConfiguring<TObj>   (type taken from the object)
   └─ ExecuteAsync()      → Task
+
+IHttpOptionsConfiguring                  (Client.AssertOptions(url))
+  └─ ExpectedHeaders…    → IHttpOptionsExpectationConfiguring
+                              └─ ExecuteAsync() → Task<HttpResponseMessage>
 ```
 
 `IgnoreProperty` deliberately lives on `IHttpComparisonConfiguring<T>` — without an `ExpectedResponse…`
@@ -173,4 +218,4 @@ await Client.AssertGet($"api/v1/persons/{created.Id}")
 
 More examples in [`EXAMPLES.md`](EXAMPLES.md). A task-oriented walkthrough plus the full method idea
 collection lives in [`HOWTO.md`](HOWTO.md). Design background and open questions in
-[`DESIGN_VISION.md`](DESIGN_VISION.md).
+[`DESIGN_VISION.md`](DESIGN_VISION.md). Open work items and the handover list: [`NEXT_STEPS.md`](NEXT_STEPS.md).

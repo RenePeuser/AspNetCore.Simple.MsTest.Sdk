@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http;
 
-namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Contains minimal HTTP response data for assertion processing.

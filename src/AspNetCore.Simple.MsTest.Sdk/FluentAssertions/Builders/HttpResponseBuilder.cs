@@ -8,9 +8,8 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
-using AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Interfaces;
 
-namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Builds the response + comparison stage of a fluent HTTP assertion chain (Endpoint-Stil, §15.6).
@@ -49,6 +48,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
 
         private readonly HttpStatusCode _expectedStatusCode;
 
+        private readonly bool _skipEndpointValidation;
+
         // Null until an ExpectedResponse… is set → body-less path (deserialize + return, no comparison).
         private string? _expectedJson;
 
@@ -70,7 +71,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                      string callerFilePath,
                                      string callerMemberName,
                                      int callerLineNumber,
-                                     HttpStatusCode expectedStatusCode)
+                                     HttpStatusCode expectedStatusCode,
+                                     bool skipEndpointValidation)
         {
             _client = client;
             _method = method;
@@ -83,6 +85,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
             _callerMemberName = callerMemberName;
             _callerLineNumber = callerLineNumber;
             _expectedStatusCode = expectedStatusCode;
+            _skipEndpointValidation = skipEndpointValidation;
         }
 
         // ============================================================
@@ -216,7 +219,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.FluentAssertions.Builders
                                                isSuccessStatusCode: isSuccessTest,
                                                writeResponse: _writeSnapshot,
                                                ignoreResponse: _expectedJson == null,
-                                               skipEndpointValidation: false,
+                                               skipEndpointValidation: _skipEndpointValidation,
                                                expectedHttpStatusCode: _expectedStatusCode,
                                                differenceFilter: _differenceFilter,
                                                requestHeaders: _headers,

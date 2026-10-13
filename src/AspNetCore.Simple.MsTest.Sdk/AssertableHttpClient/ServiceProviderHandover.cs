@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
-namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     internal static class AddServiceProviderHandoverExtension
     {

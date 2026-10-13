@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace AspNetCore.Simple.MsTest.Sdk.Decorators
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// An <see cref="ITextDecorator"/> permanently bound to one consumer assembly, for the injected

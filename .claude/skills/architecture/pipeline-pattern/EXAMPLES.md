@@ -7,7 +7,7 @@ This example shows the actual implementation from the codebase.
 ### Step Interface
 
 ```csharp
-namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Represents a single step in the HTTP assertion pipeline.
@@ -29,7 +29,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 ### Pipeline Orchestrator
 
 ```csharp
-namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Pipeline that executes HTTP assertion steps sequentially.
@@ -58,7 +58,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 ### Example Step: Status Code Validation
 
 ```csharp
-namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Validates that the HTTP status code matches expectations.
@@ -99,7 +99,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 ### Example Step: Content Type Validation
 
 ```csharp
-namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Validates that the Content-Type header is application/json.
@@ -127,7 +127,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 ### Service Registration
 
 ```csharp
-namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static class AddHttpAssertionPipelineExtension
     {
@@ -153,7 +153,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
 ### Individual Step Registration
 
 ```csharp
-namespace AspNetCore.Simple.MsTest.Sdk.AssertableHttpClient
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     public static class AddStatusCodeValidationStepExtension
     {

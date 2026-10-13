@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace AspNetCore.Simple.MsTest.Sdk.ErrorHandling
+namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Defines a contract for handling specific exception types in test assertions.
