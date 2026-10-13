@@ -204,8 +204,13 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
     report), and the stale concept docs `FINAL_BUILD_FIX.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_SUMMARY.md`,
     `AGENT_PROMPT_IMPLEMENT_ASSERTS.md`, `ASSERT_EXTENSIONS_ADVANCED_CREATIVE.md`, `ASSERT_EXTENSIONS_COMPLETE_LIST.md`,
     `ASSERT_FOLDER_STRUCTURE.md`, `CONCEPT_AI_FRIENDLY_ASSERTS.md`, `ERROR_HANDLING_STRATEGY.md`,
-    `FILE_NAMING_GUIDE.md` (none referenced outside each other). Still open, ask the user: `LinkedIn-Article.txt`
-    (tracked), `test-pack/` (untracked local `10.0.0-alpha.189.nupkg`).
+    `FILE_NAMING_GUIDE.md` (none referenced outside each other; committed as `a73a405`). Restored afterwards,
+    unchanged, into `docu/concepts/` (user: keep the useful ideas): `ERROR_HANDLING_STRATEGY.md`,
+    `FILE_NAMING_GUIDE.md`, `CONCEPT_AI_FRIENDLY_ASSERTS.md`, `ASSERT_EXTENSIONS_COMPLETE_LIST.md`,
+    `ASSERT_EXTENSIONS_ADVANCED_CREATIVE.md`. The rest stays in history (`0cb4b63`). Still open, ask the user:
+    `MIGRATION_PLAN.md`, `ASSERT_FOLDER_STRUCTURE.md` (deleted, undecided), `test-pack/` (untracked local
+    `10.0.0-alpha.189.nupkg`). `LinkedIn-Article.txt` → `docu/linkedin-article.md` (content unchanged; it still
+    describes "v2.0" - refresh for the 10.1 fluent launch if the user wants to post it).
 16. ~~**Root `README.md`**~~ ✅ done 2026-10-13 (uncommitted): duplicate badges removed, Build badge pointed at
     the existing `build-and-publish.yml`, QUERY dropped from the fluent roadmap (it is implemented), install line
     uses `--prerelease` instead of the stale `9.6.0-alpha.19`. The "Alpha only" notes are gone too (fluent API
