@@ -196,12 +196,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         IHttpResponseConfiguring<TResult> IHttpResponseConfiguring<TResult>.SkipEndpointValidation()
         {
-            return With(copy => copy._skipEndpointValidation = false);
+            return With(copy => copy._skipEndpointValidation = true);
         }
 
         IHttpComparisonConfiguring<TResult> IHttpComparisonConfiguring<TResult>.SkipEndpointValidation()
         {
-            return With(copy => copy._skipEndpointValidation = false);
+            return With(copy => copy._skipEndpointValidation = true);
         }
 
         private HttpResponseBuilder<TResult> WithExpected(string expectedJson,

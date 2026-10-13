@@ -104,7 +104,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public IHttpExpectationConfiguring SkipEndpointValidation()
         {
             var copy = (HttpExpectationBuilder)MemberwiseClone();
-            copy._skipEndpointValidation = false;
+            copy._skipEndpointValidation = true;
 
             return copy;
         }
