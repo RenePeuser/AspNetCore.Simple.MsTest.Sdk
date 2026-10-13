@@ -303,6 +303,7 @@ Complete feature matrix showing what's supported out of the box:
 | **OPTIONS**                                                           | ❌         | ✅ `AssertOptionsAsync()`   | ❌                                 |
 
 **Note**: POST, PUT, PATCH, DELETE also support NoContent (204) variants without `<T>` generic parameter.
+`AssertOptionsAsync` compares response AND content headers (`Allow`, `Content-*`); header names are case-insensitive.
 
 ### Content Types
 
@@ -2617,7 +2618,9 @@ Already implemented in the alpha:
 - **Three input shapes each** — object, raw JSON string, or embedded file: `Accepts` /
   `AcceptsFromJsonString` / `AcceptsFromEmbeddedJson`, and the matching `ExpectedResponse…` trio.
 - **Placeholders and headers** — `WithParameter`, `WithParameters` (tuples or an object), `WithHeader`.
-- **Body-less path** — `Produces(HttpStatusCode.Created)` without `<T>` asserts status only.
+- **Body-less path** — `Produces(HttpStatusCode.Created)` without `<T>` asserts the status, no type or body. The
+  route is still validated: a misspelled url or a wrong verb is "endpoint not found", not a green 404 / 405
+  (`.SkipEndpointValidation()` for a deliberately unknown route).
 
 Still on the roadmap (not in the alpha yet):
 

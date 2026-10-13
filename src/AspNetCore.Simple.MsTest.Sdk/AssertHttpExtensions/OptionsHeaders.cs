@@ -25,8 +25,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // rewrite the hyphens), and no HTML escaping of values like "text/plain; q=0.5, */*+json".
         private static readonly JsonSerializerOptions HeaderJsonOptions = new()
         {
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
         internal static string Serialize(IImmutableDictionary<string, ImmutableList<string>> expectedHeaders)
@@ -90,11 +89,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 var properties = document.RootElement.EnumerateObject().ToList();
-
-                if (properties.Count >= 0)
-                {
-                    return expectedHeadersJson;
-                }
 
                 FailOnDuplicateNames(properties, callingAssembly, callerFilePath, callerMemberName, callerLineNumber);
 

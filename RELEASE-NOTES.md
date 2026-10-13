@@ -85,6 +85,27 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
   run in call order, like the ignore rules.
 - **Fluent API (alpha builds only) - `AssertOptions(url)` is immutable, too.** `ExpectedHeaders…` mutated the stored
   stage, so two branches of one `AssertOptions(url)` both compared against the expectation set last.
+- **Fluent API (alpha builds only) - `Produces(code)` validates the route (behavior change).** The status-only path
+  and `Produces(code).ExpectedResponse(obj)` skipped the whole endpoint validation because they name no response
+  type - which also skipped the ROUTE check: a misspelled url (404), a wrong verb (405) or an unknown api version
+  went green. Now verb, url and version are validated; the type still is not. A test that hits an unknown route on
+  purpose adds `.SkipEndpointValidation()` (the "endpoint not found" output says so). `.SkipEndpointValidation()`
+  before `Produces(code)` used to be ignored - it is honored now.
+
+### Fixed: OPTIONS assertions - `Allow` and header name spelling (classic and fluent)
+
+- **`Allow` and every `Content-*` header are compared.** `AssertOptionsAsync` / `AssertOptions(url)` read only
+  `HttpResponseMessage.Headers`; `HttpClient` files `Allow` - the header OPTIONS exists for - under the content
+  headers, so it could never be asserted. Response and content headers are compared together now; content headers
+  as sent (`Allow: GET, POST` is one value). **Behavior change:** an expectation must now also list the content
+  headers the endpoint sends.
+- **Header names compare case-insensitively.** The dictionary overloads serialized the names with the app's
+  dictionary key policy (camelCase turned `Access-Control-Allow-Methods` into `access-Control-Allow-Methods`) and the
+  comparison was case-sensitive, so a dictionary expectation of a mixed-case header always failed, and so did raw
+  JSON in another spelling. Names are kept as written and matched case-insensitively; values stay exact. A header
+  listed twice in another spelling (`"Allow"` and `"allow"`) fails with a what/why/fix message.
+- **"Endpoint not found" output** now shows how to test a deliberately unknown route (`.SkipEndpointValidation()` /
+  `skipEndpointValidation: true`).
 
 ### Fixed: a body carrying `content.value` was taken for the response envelope
 

@@ -69,11 +69,21 @@ collection has no properties that name placeholders.
 
 ### Endpoint validation
 
-By default `Produces<T>(code)` checks `T` against the type the endpoint declares. For outcomes the
-endpoint metadata cannot describe (e.g. an error raised by middleware), opt out:
+Before the call, the chain checks that the ROUTE exists (verb, url, api version). `Produces<T>(code)` also checks
+`T` against the type the endpoint declares; `Produces(code)` names no type, so it checks the route only — a
+misspelled url or a wrong verb is reported as "endpoint not found", not as a green 404 / 405. For outcomes the
+endpoint metadata cannot describe (an error raised by middleware, a route that deliberately does not exist), opt
+out — on the request stage, i.e. anywhere before `Produces…`:
 
 ```csharp
 .SkipEndpointValidation()                  // classic: skipEndpointValidation: true
+```
+
+```csharp
+await Client.AssertGet("api/v1/unknown-route")      // a deliberate 404 test
+    .SkipEndpointValidation()
+    .Produces(HttpStatusCode.NotFound)
+    .ExecuteAsync();
 ```
 
 ### Status + type + return type
@@ -114,8 +124,8 @@ var error = await Client.AssertGet("api/v1/persons/999")
 ```
 
 The response is deserialized into the anonymous type, so only its properties are compared. Endpoint
-validation is skipped here, because `Produces(code)` named no type to validate against. File and raw-JSON
-sources carry no type, so they stay on `Produces<T>(code)`.
+validation checks the route only here, because `Produces(code)` named no type to validate against. File and
+raw-JSON sources carry no type, so they stay on `Produces<T>(code)`.
 
 ### Comparison config — only reachable after `ExpectedResponse…` (type-state!)
 
@@ -169,15 +179,25 @@ An OPTIONS call has no body to compare; it must answer `204 NoContent` and its h
 
 ```csharp
 await Client.AssertOptions("api/v1/persons/echo-request")
-    .ExpectedHeadersFromJsonString("""{ "Access-Control-Allow-Methods": [ "POST, OPTIONS" ], "api-supported-versions": [ "1" ] }""")
-    // or: .ExpectedHeaders(dictionary) / .ExpectedHeadersFromEmbeddedJson("Options.json")
+    .ExpectedHeaders(ImmutableDictionary<string, string>.Empty
+        .Add("Allow", "POST, OPTIONS")
+        .Add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        .Add("api-supported-versions", "1"))
+    // or: .ExpectedHeadersFromJsonString("""{ "allow": [ "POST, OPTIONS" ], … }""")
+    //     .ExpectedHeadersFromEmbeddedJson("Options.json")
     .ExecuteAsync();                                // → Task<HttpResponseMessage>
 ```
 
-Two known limits of the OPTIONS engine (classic and fluent alike): only RESPONSE headers are compared — `Allow` is a
-content header in `HttpClient` and is never checked — and the `ExpectedHeaders(dictionary)` overloads serialize the
-header names with the app's dictionary key policy (camelCase turns `Access-Control-Allow-Methods` into
-`access-Control-Allow-Methods`). Use raw JSON for mixed-case header names.
+How the headers are compared (classic `AssertOptionsAsync` and fluent alike):
+
+- **Response AND content headers.** `Allow` and every `Content-*` header are content headers in `HttpClient`;
+  they are compared like any other header. Content headers are taken as sent (`Allow: POST, OPTIONS` is one value,
+  not two).
+- **Names are case-insensitive**, as in HTTP: `allow`, `Allow` and `ALLOW` all match. The dictionary overloads keep
+  the names exactly as written (no JSON key policy). Values are compared exactly.
+- **Exact set.** Every header the endpoint sends has to be expected, and every expected header has to be sent.
+- **One name, one entry.** Listing a header twice in another spelling (`"Allow"` and `"allow"`) fails with
+  "EXPECTED HEADER LISTED TWICE" — put several values into its array instead.
 
 ## Type-state (the compiler as the first line of defense)
 

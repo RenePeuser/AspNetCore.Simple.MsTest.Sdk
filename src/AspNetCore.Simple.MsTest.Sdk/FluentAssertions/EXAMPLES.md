@@ -58,8 +58,11 @@ await Client.AssertQuery("api/persons/search")
 ### OPTIONS (headers are the payload)
 
 ```csharp
+// Allow (a content header) and response headers are compared together; names are case-insensitive.
 await Client.AssertOptions("api/persons")
-    .ExpectedHeaders(ImmutableDictionary<string, string>.Empty.Add("Allow", "GET, POST"))
+    .ExpectedHeaders(ImmutableDictionary<string, string>.Empty
+        .Add("Allow", "GET, POST")
+        .Add("Access-Control-Allow-Methods", "GET, POST"))
     .ExecuteAsync();
 ```
 
@@ -278,6 +281,13 @@ await Client.AssertPost("api/persons")
     .Accepts(invalidPerson)
     .SkipEndpointValidation()
     .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+    .ExecuteAsync();
+
+// a route that deliberately does not exist: Produces(code) still validates the ROUTE,
+// so without SkipEndpointValidation() this reports "endpoint not found"
+await Client.AssertGet("api/unknown-route")
+    .SkipEndpointValidation()
+    .Produces(StatusCodes.Status404NotFound)
     .ExecuteAsync();
 ```
 
