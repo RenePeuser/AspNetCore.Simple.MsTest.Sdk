@@ -47,6 +47,14 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
 - **Own error handlers** - `ITestErrorHandler` / `TestErrorHandler<TException>` are public. Register one to
   explain failures only your project understands; it is asked before the SDK's catch-all, no matter whether
   it was registered before or after `AddAssertableHttpClient`.
+- **Fluent API (alpha builds only) - precise comparison vocabulary.** `IgnoreProperty(p => p.Address.Street)`
+  ignores exactly that path (not every `street`), follows `[JsonPropertyName]`, and covers collections via
+  `p => p.Emails.Select(e => e.EmailAddress)`. New: `IgnorePaths("emails[*].type")`,
+  `IgnoreDifferencesWhere(d => …)` (true = ignore), `FilterDifferences(diffs => …)` (returns what counts).
+  Removed: `IgnoreDifferences` (its lambda returned the differences to KEEP), `DifferenceFilter`, and
+  `IgnoreProperty<T>` (matched the last path segment only). Migration: `.DifferenceFilter(d => !X)` →
+  `.IgnoreDifferencesWhere(d => X)`, `.IgnoreDifferences(f)` → `.FilterDifferences(f)`,
+  `.IgnoreProperty<Person>(p => p.Id)` → `.IgnoreProperty(p => p.Id)` (or `list => list.Select(p => p.Id)`).
 
 ### Fixed: a body carrying `content.value` was taken for the response envelope
 

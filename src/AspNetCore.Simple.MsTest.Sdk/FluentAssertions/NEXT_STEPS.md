@@ -22,27 +22,21 @@
 - **Build:** `dotnet build AspNetCore.Simple.MsTest.Sdk.sln -c Debug` (Debug sets `FLUENT_ALPHA` automatically).
 - **IDE0005 fails the build** — an unnecessary `using` is an error, not a warning.
 
-## Priority 1 — before stable (signature changes)
+## Priority 1 — before stable (signature changes) ✅ done 2026-10-13
 
-1. **`IgnoreDifferences` semantics are inverted relative to its name.**
-   - Where: `Interfaces/IHttpComparisonConfiguring.cs`, implemented in `Builders/HttpResponseBuilder.cs`.
-   - Problem: the lambda returns the differences to **keep** (`diffs.Where(d => d.MemberPath != "x")`). The
-     intuitive `==` ignores everything else → silently green test. `DifferenceFilter(Predicate)` adds a second
-     meaning ("true = counts as failure").
-   - Proposal: `IgnoreDifferencesWhere(Predicate<Difference>)` (true = ignore) + `IgnorePaths(params string[])`.
-     Rename the old ones (e.g. `FilterDifferences`) or make them non-public. Update
-     `TestHelpers.IgnoreIdDifferences` and the docs.
-   - Tests: one negative test per semantic that must fail.
-
-2. **`IgnoreProperty<T>` ignores more than it promises.**
-   - Where: `Builders/HttpResponseBuilder.cs` (`MemberPathTargets`, `ExtractPropertyName`).
-   - Problem: compares only the last path segment by name → `p => p.Id` hits every `id` in the response,
-     `p => p.Address.Street` every `street`. `T` is not tied to `TResult`. `[JsonPropertyName]` → silent no-op.
-   - Proposal: build the full path from the expression (collection indices via wildcard), resolve the JSON name
-     through the serializer options (`HttpClientAssertExtensions.JsonSerializerOptionsFor`), add an overload
-     `IgnoreProperty(Expression<Func<TResult, object?>>)`. If "everywhere" is intended, name it
-     `IgnorePropertyEverywhere`.
-   - Difference path format: `id`, `[0].id`, `emails[0].emailAddress`.
+1. ~~`IgnoreDifferences` semantics inverted~~ and 2. ~~`IgnoreProperty<T>` ignores more than it promises~~ —
+   replaced by `IgnoreProperty(Expression<Func<TResult, object?>>)` (full path), `IgnorePaths`,
+   `IgnoreDifferencesWhere` (true = ignore) and `FilterDifferences` (returns what counts); see the decision log
+   entry of 2026-10-13. Path matching: `Builders/MemberPathPattern.cs`. Consumer tests:
+   `src/MinimalApi.Test/Api/Persons/V1/Profile/PersonProfileComparisonTests_Fluent.cs` against the new sample
+   endpoint `GET persons/{id}/profile`.
+   - **Path format correction:** on the HTTP path the differ compares the response ENVELOPE, so difference paths
+     read `content.value.name`, `content.value.contacts[0].value` (not `name`). `IgnorePaths` accepts both forms;
+     `IgnoreDifferencesWhere` sees the raw envelope path.
+   - **Testing rule (from the user):** every fix is proven with automated consumer tests through a real API call
+     (MinimalApi / Controllers sample APIs), each positive case paired with a test that MUST fail.
+   - Note: `ApiTestBase` registers `TestHelpers.IgnoreIdDifferences` globally (drops every `….id` path) — don't use
+     nested `id` to prove an ignore rule is precise; the global func hides it anyway.
 
 ## Priority 2 — should land
 
@@ -103,4 +97,4 @@
 
 ## Recommended order
 
-Commit → **1 + 2 together** (comparison vocabulary, both can silently green a test) → 5 → 3 → 4 → 6 → rest as needed.
+~~Commit → 1 + 2~~ (done) → 5 → 3 → 4 → 6 → rest as needed.
