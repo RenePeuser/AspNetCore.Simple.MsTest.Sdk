@@ -1,13 +1,10 @@
 # Fluent Assert API — How-To and Design Ideas
 
-> ⚠️ **Alpha:** The fluent entry points are `public` only in prerelease builds (`FLUENT_ALPHA`).
-> In stable packages, the API remains `internal` until its final shape has been established. Signatures may still
-> change.
-> For stable tests, continue using the classic `AssertPostAsync<T>(…)` API.
+> The fluent API is part of the regular package since 10.1, next to the classic `AssertPostAsync<T>(…)` API.
 > For more details, see [`README.md`](README.md) and [`EXAMPLES.md`](EXAMPLES.md).
 
 ```bash
-dotnet add package AspNetCore.Simple.MsTest.Sdk --version 9.6.0-alpha.19
+dotnet add package AspNetCore.Simple.MsTest.Sdk
 ```
 
 ## Purpose

@@ -26,8 +26,7 @@
   - Present findings + a proposal and get the user's go BEFORE changing signatures or behavior.
   - Add a small deterministic sample endpoint when no existing response shape can prove the behavior
     (example: `src/MinimalApi/Api/Persons/V1/Profile/`).
-  - Run the full suite + `dotnet build src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj -c Release`
-    (Release = no `FLUENT_ALPHA`, fluent types internal) before reporting.
+  - Run the full suite + `dotnet build AspNetCore.Simple.MsTest.Sdk.sln -c Release` before reporting.
   - Docs are English; update Fluent `README.md` / `EXAMPLES.md` / `HOWTO.md`, root `README.md`,
     `RELEASE-NOTES.md`, this file, and append to the decision log in `DESIGN_VISION.md`.
 - **Already done:**
@@ -38,11 +37,12 @@
     `Core.Test/Core/PublicNamespace.Contract.Tests.cs`.
   - Analyzer marker is `AspNetCore.Simple.MsTest.Sdk.FluentBuilderAttribute`
     (`src/AspNetCore.Simple.MsTest.Sdk.Analyzers/FluentBuilderMarker.cs`, pinned by the contract test).
-- **Next release is 11.0.0 (major).** Fluent signatures may change freely — the fluent API is public only in
-  alpha builds (`FLUENT_ALPHA`).
+- **The fluent API ships publicly from 10.1 on** (user, 2026-10-13; note: `RELEASE-NOTES.md` still heads the
+  upcoming release as 11.0.0 / `+semver: major`) — `FLUENT_ALPHA` is removed (2026-10-13,
+  uncommitted). From the stable release on, signature changes are breaking changes.
 - **Code:** `src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/` (`Builders/`, `Interfaces/`, `Extensions/`).
 - **Tests:** `src/MinimalApi.Test`, `src/Controllers.Test` (`*_Fluent.cs`), `Core.Test`, analyzer + code-fix tests.
-- **Build:** `dotnet build AspNetCore.Simple.MsTest.Sdk.sln -c Debug` (Debug sets `FLUENT_ALPHA` automatically).
+- **Build:** `dotnet build AspNetCore.Simple.MsTest.Sdk.sln -c Debug`.
 - **IDE0005 fails the build** — an unnecessary `using` is an error, not a warning. Other CA rules are errors too
   (seen: CA1510, CA1859, CA2016) — a counter-check edit that fails to compile silently re-runs OLD binaries; always
   confirm "Build succeeded" before reading test results. Also errors: block-bodied methods (no `=> …` on methods,
@@ -202,8 +202,8 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
     (`FINAL_BUILD_FIX.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_SUMMARY.md`, …) — confirm with the user before deleting.
 16. ~~**Root `README.md`**~~ ✅ done 2026-10-13 (uncommitted): duplicate badges removed, Build badge pointed at
     the existing `build-and-publish.yml`, QUERY dropped from the fluent roadmap (it is implemented), install line
-    uses `--prerelease` instead of the stale `9.6.0-alpha.19`. Still open: the "Alpha only" note — only once the
-    fluent API ships in stable packages.
+    uses `--prerelease` instead of the stale `9.6.0-alpha.19`. The "Alpha only" notes are gone too (fluent API
+    released, `FLUENT_ALPHA` removed).
 17. ~~**`RELEASE-NOTES.md`**~~ ✅ done 2026-10-13 (uncommitted): the "Own error handlers" entry is gone — the
     handlers are public since v10.0.0 and the registration order was already irrelevant in v10.0.3; the namespace
     table covers the only real change.

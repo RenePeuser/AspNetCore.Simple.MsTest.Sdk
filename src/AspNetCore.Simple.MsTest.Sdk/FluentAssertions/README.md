@@ -3,16 +3,8 @@
 Type-safe fluent API for HTTP testing that mirrors ASP.NET Core endpoint definitions —
 the endpoint *describes* the contract, the test *verifies* it.
 
-> ## ⚠️ ALPHA — released in alpha versions only
->
-> This fluent API is **experimental** and shipped **exclusively in alpha (prerelease) versions** of the
-> package. Until its final shape is decided (see `DESIGN_VISION.md`), we deliberately **do not release it
-> in stable versions** — signatures may change without notice.
->
-> **Do not use it in production test suites** that run against stable releases. Feedback on the API is
-> explicitly welcome — that is exactly what the alpha is for.
->
-> For stable tests, keep using the classic `AssertPostAsync<T>(…)` overload API.
+Part of the regular package since 10.1, next to the classic `AssertPostAsync<T>(…)` overload API. Both run
+the same pipeline, so a suite can migrate test by test.
 
 ---
 

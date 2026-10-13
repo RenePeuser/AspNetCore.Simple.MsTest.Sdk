@@ -17,11 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </para>
     /// </summary>
     [FluentBuilder]
-#if FLUENT_ALPHA
     public interface IHttpRequestConfiguring
-#else
-    internal interface IHttpRequestConfiguring
-#endif
     {
         // ============================================================
         // Placeholder parameters ($Token$ substitution). Naked names — SDK escapes internally (§10.1).

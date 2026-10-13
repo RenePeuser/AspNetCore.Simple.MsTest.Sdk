@@ -21,11 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </para>
     /// </summary>
     [FluentBuilder]
-#if FLUENT_ALPHA
     public interface IHttpExpectationConfiguring
-#else
-    internal interface IHttpExpectationConfiguring
-#endif
     {
         /// <summary>
         /// Sets the expected response body from an object whose type becomes the response type —

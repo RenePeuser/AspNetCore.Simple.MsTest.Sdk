@@ -56,16 +56,13 @@ jobs:
       - name: Vulnerability check
         run: dotnet list package --include-transitive --vulnerable
 
-      # Test projects exercise the alpha-only fluent API, which is public only with FLUENT_ALPHA.
-      # Stable branches (master) get no prerelease tag from GitVersion, so force it for tests.
       - name: Build (Debug for tests)
-        run: dotnet build --configuration Debug --no-restore -p:FluentAlpha=true
+        run: dotnet build --configuration Debug --no-restore
 
       - name: Test (Debug)
         run: dotnet test --configuration Debug --no-build
 
-      # Package build: SDK project only and WITHOUT FluentAlpha, so stable packages keep the
-      # fluent API internal (GitVersion still enables it for prerelease versions).
+      # Package build: SDK project only.
       - name: Build (Release for package)
         run: dotnet build src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj --configuration Release --no-restore
 

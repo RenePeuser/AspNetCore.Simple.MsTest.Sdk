@@ -13,11 +13,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </para>
     /// </summary>
     [FluentBuilder]
-#if FLUENT_ALPHA
     public interface IHttpOptionsExpectationConfiguring
-#else
-    internal interface IHttpOptionsExpectationConfiguring
-#endif
     {
         /// <summary>
         /// Executes the OPTIONS request, asserts 204 NoContent without a body and compares the response

@@ -14,11 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </para>
     /// </summary>
     [FluentBuilder]
-#if FLUENT_ALPHA
     public interface IHttpOptionsConfiguring
-#else
-    internal interface IHttpOptionsConfiguring
-#endif
     {
         /// <summary>Sets the expected response headers, one value per header.</summary>
         IHttpOptionsExpectationConfiguring ExpectedHeaders(IImmutableDictionary<string, string> expectedHeaders);

@@ -44,12 +44,17 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
 
 ### New
 
-- **Fluent API (alpha builds only) - analyzer `MSTESTSDK003` for a forgotten `WriteSnapshot()`.** Recording runs in
+- **Fluent Assert API is public in the regular package.** `Client.AssertPost(url).Accepts(…).Produces<T>(code)
+  .ExpectedResponse…(…).ExecuteAsync()` and the other entry points (`AssertGet`, `AssertPut`, `AssertPatch`,
+  `AssertDelete`, `AssertQuery`, `AssertOptions`) were public only in prerelease builds (`FLUENT_ALPHA`); the
+  switch is gone. The classic `Assert…Async` API stays unchanged — both run the same pipeline. Users of the
+  alpha: see the entries below, several signatures changed since the last prerelease.
+- **Fluent API - analyzer `MSTESTSDK003` for a forgotten `WriteSnapshot()`.** Recording runs in
   Debug only, so a committed `WriteSnapshot()` re-records the expected file on every Debug run and the test can
   never fail there. The new warning reports `WriteSnapshot()` / `WriteSnapshot(true)` in **Release builds only** —
   Debug stays silent so you can record and debug. To update snapshots in bulk, set
   `TestSdkSettings__WriteResponse=true` instead of editing tests.
-- **Fluent API (alpha builds only) - precise comparison vocabulary.** `IgnoreProperty(p => p.Address.Street)`
+- **Fluent API - precise comparison vocabulary.** `IgnoreProperty(p => p.Address.Street)`
   ignores exactly that path (not every `street`), follows `[JsonPropertyName]`, and covers collections via
   `p => p.Emails.Select(e => e.EmailAddress)`. New: `IgnorePaths("emails[*].type")`,
   `IgnoreDifferencesWhere(d => …)` (true = ignore), `FilterDifferences(diffs => …)` (returns what counts).
@@ -57,49 +62,49 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
   `IgnoreProperty<T>` (matched the last path segment only). Migration: `.DifferenceFilter(d => !X)` →
   `.IgnoreDifferencesWhere(d => X)`, `.IgnoreDifferences(f)` → `.FilterDifferences(f)`,
   `.IgnoreProperty<Person>(p => p.Id)` → `.IgnoreProperty(p => p.Id)` (or `list => list.Select(p => p.Id)`).
-- **Fluent API (alpha builds only) - immutable builders.** Every configuring call returns a new builder. A stored
+- **Fluent API - immutable builders.** Every configuring call returns a new builder. A stored
   base request (or `Produces…` / `ExpectedResponse…` stage) can be branched safely: before, a later
   `WithHeader` / `WithParameter` on the base changed chains already derived from it, parameters of sibling
   branches accumulated, and an `IgnoreProperty` on a lenient branch also switched off the strict chain's
   comparison. A configuring call whose result is discarded now has no effect.
-- **Fluent API (alpha builds only) - `WithParameters` hardened.** New overload
+- **Fluent API - `WithParameters` hardened.** New overload
   `WithParameters(IReadOnlyDictionary<string, object?>)`; any other dictionary passed as `object`
   (`Dictionary<string, string>`, …) contributes its entries instead of `$Count$`/`$Keys$` and an indexer crash.
   Indexer properties of a parameter object are skipped. A value (`string`, number, enum, `Guid`, …) or a collection
   now throws `ArgumentException` - before, a string crashed with `TargetParameterCountException` and a number
   silently added nothing, leaving the placeholder unreplaced.
-- **Fluent API (alpha builds only) - `ExecuteAsync(CancellationToken cancellationToken = default)`** on every
+- **Fluent API - `ExecuteAsync(CancellationToken cancellationToken = default)`** on every
   terminal (typed, body-less, status-only, OPTIONS). The token reaches `HttpClient.SendAsync` and the response
   read - before, every call used `CancellationToken.None`. A cancellation surfaces as
   `OperationCanceledException`, not as an assertion failure. `HttpAssertContext<TResult>` gained the matching
   `CancellationToken` property (default `None`).
-- **Fluent API (alpha builds only) - the builders guide you (breaking for alpha users).** POST/PUT/PATCH/QUERY start
+- **Fluent API - the builders guide you (breaking for alpha users).** POST/PUT/PATCH/QUERY start
   on the new `IHttpBodyRequestConfiguring`; every `Accepts…` leads to `IHttpRequestConfiguring`, which offers no
   `Accepts…`. GET/DELETE start there directly. So `Client.AssertGet(url).Accepts(…)` (GET/DELETE carry no body - the
   classic API never sends one) and `.Accepts(a).Accepts(b)` (the second body silently won) no longer compile. The order
   of `With…` and `Accepts…` stays free. Migration: if a variable was typed `IHttpRequestConfiguring` for a POST/PUT/
   PATCH/QUERY chain before its body, type it `IHttpBodyRequestConfiguring` (or use `var`).
-- **Fluent API (alpha builds only) - a parameter or header name given twice throws** an `ArgumentException` with a
+- **Fluent API - a parameter or header name given twice throws** an `ArgumentException` with a
   what/why/how-to-fix message, at the repeating line. Before, a repeated parameter silently sent the FIRST value and
   a repeated header the LAST one. Header names compare case-insensitively. Overriding a name a stored base stage
   already holds counts as repeating - set it per branch instead.
-- **Fluent API (alpha builds only) - `WithQueryParameter(key, value)`.** Builds the query string from parts instead of
+- **Fluent API - `WithQueryParameter(key, value)`.** Builds the query string from parts instead of
   by hand in the url: key and value are URL-encoded (`"Son Goku & Co"` → `Son%20Goku%20%26%20Co`), `null` adds nothing,
   a collection repeats the key (`tag=a&tag=b`), values are formatted culture-invariant, and a url that already has a
   query is continued with `&`. A key given twice (case-insensitive) throws an `ArgumentException` with a
   what/why/how-to-fix message. Available on both request stages, before and after `Accepts…`.
-- **Fluent API (alpha builds only) - `WithBearerToken(token)` / `WithoutAuthorization()`.** Credentials for one request:
+- **Fluent API - `WithBearerToken(token)` / `WithoutAuthorization()`.** Credentials for one request:
   the `Authorization` header goes on the request message, so it wins over the client's default for this call and
   `HttpClient.DefaultRequestHeaders` stay untouched - safe on a client shared by the whole session and by parallel
   tests, nothing to restore. `WithoutAuthorization()` sends the request without the client's default credentials (for
   a 401 test on a signed-in client). Credentials are set once per chain; a repeat - also via
   `WithHeader("Authorization", …)` - throws an `ArgumentException` that never prints the token. The curl output shows
   the per-request credentials (masked unless `ShowTokenInCurl`).
-- **Fluent API (alpha builds only) - `FilterResponse` composes.** A second call ran instead of the first; now both
+- **Fluent API - `FilterResponse` composes.** A second call ran instead of the first; now both
   run in call order, like the ignore rules.
-- **Fluent API (alpha builds only) - `AssertOptions(url)` is immutable, too.** `ExpectedHeaders…` mutated the stored
+- **Fluent API - `AssertOptions(url)` is immutable, too.** `ExpectedHeaders…` mutated the stored
   stage, so two branches of one `AssertOptions(url)` both compared against the expectation set last.
-- **Fluent API (alpha builds only) - `Produces(code)` validates the route (behavior change).** The status-only path
+- **Fluent API - `Produces(code)` validates the route (behavior change).** The status-only path
   and `Produces(code).ExpectedResponse(obj)` skipped the whole endpoint validation because they name no response
   type - which also skipped the ROUTE check: a misspelled url (404), a wrong verb (405) or an unknown api version
   went green. Now verb, url and version are validated; the type still is not. A test that hits an unknown route on

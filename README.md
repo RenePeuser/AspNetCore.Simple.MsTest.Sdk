@@ -29,7 +29,6 @@ public Task Should_Create_User(string useCase)
 The same test with the fluent API — it reads like the endpoint contract it verifies:
 
 ```csharp
-// Alpha version only
 [TestMethod]
 [DynamicRequestLocator]
 public Task Should_Create_User(string useCase)
@@ -42,9 +41,7 @@ public Task Should_Create_User(string useCase)
 }
 ```
 
-> ⚠️ The fluent entry points (`AssertPost`, `AssertGet`, …) are `public` only in prerelease builds
-> (`FLUENT_ALPHA`); in stable packages they stay `internal`.
-> See [Fluent Assert API (Alpha)](#coming-soon--fluent-assert-api-alpha-).
+See [Fluent Assert API](#fluent-assert-api).
 
 ---
 
@@ -180,7 +177,6 @@ public class UserTests : ApiTestBase
 Fluent equivalent:
 
 ```csharp
-// Alpha version only
 [TestClass]
 public class UserTests : ApiTestBase
 {
@@ -2582,10 +2578,10 @@ The AI mode enables AI agents to:
 
 ---
 
-## Coming Soon — Fluent Assert API (Alpha) 🧪
+## Fluent Assert API
 
-A declarative, type-safe fluent API for HTTP contract testing is in the works. A test should read like the
-endpoint contract it verifies:
+A declarative, type-safe fluent API for HTTP contract testing. A test reads like the endpoint contract it
+verifies:
 
 ```csharp
 await Client.AssertPost("api/v1/persons")
@@ -2595,7 +2591,7 @@ await Client.AssertPost("api/v1/persons")
     .ExecuteAsync();                                // the only terminal
 ```
 
-Already implemented in the alpha:
+What it offers:
 
 - **Entry points** — `AssertPost`, `AssertGet`, `AssertPut`, `AssertPatch`, `AssertDelete`, `AssertQuery`,
   `AssertOptions` on `HttpClient`.
@@ -2607,7 +2603,8 @@ Already implemented in the alpha:
   `.Accepts(a).Accepts(b)` do not compile. A parameter or header name given twice fails at once with a what/why/fix
   message.
 - **Analyzer-protected terminal** — a forgotten `ExecuteAsync()` is a build error (`MSTESTSDK001`), not a
-  silently green test. A code fix appends the missing terminal.
+  silently green test. A code fix appends the missing terminal. A forgotten `WriteSnapshot()` is reported in
+  Release builds (`MSTESTSDK003`).
 - **Precise, type-safe property ignore** — `.IgnoreProperty(p => p.Address.Street)` ignores exactly that
   path (not every `street`), honoring `[JsonPropertyName]`; `p => p.Emails.Select(e => e.EmailAddress)` covers
   every element.
@@ -2621,7 +2618,7 @@ Already implemented in the alpha:
   route is still validated: a misspelled url or a wrong verb is "endpoint not found", not a green 404 / 405
   (`.SkipEndpointValidation()` for a deliberately unknown route).
 
-Still on the roadmap (not in the alpha yet):
+Still on the roadmap:
 
 - **Error-response chains** — the `AsErrorAsync` equivalents.
 - **Property predicates** — `.MatchesProperty(p => p.Id, id => id != Guid.Empty)`.
@@ -2631,7 +2628,6 @@ Still on the roadmap (not in the alpha yet):
 Full method reference:
 
 ```csharp
-// Alpha version only
 await Client.AssertPost("api/v1/persons")
             .AcceptsFromEmbeddedJson("CreatePersonParameterized.json")
             .WithParameters(("Name", "Son"), ("Age", 42))   // $Name$ / $Age$ substitution
@@ -2643,12 +2639,11 @@ await Client.AssertPost("api/v1/persons")
             .ExecuteAsync();
 ```
 
-> ⚠️ **Alpha only.** The fluent entry points are `public` only in prerelease builds (`FLUENT_ALPHA`); in
-> stable packages they stay `internal` until the shape is final. Signatures may still change. For stable
-> tests, keep using the classic `AssertPostAsync<T>(…)` API.
+The fluent API ships in the regular package (10.1+) next to the classic `AssertPostAsync<T>(…)` API — both
+run the same pipeline, so they can be mixed while migrating.
 
 ```sh
-dotnet add package AspNetCore.Simple.MsTest.Sdk --prerelease
+dotnet add package AspNetCore.Simple.MsTest.Sdk
 ```
 
 Full walkthrough, the complete method idea collection, and design notes:

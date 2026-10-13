@@ -26,11 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </para>
     /// </summary>
     [FluentBuilder]
-#if FLUENT_ALPHA
     public interface IHttpBodyRequestConfiguring
-#else
-    internal interface IHttpBodyRequestConfiguring
-#endif
     {
         // ============================================================
         // Request body — explicit, no rate-heuristic (Schema A). Once per chain (type-state).

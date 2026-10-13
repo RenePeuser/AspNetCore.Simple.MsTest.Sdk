@@ -14,11 +14,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </summary>
     /// <typeparam name="TResult">The expected response type.</typeparam>
     [FluentBuilder]
-#if FLUENT_ALPHA
     public interface IHttpComparisonConfiguring<TResult>
-#else
-    internal interface IHttpComparisonConfiguring<TResult>
-#endif
     {
         /// <summary>
         /// Transforms the deserialized response before comparison (sort/normalize). Several calls combine in

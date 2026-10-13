@@ -1,11 +1,5 @@
 # Fluent Assert API — Examples
 
-> ## ⚠️ ALPHA — released in alpha versions only
->
-> All examples here use the **experimental fluent API**, available **exclusively in alpha (prerelease)
-> versions**. Signatures may change until the final shape is decided (see `DESIGN_VISION.md`). For stable
-> test suites, use the classic `AssertPostAsync<T>(…)` overload API.
-
 Every example follows the one chain:
 `AssertX(url)` → `Accepts…` → `Produces<T>(code)` → `ExpectedResponse…` → `ExecuteAsync()`.
 
@@ -350,7 +344,7 @@ await Client.AssertPostAsync<Person>(
     expectedStatusCode: HttpStatusCode.Created);
 ```
 
-**After (fluent, alpha):**
+**After (fluent):**
 
 ```csharp
 await Client.AssertPost("api/persons")

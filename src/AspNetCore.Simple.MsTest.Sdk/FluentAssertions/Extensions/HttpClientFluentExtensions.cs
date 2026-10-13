@@ -26,18 +26,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// </code>
     /// </example>
     /// </summary>
-    /// <remarks>
-    /// ALPHA-ONLY: the entry points are <c>public</c> only in prerelease (alpha) builds (the
-    /// <c>FLUENT_ALPHA</c> compile symbol, set by the build for prerelease versions). In stable builds
-    /// they stay <c>internal</c>, so the fluent API never surfaces in a stable package until its final
-    /// shape is decided. In-repo test projects access only the public contract, enforcing real-world usage.
-    /// See FluentAssertions/README.md and DESIGN_VISION.md.
-    /// </remarks>
-#if FLUENT_ALPHA
     public static class HttpClientFluentExtensions
-#else
-    internal static class HttpClientFluentExtensions
-#endif
     {
         // Note: Assembly.GetCallingAssembly() MUST be called directly in each public entry method —
         // moving it into a private helper would capture the SDK assembly, breaking embedded-resource
