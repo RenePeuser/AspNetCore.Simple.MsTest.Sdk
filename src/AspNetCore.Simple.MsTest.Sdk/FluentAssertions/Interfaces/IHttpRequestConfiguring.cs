@@ -1,5 +1,6 @@
-using System;
 using System.Net;
+using System.Runtime.CompilerServices;
+using System;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -29,7 +30,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // ============================================================
 
         /// <summary>Sets the request body from a C# object (serialized to JSON).</summary>
-        IHttpRequestConfiguring Accepts<T>(T body);
+        IHttpRequestConfiguring Accepts<T>(T body,
+                                            [CallerArgumentExpression(nameof(body))] string bodyExpression = "");
 
         /// <summary>
         /// NOT a request body. Reserved to close the Minimal-API false friend: there,
@@ -42,10 +44,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         IHttpRequestConfiguring Accepts(string bodyJson);
 
         /// <summary>Sets the request body from a raw JSON string (used verbatim).</summary>
-        IHttpRequestConfiguring AcceptsFromJsonString(string bodyJson);
+        IHttpRequestConfiguring AcceptsFromJsonString(string bodyJson,
+                                                      [CallerArgumentExpression(nameof(bodyJson))] string bodyJsonExpression = "");
 
         /// <summary>Sets the request body from an embedded-resource JSON file name.</summary>
-        IHttpRequestConfiguring AcceptsFromEmbeddedJson(string embeddedFileName);
+        IHttpRequestConfiguring AcceptsFromEmbeddedJson(string embeddedFileName,
+                                                        [CallerArgumentExpression(nameof(embeddedFileName))] string embeddedFileNameExpression = "");
 
         // ============================================================
         // Placeholder parameters ($Token$ substitution). Naked names — SDK escapes internally (§10.1).

@@ -50,11 +50,12 @@
    - A dictionary is reflected over (`Count`, `Keys`) → add an `IReadOnlyDictionary<string, object?>` overload.
    - Primitives / `string` → clear `ArgumentException`.
 
-5. **Failure-output parity with the classic API (verify first).** `HttpResponseBuilder.ExecuteAsync` calls
-   `AssertHttpCallAsync(... expectedResult: expectedResult ...)`; through `[CallerArgumentExpression]` the
-   literal `"expectedResult"` (and the body expression) likely ends up in the failure output / "snapshot not
-   found" hints, where the classic API shows the file name or `expectedResponse`. → Pass
-   `expectedResultParameterName` / `payloadAsJsonParameterName` explicitly; add a test on the message.
+5. ~~**Failure-output parity with the classic API**~~ ✅ done 2026-10-13. Verified: only the "file not found"
+   and JSON-type-mismatch reports leaked builder internals (`Parameter : expectedResult`,
+   `Parameter : _body ?? string.Empty`); diff tables and status-code reports were already identical. The body and
+   expected methods (`Accepts…`, `ExpectedResponse…`) now take an optional `[CallerArgumentExpression]` argument,
+   which the builders pass explicitly to the engine. Consumer tests:
+   `src/MinimalApi.Test/FailureOutput/FluentFailureOutputTests.cs` (counter-checked: all red without the fix).
 
 6. **No `CancellationToken`.** `AssertableHttpClient.cs` calls `httpCallHandler.CallAsync(context,
    CancellationToken.None)`. → `ExecuteAsync(CancellationToken cancellationToken = default)` on every terminal
@@ -97,4 +98,4 @@
 
 ## Recommended order
 
-~~Commit → 1 + 2~~ (done) → 5 → 3 → 4 → 6 → rest as needed.
+~~Commit → 1 + 2 → 5~~ (done) → 3 → 4 → 6 → rest as needed.

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -28,13 +29,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #endif
     {
         /// <summary>Sets the expected response body from a C# object (serialized to JSON).</summary>
-        IHttpComparisonConfiguring<TResult> ExpectedResponse(TResult expected);
+        IHttpComparisonConfiguring<TResult> ExpectedResponse(TResult expected,
+                                                             [CallerArgumentExpression(nameof(expected))] string expectedExpression = "");
 
         /// <summary>Sets the expected response body from a raw JSON string (used verbatim).</summary>
-        IHttpComparisonConfiguring<TResult> ExpectedResponseFromJsonString(string expectedJson);
+        IHttpComparisonConfiguring<TResult> ExpectedResponseFromJsonString(string expectedJson,
+                                                                           [CallerArgumentExpression(nameof(expectedJson))] string expectedJsonExpression = "");
 
         /// <summary>Sets the expected response body from an embedded-resource JSON file name.</summary>
-        IHttpComparisonConfiguring<TResult> ExpectedResponseFromEmbeddedJson(string embeddedFileName);
+        IHttpComparisonConfiguring<TResult> ExpectedResponseFromEmbeddedJson(string embeddedFileName,
+                                                                             [CallerArgumentExpression(nameof(embeddedFileName))] string embeddedFileNameExpression = "");
 
         /// <summary>
         /// Executes the request WITHOUT body comparison — asserts only the status code, deserializes

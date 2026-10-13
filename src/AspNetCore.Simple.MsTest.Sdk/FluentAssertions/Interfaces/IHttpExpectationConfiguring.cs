@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -37,7 +38,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <c>Produces(code)</c> named no type the endpoint could be checked against.
         /// </summary>
         /// <typeparam name="TExpected">The expected (often anonymous) type; also the return type of <c>ExecuteAsync()</c>.</typeparam>
-        IHttpComparisonConfiguring<TExpected> ExpectedResponse<TExpected>(TExpected expected);
+        IHttpComparisonConfiguring<TExpected> ExpectedResponse<TExpected>(TExpected expected,
+                                                                          [CallerArgumentExpression(nameof(expected))] string expectedExpression = "");
 
         /// <summary>Executes the request and asserts the status code. The single terminal.</summary>
         Task ExecuteAsync();

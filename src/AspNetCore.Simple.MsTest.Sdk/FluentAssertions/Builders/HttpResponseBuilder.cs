@@ -1,13 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Net;
+using System.Linq;
 using System.Net.Http;
+using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -35,6 +36,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private readonly string? _body;
 
+        private readonly string _bodyExpression;
+
         private readonly List<(string Key, object? Value)> _requestParameters;
 
         private readonly Dictionary<string, string> _headers;
@@ -54,6 +57,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // Null until an ExpectedResponse… is set → body-less path (deserialize + return, no comparison).
         private string? _expectedJson;
 
+        // The caller's own argument expression for the expected body - see HttpRequestBuilder._bodyExpression.
+        private string _expectedExpression = string.Empty;
+
         private Func<TResult?, TResult?>? _filterFunc;
 
         private Func<ImmutableList<Difference>, IEnumerable<Difference>>? _differenceFunc;
@@ -67,6 +73,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      HttpMethod method,
                                      string url,
                                      string? body,
+                                     string bodyExpression,
                                      List<(string Key, object? Value)> requestParameters,
                                      Dictionary<string, string> headers,
                                      Assembly callingAssembly,
@@ -80,6 +87,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _method = method;
             _url = url;
             _body = body;
+            _bodyExpression = bodyExpression;
             _requestParameters = requestParameters;
             _headers = headers;
             _callingAssembly = callingAssembly;
@@ -94,23 +102,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // Expected body (Schema A) → transition to comparison config.
         // ============================================================
 
-        public IHttpComparisonConfiguring<TResult> ExpectedResponse(TResult expected)
+        public IHttpComparisonConfiguring<TResult> ExpectedResponse(TResult expected,
+                                                                    [CallerArgumentExpression(nameof(expected))] string expectedExpression = "")
         {
             _expectedJson = JsonSerializer.Serialize(expected, HttpClientAssertExtensions.JsonSerializerOptionsFor(_callingAssembly));
+            _expectedExpression = expectedExpression;
 
             return this;
         }
 
-        public IHttpComparisonConfiguring<TResult> ExpectedResponseFromJsonString(string expectedJson)
+        public IHttpComparisonConfiguring<TResult> ExpectedResponseFromJsonString(string expectedJson,
+                                                                                  [CallerArgumentExpression(nameof(expectedJson))] string expectedJsonExpression = "")
         {
             _expectedJson = expectedJson;
+            _expectedExpression = expectedJsonExpression;
 
             return this;
         }
 
-        public IHttpComparisonConfiguring<TResult> ExpectedResponseFromEmbeddedJson(string embeddedFileName)
+        public IHttpComparisonConfiguring<TResult> ExpectedResponseFromEmbeddedJson(string embeddedFileName,
+                                                                                    [CallerArgumentExpression(nameof(embeddedFileName))] string embeddedFileNameExpression = "")
         {
             _expectedJson = embeddedFileName;
+            _expectedExpression = embeddedFileNameExpression;
 
             return this;
         }
@@ -200,6 +214,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                expectedHttpStatusCode: _expectedStatusCode,
                                                differenceFilter: _ignore is null ? null : d => _ignore(d).IsFalse(),
                                                requestHeaders: _headers,
+                                               payloadAsJsonParameterName: _bodyExpression,
+                                               expectedResultParameterName: _expectedExpression,
                                                callerFilePath: _callerFilePath,
                                                callerMemberName: _callerMemberName,
                                                callerLineNumber: _callerLineNumber);

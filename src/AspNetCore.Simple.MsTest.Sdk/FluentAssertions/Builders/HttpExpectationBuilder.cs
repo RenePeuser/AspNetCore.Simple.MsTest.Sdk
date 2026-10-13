@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
+using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -38,6 +39,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private readonly string? _body;
 
+        private readonly string _bodyExpression;
+
         private readonly List<(string Key, object? Value)> _parameters;
 
         private readonly Dictionary<string, string> _headers;
@@ -48,6 +51,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         HttpMethod method,
                                         string url,
                                         string? body,
+                                        string bodyExpression,
                                         List<(string Key, object? Value)> parameters,
                                         Dictionary<string, string> headers,
                                         Assembly callingAssembly,
@@ -60,6 +64,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _method = method;
             _url = url;
             _body = body;
+            _bodyExpression = bodyExpression;
             _parameters = parameters;
             _headers = headers;
             _callingAssembly = callingAssembly;
@@ -69,12 +74,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _expectedStatusCode = expectedStatusCode;
         }
 
-        public IHttpComparisonConfiguring<TExpected> ExpectedResponse<TExpected>(TExpected expected)
+        public IHttpComparisonConfiguring<TExpected> ExpectedResponse<TExpected>(TExpected expected,
+                                                                                 [CallerArgumentExpression(nameof(expected))] string expectedExpression = "")
         {
             // The type comes from the expected object, not from the endpoint - there is nothing declared
             // to validate against, so endpoint validation is skipped for the same reason as below.
             var responseBuilder = new HttpResponseBuilder<TExpected>(_client, _method, _url,
-                                                                     _body, _parameters, _headers,
+                                                                     _body, _bodyExpression, _parameters, _headers,
                                                                      _callingAssembly,
                                                                      _callerFilePath,
                                                                      _callerMemberName,
@@ -82,7 +88,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      _expectedStatusCode,
                                                                      skipEndpointValidation: true);
 
-            return responseBuilder.ExpectedResponse(expected);
+            return responseBuilder.ExpectedResponse(expected, expectedExpression);
         }
 
         public Task ExecuteAsync()
@@ -92,6 +98,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return _client.AssertHttpCallAsync(url: _url,
                                                payloadAsJson: _body ?? string.Empty,
                                                httpMethod: _method,
+                                               payloadAsJsonParameterName: _bodyExpression,
                                                parameters: _parameters.ToArray(),
                                                callingAssembly: _callingAssembly,
                                                callerFilePath: _callerFilePath,

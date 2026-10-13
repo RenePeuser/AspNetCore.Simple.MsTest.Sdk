@@ -1,9 +1,10 @@
-using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
+using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -34,6 +35,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private string? _body;
 
+        // The caller's own argument expression for the body (e.g. "CreatePerson.json" or fileName). Failure
+        // output shows it exactly like the classic API's [CallerArgumentExpression] does - without it the
+        // engine would capture the builder's internal field expression instead.
+        private string _bodyExpression = string.Empty;
+
         private bool _skipEndpointValidation;
 
         internal HttpRequestBuilder(HttpClient client,
@@ -57,9 +63,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // Request body — explicit, no rate-heuristic (Schema A).
         // ============================================================
 
-        public IHttpRequestConfiguring Accepts<T>(T body)
+        public IHttpRequestConfiguring Accepts<T>(T body,
+                                                  [CallerArgumentExpression(nameof(body))] string bodyExpression = "")
         {
             _body = JsonSerializer.Serialize(body, HttpClientAssertExtensions.JsonSerializerOptionsFor(_callingAssembly));
+            _bodyExpression = bodyExpression;
 
             return this;
         }
@@ -70,16 +78,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
             throw new NotSupportedException("Accepts(string) is not a request body. Use AcceptsFromJsonString or AcceptsFromEmbeddedJson.");
         }
 
-        public IHttpRequestConfiguring AcceptsFromJsonString(string bodyJson)
+        public IHttpRequestConfiguring AcceptsFromJsonString(string bodyJson,
+                                                             [CallerArgumentExpression(nameof(bodyJson))] string bodyJsonExpression = "")
         {
             _body = bodyJson;
+            _bodyExpression = bodyJsonExpression;
 
             return this;
         }
 
-        public IHttpRequestConfiguring AcceptsFromEmbeddedJson(string embeddedFileName)
+        public IHttpRequestConfiguring AcceptsFromEmbeddedJson(string embeddedFileName,
+                                                               [CallerArgumentExpression(nameof(embeddedFileName))] string embeddedFileNameExpression = "")
         {
             _body = embeddedFileName;
+            _bodyExpression = embeddedFileNameExpression;
 
             return this;
         }
@@ -146,6 +158,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               _method,
                                               _url,
                                               _body,
+                                              _bodyExpression,
                                               _parameters,
                                               _headers,
                                               _callingAssembly,
@@ -164,7 +177,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public IHttpExpectationConfiguring Produces(HttpStatusCode statusCode)
         {
             return new HttpExpectationBuilder(_client, _method, _url,
-                                              _body, _parameters, _headers,
+                                              _body, _bodyExpression, _parameters, _headers,
                                               _callingAssembly,
                                               _callerFilePath,
                                               _callerMemberName,
