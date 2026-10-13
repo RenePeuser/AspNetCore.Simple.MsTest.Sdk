@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- Package smoke test: consumes the PACKED AspNetCore.Simple.MsTest.Sdk (.nupkg from ../../nupkgs, see
+         nuget.config) the way a consumer does - no ProjectReference, none of the repo's Directory.*.props.
+         It is never run, only built:
+           dotnet build                       → must succeed (the chain ends with ExecuteAsync()).
+           dotnet build -p:SmokeBroken=true   → must FAIL with error MSTESTSDK001 (the analyzer shipped in
+                                                analyzers/dotnet/cs of the package fires in the consumer).
+         SdkPackageVersion pins the packed version; the default takes whatever the local folder holds. -->
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <SdkPackageVersion Condition="'$(SdkPackageVersion)' == ''">*-*</SdkPackageVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AspNetCore.Simple.MsTest.Sdk" Version="$(SdkPackageVersion)" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(SmokeBroken)' != 'true'">
+        <Compile Remove="Broken/**" />
+    </ItemGroup>
+
+</Project>

@@ -251,6 +251,28 @@ Second round (user: "alle Punkte prüfen, validieren, verbessern"), tests in
 - Local env: `dotnet restore` fails with NU1507 because the user's global NuGet config has two sources
   (`nuget.org`, `pulse`). Restore with a config that only lists nuget.org (`--configfile`).
 
+## Test gaps (found 2026-10-13, grep-based sample — not a full audit)
+
+Before 10.1:
+
+- **G1 — the package itself is untested.** CI packs (`build-and-publish.yml`) but nothing consumes the `.nupkg`:
+  nobody checks that the analyzers land in `analyzers/dotnet/cs` and fire in a consumer. Also the package has the
+  NuGet placeholder `<description>Package Description</description>` (no `<Description>` in the csproj — text
+  from the user). Idea: CI step pack → restore a tiny consumer project from the local folder → build must fail
+  with `MSTESTSDK001` for a chain without `ExecuteAsync()`.
+- **G2 — CI tests in Debug only.** Release-only behavior never runs there: `MSTESTSDK003`, "`WriteSnapshot` is
+  ignored in Release" (`IsCompiledInDebug`). Idea: also build the test projects with `-c Release`.
+- **G3 — fluent features proven against MinimalApi only, not Controllers:** `WithQueryParameter`,
+  `WithBearerToken` / `WithoutAuthorization`, `AssertOptions`, `ExecuteAsync(CancellationToken)`. Controllers take
+  another path (`[ProducesResponseType]` metadata, model binding, filters).
+
+Legacy features advertised but without any test (probe first: do they still work? then the user decides: secure
+or stop advertising):
+
+- **G4 — `DynamicRequestLocator`** — 0 tests, advertised at the top of the root `README.md`.
+- **G5 — `UseTestCreator` / TestCreator** — 0 tests, parts of `TestCreatorActionFilter` are commented out.
+- **G6 — OutputMode `Ai` / `Hybrid`** — 0 tests (`Core.Test/OutputModeTest.cs` covers `Human` only), a 10.0 feature.
+
 ## Deliberately NOT ported (do not reopen)
 
 - `AssertUrlExists` stays classic (not a chain).

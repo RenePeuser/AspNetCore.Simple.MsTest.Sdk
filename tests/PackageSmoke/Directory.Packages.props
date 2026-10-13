@@ -1,0 +1,6 @@
+<Project>
+    <!-- Stops MSBuild from importing the repository's central package management: the smoke test pins its own version. -->
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+</Project>

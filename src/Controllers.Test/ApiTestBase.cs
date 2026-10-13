@@ -22,6 +22,15 @@ namespace Controllers.Test
         protected static IAssertableHttpClient AssertableHttpClient { get; private set; } = null!;
 
         /// <summary>
+        ///     A further client against the same host - for tests that configure a client (default credentials, …)
+        ///     without touching the one every other test shares.
+        /// </summary>
+        protected static HttpClient CreateClient()
+        {
+            return _apiTestBase.CreateClient();
+        }
+
+        /// <summary>
         ///     The host's provider - the very container the static asserts resolve from.
         /// </summary>
         protected static IServiceProvider Services => _apiTestBase.Services;

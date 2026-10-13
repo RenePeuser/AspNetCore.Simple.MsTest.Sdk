@@ -172,6 +172,78 @@ namespace Controllers.Api.Persons
             return new EchoHeaderResponse(correlationId ?? "(absent)");
         }
 
+        /// <summary>
+        /// Echoes the query string back, raw and as model binding decoded it. Exists so a test can PROVE how
+        /// <c>WithQueryParameter</c> encodes against a controller action. GET for the body-less request stage,
+        /// POST for the body stage (the body is ignored).
+        /// </summary>
+        [AcceptVerbs("GET", "POST", Route = "echo-query")]
+        [ProducesResponseType(typeof(EchoQueryResponse), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
+        public EchoQueryResponse EchoQuery()
+        {
+            return new EchoQueryResponse(Request.QueryString.Value ?? string.Empty,
+                                         Request.Query.ToDictionary(entry => entry.Key,
+                                                                    entry => entry.Value.Select(value => value ?? string.Empty).ToArray()));
+        }
+
+        /// <summary>
+        /// Echoes the <c>Authorization</c> request header back. Exists so a test can PROVE which credentials left the
+        /// client: the per-request token of <c>WithBearerToken</c>, the client's default, or none after
+        /// <c>WithoutAuthorization</c>.
+        /// </summary>
+        [AcceptVerbs("GET", "POST", Route = "echo-authorization")]
+        [ProducesResponseType(typeof(EchoAuthorizationResponse), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
+        public EchoAuthorizationResponse EchoAuthorization()
+        {
+            return new EchoAuthorizationResponse(Request.Headers.Authorization.Count == 0
+                                                     ? "(absent)"
+                                                     : Request.Headers.Authorization.ToString());
+        }
+
+        /// <summary>
+        /// 401 unless the request carries exactly <c>Authorization: Bearer valid-token</c> - a stand-in for a
+        /// protected action without wiring a real authentication scheme into the sample.
+        /// </summary>
+        [AcceptVerbs("GET", "POST", "PUT", "PATCH", "DELETE", "QUERY", Route = "requires-token")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(401)]
+        public IActionResult RequiresToken()
+        {
+            return Request.Headers.Authorization.ToString() == "Bearer valid-token"
+                       ? NoContent()
+                       : Unauthorized();
+        }
+
+        /// <summary>Echoes the <c>X-Correlation-Id</c> request header and the request body back.</summary>
+        [HttpPost("echo-request")]
+        [ProducesResponseType(typeof(EchoRequestResponse), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
+        public EchoRequestResponse EchoRequest([FromHeader(Name = "X-Correlation-Id")] string? correlationId,
+                                               [FromBody] EchoRequestBody body)
+        {
+            ArgumentNullException.ThrowIfNull(body);
+
+            return new EchoRequestResponse(correlationId ?? "(absent)", body.Name);
+        }
+
+        /// <summary>
+        /// The positive OPTIONS sample: 204 without a body, the advertised verbs in a CONTENT header (<c>Allow</c>)
+        /// AND a RESPONSE header (<c>Access-Control-Allow-Methods</c>) - one OPTIONS assert has to see both.
+        /// </summary>
+        [HttpOptions("echo-request")]
+        [ProducesResponseType(204)]
+        public IActionResult EchoRequestOptions()
+        {
+            Response.Headers.Allow = "POST, OPTIONS";
+            Response.Headers.AccessControlAllowMethods = "POST, OPTIONS";
+
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         [ProducesResponseType(statusCode: 204)]
         [ProducesResponseType(typeof(ProblemDetails), statusCode: 404)]

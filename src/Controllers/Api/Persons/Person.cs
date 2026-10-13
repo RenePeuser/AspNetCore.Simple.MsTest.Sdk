@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace Controllers.Api.Persons
@@ -27,4 +28,24 @@ namespace Controllers.Api.Persons
 
     /// <summary>Response of the echo-header action — carries back the correlation id it received.</summary>
     public sealed record EchoHeaderResponse(string CorrelationId);
+
+    /// <summary>
+    /// Response of the echo-query action: the query string as it reached the server (<see cref="RawQuery"/>, still
+    /// encoded) and as model binding sees it (<see cref="Values"/>, key → values in arrival order).
+    /// </summary>
+    public sealed record EchoQueryResponse(string RawQuery,
+                                           IReadOnlyDictionary<string, string[]> Values);
+
+    /// <summary>
+    /// Response of the echo-authorization action: <c>"(absent)"</c> when the request carried no
+    /// <c>Authorization</c> header, otherwise its value.
+    /// </summary>
+    public sealed record EchoAuthorizationResponse(string Authorization);
+
+    /// <summary>The request body of <c>POST persons/echo-request</c>.</summary>
+    public sealed record EchoRequestBody(string Name);
+
+    /// <summary>Response of <c>POST persons/echo-request</c> — the correlation id header and the body name.</summary>
+    public sealed record EchoRequestResponse(string CorrelationId,
+                                             string Name);
 }

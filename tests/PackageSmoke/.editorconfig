@@ -1,0 +1,2 @@
+# The smoke test is a plain consumer - none of the repository's code style rules apply.
+root = true
