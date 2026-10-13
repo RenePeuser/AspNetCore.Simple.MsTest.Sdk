@@ -63,6 +63,42 @@ namespace AspNetCore.Simple.MsTest.Sdk
                          callerLineNumber);
         }
 
+        // Credentials never appear in clear text: test tokens are often real ones, and this message ends up in CI logs.
+        internal static ArgumentException DuplicateAuthorization(string firstValue,
+                                                                 string secondValue,
+                                                                 Assembly callingAssembly,
+                                                                 string callerFilePath,
+                                                                 string callerMemberName,
+                                                                 int callerLineNumber)
+        {
+            return Build(title: "CREDENTIALS SET TWICE",
+                         what: [$"{"First",-10} : {DescribeAuthorization(firstValue)}", $"{"Second",-10} : {DescribeAuthorization(secondValue)}"],
+                         why: ["A request carries one Authorization header. WithBearerToken, WithoutAuthorization and",
+                               "WithHeader(\"Authorization\", …) all set it - keeping one would silently send other credentials",
+                               "than the test reads."],
+                         fix: ["Set the credentials once per chain. For other credentials branch a stored stage:"],
+                         fixCode: ["var request = Client.AssertGet(url);",
+                                   "",
+                                   "await request.WithBearerToken(adminToken)…ExecuteAsync();",
+                                   "await request.WithoutAuthorization()…ExecuteAsync();"],
+                         callingAssembly,
+                         callerFilePath,
+                         callerMemberName,
+                         callerLineNumber);
+        }
+
+        private static string DescribeAuthorization(string value)
+        {
+            if (value.Length == 0)
+            {
+                return "WithoutAuthorization()";
+            }
+
+            var scheme = value.Split(' ', 2)[0];
+
+            return $"Authorization: {scheme} *** (hidden)";
+        }
+
         internal static ArgumentException DuplicateQueryParameter(string key,
                                                                   string firstValue,
                                                                   object? secondValue,

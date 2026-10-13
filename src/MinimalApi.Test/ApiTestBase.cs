@@ -43,6 +43,15 @@ namespace MinimalApi.Test
 
         protected static HttpClient Client { get; private set; } = null!;
 
+        /// <summary>
+        ///     A further client against the same host - for tests that configure a client (default credentials, …)
+        ///     without touching the one every other test shares.
+        /// </summary>
+        protected static HttpClient CreateClient()
+        {
+            return _apiTestBase.CreateClient();
+        }
+
         [AssemblyCleanup]
         public static void AssemblyCleanup()
         {

@@ -170,7 +170,16 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
    `GET|POST persons/echo-query` (raw + decoded). Consumer tests:
    `src/MinimalApi.Test/FluentBuilders/WithQueryParameterTests.cs` (15); counter-check: without encoding 5 red,
    current-culture formatting 1 red, null not skipped 3 red.
-10. **`.WithBearerToken(token)` / `.WithoutAuthorization()`** — per-request auth (today bound to the static client).
+10. ~~**`.WithBearerToken(token)` / `.WithoutAuthorization()`**~~ ✅ done 2026-10-13 (uncommitted). The
+    `Authorization` header goes into the builder's request headers → on the `HttpRequestMessage`, never on
+    `DefaultRequestHeaders` (nothing to restore, parallel-safe). `WithoutAuthorization()` = empty header (blocks the
+    default merge; the TestServer endpoint receives none). Once per chain via `AddHeader` →
+    `FluentUsageError.DuplicateAuthorization` (token masked). `CurlBuilder.BuildCurlFromContext` prefers the
+    per-request credentials. Also fixed: the six classic `Assert…AsUnauthorizedAsync` swapped `DefaultRequestHeaders`
+    (race + no restore on throw) → `SendWithInvalidTokenAsync`. Sample endpoints `persons/echo-authorization`,
+    `persons/requires-token`; `ApiTestBase.CreateClient()`. Consumer tests: `FluentBuilders/WithBearerTokenTests.cs`
+    (13), `Classic/AsUnauthorizedTests.cs` (4); counter-check: old swap → parallel test red, per-request header
+    dropped → 6 red. Decided with the user: runtime throw (not type-state) for repeated credentials.
 11. **`.ExpectHeader(name, value)`** — response header assertions (`Location` on 201, `ETag`).
 12. **Status aliases** `ProducesOk<T>()`, `ProducesCreated<T>()`, `ProducesNoContent()` — build before you
     document (`DESIGN_VISION.md` §15.7 warning).

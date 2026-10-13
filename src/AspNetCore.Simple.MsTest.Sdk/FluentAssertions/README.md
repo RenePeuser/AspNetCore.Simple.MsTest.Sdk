@@ -81,6 +81,21 @@ culture-invariant (`1.5`, `true`, enums by name, `DateOnly` as `yyyy-MM-dd`, `Da
 round-trip) - no `$Token$` substitution. A key given twice (case-insensitive, like the model binding) throws
 `ArgumentException`; pass a collection for several values. An object value throws, too - it has no single query value.
 
+### Credentials — per request, the shared client stays untouched
+
+```csharp
+Client.AssertGet("api/v1/admin/report").WithBearerToken(adminToken)   // Authorization: Bearer … for THIS call
+Client.AssertGet("api/v1/admin/report").WithoutAuthorization()         // no credentials for THIS call → 401 test
+```
+
+The header goes on the request message, never on `HttpClient.DefaultRequestHeaders`. `HttpClient` only adds default
+headers a request does not carry, so the per-request value wins for this call, and a client shared by the whole session
+(one `[AssemblyInitialize]`, tests in parallel) keeps its own token - before, during and after the call, also when it
+throws. There is nothing to save and restore. `WithoutAuthorization()` puts an empty `Authorization` header on the
+message; the endpoint receives none. Credentials are set once per chain: `WithBearerToken` twice, together with
+`WithoutAuthorization()` or with `WithHeader("Authorization", …)` throws `ArgumentException` - the message never prints
+the token. A token for the whole session belongs on the client, in the setup.
+
 ### Endpoint validation
 
 Before the call, the chain checks that the ROUTE exists (verb, url, api version). `Produces<T>(code)` also checks
@@ -221,11 +236,13 @@ a stage switch. A wrong chain does not compile — it never reaches the test run
 ```
 IHttpBodyRequestConfiguring              (AssertPost / AssertPut / AssertPatch / AssertQuery)
   ├─ Accepts…            → IHttpRequestConfiguring        (the body is set once - no second Accepts…)
-  ├─ WithParameter… / WithQueryParameter / WithHeader / SkipEndpointValidation  → stays here (order is free)
+  ├─ WithParameter… / WithQueryParameter / WithHeader / WithBearerToken / WithoutAuthorization /
+  │  SkipEndpointValidation  → stays here (order is free)
   └─ Produces…           (a body verb without a body is fine)
 
 IHttpRequestConfiguring                  (AssertGet / AssertDelete, or a body verb after Accepts…)
-  ├─ WithParameter… / WithQueryParameter / WithHeader / SkipEndpointValidation  → stays here   (no Accepts… at all)
+  ├─ WithParameter… / WithQueryParameter / WithHeader / WithBearerToken / WithoutAuthorization /
+  │  SkipEndpointValidation  → stays here   (no Accepts… at all)
   ├─ Produces<T>(code)   → IHttpResponseConfiguring<T>
   └─ Produces(code)      → IHttpExpectationConfiguring   (no type named)
 

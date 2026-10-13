@@ -91,6 +91,34 @@ namespace AspNetCore.Simple.MsTest.Sdk
         IHttpRequestConfiguring WithHeader(string key,
                                            string value);
 
+        // ============================================================
+        // Credentials — per request; the client's DefaultRequestHeaders are never touched.
+        // ============================================================
+
+        /// <summary>
+        /// Sends <c>Authorization: Bearer {token}</c> with THIS request only. The header sits on the request message,
+        /// so it wins over the client's default credentials for this call and leaves
+        /// <see cref="System.Net.Http.HttpClient.DefaultRequestHeaders"/> untouched - a client shared by the whole test
+        /// session (and by tests running in parallel) keeps its own token, also when the call throws.
+        ///
+        /// <para>
+        /// Credentials are set once per chain: a second <c>WithBearerToken</c>, <c>WithoutAuthorization()</c> or a
+        /// <c>WithHeader("Authorization", …)</c> in the same chain throws <see cref="System.ArgumentException"/>.
+        /// </para>
+        /// </summary>
+        IHttpRequestConfiguring WithBearerToken(string token);
+
+        /// <summary>
+        /// Sends THIS request without the client's default credentials - for a 401 test on a client that is signed in
+        /// for the rest of the session. The request message carries an empty <c>Authorization</c> header, which keeps
+        /// <c>HttpClient</c> from adding its default one; the endpoint receives no <c>Authorization</c> header (an
+        /// authentication handler that did see an empty one reads it as no credentials, too).
+        /// <see cref="System.Net.Http.HttpClient.DefaultRequestHeaders"/> stay untouched.
+        ///
+        /// <para>Credentials are set once per chain - see <see cref="WithBearerToken"/>.</para>
+        /// </summary>
+        IHttpRequestConfiguring WithoutAuthorization();
+
         /// <summary>
         /// Skips the endpoint validation for this call - both the route check (does an endpoint for this verb,
         /// url and version exist?) and the check of the declared return type against <c>Produces&lt;T&gt;</c>.

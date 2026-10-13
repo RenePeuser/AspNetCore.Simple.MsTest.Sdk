@@ -83,6 +83,13 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
   a collection repeats the key (`tag=a&tag=b`), values are formatted culture-invariant, and a url that already has a
   query is continued with `&`. A key given twice (case-insensitive) throws an `ArgumentException` with a
   what/why/how-to-fix message. Available on both request stages, before and after `Accepts…`.
+- **Fluent API (alpha builds only) - `WithBearerToken(token)` / `WithoutAuthorization()`.** Credentials for one request:
+  the `Authorization` header goes on the request message, so it wins over the client's default for this call and
+  `HttpClient.DefaultRequestHeaders` stay untouched - safe on a client shared by the whole session and by parallel
+  tests, nothing to restore. `WithoutAuthorization()` sends the request without the client's default credentials (for
+  a 401 test on a signed-in client). Credentials are set once per chain; a repeat - also via
+  `WithHeader("Authorization", …)` - throws an `ArgumentException` that never prints the token. The curl output shows
+  the per-request credentials (masked unless `ShowTokenInCurl`).
 - **Fluent API (alpha builds only) - `FilterResponse` composes.** A second call ran instead of the first; now both
   run in call order, like the ignore rules.
 - **Fluent API (alpha builds only) - `AssertOptions(url)` is immutable, too.** `ExpectedHeaders…` mutated the stored
@@ -108,6 +115,13 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
   listed twice in another spelling (`"Allow"` and `"allow"`) fails with a what/why/fix message.
 - **"Endpoint not found" output** now shows how to test a deliberately unknown route (`.SkipEndpointValidation()` /
   `skipEndpointValidation: true`).
+
+### Fixed: `Assert…AsUnauthorizedAsync` changed the shared client's credentials
+
+`AssertGet/Post/Put/Patch/Delete/QueryAsUnauthorizedAsync` swapped `HttpClient.DefaultRequestHeaders.Authorization` to an
+invalid token and restored it after the call. On a client shared by the test session, tests running in parallel sent
+the invalid token meanwhile (random 401s), and a call that threw never restored the original - every later test ran
+unauthorized. The invalid token now rides on the request message only; the client is never written.
 
 ### Fixed: a body carrying `content.value` was taken for the response envelope
 

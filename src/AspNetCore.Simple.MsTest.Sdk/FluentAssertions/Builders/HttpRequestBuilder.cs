@@ -194,6 +194,26 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return AddHeader(key, value);
         }
 
+        IHttpRequestConfiguring IHttpRequestConfiguring.WithBearerToken(string token)
+        {
+            return AddBearerToken(token);
+        }
+
+        IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.WithBearerToken(string token)
+        {
+            return AddBearerToken(token);
+        }
+
+        IHttpRequestConfiguring IHttpRequestConfiguring.WithoutAuthorization()
+        {
+            return AddHeader(AuthorizationHeader, WithoutAuthorizationValue);
+        }
+
+        IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.WithoutAuthorization()
+        {
+            return AddHeader(AuthorizationHeader, WithoutAuthorizationValue);
+        }
+
         IHttpRequestConfiguring IHttpRequestConfiguring.SkipEndpointValidation()
         {
             return With(copy => copy._skipEndpointValidation = true);
@@ -389,12 +409,39 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return _url + separator + query;
         }
 
+        // ============================================================
+        // Credentials — one more request header, so they share the once-per-chain rule with WithHeader.
+        // ============================================================
+
+        private const string AuthorizationHeader = "Authorization";
+
+        // An empty Authorization header on the request keeps HttpClient from merging its default one in (it only adds
+        // default headers the request does not carry), and authentication handlers read it as no credentials.
+        private const string WithoutAuthorizationValue = "";
+
+        private HttpRequestBuilder AddBearerToken(string token)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(token);
+
+            return AddHeader(AuthorizationHeader, $"Bearer {token}");
+        }
+
         // Overwriting the first value - what SetItem used to do - would silently send something else than
         // the earlier line of the test reads. Fails at the line that repeats the header.
         private HttpRequestBuilder AddHeader(string key,
                                              string value)
         {
-            if (_headers.TryGetValue(key, out var existing))
+            if (_headers.TryGetValue(key, out var existing) && string.Equals(key, AuthorizationHeader, StringComparison.OrdinalIgnoreCase))
+            {
+                throw FluentUsageError.DuplicateAuthorization(existing,
+                                                              value,
+                                                              _callingAssembly,
+                                                              _callerFilePath,
+                                                              _callerMemberName,
+                                                              _callerLineNumber);
+            }
+
+            if (_headers.TryGetValue(key, out existing))
             {
                 throw FluentUsageError.DuplicateHeader(key,
                                                        existing,

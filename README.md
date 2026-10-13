@@ -2615,6 +2615,8 @@ Already implemented in the alpha:
   `AcceptsFromJsonString` / `AcceptsFromEmbeddedJson`, and the matching `ExpectedResponse…` trio.
 - **Placeholders, query and headers** — `WithParameter`, `WithParameters` (tuples or an object),
   `WithQueryParameter` (URL-encoded, `null` skipped, collections repeat the key), `WithHeader`.
+- **Per-request credentials** — `WithBearerToken(token)` / `WithoutAuthorization()` set the `Authorization` header
+  on the request only; a client shared by the whole session (and by parallel tests) keeps its own token.
 - **Body-less path** — `Produces(HttpStatusCode.Created)` without `<T>` asserts the status, no type or body. The
   route is still validated: a misspelled url or a wrong verb is "endpoint not found", not a green 404 / 405
   (`.SkipEndpointValidation()` for a deliberately unknown route).

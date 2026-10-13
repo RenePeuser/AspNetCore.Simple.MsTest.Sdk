@@ -86,6 +86,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         IHttpBodyRequestConfiguring WithHeader(string key,
                                                string value);
 
+        /// <inheritdoc cref="IHttpRequestConfiguring.WithBearerToken"/>
+        IHttpBodyRequestConfiguring WithBearerToken(string token);
+
+        /// <inheritdoc cref="IHttpRequestConfiguring.WithoutAuthorization"/>
+        IHttpBodyRequestConfiguring WithoutAuthorization();
+
         /// <inheritdoc cref="IHttpRequestConfiguring.SkipEndpointValidation"/>
         IHttpBodyRequestConfiguring SkipEndpointValidation();
 

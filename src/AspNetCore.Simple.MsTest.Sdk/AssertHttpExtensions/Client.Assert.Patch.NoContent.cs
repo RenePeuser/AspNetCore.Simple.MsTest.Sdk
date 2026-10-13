@@ -348,16 +348,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
-            // Save original auth header
-            var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Unauthorized token");
-
             using var stringContent = new StringContent(content: body.ToJson(JsonSerializerOptionsFor(callingAssembly)), encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json);
 
-            var result = await httpClient.PatchAsync(requestUri: url, content: body.IsNull() ? null : stringContent).ConfigureAwait(false);
-
-            // Reset back to original
-            httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
+            var result = await SendWithInvalidTokenAsync(httpClient, HttpMethod.Patch, url, content: body.IsNull() ? null : stringContent).ConfigureAwait(false);
 
             Assert.That.AreEqual(HttpStatusCode.Unauthorized,
                                  result.StatusCode,

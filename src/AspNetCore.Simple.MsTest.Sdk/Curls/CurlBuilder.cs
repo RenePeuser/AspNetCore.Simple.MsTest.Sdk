@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -126,8 +127,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
             yield return "--location";
             yield return $"--request {context.HttpMethod.Method} '{fullUrl}'";
 
+            // Per-request credentials (WithBearerToken / WithoutAuthorization) win over the client's default, exactly
+            // like HttpClient merges them when sending. An empty value means "sent without credentials".
+            var requestAuthorization = context.RequestHeaders?.Where(header => header.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase))
+                                              .Select(header => header.Value)
+                                              .FirstOrDefault();
+
+            if (requestAuthorization is not null)
+            {
+                var parts = requestAuthorization.Split(' ', 2);
+
+                if (parts.Length == 2)
+                {
+                    yield return $"--header 'Authorization: {parts[0]} {(showTokenInCurl ? parts[1] : "Sorry i am secret :)")}'";
+                }
+                else if (parts[0].Length > 0)
+                {
+                    yield return $"--header 'Authorization: {(showTokenInCurl ? parts[0] : "Sorry i am secret :)")}'";
+                }
+            }
             // Add authorization header if present - RESPECT ShowTokenInCurl flag
-            if (authenticationHeaderValue.IsNotNull())
+            else if (authenticationHeaderValue.IsNotNull())
             {
                 var token = showTokenInCurl ? authenticationHeaderValue.Parameter : "Sorry i am secret :)";
 

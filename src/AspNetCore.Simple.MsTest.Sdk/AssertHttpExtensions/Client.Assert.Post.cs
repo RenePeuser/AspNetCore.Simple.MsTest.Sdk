@@ -1469,10 +1469,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
             Throw.IfNullOrWhiteSpace(argument: url);
             Throw.IfNull(argument: parameters);
 
-            // Save original auth header
-            var authenticationHeader = httpClient.DefaultRequestHeaders.Authorization;
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Unauthorized token");
-
             var newBody = "";
 
             if (body.IsNotNull())
@@ -1481,10 +1477,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
 
             using var stringContent = new StringContent(content: newBody, encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json);
-            var result = await httpClient.PostAsync(requestUri: url, content: body.IsNull() ? null : stringContent).ConfigureAwait(continueOnCapturedContext: false);
-
-            // Reset back to original
-            httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
+            var result = await SendWithInvalidTokenAsync(httpClient, HttpMethod.Post, url, content: body.IsNull() ? null : stringContent).ConfigureAwait(continueOnCapturedContext: false);
 
             Assert.That.AreEqual(HttpStatusCode.Unauthorized,
                                  result.StatusCode,
