@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System;
@@ -75,7 +76,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         IHttpRequestConfiguring WithParameters((string Key, object? Value) parameter);
 
-        /// <summary>Sets placeholder parameters from all public properties of an object (§10.1.1, PascalCase).</summary>
+        /// <summary>Sets placeholder parameters from the entries of a dictionary — key = naked placeholder name.</summary>
+        IHttpRequestConfiguring WithParameters(IReadOnlyDictionary<string, object?> parameters);
+
+        /// <summary>
+        /// Sets placeholder parameters from all public, non-indexed instance properties of an object
+        /// (§10.1.1, PascalCase), e.g. <c>new { Id = 1, Name = "Goku" }</c>. Any other dictionary
+        /// (<c>Dictionary&lt;string, string&gt;</c>, …) contributes its entries. A value (<c>string</c>, number,
+        /// enum, <c>Guid</c>, …) or a collection has no properties to map and throws <see cref="ArgumentException"/>.
+        /// </summary>
         IHttpRequestConfiguring WithParameters(object source);
 
         /// <summary>Adds a custom HTTP request header.</summary>

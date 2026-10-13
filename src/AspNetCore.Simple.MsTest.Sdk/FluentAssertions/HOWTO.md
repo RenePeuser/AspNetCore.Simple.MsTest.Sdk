@@ -302,7 +302,13 @@ Alternative parameter syntax:
     ("Age", 42))
 ```
 
-The values replace `$Name$` and `$Age$` placeholders in the referenced JSON resource.
+```csharp
+.WithParameters(new Dictionary<string, object?> { ["Name"] = "Son", ["Age"] = 42 })
+```
+
+The values replace `$Name$` and `$Age$` placeholders in the referenced JSON resource. `WithParameters(object)` maps
+the public properties of an object (indexers are skipped) or the entries of a dictionary; a value (`string`, number,
+enum, `Guid`, …) or a collection throws `ArgumentException` — it has no properties that name placeholders.
 
 ## 10. Bodyless Path — Verify Status Only
 
@@ -341,6 +347,31 @@ await Client.AssertPost("api/v1/persons")
 
 `WriteSnapshot` writes the actual response as the new baseline. Because this changes a test artifact, its behavior
 should be intentional and clearly visible in the test or centrally controlled through test configuration.
+
+## 13. Cancellation
+
+```csharp
+await Client.AssertGet("api/v1/persons/1")
+    .Produces<Person>(HttpStatusCode.OK)
+    .ExecuteAsync(TestContext.CancellationToken);
+```
+
+Every terminal (`Produces<T>`, `Produces(code)`, `ExpectedResponse…`, OPTIONS) accepts an optional
+`CancellationToken`. It reaches `HttpClient.SendAsync` and the response read; a cancellation surfaces as
+`OperationCanceledException` instead of an assertion failure with a misleading error analysis.
+
+## 14. Reuse a Base Request
+
+```csharp
+var request = Client.AssertGet("api/v1/persons?name=$Name$");
+
+await request.WithParameter("Name", "Son").Produces<List<Person>>(HttpStatusCode.OK).ExecuteAsync();
+await request.WithParameter("Name", "Vegeta").Produces<List<Person>>(HttpStatusCode.OK).ExecuteAsync();
+```
+
+Every stage is immutable: each configuring call returns a new builder, so the second chain sends only
+`Name=Vegeta`, and a lenient branch (`strict.IgnoreProperty(…)`) never loosens the stored strict chain. A call whose
+result is discarded therefore has no effect — continue from the returned builder.
 
 ---
 

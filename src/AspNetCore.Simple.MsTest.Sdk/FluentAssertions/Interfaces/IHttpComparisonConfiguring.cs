@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -56,6 +57,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         IHttpComparisonConfiguring<TResult> WriteSnapshot(bool write = true);
 
         /// <summary>Executes the request, runs the body comparison, and returns the real response. The single terminal.</summary>
-        Task<TResult> ExecuteAsync();
+        /// <param name="cancellationToken">Cancels the HTTP call; a cancellation surfaces as <see cref="System.OperationCanceledException"/>, not as an assertion failure.</param>
+        Task<TResult> ExecuteAsync(CancellationToken cancellationToken = default);
     }
 }

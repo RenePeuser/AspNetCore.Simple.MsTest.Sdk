@@ -5,12 +5,23 @@
 
 ## Current state — read first
 
-- **Uncommitted at the time of writing** (~100 files on `master`). If still uncommitted: commit on a branch,
-  ideally as two commits — (1) classic-API parity + fluent namespace, (2) namespace cleanup of the stable
-  types with `+semver: major`.
+- **Everything below marked ✅ is committed on `master`** (last: `d073d47`). The user commits themselves — do not
+  commit unless asked.
+- **Working rules (from the user):**
+  - Every fix is proven with **automated consumer tests through a real API call** (sample APIs `src/MinimalApi`
+    + `src/MinimalApi.Test`, `src/Controllers` + `src/Controllers.Test`), each positive case paired with a test
+    that MUST fail (`Assert.That.ThrowsExactlyAsync<AssertFailedException>(…, because:, fix:)`).
+  - Counter-check: revert the fix temporarily (`git stash push -- <sdk files>`) and confirm the new tests go red.
+  - Add a small deterministic sample endpoint when no existing response shape can prove the behavior
+    (example: `src/MinimalApi/Api/Persons/V1/Profile/`).
+  - Run the full suite + `dotnet build src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj -c Release`
+    (Release = no `FLUENT_ALPHA`, fluent types internal) before reporting.
+  - Docs are English; update Fluent `README.md` / `EXAMPLES.md` / `HOWTO.md`, root `README.md`,
+    `RELEASE-NOTES.md`, this file, and append to the decision log in `DESIGN_VISION.md`.
 - **Already done:**
   - Fluent parity with the classic API: `AssertQuery`, `AssertOptions(...).ExpectedHeaders…`,
     `.SkipEndpointValidation()`, `Produces(code).ExpectedResponse(anonymousObject)`.
+  - Precise comparison vocabulary (items 1 + 2) and failure-output parity (item 5) — see below.
   - All public types live in the root namespace `AspNetCore.Simple.MsTest.Sdk`, guarded by
     `Core.Test/Core/PublicNamespace.Contract.Tests.cs`.
   - Analyzer marker is `AspNetCore.Simple.MsTest.Sdk.FluentBuilderAttribute`
@@ -40,15 +51,23 @@
 
 ## Priority 2 — should land
 
-3. **Builders share mutable state.** `HttpRequestBuilder.Produces…` hands `_parameters` / `_headers` by
-   reference to `HttpResponseBuilder` / `HttpExpectationBuilder`. Reusing a base request and configuring it
-   further mutates already derived chains. → Immutable builders, or at least copy on the transition.
+3. ~~**Builders share mutable state.**~~ ✅ done 2026-10-13 (uncommitted). All three builders are copy-on-write
+   (`MemberwiseClone` + `ImmutableList` / `ImmutableDictionary`); every configuring call returns a new builder.
+   Copy-on-transition alone was rejected: it does not fix sibling branches accumulating parameters
+   (`base.WithParameter("Name", "Son")` / `base.WithParameter("Name", "Vegeta")`). Consumer tests:
+   `src/MinimalApi.Test/FluentBuilders/FluentBuilderBranchingTests.cs` (headers via `echo-header`, parameters via
+   `persons?name=$Name$`, strict vs. lenient comparison via `profile`); counter-check: 7 of 8 red without the fix
+   (the 8th, a lenient positive case, is green either way). Consequence: a discarded result does nothing —
+   MSTESTSDK001 already flags bare `builder.WithX(…);` statements; tests use `_ =` to branch deliberately.
+   **Item 7 note:** with immutable builders, "second `Accepts…` overwrites" only concerns the SAME chain
+   (`.Accepts(a).Accepts(b)`) — sibling branches are now independent by design.
 
-4. **Harden `WithParameters(object)`** (`Builders/HttpRequestBuilder.cs`):
-   - `WithParameters("abc")` throws `TargetParameterCountException` (indexer `Chars`) → skip properties with
-     `GetIndexParameters().Length > 0`.
-   - A dictionary is reflected over (`Count`, `Keys`) → add an `IReadOnlyDictionary<string, object?>` overload.
-   - Primitives / `string` → clear `ArgumentException`.
+4. ~~**Harden `WithParameters(object)`**~~ ✅ done 2026-10-13 (uncommitted). Indexers skipped; new
+   `WithParameters(IReadOnlyDictionary<string, object?>)`; the `object` overload also maps any `IDictionary`
+   (needed: `Dictionary<string, string>` does not convert to the `object?` overload); values (`string`, primitives,
+   enum, `decimal`, date/time types, `Guid`, `Uri`) and other `IEnumerable` → `ArgumentException`. Consumer tests:
+   `src/MinimalApi.Test/FluentBuilders/WithParametersTests.cs` (real calls against `persons?name=$Name$`);
+   counter-check: 9 of 11 red without the fix (the 2 green ones are the unchanged anonymous-object path).
 
 5. ~~**Failure-output parity with the classic API**~~ ✅ done 2026-10-13. Verified: only the "file not found"
    and JSON-type-mismatch reports leaked builder internals (`Parameter : expectedResult`,
@@ -57,10 +76,14 @@
    which the builders pass explicitly to the engine. Consumer tests:
    `src/MinimalApi.Test/FailureOutput/FluentFailureOutputTests.cs` (counter-checked: all red without the fix).
 
-6. **No `CancellationToken`.** `AssertableHttpClient.cs` calls `httpCallHandler.CallAsync(context,
-   CancellationToken.None)`. → `ExecuteAsync(CancellationToken cancellationToken = default)` on every terminal
-   interface, passed through the context. The analyzers match the terminal by the name `ExecuteAsync` — a
-   parameter is fine, but run the analyzer tests.
+6. ~~**No `CancellationToken`.**~~ ✅ done 2026-10-13 (uncommitted). `ExecuteAsync(CancellationToken
+   cancellationToken = default)` on all four terminal interfaces; carried by `HttpAssertContext<T>.CancellationToken`
+   (public, additive) to `SendAsync` / `ReadAsStringAsync`; OPTIONS forwards it directly. `AssertableHttpClient`
+   rethrows `OperationCanceledException` when the token is cancelled (otherwise the catch-all turned it into
+   `Assert.Fail`). Analyzer stub updated + test `Fires_When_Terminal_With_CancellationToken_Not_Awaited`; analyzer
+   (21) and code-fix (8) tests green. Consumer tests: `src/MinimalApi.Test/FluentBuilders/CancellationTests.cs`;
+   counter-check: without forwarding 4 of 6 red, without the rethrow 3 of 6 red. The classic API still uses
+   `None` (not in scope).
 
 7. **Second `Accepts…` / `ExpectedResponse…` silently overwrites the first.** → `InvalidOperationException`
    ("body already set").
@@ -98,4 +121,4 @@
 
 ## Recommended order
 
-~~Commit → 1 + 2 → 5~~ (done) → 3 → 4 → 6 → rest as needed.
+~~Commit → 1 + 2 → 5 → 3 → 4 → 6~~ (done) → 7 → 8 → Priority 3 → cleanup.

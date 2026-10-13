@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Extensions.Pack;
 
@@ -67,14 +68,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return this;
         }
 
-        public Task<HttpResponseMessage> ExecuteAsync()
+        public Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken = default)
         {
             return _client.AssertOptionsAsync(_url,
                                               _expectedHeadersJson,
                                               _callingAssembly,
                                               _callerFilePath,
                                               _callerMemberName,
-                                              _callerLineNumber);
+                                              _callerLineNumber,
+                                              cancellationToken);
         }
     }
 }

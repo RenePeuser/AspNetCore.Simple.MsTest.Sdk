@@ -173,6 +173,12 @@ await Client.AssertPost("api/persons")
 
 // from a whole object (each property → placeholder, PascalCase)
 .WithParameters(person)
+
+// from a dictionary (each entry → placeholder) — Dictionary<string, string> works too
+.WithParameters(new Dictionary<string, object?> { ["Name"] = "Goku", ["Age"] = 42 })
+
+// NOT a parameter object → ArgumentException (use WithParameter("Name", "Goku"))
+.WithParameters("Goku")
 ```
 
 ---
@@ -185,6 +191,35 @@ await Client.AssertGet("api/persons")
     .WithHeader("X-Request-Id", Guid.NewGuid().ToString())
     .Produces<List<Person>>(StatusCodes.Status200OK)
     .ExpectedResponseFromEmbeddedJson("Expected.json")
+    .ExecuteAsync();
+```
+
+---
+
+## Cancellation
+
+```csharp
+await Client.AssertGet("api/v1/persons/1")
+    .Produces<Person>(HttpStatusCode.OK)
+    .ExpectedResponseFromEmbeddedJson("GetPerson.json")
+    .ExecuteAsync(TestContext.CancellationToken);   // cancelled → OperationCanceledException, not a failed assert
+```
+
+---
+
+## Reusing a base request (builders are immutable)
+
+```csharp
+var baseRequest = Client.AssertGet("api/v1/persons/echo-header");
+
+await baseRequest.WithHeader("X-Correlation-Id", "first")
+    .Produces<EchoHeaderResponse>(HttpStatusCode.OK)
+    .ExpectedResponse(new EchoHeaderResponse("first"))
+    .ExecuteAsync();
+
+await baseRequest.WithHeader("X-Correlation-Id", "second")   // baseRequest itself never changed
+    .Produces<EchoHeaderResponse>(HttpStatusCode.OK)
+    .ExpectedResponse(new EchoHeaderResponse("second"))
     .ExecuteAsync();
 ```
 

@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -22,6 +23,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Executes the OPTIONS request, asserts 204 NoContent without a body and compares the response
         /// headers. Returns the response for further checks. The single terminal.
         /// </summary>
-        Task<HttpResponseMessage> ExecuteAsync();
+        /// <param name="cancellationToken">Cancels the HTTP call; a cancellation surfaces as <see cref="System.OperationCanceledException"/>, not as an assertion failure.</param>
+        Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken = default);
     }
 }

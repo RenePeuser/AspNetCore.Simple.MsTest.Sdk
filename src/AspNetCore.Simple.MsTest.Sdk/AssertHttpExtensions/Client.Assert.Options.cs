@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Extensions.Pack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -60,13 +61,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                            Assembly callingAssembly,
                                                                            string callerFilePath,
                                                                            string callerMemberName,
-                                                                           int callerLineNumber)
+                                                                           int callerLineNumber,
+                                                                           CancellationToken cancellationToken = default)
         {
             var expectedHeaders = GetService<IJsonStringResolver>(callingAssembly).GetJsonStringFrom<object>(expectedHeadersAsJson, string.Empty, callingAssembly, string.Empty);
 
             using var request = new HttpRequestMessage(HttpMethod.Options, url);
-            var result = await client.SendAsync(request).ConfigureAwait(false);
-            var content = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var result = await client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            var content = await result.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
             Assert.That.AreEqual(HttpStatusCode.NoContent,
                                  result.StatusCode,

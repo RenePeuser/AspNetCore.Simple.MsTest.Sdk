@@ -134,6 +134,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 throw;
             }
+            catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
+            {
+                // The caller cancelled (test timeout, cancelled test run) - that is not a finding about the
+                // API. Reporting it as an assertion failure would print a misleading error analysis.
+                throw;
+            }
 #pragma warning disable CA1031
             catch (Exception exception)
 #pragma warning restore CA1031
@@ -176,10 +182,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
             endpointValidator.Validate<TResult>(context);
 
             // 2. Call the endpoint using context (contains resolved URL, resolved payload, etc.)
-            using var httpResponseMessage = await httpCallHandler.CallAsync(context, CancellationToken.None).ConfigureAwait(false);
+            using var httpResponseMessage = await httpCallHandler.CallAsync(context, context.CancellationToken).ConfigureAwait(false);
 
             // 3. Minimal data preparation
-            var contentAsString = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var contentAsString = await httpResponseMessage.Content.ReadAsStringAsync(context.CancellationToken).ConfigureAwait(false);
             var resolvedParametersJsonString = parameterReplacementService.ResolveParameters(contentAsString, context.Parameters);
             var absoluteUrl = httpResponseMessage.RequestMessage?.RequestUri?.AbsoluteUri ?? string.Empty;
 

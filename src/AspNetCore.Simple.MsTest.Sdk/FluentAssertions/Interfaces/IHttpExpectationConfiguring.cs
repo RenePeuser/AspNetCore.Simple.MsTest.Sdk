@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -42,6 +43,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                           [CallerArgumentExpression(nameof(expected))] string expectedExpression = "");
 
         /// <summary>Executes the request and asserts the status code. The single terminal.</summary>
-        Task ExecuteAsync();
+        /// <param name="cancellationToken">Cancels the HTTP call; a cancellation surfaces as <see cref="System.OperationCanceledException"/>, not as an assertion failure.</param>
+        Task ExecuteAsync(CancellationToken cancellationToken = default);
     }
 }

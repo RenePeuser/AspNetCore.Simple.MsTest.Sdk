@@ -28,6 +28,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         public const string Source = """
                                      using System;
                                      using System.Net;
+                                     using System.Threading;
                                      using System.Threading.Tasks;
 
                                      namespace AspNetCore.Simple.MsTest.Sdk
@@ -58,20 +59,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
                                              IHttpComparisonConfiguring<TResult> ExpectedResponse(TResult expected);
                                              IHttpComparisonConfiguring<TResult> ExpectedResponseFromJsonString(string expectedJson);
                                              IHttpComparisonConfiguring<TResult> ExpectedResponseFromEmbeddedJson(string embeddedFileName);
-                                             Task<TResult> ExecuteAsync();
+                                             Task<TResult> ExecuteAsync(CancellationToken cancellationToken = default);
                                          }
 
                                          [FluentBuilder]
                                          public interface IHttpComparisonConfiguring<TResult>
                                          {
                                              IHttpComparisonConfiguring<TResult> WriteSnapshot(bool write = true);
-                                             Task<TResult> ExecuteAsync();
+                                             Task<TResult> ExecuteAsync(CancellationToken cancellationToken = default);
                                          }
 
                                          [FluentBuilder]
                                          public interface IHttpExpectationConfiguring
                                          {
-                                             Task ExecuteAsync();
+                                             Task ExecuteAsync(CancellationToken cancellationToken = default);
                                          }
                                      }
 

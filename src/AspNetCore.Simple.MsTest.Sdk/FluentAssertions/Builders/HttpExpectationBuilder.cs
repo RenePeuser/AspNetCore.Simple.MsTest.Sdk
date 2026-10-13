@@ -1,8 +1,10 @@
-using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Net.Http;
 using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -41,9 +43,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private readonly string _bodyExpression;
 
-        private readonly List<(string Key, object? Value)> _parameters;
+        private readonly ImmutableList<(string Key, object? Value)> _parameters;
 
-        private readonly Dictionary<string, string> _headers;
+        private readonly ImmutableDictionary<string, string> _headers;
 
         private readonly HttpStatusCode _expectedStatusCode;
 
@@ -52,8 +54,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         string url,
                                         string? body,
                                         string bodyExpression,
-                                        List<(string Key, object? Value)> parameters,
-                                        Dictionary<string, string> headers,
+                                        ImmutableList<(string Key, object? Value)> parameters,
+                                        ImmutableDictionary<string, string> headers,
                                         Assembly callingAssembly,
                                         string callerFilePath,
                                         string callerMemberName,
@@ -91,7 +93,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return responseBuilder.ExpectedResponse(expected, expectedExpression);
         }
 
-        public Task ExecuteAsync()
+        public Task ExecuteAsync(CancellationToken cancellationToken = default)
         {
             var isSuccessTest = (int)_expectedStatusCode is >= 200 and < 300;
 
@@ -113,6 +115,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                skipEndpointValidation: true,
                                                expectedHttpStatusCode: _expectedStatusCode,
                                                requestHeaders: _headers,
+                                               cancellationToken: cancellationToken,
                                                callerMemberName: _callerMemberName,
                                                callerLineNumber: _callerLineNumber);
         }

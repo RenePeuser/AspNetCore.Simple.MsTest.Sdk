@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -44,6 +45,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Executes the request WITHOUT body comparison — asserts only the status code, deserializes
         /// and returns the real response. The single terminal.
         /// </summary>
-        Task<TResult> ExecuteAsync();
+        /// <param name="cancellationToken">Cancels the HTTP call; a cancellation surfaces as <see cref="System.OperationCanceledException"/>, not as an assertion failure.</param>
+        Task<TResult> ExecuteAsync(CancellationToken cancellationToken = default);
     }
 }

@@ -55,6 +55,22 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
   `IgnoreProperty<T>` (matched the last path segment only). Migration: `.DifferenceFilter(d => !X)` →
   `.IgnoreDifferencesWhere(d => X)`, `.IgnoreDifferences(f)` → `.FilterDifferences(f)`,
   `.IgnoreProperty<Person>(p => p.Id)` → `.IgnoreProperty(p => p.Id)` (or `list => list.Select(p => p.Id)`).
+- **Fluent API (alpha builds only) - immutable builders.** Every configuring call returns a new builder. A stored
+  base request (or `Produces…` / `ExpectedResponse…` stage) can be branched safely: before, a later
+  `WithHeader` / `WithParameter` on the base changed chains already derived from it, parameters of sibling
+  branches accumulated, and an `IgnoreProperty` on a lenient branch also switched off the strict chain's
+  comparison. A configuring call whose result is discarded now has no effect.
+- **Fluent API (alpha builds only) - `WithParameters` hardened.** New overload
+  `WithParameters(IReadOnlyDictionary<string, object?>)`; any other dictionary passed as `object`
+  (`Dictionary<string, string>`, …) contributes its entries instead of `$Count$`/`$Keys$` and an indexer crash.
+  Indexer properties of a parameter object are skipped. A value (`string`, number, enum, `Guid`, …) or a collection
+  now throws `ArgumentException` - before, a string crashed with `TargetParameterCountException` and a number
+  silently added nothing, leaving the placeholder unreplaced.
+- **Fluent API (alpha builds only) - `ExecuteAsync(CancellationToken cancellationToken = default)`** on every
+  terminal (typed, body-less, status-only, OPTIONS). The token reaches `HttpClient.SendAsync` and the response
+  read - before, every call used `CancellationToken.None`. A cancellation surfaces as
+  `OperationCanceledException`, not as an assertion failure. `HttpAssertContext<TResult>` gained the matching
+  `CancellationToken` property (default `None`).
 
 ### Fixed: a body carrying `content.value` was taken for the response envelope
 

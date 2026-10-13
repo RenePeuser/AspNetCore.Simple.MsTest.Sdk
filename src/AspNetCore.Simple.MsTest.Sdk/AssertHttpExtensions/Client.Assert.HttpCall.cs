@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk.Validation;
 using Extensions.Pack;
@@ -31,6 +32,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        bool skipEndpointValidation = false,
                                                        HttpStatusCode? expectedHttpStatusCode = null,
                                                        IReadOnlyDictionary<string, string>? requestHeaders = null,
+                                                       CancellationToken cancellationToken = default,
                                                        [CallerMemberName] string callerMemberName = "",
                                                        [CallerLineNumber] int callerLineNumber = 0)
 #pragma warning restore CA1859
@@ -86,7 +88,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 SkipEndpointValidation = skipEndpointValidation,
                 ExpectedHttpStatusCode = expectedHttpStatusCode,
                 Expected = null,
-                RequestHeaders = requestHeaders
+                RequestHeaders = requestHeaders,
+                CancellationToken = cancellationToken
             };
 
             await GetService<IAssertableHttpClient>(callingAssembly).AssertAsync(context).ConfigureAwait(false);
@@ -246,6 +249,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          HttpStatusCode? expectedHttpStatusCode = null,
                                                                          Predicate<Difference>? differenceFilter = null,
                                                                          IReadOnlyDictionary<string, string>? requestHeaders = null,
+                                                                         CancellationToken cancellationToken = default,
                                                                          [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                          string payloadAsJsonParameterName = "",
                                                                          [CallerArgumentExpression(nameof(expectedResult))]
@@ -332,7 +336,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 ExpectedHttpStatusCode = expectedHttpStatusCode,
                 Expected = default,
                 IsEmptyAnonymousObjectForCodeGeneration = detectedIsEmptyAnonymous,
-                RequestHeaders = requestHeaders
+                RequestHeaders = requestHeaders,
+                CancellationToken = cancellationToken
             };
 
             var result = await GetService<IAssertableHttpClient>(callingAssembly).AssertAsync(context).ConfigureAwait(false);

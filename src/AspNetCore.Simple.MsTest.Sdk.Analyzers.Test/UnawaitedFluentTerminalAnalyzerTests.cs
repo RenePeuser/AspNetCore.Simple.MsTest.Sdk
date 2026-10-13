@@ -72,6 +72,20 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
         }
 
         [TestMethod]
+        public Task Fires_When_Terminal_With_CancellationToken_Not_Awaited()
+        {
+            // The terminal is matched by name - passing a token must not hide a dropped task.
+            var source = InAsyncMethod("""
+                                                   {|#0:Client.AssertPost("api/persons")
+                                                       .Accepts(new Person())
+                                                       .Produces<Person>(HttpStatusCode.Created)
+                                                       .ExecuteAsync(System.Threading.CancellationToken.None);|}
+                                       """);
+
+            return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
+        }
+
+        [TestMethod]
         public Task Fires_When_StatusOnly_Terminal_Not_Awaited()
         {
             var source = InAsyncMethod("""

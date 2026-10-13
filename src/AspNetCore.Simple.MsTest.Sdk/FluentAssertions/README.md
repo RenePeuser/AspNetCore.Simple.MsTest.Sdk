@@ -59,9 +59,13 @@ var created = await Client.AssertPost("api/v1/persons")
 ```csharp
 .WithParameter("Id", 0)                    // → internally $Id$; "$Id$" is also accepted
 .WithParameters(("Name", "Goku"), ("Age", 42))
-.WithParameters(person)                    // all properties of an object (PascalCase)
+.WithParameters(person)                    // all properties of an object (PascalCase), indexers skipped
+.WithParameters(dictionary)                // entries of any dictionary (key = naked name)
 .WithHeader("X-Correlation-Id", id)
 ```
+
+`WithParameters("Goku")`, `WithParameters(42)` or `WithParameters(list)` throw `ArgumentException`: a value or a
+collection has no properties that name placeholders.
 
 ### Endpoint validation
 
@@ -137,6 +141,27 @@ sees the raw `Difference.MemberPath`, i.e. the envelope path from the table.
 ### Terminal
 
 `.ExecuteAsync()` → `Task<T>` (with body) or `Task` (body-less). The only `await` point.
+
+Every terminal takes an optional `CancellationToken` (`.ExecuteAsync(TestContext.CancellationToken)`). It is passed
+to the HTTP call; a cancellation surfaces as `OperationCanceledException`, never as an assertion failure.
+
+### Every stage is immutable — store and branch freely
+
+Each configuring call returns a NEW builder; the one you called it on stays unchanged. A stored stage can be the
+base of several chains without one leaking into another:
+
+```csharp
+var request = Client.AssertGet("api/v1/persons?name=$Name$").WithHeader("X-Tenant-Id", "a");
+
+var sons    = request.WithParameter("Name", "Son").Produces<List<Person>>(HttpStatusCode.OK);
+var vegetas = request.WithParameter("Name", "Vegeta").Produces<List<Person>>(HttpStatusCode.OK);  // sends ONLY Name=Vegeta
+
+var strict  = sons.ExpectedResponseFromEmbeddedJson("Sons.json");
+var lenient = strict.IgnoreProperty(p => p.Select(x => x.Age));                                   // strict keeps comparing Age
+```
+
+The flip side: a configuring call whose result is discarded does nothing (`request.WithHeader(…);` on its own line
+changes no chain) — always continue from the returned builder.
 
 ### OPTIONS — headers are the payload
 

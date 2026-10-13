@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -195,5 +196,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Null (the default) means no extra headers beyond what the HttpClient itself carries.
         /// </summary>
         public IReadOnlyDictionary<string, string>? RequestHeaders { get; init; }
+
+        /// <summary>
+        /// Cancels the HTTP call and reading its response. A cancellation surfaces as
+        /// <see cref="System.OperationCanceledException"/>, never as an assertion failure.
+        /// Defaults to <see cref="CancellationToken.None"/>.
+        /// </summary>
+        public CancellationToken CancellationToken { get; init; }
     }
 }

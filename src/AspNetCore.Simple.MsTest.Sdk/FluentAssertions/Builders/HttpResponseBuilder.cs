@@ -7,6 +7,7 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using System;
 using Extensions.Pack;
@@ -24,6 +25,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// interfaces: comparison config is only reachable once <c>ExpectedResponse…</c> returned the
     /// comparison view.
     /// </para>
+    ///
+    /// <para>
+    /// Immutable, like <see cref="HttpRequestBuilder"/>: every configuring call returns a NEW builder. A stored
+    /// <c>Produces&lt;T&gt;(…)</c> or <c>ExpectedResponse…</c> stage can be branched into a strict and a lenient
+    /// chain without the lenient ignore rules leaking into the strict one.
+    /// </para>
     /// </summary>
     /// <typeparam name="TResult">The expected response type.</typeparam>
     internal sealed class HttpResponseBuilder<TResult> : IHttpResponseConfiguring<TResult>, IHttpComparisonConfiguring<TResult>
@@ -38,9 +45,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private readonly string _bodyExpression;
 
-        private readonly List<(string Key, object? Value)> _requestParameters;
+        private readonly ImmutableList<(string Key, object? Value)> _requestParameters;
 
-        private readonly Dictionary<string, string> _headers;
+        private readonly ImmutableDictionary<string, string> _headers;
 
         private readonly Assembly _callingAssembly;
 
@@ -74,8 +81,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string url,
                                      string? body,
                                      string bodyExpression,
-                                     List<(string Key, object? Value)> requestParameters,
-                                     Dictionary<string, string> headers,
+                                     ImmutableList<(string Key, object? Value)> requestParameters,
+                                     ImmutableDictionary<string, string> headers,
                                      Assembly callingAssembly,
                                      string callerFilePath,
                                      string callerMemberName,
@@ -105,28 +112,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public IHttpComparisonConfiguring<TResult> ExpectedResponse(TResult expected,
                                                                     [CallerArgumentExpression(nameof(expected))] string expectedExpression = "")
         {
-            _expectedJson = JsonSerializer.Serialize(expected, HttpClientAssertExtensions.JsonSerializerOptionsFor(_callingAssembly));
-            _expectedExpression = expectedExpression;
-
-            return this;
+            return WithExpected(JsonSerializer.Serialize(expected, HttpClientAssertExtensions.JsonSerializerOptionsFor(_callingAssembly)),
+                                expectedExpression);
         }
 
         public IHttpComparisonConfiguring<TResult> ExpectedResponseFromJsonString(string expectedJson,
                                                                                   [CallerArgumentExpression(nameof(expectedJson))] string expectedJsonExpression = "")
         {
-            _expectedJson = expectedJson;
-            _expectedExpression = expectedJsonExpression;
-
-            return this;
+            return WithExpected(expectedJson, expectedJsonExpression);
         }
 
         public IHttpComparisonConfiguring<TResult> ExpectedResponseFromEmbeddedJson(string embeddedFileName,
                                                                                     [CallerArgumentExpression(nameof(embeddedFileName))] string embeddedFileNameExpression = "")
         {
-            _expectedJson = embeddedFileName;
-            _expectedExpression = embeddedFileNameExpression;
-
-            return this;
+            return WithExpected(embeddedFileName, embeddedFileNameExpression);
         }
 
         // ============================================================
@@ -135,9 +134,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public IHttpComparisonConfiguring<TResult> FilterResponse(Func<TResult?, TResult?> filter)
         {
-            _filterFunc = filter;
-
-            return this;
+            return With(copy => copy._filterFunc = filter);
         }
 
         // Ignore rules COMPOSE instead of overwriting: two IgnoreProperty calls (or IgnoreProperty next to
@@ -147,11 +144,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var previous = _ignore;
 
-            _ignore = previous is null
-                          ? ignore
-                          : difference => previous(difference) || ignore(difference);
-
-            return this;
+            return With(copy => copy._ignore = previous is null
+                                                   ? ignore
+                                                   : difference => previous(difference) || ignore(difference));
         }
 
         public IHttpComparisonConfiguring<TResult> IgnorePaths(params string[] paths)
@@ -172,25 +167,40 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var previous = _differenceFunc;
 
-            _differenceFunc = previous is null
-                                  ? filter
-                                  : diffs => filter(previous(diffs).ToImmutableList());
-
-            return this;
+            return With(copy => copy._differenceFunc = previous is null
+                                                           ? filter
+                                                           : diffs => filter(previous(diffs).ToImmutableList()));
         }
 
         public IHttpComparisonConfiguring<TResult> WriteSnapshot(bool write = true)
         {
-            _writeSnapshot = write;
+            return With(copy => copy._writeSnapshot = write);
+        }
 
-            return this;
+        private HttpResponseBuilder<TResult> WithExpected(string expectedJson,
+                                                          string expectedExpression)
+        {
+            return With(copy =>
+                        {
+                            copy._expectedJson = expectedJson;
+                            copy._expectedExpression = expectedExpression;
+                        });
+        }
+
+        // Copy-on-write - see HttpRequestBuilder.With. Delegates are immutable, so a shallow copy is enough.
+        private HttpResponseBuilder<TResult> With(Action<HttpResponseBuilder<TResult>> change)
+        {
+            var copy = (HttpResponseBuilder<TResult>)MemberwiseClone();
+            change(copy);
+
+            return copy;
         }
 
         // ============================================================
         // THE one terminal (shared by both interface views).
         // ============================================================
 
-        public Task<TResult> ExecuteAsync()
+        public Task<TResult> ExecuteAsync(CancellationToken cancellationToken = default)
         {
             var isSuccessTest = (int)_expectedStatusCode is >= 200 and < 300;
 
@@ -214,6 +224,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                expectedHttpStatusCode: _expectedStatusCode,
                                                differenceFilter: _ignore is null ? null : d => _ignore(d).IsFalse(),
                                                requestHeaders: _headers,
+                                               cancellationToken: cancellationToken,
                                                payloadAsJsonParameterName: _bodyExpression,
                                                expectedResultParameterName: _expectedExpression,
                                                callerFilePath: _callerFilePath,
