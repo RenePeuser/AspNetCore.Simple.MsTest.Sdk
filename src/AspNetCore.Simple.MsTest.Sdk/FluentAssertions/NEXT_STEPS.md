@@ -199,8 +199,13 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
 14. ~~**Duplicate tests**~~ ✅ done 2026-10-13 (uncommitted). Controllers: `_With_Explicit_Status` and
     `_With_Status_And_Filtering` removed. MinimalApi: `_With_Object` (== `_ExpectedResponseFromEmbeddedJson`) and
     `_With_Json` (== `_AcceptsFromEmbeddedJson`) removed; the variant-section tests stay.
-15. **Repo root:** `.tmp-fluent/`, `fix_remaining_skip.py`, `fix_warnings.sh`, `test_diff.sh`, stale concept docs
-    (`FINAL_BUILD_FIX.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_SUMMARY.md`, …) — confirm with the user before deleting.
+15. ~~**Repo root**~~ ✅ done 2026-10-13 (uncommitted, confirmed by the user): deleted `.tmp-fluent/`,
+    `fix_remaining_skip.py`, `fix_warnings.sh`, `test_diff.sh`, `-/format-report.json` (empty `dotnet format`
+    report), and the stale concept docs `FINAL_BUILD_FIX.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_SUMMARY.md`,
+    `AGENT_PROMPT_IMPLEMENT_ASSERTS.md`, `ASSERT_EXTENSIONS_ADVANCED_CREATIVE.md`, `ASSERT_EXTENSIONS_COMPLETE_LIST.md`,
+    `ASSERT_FOLDER_STRUCTURE.md`, `CONCEPT_AI_FRIENDLY_ASSERTS.md`, `ERROR_HANDLING_STRATEGY.md`,
+    `FILE_NAMING_GUIDE.md` (none referenced outside each other). Still open, ask the user: `LinkedIn-Article.txt`
+    (tracked), `test-pack/` (untracked local `10.0.0-alpha.189.nupkg`).
 16. ~~**Root `README.md`**~~ ✅ done 2026-10-13 (uncommitted): duplicate badges removed, Build badge pointed at
     the existing `build-and-publish.yml`, QUERY dropped from the fluent roadmap (it is implemented), install line
     uses `--prerelease` instead of the stale `9.6.0-alpha.19`. The "Alpha only" notes are gone too (fluent API
