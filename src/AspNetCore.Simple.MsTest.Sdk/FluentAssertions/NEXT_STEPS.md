@@ -37,8 +37,8 @@
     `Core.Test/Core/PublicNamespace.Contract.Tests.cs`.
   - Analyzer marker is `AspNetCore.Simple.MsTest.Sdk.FluentBuilderAttribute`
     (`src/AspNetCore.Simple.MsTest.Sdk.Analyzers/FluentBuilderMarker.cs`, pinned by the contract test).
-- **The fluent API ships publicly from 10.1 on** (user, 2026-10-13; note: `RELEASE-NOTES.md` still heads the
-  upcoming release as 11.0.0 / `+semver: major`) — `FLUENT_ALPHA` is removed (2026-10-13,
+- **Next release is 10.1.0 (`+semver: minor`) and ships the fluent API publicly** (user, 2026-10-13: the breaking
+  changes of this release go into 10.1 — 10.x was already breaking vs. 9.x and is barely adopted) — `FLUENT_ALPHA` is removed (2026-10-13,
   uncommitted). From the stable release on, signature changes are breaking changes.
 - **Code:** `src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/` (`Builders/`, `Interfaces/`, `Extensions/`).
 - **Tests:** `src/MinimalApi.Test`, `src/Controllers.Test` (`*_Fluent.cs`), `Core.Test`, analyzer + code-fix tests.

@@ -1,8 +1,10 @@
 # Release Notes
 
-## Upcoming Release (11.0.0) - One public entry point
+## Upcoming Release (10.1.0) - Fluent Assert API, one public entry point
 
-Commit with `+semver: major` - this release breaks the public surface of 10.0.0.
+Commit with `+semver: minor`. This release deliberately ships breaking changes to the public surface of 10.0.0 in
+a minor version: 10.x was already the breaking step from 9.x and is barely adopted yet, so the cleanup lands in
+10.1 instead of forcing an 11.0.0. The breaking entries below say what to change.
 
 ### Breaking: `AddAssertableHttpClient` is the only public registration
 
