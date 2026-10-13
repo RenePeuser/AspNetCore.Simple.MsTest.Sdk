@@ -5,8 +5,13 @@
 
 ## Current state — read first
 
-- **Everything below marked ✅ is committed on `master`** (last: `d073d47`). The user commits themselves — do not
-  commit unless asked.
+- **Commit state:** items 1–6 are committed on `master` (last: `0e4d0f9`). The **builder review + item 7 + item 13
+  are done but UNCOMMITTED** (check `git status`). The user commits themselves — do not commit unless asked.
+- **Design rule (from the user):** the builders GUIDE the user so nothing can be used wrongly — a method only where
+  it means something, a once-only call is a stage switch, a wrong chain does not compile. Runtime throws only for
+  what no type can see (repeated names), and then with the sdk's what/why/fix output.
+- **NEXT TASK = the open findings of the builder review (section below), then item 8.** Present them to the user
+  first — each one changes behavior.
 - **Working rules (from the user):**
   - Every fix is proven with **automated consumer tests through a real API call** (sample APIs `src/MinimalApi`
     + `src/MinimalApi.Test`, `src/Controllers` + `src/Controllers.Test`), each positive case paired with a test
@@ -31,7 +36,60 @@
 - **Code:** `src/AspNetCore.Simple.MsTest.Sdk/FluentAssertions/` (`Builders/`, `Interfaces/`, `Extensions/`).
 - **Tests:** `src/MinimalApi.Test`, `src/Controllers.Test` (`*_Fluent.cs`), `Core.Test`, analyzer + code-fix tests.
 - **Build:** `dotnet build AspNetCore.Simple.MsTest.Sdk.sln -c Debug` (Debug sets `FLUENT_ALPHA` automatically).
-- **IDE0005 fails the build** — an unnecessary `using` is an error, not a warning.
+- **IDE0005 fails the build** — an unnecessary `using` is an error, not a warning. Other CA rules are errors too
+  (seen: CA1510, CA1859, CA2016) — a counter-check edit that fails to compile silently re-runs OLD binaries; always
+  confirm "Build succeeded" before reading test results.
+
+## Builder review ✅ done 2026-10-13 (uncommitted) — open findings below
+
+Decided with the user and implemented (decision log entry of 2026-10-13, "Builder führen den Nutzer"):
+
+```
+IHttpBodyRequestConfiguring        (AssertPost / AssertPut / AssertPatch / AssertQuery)
+  ├─ Accepts… ──────────────────► IHttpRequestConfiguring   (no Accepts… anymore → body once)
+  ├─ WithParameter/WithHeader/SkipEndpointValidation ► IHttpBodyRequestConfiguring   (order free)
+  └─ Produces…
+IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all — or after Accepts…)
+  ├─ WithParameter/WithHeader/SkipEndpointValidation ► IHttpRequestConfiguring
+  └─ Produces…
+```
+
+- `HttpRequestBuilder` implements both; `With…` are explicit interface implementations sharing `AddParameters` /
+  `AddParametersFrom` / `AddHeader`. `Produces…` and `Accepts…` are public (same signature on both stages).
+- `SkipEndpointValidation()` stays on the request stage — the `EndpointValidator` checks the ROUTE (verb/url/version)
+  before the response type, so it is about the whole endpoint, not `Produces<T>`. Idempotent, so not once-only
+  (once-only would double the request interfaces for no information gained).
+- Repeated parameter name (ordinal, after `PlaceholderName.Wrap`) / header name (case-insensitive) →
+  `ArgumentException` built by `Builders/FluentUsageError.cs` (what / why / how-to-fix / test info). Before: parameter
+  first-wins (`ParameterReplacer` replaces the token once), header last-wins (`SetItem`). Consequence: overriding a
+  name a stored base stage holds is an error — `FluentBuilderBranchingTests` header tests now branch siblings.
+- `FilterResponse` composes in call order (runs on actual AND expected — see `JsonComparisonStep`).
+- `HttpOptionsBuilder` is copy-on-write (it still mutated `this` — missed by item 3).
+- Kept: `Produces(code).ExpectedResponse<T>(obj)` vs. `Produces<T>(code).ExpectedResponse…` split; free order;
+  `WriteSnapshot(bool)` (user: not in this round).
+- New sample endpoint `src/MinimalApi/Api/Persons/V1/EchoRequest/` — `POST persons/echo-request` echoes
+  `X-Correlation-Id` + body name, `OPTIONS persons/echo-request` answers 204 with
+  `Access-Control-Allow-Methods: POST, OPTIONS` (item 13).
+- Tests (`src/MinimalApi.Test/FluentBuilders/`): `FluentTypeStateCompileTests` (Roslyn compiles snippets against
+  the REAL sdk assembly via `TRUSTED_PLATFORM_ASSEMBLIES` + sdk location — wrong chains → CS1061, allowed orders
+  compile, each wrong chain paired with "asserting it compiles must fail"), `FluentRequestStageTests`,
+  `FluentChainRulesTests`, `FluentOptionsTests`; analyzer test `Fires_When_BodyRequestBuilder_Dangles_Before_Accepts`.
+  Counter-check (targeted reverts with backup, NOT `git stash` — the tests reference the new interface): 16 of 65
+  builder tests red without the fixes.
+
+### Open findings (present to the user before changing anything)
+
+- **OPTIONS compares response headers only.** `Allow` is a CONTENT header in `HttpClient` (`result.Content.Headers`),
+  so `AssertOptions(…)` — classic and fluent — can never check `Allow`, the header OPTIONS exists for
+  (`Client.Assert.Options.cs`, `result.Headers.ToDictionary`). The sample therefore uses `Access-Control-Allow-Methods`.
+- **`ExpectedHeaders(dictionary)` breaks mixed-case header names.** The dictionary is serialized with the app's
+  `JsonSerializerOptions`, whose dictionary key policy (camelCase) turns `Access-Control-Allow-Methods` into
+  `access-Control-Allow-Methods`; the comparison is case-sensitive → never matches. Classic overloads too. Raw JSON
+  works. Header names are case-insensitive by HTTP — compare them that way, and/or serialize without key policy.
+- **`Produces(code)` skips the WHOLE endpoint validation**, including the route check — it only lacks a type to
+  compare. A status-only test against a misspelled url is not reported as "endpoint not found". Consider validating
+  the route but not the type on that path.
+- `Accepts(string)` (obsolete, error) exists on the body stage only — fine; GET/DELETE do not even show it.
 
 ## Priority 1 — before stable (signature changes) ✅ done 2026-10-13
 
@@ -85,8 +143,8 @@
    counter-check: without forwarding 4 of 6 red, without the rethrow 3 of 6 red. The classic API still uses
    `None` (not in scope).
 
-7. **Second `Accepts…` / `ExpectedResponse…` silently overwrites the first.** → `InvalidOperationException`
-   ("body already set").
+7. ~~**Second `Accepts…` silently overwrites the first.**~~ ✅ done 2026-10-13 (uncommitted) via type-state —
+   see "Builder review". `.Accepts(a).Accepts(b)` and GET/DELETE with a body are CS1061 now.
 
 8. **Analyzer for `WriteSnapshot()`.** Committed, it rewrites the expected file on every run → always green.
    → MSTESTSDK003 (warning). Document the environment variable `TestSdkSettings__WriteResponse=true` as the way
@@ -99,8 +157,8 @@
 11. **`.ExpectHeader(name, value)`** — response header assertions (`Location` on 201, `ETag`).
 12. **Status aliases** `ProducesOk<T>()`, `ProducesCreated<T>()`, `ProducesNoContent()` — build before you
     document (`DESIGN_VISION.md` §15.7 warning).
-13. **Positive OPTIONS test.** Only a negative test exists (`src/MinimalApi.Test/Api/Errors/ErrorTests_Fluent.cs`),
-    the sample APIs map no OPTIONS endpoint. Add one to `src/MinimalApi` (check endpoint-catalog tests).
+13. ~~**Positive OPTIONS test.**~~ ✅ done 2026-10-13 (uncommitted): `OPTIONS persons/echo-request` +
+    `src/MinimalApi.Test/FluentBuilders/FluentOptionsTests.cs`. See the OPTIONS findings under "Builder review".
 
 ## Cleanup
 
@@ -121,4 +179,5 @@
 
 ## Recommended order
 
-~~Commit → 1 + 2 → 5 → 3 → 4 → 6~~ (done) → 7 → 8 → Priority 3 → cleanup.
+~~Commit → 1 + 2 → 5 → 3 → 4 → 6 → Builder review → 7~~ (done) → **open review findings** → 8 → Priority 3 →
+cleanup.

@@ -1,22 +1,19 @@
 using System.Collections.Generic;
 using System.Net;
-using System.Runtime.CompilerServices;
-using System;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
-    /// Initial fluent state after <c>Client.AssertPost/AssertGet/…(url)</c> (Endpoint-Stil, §15).
-    /// Configures the request (body, parameters, headers) and transitions to the response stage
-    /// via <see cref="Produces{T}(HttpStatusCode)"/>.
+    /// Request stage WITHOUT a body to set (Endpoint-Stil, §15): the initial state of
+    /// <c>Client.AssertGet/AssertDelete(url)</c>, and the state of <c>AssertPost/Put/Patch/Query(url)</c> once
+    /// <c>Accepts…</c> has set the body. Configures parameters and headers and transitions to the response
+    /// stage via <see cref="Produces{T}(HttpStatusCode)"/>.
     ///
     /// <para>
-    /// Body input is EXPLICIT — no rate-heuristic (Schema A, §11). Pick the method that matches intent:
-    /// <list type="bullet">
-    /// <item><see cref="Accepts{T}"/> — a C# object (serialized to JSON).</item>
-    /// <item><see cref="AcceptsFromJsonString"/> — a raw JSON string, verbatim.</item>
-    /// <item><see cref="AcceptsFromEmbeddedJson"/> — an embedded-resource file name.</item>
-    /// </list>
+    /// <b>Type-state:</b> there is no <c>Accepts…</c> here. GET and DELETE carry no request body, so they never
+    /// offer one, and a body verb cannot set its body a second time - <c>.Accepts(a).Accepts(b)</c> does not
+    /// compile instead of silently sending <c>b</c>. The body verbs start on
+    /// <see cref="IHttpBodyRequestConfiguring"/>.
     /// </para>
     /// </summary>
     [FluentBuilder]
@@ -27,36 +24,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
 #endif
     {
         // ============================================================
-        // Request body — explicit, no rate-heuristic (Schema A).
-        // ============================================================
-
-        /// <summary>Sets the request body from a C# object (serialized to JSON).</summary>
-        IHttpRequestConfiguring Accepts<T>(T body,
-                                            [CallerArgumentExpression(nameof(body))] string bodyExpression = "");
-
-        /// <summary>
-        /// NOT a request body. Reserved to close the Minimal-API false friend: there,
-        /// <c>Accepts&lt;T&gt;("application/json")</c> declares a CONTENT TYPE, while here the argument
-        /// IS the body — so the reflex spelling would silently POST the string "application/json".
-        /// Use <see cref="AcceptsFromJsonString"/> for raw JSON or <see cref="AcceptsFromEmbeddedJson"/>
-        /// for a file name.
-        /// </summary>
-        [Obsolete("Accepts(string) is not a body. In the Minimal API the string argument is the CONTENT TYPE, here it would be sent AS the body. Use AcceptsFromJsonString(json) for raw JSON, AcceptsFromEmbeddedJson(fileName) for an embedded file, or Accepts<T>(obj) for an object.", error: true)]
-        IHttpRequestConfiguring Accepts(string bodyJson);
-
-        /// <summary>Sets the request body from a raw JSON string (used verbatim).</summary>
-        IHttpRequestConfiguring AcceptsFromJsonString(string bodyJson,
-                                                      [CallerArgumentExpression(nameof(bodyJson))] string bodyJsonExpression = "");
-
-        /// <summary>Sets the request body from an embedded-resource JSON file name.</summary>
-        IHttpRequestConfiguring AcceptsFromEmbeddedJson(string embeddedFileName,
-                                                        [CallerArgumentExpression(nameof(embeddedFileName))] string embeddedFileNameExpression = "");
-
-        // ============================================================
         // Placeholder parameters ($Token$ substitution). Naked names — SDK escapes internally (§10.1).
         // ============================================================
 
-        /// <summary>Sets one placeholder parameter. Use the naked name ("Id"); the SDK adds the delimiters.</summary>
+        /// <summary>
+        /// Sets one placeholder parameter. Use the naked name ("Id"); the SDK adds the delimiters.
+        /// Each name can be set once per chain - a second value for the same name throws <see cref="System.ArgumentException"/>.
+        /// </summary>
         IHttpRequestConfiguring WithParameter(string key,
                                               object? value);
 
@@ -83,18 +57,22 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Sets placeholder parameters from all public, non-indexed instance properties of an object
         /// (§10.1.1, PascalCase), e.g. <c>new { Id = 1, Name = "Goku" }</c>. Any other dictionary
         /// (<c>Dictionary&lt;string, string&gt;</c>, …) contributes its entries. A value (<c>string</c>, number,
-        /// enum, <c>Guid</c>, …) or a collection has no properties to map and throws <see cref="ArgumentException"/>.
+        /// enum, <c>Guid</c>, …) or a collection has no properties to map and throws <see cref="System.ArgumentException"/>.
         /// </summary>
         IHttpRequestConfiguring WithParameters(object source);
 
-        /// <summary>Adds a custom HTTP request header.</summary>
+        /// <summary>
+        /// Adds a custom HTTP request header. Each header name (case-insensitive) can be set once per chain -
+        /// a second value throws <see cref="System.ArgumentException"/>; send several values comma-separated.
+        /// </summary>
         IHttpRequestConfiguring WithHeader(string key,
                                            string value);
 
         /// <summary>
-        /// Skips the endpoint validation that compares the endpoint's declared return type with the
-        /// type given to <c>Produces&lt;T&gt;</c> — for endpoints whose metadata cannot describe the
-        /// outcome (e.g. an error raised by middleware). Mirrors the classic <c>skipEndpointValidation</c>.
+        /// Skips the endpoint validation for this call - both the route check (does an endpoint for this verb,
+        /// url and version exist?) and the check of the declared return type against <c>Produces&lt;T&gt;</c>.
+        /// For endpoints the host cannot describe (external APIs, errors raised by middleware). Mirrors the
+        /// classic <c>skipEndpointValidation</c>. Idempotent.
         /// </summary>
         IHttpRequestConfiguring SkipEndpointValidation();
 

@@ -223,6 +223,31 @@ await baseRequest.WithHeader("X-Correlation-Id", "second")   // baseRequest itse
     .ExecuteAsync();
 ```
 
+Each branch sets the header itself. Setting it on `baseRequest` and again in a branch would be a repeated name — that
+throws an `ArgumentException` telling you which header, both values and how to fix it.
+
+---
+
+## Body before or after headers — the order is free
+
+```csharp
+await Client.AssertPost("api/v1/persons/echo-request")
+    .WithHeader("X-Correlation-Id", "before")      // header first …
+    .Accepts(new EchoRequestBody("Vegeta"))         // … then the body (once - no second Accepts… offered)
+    .Produces<EchoRequestResponse>(HttpStatusCode.OK)
+    .ExpectedResponse(new EchoRequestResponse("before", "Vegeta"))
+    .ExecuteAsync();
+
+await Client.AssertPatch("api/v1/persons")
+    .Accepts(person with { Name = "$Name$" })      // body first …
+    .WithParameter("Name", "Vegeta")                // … the parameter still fills its placeholder
+    .Produces<Person>(HttpStatusCode.OK)
+    .ExpectedResponse(person with { Name = "Vegeta" })
+    .ExecuteAsync();
+
+// GET and DELETE carry no body - Client.AssertGet(url).Accepts(…) does not compile.
+```
+
 ---
 
 ## Error outcomes (own body type, same verb)

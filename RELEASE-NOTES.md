@@ -71,6 +71,20 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
   read - before, every call used `CancellationToken.None`. A cancellation surfaces as
   `OperationCanceledException`, not as an assertion failure. `HttpAssertContext<TResult>` gained the matching
   `CancellationToken` property (default `None`).
+- **Fluent API (alpha builds only) - the builders guide you (breaking for alpha users).** POST/PUT/PATCH/QUERY start
+  on the new `IHttpBodyRequestConfiguring`; every `Accepts…` leads to `IHttpRequestConfiguring`, which offers no
+  `Accepts…`. GET/DELETE start there directly. So `Client.AssertGet(url).Accepts(…)` (GET/DELETE carry no body - the
+  classic API never sends one) and `.Accepts(a).Accepts(b)` (the second body silently won) no longer compile. The order
+  of `With…` and `Accepts…` stays free. Migration: if a variable was typed `IHttpRequestConfiguring` for a POST/PUT/
+  PATCH/QUERY chain before its body, type it `IHttpBodyRequestConfiguring` (or use `var`).
+- **Fluent API (alpha builds only) - a parameter or header name given twice throws** an `ArgumentException` with a
+  what/why/how-to-fix message, at the repeating line. Before, a repeated parameter silently sent the FIRST value and
+  a repeated header the LAST one. Header names compare case-insensitively. Overriding a name a stored base stage
+  already holds counts as repeating - set it per branch instead.
+- **Fluent API (alpha builds only) - `FilterResponse` composes.** A second call ran instead of the first; now both
+  run in call order, like the ignore rules.
+- **Fluent API (alpha builds only) - `AssertOptions(url)` is immutable, too.** `ExpectedHeaders…` mutated the stored
+  stage, so two branches of one `AssertOptions(url)` both compared against the expectation set last.
 
 ### Fixed: a body carrying `content.value` was taken for the response envelope
 

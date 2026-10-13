@@ -258,8 +258,10 @@ await Client.AssertPost("api/v1/persons")
     .ExecuteAsync();
 ```
 
-`FilterResponse` transforms the actual response before comparison. It is useful for deterministic ordering or
-normalization while keeping the expected object readable.
+`FilterResponse` transforms the actual response — and the expected one, so both sides are normalized alike — before
+comparison. It is useful for deterministic ordering or normalization while keeping the expected object readable.
+Several calls compose in call order: `.FilterResponse(SortEmails).FilterResponse(NormalizeName)` applies both, the
+second on the output of the first.
 
 ## 8. Tolerate Specific Dynamic Differences (`IgnoreDifferencesWhere`)
 
@@ -866,7 +868,9 @@ metadata failures indicate documentation, discoverability, security declaration,
 
 - **Type-state is real:** `IgnoreProperty`, `IgnorePaths`, `IgnoreDifferencesWhere`, `FilterDifferences`, and `FilterResponse` appear in IntelliSense only after
   an `ExpectedResponse…` method. Without an expected body, there is nothing to configure, so invalid combinations cannot
-  be expressed.
+  be expressed. The same holds for the request body: `Accepts…` exists only on POST/PUT/PATCH/QUERY and only until a
+  body is set — `AssertGet(url).Accepts(…)` and `.Accepts(a).Accepts(b)` do not compile. A parameter or header name
+  given twice fails at once with a what/why/fix message instead of silently sending one of the two values.
 - **One terminal, always:** `.ExecuteAsync()` is the only `await` point. It returns the actual typed server
   response—including server-generated values such as an ID—not the expected-response template.
 

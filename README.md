@@ -2600,12 +2600,15 @@ await Client.AssertPost("api/v1/persons")
 
 Already implemented in the alpha:
 
-- **Entry points** — `AssertPost`, `AssertGet`, `AssertPut`, `AssertPatch`, `AssertDelete` on `HttpClient`.
+- **Entry points** — `AssertPost`, `AssertGet`, `AssertPut`, `AssertPatch`, `AssertDelete`, `AssertQuery`,
+  `AssertOptions` on `HttpClient`.
 - **Endpoint-mirroring vocabulary** — `Accepts` / `Produces` / `ExpectedResponse` line up with ASP.NET Core
   Minimal API metadata.
-- **Type-state builder** — comparison config (`IgnoreProperty`, `IgnorePaths`, `IgnoreDifferencesWhere`,
-  `FilterDifferences`, `FilterResponse`, `WriteSnapshot`) is only reachable *after* an expected response,
-  enforced by the compiler.
+- **Type-state builder** — the builders guide you: comparison config (`IgnoreProperty`, `IgnorePaths`,
+  `IgnoreDifferencesWhere`, `FilterDifferences`, `FilterResponse`, `WriteSnapshot`) is only reachable *after* an
+  expected response, and `Accepts…` only on POST/PUT/PATCH/QUERY and only once — `AssertGet(url).Accepts(…)` and
+  `.Accepts(a).Accepts(b)` do not compile. A parameter or header name given twice fails at once with a what/why/fix
+  message.
 - **Analyzer-protected terminal** — a forgotten `ExecuteAsync()` is a build error (`MSTESTSDK001`), not a
   silently green test. A code fix appends the missing terminal.
 - **Precise, type-safe property ignore** — `.IgnoreProperty(p => p.Address.Street)` ignores exactly that

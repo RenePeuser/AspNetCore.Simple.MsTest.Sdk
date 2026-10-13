@@ -60,16 +60,17 @@ namespace MinimalApi.Test.FluentBuilders
         }
 
         // ============================================================
-        // Headers — a branch configured AFTER Produces must not reach the derived chain.
+        // Headers — sibling branches of one base request each send their own value. (Overriding a header the
+        // base already holds is a usage error since the duplicate-name rule - see FluentChainRulesTests.)
         // ============================================================
 
         [TestMethod]
-        public async Task Header_Set_On_Base_Request_After_Produces_Should_Not_Change_The_Derived_Chain()
+        public async Task Header_Branches_Of_One_Base_Request_Should_Not_Overwrite_Each_Other()
         {
-            var baseRequest = Client.AssertGet(EchoHeaderUrl)
-                                    .WithHeader(CorrelationIdHeader, "first");
+            var baseRequest = Client.AssertGet(EchoHeaderUrl);
 
-            var first = baseRequest.Produces<EchoHeaderResponse>(HttpStatusCode.OK)
+            var first = baseRequest.WithHeader(CorrelationIdHeader, "first")
+                                   .Produces<EchoHeaderResponse>(HttpStatusCode.OK)
                                    .ExpectedResponse(new EchoHeaderResponse("first"));
 
             var second = baseRequest.WithHeader(CorrelationIdHeader, "second")
@@ -81,18 +82,18 @@ namespace MinimalApi.Test.FluentBuilders
         }
 
         [TestMethod]
-        public async Task Header_Of_Derived_Chain_Should_Be_The_One_Set_Before_Produces()
+        public async Task Header_Branch_Should_Send_Its_Own_Value()
         {
-            var baseRequest = Client.AssertGet(EchoHeaderUrl)
-                                    .WithHeader(CorrelationIdHeader, "first");
+            var baseRequest = Client.AssertGet(EchoHeaderUrl);
 
-            var first = baseRequest.Produces<EchoHeaderResponse>(HttpStatusCode.OK)
+            var first = baseRequest.WithHeader(CorrelationIdHeader, "first")
+                                   .Produces<EchoHeaderResponse>(HttpStatusCode.OK)
                                    .ExpectedResponse(new EchoHeaderResponse("second"));
 
             _ = baseRequest.WithHeader(CorrelationIdHeader, "second");
 
             await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => first.ExecuteAsync(),
-                                                                        because: "The derived chain sends 'first' - a later branch of the base request must not turn it into 'second'. Expecting 'second' has to fail.",
+                                                                        because: "The branch sends 'first' - a sibling branch of the base request must not turn it into 'second'. Expecting 'second' has to fail.",
                                                                         fix: ImmutabilityFix).ConfigureAwait(false);
         }
 

@@ -44,18 +44,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // resolution. (Assembly-vs-CallerFilePath strategy is an open design question, see DESIGN_VISION.md §9.)
 
         /// <summary>Starts a fluent POST assertion chain.</summary>
-        public static IHttpRequestConfiguring AssertPost(this HttpClient client,
-                                                         string url,
-                                                         [CallerFilePath] string callerFilePath = "",
-                                                         [CallerMemberName] string callerMemberName = "",
-                                                         [CallerLineNumber] int callerLineNumber = 0)
+        public static IHttpBodyRequestConfiguring AssertPost(this HttpClient client,
+                                                             string url,
+                                                             [CallerFilePath] string callerFilePath = "",
+                                                             [CallerMemberName] string callerMemberName = "",
+                                                             [CallerLineNumber] int callerLineNumber = 0)
         {
             return new HttpRequestBuilder(client, HttpMethod.Post, url,
                                           Assembly.GetCallingAssembly(), callerFilePath,
                                           callerMemberName, callerLineNumber);
         }
 
-        /// <summary>Starts a fluent GET assertion chain.</summary>
+        /// <summary>Starts a fluent GET assertion chain. GET carries no request body, so no <c>Accepts…</c> is offered.</summary>
         public static IHttpRequestConfiguring AssertGet(this HttpClient client,
                                                         string url,
                                                         [CallerFilePath] string callerFilePath = "",
@@ -68,11 +68,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         /// <summary>Starts a fluent PUT assertion chain.</summary>
-        public static IHttpRequestConfiguring AssertPut(this HttpClient client,
-                                                        string url,
-                                                        [CallerFilePath] string callerFilePath = "",
-                                                        [CallerMemberName] string callerMemberName = "",
-                                                        [CallerLineNumber] int callerLineNumber = 0)
+        public static IHttpBodyRequestConfiguring AssertPut(this HttpClient client,
+                                                            string url,
+                                                            [CallerFilePath] string callerFilePath = "",
+                                                            [CallerMemberName] string callerMemberName = "",
+                                                            [CallerLineNumber] int callerLineNumber = 0)
         {
             return new HttpRequestBuilder(client, HttpMethod.Put, url,
                                           Assembly.GetCallingAssembly(), callerFilePath,
@@ -80,18 +80,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         /// <summary>Starts a fluent PATCH assertion chain.</summary>
-        public static IHttpRequestConfiguring AssertPatch(this HttpClient client,
-                                                          string url,
-                                                          [CallerFilePath] string callerFilePath = "",
-                                                          [CallerMemberName] string callerMemberName = "",
-                                                          [CallerLineNumber] int callerLineNumber = 0)
+        public static IHttpBodyRequestConfiguring AssertPatch(this HttpClient client,
+                                                              string url,
+                                                              [CallerFilePath] string callerFilePath = "",
+                                                              [CallerMemberName] string callerMemberName = "",
+                                                              [CallerLineNumber] int callerLineNumber = 0)
         {
             return new HttpRequestBuilder(client, HttpMethod.Patch, url,
                                           Assembly.GetCallingAssembly(), callerFilePath,
                                           callerMemberName, callerLineNumber);
         }
 
-        /// <summary>Starts a fluent DELETE assertion chain.</summary>
+        /// <summary>Starts a fluent DELETE assertion chain. DELETE carries no request body, so no <c>Accepts…</c> is offered.</summary>
         public static IHttpRequestConfiguring AssertDelete(this HttpClient client,
                                                            string url,
                                                            [CallerFilePath] string callerFilePath = "",
@@ -104,11 +104,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         /// <summary>Starts a fluent QUERY assertion chain (safe, idempotent request with a body).</summary>
-        public static IHttpRequestConfiguring AssertQuery(this HttpClient client,
-                                                          string url,
-                                                          [CallerFilePath] string callerFilePath = "",
-                                                          [CallerMemberName] string callerMemberName = "",
-                                                          [CallerLineNumber] int callerLineNumber = 0)
+        public static IHttpBodyRequestConfiguring AssertQuery(this HttpClient client,
+                                                              string url,
+                                                              [CallerFilePath] string callerFilePath = "",
+                                                              [CallerMemberName] string callerMemberName = "",
+                                                              [CallerLineNumber] int callerLineNumber = 0)
         {
             return new HttpRequestBuilder(client, HttpMethodExtensions.Query, url,
                                           Assembly.GetCallingAssembly(), callerFilePath,

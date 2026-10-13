@@ -168,17 +168,30 @@ changes no chain) — always continue from the returned builder.
 An OPTIONS call has no body to compare; it must answer `204 NoContent` and its headers are checked:
 
 ```csharp
-await Client.AssertOptions("api/v1/persons")
-    .ExpectedHeaders(ImmutableDictionary<string, string>.Empty.Add("Allow", "GET, POST"))
-    // or: .ExpectedHeadersFromJsonString("{ … }") / .ExpectedHeadersFromEmbeddedJson("Options.json")
+await Client.AssertOptions("api/v1/persons/echo-request")
+    .ExpectedHeadersFromJsonString("""{ "Access-Control-Allow-Methods": [ "POST, OPTIONS" ], "api-supported-versions": [ "1" ] }""")
+    // or: .ExpectedHeaders(dictionary) / .ExpectedHeadersFromEmbeddedJson("Options.json")
     .ExecuteAsync();                                // → Task<HttpResponseMessage>
 ```
 
+Two known limits of the OPTIONS engine (classic and fluent alike): only RESPONSE headers are compared — `Allow` is a
+content header in `HttpClient` and is never checked — and the `ExpectedHeaders(dictionary)` overloads serialize the
+header names with the app's dictionary key policy (camelCase turns `Access-Control-Allow-Methods` into
+`access-Control-Allow-Methods`). Use raw JSON for mixed-case header names.
+
 ## Type-state (the compiler as the first line of defense)
 
+The builders guide you: a method shows up only where it means something, and a call that may happen once becomes
+a stage switch. A wrong chain does not compile — it never reaches the test run.
+
 ```
-IHttpRequestConfiguring
-  ├─ Accepts… / WithParameter… / WithHeader / SkipEndpointValidation  → stays here
+IHttpBodyRequestConfiguring              (AssertPost / AssertPut / AssertPatch / AssertQuery)
+  ├─ Accepts…            → IHttpRequestConfiguring        (the body is set once - no second Accepts…)
+  ├─ WithParameter… / WithHeader / SkipEndpointValidation  → stays here (order is free)
+  └─ Produces…           (a body verb without a body is fine)
+
+IHttpRequestConfiguring                  (AssertGet / AssertDelete, or a body verb after Accepts…)
+  ├─ WithParameter… / WithHeader / SkipEndpointValidation  → stays here   (no Accepts… at all)
   ├─ Produces<T>(code)   → IHttpResponseConfiguring<T>
   └─ Produces(code)      → IHttpExpectationConfiguring   (no type named)
 
@@ -198,6 +211,33 @@ IHttpOptionsConfiguring                  (Client.AssertOptions(url))
   └─ ExpectedHeaders…    → IHttpOptionsExpectationConfiguring
                               └─ ExecuteAsync() → Task<HttpResponseMessage>
 ```
+
+What does NOT compile (proven by `MinimalApi.Test/FluentBuilders/FluentTypeStateCompileTests.cs`):
+
+```csharp
+Client.AssertGet(url).Accepts(body)                    // CS1061 - GET carries no body
+Client.AssertDelete(url).AcceptsFromJsonString(json)   // CS1061 - DELETE carries no body
+Client.AssertPost(url).Accepts(a).Accepts(b)           // CS1061 - the body is set once
+Client.AssertPut(url).Accepts(a).WithHeader(…).Accepts(b)  // CS1061 - With… does not reopen the body
+```
+
+### Rules no type can check — they fail at the repeating line
+
+A name is a runtime value, so the compiler cannot see it twice. These throw an `ArgumentException` with the sdk's
+usual output (what happened, both values, why it fails, how to fix it, test file + line):
+
+- **A parameter name twice** (`WithParameter("Name", "Son").WithParameter("Name", "Vegeta")`, also inside one
+  `WithParameters` call, also `"Name"` vs. `"$Name$"`) — the placeholder is replaced once, so the second value was
+  silently dropped.
+- **A header name twice** (case-insensitive, `X-Id` = `x-id`) — the second value silently replaced the first. Send
+  several values comma-separated.
+
+Sibling branches of a stored stage may each set the same name — that is branching, not repeating. Overriding a
+name the stored stage already holds is repeating: leave it out of the base and set it per branch.
+
+Comparison rules compose instead: several `IgnoreProperty` / `IgnorePaths` / `IgnoreDifferencesWhere` /
+`FilterDifferences` calls all apply, and several `FilterResponse` calls run in call order (the second gets the first's
+output).
 
 `IgnoreProperty` deliberately lives on `IHttpComparisonConfiguring<T>` — without an `ExpectedResponse…`
 there is no comparison to configure, so an `IgnoreProperty` without an expected body is a **compile

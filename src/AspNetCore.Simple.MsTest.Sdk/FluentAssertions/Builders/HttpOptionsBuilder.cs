@@ -10,6 +10,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// <summary>
     /// Builds a fluent OPTIONS assertion. All three header sources funnel into a single JSON string and
     /// run through the same engine as the classic <c>AssertOptionsAsync</c>, so both report alike.
+    ///
+    /// <para>
+    /// Immutable, like the other builders: <c>ExpectedHeaders…</c> returns a NEW builder. A stored
+    /// <c>AssertOptions(url)</c> stage can be branched into several expectations without the last one
+    /// overwriting the others.
+    /// </para>
     /// </summary>
     internal sealed class HttpOptionsBuilder : IHttpOptionsConfiguring, IHttpOptionsExpectationConfiguring
     {
@@ -49,23 +55,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public IHttpOptionsExpectationConfiguring ExpectedHeaders(IImmutableDictionary<string, ImmutableList<string>> expectedHeaders)
         {
-            _expectedHeadersJson = expectedHeaders.ToJson(HttpClientAssertExtensions.JsonSerializerOptionsFor(_callingAssembly));
-
-            return this;
+            return WithExpectedHeaders(expectedHeaders.ToJson(HttpClientAssertExtensions.JsonSerializerOptionsFor(_callingAssembly)));
         }
 
         public IHttpOptionsExpectationConfiguring ExpectedHeadersFromJsonString(string expectedHeadersJson)
         {
-            _expectedHeadersJson = expectedHeadersJson;
-
-            return this;
+            return WithExpectedHeaders(expectedHeadersJson);
         }
 
         public IHttpOptionsExpectationConfiguring ExpectedHeadersFromEmbeddedJson(string embeddedFileName)
         {
-            _expectedHeadersJson = embeddedFileName;
+            return WithExpectedHeaders(embeddedFileName);
+        }
 
-            return this;
+        // Copy-on-write - see HttpRequestBuilder.With. Mutating and returning this let a second
+        // ExpectedHeaders… on a stored AssertOptions(url) stage overwrite the first branch's expectation.
+        private HttpOptionsBuilder WithExpectedHeaders(string expectedHeadersJson)
+        {
+            var copy = (HttpOptionsBuilder)MemberwiseClone();
+            copy._expectedHeadersJson = expectedHeadersJson;
+
+            return copy;
         }
 
         public Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken = default)

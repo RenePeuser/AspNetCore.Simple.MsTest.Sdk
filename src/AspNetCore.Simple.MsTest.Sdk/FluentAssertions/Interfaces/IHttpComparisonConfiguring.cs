@@ -20,7 +20,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal interface IHttpComparisonConfiguring<TResult>
 #endif
     {
-        /// <summary>Transforms the deserialized response before comparison (sort/normalize).</summary>
+        /// <summary>
+        /// Transforms the deserialized response before comparison (sort/normalize). Several calls combine in
+        /// call order: the second filter receives the output of the first.
+        /// </summary>
         IHttpComparisonConfiguring<TResult> FilterResponse(Func<TResult?, TResult?> filter);
 
         /// <summary>

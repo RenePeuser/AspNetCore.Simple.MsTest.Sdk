@@ -132,9 +132,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // Comparison config (only reachable after ExpectedResponse…).
         // ============================================================
 
+        // Filters COMPOSE in call order (second runs on the first's output), like the ignore rules below:
+        // overwriting silently dropped the earlier normalization and failed the comparison for no visible reason.
         public IHttpComparisonConfiguring<TResult> FilterResponse(Func<TResult?, TResult?> filter)
         {
-            return With(copy => copy._filterFunc = filter);
+            var previous = _filterFunc;
+
+            return With(copy => copy._filterFunc = previous is null
+                                                       ? filter
+                                                       : response => filter(previous(response)));
         }
 
         // Ignore rules COMPOSE instead of overwriting: two IgnoreProperty calls (or IgnoreProperty next to

@@ -86,6 +86,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
             return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
         }
 
+        [TestMethod]
+        public Task Fires_When_BodyRequestBuilder_Dangles_Before_Accepts()
+        {
+            // The body stage (POST/PUT/PATCH/QUERY before Accepts…) is its own interface - it needs
+            // [FluentBuilder] as well, or a bare configured POST would slip through.
+            var source = InMethod("""
+                                              {|#0:Client.AssertPost("api/persons").WithHeader("X-Id", "1");|}
+                                  """);
+
+            return VerifyAsync(source, Verify.Diagnostic().WithLocation(0));
+        }
+
         // ---------------------------------------------------------------
         // MUST NOT fire — chain is consumed or terminated.
         // ---------------------------------------------------------------

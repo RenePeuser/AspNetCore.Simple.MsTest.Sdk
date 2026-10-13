@@ -18,13 +18,20 @@ namespace AspNetCore.Simple.MsTest.Sdk
     ///     <c>_body</c> string, and the engine's file localizer resolves file-vs-raw downstream.
     ///
     ///     <para>
+    ///     Serves both request stages: <see cref="IHttpBodyRequestConfiguring"/> (POST/PUT/PATCH/QUERY, body not
+    ///     set yet) and <see cref="IHttpRequestConfiguring"/> (GET/DELETE, or a body verb after <c>Accepts…</c>).
+    ///     Which methods a caller can reach is decided by the interface the previous call returned - the entry
+    ///     points and <c>Accepts…</c> pick it, so a body can be set at most once and never on GET/DELETE.
+    ///     </para>
+    ///
+    ///     <para>
     ///     Immutable: every configuring call returns a NEW builder and leaves this one untouched. A base
     ///     request can be stored and branched (<c>baseRequest.WithParameter("Id", 1)</c> /
     ///     <c>baseRequest.WithParameter("Id", 2)</c>) without one branch leaking into the other or into a chain
     ///     already derived through <c>Produces…</c>.
     ///     </para>
     /// </summary>
-    internal sealed class HttpRequestBuilder : IHttpRequestConfiguring
+    internal sealed class HttpRequestBuilder : IHttpRequestConfiguring, IHttpBodyRequestConfiguring
     {
         private readonly string _callerFilePath;
 
@@ -36,7 +43,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private readonly HttpClient _client;
 
-        private ImmutableDictionary<string, string> _headers = ImmutableDictionary<string, string>.Empty;
+        // Header names are case-insensitive - "x-id" and "X-Id" are the same header.
+        private ImmutableDictionary<string, string> _headers = ImmutableDictionary.Create<string, string>(StringComparer.OrdinalIgnoreCase);
 
         private readonly HttpMethod _method;
 
@@ -71,7 +79,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // ============================================================
-        // Request body — explicit, no rate-heuristic (Schema A).
+        // Request body — explicit, no rate-heuristic (Schema A). Only on IHttpBodyRequestConfiguring, and
+        // every Accepts… returns IHttpRequestConfiguring, which has none: once per chain by type-state.
         // ============================================================
 
         public IHttpRequestConfiguring Accepts<T>(T body,
@@ -100,31 +109,128 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // ============================================================
+        // Parameters / headers / validation. Both request stages offer them, each with its OWN return type
+        // (the body stage keeps the body open) - so they are implemented explicitly per interface and share
+        // one implementation each.
+        // ============================================================
+
+        IHttpRequestConfiguring IHttpRequestConfiguring.WithParameter(string key,
+                                                                      object? value)
+        {
+            return AddParameters([(key, value)]);
+        }
+
+        IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.WithParameter(string key,
+                                                                              object? value)
+        {
+            return AddParameters([(key, value)]);
+        }
+
+        IHttpRequestConfiguring IHttpRequestConfiguring.WithParameters(params (string Key, object? Value)[] parameters)
+        {
+            return AddParameters(parameters);
+        }
+
+        IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.WithParameters(params (string Key, object? Value)[] parameters)
+        {
+            return AddParameters(parameters);
+        }
+
+        IHttpRequestConfiguring IHttpRequestConfiguring.WithParameters((string Key, object? Value) parameter)
+        {
+            return AddParameters([parameter]);
+        }
+
+        IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.WithParameters((string Key, object? Value) parameter)
+        {
+            return AddParameters([parameter]);
+        }
+
+        IHttpRequestConfiguring IHttpRequestConfiguring.WithParameters(IReadOnlyDictionary<string, object?> parameters)
+        {
+            return AddParameters(parameters.Select(parameter => (parameter.Key, parameter.Value)));
+        }
+
+        IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.WithParameters(IReadOnlyDictionary<string, object?> parameters)
+        {
+            return AddParameters(parameters.Select(parameter => (parameter.Key, parameter.Value)));
+        }
+
+        IHttpRequestConfiguring IHttpRequestConfiguring.WithParameters(object source)
+        {
+            return AddParametersFrom(source);
+        }
+
+        IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.WithParameters(object source)
+        {
+            return AddParametersFrom(source);
+        }
+
+        IHttpRequestConfiguring IHttpRequestConfiguring.WithHeader(string key,
+                                                                   string value)
+        {
+            return AddHeader(key, value);
+        }
+
+        IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.WithHeader(string key,
+                                                                           string value)
+        {
+            return AddHeader(key, value);
+        }
+
+        IHttpRequestConfiguring IHttpRequestConfiguring.SkipEndpointValidation()
+        {
+            return With(copy => copy._skipEndpointValidation = true);
+        }
+
+        IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.SkipEndpointValidation()
+        {
+            return With(copy => copy._skipEndpointValidation = true);
+        }
+
+        // ============================================================
         // Placeholder parameters — naked names, SDK escapes internally (§10.1).
         // ============================================================
 
-        public IHttpRequestConfiguring WithParameter(string key,
-                                                     object? value)
+        // A placeholder takes ONE value: ParameterReplacer replaces the token with the first entry, the second
+        // finds nothing left to replace. A name given twice - in one call or across calls - would silently send
+        // the first value, so it fails right here, at the line that repeats it.
+        private HttpRequestBuilder AddParameters(IEnumerable<(string Key, object? Value)> parameters)
         {
-            return With(copy => copy._parameters = _parameters.Add((PlaceholderName.Wrap(key), value)));
+            var result = _parameters;
+
+            foreach (var (key, value) in parameters)
+            {
+                var placeholder = PlaceholderName.Wrap(key);
+                var existing = result.FindIndex(parameter => string.Equals(parameter.Key, placeholder, StringComparison.Ordinal));
+
+                if (existing >= 0)
+                {
+                    throw FluentUsageError.DuplicateParameter(EntryPoint(),
+                                                              placeholder,
+                                                              result[existing].Value,
+                                                              value,
+                                                              _callingAssembly,
+                                                              _callerFilePath,
+                                                              _callerMemberName,
+                                                              _callerLineNumber);
+                }
+
+                result = result.Add((placeholder, value));
+            }
+
+            return With(copy => copy._parameters = result);
         }
 
-        public IHttpRequestConfiguring WithParameters(params (string Key, object? Value)[] parameters)
+        // How the test started this chain - "Client.AssertPost(\"api/persons/$Id$\")" - for fix hints.
+        private string EntryPoint()
         {
-            return With(copy => copy._parameters = _parameters.AddRange(parameters.Select(parameter => (PlaceholderName.Wrap(parameter.Key), parameter.Value))));
+            var verb = _method.Method[..1] + _method.Method[1..].ToLowerInvariant();
+
+            return $"Client.Assert{verb}(\"{_url}\")";
         }
 
-        public IHttpRequestConfiguring WithParameters((string Key, object? Value) parameter)
-        {
-            return WithParameter(parameter.Key, parameter.Value);
-        }
-
-        public IHttpRequestConfiguring WithParameters(IReadOnlyDictionary<string, object?> parameters)
-        {
-            return With(copy => copy._parameters = _parameters.AddRange(parameters.Select(parameter => (PlaceholderName.Wrap(parameter.Key), parameter.Value))));
-        }
-
-        public IHttpRequestConfiguring WithParameters(object source)
+        private HttpRequestBuilder AddParametersFrom(object source)
         {
             ArgumentNullException.ThrowIfNull(source);
 
@@ -135,9 +241,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
             {
                 // Through Keys + indexer: enumerating a generic dictionary as IEnumerable yields
                 // KeyValuePair<,>, not DictionaryEntry.
-                return With(copy => copy._parameters = _parameters.AddRange(dictionary.Keys
-                                                                                      .Cast<object>()
-                                                                                      .Select(key => (PlaceholderName.Wrap(Convert.ToString(key, CultureInfo.InvariantCulture)!), dictionary[key]))));
+                return AddParameters(dictionary.Keys
+                                               .Cast<object>()
+                                               .Select(key => (Convert.ToString(key, CultureInfo.InvariantCulture)!, dictionary[key])));
             }
 
             // Values and collections have no properties that name placeholders: a string would crash on its
@@ -152,7 +258,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                                    .Where(property => property.CanRead && property.GetIndexParameters().Length == 0);
 
-            return With(copy => copy._parameters = _parameters.AddRange(properties.Select(property => (PlaceholderName.Wrap(property.Name), property.GetValue(source)))));
+            return AddParameters(properties.Select(property => (property.Name, property.GetValue(source))));
         }
 
         private static bool IsValue(Type type)
@@ -170,15 +276,23 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 || type == typeof(Uri);
         }
 
-        public IHttpRequestConfiguring WithHeader(string key,
-                                                  string value)
+        // Overwriting the first value - what SetItem used to do - would silently send something else than
+        // the earlier line of the test reads. Fails at the line that repeats the header.
+        private HttpRequestBuilder AddHeader(string key,
+                                             string value)
         {
-            return With(copy => copy._headers = _headers.SetItem(key, value));
-        }
+            if (_headers.TryGetValue(key, out var existing))
+            {
+                throw FluentUsageError.DuplicateHeader(key,
+                                                       existing,
+                                                       value,
+                                                       _callingAssembly,
+                                                       _callerFilePath,
+                                                       _callerMemberName,
+                                                       _callerLineNumber);
+            }
 
-        public IHttpRequestConfiguring SkipEndpointValidation()
-        {
-            return With(copy => copy._skipEndpointValidation = true);
+            return With(copy => copy._headers = _headers.Add(key, value));
         }
 
         private HttpRequestBuilder WithBody(string body,
@@ -203,6 +317,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         // ============================================================
         // Transition to the response stage. Produces<T>(code) carries type + status + return type.
+        // Same signature and return type on both request stages → one public implementation.
         // ============================================================
 
         public IHttpResponseConfiguring<T> Produces<T>(HttpStatusCode statusCode)

@@ -21,8 +21,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
     internal static class FluentApiStub
     {
         /// <summary>
-        /// Source prepended to every analyzer/code-fix test. Provides the marker attribute, the four
-        /// builder interfaces (request / response / comparison / expectation), and a <c>Client</c> entry
+        /// Source prepended to every analyzer/code-fix test. Provides the marker attribute, the five
+        /// builder interfaces (body request / request / response / comparison / expectation), and a <c>Client</c> entry
         /// point so test chains read exactly like real usage.
         /// </summary>
         public const string Source = """
@@ -40,11 +40,22 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
                                      namespace AspNetCore.Simple.MsTest.Sdk
                                      {
                                          [FluentBuilder]
-                                         public interface IHttpRequestConfiguring
+                                         public interface IHttpBodyRequestConfiguring
                                          {
                                              IHttpRequestConfiguring Accepts<T>(T body);
                                              IHttpRequestConfiguring AcceptsFromJsonString(string bodyJson);
                                              IHttpRequestConfiguring AcceptsFromEmbeddedJson(string embeddedFileName);
+                                             IHttpBodyRequestConfiguring WithParameter(string key, object? value);
+                                             IHttpBodyRequestConfiguring WithHeader(string key, string value);
+                                             IHttpResponseConfiguring<T> Produces<T>(HttpStatusCode statusCode);
+                                             IHttpResponseConfiguring<T> Produces<T>(int statusCode);
+                                             IHttpExpectationConfiguring Produces(HttpStatusCode statusCode);
+                                             IHttpExpectationConfiguring Produces(int statusCode);
+                                         }
+
+                                         [FluentBuilder]
+                                         public interface IHttpRequestConfiguring
+                                         {
                                              IHttpRequestConfiguring WithParameter(string key, object? value);
                                              IHttpRequestConfiguring WithHeader(string key, string value);
                                              IHttpResponseConfiguring<T> Produces<T>(HttpStatusCode statusCode);
@@ -84,10 +95,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Analyzers.Test
 
                                          public static class Client
                                          {
-                                             public static IHttpRequestConfiguring AssertPost(string url) => null!;
+                                             public static IHttpBodyRequestConfiguring AssertPost(string url) => null!;
                                              public static IHttpRequestConfiguring AssertGet(string url) => null!;
-                                             public static IHttpRequestConfiguring AssertPut(string url) => null!;
-                                             public static IHttpRequestConfiguring AssertPatch(string url) => null!;
+                                             public static IHttpBodyRequestConfiguring AssertPut(string url) => null!;
+                                             public static IHttpBodyRequestConfiguring AssertPatch(string url) => null!;
                                              public static IHttpRequestConfiguring AssertDelete(string url) => null!;
                                          }
                                      }
