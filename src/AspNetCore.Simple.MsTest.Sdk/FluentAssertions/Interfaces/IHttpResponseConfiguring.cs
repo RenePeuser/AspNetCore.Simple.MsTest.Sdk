@@ -38,6 +38,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                              [CallerArgumentExpression(nameof(embeddedFileName))] string embeddedFileNameExpression = "");
 
         /// <summary>
+        /// Skips the endpoint validation for this call - both the route check (does an endpoint for this verb,
+        /// url and version exist?) and the check of the declared return type against <c>Produces&lt;T&gt;</c>.
+        /// For endpoints the host cannot describe (external APIs, errors raised by middleware, a route that
+        /// deliberately does not exist). Mirrors the classic <c>skipEndpointValidation</c>. Idempotent.
+        ///
+        /// <para>
+        /// Only offered after <c>Produces…</c>: it switches off a check of the whole contract - request side AND
+        /// response type - so it sits behind both. Also reachable after an <c>ExpectedResponse…</c>.
+        /// </para>
+        /// </summary>
+        IHttpResponseConfiguring<TResult> SkipEndpointValidation();
+
+        /// <summary>
         /// Executes the request WITHOUT body comparison — asserts only the status code, deserializes
         /// and returns the real response. The single terminal.
         /// </summary>

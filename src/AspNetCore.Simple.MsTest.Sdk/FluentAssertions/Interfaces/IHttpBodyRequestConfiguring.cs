@@ -55,7 +55,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                         [CallerArgumentExpression(nameof(embeddedFileName))] string embeddedFileNameExpression = "");
 
         // ============================================================
-        // Parameters / headers / validation — same as IHttpRequestConfiguring, but the body stays open.
+        // Parameters / headers — same as IHttpRequestConfiguring, but the body stays open.
         // ============================================================
 
         /// <inheritdoc cref="IHttpRequestConfiguring.WithParameter"/>
@@ -87,9 +87,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         /// <inheritdoc cref="IHttpRequestConfiguring.WithoutAuthorization"/>
         IHttpBodyRequestConfiguring WithoutAuthorization();
-
-        /// <inheritdoc cref="IHttpRequestConfiguring.SkipEndpointValidation"/>
-        IHttpBodyRequestConfiguring SkipEndpointValidation();
 
         // ============================================================
         // Transition to the response stage WITHOUT a body (e.g. POST api/persons/1/activate).

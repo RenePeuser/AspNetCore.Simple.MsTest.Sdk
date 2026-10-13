@@ -43,6 +43,14 @@ namespace MinimalApi.Test.FluentBuilders
 
         private const string SecondAcceptsAfterWith = """Client.AssertPut("api/v1/persons").AcceptsFromEmbeddedJson("Person.json").WithHeader("X-Id", "1").AcceptsFromJsonString("{}").Produces(HttpStatusCode.OK).ExecuteAsync()""";
 
+        private const string SkipFix = "SkipEndpointValidation() switches off the route AND the response-type check, so it belongs behind Produces…: only IHttpResponseConfiguring<T>, IHttpComparisonConfiguring<T> and IHttpExpectationConfiguring may offer it, the request stages must not.";
+
+        private const string SkipBeforeProduces = """Client.AssertGet("api/v1/persons/1").SkipEndpointValidation().Produces<object>(HttpStatusCode.OK).ExecuteAsync()""";
+
+        private const string SkipBeforeBody = """Client.AssertPost("api/v1/persons").SkipEndpointValidation().Accepts(new { Name = "Son" }).Produces(HttpStatusCode.OK).ExecuteAsync()""";
+
+        private const string SkipAfterBody = """Client.AssertPost("api/v1/persons").Accepts(new { Name = "Son" }).SkipEndpointValidation().Produces(HttpStatusCode.OK).ExecuteAsync()""";
+
         private static readonly Lazy<ImmutableArray<MetadataReference>> References = new(LoadReferences);
 
         // ============================================================
@@ -105,16 +113,63 @@ namespace MinimalApi.Test.FluentBuilders
                                                              fix: TypeStateFix);
         }
 
+        [TestMethod]
+        public void Skip_Before_Produces_Should_Not_Compile()
+        {
+            AssertDoesNotCompile(SkipBeforeProduces, missingMember: "SkipEndpointValidation", onType: nameof(IHttpRequestConfiguring), fix: SkipFix);
+        }
+
+        [TestMethod]
+        public void Skip_Before_Produces_Asserted_As_Compiling_Should_Fail()
+        {
+            Assert.That.ThrowsExactly<AssertFailedException>(() => AssertCompiles(SkipBeforeProduces),
+                                                             because: "Before Produces… the skip reads as if it only concerned the request - but it also drops the response-type check, so it must not compile there.",
+                                                             fix: SkipFix);
+        }
+
+        [TestMethod]
+        public void Skip_Before_Body_Should_Not_Compile()
+        {
+            AssertDoesNotCompile(SkipBeforeBody, missingMember: "SkipEndpointValidation", onType: nameof(IHttpBodyRequestConfiguring), fix: SkipFix);
+        }
+
+        [TestMethod]
+        public void Skip_Before_Body_Asserted_As_Compiling_Should_Fail()
+        {
+            Assert.That.ThrowsExactly<AssertFailedException>(() => AssertCompiles(SkipBeforeBody),
+                                                             because: "The body request stage must not offer the skip either.",
+                                                             fix: SkipFix);
+        }
+
+        [TestMethod]
+        public void Skip_After_Body_Before_Produces_Should_Not_Compile()
+        {
+            AssertDoesNotCompile(SkipAfterBody, missingMember: "SkipEndpointValidation", onType: nameof(IHttpRequestConfiguring), fix: SkipFix);
+        }
+
+        [TestMethod]
+        public void Skip_After_Body_Before_Produces_Asserted_As_Compiling_Should_Fail()
+        {
+            Assert.That.ThrowsExactly<AssertFailedException>(() => AssertCompiles(SkipAfterBody),
+                                                             because: "After Accepts… the chain is still on the request stage - the skip has to wait for Produces….",
+                                                             fix: SkipFix);
+        }
+
         // ============================================================
         // MUST compile — every allowed order.
         // ============================================================
 
         [TestMethod]
-        [DataRow("""Client.AssertGet("api/v1/persons/$Id$").WithParameter("Id", 1).WithHeader("X-Id", "1").SkipEndpointValidation().Produces(HttpStatusCode.OK).ExecuteAsync()""", DisplayName = "GET with parameter, header, skip")]
+        [DataRow("""Client.AssertGet("api/v1/persons/$Id$").WithParameter("Id", 1).WithHeader("X-Id", "1").Produces(HttpStatusCode.OK).SkipEndpointValidation().ExecuteAsync()""", DisplayName = "GET with parameter, header, status-only skip")]
+        [DataRow("""Client.AssertGet("api/v1/persons/1").Produces(HttpStatusCode.NotFound).SkipEndpointValidation().ExpectedResponse(new { Status = 404 }).ExecuteAsync()""", DisplayName = "GET status-only skip, then anonymous expectation")]
+        [DataRow("""Client.AssertGet("api/v1/persons/1").Produces(HttpStatusCode.NotFound).ExpectedResponse(new { Status = 404 }).SkipEndpointValidation().ExecuteAsync()""", DisplayName = "GET anonymous expectation, then skip")]
+        [DataRow("""Client.AssertPost("api/v1/persons").Accepts(new { Name = "Son" }).Produces<object>(HttpStatusCode.Created).SkipEndpointValidation().ExpectedResponseFromEmbeddedJson("CreatePersonFull.json").ExecuteAsync()""", DisplayName = "POST typed skip, then expectation")]
+        [DataRow("""Client.AssertPost("api/v1/persons").Accepts(new { Name = "Son" }).Produces<object>(HttpStatusCode.Created).ExpectedResponseFromEmbeddedJson("CreatePersonFull.json").SkipEndpointValidation().ExecuteAsync()""", DisplayName = "POST typed expectation, then skip (last)")]
+        [DataRow("""Client.AssertPost("api/v1/persons").Accepts(new { Name = "Son" }).Produces<object>(HttpStatusCode.Created).ExpectedResponse(new object()).SkipEndpointValidation().IgnorePaths("id").ExecuteAsync()""", DisplayName = "POST skip between comparison options")]
         [DataRow("""Client.AssertDelete("api/v1/persons/$Id$").WithParameters(new { Id = 1 }).Produces(HttpStatusCode.NoContent).ExecuteAsync()""", DisplayName = "DELETE with parameters")]
         [DataRow("""Client.AssertPost("api/v1/persons").Accepts(new { Name = "Son" }).WithHeader("X-Id", "1").Produces(HttpStatusCode.OK).ExecuteAsync()""", DisplayName = "POST body then header")]
         [DataRow("""Client.AssertPost("api/v1/persons").WithHeader("X-Id", "1").Accepts(new { Name = "Son" }).Produces(HttpStatusCode.OK).ExecuteAsync()""", DisplayName = "POST header then body")]
-        [DataRow("""Client.AssertPut("api/v1/persons/$Id$").WithParameter("Id", 1).SkipEndpointValidation().AcceptsFromJsonString("{}").WithHeader("X-Id", "1").Produces(HttpStatusCode.OK).ExecuteAsync()""", DisplayName = "PUT parameter, skip, body, header")]
+        [DataRow("""Client.AssertPut("api/v1/persons/$Id$").WithParameter("Id", 1).AcceptsFromJsonString("{}").WithHeader("X-Id", "1").Produces(HttpStatusCode.OK).ExecuteAsync()""", DisplayName = "PUT parameter, body, header")]
         [DataRow("""Client.AssertPatch("api/v1/persons").AcceptsFromEmbeddedJson("Person.json").Produces<object>(HttpStatusCode.OK).ExpectedResponse(new object()).ExecuteAsync()""", DisplayName = "PATCH body then typed expectation")]
         [DataRow("""Client.AssertQuery("api/v1/persons").Produces(HttpStatusCode.OK).ExecuteAsync()""", DisplayName = "QUERY without body")]
         [DataRow("""Client.AssertPost("api/v1/persons/1/activate").WithHeader("X-Id", "1").Produces(HttpStatusCode.NoContent).ExecuteAsync()""", DisplayName = "POST without body")]
@@ -129,7 +184,8 @@ namespace MinimalApi.Test.FluentBuilders
 
         private static void AssertDoesNotCompile(string chain,
                                                  string missingMember,
-                                                 string onType)
+                                                 string onType,
+                                                 string fix = TypeStateFix)
         {
             var errors = Compile(chain);
 
@@ -137,7 +193,7 @@ namespace MinimalApi.Test.FluentBuilders
                                                    error.GetMessage().Contains($"'{onType}'", StringComparison.Ordinal) &&
                                                    error.GetMessage().Contains($"'{missingMember}'", StringComparison.Ordinal)),
                                because: $"'{onType}' must not offer '{missingMember}' - the chain has to be a compile error (CS1061), not a runtime surprise.{Environment.NewLine}Chain : {chain}{Environment.NewLine}Errors: {Describe(errors)}",
-                               fix: TypeStateFix);
+                               fix: fix);
         }
 
         private static void AssertCompiles(string chain)

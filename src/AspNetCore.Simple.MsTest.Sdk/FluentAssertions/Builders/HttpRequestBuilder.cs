@@ -63,8 +63,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // engine would capture the builder's internal field expression instead.
         private string _bodyExpression = string.Empty;
 
-        private bool _skipEndpointValidation;
-
         internal HttpRequestBuilder(HttpClient client,
                                     HttpMethod method,
                                     string url,
@@ -113,7 +111,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         // ============================================================
-        // Parameters / headers / validation. Both request stages offer them, each with its OWN return type
+        // Parameters / headers. Both request stages offer them, each with its OWN return type
         // (the body stage keeps the body open) - so they are implemented explicitly per interface and share
         // one implementation each.
         // ============================================================
@@ -212,16 +210,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.WithoutAuthorization()
         {
             return AddHeader(AuthorizationHeader, WithoutAuthorizationValue);
-        }
-
-        IHttpRequestConfiguring IHttpRequestConfiguring.SkipEndpointValidation()
-        {
-            return With(copy => copy._skipEndpointValidation = true);
-        }
-
-        IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.SkipEndpointValidation()
-        {
-            return With(copy => copy._skipEndpointValidation = true);
         }
 
         // ============================================================
@@ -478,6 +466,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // ============================================================
         // Transition to the response stage. Produces<T>(code) carries type + status + return type.
         // Same signature and return type on both request stages → one public implementation.
+        // SkipEndpointValidation() lives behind Produces… (it covers the response type, too) → starts off.
         // ============================================================
 
         public IHttpResponseConfiguring<T> Produces<T>(HttpStatusCode statusCode)
@@ -494,7 +483,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               _callerMemberName,
                                               _callerLineNumber,
                                               statusCode,
-                                              _skipEndpointValidation,
+                                              skipEndpointValidation: false,
                                               validateRouteOnly: false);
         }
 
@@ -512,7 +501,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               _callerMemberName,
                                               _callerLineNumber,
                                               statusCode,
-                                              _skipEndpointValidation);
+                                              skipEndpointValidation: false);
         }
 
         public IHttpExpectationConfiguring Produces(int statusCode)

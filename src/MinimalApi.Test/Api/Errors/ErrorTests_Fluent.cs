@@ -89,9 +89,39 @@ namespace MinimalApi.Test.Api.Errors
         public Task Fluent_Should_Skip_Endpoint_Validation()
         {
             return Client.AssertGet("api/v1/persons/1")
-                         .SkipEndpointValidation()
                          .Produces<object>(HttpStatusCode.OK)
+                         .SkipEndpointValidation()
                          .ExecuteAsync();
+        }
+
+        [TestMethod]
+        [TestCategory("GET")]
+        public Task Fluent_Should_Skip_Endpoint_Validation_After_Expected_Response()
+        {
+            // The skip covers the response type, so it may also come last - after the comparison config.
+            return Client.AssertGet("api/v1/persons/1")
+                         .Produces<object>(HttpStatusCode.OK)
+                         .ExpectedResponseFromJsonString("{}")
+                         .IgnoreDifferencesWhere(_ => true)
+                         .SkipEndpointValidation()
+                         .ExecuteAsync();
+        }
+
+        [TestMethod]
+        [TestCategory("GET")]
+        public async Task Fluent_Skip_On_A_Stored_Response_Stage_Does_Not_Leak_Into_A_Sibling()
+        {
+            var baseResponse = Client.AssertGet("api/v1/persons/1")
+                                     .Produces<object>(HttpStatusCode.OK);
+
+            await baseResponse.SkipEndpointValidation()
+                              .ExecuteAsync()
+                              .ConfigureAwait(false);
+
+            await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => baseResponse.ExecuteAsync(),
+                                                                        because: "The sibling branch never called SkipEndpointValidation() - object still mismatches the declared Person.",
+                                                                        fix: "Check that HttpResponseBuilder.SkipEndpointValidation() sets the flag on a COPY (With), not on the stored stage.")
+                        .ConfigureAwait(false);
         }
 
         // ============================================================

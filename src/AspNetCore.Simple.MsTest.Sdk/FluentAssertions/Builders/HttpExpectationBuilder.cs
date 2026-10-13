@@ -50,7 +50,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private readonly HttpStatusCode _expectedStatusCode;
 
         // The caller's own .SkipEndpointValidation(). Without it, a status-only chain still validates the route.
-        private readonly bool _skipEndpointValidation;
+        private bool _skipEndpointValidation;
 
         internal HttpExpectationBuilder(HttpClient client,
                                         HttpMethod method,
@@ -97,6 +97,16 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      validateRouteOnly: true);
 
             return responseBuilder.ExpectedResponse(expected, expectedExpression);
+        }
+
+        // Copy-on-write like the other builders: a stored Produces(code) stage branched into a skipping and a
+        // validating chain must not leak the skip into the validating one.
+        public IHttpExpectationConfiguring SkipEndpointValidation()
+        {
+            var copy = (HttpExpectationBuilder)MemberwiseClone();
+            copy._skipEndpointValidation = false;
+
+            return copy;
         }
 
         public Task ExecuteAsync(CancellationToken cancellationToken = default)

@@ -59,7 +59,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private readonly HttpStatusCode _expectedStatusCode;
 
-        private readonly bool _skipEndpointValidation;
+        private bool _skipEndpointValidation;
 
         // True on the untyped Produces(code).ExpectedResponse(obj) path: TResult comes from the expected object,
         // not from the endpoint, so only the route is validated.
@@ -187,6 +187,21 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public IHttpComparisonConfiguring<TResult> WriteSnapshot(bool write = true)
         {
             return With(copy => copy._writeSnapshot = write);
+        }
+
+        // ============================================================
+        // Endpoint validation — offered on both views, each with its OWN return type, so the caller stays
+        // in the stage it was in (no ExpectedResponse… reachable after a comparison was configured).
+        // ============================================================
+
+        IHttpResponseConfiguring<TResult> IHttpResponseConfiguring<TResult>.SkipEndpointValidation()
+        {
+            return With(copy => copy._skipEndpointValidation = false);
+        }
+
+        IHttpComparisonConfiguring<TResult> IHttpComparisonConfiguring<TResult>.SkipEndpointValidation()
+        {
+            return With(copy => copy._skipEndpointValidation = false);
         }
 
         private HttpResponseBuilder<TResult> WithExpected(string expectedJson,

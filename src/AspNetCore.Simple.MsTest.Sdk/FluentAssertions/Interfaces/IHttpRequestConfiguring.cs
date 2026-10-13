@@ -115,14 +115,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         IHttpRequestConfiguring WithoutAuthorization();
 
-        /// <summary>
-        /// Skips the endpoint validation for this call - both the route check (does an endpoint for this verb,
-        /// url and version exist?) and the check of the declared return type against <c>Produces&lt;T&gt;</c>.
-        /// For endpoints the host cannot describe (external APIs, errors raised by middleware). Mirrors the
-        /// classic <c>skipEndpointValidation</c>. Idempotent.
-        /// </summary>
-        IHttpRequestConfiguring SkipEndpointValidation();
-
         // ============================================================
         // Transition to the response stage. Produces<T>(code) carries TYPE + STATUS + RETURN TYPE (§15.6).
         // ============================================================

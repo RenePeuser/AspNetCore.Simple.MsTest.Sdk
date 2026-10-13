@@ -85,8 +85,8 @@ namespace Controllers.Test.Api.Routing
         public Task Get_Misspelled_Route_With_Skip_Should_Pass()
         {
             return Client.AssertGet("api/v1/persnos/1")
-                         .SkipEndpointValidation()
                          .Produces(HttpStatusCode.NotFound)
+                         .SkipEndpointValidation()
                          .ExecuteAsync();
         }
 
@@ -94,8 +94,8 @@ namespace Controllers.Test.Api.Routing
         public Task Get_Wrong_Verb_With_Skip_Should_Pass()
         {
             return Client.AssertGet("api/v1/errors/not-implemented")
-                         .SkipEndpointValidation()
                          .Produces(HttpStatusCode.MethodNotAllowed)
+                         .SkipEndpointValidation()
                          .ExecuteAsync();
         }
 

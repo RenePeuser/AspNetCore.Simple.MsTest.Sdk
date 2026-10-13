@@ -55,6 +55,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <summary>Enables writing the actual response to disk as a snapshot (update expectations).</summary>
         IHttpComparisonConfiguring<TResult> WriteSnapshot(bool write = true);
 
+        /// <inheritdoc cref="IHttpResponseConfiguring{TResult}.SkipEndpointValidation"/>
+        IHttpComparisonConfiguring<TResult> SkipEndpointValidation();
+
         /// <summary>Executes the request, runs the body comparison, and returns the real response. The single terminal.</summary>
         /// <param name="cancellationToken">Cancels the HTTP call; a cancellation surfaces as <see cref="System.OperationCanceledException"/>, not as an assertion failure.</param>
         Task<TResult> ExecuteAsync(CancellationToken cancellationToken = default);

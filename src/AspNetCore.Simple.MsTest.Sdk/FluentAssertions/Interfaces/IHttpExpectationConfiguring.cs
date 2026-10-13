@@ -38,6 +38,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         IHttpComparisonConfiguring<TExpected> ExpectedResponse<TExpected>(TExpected expected,
                                                                           [CallerArgumentExpression(nameof(expected))] string expectedExpression = "");
 
+        /// <summary>
+        /// Skips the endpoint validation for this call. <c>Produces(code)</c> names no response type, so only the
+        /// route (verb, url, api version) is validated - this turns that off too, e.g. for a route that
+        /// deliberately does not exist (404 / 405). Mirrors the classic <c>skipEndpointValidation</c>. Idempotent.
+        /// </summary>
+        IHttpExpectationConfiguring SkipEndpointValidation();
+
         /// <summary>Executes the request and asserts the status code. The single terminal.</summary>
         /// <param name="cancellationToken">Cancels the HTTP call; a cancellation surfaces as <see cref="System.OperationCanceledException"/>, not as an assertion failure.</param>
         Task ExecuteAsync(CancellationToken cancellationToken = default);

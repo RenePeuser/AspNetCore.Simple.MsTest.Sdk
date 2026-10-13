@@ -14,7 +14,8 @@ namespace MinimalApi.Test.FluentBuilders
     /// Both skipped the whole endpoint validation, because they name no response type to compare. That also
     /// skipped the ROUTE check: a misspelled url answered 404, a wrong verb 405 - and a status-only test
     /// expecting exactly that went green against an endpoint that does not exist. Now the route (verb, url,
-    /// api version) is validated, the response type is not; <c>.SkipEndpointValidation()</c> turns both off.
+    /// api version) is validated, the response type is not; <c>.SkipEndpointValidation()</c> after <c>Produces…</c>
+    /// turns both off.
     /// </para>
     ///
     /// <para>Every positive case is paired with a test that MUST fail.</para>
@@ -29,7 +30,7 @@ namespace MinimalApi.Test.FluentBuilders
 
         private const string TypeFix = "Check that Produces(code) validates the route ONLY - it names no response type, so the type must not be compared.";
 
-        private const string SkipFix = "Check that HttpRequestBuilder.Produces(code) hands the caller's SkipEndpointValidation() to HttpExpectationBuilder.";
+        private const string SkipFix = "Check that HttpExpectationBuilder.SkipEndpointValidation() sets the flag on a COPY and that ExecuteAsync / ExpectedResponse hand it to the engine.";
 
         // ============================================================
         // Existing route → passes, whatever the endpoint returns
@@ -255,8 +256,8 @@ namespace MinimalApi.Test.FluentBuilders
         public Task Get_Misspelled_Route_With_Skip_Should_Pass()
         {
             return Client.AssertGet("api/v1/persnos/1")
-                         .SkipEndpointValidation()
                          .Produces(HttpStatusCode.NotFound)
+                         .SkipEndpointValidation()
                          .ExecuteAsync();
         }
 
@@ -264,28 +265,18 @@ namespace MinimalApi.Test.FluentBuilders
         public Task Get_Wrong_Verb_With_Skip_Should_Pass()
         {
             return Client.AssertGet("api/v1/errors/not-implemented")
-                         .SkipEndpointValidation()
                          .Produces(HttpStatusCode.MethodNotAllowed)
+                         .SkipEndpointValidation()
                          .ExecuteAsync();
         }
 
         [TestMethod]
-        public Task Post_Misspelled_Route_With_Skip_Before_Body_Should_Pass()
-        {
-            return Client.AssertPost("api/v1/persnos")
-                         .SkipEndpointValidation()
-                         .Accepts(new { Name = "Goku" })
-                         .Produces(HttpStatusCode.NotFound)
-                         .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public Task Post_Misspelled_Route_With_Skip_After_Body_Should_Pass()
+        public Task Post_Misspelled_Route_With_Skip_Should_Pass()
         {
             return Client.AssertPost("api/v1/persnos")
                          .Accepts(new { Name = "Goku" })
-                         .SkipEndpointValidation()
                          .Produces(HttpStatusCode.NotFound)
+                         .SkipEndpointValidation()
                          .ExecuteAsync();
         }
 
@@ -293,8 +284,30 @@ namespace MinimalApi.Test.FluentBuilders
         public Task Get_Unknown_Api_Version_With_Skip_Should_Pass()
         {
             return Client.AssertGet("api/v2/persons/1")
-                         .SkipEndpointValidation()
                          .Produces(HttpStatusCode.NotFound)
+                         .SkipEndpointValidation()
+                         .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public Task Expected_Response_On_Misspelled_Route_With_Skip_Before_Expected_Should_Pass()
+        {
+            return Client.AssertGet("api/v1/persnos/1")
+                         .Produces(HttpStatusCode.NotFound)
+                         .SkipEndpointValidation()
+                         .ExpectedResponse(new { Status = 404 })
+                         .IgnoreDifferencesWhere(_ => true)
+                         .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public Task Expected_Response_On_Misspelled_Route_With_Skip_After_Expected_Should_Pass()
+        {
+            return Client.AssertGet("api/v1/persnos/1")
+                         .Produces(HttpStatusCode.NotFound)
+                         .ExpectedResponse(new { Status = 404 })
+                         .IgnoreDifferencesWhere(_ => true)
+                         .SkipEndpointValidation()
                          .ExecuteAsync();
         }
 
@@ -302,8 +315,8 @@ namespace MinimalApi.Test.FluentBuilders
         public Task Get_Misspelled_Route_With_Skip_Still_Compares_The_Status()
         {
             return Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGet("api/v1/persnos/1")
-                                                                                     .SkipEndpointValidation()
                                                                                      .Produces(HttpStatusCode.OK)
+                                                                                     .SkipEndpointValidation()
                                                                                      .ExecuteAsync(),
                                                                          because: "Skipping the endpoint validation must not skip the status comparison - the router answers 404, not 200.",
                                                                          fix: SkipFix);
@@ -312,15 +325,14 @@ namespace MinimalApi.Test.FluentBuilders
         [TestMethod]
         public async Task Skip_On_A_Stored_Stage_Does_Not_Leak_Into_A_Sibling()
         {
-            var baseRequest = Client.AssertGet("api/v1/persnos/1");
+            var baseExpectation = Client.AssertGet("api/v1/persnos/1")
+                                        .Produces(HttpStatusCode.NotFound);
 
-            await baseRequest.SkipEndpointValidation()
-                             .Produces(HttpStatusCode.NotFound)
-                             .ExecuteAsync()
-                             .ConfigureAwait(false);
+            await baseExpectation.SkipEndpointValidation()
+                                 .ExecuteAsync()
+                                 .ConfigureAwait(false);
 
-            await AssertEndpointNotFound(() => baseRequest.Produces(HttpStatusCode.NotFound)
-                                                          .ExecuteAsync(),
+            await AssertEndpointNotFound(() => baseExpectation.ExecuteAsync(),
                                          "The sibling branch never called SkipEndpointValidation() - it has to validate the route.").ConfigureAwait(false);
         }
 
