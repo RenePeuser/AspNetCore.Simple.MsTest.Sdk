@@ -63,6 +63,27 @@ namespace AspNetCore.Simple.MsTest.Sdk
                          callerLineNumber);
         }
 
+        internal static ArgumentException DuplicateQueryParameter(string key,
+                                                                  string firstValue,
+                                                                  object? secondValue,
+                                                                  Assembly callingAssembly,
+                                                                  string callerFilePath,
+                                                                  string callerMemberName,
+                                                                  int callerLineNumber)
+        {
+            return Build(title: "QUERY PARAMETER SET TWICE",
+                         what: [$"{"Key",-10} : {key}", $"{"First",-10} : {Format(firstValue)}", $"{"Second",-10} : {Format(secondValue)}"],
+                         why: ["Query keys are matched case-insensitively and set once per chain. Sent twice, the endpoint",
+                               "binds only one of the two values - the test would not check what it reads."],
+                         fix: ["Set the key once. For several values pass ONE collection (sent as key=a&key=b),",
+                               "for another value branch a stored stage:"],
+                         fixCode: [".WithQueryParameter(\"" + key + "\", new[] { " + Format(firstValue) + ", " + Format(secondValue) + " })"],
+                         callingAssembly,
+                         callerFilePath,
+                         callerMemberName,
+                         callerLineNumber);
+        }
+
         private static ArgumentException Build(string title,
                                                string[] what,
                                                string[] why,

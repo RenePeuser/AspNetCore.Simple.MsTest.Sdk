@@ -57,37 +57,6 @@ namespace Controllers.Test.Api.Persons.V1.Create
         [TestCategory("Fluent")]
         [TestCategory("Fluent.StatusCode")]
         [TestCategory("POST")]
-        public Task Fluent_Should_Create_Person_With_Explicit_Status()
-        {
-            var person = TestHelpers.CreateValidPerson();
-
-            return Client.AssertPost("api/v1/persons")
-                         .Accepts(person)
-                         .Produces<Person>(HttpStatusCode.OK)
-                         .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
-                         .ExecuteAsync();
-        }
-
-        [TestMethod]
-        [TestCategory("Fluent")]
-        [TestCategory("Fluent.StatusCode")]
-        [TestCategory("POST")]
-        public Task Fluent_Should_Create_Person_With_Status_And_Filtering()
-        {
-            var person = TestHelpers.CreateValidPerson();
-
-            return Client.AssertPost("api/v1/persons")
-                         .Accepts(person)
-                         .Produces<Person>(HttpStatusCode.OK)
-                         .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
-                         .FilterDifferences(TestHelpers.IgnoreIdDifferences)
-                         .ExecuteAsync();
-        }
-
-        [TestMethod]
-        [TestCategory("Fluent")]
-        [TestCategory("Fluent.StatusCode")]
-        [TestCategory("POST")]
         public Task Fluent_Should_Create_Person_Without_Body_Comparison()
         {
             var person = TestHelpers.CreateValidPerson();

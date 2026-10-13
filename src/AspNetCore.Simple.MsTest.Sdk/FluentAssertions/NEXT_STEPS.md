@@ -164,7 +164,12 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
 
 ## Priority 3 — additive, fine after launch
 
-9. **`.WithQuery(key, value)`** — central URL encoding, `null` skipped (most frequent need, `DESIGN_VISION.md` §13.2).
+9. ~~**`.WithQueryParameter(key, value)`**~~ ✅ done 2026-10-13 (uncommitted). URL-encodes key and value, `null`
+   adds nothing, a collection repeats the key, culture-invariant formatting, continues an existing query with `&`,
+   a repeated key (case-insensitive) throws `FluentUsageError.DuplicateQueryParameter`. Sample endpoint
+   `GET|POST persons/echo-query` (raw + decoded). Consumer tests:
+   `src/MinimalApi.Test/FluentBuilders/WithQueryParameterTests.cs` (15); counter-check: without encoding 5 red,
+   current-culture formatting 1 red, null not skipped 3 red.
 10. **`.WithBearerToken(token)` / `.WithoutAuthorization()`** — per-request auth (today bound to the static client).
 11. **`.ExpectHeader(name, value)`** — response header assertions (`Location` on 201, `ETag`).
 12. **Status aliases** `ProducesOk<T>()`, `ProducesCreated<T>()`, `ProducesNoContent()` — build before you
@@ -174,14 +179,20 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
 
 ## Cleanup
 
-14. **Duplicate tests** in `src/Controllers.Test/Api/Persons/V1/Create/PersonCreateTests_Fluent.cs`:
-    `_With_Explicit_Status` == `_With_Object`, `_With_Status_And_Filtering` == `_Ignore_Id`. Check the MinimalApi twin too.
+14. ~~**Duplicate tests**~~ ✅ done 2026-10-13 (uncommitted). Controllers: `_With_Explicit_Status` and
+    `_With_Status_And_Filtering` removed. MinimalApi: `_With_Object` (== `_ExpectedResponseFromEmbeddedJson`) and
+    `_With_Json` (== `_AcceptsFromEmbeddedJson`) removed; the variant-section tests stay.
 15. **Repo root:** `.tmp-fluent/`, `fix_remaining_skip.py`, `fix_warnings.sh`, `test_diff.sh`, stale concept docs
     (`FINAL_BUILD_FIX.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_SUMMARY.md`, …) — confirm with the user before deleting.
-16. **Root `README.md`:** duplicated badge lines; update the "Alpha only" note on the fluent example once stable.
-17. **`RELEASE-NOTES.md`:** "New" says `ITestErrorHandler` / `TestErrorHandler<T>` become public in 11.0.0, but
-    they are already `public` in tag `v10.0.3` — clarify the wording with the user.
-18. **`Outputs/Builders/TestInfoBuilder.cs:5`** — commented-out `//using …AssertableHttpClient;` can go.
+16. ~~**Root `README.md`**~~ ✅ done 2026-10-13 (uncommitted): duplicate badges removed, Build badge pointed at
+    the existing `build-and-publish.yml`, QUERY dropped from the fluent roadmap (it is implemented), install line
+    uses `--prerelease` instead of the stale `9.6.0-alpha.19`. Still open: the "Alpha only" note — only once the
+    fluent API ships in stable packages.
+17. ~~**`RELEASE-NOTES.md`**~~ ✅ done 2026-10-13 (uncommitted): the "Own error handlers" entry is gone — the
+    handlers are public since v10.0.0 and the registration order was already irrelevant in v10.0.3; the namespace
+    table covers the only real change.
+18. ~~**`Outputs/Builders/TestInfoBuilder.cs`**~~ ✅ done 2026-10-13 (uncommitted): the whole file was commented
+    out and unreferenced — deleted.
 
 ## Deliberately NOT ported (do not reopen)
 

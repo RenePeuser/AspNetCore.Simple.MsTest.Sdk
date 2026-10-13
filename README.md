@@ -1,12 +1,8 @@
 ﻿# AspNetCore.Simple.MsTest.Sdk
 
-[![Build](https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk/actions/workflows/build.yml/badge.svg)](https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk/actions/workflows/build.yml)
+[![Build](https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk/actions/workflows/build-and-publish.yml)
 [![NuGet](https://img.shields.io/nuget/v/AspNetCore.Simple.MsTest.Sdk.svg)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/)
 [![Downloads](https://img.shields.io/nuget/dt/AspNetCore.Simple.MsTest.Sdk.svg)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/)
-[![Build](https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk/actions/workflows/build.yml/badge.svg)](https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk/actions/workflows/build.yml)
-[![NuGet](https://img.shields.io/nuget/v/AspNetCore.Simple.MsTest.Sdk.svg)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/)
-[![Downloads](https://img.shields.io/nuget/dt/AspNetCore.Simple.MsTest.Sdk.svg)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk/)
-[![NuGet](https://img.shields.io/badge/nuget-AspNetCore.Simple.MsTest.Sdk-blue)](https://www.nuget.org/packages/AspNetCore.Simple.MsTest.Sdk)
 [![.NET 10](https://img.shields.io/badge/.NET-10-purple)](https://dotnet.microsoft.com/)
 [![HTTP QUERY](https://img.shields.io/badge/RFC%2010008-HTTP%20QUERY-green)](https://datatracker.ietf.org/doc/html/rfc10008)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](License.txt)
@@ -2617,14 +2613,14 @@ Already implemented in the alpha:
   every element.
 - **Three input shapes each** — object, raw JSON string, or embedded file: `Accepts` /
   `AcceptsFromJsonString` / `AcceptsFromEmbeddedJson`, and the matching `ExpectedResponse…` trio.
-- **Placeholders and headers** — `WithParameter`, `WithParameters` (tuples or an object), `WithHeader`.
+- **Placeholders, query and headers** — `WithParameter`, `WithParameters` (tuples or an object),
+  `WithQueryParameter` (URL-encoded, `null` skipped, collections repeat the key), `WithHeader`.
 - **Body-less path** — `Produces(HttpStatusCode.Created)` without `<T>` asserts the status, no type or body. The
   route is still validated: a misspelled url or a wrong verb is "endpoint not found", not a green 404 / 405
   (`.SkipEndpointValidation()` for a deliberately unknown route).
 
 Still on the roadmap (not in the alpha yet):
 
-- **QUERY entry point** — `AssertQuery(...)`; use the classic `AssertQueryAsync<T>(…)` in the meantime.
 - **Error-response chains** — the `AsErrorAsync` equivalents.
 - **Property predicates** — `.MatchesProperty(p => p.Id, id => id != Guid.Empty)`.
 - **Endpoint metadata assertions** — `Client.AssertEndpoint(...)` to verify names, tags, auth, produced
@@ -2650,7 +2646,7 @@ await Client.AssertPost("api/v1/persons")
 > tests, keep using the classic `AssertPostAsync<T>(…)` API.
 
 ```sh
-dotnet add package AspNetCore.Simple.MsTest.Sdk --version 9.6.0-alpha.19
+dotnet add package AspNetCore.Simple.MsTest.Sdk --prerelease
 ```
 
 Full walkthrough, the complete method idea collection, and design notes:

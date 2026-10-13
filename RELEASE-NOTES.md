@@ -44,9 +44,6 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
 
 ### New
 
-- **Own error handlers** - `ITestErrorHandler` / `TestErrorHandler<TException>` are public. Register one to
-  explain failures only your project understands; it is asked before the SDK's catch-all, no matter whether
-  it was registered before or after `AddAssertableHttpClient`.
 - **Fluent API (alpha builds only) - precise comparison vocabulary.** `IgnoreProperty(p => p.Address.Street)`
   ignores exactly that path (not every `street`), follows `[JsonPropertyName]`, and covers collections via
   `p => p.Emails.Select(e => e.EmailAddress)`. New: `IgnorePaths("emails[*].type")`,
@@ -81,6 +78,11 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
   what/why/how-to-fix message, at the repeating line. Before, a repeated parameter silently sent the FIRST value and
   a repeated header the LAST one. Header names compare case-insensitively. Overriding a name a stored base stage
   already holds counts as repeating - set it per branch instead.
+- **Fluent API (alpha builds only) - `WithQueryParameter(key, value)`.** Builds the query string from parts instead of
+  by hand in the url: key and value are URL-encoded (`"Son Goku & Co"` → `Son%20Goku%20%26%20Co`), `null` adds nothing,
+  a collection repeats the key (`tag=a&tag=b`), values are formatted culture-invariant, and a url that already has a
+  query is continued with `&`. A key given twice (case-insensitive) throws an `ArgumentException` with a
+  what/why/how-to-fix message. Available on both request stages, before and after `Accepts…`.
 - **Fluent API (alpha builds only) - `FilterResponse` composes.** A second call ran instead of the first; now both
   run in call order, like the ignore rules.
 - **Fluent API (alpha builds only) - `AssertOptions(url)` is immutable, too.** `ExpectedHeaders…` mutated the stored

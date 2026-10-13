@@ -50,6 +50,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private ImmutableList<(string Key, object? Value)> _parameters = ImmutableList<(string Key, object? Value)>.Empty;
 
+        // Query entries in call order, NOT encoded yet - RequestUrl() encodes them when the chain leaves the request
+        // stage. A collection value contributes one entry per element under the same key.
+        private ImmutableList<(string Key, string Value)> _query = ImmutableList<(string Key, string Value)>.Empty;
+
         private readonly string _url;
 
         private string? _body;
@@ -166,6 +170,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return AddParametersFrom(source);
         }
 
+        IHttpRequestConfiguring IHttpRequestConfiguring.WithQueryParameter(string key,
+                                                                           object? value)
+        {
+            return AddQueryParameter(key, value);
+        }
+
+        IHttpBodyRequestConfiguring IHttpBodyRequestConfiguring.WithQueryParameter(string key,
+                                                                                   object? value)
+        {
+            return AddQueryParameter(key, value);
+        }
+
         IHttpRequestConfiguring IHttpRequestConfiguring.WithHeader(string key,
                                                                    string value)
         {
@@ -276,6 +292,103 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 || type == typeof(Uri);
         }
 
+        // ============================================================
+        // Query string — formatted and encoded by the SDK, never by hand in the url.
+        // ============================================================
+
+        // null adds nothing - an optional filter needs no if. A key given twice would leave the endpoint to pick
+        // one of the two values (ASP.NET Core binds the first to a scalar), so it fails at the repeating line;
+        // several values come as ONE collection. Keys compare case-insensitively like the model binding does.
+        private HttpRequestBuilder AddQueryParameter(string key,
+                                                     object? value)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(key);
+
+            var values = QueryValues(value);
+
+            if (values.Count == 0)
+            {
+                return this;
+            }
+
+            var existing = _query.FindIndex(entry => string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase));
+
+            if (existing >= 0)
+            {
+                throw FluentUsageError.DuplicateQueryParameter(_query[existing].Key,
+                                                               _query[existing].Value,
+                                                               value,
+                                                               _callingAssembly,
+                                                               _callerFilePath,
+                                                               _callerMemberName,
+                                                               _callerLineNumber);
+            }
+
+            return With(copy => copy._query = _query.AddRange(values.Select(formatted => (key, formatted))));
+        }
+
+        private static List<string> QueryValues(object? value)
+        {
+            if (value is null)
+            {
+                return [];
+            }
+
+            if (value is not string && value is IEnumerable elements)
+            {
+                return elements.Cast<object?>()
+                               .Where(element => element is not null)
+                               .Select(element => FormatQueryValue(element!))
+                               .ToList();
+            }
+
+            return [FormatQueryValue(value)];
+        }
+
+        // Culture-invariant and in the shape ASP.NET Core's model binding parses back - "1,5" or "13.10.2026" from a
+        // German machine would bind to something else or fail. An object has no single query value.
+        private static string FormatQueryValue(object value)
+        {
+            if (!IsValue(value.GetType()))
+            {
+                throw new ArgumentException($"WithQueryParameter sends ONE value per key (string, number, bool, enum, Guid, date, …) or a collection of them. A {value.GetType().Name} has no single query value. Add one WithQueryParameter per property you want to send.",
+                                            nameof(value));
+            }
+
+            return value switch
+            {
+                bool flag => flag ? "true" : "false",
+                DateTime dateTime => dateTime.ToString("O", CultureInfo.InvariantCulture),
+                DateTimeOffset dateTimeOffset => dateTimeOffset.ToString("O", CultureInfo.InvariantCulture),
+                DateOnly date => date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                TimeOnly time => time.ToString("HH:mm:ss.FFFFFFF", CultureInfo.InvariantCulture),
+                TimeSpan timeSpan => timeSpan.ToString("c", CultureInfo.InvariantCulture),
+                Enum => value.ToString()!,
+                IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
+                _ => value.ToString() ?? string.Empty
+            };
+        }
+
+        // The url the request is sent to - and what endpoint validation, api-version resolution and the curl output
+        // see. A url that already carries a query ("persons?api-version=1") is continued with '&'.
+        private string RequestUrl()
+        {
+            if (_query.IsEmpty)
+            {
+                return _url;
+            }
+
+            var query = string.Join('&', _query.Select(entry => $"{Uri.EscapeDataString(entry.Key)}={Uri.EscapeDataString(entry.Value)}"));
+
+            var separator = !_url.Contains('?')
+                                ? "?"
+                                : _url.EndsWith('?') || _url.EndsWith('&')
+                                    ? string.Empty
+                                    : "&";
+
+            return _url + separator + query;
+        }
+
         // Overwriting the first value - what SetItem used to do - would silently send something else than
         // the earlier line of the test reads. Fails at the line that repeats the header.
         private HttpRequestBuilder AddHeader(string key,
@@ -324,7 +437,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             return new HttpResponseBuilder<T>(_client,
                                               _method,
-                                              _url,
+                                              RequestUrl(),
                                               _body,
                                               _bodyExpression,
                                               _parameters,
@@ -345,7 +458,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public IHttpExpectationConfiguring Produces(HttpStatusCode statusCode)
         {
-            return new HttpExpectationBuilder(_client, _method, _url,
+            return new HttpExpectationBuilder(_client, _method, RequestUrl(),
                                               _body, _bodyExpression, _parameters, _headers,
                                               _callingAssembly,
                                               _callerFilePath,

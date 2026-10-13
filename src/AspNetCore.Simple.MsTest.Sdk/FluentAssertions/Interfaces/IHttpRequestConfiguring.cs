@@ -61,6 +61,29 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// </summary>
         IHttpRequestConfiguring WithParameters(object source);
 
+        // ============================================================
+        // Query string — built from parts, encoded by the SDK.
+        // ============================================================
+
+        /// <summary>
+        /// Appends <c>key=value</c> to the url's query string, both URL-encoded (<c>"Son Goku &amp; Co"</c> is sent as
+        /// <c>Son%20Goku%20%26%20Co</c>). Appends with <c>&amp;</c> when the url already has a query.
+        ///
+        /// <para>
+        /// <c>null</c> adds nothing, so optional filters need no <c>if</c>. A collection repeats the key per element
+        /// (<c>ids=1&amp;ids=2</c>). Values are formatted culture-invariant: <c>bool</c> as <c>true</c>/<c>false</c>,
+        /// <c>DateTime</c>/<c>DateTimeOffset</c> round-trip (ISO 8601), <c>DateOnly</c> as <c>yyyy-MM-dd</c>, enums by name.
+        /// The value is sent as given - no <c>$Token$</c> substitution.
+        /// </para>
+        ///
+        /// <para>
+        /// Each key (case-insensitive, like ASP.NET Core's model binding) can be set once per chain - a second value
+        /// throws <see cref="System.ArgumentException"/>; pass a collection for several values.
+        /// </para>
+        /// </summary>
+        IHttpRequestConfiguring WithQueryParameter(string key,
+                                                   object? value);
+
         /// <summary>
         /// Adds a custom HTTP request header. Each header name (case-insensitive) can be set once per chain -
         /// a second value throws <see cref="System.ArgumentException"/>; send several values comma-separated.

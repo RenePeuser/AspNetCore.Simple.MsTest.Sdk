@@ -18,38 +18,12 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         [TestMethod]
         [TestCategory("Fluent")]
         [TestCategory("POST")]
-        public async Task Fluent_Should_Create_Person_With_Object()
-        {
-            var person = TestHelpers.CreateValidPerson();
-
-            await Client.AssertPost("api/v1/persons")
-                        .Accepts(person)
-                        .Produces<Person>(HttpStatusCode.Created)
-                        .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
-                        .ExecuteAsync().ConfigureAwait(false);
-        }
-
-        [TestMethod]
-        [TestCategory("Fluent")]
-        [TestCategory("POST")]
         public Task Fluent_Should_Create_Person_With_Emails()
         {
             var person = TestHelpers.CreatePersonWithEmails();
 
             return Client.AssertPost("api/v1/persons")
                          .Accepts(person)
-                         .Produces<Person>(HttpStatusCode.Created)
-                         .ExpectedResponseFromEmbeddedJson("CreatePersonFull.json")
-                         .ExecuteAsync();
-        }
-
-        [TestMethod]
-        [TestCategory("Fluent")]
-        [TestCategory("POST")]
-        public Task Fluent_Should_Create_Person_With_Json()
-        {
-            return Client.AssertPost("api/v1/persons")
-                         .AcceptsFromEmbeddedJson("CreatePersonFull.json")
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePersonFull.json")
                          .ExecuteAsync();

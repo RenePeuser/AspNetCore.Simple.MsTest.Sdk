@@ -67,6 +67,20 @@ var created = await Client.AssertPost("api/v1/persons")
 `WithParameters("Goku")`, `WithParameters(42)` or `WithParameters(list)` throw `ArgumentException`: a value or a
 collection has no properties that name placeholders.
 
+### Query parameters — built from parts, the SDK encodes
+
+```csharp
+Client.AssertGet("api/v1/persons")
+      .WithQueryParameter("name", "Son Goku & Co")   // → ?name=Son%20Goku%20%26%20Co
+      .WithQueryParameter("age", filter.Age)         // null adds nothing - no if for optional filters
+      .WithQueryParameter("tag", new[] { "a", "b" }) // → &tag=a&tag=b
+```
+
+Key and value are URL-encoded; a url that already has a query is continued with `&`. Values are formatted
+culture-invariant (`1.5`, `true`, enums by name, `DateOnly` as `yyyy-MM-dd`, `DateTime`/`DateTimeOffset` ISO 8601
+round-trip) - no `$Token$` substitution. A key given twice (case-insensitive, like the model binding) throws
+`ArgumentException`; pass a collection for several values. An object value throws, too - it has no single query value.
+
 ### Endpoint validation
 
 Before the call, the chain checks that the ROUTE exists (verb, url, api version). `Produces<T>(code)` also checks
@@ -207,11 +221,11 @@ a stage switch. A wrong chain does not compile — it never reaches the test run
 ```
 IHttpBodyRequestConfiguring              (AssertPost / AssertPut / AssertPatch / AssertQuery)
   ├─ Accepts…            → IHttpRequestConfiguring        (the body is set once - no second Accepts…)
-  ├─ WithParameter… / WithHeader / SkipEndpointValidation  → stays here (order is free)
+  ├─ WithParameter… / WithQueryParameter / WithHeader / SkipEndpointValidation  → stays here (order is free)
   └─ Produces…           (a body verb without a body is fine)
 
 IHttpRequestConfiguring                  (AssertGet / AssertDelete, or a body verb after Accepts…)
-  ├─ WithParameter… / WithHeader / SkipEndpointValidation  → stays here   (no Accepts… at all)
+  ├─ WithParameter… / WithQueryParameter / WithHeader / SkipEndpointValidation  → stays here   (no Accepts… at all)
   ├─ Produces<T>(code)   → IHttpResponseConfiguring<T>
   └─ Produces(code)      → IHttpExpectationConfiguring   (no type named)
 

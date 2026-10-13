@@ -17,6 +17,7 @@ namespace MinimalApi.Api.Persons.V1
             serviceCollection.AddQueryPersonsWithBodyEndpoint();
             serviceCollection.AddEchoHeaderEndpoint();
             serviceCollection.AddEchoRequestEndpoint();
+            serviceCollection.AddEchoQueryEndpoint();
             serviceCollection.AddGetPersonProfileEndpoint();
         }
     }

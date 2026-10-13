@@ -78,6 +78,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <inheritdoc cref="IHttpRequestConfiguring.WithParameters(object)"/>
         IHttpBodyRequestConfiguring WithParameters(object source);
 
+        /// <inheritdoc cref="IHttpRequestConfiguring.WithQueryParameter"/>
+        IHttpBodyRequestConfiguring WithQueryParameter(string key,
+                                                       object? value);
+
         /// <inheritdoc cref="IHttpRequestConfiguring.WithHeader"/>
         IHttpBodyRequestConfiguring WithHeader(string key,
                                                string value);
