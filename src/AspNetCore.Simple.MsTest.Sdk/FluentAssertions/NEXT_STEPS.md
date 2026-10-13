@@ -255,23 +255,55 @@ Second round (user: "alle Punkte prüfen, validieren, verbessern"), tests in
 
 Before 10.1:
 
-- **G1 — the package itself is untested.** CI packs (`build-and-publish.yml`) but nothing consumes the `.nupkg`:
-  nobody checks that the analyzers land in `analyzers/dotnet/cs` and fire in a consumer. Also the package has the
-  NuGet placeholder `<description>Package Description</description>` (no `<Description>` in the csproj — text
-  from the user). Idea: CI step pack → restore a tiny consumer project from the local folder → build must fail
-  with `MSTESTSDK001` for a chain without `ExecuteAsync()`.
-- **G2 — CI tests in Debug only.** Release-only behavior never runs there: `MSTESTSDK003`, "`WriteSnapshot` is
-  ignored in Release" (`IsCompiledInDebug`). Idea: also build the test projects with `-c Release`.
-- **G3 — fluent features proven against MinimalApi only, not Controllers:** `WithQueryParameter`,
-  `WithBearerToken` / `WithoutAuthorization`, `AssertOptions`, `ExecuteAsync(CancellationToken)`. Controllers take
-  another path (`[ProducesResponseType]` metadata, model binding, filters).
+- **G1 — the package itself is untested.** Local proof ✅ 2026-10-13, **CI step waits for the user's go.**
+  - `dotnet pack -c Release` (local and the CI artifact of run `38420572591`, 10.1.0) contains `lib/net10.0` (dll +
+    xml), `analyzers/dotnet/cs` (Analyzers, CodeFixes, five `System.Composition*`), `readme.md`, `License.txt`.
+  - Consumer `tests/PackageSmoke/` (outside the solution; own `Directory.Build.props` / `Directory.Packages.props` /
+    `.editorconfig` stop the repo's settings; `nuget.config` maps the sdk to `../../nupkgs` ONLY). Restore with
+    `--packages <empty dir>` (the global cache may hold an older build of the same version). `dotnet build` → green;
+    `dotnet build -p:SmokeBroken=true` → `error MSTESTSDK001` (Broken/DanglingChain.cs(19,13)). Counter-check:
+    package without `analyzers/` → the broken build goes GREEN.
+  - **Open:** `tests/PackageSmoke/nuget.config` is git-ignored (`.gitignore` `Nuget.config`, case-insensitive) — it
+    is missing from the commit; needs `git add -f` or a `!tests/PackageSmoke/nuget.config` exception.
+  - **Cause of "Package Description":** the csproj has `<Descriptiotn>` (typo), not a missing element. Text from the
+    user. Also stale: `<PackageReleaseNotes>` still reads "BREAKING CHANGES (11.0.0)".
+- **G2 — CI tests in Debug only.** Local proof ✅ 2026-10-13, **workflow change waits for the user's go.**
+  `dotnet build AspNetCore.Simple.MsTest.Sdk.sln -c Release` builds every test project green, 0 warnings
+  (`FluentWriteSnapshotTests`' `#pragma` keeps MSTESTSDK003 out). Release *test runs* are NOT an option as is:
+  24 Controllers tests fail by design (snapshot writers are Debug-only; `TheseTestsOnlyProveSomethingInADebugBuild`
+  guards say so). So "`WriteSnapshot` is ignored in Release" stays unproven by a test run — would need a category to
+  exclude the writer tests in Release (user decision).
+- ~~**G3 — fluent features proven against MinimalApi only, not Controllers**~~ ✅ done 2026-10-13. No sdk difference
+  between controllers and minimal api found. New controller actions in `PersonController` (twins of the MinimalApi
+  samples): `GET|POST persons/echo-query`, `GET|POST persons/echo-authorization`, `persons/requires-token` (all
+  verbs), `POST|OPTIONS persons/echo-request`; `ApiTestBase.CreateClient()`. Tests
+  `src/Controllers.Test/Api/Persons/V1/Echo/*_Fluent.cs` (27: query 8 incl. `[FromQuery]` binding, bearer 9,
+  OPTIONS 4, cancellation 6). The controllers host does not send `api-supported-versions` (sample config). Counter-check
+  (encoding off, fluent request headers dropped, OPTIONS content headers dropped, token not forwarded): 16 of 27 red —
+  3/8, 6/9, 3/4, 4/6; the green ones are must-fail partners and live-token cases that do not depend on the break.
 
-Legacy features advertised but without any test (probe first: do they still work? then the user decides: secure
-or stop advertising):
+Legacy features advertised but without any test — probed 2026-10-13, **each waits for the user's decision**
+(secure / repair / stop advertising):
 
-- **G4 — `DynamicRequestLocator`** — 0 tests, advertised at the top of the root `README.md`.
-- **G5 — `UseTestCreator` / TestCreator** — 0 tests, parts of `TestCreatorActionFilter` are commented out.
-- **G6 — OutputMode `Ai` / `Hybrid`** — 0 tests (`Core.Test/OutputModeTest.cs` covers `Human` only), a 10.0 feature.
+- **G4 — `DynamicRequestLocator` works.** Probe `src/MinimalApi.Test/Probes/DynamicRequestLocator/Status_200_Ok/`
+  (9 cases green): one case per `Requests/*.json`, classic and fluent with ONE file name for payload and expected
+  (body from `Requests/`, snapshot from `Responses/` — the response file carries a field the request lacks), extra
+  attribute parameters follow the file name, crossed request/response must fail. Counter-check (class name not
+  stripped from the namespace): 5 of 5 test methods red.
+- **G5 — TestCreator works for CONTROLLERS only.** Probe `src/Controllers.Test/Probes/TestCreatorProbeTests.cs`
+  (3 green, own host via `IStartupFilter`, no `AddAssertableHttpClient` → does not take over the static provider):
+  GET → `Client.AssertGetAsync<Person>("/api/v1/persons/1", …)`, POST with payload, 404 →
+  `AssertGetAsErrorAsync<ProblemDetails>`. Counter-check (creator returns empty): 3 of 3 red. A minimal api
+  endpoint generates NOTHING (temporary probe: 200, 0 outputs — `TestCreatorMiddleware` needs a
+  `ControllerActionDescriptor`); the README does not say so. It generates CLASSIC code only, no fluent chain.
+- **G6 — OutputMode `Ai` works, `Hybrid` has a bug.** Temporary probe (one `dotnet test` process per
+  `TestSdkSettings__OutputMode`; a second host in-process would take over the static provider for every parallel test):
+  `Ai` = valid JSON with `HTTP_SNAPSHOT_MISMATCH`, differences, suggested fix. Deviations: `class` is
+  assembly + file name (`MinimalApi.Test.OutputModeProbeTests`, namespace segment lost), `httpFailureType` is the enum
+  NUMBER (README shows `"SnapshotMismatch"`), `actualStatusCode` is `null` on a snapshot mismatch
+  (`AssertableHttpClient.cs:268`). `Hybrid`: the separator prints `System.Linq.Enumerable+RepeatIterator`1[System.Char]`
+  twice (`HybridModeRenderStrategy.cs:40`, `'='.Repeat(80)` interpolated as an enumerable); the heading differs from
+  the README. No permanent test yet — needs a per-process mode switch (decision).
 
 ## Deliberately NOT ported (do not reopen)
 
