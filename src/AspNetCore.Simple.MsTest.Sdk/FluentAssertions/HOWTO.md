@@ -187,12 +187,26 @@ var created = await Client.AssertPost("api/v1/persons")
     .Accepts(person)
     .Produces<Person>(HttpStatusCode.Created)
     .ExpectedResponseFromEmbeddedJson("CreatePersonFull.json")
-    .IgnoreProperty<Person>(p => p.Id)
+    .IgnoreProperty(p => p.Id)
     .ExecuteAsync();
 ```
 
 This excludes a dynamic property from comparison without relying on a magic string. Renaming `Person.Id` remains
 refactoring-safe.
+
+The selector is a **full path from the response root**, and only that position is ignored:
+
+```csharp
+.IgnoreProperty(p => p.Address.Street)                    // address.street — not every "street"
+.IgnoreProperty(p => p.Emails[0].EmailAddress)            // emails[0].emailAddress — first element only
+.IgnoreProperty(p => p.Emails.Select(e => e.EmailAddress)) // emails[*].emailAddress — every element
+.IgnoreProperty(persons => persons.Select(p => p.Id))     // [*].id — collection response
+.IgnoreProperty(p => p.Address)                           // the whole address subtree
+```
+
+JSON names come from `[JsonPropertyName]` and the configured naming policy, so a renamed property is still hit.
+Without a type-safe selector, `.IgnorePaths("address.street", "emails[*].type")` takes the difference path syntax
+directly (`[*]` = any index).
 
 ## 6. Ignore a Property Conditionally
 
@@ -247,19 +261,19 @@ await Client.AssertPost("api/v1/persons")
 `FilterResponse` transforms the actual response before comparison. It is useful for deterministic ordering or
 normalization while keeping the expected object readable.
 
-## 8. Tolerate Specific Dynamic Differences (`DifferenceFilter`)
+## 8. Tolerate Specific Dynamic Differences (`IgnoreDifferencesWhere`)
 
 ```csharp
 await Client.AssertPost("api/v1/persons")
     .Accepts(person)
     .Produces<Person>(HttpStatusCode.Created)
     .ExpectedResponse(expected)
-    .DifferenceFilter(d =>
-        !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
+    .IgnoreDifferencesWhere(d =>
+        d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
     .ExecuteAsync();
 ```
 
-Only differences rejected by the filter are ignored. Unrelated differences—for example an incorrect `Name`—still fail
+The predicate returns `true` for the differences to **ignore**. Unrelated differences—for example an incorrect `Name`—still fail
 the test.
 
 For common cases, strongly typed helpers such as `IgnoreProperty` or `MatchesProperty` are preferable because their
@@ -355,11 +369,11 @@ boilerplate.
 | Raw JSON response         | `.ReturnsJson<Person>(json)`                                                   | Structurally compares the response with supplied JSON text.                               | Prefer explicit JSON naming over string guessing.              |
 | Embedded JSON response    | `.ReturnsEmbeddedJson<Person>("CreatePerson.json")`                            | Loads expected JSON from an embedded resource and compares it structurally.               | Strong golden-file use case.                                   |
 | Empty body                | `.ReturnsNoContent()`                                                          | Verifies that the response body is empty.                                                 | Define independently from status `204`.                        |
-| Ignore one property       | `.IgnoreProperty<Person>(p => p.CreatedAt)`                                    | Excludes a strongly typed property from response comparison.                              | **Core**                                                       |
+| Ignore one property       | `.IgnoreProperty(p => p.CreatedAt)`                                            | Excludes exactly the selected property (full path) from response comparison.              | **Implemented**                                                |
 | Ignore several properties | `.IgnoreProperties<Person>(p => p.Id, p => p.CreatedAt)`                       | Excludes multiple properties from response comparison.                                    | Useful convenience addition.                                   |
 | Conditional ignore        | `.IgnorePropertyWhen<Person, string?>(p => p.ParentConsent, p => p.Age >= 18)` | Ignores the selected property only when the condition on the complete response is true.   | Strong candidate; keep selector and condition separate.        |
-| Nested property           | `.IgnoreProperty<Person>(p => p.Address.CreatedAt)`                            | Excludes a property inside a nested object.                                               | Should work naturally if member paths are supported.           |
-| Collection item property  | `.IgnoreEach(p => p.Orders, o => o.CreatedAt)`                                 | Excludes a property for every item in a selected collection.                              | Later extension; expression implementation is more complex.    |
+| Nested property           | `.IgnoreProperty(p => p.Address.CreatedAt)`                                    | Excludes a property inside a nested object — at that position only.                      | **Implemented**                                                |
+| Collection item property  | `.IgnoreProperty(p => p.Orders.Select(o => o.CreatedAt))`                      | Excludes a property for every item in a selected collection.                              | **Implemented** (`Select` → `[*]`)                             |
 | Include only              | `.IncludingOnly(p => p.Name, p => p.Email)`                                    | Compares only selected properties and ignores every other member.                         | Useful for partial contracts; use carefully.                   |
 | Predicate matcher         | `.MatchesProperty(p => p.Id, id => id != Guid.Empty)`                          | Validates a dynamic property with a predicate instead of a fixed expected value.          | High-value alternative to ignoring the property completely.    |
 | Numeric tolerance         | `.WithTolerance(p => p.Price, 0.01m)`                                          | Allows a defined numeric difference for the selected property.                            | Useful for monetary and floating-point values.                 |
@@ -376,7 +390,7 @@ boilerplate.
 | Problem detail            | `.HasProblemDetail("Name is required")`                                        | Verifies `ProblemDetails.Detail`.                                                         | Available only after a problem response is selected.           |
 | Validation error          | `.HasValidationError("name", "Name is required")`                              | Verifies a field-specific validation error.                                               | High-value ASP.NET Core helper.                                |
 | Response filter           | `.FilterResponse(p => Normalize(p))`                                           | Transforms the actual response before structural comparison.                              | Existing advanced escape hatch.                                |
-| Difference filter         | `.DifferenceFilter(d => KeepDifference(d))`                                    | Decides which comparison differences should remain relevant.                              | Existing low-level escape hatch.                               |
+| Ignore by predicate       | `.IgnoreDifferencesWhere(d => IsNoise(d))`                                     | Ignores every comparison difference the predicate returns `true` for.                     | **Implemented**; `FilterDifferences` is the list-level hatch. |
 | Collection count          | `.HasCount(3)`                                                                 | Verifies the number of items in a typed response collection.                              | Avoid growing into a full general-purpose assertion library.   |
 | Collection contains       | `.Contains(p => p.Id == expectedId)`                                           | Verifies that at least one response item satisfies the predicate.                         | Optional collection-focused extension.                         |
 | All collection items      | `.AllSatisfy(p => p.Name is not null)`                                         | Applies a predicate to all response items.                                                | Optional; general assertion libraries may already cover this.  |
@@ -493,8 +507,10 @@ The first public version should remain intentionally small:
 .IgnoreProperty(selector)
 .IgnoreProperties(selectors)
 .IgnorePropertyWhen(selector, condition)
+.IgnorePaths(paths)
+.IgnoreDifferencesWhere(predicate)
+.FilterDifferences(filter)
 .FilterResponse(filter)
-.DifferenceFilter(filter)
 
 .AndAssert(callback)
 .AndAssertBody<T>(callback)
@@ -817,7 +833,7 @@ metadata failures indicate documentation, discoverability, security declaration,
 
 ## Two Things You Should Know
 
-- **Type-state is real:** `IgnoreProperty`, `FilterResponse`, and `DifferenceFilter` appear in IntelliSense only after
+- **Type-state is real:** `IgnoreProperty`, `IgnorePaths`, `IgnoreDifferencesWhere`, `FilterDifferences`, and `FilterResponse` appear in IntelliSense only after
   an `ExpectedResponse…` method. Without an expected body, there is nothing to configure, so invalid combinations cannot
   be expressed.
 - **One terminal, always:** `.ExecuteAsync()` is the only `await` point. It returns the actual typed server

@@ -44,7 +44,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Query
             return Client.AssertQuery("api/v1/persons")
                          .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("GetAllPersons.json")
-                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .FilterDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 

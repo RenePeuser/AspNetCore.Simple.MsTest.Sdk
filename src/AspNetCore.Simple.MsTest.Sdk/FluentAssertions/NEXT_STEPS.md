@@ -30,7 +30,7 @@
      intuitive `==` ignores everything else → silently green test. `DifferenceFilter(Predicate)` adds a second
      meaning ("true = counts as failure").
    - Proposal: `IgnoreDifferencesWhere(Predicate<Difference>)` (true = ignore) + `IgnorePaths(params string[])`.
-     Rename the old ones (e.g. `TransformDifferences`) or make them non-public. Update
+     Rename the old ones (e.g. `FilterDifferences`) or make them non-public. Update
      `TestHelpers.IgnoreIdDifferences` and the docs.
    - Tests: one negative test per semantic that must fail.
 

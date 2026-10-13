@@ -28,7 +28,7 @@ var created = await Client.AssertPost("api/v1/persons")
     .Accepts(person)                                       // request body (C# object)
     .Produces<Person>(StatusCodes.Status201Created)        // type + status + return type in ONE
     .ExpectedResponseFromEmbeddedJson("CreatePerson.json") // optional comparison template
-        .IgnoreProperty<Person>(p => p.Id)                 // comparison config
+        .IgnoreProperty(p => p.Id)                         // comparison config
     .ExecuteAsync();                                       // the only terminal → Task<Person>
 
 // `created` is the REAL server response (with server-generated Id) — not the expected template.
@@ -116,11 +116,23 @@ sources carry no type, so they stay on `Produces<T>(code)`.
 ### Comparison config — only reachable after `ExpectedResponse…` (type-state!)
 
 ```csharp
-.IgnoreProperty<Person>(p => p.Id)               // type-safe hard skip
-.IgnoreDifferences(diffs => diffs.Where(…))      // free difference filtering
-.FilterResponse(list => list.OrderBy(p => p.Id)) // normalize before comparison
-.WriteSnapshot()                                 // rewrite the expected file
+.IgnoreProperty(p => p.Address.Street)                // exactly this position (full path)
+.IgnoreProperty(p => p.Emails.Select(e => e.EmailAddress)) // [*] — in every element
+.IgnoreProperty(list => list.Select(p => p.Id))       // collection response
+.IgnorePaths("name", "emails[*].type")                // difference path syntax, [*] = any index
+.IgnoreDifferencesWhere(d => d.MemberPath.EndsWith("At")) // predicate: true = IGNORE
+.FilterDifferences(diffs => …)                        // escape hatch: returns the diffs that still COUNT
+.FilterResponse(list => list.OrderBy(p => p.Id))      // normalize before comparison
+.WriteSnapshot()                                      // rewrite the expected file
 ```
+
+Every ignore rule is **precise**: `IgnoreProperty(p => p.Name)` ignores the root `name`, not
+`address.name`. JSON names follow `[JsonPropertyName]` and the naming policy. Ignoring an object ignores
+its subtree. Several rules combine — a difference is ignored as soon as one rule matches.
+
+Paths: on the HTTP path the differences table shows the envelope path (`content.value.address.street`).
+`IgnorePaths` accepts both that and the body-relative form (`address.street`); `IgnoreDifferencesWhere`
+sees the raw `Difference.MemberPath`, i.e. the envelope path from the table.
 
 ### Terminal
 

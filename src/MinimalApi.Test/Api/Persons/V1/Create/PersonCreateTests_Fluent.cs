@@ -66,7 +66,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
-                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .FilterDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 
@@ -81,7 +81,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponseFromEmbeddedJson("CreatePersonFull.json")
-                         .IgnoreProperty<Person>(p => p.Id)
+                         .IgnoreProperty(p => p.Id)
                          .ExecuteAsync();
         }
 
@@ -337,7 +337,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponse(expected)
-                         .IgnoreProperty<Email>(e => e.EmailAddress)
+                         .IgnoreProperty(p => p.Emails.Select(e => e.EmailAddress))
                          .ExecuteAsync();
         }
 
@@ -360,8 +360,8 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponse(expected)
-                         .IgnoreProperty<Person>(p => p.Name)
-                         .IgnoreProperty<Person>(p => p.FirstName)
+                         .IgnoreProperty(p => p.Name)
+                         .IgnoreProperty(p => p.FirstName)
                          .ExecuteAsync();
         }
 
@@ -380,10 +380,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                                                                                     .Accepts(person)
                                                                                     .Produces<Person>(HttpStatusCode.Created)
                                                                                     .ExpectedResponse(expected)
-                                                                                    .IgnoreProperty<Person>(p => p.Name)
+                                                                                    .IgnoreProperty(p => p.Name)
                                                                                     .ExecuteAsync(),
                                                                         because: "IgnoreProperty may hide exactly the property it names and nothing else. 'firstName' merely ENDS WITH 'name', so a substring match would drop it too and switch off a real part of the comparison.",
-                                                                        fix: "Check that the member-path match compares the last path segment for equality instead of using Contains/EndsWith.").ConfigureAwait(false);
+                                                                        fix: "Check that IgnoreProperty matches whole path segments of the full member path instead of using Contains/EndsWith.").ConfigureAwait(false);
         }
 
         // ============================================================
@@ -481,17 +481,17 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
         }
 
         // ============================================================
-        // Per-difference predicate — DifferenceFilter (keep only differences the predicate accepts).
+        // Per-difference predicate — IgnoreDifferencesWhere (true = ignore).
         // ============================================================
 
         [TestMethod]
         [TestCategory("Fluent")]
         [TestCategory("POST")]
-        [TestCategory("DifferenceFilter")]
-        public Task Fluent_DifferenceFilter_Should_Ignore_Filtered_Difference()
+        [TestCategory("IgnoreDifferencesWhere")]
+        public Task Fluent_IgnoreDifferencesWhere_Should_Ignore_Filtered_Difference()
         {
             // The endpoint echoes the posted person back. The expected object has a deliberately wrong
-            // Age (99 vs 42); DifferenceFilter keeps only NON-age differences, so the age diff is dropped
+            // Age (99 vs 42); IgnoreDifferencesWhere ignores the age differences, so the age diff is dropped
             // and the assertion passes.
             var person = TestHelpers.CreateValidPerson();
             var expected = person with { Age = 99 };
@@ -500,15 +500,15 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.Created)
                          .ExpectedResponse(expected)
-                         .DifferenceFilter(d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
+                         .IgnoreDifferencesWhere(d => d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
                          .ExecuteAsync();
         }
 
         [TestMethod]
         [TestCategory("Fluent")]
         [TestCategory("POST")]
-        [TestCategory("DifferenceFilter")]
-        public async Task Fluent_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
+        [TestCategory("IgnoreDifferencesWhere")]
+        public async Task Fluent_IgnoreDifferencesWhere_Should_Not_Hide_Unrelated_Difference()
         {
             // Name is wrong; the filter only drops age differences, so the name difference must still fail.
             var person = TestHelpers.CreateValidPerson();
@@ -518,10 +518,10 @@ namespace MinimalApi.Test.Api.Persons.V1.Create
                                                                                     .Accepts(person)
                                                                                     .Produces<Person>(HttpStatusCode.Created)
                                                                                     .ExpectedResponse(expected)
-                                                                                    .DifferenceFilter(d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
+                                                                                    .IgnoreDifferencesWhere(d => d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
                                                                                     .ExecuteAsync(),
-                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
-                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.").ConfigureAwait(false);
+                                                                        because: "An IgnoreDifferencesWhere rule may hide exactly what it names and nothing else. The unrelated difference in this test has to keep failing - otherwise a single filter would quietly switch off the whole comparison and every later regression would go green.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only ignores the ones it matches, instead of skipping the comparison as soon as an ignore rule is present.").ConfigureAwait(false);
         }
     }
 }

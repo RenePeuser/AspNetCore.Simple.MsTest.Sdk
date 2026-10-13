@@ -108,24 +108,26 @@ Assert.IsNotNull(person);
 
 ## Comparison configuration (only after `ExpectedResponse…`)
 
-### Type-safe property ignore
+### Type-safe property ignore (exact path)
 
 ```csharp
 await Client.AssertGet("api/persons")
     .Produces<List<Person>>(StatusCodes.Status200OK)
     .ExpectedResponseFromEmbeddedJson("Expected.json")
-        .IgnoreProperty<Person>(p => p.Id)
+        .IgnoreProperty(persons => persons.Select(p => p.Id))       // [*].id — every element
+        .IgnoreProperty(persons => persons[0].Address.Street)       // [0].address.street — one element
     .ExecuteAsync();
 ```
 
-### Free difference filtering
+### Ignore by path or predicate
 
 ```csharp
 await Client.AssertPut("api/persons/1")
     .AcceptsFromEmbeddedJson("Update.json")
     .Produces<Person>(StatusCodes.Status200OK)
     .ExpectedResponseFromEmbeddedJson("Expected.json")
-        .IgnoreDifferences(diffs => diffs.Where(d => d.MemberPath != "UpdatedDate"))
+        .IgnorePaths("updatedDate", "emails[*].verifiedAt")          // [*] = any index
+        .IgnoreDifferencesWhere(d => d.MemberPath.EndsWith("Etag"))   // true = ignore
     .ExecuteAsync();
 ```
 
@@ -245,7 +247,7 @@ public async Task Person_Lifecycle()
     await Client.AssertGet($"api/v1/persons/{created.Id}")
         .Produces<Person>(StatusCodes.Status200OK)
         .ExpectedResponseFromEmbeddedJson("GetPerson.json")
-            .IgnoreProperty<Person>(p => p.Id)
+            .IgnoreProperty(p => p.Id)
         .ExecuteAsync();
 
     // DELETE(id) → no body

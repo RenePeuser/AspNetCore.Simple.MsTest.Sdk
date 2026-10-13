@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AspNetCore.Simple.MsTest.Sdk;
@@ -44,7 +45,7 @@ namespace Controllers.Test.Api.Persons.V1.Get
             return Client.AssertGet("api/v1/persons")
                          .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("GetAllPersons.json")
-                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .FilterDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 
@@ -56,7 +57,7 @@ namespace Controllers.Test.Api.Persons.V1.Get
             return Client.AssertGet("api/v1/persons")
                          .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("GetAllPersons.json")
-                         .IgnoreProperty<Person>(p => p.Id)
+                         .IgnoreProperty(persons => persons.Select(p => p.Id))
                          .ExecuteAsync();
         }
 

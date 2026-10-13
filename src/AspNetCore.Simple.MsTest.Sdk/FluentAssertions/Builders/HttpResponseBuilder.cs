@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -57,7 +58,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private Func<ImmutableList<Difference>, IEnumerable<Difference>>? _differenceFunc;
 
-        private Predicate<Difference>? _differenceFilter;
+        // True = ignore. Handed to the engine inverted, as its keep-predicate (differenceFilter).
+        private Predicate<Difference>? _ignore;
 
         private bool _writeSnapshot;
 
@@ -124,10 +126,35 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return this;
         }
 
-        // Filters COMPOSE instead of overwriting: two IgnoreProperty calls (or IgnoreProperty next to an
-        // IgnoreDifferences) each have to keep their effect. Overwriting would silently drop the earlier
-        // one and let the difference it was hiding fail the test for no visible reason.
-        public IHttpComparisonConfiguring<TResult> IgnoreDifferences(Func<ImmutableList<Difference>, IEnumerable<Difference>> filter)
+        // Ignore rules COMPOSE instead of overwriting: two IgnoreProperty calls (or IgnoreProperty next to
+        // an IgnorePaths) each have to keep their effect. Overwriting would silently drop the earlier one
+        // and let the difference it was hiding fail the test for no visible reason.
+        public IHttpComparisonConfiguring<TResult> IgnoreDifferencesWhere(Predicate<Difference> ignore)
+        {
+            var previous = _ignore;
+
+            _ignore = previous is null
+                          ? ignore
+                          : difference => previous(difference) || ignore(difference);
+
+            return this;
+        }
+
+        public IHttpComparisonConfiguring<TResult> IgnorePaths(params string[] paths)
+        {
+            var patterns = paths.Select(MemberPathPattern.Parse).ToImmutableList();
+
+            return IgnoreDifferencesWhere(d => patterns.Any(pattern => pattern.Matches(d.MemberPath)));
+        }
+
+        public IHttpComparisonConfiguring<TResult> IgnoreProperty(Expression<Func<TResult, object?>> propertySelector)
+        {
+            var pattern = MemberPathPattern.FromExpression(propertySelector, HttpClientAssertExtensions.JsonSerializerOptionsFor(_callingAssembly));
+
+            return IgnoreDifferencesWhere(d => pattern.Matches(d.MemberPath));
+        }
+
+        public IHttpComparisonConfiguring<TResult> FilterDifferences(Func<ImmutableList<Difference>, IEnumerable<Difference>> filter)
         {
             var previous = _differenceFunc;
 
@@ -136,56 +163,6 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                   : diffs => filter(previous(diffs).ToImmutableList());
 
             return this;
-        }
-
-        public IHttpComparisonConfiguring<TResult> DifferenceFilter(Predicate<Difference> filter)
-        {
-            var previous = _differenceFilter;
-
-            // A difference survives only if EVERY registered predicate keeps it.
-            _differenceFilter = previous is null
-                                    ? filter
-                                    : difference => previous(difference) && filter(difference);
-
-            return this;
-        }
-
-        public IHttpComparisonConfiguring<TResult> IgnoreProperty<T>(Expression<Func<T, object?>> propertySelector)
-        {
-            var propertyName = ExtractPropertyName(propertySelector);
-
-            return IgnoreDifferences(diffs => diffs.Where(d => !MemberPathTargets(d.MemberPath, propertyName)));
-        }
-
-        /// <summary>
-        /// Matches a difference's member path against a property name.
-        ///
-        /// <para>
-        /// The paths the differ produces are qualified and indexed — <c>id</c> at the root, but
-        /// <c>[0].id</c> inside a collection and <c>emails[0].emailAddress</c> when nested. Comparing the
-        /// whole path against the bare property name therefore only ever matched top-level scalars and
-        /// silently did nothing everywhere else. Only the LAST segment is the property, so that is what
-        /// gets compared — with any array index stripped, so <c>emails[0]</c> still matches
-        /// <c>Emails</c>.
-        /// </para>
-        /// </summary>
-        private static bool MemberPathTargets(string memberPath,
-                                              string propertyName)
-        {
-            var lastSeparator = memberPath.LastIndexOf('.');
-
-            var segment = lastSeparator >= 0
-                              ? memberPath[(lastSeparator + 1)..]
-                              : memberPath;
-
-            var indexStart = segment.IndexOf('[');
-
-            if (indexStart >= 0)
-            {
-                segment = segment[..indexStart];
-            }
-
-            return segment.Equals(propertyName, StringComparison.OrdinalIgnoreCase);
         }
 
         public IHttpComparisonConfiguring<TResult> WriteSnapshot(bool write = true)
@@ -221,27 +198,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                ignoreResponse: _expectedJson == null,
                                                skipEndpointValidation: _skipEndpointValidation,
                                                expectedHttpStatusCode: _expectedStatusCode,
-                                               differenceFilter: _differenceFilter,
+                                               differenceFilter: _ignore is null ? null : d => _ignore(d).IsFalse(),
                                                requestHeaders: _headers,
                                                callerFilePath: _callerFilePath,
                                                callerMemberName: _callerMemberName,
                                                callerLineNumber: _callerLineNumber);
-        }
-
-        private static string ExtractPropertyName<T>(Expression<Func<T, object?>> propertySelector)
-        {
-            if (propertySelector.Body is MemberExpression memberExpression)
-            {
-                return memberExpression.Member.Name;
-            }
-
-            if (propertySelector.Body is UnaryExpression { Operand: MemberExpression unaryMember })
-            {
-                return unaryMember.Member.Name;
-            }
-
-            throw new ArgumentException("Property selector must be a simple property access expression (e.g., p => p.PropertyName)",
-                                        nameof(propertySelector));
         }
     }
 }

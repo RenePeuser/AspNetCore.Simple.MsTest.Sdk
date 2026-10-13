@@ -63,7 +63,7 @@ namespace Controllers.Test.SnapshotWriteFiltering
                 await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGet("api/v1/persons")
                                                                                         .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
                                                                                         .ExpectedResponseFromEmbeddedJson(SnapshotReference)
-                                                                                        .IgnoreDifferences(DropAge)
+                                                                                        .FilterDifferences(DropAge)
                                                                                         .WriteSnapshot()
                                                                                         .ExecuteAsync(),
                                                                             because: "'firstName' is not filtered out and the fixture holds 'Stale', so the comparison has to fail. If it passes, the snapshot was never compared and everything below would be measuring nothing.",
@@ -99,7 +99,7 @@ namespace Controllers.Test.SnapshotWriteFiltering
                 await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGet("api/v1/persons")
                                                                                         .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
                                                                                         .ExpectedResponseFromEmbeddedJson(SnapshotReference)
-                                                                                        .IgnoreDifferences(DropAge)
+                                                                                        .FilterDifferences(DropAge)
                                                                                         .WriteSnapshot(false)
                                                                                         .ExecuteAsync(),
                                                                             because: "The stale firstName still has to fail the comparison - WriteSnapshot(false) only turns off re-recording, not the assertion.",

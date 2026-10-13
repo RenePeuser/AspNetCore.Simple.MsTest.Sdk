@@ -2603,11 +2603,14 @@ Already implemented in the alpha:
 - **Entry points** — `AssertPost`, `AssertGet`, `AssertPut`, `AssertPatch`, `AssertDelete` on `HttpClient`.
 - **Endpoint-mirroring vocabulary** — `Accepts` / `Produces` / `ExpectedResponse` line up with ASP.NET Core
   Minimal API metadata.
-- **Type-state builder** — comparison config (`IgnoreProperty`, `FilterResponse`, `IgnoreDifferences`,
-  `DifferenceFilter`, `WriteSnapshot`) is only reachable *after* an expected response, enforced by the compiler.
+- **Type-state builder** — comparison config (`IgnoreProperty`, `IgnorePaths`, `IgnoreDifferencesWhere`,
+  `FilterDifferences`, `FilterResponse`, `WriteSnapshot`) is only reachable *after* an expected response,
+  enforced by the compiler.
 - **Analyzer-protected terminal** — a forgotten `ExecuteAsync()` is a build error (`MSTESTSDK001`), not a
   silently green test. A code fix appends the missing terminal.
-- **Type-safe property ignore** — `.IgnoreProperty<Person>(p => p.Id)` instead of magic strings.
+- **Precise, type-safe property ignore** — `.IgnoreProperty(p => p.Address.Street)` ignores exactly that
+  path (not every `street`), honoring `[JsonPropertyName]`; `p => p.Emails.Select(e => e.EmailAddress)` covers
+  every element.
 - **Three input shapes each** — object, raw JSON string, or embedded file: `Accepts` /
   `AcceptsFromJsonString` / `AcceptsFromEmbeddedJson`, and the matching `ExpectedResponse…` trio.
 - **Placeholders and headers** — `WithParameter`, `WithParameters` (tuples or an object), `WithHeader`.
@@ -2631,8 +2634,8 @@ await Client.AssertPost("api/v1/persons")
             .WithHeader("X-Correlation-Id", "test-42")
             .Produces<Person>(HttpStatusCode.Created)
             .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
-            .IgnoreProperty<Person>(p => p.Id)
-            .DifferenceFilter(d => !d.MemberPath.Contains("timestamp"))
+            .IgnoreProperty(p => p.Id)
+            .IgnoreDifferencesWhere(d => d.MemberPath.Contains("timestamp"))
             .ExecuteAsync();
 ```
 

@@ -11,7 +11,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
     /// <summary>
     /// Fluent coverage the CONTROLLER stack was missing while the minimal-api stack already had it:
     /// the three Accepts…/ExpectedResponse… variants, placeholder parameters, custom headers, the int
-    /// status overloads, the body-less path and DifferenceFilter.
+    /// status overloads, the body-less path and IgnoreDifferencesWhere.
     ///
     /// <para>
     /// The asymmetry mattered: every fluent bug found so far sat in exactly these members, and the
@@ -221,14 +221,14 @@ namespace Controllers.Test.Api.Persons.V1.Create
         }
 
         // ============================================================
-        // DifferenceFilter.
+        // IgnoreDifferencesWhere.
         // ============================================================
 
         [TestMethod]
         [TestCategory("Fluent")]
         [TestCategory("POST")]
-        [TestCategory("DifferenceFilter")]
-        public Task Fluent_DifferenceFilter_Should_Ignore_Filtered_Difference()
+        [TestCategory("IgnoreDifferencesWhere")]
+        public Task Fluent_IgnoreDifferencesWhere_Should_Ignore_Filtered_Difference()
         {
             var person = TestHelpers.CreateValidPerson();
             var expected = person with { Age = 99 };
@@ -237,15 +237,15 @@ namespace Controllers.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.OK)
                          .ExpectedResponse(expected)
-                         .DifferenceFilter(d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
+                         .IgnoreDifferencesWhere(d => d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
                          .ExecuteAsync();
         }
 
         [TestMethod]
         [TestCategory("Fluent")]
         [TestCategory("POST")]
-        [TestCategory("DifferenceFilter")]
-        public async Task Fluent_DifferenceFilter_Should_Not_Hide_Unrelated_Difference()
+        [TestCategory("IgnoreDifferencesWhere")]
+        public async Task Fluent_IgnoreDifferencesWhere_Should_Not_Hide_Unrelated_Difference()
         {
             var person = TestHelpers.CreateValidPerson();
             var expected = person with { Name = "WrongName" };
@@ -254,10 +254,10 @@ namespace Controllers.Test.Api.Persons.V1.Create
                                                                                     .Accepts(person)
                                                                                     .Produces<Person>(HttpStatusCode.OK)
                                                                                     .ExpectedResponse(expected)
-                                                                                    .DifferenceFilter(d => !d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
+                                                                                    .IgnoreDifferencesWhere(d => d.MemberPath.Contains("age", StringComparison.OrdinalIgnoreCase))
                                                                                     .ExecuteAsync(),
-                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference has to keep failing - otherwise a single filter would quietly switch off the whole comparison.",
-                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.").ConfigureAwait(false);
+                                                                        because: "An IgnoreDifferencesWhere rule may hide exactly what it names and nothing else. The unrelated difference has to keep failing - otherwise a single filter would quietly switch off the whole comparison.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only ignores the ones it matches, instead of skipping the comparison as soon as an ignore rule is present.").ConfigureAwait(false);
         }
 
         // ============================================================
@@ -281,8 +281,8 @@ namespace Controllers.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.OK)
                          .ExpectedResponse(expected)
-                         .IgnoreProperty<Person>(p => p.Name)
-                         .IgnoreProperty<Person>(p => p.FirstName)
+                         .IgnoreProperty(p => p.Name)
+                         .IgnoreProperty(p => p.FirstName)
                          .ExecuteAsync();
         }
 
@@ -298,10 +298,10 @@ namespace Controllers.Test.Api.Persons.V1.Create
                                                                                     .Accepts(person)
                                                                                     .Produces<Person>(HttpStatusCode.OK)
                                                                                     .ExpectedResponse(expected)
-                                                                                    .IgnoreProperty<Person>(p => p.Name)
+                                                                                    .IgnoreProperty(p => p.Name)
                                                                                     .ExecuteAsync(),
                                                                         because: "IgnoreProperty may hide exactly the property it names and nothing else. 'firstName' merely ENDS WITH 'name', so a substring match would drop it too and switch off a real part of the comparison.",
-                                                                        fix: "Check that the member-path match compares the last path segment for equality instead of using Contains/EndsWith.").ConfigureAwait(false);
+                                                                        fix: "Check that IgnoreProperty matches whole path segments of the full member path instead of using Contains/EndsWith.").ConfigureAwait(false);
         }
     }
 }

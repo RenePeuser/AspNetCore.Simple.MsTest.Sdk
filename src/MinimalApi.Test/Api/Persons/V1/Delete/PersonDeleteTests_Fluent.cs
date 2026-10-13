@@ -49,7 +49,7 @@ namespace MinimalApi.Test.Api.Persons.V1.Delete
             return Client.AssertDelete("api/v1/persons/1/with-response")
                          .Produces<DeletePersonResponse>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("DeletePersonWithResponse.json")
-                         .IgnoreProperty<DeletePersonResponse>(r => r.DeletedAt)
+                         .IgnoreProperty(r => r.DeletedAt)
                          .ExecuteAsync();
         }
     }

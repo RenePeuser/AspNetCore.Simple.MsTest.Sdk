@@ -49,7 +49,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
-                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .FilterDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 
@@ -80,7 +80,7 @@ namespace Controllers.Test.Api.Persons.V1.Create
                          .Accepts(person)
                          .Produces<Person>(HttpStatusCode.OK)
                          .ExpectedResponseFromEmbeddedJson("CreatePerson.json")
-                         .IgnoreDifferences(TestHelpers.IgnoreIdDifferences)
+                         .FilterDifferences(TestHelpers.IgnoreIdDifferences)
                          .ExecuteAsync();
         }
 

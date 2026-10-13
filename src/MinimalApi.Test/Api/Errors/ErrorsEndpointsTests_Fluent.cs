@@ -96,29 +96,29 @@ namespace MinimalApi.Test.Api.Errors
         // ============================================================
 
         [TestMethod]
-        [TestCategory("DifferenceFilter")]
-        public Task Fluent_DifferenceFilter_Should_Ignore_Filtered_Difference_On_Error_Path()
+        [TestCategory("IgnoreDifferencesWhere")]
+        public Task Fluent_IgnoreDifferencesWhere_Should_Ignore_Filtered_Difference_On_Error_Path()
         {
             // ErrorResponseWrongDetail.json carries a deliberately wrong "detail"; the filter drops it.
             return Client.AssertPost(NotImplementedUrl)
                          .Produces<ProblemDetails>(HttpStatusCode.InternalServerError)
                          .ExpectedResponseFromEmbeddedJson("ErrorResponseWrongDetail.json")
-                         .DifferenceFilter(d => !d.MemberPath.Contains("detail", StringComparison.OrdinalIgnoreCase))
+                         .IgnoreDifferencesWhere(d => d.MemberPath.Contains("detail", StringComparison.OrdinalIgnoreCase))
                          .ExecuteAsync();
         }
 
         [TestMethod]
-        [TestCategory("DifferenceFilter")]
-        public async Task Fluent_DifferenceFilter_Should_Not_Hide_Unrelated_Difference_On_Error_Path()
+        [TestCategory("IgnoreDifferencesWhere")]
+        public async Task Fluent_IgnoreDifferencesWhere_Should_Not_Hide_Unrelated_Difference_On_Error_Path()
         {
             // The filter only drops "title" differences, so the wrong "detail" must still fail.
             await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertPost(NotImplementedUrl)
                                                                                     .Produces<ProblemDetails>(HttpStatusCode.InternalServerError)
                                                                                     .ExpectedResponseFromEmbeddedJson("ErrorResponseWrongDetail.json")
-                                                                                    .DifferenceFilter(d => !d.MemberPath.Contains("title", StringComparison.OrdinalIgnoreCase))
+                                                                                    .IgnoreDifferencesWhere(d => d.MemberPath.Contains("title", StringComparison.OrdinalIgnoreCase))
                                                                                     .ExecuteAsync(),
-                                                                        because: "A per-assert differenceFilter may hide exactly what it names and nothing else. The unrelated difference has to keep failing - otherwise a single filter would quietly switch off the whole comparison on the error path.",
-                                                                        fix: "Check that the filter predicate is evaluated per difference and only drops the ones it matches, instead of skipping the comparison as soon as a differenceFilter is present.").ConfigureAwait(false);
+                                                                        because: "An IgnoreDifferencesWhere rule may hide exactly what it names and nothing else. The unrelated difference has to keep failing - otherwise a single filter would quietly switch off the whole comparison on the error path.",
+                                                                        fix: "Check that the filter predicate is evaluated per difference and only ignores the ones it matches, instead of skipping the comparison as soon as an ignore rule is present.").ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -127,7 +127,7 @@ namespace MinimalApi.Test.Api.Errors
             return Client.AssertPost(NotImplementedUrl)
                          .Produces<ProblemDetails>(HttpStatusCode.InternalServerError)
                          .ExpectedResponseFromEmbeddedJson("ErrorResponseWrongDetail.json")
-                         .IgnoreProperty<ProblemDetails>(p => p.Detail)
+                         .IgnoreProperty(p => p.Detail)
                          .ExecuteAsync();
         }
 
