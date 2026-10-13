@@ -57,11 +57,11 @@ Decided with the user and implemented (decision log entry of 2026-10-13, "Builde
 ```
 IHttpBodyRequestConfiguring        (AssertPost / AssertPut / AssertPatch / AssertQuery)
   ├─ Accepts… ──────────────────► IHttpRequestConfiguring   (no Accepts… anymore → body once)
-  ├─ WithParameter/WithHeader/SkipEndpointValidation ► IHttpBodyRequestConfiguring   (order free)
-  └─ Produces…
+  ├─ WithParameter/WithHeader ► IHttpBodyRequestConfiguring   (order free)
+  └─ Produces… ► SkipEndpointValidation() lives here (response / comparison / expectation stage)
 IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all — or after Accepts…)
-  ├─ WithParameter/WithHeader/SkipEndpointValidation ► IHttpRequestConfiguring
-  └─ Produces…
+  ├─ WithParameter/WithHeader ► IHttpRequestConfiguring
+  └─ Produces… ► SkipEndpointValidation() lives here (response / comparison / expectation stage)
 ```
 
 - `HttpRequestBuilder` implements both; `With…` are explicit interface implementations sharing `AddParameters` /
