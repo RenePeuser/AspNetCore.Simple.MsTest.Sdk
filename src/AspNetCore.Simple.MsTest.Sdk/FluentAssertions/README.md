@@ -166,7 +166,7 @@ raw-JSON sources carry no type, so they stay on `Produces<T>(code)`.
 .IgnoreDifferencesWhere(d => d.MemberPath.EndsWith("At")) // predicate: true = IGNORE
 .FilterDifferences(diffs => …)                        // escape hatch: returns the diffs that still COUNT
 .FilterResponse(list => list.OrderBy(p => p.Id))      // normalize before comparison
-.WriteSnapshot()                                      // rewrite the expected file
+.WriteSnapshot()                                      // rewrite the expected file (Debug only, MSTESTSDK003)
 ```
 
 Every ignore rule is **precise**: `IgnoreProperty(p => p.Name)` ignores the root `name`, not
@@ -315,6 +315,19 @@ Client.AssertPost("api/persons").Accepts(person).Produces(Created).ExecuteAsync(
 Both come with a one-click code fix (`await` + `.ExecuteAsync()`, `void` → `async Task` where needed),
 with FixAll for whole-file/project migration. `return …ExecuteAsync();` and `var t = …ExecuteAsync();`
 are consuming forms and are never flagged. Details in `DESIGN_VISION.md`.
+
+A third analyzer guards the recording switch:
+
+| Id | Severity | Fires on |
+|----|----------|----------|
+| `MSTESTSDK003` | Warning, **Release builds only** | `WriteSnapshot()` / `WriteSnapshot(true)` left on a chain |
+
+Recording is Debug-only: in Debug a committed `WriteSnapshot()` re-records the expected file on every run, so the
+test stays green whatever the endpoint returns; in Release the SDK ignores it. The analyzer stays silent in Debug,
+so recording and debugging are undisturbed, and catches the forgotten call in the Release build.
+`WriteSnapshot(false)` and a non-constant argument are not reported. To update snapshots in bulk, set the
+environment variable `TestSdkSettings__WriteResponse=true` instead of editing tests. Note: a pipeline that builds
+and runs its tests in Debug only never sees this warning.
 
 ## Example: CRUD lifecycle
 

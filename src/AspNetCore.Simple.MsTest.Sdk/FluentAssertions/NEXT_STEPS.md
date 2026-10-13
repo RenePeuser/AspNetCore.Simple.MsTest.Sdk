@@ -5,13 +5,13 @@
 
 ## Current state — read first
 
-- **Commit state:** items 1–7, 13 and the builder review are committed on `master` (`39f3565`). The **three open
-  review findings (OPTIONS headers, header-name case, route check of `Produces(code)`) are done but UNCOMMITTED**
-  (check `git status`). The user commits themselves — do not commit unless asked.
+- **Commit state:** everything up to the review findings is committed on `master` ("prepare fluent api release").
+  Item 8 (MSTESTSDK003) is done but UNCOMMITTED (check `git status`). Older "(uncommitted)" marks below are
+  historical. The user commits themselves — do not commit unless asked.
 - **Design rule (from the user):** the builders GUIDE the user so nothing can be used wrongly — a method only where
   it means something, a once-only call is a stage switch, a wrong chain does not compile. Runtime throws only for
   what no type can see (repeated names), and then with the sdk's what/why/fix output.
-- **NEXT TASK = item 8 (analyzer for `WriteSnapshot()`).** Open question for the user, see "Review findings": read
+- **NEXT TASK = Priority 3 (items 11, 12).** Open question for the user, see "Review findings": read
   RESPONSE headers raw too (consistency) or keep the parsed form?
 - **Working rules (from the user):**
   - Every fix is proven with **automated consumer tests through a real API call** (sample APIs `src/MinimalApi`
@@ -158,9 +158,16 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
 7. ~~**Second `Accepts…` silently overwrites the first.**~~ ✅ done 2026-10-13 (uncommitted) via type-state —
    see "Builder review". `.Accepts(a).Accepts(b)` and GET/DELETE with a body are CS1061 now.
 
-8. **Analyzer for `WriteSnapshot()`.** Committed, it rewrites the expected file on every run → always green.
-   → MSTESTSDK003 (warning). Document the environment variable `TestSdkSettings__WriteResponse=true` as the way
-   to bulk-update.
+8. ~~**Analyzer for `WriteSnapshot()`.**~~ ✅ done 2026-10-13 (uncommitted). `WriteSnapshotInReleaseAnalyzer`
+   (MSTESTSDK003, warning) reports `WriteSnapshot()` / `WriteSnapshot(true)` (literal, named, const) on a
+   `[FluentBuilder]` type — **in Release builds only** (user: Debug is for recording/debugging; the runtime records
+   in Debug only anyway). Not reported: `false`, non-constant argument. Fluent only — the classic
+   `writeResponse: true` is not covered (possible follow-up). Known gap: pipelines that test in Debug only (like
+   this repo's CI) never see it. `FluentWriteSnapshotTests` suppresses it via `#pragma`. Tests:
+   `Analyzers.Test/WriteSnapshotInReleaseAnalyzerTests.cs` (13); counter-check: gate removed 3 red, inverted 9 red;
+   real build of `Controllers.Test` without the pragma: Debug green, Release `error MSTESTSDK003`.
+   **Gotcha:** after rebuilding the analyzer, run `dotnet build-server shutdown` — VBCSCompiler keeps the old
+   analyzer dll loaded and reports stale results in the consumer projects.
 
 ## Priority 3 — additive, fine after launch
 
@@ -211,5 +218,5 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
 
 ## Recommended order
 
-~~Commit → 1 + 2 → 5 → 3 → 4 → 6 → Builder review → 7 → open review findings~~ (done) → **8** → Priority 3 →
+~~Commit → 1 + 2 → 5 → 3 → 4 → 6 → Builder review → 7 → open review findings → 8~~ (done) → **Priority 3** →
 cleanup.

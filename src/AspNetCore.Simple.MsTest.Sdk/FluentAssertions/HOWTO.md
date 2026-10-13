@@ -350,6 +350,13 @@ await Client.AssertPost("api/v1/persons")
 `WriteSnapshot` writes the actual response as the new baseline. Because this changes a test artifact, its behavior
 should be intentional and clearly visible in the test or centrally controlled through test configuration.
 
+- **Debug only.** The SDK records only when the test assembly is compiled in Debug; in Release the call is ignored.
+- **Do not commit it.** In Debug it re-records on every run, so the test can never fail. Analyzer **MSTESTSDK003**
+  (warning) reports `WriteSnapshot()` / `WriteSnapshot(true)` in **Release builds only** — Debug stays silent so
+  you can record and debug freely. `WriteSnapshot(false)` and a non-constant argument are not reported.
+- **Bulk update:** set the environment variable `TestSdkSettings__WriteResponse=true` and run the tests in Debug —
+  no test has to be edited.
+
 ## 13. Cancellation
 
 ```csharp
@@ -430,7 +437,7 @@ boilerplate.
 | Raw response callback     | `.AndAssert(response => Assert.IsTrue(...))`                                   | Provides an escape hatch over the raw `HttpResponseMessage`.                              | **Core candidate**                                             |
 | Typed body callback       | `.AndAssertBody<Person>(p => Assert.AreNotEqual(Guid.Empty, p.Id))`            | Provides an escape hatch over the deserialized response body.                             | **Core candidate**                                             |
 | Snapshot comparison       | `.MatchesSnapshot("CreatePerson")`                                             | Compares the response with a named stored snapshot.                                       | Optional if embedded JSON already covers the primary use case. |
-| Snapshot update           | `.WriteSnapshot()`                                                             | Writes the actual response as the new baseline.                                           | Must be explicit and safely controlled.                        |
+| Snapshot update           | `.WriteSnapshot()`                                                             | Writes the actual response as the new baseline.                                           | **Implemented**; Debug only, MSTESTSDK003 in Release.          |
 | Execution                 | `.ExecuteAsync(cancellationToken)`                                             | Sends the request, runs all configured assertions, and returns the typed actual response. | **Core terminal operation**                                    |
 
 ## Idea Samples

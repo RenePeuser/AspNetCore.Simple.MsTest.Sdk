@@ -44,6 +44,11 @@ The fix is mechanical: remove the old `using` lines and keep (or add) `using Asp
 
 ### New
 
+- **Fluent API (alpha builds only) - analyzer `MSTESTSDK003` for a forgotten `WriteSnapshot()`.** Recording runs in
+  Debug only, so a committed `WriteSnapshot()` re-records the expected file on every Debug run and the test can
+  never fail there. The new warning reports `WriteSnapshot()` / `WriteSnapshot(true)` in **Release builds only** —
+  Debug stays silent so you can record and debug. To update snapshots in bulk, set
+  `TestSdkSettings__WriteResponse=true` instead of editing tests.
 - **Fluent API (alpha builds only) - precise comparison vocabulary.** `IgnoreProperty(p => p.Address.Street)`
   ignores exactly that path (not every `street`), follows `[JsonPropertyName]`, and covers collections via
   `p => p.Emails.Select(e => e.EmailAddress)`. New: `IgnorePaths("emails[*].type")`,

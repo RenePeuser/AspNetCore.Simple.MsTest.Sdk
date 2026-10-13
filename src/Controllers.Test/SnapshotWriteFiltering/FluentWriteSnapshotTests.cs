@@ -60,12 +60,15 @@ namespace Controllers.Test.SnapshotWriteFiltering
             try
             {
                 // firstName is compared and stale, so the chain fails - but only AFTER the writer ran.
+                // MSTESTSDK003 flags WriteSnapshot() in Release; recording is exactly what this test proves.
+#pragma warning disable MSTESTSDK003
                 await Assert.That.ThrowsExactlyAsync<AssertFailedException>(() => Client.AssertGet("api/v1/persons")
                                                                                         .Produces<IEnumerable<Person>>(HttpStatusCode.OK)
                                                                                         .ExpectedResponseFromEmbeddedJson(SnapshotReference)
                                                                                         .FilterDifferences(DropAge)
                                                                                         .WriteSnapshot()
                                                                                         .ExecuteAsync(),
+#pragma warning restore MSTESTSDK003
                                                                             because: "'firstName' is not filtered out and the fixture holds 'Stale', so the comparison has to fail. If it passes, the snapshot was never compared and everything below would be measuring nothing.",
                                                                             fix: "Check that the embedded snapshot reference resolves and that IgnoreDifferences only drops the age differences.")
                             .ConfigureAwait(false);

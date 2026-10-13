@@ -154,6 +154,9 @@ await Client.AssertGet("api/persons")
     .ExecuteAsync();
 ```
 
+Records in Debug only — remove it again before committing (a Release build reports `MSTESTSDK003`). For a bulk
+update use the environment variable `TestSdkSettings__WriteResponse=true` instead.
+
 ---
 
 ## Placeholder parameters
