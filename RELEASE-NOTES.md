@@ -156,6 +156,18 @@ parse error. Only a real envelope - `content.value` together with `statusCode` -
   going out missing.
 - **Fluent API - blank parameter and header names throw** an `ArgumentException` at the line that gives them.
   Before, `WithParameter("", value)` / `WithHeader("", value)` were accepted and the value was never sent.
+- **Fluent API - placeholder names are naked.** A name carrying the `$` delimiter anywhere but as a full wrap
+  (`"$"`, `"$$"`, `"$Id"`, `"I$d"`) throws - it named a token nothing contains. `WithParameter("Id", 1)` is the
+  spelling; the wrapped `"$Id$"` keeps working for migration.
+- **Fluent API - placeholder values in the url are URL-encoded.** `WithParameter("Name", "Son Goku & Co")` in
+  `?name=$Name$` split the query at `&`; now the whole value arrives. The classic API is unchanged.
+- **Fluent API - a parameter no placeholder takes throws** (`PLACEHOLDER PARAMETER NOT USED`, what/why/fix) when the
+  chain executes. Placeholder names are case-sensitive, so `WithParameter("Name", …)` for `$NAME$` sent nothing;
+  neither did a placeholder inside `WithQueryParameter`, which sends its value literally. Url, body and expected
+  response are searched; the check is off while recording a snapshot (the placeholder lands in the file only then).
+- **Fluent API - blank inputs throw.** `AcceptsFromJsonString("")`, `ExpectedResponseFromJsonString("")` (went green
+  without comparing anything), the `…FromEmbeddedJson("")` variants, `ExpectedHeadersFromJsonString("")` and an empty
+  `IgnorePaths()` are rejected at the line that gives them.
 
 ## 10.0.0 - One settings class instead of static globals
 

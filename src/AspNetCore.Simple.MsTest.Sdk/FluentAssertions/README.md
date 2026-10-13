@@ -59,6 +59,14 @@ var created = await Client.AssertPost("api/v1/persons")
 `WithParameters("Goku")`, `WithParameters(42)` or `WithParameters(list)` throw `ArgumentException`: a value or a
 collection has no properties that name placeholders.
 
+- Names are naked: a name with `$` anywhere but as a full wrap (`"$"`, `"$Id"`, `"I$d"`) throws.
+- Names are case-sensitive and every parameter has to fill a placeholder in the url, the body or the expected
+  response — otherwise `ExecuteAsync()` throws `PLACEHOLDER PARAMETER NOT USED` instead of sending nothing (off while
+  recording a snapshot).
+- Values are formatted culture-invariant (`1.5`, never `1,5`) and URL-encoded in the url, so `Son Goku & Co`
+  arrives as one value.
+- `WithQueryParameter` sends its value literally — pass the value itself, not a placeholder.
+
 ### Query parameters — built from parts, the SDK encodes
 
 ```csharp
@@ -274,6 +282,8 @@ usual output (what happened, both values, why it fails, how to fix it, test file
   silently dropped.
 - **A header name twice** (case-insensitive, `X-Id` = `x-id`) — the second value silently replaced the first. Send
   several values comma-separated.
+- **A blank input** — empty parameter / header name, `AcceptsFromJsonString("")`, `ExpectedResponseFromJsonString("")`
+  (compared nothing and went green), `ExpectedHeadersFromJsonString("")`, `IgnorePaths()` without a path.
 
 Sibling branches of a stored stage may each set the same name — that is branching, not repeating. Overriding a
 name the stored stage already holds is repeating: leave it out of the base and set it per branch.

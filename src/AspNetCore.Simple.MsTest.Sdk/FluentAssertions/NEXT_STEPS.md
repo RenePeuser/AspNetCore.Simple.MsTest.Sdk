@@ -224,11 +224,20 @@ before the fix). Fixed, tests in `src/MinimalApi.Test/FluentBuilders/FluentReque
 - `HttpRequestBuilder.AddParameters` / `AddHeader` - blank names throw (`Throw.IfNullOrWhiteSpace` from
   Argument.Check - **the user wants `Throw.*` for every guard**, not `ArgumentException.ThrowIf*`).
 
-Still open (not changed, would alter classic behavior - ask the user first):
+Second round (user: "alle Punkte prüfen, validieren, verbessern"), tests in
+`src/MinimalApi.Test/FluentBuilders/FluentParameterAndInputTests.cs` (25), every gap probed red first:
 
-- Path placeholder values are not URL-encoded (`WithParameter("Name", "a b/c")` in a path segment breaks the url).
-- A parameter whose placeholder appears nowhere (typo `$ID$` vs. `Id`) is not reported; route validation catches it
-  in the url, nothing catches it in a body.
+- Url placeholder values URL-encoded and unused parameters reported - FLUENT ONLY via the engine flag
+  `fluentParameters` (`AssertHttpCallAsync`, both overloads) → `ParameterReplacer.ReplaceInUrl(url, encodeValues, …)`
+  and `EnsureEveryParameterIsUsed` (url + body + expected, skipped while recording) →
+  `FluentUsageError.UnusedParameters`. The classic API is untouched (it passes recording-only parameters).
+  Counter-check: flag off → 3 red.
+- `PlaceholderName.Wrap` rejects names with `$` except the full legacy wrap.
+- Blank `Accepts…`, `ExpectedResponse…`, `ExpectedHeaders…`, empty `IgnorePaths()` → `Throw.*`. The blank expected
+  response went GREEN without comparing.
+- Pinned (unchanged): `Accepts(null)` sends the json `null`; typed `"{}"` expectation still compares.
+- **Gotcha:** never rewrite source files with Windows PowerShell `Get-Content -Raw` / `Set-Content` — it reads
+  BOM-less UTF-8 as ANSI and writes mojibake (`§` → `Â§`). Use the Edit tool.
 - Local env: `dotnet restore` fails with NU1507 because the user's global NuGet config has two sources
   (`nuget.org`, `pulse`). Restore with a config that only lists nuget.org (`--configfile`).
 
