@@ -209,8 +209,8 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
     `FILE_NAMING_GUIDE.md`, `CONCEPT_AI_FRIENDLY_ASSERTS.md`, `ASSERT_EXTENSIONS_COMPLETE_LIST.md`,
     `ASSERT_EXTENSIONS_ADVANCED_CREATIVE.md`. The rest stays in history (`0cb4b63`). Still open, ask the user:
     `MIGRATION_PLAN.md`, `ASSERT_FOLDER_STRUCTURE.md` (deleted, undecided), `test-pack/` (untracked local
-    `10.0.0-alpha.189.nupkg`). `LinkedIn-Article.txt` → `docu/linkedin-article.md` (content unchanged; it still
-    describes "v2.0" - refresh for the 10.1 fluent launch if the user wants to post it).
+    `10.0.0-alpha.189.nupkg`). `LinkedIn-Article.txt` → `docu/linkedin-article.md`, rewritten for the 10.1 fluent
+    launch (theme: "a test must never go silently green"). If items 11/12 land before posting, add them there.
 16. ~~**Root `README.md`**~~ ✅ done 2026-10-13 (uncommitted): duplicate badges removed, Build badge pointed at
     the existing `build-and-publish.yml`, QUERY dropped from the fluent roadmap (it is implemented), install line
     uses `--prerelease` instead of the stale `9.6.0-alpha.19`. The "Alpha only" notes are gone too (fluent API
