@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -89,6 +90,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <summary>
         /// Applies the caller's custom request headers. TryAddWithoutValidation keeps non-standard test
         /// headers (X-Correlation-Id and friends) from being rejected by HttpClient's header validation.
+        ///
+        /// <para>
+        /// Content-Type, Content-Language and the other content headers live on the CONTENT in HttpClient - the
+        /// request headers refuse them. Ignoring that refusal sent the request without the header the test reads,
+        /// so a content header replaces the content's own value, and a header neither side accepts fails.
+        /// </para>
         /// </summary>
         private static void AddRequestHeaders(HttpRequestMessage httpRequestMessage,
                                               IReadOnlyDictionary<string, string>? headers)
@@ -100,7 +107,24 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             foreach (var (key, value) in headers)
             {
-                httpRequestMessage.Headers.TryAddWithoutValidation(key, value);
+                if (httpRequestMessage.Headers.TryAddWithoutValidation(key, value))
+                {
+                    continue;
+                }
+
+                var content = httpRequestMessage.Content;
+
+                if (content.IsNotNull())
+                {
+                    content.Headers.Remove(key);
+
+                    if (content.Headers.TryAddWithoutValidation(key, value))
+                    {
+                        continue;
+                    }
+                }
+
+                throw new InvalidOperationException($"The header '{key}' cannot be sent with this {httpRequestMessage.Method} request - HttpClient refuses it, so the request would go out without it. Remove WithHeader(\"{key}\", …) or check the header name.");
             }
         }
     }

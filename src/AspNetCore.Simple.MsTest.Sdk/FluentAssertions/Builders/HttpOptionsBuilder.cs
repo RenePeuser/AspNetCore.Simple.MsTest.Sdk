@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Argument.Check;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -50,21 +51,30 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public IHttpOptionsExpectationConfiguring ExpectedHeaders(IImmutableDictionary<string, string> expectedHeaders)
         {
+            Throw.IfNull(expectedHeaders);
+
             return ExpectedHeaders(expectedHeaders.ToImmutableDictionary(item => item.Key, item => item.Value.AsImmutableList()));
         }
 
         public IHttpOptionsExpectationConfiguring ExpectedHeaders(IImmutableDictionary<string, ImmutableList<string>> expectedHeaders)
         {
+            Throw.IfNull(expectedHeaders);
+
             return WithExpectedHeaders(OptionsHeaders.Serialize(expectedHeaders));
         }
 
+        // A blank expectation is no expectation - like an empty ExpectedResponseFromJsonString it must not reach the engine.
         public IHttpOptionsExpectationConfiguring ExpectedHeadersFromJsonString(string expectedHeadersJson)
         {
+            Throw.IfNullOrWhiteSpace(expectedHeadersJson);
+
             return WithExpectedHeaders(expectedHeadersJson);
         }
 
         public IHttpOptionsExpectationConfiguring ExpectedHeadersFromEmbeddedJson(string embeddedFileName)
         {
+            Throw.IfNullOrWhiteSpace(embeddedFileName);
+
             return WithExpectedHeaders(embeddedFileName);
         }
 

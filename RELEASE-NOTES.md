@@ -143,6 +143,20 @@ A response body with its own `content.value` (a blog post, a CMS page) was read 
 envelope: the comparison unwrapped the fragment and failed with "INVALID JSON FORMAT" or an unexpected
 parse error. Only a real envelope - `content.value` together with `statusCode` - is unwrapped now.
 
+### Fixed: request details that were sent differently than the test reads
+
+- **Placeholder values are formatted culture-invariant (classic and fluent).** `WithParameter("Amount", 1.5m)` /
+  `("$Amount$", 1.5m)` used the machine's current culture: a German machine sent `amount=1,5` in the url and the
+  invalid json `{ "amount": 1,5 }` in a body, while the build server sent `1.5`. Url, body and expected json now use
+  `CultureInfo.InvariantCulture` - the same rule `WithQueryParameter` already followed. **Behavior change:** a
+  `DateTime` placeholder now reads `10/13/2026 08:30:00` on every machine instead of the local date format.
+- **Fluent API - content headers are sent.** `WithHeader("Content-Type", …)` (and every other `Content-*` header)
+  was dropped silently: `HttpClient` keeps them on the content and refuses them on the request. They now replace the
+  content's own value. A header `HttpClient` refuses altogether (e.g. a name with spaces) fails the test instead of
+  going out missing.
+- **Fluent API - blank parameter and header names throw** an `ArgumentException` at the line that gives them.
+  Before, `WithParameter("", value)` / `WithHeader("", value)` were accepted and the value was never sent.
+
 ## 10.0.0 - One settings class instead of static globals
 
 ### Breaking: all global settings moved into `TestSdkSettings`

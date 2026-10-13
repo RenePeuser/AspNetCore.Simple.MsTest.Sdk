@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -33,6 +34,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                        bool validateRouteOnly = false,
                                                        HttpStatusCode? expectedHttpStatusCode = null,
                                                        IReadOnlyDictionary<string, string>? requestHeaders = null,
+                                                       bool fluentParameters = false,
                                                        CancellationToken cancellationToken = default,
                                                        [CallerMemberName] string callerMemberName = "",
                                                        [CallerLineNumber] int callerLineNumber = 0)
@@ -47,12 +49,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var payloadFile = GetService<IEmbeddedFileLocalizer>(callingAssembly).LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
             var expectedResultFile = new EmbeddedFileInfo(string.Empty, string.Empty, null);
 
+            if (fluentParameters)
+            {
+                EnsureEveryParameterIsUsed(parameters, url, payloadFile.Content, string.Empty, writeResponse,
+                                           callingAssembly, callerFilePath, callerMemberName, callerLineNumber);
+            }
+
             // Resolve parameters in payload
             var resolvedPayload = parameterReplacer.ResolveParameters(payloadFile.Content, parameters);
             var resolvedExpectedJson = string.Empty;
 
             // URL parameter replacement
-            var resolvedUrl = parameterReplacer.ReplaceInUrl(url, parameters);
+            var resolvedUrl = parameterReplacer.ReplaceInUrl(url, fluentParameters, parameters);
 
             var apiVersion = GetService<IApiVersionResolver>(callingAssembly).Resolve(url, client);
 
@@ -252,6 +260,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                          HttpStatusCode? expectedHttpStatusCode = null,
                                                                          Predicate<Difference>? differenceFilter = null,
                                                                          IReadOnlyDictionary<string, string>? requestHeaders = null,
+                                                                         bool fluentParameters = false,
                                                                          CancellationToken cancellationToken = default,
                                                                          [CallerArgumentExpression(nameof(payloadAsJson))]
                                                                          string payloadAsJsonParameterName = "",
@@ -279,6 +288,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var payloadFile = embeddedFileLocalizer.LocalizeRequestFile(payloadAsJson, callerFilePath, callingAssembly);
             var expectedResultFile = embeddedFileLocalizer.LocalizeResponseFile(expectedResult, callerFilePath, callingAssembly);
 
+            if (fluentParameters)
+            {
+                EnsureEveryParameterIsUsed(parameters, url, payloadFile.Content, expectedResultFile.Content, writeResponse,
+                                           callingAssembly, callerFilePath, callerMemberName, callerLineNumber);
+            }
+
             // Resolve parameters in payload once here - ready-to-use for HTTP call
             var resolvedPayload = parameterReplacer.ResolveParameters(payloadFile.Content, parameters);
 
@@ -286,7 +301,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             // URL parameter replacement - replace placeholders in URL with actual values
             // This is the only preprocessing needed here, all other logic is handled by AssertableHttpClient
-            var resolvedUrl = parameterReplacer.ReplaceInUrl(url, parameters);
+            var resolvedUrl = parameterReplacer.ReplaceInUrl(url, fluentParameters, parameters);
 
             var apiVersion = GetService<IApiVersionResolver>(callingAssembly).Resolve(url, client);
 
@@ -347,6 +362,39 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var result = await GetService<IAssertableHttpClient>(callingAssembly).AssertAsync(context).ConfigureAwait(false);
 
             return result;
+        }
+
+        // Fluent chains only: the classic API also passes parameters that only RECORDING uses (a value the response
+        // carries is written back as its placeholder). A parameter no placeholder in url, body or expected takes is
+        // never sent - mostly a casing typo ($ID$ vs. "Id") or a placeholder put into WithQueryParameter, which sends
+        // its value literally.
+        private static void EnsureEveryParameterIsUsed((string Key, object? Value)[] parameters,
+                                                       string url,
+                                                       string payload,
+                                                       string expected,
+                                                       bool writeResponse,
+                                                       Assembly callingAssembly,
+                                                       string callerFilePath,
+                                                       string callerMemberName,
+                                                       int callerLineNumber)
+        {
+            // Recording writes the placeholders INTO the snapshot - until then the expected file cannot hold them.
+            if (writeResponse || GetService<TestSdkSettings>(callingAssembly).WriteResponse)
+            {
+                return;
+            }
+
+            var unused = parameters.Where(parameter => url.Contains(parameter.Key, StringComparison.Ordinal).IsFalse() &&
+                                                       payload.Contains(parameter.Key, StringComparison.Ordinal).IsFalse() &&
+                                                       expected.Contains(parameter.Key, StringComparison.Ordinal).IsFalse())
+                                   .ToImmutableList();
+
+            if (unused.IsEmpty)
+            {
+                return;
+            }
+
+            throw FluentUsageError.UnusedParameters(unused, url, callingAssembly, callerFilePath, callerMemberName, callerLineNumber);
         }
     }
 }

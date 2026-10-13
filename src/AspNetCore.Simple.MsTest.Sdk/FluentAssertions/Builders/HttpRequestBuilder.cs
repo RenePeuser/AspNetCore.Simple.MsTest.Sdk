@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System;
+using Argument.Check;
 
 namespace AspNetCore.Simple.MsTest.Sdk
 {
@@ -101,12 +102,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public IHttpRequestConfiguring AcceptsFromJsonString(string bodyJson,
                                                              [CallerArgumentExpression(nameof(bodyJson))] string bodyJsonExpression = "")
         {
+            // A blank body is no body - the engine sends none and the line would read as if it set one.
+            // Without a body: go to Produces… directly.
+            Throw.IfNullOrWhiteSpace(bodyJson);
+
             return WithBody(bodyJson, bodyJsonExpression);
         }
 
         public IHttpRequestConfiguring AcceptsFromEmbeddedJson(string embeddedFileName,
                                                                [CallerArgumentExpression(nameof(embeddedFileName))] string embeddedFileNameExpression = "")
         {
+            Throw.IfNullOrWhiteSpace(embeddedFileName);
+
             return WithBody(embeddedFileName, embeddedFileNameExpression);
         }
 
@@ -225,6 +232,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             foreach (var (key, value) in parameters)
             {
+                // An empty name wraps to no placeholder at all - the engine skips it and the value is never sent.
+                Throw.IfNullOrWhiteSpace(key);
+
                 var placeholder = PlaceholderName.Wrap(key);
                 var existing = result.FindIndex(parameter => string.Equals(parameter.Key, placeholder, StringComparison.Ordinal));
 
@@ -256,7 +266,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private HttpRequestBuilder AddParametersFrom(object source)
         {
-            ArgumentNullException.ThrowIfNull(source);
+            Throw.IfNull(source);
 
             // A Dictionary<string, string> (or any other value type) does not convert to
             // IReadOnlyDictionary<string, object?> and lands here. Reflecting over it would yield $Count$,
@@ -310,7 +320,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private HttpRequestBuilder AddQueryParameter(string key,
                                                      object? value)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(key);
+            Throw.IfNullOrWhiteSpace(key);
 
             var values = QueryValues(value);
 
@@ -409,7 +419,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private HttpRequestBuilder AddBearerToken(string token)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(token);
+            Throw.IfNullOrWhiteSpace(token);
 
             return AddHeader(AuthorizationHeader, $"Bearer {token}");
         }
@@ -419,6 +429,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private HttpRequestBuilder AddHeader(string key,
                                              string value)
         {
+            Throw.IfNullOrWhiteSpace(key);
+            Throw.IfNull(value);
+
             if (_headers.TryGetValue(key, out var existing) && string.Equals(key, AuthorizationHeader, StringComparison.OrdinalIgnoreCase))
             {
                 throw FluentUsageError.DuplicateAuthorization(existing,

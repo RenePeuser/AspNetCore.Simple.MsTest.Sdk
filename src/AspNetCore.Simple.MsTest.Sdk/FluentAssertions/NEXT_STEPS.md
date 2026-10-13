@@ -211,6 +211,27 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
 18. ~~**`Outputs/Builders/TestInfoBuilder.cs`**~~ ✅ done 2026-10-13 (uncommitted): the whole file was commented
     out and unreferenced — deleted.
 
+## Pre-release coverage audit ✅ done 2026-10-13 (uncommitted)
+
+Every public fluent method was mapped to consumer tests; gaps were probed with throw-away tests first (all four red
+before the fix). Fixed, tests in `src/MinimalApi.Test/FluentBuilders/FluentRequestSafetyTests.cs` (14):
+
+- `ParameterReplacer.Format` - placeholder values culture-invariant in url, body, expected json and snapshot writing
+  (was `ToString()` → `1,5` in the url, invalid json in a body). Shared engine → classic API changes too.
+- `HttpRequestMessageBuilder.AddRequestHeaders` - ignored `TryAddWithoutValidation`'s `false`: `Content-Type` & co.
+  were dropped. Now set on the content (replacing its value); refused on both sides → exception → the engine reports
+  it as `AssertFailedException`. Note: the engine always creates a (possibly empty) content, also for GET.
+- `HttpRequestBuilder.AddParameters` / `AddHeader` - blank names throw (`Throw.IfNullOrWhiteSpace` from
+  Argument.Check - **the user wants `Throw.*` for every guard**, not `ArgumentException.ThrowIf*`).
+
+Still open (not changed, would alter classic behavior - ask the user first):
+
+- Path placeholder values are not URL-encoded (`WithParameter("Name", "a b/c")` in a path segment breaks the url).
+- A parameter whose placeholder appears nowhere (typo `$ID$` vs. `Id`) is not reported; route validation catches it
+  in the url, nothing catches it in a body.
+- Local env: `dotnet restore` fails with NU1507 because the user's global NuGet config has two sources
+  (`nuget.org`, `pulse`). Restore with a config that only lists nuget.org (`--configfile`).
+
 ## Deliberately NOT ported (do not reopen)
 
 - `AssertUrlExists` stays classic (not a chain).

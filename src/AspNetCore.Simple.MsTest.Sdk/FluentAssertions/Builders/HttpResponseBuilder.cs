@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
+using Argument.Check;
 using Extensions.Pack;
 
 namespace AspNetCore.Simple.MsTest.Sdk
@@ -125,12 +126,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public IHttpComparisonConfiguring<TResult> ExpectedResponseFromJsonString(string expectedJson,
                                                                                   [CallerArgumentExpression(nameof(expectedJson))] string expectedJsonExpression = "")
         {
+            // A blank expectation compares nothing - the chain went green without looking at the response.
+            Throw.IfNullOrWhiteSpace(expectedJson);
+
             return WithExpected(expectedJson, expectedJsonExpression);
         }
 
         public IHttpComparisonConfiguring<TResult> ExpectedResponseFromEmbeddedJson(string embeddedFileName,
                                                                                     [CallerArgumentExpression(nameof(embeddedFileName))] string embeddedFileNameExpression = "")
         {
+            Throw.IfNullOrWhiteSpace(embeddedFileName);
+
             return WithExpected(embeddedFileName, embeddedFileNameExpression);
         }
 
@@ -161,8 +167,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    : difference => previous(difference) || ignore(difference));
         }
 
+        // No path ignores nothing - an IgnorePaths() left over from an edit would read as if it ignored something.
         public IHttpComparisonConfiguring<TResult> IgnorePaths(params string[] paths)
         {
+            Throw.IfNullOrEmpty(paths);
+
             var patterns = paths.Select(MemberPathPattern.Parse).ToImmutableList();
 
             return IgnoreDifferencesWhere(d => patterns.Any(pattern => pattern.Matches(d.MemberPath)));
@@ -253,6 +262,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                differenceFilter: _ignore is null ? null : d => _ignore(d).IsFalse(),
                                                requestHeaders: _headers,
                                                cancellationToken: cancellationToken,
+                                               fluentParameters: true,
                                                payloadAsJsonParameterName: _bodyExpression,
                                                expectedResultParameterName: _expectedExpression,
                                                callerFilePath: _callerFilePath,

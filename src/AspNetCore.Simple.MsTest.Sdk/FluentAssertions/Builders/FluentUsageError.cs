@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System;
@@ -7,7 +9,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 {
     /// <summary>
     /// Builds the message for a fluent chain that is used wrongly in a way no type-state can prevent, because
-    /// it depends on a runtime value (a parameter or header name given twice). Same layout as the sdk's
+    /// it depends on a runtime value (a parameter or header name given twice, a parameter no placeholder takes). Same layout as the sdk's
     /// assertion output: what happened, why it is a problem, how to fix it, and where in the test.
     /// </summary>
     internal static class FluentUsageError
@@ -114,6 +116,33 @@ namespace AspNetCore.Simple.MsTest.Sdk
                          fix: ["Set the key once. For several values pass ONE collection (sent as key=a&key=b),",
                                "for another value branch a stored stage:"],
                          fixCode: [".WithQueryParameter(\"" + key + "\", new[] { " + Format(firstValue) + ", " + Format(secondValue) + " })"],
+                         callingAssembly,
+                         callerFilePath,
+                         callerMemberName,
+                         callerLineNumber);
+        }
+
+        internal static ArgumentException UnusedParameters(IReadOnlyList<(string Key, object? Value)> parameters,
+                                                           string url,
+                                                           Assembly callingAssembly,
+                                                           string callerFilePath,
+                                                           string callerMemberName,
+                                                           int callerLineNumber)
+        {
+            var what = parameters.Select(parameter => $"{"Parameter",-10} : {parameter.Key} = {Format(parameter.Value)}")
+                                 .Append($"{"Url",-10} : {url}")
+                                 .ToArray();
+
+            var nakedName = parameters[0].Key.Trim('$');
+
+            return Build(title: "PLACEHOLDER PARAMETER NOT USED",
+                         what: what,
+                         why: ["No placeholder in the url, the request body or the expected response takes this parameter, so",
+                               "its value is never sent - the test would not check what it reads. Placeholder names are",
+                               "case-sensitive ($ID$ is not \"Id\"), and WithQueryParameter sends its value literally."],
+                         fix: ["Use the exact placeholder name, put the placeholder where the value belongs, or remove the",
+                               "parameter. For a query value pass the value itself:"],
+                         fixCode: [".WithQueryParameter(\"" + nakedName.ToLowerInvariant() + "\", " + Format(parameters[0].Value) + ")"],
                          callingAssembly,
                          callerFilePath,
                          callerMemberName,

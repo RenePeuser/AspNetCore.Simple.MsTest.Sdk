@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Extensions.Pack;
@@ -77,6 +78,17 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             params (string Key, object? Value)[] parameters);
 
         /// <summary>
+        /// Like <see cref="ReplaceInUrl(string, ValueTuple{string, object}[])"/>, but with
+        /// <paramref name="encodeValues"/> every value is URL-encoded first, so <c>Son Goku &amp; Co</c> or <c>a/b</c>
+        /// arrive as ONE value instead of splitting the query or adding a path segment.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like parameters should not be strings",
+                                                            Justification = "URL contains template placeholders like {userId} that need string manipulation before becoming a valid URI")]
+        string ReplaceInUrl(string url,
+                            bool encodeValues,
+                            params (string Key, object? Value)[] parameters);
+
+        /// <summary>
         /// Replaces parameter placeholders in a URL string using the context's parameters.
         /// This is the preferred method for context-based operations.
         /// </summary>
@@ -149,7 +161,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 if (keyValue.Value.IsNotNull() &&
                     type.IsPrimitive)
                 {
-                    var primitiveTypeValue = keyValue.Value.ToString();
+                    var primitiveTypeValue = Format(keyValue.Value);
 
                     if (primitiveTypeValue.IsNull())
                     {
@@ -165,7 +177,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 // Only replace full placeholder tokens to prevent corrupting other placeholders/words.
-                replacedString = replacedString.Replace(keyValue.Key, keyValue.Value.ToString(), StringComparison.Ordinal);
+                replacedString = replacedString.Replace(keyValue.Key, Format(keyValue.Value), StringComparison.Ordinal);
             }
 
             return replacedString;
@@ -201,6 +213,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public string ReplaceInUrl(string url,
                                    params (string Key, object? Value)[] parameters)
         {
+            return ReplaceInUrl(url, false, parameters);
+        }
+
+        public string ReplaceInUrl(string url,
+                                   bool encodeValues,
+                                   params (string Key, object? Value)[] parameters)
+        {
             if (url.IsNullOrWhiteSpace() || parameters.IsNullOrEmpty())
             {
                 return url;
@@ -219,7 +238,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 }
 
                 // Replace placeholder with actual value (null becomes empty string)
-                replacedUrl = replacedUrl.Replace(key, value?.ToString() ?? string.Empty, StringComparison.Ordinal);
+                var text = value is null ? string.Empty : Format(value) ?? string.Empty;
+
+                replacedUrl = replacedUrl.Replace(key, encodeValues ? Uri.EscapeDataString(text) : text, StringComparison.Ordinal);
             }
 
             return replacedUrl;
@@ -234,6 +255,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         // ============================================================
         // Private helper methods for smart replacement logic
         // ============================================================
+
+        // Culture-invariant, like WithQueryParameter: a German machine would otherwise send 1,5 - an invalid json
+        // number in a body and another value in a url than the build server sends for the same test.
+        private static string? Format(object value)
+        {
+            return value is IFormattable formattable
+                       ? formattable.ToString(null, CultureInfo.InvariantCulture)
+                       : value.ToString();
+        }
 
         private static void ApplySmartReplacements(JToken root,
                                                    params (string key, object? Value)[] parameters)
@@ -257,7 +287,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                   value);
 
                 // FullText nur wenn value != null
-                if (value != null && value.ToString()?.Length >= 3)
+                if (value != null && Format(value)?.Length >= 3)
                 {
                     ReplaceFullText(root, key, value);
                 }
@@ -310,7 +340,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 return;
             }
 
-            var originalText = originalValue.ToString();
+            var originalText = Format(originalValue);
 
             if (originalText.IsNullOrWhiteSpace() || originalText.Length < 3)
             {

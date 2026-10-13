@@ -133,6 +133,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                expectedHttpStatusCode: _expectedStatusCode,
                                                requestHeaders: _headers,
                                                cancellationToken: cancellationToken,
+                                               fluentParameters: true,
                                                callerMemberName: _callerMemberName,
                                                callerLineNumber: _callerLineNumber);
         }
