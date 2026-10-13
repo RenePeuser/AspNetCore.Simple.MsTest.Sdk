@@ -5,13 +5,14 @@
 
 ## Current state — read first
 
-- **Commit state:** items 1–6 are committed on `master` (last: `0e4d0f9`). The **builder review + item 7 + item 13
-  are done but UNCOMMITTED** (check `git status`). The user commits themselves — do not commit unless asked.
+- **Commit state:** items 1–7, 13 and the builder review are committed on `master` (`39f3565`). The **three open
+  review findings (OPTIONS headers, header-name case, route check of `Produces(code)`) are done but UNCOMMITTED**
+  (check `git status`). The user commits themselves — do not commit unless asked.
 - **Design rule (from the user):** the builders GUIDE the user so nothing can be used wrongly — a method only where
   it means something, a once-only call is a stage switch, a wrong chain does not compile. Runtime throws only for
   what no type can see (repeated names), and then with the sdk's what/why/fix output.
-- **NEXT TASK = the open findings of the builder review (section below), then item 8.** Present them to the user
-  first — each one changes behavior.
+- **NEXT TASK = item 8 (analyzer for `WriteSnapshot()`).** Open question for the user, see "Review findings": read
+  RESPONSE headers raw too (consistency) or keep the parsed form?
 - **Working rules (from the user):**
   - Every fix is proven with **automated consumer tests through a real API call** (sample APIs `src/MinimalApi`
     + `src/MinimalApi.Test`, `src/Controllers` + `src/Controllers.Test`), each positive case paired with a test
@@ -19,6 +20,9 @@
   - Counter-check: revert the fix temporarily and confirm the new tests go red. `git stash push -- <sdk files>`
     only works when the tests compile without the fix; when they reference new types (as in the builder review),
     back up `FluentAssertions/`, revert the fix by hand into its OLD shape, build, test, restore the backup.
+  **Restoring with `Copy-Item` keeps the backup's OLD timestamp → MSBuild thinks the sdk is up to date and the next
+  run still tests the reverted code.** Touch restored files (`(Get-Item f).LastWriteTime = Get-Date`). Never run
+  a counter-check with `--no-build` in another test project — it uses the sdk dll copied there earlier.
   - Present findings + a proposal and get the user's go BEFORE changing signatures or behavior.
   - Add a small deterministic sample endpoint when no existing response shape can prove the behavior
     (example: `src/MinimalApi/Api/Persons/V1/Profile/`).
@@ -46,7 +50,7 @@
 - **Tooling:** in this Windows/Git-Bash setup, multi-line Python or text with quotes inside a Bash heredoc breaks the
   shell — write the script to a file (Write tool) and run it, or use the Edit tool.
 
-## Builder review ✅ done 2026-10-13 (uncommitted) — open findings below
+## Builder review ✅ done 2026-10-13 (committed `39f3565`) — findings below ✅ done (uncommitted)
 
 Decided with the user and implemented (decision log entry of 2026-10-13, "Builder führen den Nutzer"):
 
@@ -83,18 +87,20 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
   Counter-check (targeted reverts with backup, NOT `git stash` — the tests reference the new interface): 16 of 65
   builder tests red without the fixes.
 
-### Open findings (present to the user before changing anything)
+### Review findings ✅ done 2026-10-13 (uncommitted) — decision log entries "OPTIONS vergleicht…" and "`Produces(code)` validiert die ROUTE"
 
-- **OPTIONS compares response headers only.** `Allow` is a CONTENT header in `HttpClient` (`result.Content.Headers`),
-  so `AssertOptions(…)` — classic and fluent — can never check `Allow`, the header OPTIONS exists for
-  (`Client.Assert.Options.cs`, `result.Headers.ToDictionary`). The sample therefore uses `Access-Control-Allow-Methods`.
-- **`ExpectedHeaders(dictionary)` breaks mixed-case header names.** The dictionary is serialized with the app's
-  `JsonSerializerOptions`, whose dictionary key policy (camelCase) turns `Access-Control-Allow-Methods` into
-  `access-Control-Allow-Methods`; the comparison is case-sensitive → never matches. Classic overloads too. Raw JSON
-  works. Header names are case-insensitive by HTTP — compare them that way, and/or serialize without key policy.
-- **`Produces(code)` skips the WHOLE endpoint validation**, including the route check — it only lacks a type to
-  compare. A status-only test against a misspelled url is not reported as "endpoint not found". Consider validating
-  the route but not the type on that path.
+- ✅ **OPTIONS compares response AND content headers** (`AssertHttpExtensions/OptionsHeaders.cs`, classic + fluent).
+  Content headers raw (`NonValidated`), response headers unchanged (parsed). Sample `OPTIONS persons/echo-request`
+  now sends `Allow` + `Access-Control-Allow-Methods`. **Open question for the user:** read response headers raw too?
+  Consistent, but changes existing expectations of parsed list headers (`Vary`, `Cache-Control`).
+- ✅ **Header names case-insensitive**, dictionary overloads without key policy, duplicate spelling → what/why/fix.
+  Tests: `src/MinimalApi.Test/FluentBuilders/OptionsHeaders/OptionsHeaderTests.cs` (+ embedded
+  `EchoRequestOptionsHeaders.json`). Counter-check: 14 / 11 / 7 / 1 red (see decision log).
+- ✅ **`Produces(code)` validates the ROUTE, not the type** (`HttpAssertContext<T>.ValidateRouteOnly`, internal);
+  `.SkipEndpointValidation()` is forwarded now. Tests: `src/MinimalApi.Test/FluentBuilders/StatusOnlyRouteValidationTests.cs`,
+  `src/Controllers.Test/Api/Routing/StatusOnlyRouteValidationTests_Fluent.cs`. Counter-check: 10/27, 4/9 red.
+  **Known limit (unchanged, existing design):** the route matcher falls back to ignoring constraints, so
+  `GET persons/echo-request` matches `GET persons/{id:long}` — wrong-verb samples use paths without such a sibling.
 - `Accepts(string)` (obsolete, error) exists on the body stage only — fine; GET/DELETE do not even show it.
 
 ## Priority 1 — before stable (signature changes) ✅ done 2026-10-13
@@ -185,5 +191,5 @@ IHttpRequestConfiguring            (AssertGet / AssertDelete — no body at all 
 
 ## Recommended order
 
-~~Commit → 1 + 2 → 5 → 3 → 4 → 6 → Builder review → 7~~ (done) → **open review findings** → 8 → Priority 3 →
+~~Commit → 1 + 2 → 5 → 3 → 4 → 6 → Builder review → 7 → open review findings~~ (done) → **8** → Priority 3 →
 cleanup.
