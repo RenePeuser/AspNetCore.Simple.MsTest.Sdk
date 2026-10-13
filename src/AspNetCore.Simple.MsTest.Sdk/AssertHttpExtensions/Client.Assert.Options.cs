@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -24,7 +23,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             IImmutableDictionary<string, ImmutableList<string>> expectedHeaderStructure = expectedHeaders.ToImmutableDictionary(item => item.Key, item => item.Value.AsImmutableList());
 
-            return client.AssertOptionsAsync(url, expectedHeaderStructure.ToJson(JsonSerializerOptionsFor(callingAssembly)), callingAssembly,
+            return client.AssertOptionsAsync(url, OptionsHeaders.Serialize(expectedHeaderStructure), callingAssembly,
                                              callerFilePath, callerMemberName,
                                              callerLineNumber);
         }
@@ -38,7 +37,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var callingAssembly = Assembly.GetCallingAssembly();
 
-            return client.AssertOptionsAsync(url, expectedHeaders.ToJson(JsonSerializerOptionsFor(callingAssembly)), callingAssembly,
+            return client.AssertOptionsAsync(url, OptionsHeaders.Serialize(expectedHeaders), callingAssembly,
                                              callerFilePath, callerMemberName,
                                              callerLineNumber);
         }
@@ -88,7 +87,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            callerMemberName: callerMemberName,
                                            callerLineNumber: callerLineNumber);
 
-            var headers = result.Headers.ToDictionary(item => item.Key, item => item.Value);
+            var headers = OptionsHeaders.ReadFrom(result);
+
+            expectedHeaders = OptionsHeaders.AlignNames(expectedHeaders, headers.Keys, callingAssembly,
+                                                        callerFilePath, callerMemberName,
+                                                        callerLineNumber);
 
             Assert.That.ObjectsAreEqual(expectedHeaders,
                                         headers,

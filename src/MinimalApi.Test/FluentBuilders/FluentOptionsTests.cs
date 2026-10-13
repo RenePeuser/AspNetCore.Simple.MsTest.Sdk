@@ -6,7 +6,8 @@ namespace MinimalApi.Test.FluentBuilders
 {
     /// <summary>
     /// Consumer tests for the fluent OPTIONS chain against the positive sample <c>OPTIONS persons/echo-request</c>
-    /// (204, <c>Access-Control-Allow-Methods: POST, OPTIONS</c>; <c>api-supported-versions: 1</c> comes from API versioning).
+    /// (204, <c>Allow</c> + <c>Access-Control-Allow-Methods: POST, OPTIONS</c>; <c>api-supported-versions: 1</c> comes
+    /// from API versioning). Header names, content headers and the three header sources: <c>OptionsHeaderTests</c>.
     ///
     /// <para>
     /// <see cref="IHttpOptionsConfiguring"/>'s builder used to mutate itself and return <c>this</c> from
@@ -27,12 +28,10 @@ namespace MinimalApi.Test.FluentBuilders
 
         private const string ImmutabilityFix = "Check that HttpOptionsBuilder.ExpectedHeaders… returns a NEW builder (copy-on-write) instead of mutating and returning this.";
 
-        // Raw JSON on purpose: the dictionary overloads serialize the header NAMES with the app's dictionary key
-        // policy (camelCase → "access-Control-Allow-Methods"), which never matches a mixed-case header - a
-        // separate engine issue. All three overloads share the copy-on-write this class proves.
-        private const string CorrectHeaders = """{ "Access-Control-Allow-Methods": [ "POST, OPTIONS" ], "api-supported-versions": [ "1" ] }""";
+        // All three ExpectedHeaders… overloads share the copy-on-write this class proves; raw JSON keeps it short.
+        private const string CorrectHeaders = """{ "Allow": [ "POST, OPTIONS" ], "Access-Control-Allow-Methods": [ "POST, OPTIONS" ], "api-supported-versions": [ "1" ] }""";
 
-        private const string WrongHeaders = """{ "Access-Control-Allow-Methods": [ "GET" ], "api-supported-versions": [ "1" ] }""";
+        private const string WrongHeaders = """{ "Allow": [ "POST, OPTIONS" ], "Access-Control-Allow-Methods": [ "GET" ], "api-supported-versions": [ "1" ] }""";
 
         [TestMethod]
         public Task Options_Should_Advertise_The_Allowed_Verbs()

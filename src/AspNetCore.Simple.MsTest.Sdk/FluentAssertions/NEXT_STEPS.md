@@ -16,7 +16,10 @@
   - Every fix is proven with **automated consumer tests through a real API call** (sample APIs `src/MinimalApi`
     + `src/MinimalApi.Test`, `src/Controllers` + `src/Controllers.Test`), each positive case paired with a test
     that MUST fail (`Assert.That.ThrowsExactlyAsync<AssertFailedException>(…, because:, fix:)`).
-  - Counter-check: revert the fix temporarily (`git stash push -- <sdk files>`) and confirm the new tests go red.
+  - Counter-check: revert the fix temporarily and confirm the new tests go red. `git stash push -- <sdk files>`
+    only works when the tests compile without the fix; when they reference new types (as in the builder review),
+    back up `FluentAssertions/`, revert the fix by hand into its OLD shape, build, test, restore the backup.
+  - Present findings + a proposal and get the user's go BEFORE changing signatures or behavior.
   - Add a small deterministic sample endpoint when no existing response shape can prove the behavior
     (example: `src/MinimalApi/Api/Persons/V1/Profile/`).
   - Run the full suite + `dotnet build src/AspNetCore.Simple.MsTest.Sdk/AspNetCore.Simple.MsTest.Sdk.csproj -c Release`
@@ -38,7 +41,10 @@
 - **Build:** `dotnet build AspNetCore.Simple.MsTest.Sdk.sln -c Debug` (Debug sets `FLUENT_ALPHA` automatically).
 - **IDE0005 fails the build** — an unnecessary `using` is an error, not a warning. Other CA rules are errors too
   (seen: CA1510, CA1859, CA2016) — a counter-check edit that fails to compile silently re-runs OLD binaries; always
-  confirm "Build succeeded" before reading test results.
+  confirm "Build succeeded" before reading test results. Also errors: block-bodied methods (no `=> …` on methods,
+  `.editorconfig`), IDE0055 formatting (e.g. `[..x]` spread), CS8604 nullability.
+- **Tooling:** in this Windows/Git-Bash setup, multi-line Python or text with quotes inside a Bash heredoc breaks the
+  shell — write the script to a file (Write tool) and run it, or use the Edit tool.
 
 ## Builder review ✅ done 2026-10-13 (uncommitted) — open findings below
 

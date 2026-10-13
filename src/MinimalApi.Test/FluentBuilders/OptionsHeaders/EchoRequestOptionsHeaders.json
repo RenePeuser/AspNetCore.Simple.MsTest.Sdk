@@ -1,0 +1,5 @@
+{
+  "allow": [ "POST, OPTIONS" ],
+  "access-control-allow-methods": [ "POST, OPTIONS" ],
+  "API-Supported-Versions": [ "1" ]
+}

@@ -179,7 +179,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             EnsureReferencedFilesAreParseable(context);
 
             // 1. Validate endpoint request to real world
-            endpointValidator.Validate<TResult>(context);
+            endpointValidator.Validate<TResult>(context, routeOnly: context.ValidateRouteOnly);
 
             // 2. Call the endpoint using context (contains resolved URL, resolved payload, etc.)
             using var httpResponseMessage = await httpCallHandler.CallAsync(context, context.CancellationToken).ConfigureAwait(false);

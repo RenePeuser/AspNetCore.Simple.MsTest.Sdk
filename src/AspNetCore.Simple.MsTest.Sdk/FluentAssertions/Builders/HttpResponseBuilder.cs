@@ -61,6 +61,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private readonly bool _skipEndpointValidation;
 
+        // True on the untyped Produces(code).ExpectedResponse(obj) path: TResult comes from the expected object,
+        // not from the endpoint, so only the route is validated.
+        private readonly bool _validateRouteOnly;
+
         // Null until an ExpectedResponse… is set → body-less path (deserialize + return, no comparison).
         private string? _expectedJson;
 
@@ -88,7 +92,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                      string callerMemberName,
                                      int callerLineNumber,
                                      HttpStatusCode expectedStatusCode,
-                                     bool skipEndpointValidation)
+                                     bool skipEndpointValidation,
+                                     bool validateRouteOnly)
         {
             _client = client;
             _method = method;
@@ -103,6 +108,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _callerLineNumber = callerLineNumber;
             _expectedStatusCode = expectedStatusCode;
             _skipEndpointValidation = skipEndpointValidation;
+            _validateRouteOnly = validateRouteOnly;
         }
 
         // ============================================================
@@ -227,6 +233,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                writeResponse: _writeSnapshot,
                                                ignoreResponse: _expectedJson == null,
                                                skipEndpointValidation: _skipEndpointValidation,
+                                               validateRouteOnly: _validateRouteOnly,
                                                expectedHttpStatusCode: _expectedStatusCode,
                                                differenceFilter: _ignore is null ? null : d => _ignore(d).IsFalse(),
                                                requestHeaders: _headers,

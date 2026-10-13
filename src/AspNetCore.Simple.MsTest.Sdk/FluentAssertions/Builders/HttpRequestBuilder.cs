@@ -334,7 +334,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               _callerMemberName,
                                               _callerLineNumber,
                                               statusCode,
-                                              _skipEndpointValidation);
+                                              _skipEndpointValidation,
+                                              validateRouteOnly: false);
         }
 
         public IHttpResponseConfiguring<T> Produces<T>(int statusCode)
@@ -350,7 +351,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                               _callerFilePath,
                                               _callerMemberName,
                                               _callerLineNumber,
-                                              statusCode);
+                                              statusCode,
+                                              _skipEndpointValidation);
         }
 
         public IHttpExpectationConfiguring Produces(int statusCode)

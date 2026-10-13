@@ -183,6 +183,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public required bool SkipEndpointValidation { get; init; }
 
         /// <summary>
+        /// When true, the endpoint validation checks the ROUTE (verb, url, api version) but not the response
+        /// type. For the fluent status-only path <c>Produces(code)</c>: it names no response type to compare,
+        /// but a misspelled url or a wrong verb still has to be reported as "endpoint not found".
+        /// </summary>
+        internal bool ValidateRouteOnly { get; init; }
+
+        /// <summary>
         /// The expected HTTP status code for the request.
         /// Used to validate that the endpoint returns the correct status code.
         /// When null (default), the status code is determined by:

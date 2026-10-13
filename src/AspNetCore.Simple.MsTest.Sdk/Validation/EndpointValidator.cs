@@ -30,14 +30,17 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// </summary>
         /// <typeparam name="TResult">The expected result type</typeparam>
         /// <param name="context">The HTTP assert context containing method, URL, and expected type</param>
-        void Validate<TResult>(IHttpAssertContext context);
+        /// <param name="routeOnly">True = check that the route exists, skip the response type check.</param>
+        void Validate<TResult>(IHttpAssertContext context,
+                               bool routeOnly = false);
     }
 
     internal sealed class EndpointValidator(IEndpointProvider endpointProvider,
                                             IEndpointValidationOutputBuilder outputBuilder,
                                             TestSdkSettings testSdkSettings) : IEndpointValidator
     {
-        public void Validate<TResult>(IHttpAssertContext context)
+        public void Validate<TResult>(IHttpAssertContext context,
+                                      bool routeOnly = false)
         {
             // Scope or global skip endpoint validation
             if (context.SkipEndpointValidation ||
@@ -84,6 +87,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 var ambiguousError = outputBuilder.BuildMultipleMatches(context, allMatches);
                 Assert.That.Fail(ambiguousError);
 
+                return;
+            }
+
+            // A status-only assert names no response type - the route existing is all there is to check.
+            if (routeOnly)
+            {
                 return;
             }
 

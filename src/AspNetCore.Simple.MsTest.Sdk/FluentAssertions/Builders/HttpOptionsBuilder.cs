@@ -55,7 +55,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         public IHttpOptionsExpectationConfiguring ExpectedHeaders(IImmutableDictionary<string, ImmutableList<string>> expectedHeaders)
         {
-            return WithExpectedHeaders(expectedHeaders.ToJson(HttpClientAssertExtensions.JsonSerializerOptionsFor(_callingAssembly)));
+            return WithExpectedHeaders(OptionsHeaders.Serialize(expectedHeaders));
         }
 
         public IHttpOptionsExpectationConfiguring ExpectedHeadersFromJsonString(string expectedHeadersJson)

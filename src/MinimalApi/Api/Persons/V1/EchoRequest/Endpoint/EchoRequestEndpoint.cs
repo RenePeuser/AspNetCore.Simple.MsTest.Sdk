@@ -38,9 +38,9 @@ namespace MinimalApi.Api.Persons.V1
     {
         internal const string CorrelationIdHeaderName = "X-Correlation-Id";
 
-        // What OPTIONS advertises for this resource - deterministic, so a test can compare it exactly. Sent as
-        // Access-Control-Allow-Methods, not Allow: HttpClient files Allow under the CONTENT headers, which the
-        // OPTIONS assertion does not read.
+        // What OPTIONS advertises for this resource - deterministic, so a test can compare it exactly. Sent twice
+        // on purpose: Allow is a CONTENT header in HttpClient, Access-Control-Allow-Methods a RESPONSE header -
+        // one OPTIONS assert has to see both (it used to read the response headers only).
         internal const string AllowedMethodsHeaderName = "Access-Control-Allow-Methods";
 
         internal const string AllowedMethods = "POST, OPTIONS";
@@ -59,11 +59,12 @@ namespace MinimalApi.Api.Persons.V1
                         .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
                         .MapToApiVersion(1);
 
-            // The positive OPTIONS sample: 204 without a body, the advertised verbs in a response header.
+            // The positive OPTIONS sample: 204 without a body, the advertised verbs in a content AND a response header.
             routeBuilder.MapMethods("persons/echo-request",
                                     [HttpMethods.Options],
                                     (HttpResponse response) =>
                                     {
+                                        response.Headers.Allow = AllowedMethods;
                                         response.Headers[AllowedMethodsHeaderName] = AllowedMethods;
 
                                         return Results.NoContent();

@@ -49,6 +49,9 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private readonly HttpStatusCode _expectedStatusCode;
 
+        // The caller's own .SkipEndpointValidation(). Without it, a status-only chain still validates the route.
+        private readonly bool _skipEndpointValidation;
+
         internal HttpExpectationBuilder(HttpClient client,
                                         HttpMethod method,
                                         string url,
@@ -60,7 +63,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                         string callerFilePath,
                                         string callerMemberName,
                                         int callerLineNumber,
-                                        HttpStatusCode expectedStatusCode)
+                                        HttpStatusCode expectedStatusCode,
+                                        bool skipEndpointValidation)
         {
             _client = client;
             _method = method;
@@ -74,13 +78,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             _callerMemberName = callerMemberName;
             _callerLineNumber = callerLineNumber;
             _expectedStatusCode = expectedStatusCode;
+            _skipEndpointValidation = skipEndpointValidation;
         }
 
         public IHttpComparisonConfiguring<TExpected> ExpectedResponse<TExpected>(TExpected expected,
                                                                                  [CallerArgumentExpression(nameof(expected))] string expectedExpression = "")
         {
-            // The type comes from the expected object, not from the endpoint - there is nothing declared
-            // to validate against, so endpoint validation is skipped for the same reason as below.
+            // The type comes from the expected object, not from the endpoint - there is no declared type to
+            // validate against, so only the route is validated, for the same reason as below.
             var responseBuilder = new HttpResponseBuilder<TExpected>(_client, _method, _url,
                                                                      _body, _bodyExpression, _parameters, _headers,
                                                                      _callingAssembly,
@@ -88,7 +93,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                                      _callerMemberName,
                                                                      _callerLineNumber,
                                                                      _expectedStatusCode,
-                                                                     skipEndpointValidation: true);
+                                                                     _skipEndpointValidation,
+                                                                     validateRouteOnly: true);
 
             return responseBuilder.ExpectedResponse(expected, expectedExpression);
         }
@@ -107,12 +113,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                isSuccessStatusCode: isSuccessTest,
 
                                                // Produces(code) deliberately names NO response type — it asserts the
-                                               // status and nothing else. The endpoint validator compares the declared
-                                               // return type against the expected one, so with nothing to compare it
-                                               // would reject every endpoint that does return a body. Skipping it here
-                                               // keeps "status only" meaning status only; the typed Produces<T>(code)
-                                               // path carries a type and validates as before.
-                                               skipEndpointValidation: true,
+                                               // status and nothing else. Comparing the declared return type against
+                                               // nothing would reject every endpoint that does return a body, so only
+                                               // the ROUTE is validated: a misspelled url or a wrong verb is still
+                                               // "endpoint not found", not a green 404/405. The typed Produces<T>(code)
+                                               // path carries a type and validates both.
+                                               skipEndpointValidation: _skipEndpointValidation,
+                                               validateRouteOnly: true,
                                                expectedHttpStatusCode: _expectedStatusCode,
                                                requestHeaders: _headers,
                                                cancellationToken: cancellationToken,
