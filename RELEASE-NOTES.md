@@ -1,8 +1,42 @@
 # Release Notes
 
-## Upcoming Release (10.1.0) - Fluent Assert API, one public entry point
+## 10.1.2 - Package metadata
 
-Commit with `+semver: minor`. This release deliberately ships breaking changes to the public surface of 10.0.0 in
+No code changes.
+
+- The package description is set - nuget.org showed the default "Package Description".
+- The NuGet "Release Notes" tab shows the current section of this file (RELEASE-NOTES.md in the repository holds
+  every release).
+
+## 10.1.1 - Request details sent as the test reads them
+
+- **Placeholder values are formatted culture-invariant (classic and fluent).** `WithParameter("Amount", 1.5m)` /
+  `("$Amount$", 1.5m)` used the machine's current culture: a German machine sent `amount=1,5` in the url and the
+  invalid json `{ "amount": 1,5 }` in a body, while the build server sent `1.5`. Url, body and expected json now use
+  `CultureInfo.InvariantCulture` - the same rule `WithQueryParameter` already followed. **Behavior change:** a
+  `DateTime` placeholder now reads `10/13/2026 08:30:00` on every machine instead of the local date format.
+- **Fluent API - content headers are sent.** `WithHeader("Content-Type", …)` (and every other `Content-*` header)
+  was dropped silently: `HttpClient` keeps them on the content and refuses them on the request. They now replace the
+  content's own value. A header `HttpClient` refuses altogether (e.g. a name with spaces) fails the test instead of
+  going out missing.
+- **Fluent API - blank parameter and header names throw** an `ArgumentException` at the line that gives them.
+  Before, `WithParameter("", value)` / `WithHeader("", value)` were accepted and the value was never sent.
+- **Fluent API - placeholder names are naked.** A name carrying the `$` delimiter anywhere but as a full wrap
+  (`"$"`, `"$$"`, `"$Id"`, `"I$d"`) throws - it named a token nothing contains. `WithParameter("Id", 1)` is the
+  spelling; the wrapped `"$Id$"` keeps working for migration.
+- **Fluent API - placeholder values in the url are URL-encoded.** `WithParameter("Name", "Son Goku & Co")` in
+  `?name=$Name$` split the query at `&`; now the whole value arrives. The classic API is unchanged.
+- **Fluent API - a parameter no placeholder takes throws** (`PLACEHOLDER PARAMETER NOT USED`, what/why/fix) when the
+  chain executes. Placeholder names are case-sensitive, so `WithParameter("Name", …)` for `$NAME$` sent nothing;
+  neither did a placeholder inside `WithQueryParameter`, which sends its value literally. Url, body and expected
+  response are searched; the check is off while recording a snapshot (the placeholder lands in the file only then).
+- **Fluent API - blank inputs throw.** `AcceptsFromJsonString("")`, `ExpectedResponseFromJsonString("")` (went green
+  without comparing anything), the `…FromEmbeddedJson("")` variants, `ExpectedHeadersFromJsonString("")` and an empty
+  `IgnorePaths()` are rejected at the line that gives them.
+
+## 10.1.0 - Fluent Assert API, one public entry point
+
+This release deliberately ships breaking changes to the public surface of 10.0.0 in
 a minor version: 10.x was already the breaking step from 9.x and is barely adopted yet, so the cleanup lands in
 10.1 instead of forcing an 11.0.0. The breaking entries below say what to change.
 
@@ -142,32 +176,6 @@ unauthorized. The invalid token now rides on the request message only; the clien
 A response body with its own `content.value` (a blog post, a CMS page) was read as the SDK's snapshot
 envelope: the comparison unwrapped the fragment and failed with "INVALID JSON FORMAT" or an unexpected
 parse error. Only a real envelope - `content.value` together with `statusCode` - is unwrapped now.
-
-### Fixed: request details that were sent differently than the test reads
-
-- **Placeholder values are formatted culture-invariant (classic and fluent).** `WithParameter("Amount", 1.5m)` /
-  `("$Amount$", 1.5m)` used the machine's current culture: a German machine sent `amount=1,5` in the url and the
-  invalid json `{ "amount": 1,5 }` in a body, while the build server sent `1.5`. Url, body and expected json now use
-  `CultureInfo.InvariantCulture` - the same rule `WithQueryParameter` already followed. **Behavior change:** a
-  `DateTime` placeholder now reads `10/13/2026 08:30:00` on every machine instead of the local date format.
-- **Fluent API - content headers are sent.** `WithHeader("Content-Type", …)` (and every other `Content-*` header)
-  was dropped silently: `HttpClient` keeps them on the content and refuses them on the request. They now replace the
-  content's own value. A header `HttpClient` refuses altogether (e.g. a name with spaces) fails the test instead of
-  going out missing.
-- **Fluent API - blank parameter and header names throw** an `ArgumentException` at the line that gives them.
-  Before, `WithParameter("", value)` / `WithHeader("", value)` were accepted and the value was never sent.
-- **Fluent API - placeholder names are naked.** A name carrying the `$` delimiter anywhere but as a full wrap
-  (`"$"`, `"$$"`, `"$Id"`, `"I$d"`) throws - it named a token nothing contains. `WithParameter("Id", 1)` is the
-  spelling; the wrapped `"$Id$"` keeps working for migration.
-- **Fluent API - placeholder values in the url are URL-encoded.** `WithParameter("Name", "Son Goku & Co")` in
-  `?name=$Name$` split the query at `&`; now the whole value arrives. The classic API is unchanged.
-- **Fluent API - a parameter no placeholder takes throws** (`PLACEHOLDER PARAMETER NOT USED`, what/why/fix) when the
-  chain executes. Placeholder names are case-sensitive, so `WithParameter("Name", …)` for `$NAME$` sent nothing;
-  neither did a placeholder inside `WithQueryParameter`, which sends its value literally. Url, body and expected
-  response are searched; the check is off while recording a snapshot (the placeholder lands in the file only then).
-- **Fluent API - blank inputs throw.** `AcceptsFromJsonString("")`, `ExpectedResponseFromJsonString("")` (went green
-  without comparing anything), the `…FromEmbeddedJson("")` variants, `ExpectedHeadersFromJsonString("")` and an empty
-  `IgnorePaths()` are rejected at the line that gives them.
 
 ## 10.0.0 - One settings class instead of static globals
 
