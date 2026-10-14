@@ -4,27 +4,11 @@
         <PackageLicenseFile>License.txt</PackageLicenseFile>
         <Authors>Rene Peuser</Authors>
         <Company>Rene Peuser Softwaresolutions</Company>
-        <Descriptiotn>A simple sdk to write easy and fast tests for your web api's</Descriptiotn>
+        <Description>A simple sdk to write easy and fast tests for your web api's</Description>
         <Copyright>Copyright 2021 (c) Rene Peuser. All rights reserved.</Copyright>
         <PackageProjectUrl>https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk</PackageProjectUrl>
         <RepositoryUrl>https://github.com/RenePeuser/AspNetCore.Simple.MsTest.Sdk</RepositoryUrl>
         <PackageTags>aspnetcore;testing;snapshot-testing;snapshot;mstest;api-testing;integration-testing;http-testing;test-framework;regression-testing;web-api;rest-api;test-automation;test-sdk;aspnetcore-testing;api-snapshots;http-assertions;minimal-api;webapi-testing;contract-testing;response-validation;csharp;dotnet;json;json-comparison;diff;approval-testing;unit-testing;curl;http-client;testhost;</PackageTags>
-        <PackageReleaseNotes>
-            BREAKING CHANGES (11.0.0):
-            - services.AddAssertableHttpClient(configuration, s =&gt; ...) is the only public registration; it is all you call.
-              The started host's provider is handed to the asserts automatically.
-            - Removed from the public API: HttpClientAssertExtensions.Setup(provider), HttpClientAssertExtensions.Setup(s =&gt; ...),
-              services.AddTestSdkSettings, AddAssertableHttpClientFactory, the consumerAssembly parameter, and every other
-              services.Add...() building block with the service interfaces behind it.
-
-            NEW FEATURES:
-            - Own error handlers: ITestErrorHandler / TestErrorHandler&lt;TException&gt; are public and asked before the catch-all.
-
-            FIXES:
-            - A response body carrying its own content.value is no longer mistaken for the snapshot envelope.
-
-            Full details: RELEASE-NOTES.md in the repository.
-        </PackageReleaseNotes>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <PackageId>AspNetCore.Simple.MsTest.Sdk</PackageId>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
@@ -86,5 +70,20 @@
              the code-fix project's .deps.json when loading analyzer assets from a package. -->
         <None Include="..\AspNetCore.Simple.MsTest.Sdk.CodeFixes\bin\$(Configuration)\netstandard2.0\System.Composition*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     </ItemGroup>
+
+    <!-- The NuGet "Release Notes" tab shows the topmost "## " section of RELEASE-NOTES.md (the current
+         release): everything from the first "## " heading up to the next one. nuget.org renders it as
+         plain text, so the markdown appears as written. -->
+    <PropertyGroup>
+        <ReleaseNotesFile>$(MSBuildThisFileDirectory)..\..\RELEASE-NOTES.md</ReleaseNotesFile>
+    </PropertyGroup>
+
+    <Target Name="LoadPackageReleaseNotes" BeforeTargets="GenerateNuspec">
+        <Error Condition="!Exists('$(ReleaseNotesFile)')" Text="Release notes file not found: $(ReleaseNotesFile)" />
+        <PropertyGroup>
+            <PackageReleaseNotes>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(ReleaseNotesFile)')), '(?ms)^## .*?(?=^## |\z)').Value.Trim())</PackageReleaseNotes>
+        </PropertyGroup>
+        <Error Condition="'$(PackageReleaseNotes)' == ''" Text="No '## ' section found in $(ReleaseNotesFile)." />
+    </Target>
 
 </Project>

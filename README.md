@@ -26,7 +26,15 @@ public Task Should_Create_User(string useCase)
 }
 ```
 
-The same test with the fluent API — it reads like the endpoint contract it verifies:
+The endpoint it verifies (server side):
+
+```csharp
+routeBuilder.MapPost("users", (UserRequest user) => Results.Ok(new UserResponse(...)))
+            .Accepts<UserRequest>(MediaTypeNames.Application.Json)
+            .Produces<UserResponse>(StatusCodes.Status200OK);
+```
+
+The same test with the fluent API. It reads like the endpoint contract it verifies:
 
 ```csharp
 [TestMethod]
@@ -174,7 +182,22 @@ public class UserTests : ApiTestBase
 }
 ```
 
-Fluent equivalent:
+The endpoint behind it (server side, the same contract as in the intro above):
+
+```csharp
+routeBuilder.MapPost("users", (UserRequest user) => Results.Ok(new UserResponse(...)))
+            .Accepts<UserRequest>(MediaTypeNames.Application.Json)
+            .Produces<UserResponse>(StatusCodes.Status200OK);
+```
+
+Fluent equivalent. Each chain step mirrors one piece of endpoint metadata:
+
+| Endpoint                                           | Fluent test                                           |
+|----------------------------------------------------|-------------------------------------------------------|
+| `MapPost("users")`                                 | `AssertPost("api/v1/users")`                          |
+| `.Accepts<UserRequest>(...)`                       | `.AcceptsFromEmbeddedJson("CreateUser.json")`         |
+| `.Produces<UserResponse>(StatusCodes.Status200OK)` | `.Produces<UserResponse>(HttpStatusCode.OK)`          |
+| Response body                                      | `.ExpectedResponseFromEmbeddedJson("CreateUser.json")` |
 
 ```csharp
 [TestClass]
@@ -2581,7 +2604,26 @@ The AI mode enables AI agents to:
 ## Fluent Assert API
 
 A declarative, type-safe fluent API for HTTP contract testing. A test reads like the endpoint contract it
-verifies:
+verifies. Server side first, then the test that checks it.
+
+Endpoint (`src/MinimalApi/Api/Persons/V1/Create/Endpoint/CreatePersonEndpoint.cs`, trimmed):
+
+```csharp
+routeBuilder.MapPost("persons", (Person person) =>
+            {
+                if (string.IsNullOrWhiteSpace(person.Name))
+                {
+                    return Results.BadRequest(new { StatusCode = 400, Message = "Invalid request" });
+                }
+
+                return Results.Created($"persons/{person.Id}", person);
+            })
+            .Accepts<Person>(MediaTypeNames.Application.Json)
+            .Produces<Person>(StatusCodes.Status201Created)
+            .Produces<ProblemDetails>(StatusCodes.Status400BadRequest);
+```
+
+Test (`src/MinimalApi.Test/Api/Persons/V1/Create/PersonCreateTests_Fluent.cs`, trimmed):
 
 ```csharp
 await Client.AssertPost("api/v1/persons")
@@ -2590,6 +2632,20 @@ await Client.AssertPost("api/v1/persons")
     .ExpectedResponse(expectedPerson)               // expected content
     .ExecuteAsync();                                // the only terminal
 ```
+
+How the two line up:
+
+| Endpoint                                          | Fluent test                                                     |
+|---------------------------------------------------|-----------------------------------------------------------------|
+| `MapPost("persons")`                              | `AssertPost("api/v1/persons")`                                  |
+| `(Person person)` / `.Accepts<Person>(...)`       | `.Accepts(person)`                                              |
+| `.Produces<Person>(StatusCodes.Status201Created)` | `.Produces<Person>(HttpStatusCode.Created)`                     |
+| `Results.Created(..., person)` (response body)    | `.ExpectedResponse(expectedPerson)`                             |
+| `.Produces<ProblemDetails>(400)`                  | separate test with invalid input, see below                     |
+
+One test covers one path. The chain above is the 201 success path. The 400 path needs its own test with an
+invalid body (e.g. an empty `Name`). Its fluent error chain is on the roadmap, so use the classic
+`AssertPostAsErrorAsync<T>()` for it until then.
 
 What it offers:
 
