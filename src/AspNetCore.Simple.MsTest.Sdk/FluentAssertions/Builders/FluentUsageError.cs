@@ -166,11 +166,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error(Banner));
-            sb.AppendLine(textDecorator.Error($"❌ {title}"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, $"{title}"));
             sb.AppendLine(textDecorator.Error(Banner));
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             sb.AppendLine(textDecorator.Dim(Separator));
             sb.AppendLine();
             sb.AppendLine($"{"Method",-10} : {callerMemberName}");
@@ -178,7 +178,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine($"{"File",-10} : file:///{callerFilePath.Replace('\\', '/')}:{callerLineNumber}");
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ What Happened"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "What Happened"));
             sb.AppendLine(textDecorator.Dim(Separator));
             sb.AppendLine();
 
@@ -189,7 +189,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("💡 Why This Fails"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Hint, "Why This Fails"));
             sb.AppendLine(textDecorator.Dim(Separator));
             sb.AppendLine();
 
@@ -200,7 +200,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("✅ How To Fix"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Success, "How To Fix"));
             sb.AppendLine(textDecorator.Dim(Separator));
             sb.AppendLine();
 

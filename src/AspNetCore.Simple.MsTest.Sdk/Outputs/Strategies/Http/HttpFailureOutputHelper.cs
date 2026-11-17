@@ -56,7 +56,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
             var methodName = context.CallerMemberName;
             var fileUri = $"file:///{context.CallerFilePath.Replace('\\', '/')}:{context.CallerLineNumber}";
 
-            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Project",-10} : {projectName}");

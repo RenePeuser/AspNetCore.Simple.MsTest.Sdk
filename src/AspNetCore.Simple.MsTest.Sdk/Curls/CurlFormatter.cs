@@ -30,7 +30,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle("🔁 Reproduce Locally"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Reproduce, "Reproduce Locally"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(textDecorator.Success(curl));

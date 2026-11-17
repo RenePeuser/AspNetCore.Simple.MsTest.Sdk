@@ -1,5 +1,23 @@
 # Release Notes
 
+## 10.2.0 - Output rendering
+
+- **New setting `TestSdkSettings.OutputRendering` (`Auto` | `Graphics` | `PlainText`).** It picks how a failure
+  looks, next to `OutputMode`, which picks what it says. Configure it via `TestSdkSettings__OutputRendering=PlainText`
+  or appsettings.
+  - `Auto` (default) is the previous behavior: a DEBUG test assembly or an attached debugger gets emojis without
+    colour, everything else gets ANSI colour and emojis.
+  - `Graphics` forces colour and emojis, also in a DEBUG build.
+  - `PlainText` drops colour and emojis and keeps borders, tables and sections. Use it when CI publishes the TRX file
+    as a Markdown summary (e.g. `dorny/test-reporter`): the VSTest TRX logger writes ESC and emoji surrogate halves
+    as literal escape text, so the summary showed the escape codes instead of the header.
+- **Every symbol in the failure output follows the setting.** Emojis were hard coded in the output builders and error
+  handlers and could not be turned off. They now go through the render strategy. In `PlainText` a symbol in front
+  of a title is dropped, and a symbol that carries information on its own becomes ASCII (`yes`/`no` in match
+  columns, `>>` at the failing line of a listing).
+- **The catch-all, invalid-json and json-serialization error handlers are coloured like every other output.**
+  Before, they were always plain.
+
 ## 10.1.2 - Package metadata
 
 No code changes.

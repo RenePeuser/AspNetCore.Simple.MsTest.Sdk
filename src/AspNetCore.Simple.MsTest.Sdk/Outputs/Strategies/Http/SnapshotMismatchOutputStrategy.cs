@@ -34,13 +34,13 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("📸 SNAPSHOT MISMATCH"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Snapshot, "SNAPSHOT MISMATCH"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
             outputHelper.BuildTestInfoSection(sb, context, textDecorator);
 
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Failure Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("JSON values differ from the expected snapshot.");

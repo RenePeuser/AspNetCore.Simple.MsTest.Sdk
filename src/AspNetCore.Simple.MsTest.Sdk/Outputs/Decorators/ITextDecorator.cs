@@ -26,9 +26,10 @@ namespace AspNetCore.Simple.MsTest.Sdk
     }
 
     /// <summary>
-    /// Decorates text output with styling (colors, emphasis).
-    /// Different implementations provide plain or colorized output.
-    /// Used to make test output more readable without breaking Visual Studio Test Explorer.
+    /// Decorates text output with styling (colors, emphasis) and symbols.
+    /// Every <see cref="OutputRendering"/> style is its own <see cref="ITextRenderStrategy"/>.
+    /// Output code never writes a colour code or an emoji itself - it names the role and the symbol,
+    /// the strategy decides how that looks.
     /// </summary>
     internal interface ITextDecorator
     {
@@ -39,16 +40,40 @@ namespace AspNetCore.Simple.MsTest.Sdk
         string Error(string text);
 
         /// <summary>
+        /// <see cref="Error(string)"/> led by <paramref name="symbol"/> - dropped in plain text.
+        /// </summary>
+        string Error(OutputSymbol symbol,
+                     string text);
+
+        /// <summary>
         /// Decorates section titles (HTTP CALL, DIFFERENCES, etc.).
         /// Typically rendered in bold cyan.
         /// </summary>
         string SectionTitle(string text);
 
         /// <summary>
+        /// <see cref="SectionTitle(string)"/> led by <paramref name="symbol"/> - dropped in plain text.
+        /// </summary>
+        string SectionTitle(OutputSymbol symbol,
+                            string text);
+
+        /// <summary>
         /// Highlights important values that should stand out.
         /// Typically rendered in bold white.
         /// </summary>
         string Highlight(string text);
+
+        /// <summary>
+        /// <see cref="Highlight(string)"/> led by <paramref name="symbol"/> - dropped in plain text.
+        /// </summary>
+        string Highlight(OutputSymbol symbol,
+                         string text);
+
+        /// <summary>
+        /// A symbol standing on its own (a match column, a line pointer) - an emoji, or its ascii
+        /// stand-in in plain text.
+        /// </summary>
+        string Symbol(OutputSymbol symbol);
 
         /// <summary>
         /// Dims less important content (borders, separators).

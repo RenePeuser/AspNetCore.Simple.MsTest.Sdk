@@ -37,7 +37,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("❌ HTTP ASSERTION FAILED"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "HTTP ASSERTION FAILED"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 

@@ -1191,17 +1191,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                            Exception exception)
         {
             var sb = new System.Text.StringBuilder();
+            var textDecorator = HttpClientAssertExtensions.GetService<ITextDecorator>(context.CallingAssembly);
 
             sb.AppendLine();
             sb.AppendLine();
-            sb.AppendLine("══════════════════════════════════════════════════════════════");
-            sb.AppendLine("❌ UNEXPECTED ASSERTION ERROR");
-            sb.AppendLine("══════════════════════════════════════════════════════════════");
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "UNEXPECTED ASSERTION ERROR"));
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
             // Test Information
-            sb.AppendLine("📦 Test Information");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var fullClassName = HttpClientAssertExtensions.GetService<ITestClassNameResolver>(context.CallingAssembly).Resolve(context.CallerFilePath, projectName);
@@ -1212,8 +1213,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Assert Information
-            sb.AppendLine("🔍 Assert Details");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Search, "Assert Details"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Type",-10} : {typeof(T).Name}");
             sb.AppendLine($"{"Expected",-10} : {context.ExpectedResultParameterName}");
@@ -1245,8 +1246,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Exception Details
-            sb.AppendLine("⚠️ Exception Details");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Exception Details"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Type",-10} : {exception.GetType().FullName}");
             sb.AppendLine($"{"Message",-10} : {exception.Message}");
@@ -1269,8 +1270,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
 
             // Explanation
-            sb.AppendLine("💡 What This Means");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Hint, "What This Means"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("An unexpected error occurred during object comparison. This could indicate:");
             sb.AppendLine();

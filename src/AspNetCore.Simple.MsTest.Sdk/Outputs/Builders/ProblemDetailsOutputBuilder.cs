@@ -51,7 +51,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("❌ UNEXPECTED API ERROR"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "UNEXPECTED API ERROR"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
@@ -100,7 +100,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var className = testContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
             var methodName = context.CallerMemberName;
 
-            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             var fileUri = $"file:///{context.CallerFilePath.Replace('\\', '/')}:{context.CallerLineNumber}";
@@ -123,7 +123,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var statusCode = exception.ProblemDetails.Status ?? 500;
             var statusText = GetStatusText(statusCode);
 
-            sb.AppendLine(textDecorator.SectionTitle("🌍 HTTP"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Http, "HTTP"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Method",-10} : {context.HttpMethod.Method}");
@@ -143,7 +143,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var problemDetails = exception.ProblemDetails;
 
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Problem Details"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Problem Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -186,7 +186,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var extensions = exception.ProblemDetails.Extensions;
 
-            sb.AppendLine(textDecorator.SectionTitle("📋 Extension Data"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Clipboard, "Extension Data"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -208,7 +208,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
         private void BuildExplanation(StringBuilder sb)
         {
-            sb.AppendLine(textDecorator.SectionTitle("💡 What This Means"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Hint, "What This Means"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("The API endpoint returned an error response (ProblemDetails), but the test");
@@ -222,7 +222,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         private void BuildAssertCall(StringBuilder sb,
                                      string sourceCode)
         {
-            sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.AssertCall, "Assert Call"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine(sourceCode);

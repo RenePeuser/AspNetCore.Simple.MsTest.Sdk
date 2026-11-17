@@ -37,18 +37,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("❌ RECORDING WOULD DESTROY A PARAMETERIZED SNAPSHOT"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "RECORDING WOULD DESTROY A PARAMETERIZED SNAPSHOT"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Method",-10} : {context.CallerMemberName}");
             sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("📄 File"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, "File"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Resource",-10} : {exception.ResourceName}");
@@ -60,7 +60,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ What went wrong"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "What went wrong"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -76,7 +76,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine("  Nothing was written. The snapshot on disk is unchanged.");
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("🔧 What to do"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Tool, "What to do"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 

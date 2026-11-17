@@ -37,7 +37,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle("📄 Expected Snapshot"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, "Expected Snapshot"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
 
@@ -71,7 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle("📄 Current Result"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, "Current Result"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
             stringBuilder.Append(normalizeJsonToSingleLine);

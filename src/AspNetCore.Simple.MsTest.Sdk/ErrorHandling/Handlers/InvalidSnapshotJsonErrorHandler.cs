@@ -41,18 +41,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error($"❌ {kind} IS NOT VALID JSON"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, $"{kind} IS NOT VALID JSON"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Method",-10} : {context.CallerMemberName}");
             sb.AppendLine($"{"Line",-10} : {context.CallerLineNumber}");
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("📄 File"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, "File"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Resource",-10} : {exception.ResourceName}");
@@ -68,7 +68,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Parser"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Parser"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -96,7 +96,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             AppendContent(sb, exception, textDecorator);
 
-            sb.AppendLine(textDecorator.SectionTitle("💡 How To Fix"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Hint, "How To Fix"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -139,14 +139,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
             var from = failingLine.HasValue ? Math.Max(1, failingLine.Value - 3) : 1;
             var to = failingLine.HasValue ? Math.Min(lines.Length, failingLine.Value + 3) : Math.Min(lines.Length, 15);
 
-            sb.AppendLine(textDecorator.SectionTitle("📄 Content"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, "Content"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
             foreach (var number in Enumerable.Range(from, to - from + 1))
             {
                 var text = lines[number - 1];
-                var marker = number == failingLine ? "❌" : "  ";
+                var marker = number == failingLine ? textDecorator.Symbol(OutputSymbol.Pointer) : "  ";
                 var rendered = $"{marker} {number,4} | {text}";
 
                 sb.AppendLine(number == failingLine ? textDecorator.Error(rendered) : rendered);

@@ -24,6 +24,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddCurlFormatter();
             services.AddSourceCodeExtractor();
             services.AddEndpointSourceResolver();
+            services.AddTextDecoratorProvider();
             services.AddSingletonIfNotExists<ITestErrorHandler, JsonSerializationErrorHandler>();
         }
     }
@@ -35,7 +36,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class JsonSerializationErrorHandler(ICurlBuilder curlBuilder,
                                                         ICurlFormatter curlFormatter,
                                                         ISourceCodeExtractor sourceCodeExtractor,
-                                                        IEndpointSourceResolver endpointSourceResolver)
+                                                        IEndpointSourceResolver endpointSourceResolver,
+                                                        ITextDecoratorProvider textDecoratorProvider)
         : TestErrorHandler<JsonException>
     {
         protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
@@ -66,27 +68,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                    JsonException exception)
         {
             var sb = new StringBuilder();
+            var textDecorator = textDecoratorProvider.For(context.CallingAssembly);
 
             sb.AppendLine();
             sb.AppendLine();
-            sb.AppendLine("══════════════════════════════════════════════════════════════");
-            sb.AppendLine("❌ JSON SERIALIZATION ERROR");
-            sb.AppendLine("══════════════════════════════════════════════════════════════");
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "JSON SERIALIZATION ERROR"));
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
-            BuildTestInfo(sb, context);
+            BuildTestInfo(sb, textDecorator, context);
             sb.AppendLine();
 
-            BuildHttpInfo(sb, context);
+            BuildHttpInfo(sb, textDecorator, context);
             sb.AppendLine();
 
-            BuildJsonErrorDetails(sb, exception);
+            BuildJsonErrorDetails(sb, textDecorator, exception);
             sb.AppendLine();
 
-            BuildJsonContent(sb, context);
+            BuildJsonContent(sb, textDecorator, context);
             sb.AppendLine();
 
-            BuildExplanation(sb, exception);
+            BuildExplanation(sb, textDecorator, exception);
             sb.AppendLine();
 
             // Show the assert call if available
@@ -94,7 +97,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                BuildAssertCall(sb, sourceCode);
+                BuildAssertCall(sb, textDecorator, sourceCode);
                 sb.AppendLine();
             }
 
@@ -107,13 +110,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static void BuildTestInfo(StringBuilder sb,
+                                          ITextDecorator textDecorator,
                                           IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var fullClassName = GetFullClassName(context.CallerFilePath, projectName);
 
-            sb.AppendLine("📦 Test Information");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Project",-15} : {projectName}");
             sb.AppendLine($"{"Class",-15} : {fullClassName}");
@@ -156,14 +160,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private void BuildHttpInfo(StringBuilder sb,
+                                   ITextDecorator textDecorator,
                                    IHttpAssertContext context)
         {
             var fullUrl = context.Client.BaseAddress.IsNotNull()
                               ? new Uri(context.Client.BaseAddress, context.Url).ToString()
                               : context.Url;
 
-            sb.AppendLine("🌍 HTTP Request/Response");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Http, "HTTP Request/Response"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Method",-15} : {context.HttpMethod.Method}");
             sb.AppendLine($"{"URL",-15} : {fullUrl}");
@@ -179,10 +184,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static void BuildJsonErrorDetails(StringBuilder sb,
+                                                  ITextDecorator textDecorator,
                                                   JsonException exception)
         {
-            sb.AppendLine("⚠️ JSON Error Details");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "JSON Error Details"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Error Message",-15} : {exception.Message}");
 
@@ -212,10 +218,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private void BuildJsonContent(StringBuilder sb,
+                                      ITextDecorator textDecorator,
                                       IHttpAssertContext context)
         {
-            sb.AppendLine("📄 Request & Response");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, "Request & Response"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
             // Show request payload if available
@@ -286,10 +293,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static void BuildExplanation(StringBuilder sb,
+                                             ITextDecorator textDecorator,
                                              JsonException exception)
         {
-            sb.AppendLine("💡 What This Means");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Hint, "What This Means"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("The JSON response could not be deserialized. Common causes:");
             sb.AppendLine();
@@ -333,10 +341,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static void BuildAssertCall(StringBuilder sb,
+                                            ITextDecorator textDecorator,
                                             string sourceCode)
         {
-            sb.AppendLine("📝 Assert Call");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.AssertCall, "Assert Call"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine(sourceCode);
         }

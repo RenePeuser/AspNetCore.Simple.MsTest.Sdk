@@ -46,11 +46,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error($"❌ {kind} FILE NOT FOUND"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, $"{kind} FILE NOT FOUND"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Project",-10} : {exception.AssemblyName}");
@@ -64,7 +64,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Problem"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Problem"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -99,7 +99,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (exception.Candidates.Count > 0)
             {
-                sb.AppendLine(textDecorator.SectionTitle("💡 Did You Mean"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Hint, "Did You Mean"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
 
@@ -114,7 +114,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
             else
             {
-                sb.AppendLine(textDecorator.SectionTitle("💡 Nothing Similar Found"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Hint, "Nothing Similar Found"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine("  • Is the file included as <EmbeddedResource> in the csproj?");
@@ -136,7 +136,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.AssertCall, "Assert Call"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine(sourceCode);
@@ -145,7 +145,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (exception.IsPayload.IsFalse())
             {
-                sb.AppendLine(textDecorator.SectionTitle("✍️ Creating A New Snapshot"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Write, "Creating A New Snapshot"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine("If this snapshot is supposed to be new, let the sdk write it:");
@@ -159,7 +159,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                 // error comes back. Repeating the advice without this note is what makes that a loop.
                 if (exception.CanRecord.IsFalse())
                 {
-                    sb.AppendLine(textDecorator.Error($"  ⚠️ '{exception.AssemblyName}' is NOT compiled in Debug."));
+                    sb.AppendLine("  " + textDecorator.Error(OutputSymbol.Warning, $"'{exception.AssemblyName}' is NOT compiled in Debug."));
                     sb.AppendLine(textDecorator.Error("     Snapshot recording is a Debug-only feature: writeResponse is"));
                     sb.AppendLine(textDecorator.Error("     ignored in a Release build. Re-run the test with -c Debug."));
                     sb.AppendLine();

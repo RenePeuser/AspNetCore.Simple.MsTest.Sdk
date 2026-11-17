@@ -144,12 +144,12 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("❌ INVALID FILE REFERENCE: MISSING .json EXTENSION"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "INVALID FILE REFERENCE: MISSING .json EXTENSION"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
             // File Information
-            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             var fileUri = $"file:///{callerFilePath.Replace('\\', '/')}:{callerLineNumber}";
@@ -159,7 +159,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Failure Details
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Problem"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Problem"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("File references for payloads and expected responses must end with " + textDecorator.Success(".json"));
@@ -171,7 +171,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // What's Valid
-            sb.AppendLine(textDecorator.SectionTitle("✅ Valid Inputs"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Success, "Valid Inputs"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine(textDecorator.Success("  • File reference:  \"MyPayload.json\""));
@@ -180,7 +180,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // What's Invalid
-            sb.AppendLine(textDecorator.SectionTitle("❌ Invalid Inputs"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Failure, "Invalid Inputs"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("  • Missing .json:   \"MyPayload\""));
@@ -192,7 +192,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.AssertCall, "Assert Call"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine(sourceCode);
@@ -201,7 +201,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 // Suggested Fix - Generate corrected code
                 var suggestedFixCode = sourceCode.Replace($"\"{invalidInput}\"", $"\"{suggestedFix}\"");
 
-                sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Success, "Suggested Fix"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine(textDecorator.Success(suggestedFixCode));
@@ -210,7 +210,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             else
             {
                 // Fallback if no source code is available
-                sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Success, "Suggested Fix"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine($"Change {textDecorator.Error($"\"{invalidInput}\"")} to {textDecorator.Success($"\"{suggestedFix}\"")}");

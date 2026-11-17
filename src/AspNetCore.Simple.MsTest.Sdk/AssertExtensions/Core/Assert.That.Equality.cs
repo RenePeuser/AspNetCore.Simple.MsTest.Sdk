@@ -318,7 +318,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                             actualElem = actualElem[..25] + "...";
                         }
 
-                        var matchSymbol = match ? "✓" : "✗";
+                        var matchSymbol = HttpClientAssertExtensions.GetService<ITextDecorator>(callingAssembly).Symbol(match ? OutputSymbol.Match : OutputSymbol.Mismatch);
                         sb.AppendLine($"{i,-8} {expectedElem,-30} {actualElem,-30} {matchSymbol,-10}");
                     }
 

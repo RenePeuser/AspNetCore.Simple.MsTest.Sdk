@@ -100,10 +100,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine();
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            stringBuilder.AppendLine(textDecorator.Error("❌ OBJECT COMPARISON FAILED"));
+            stringBuilder.AppendLine(textDecorator.Error(OutputSymbol.Failure, "OBJECT COMPARISON FAILED"));
             stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
             var fileUri = $"file:///{context.CallerFilePath.Replace('\\', '/')}:{context.CallerLineNumber}";
@@ -121,7 +121,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             var expectedName = GetExpectedName(context);
 
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle($"🔍 Differences (Count {differences.Count})"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Search, $"Differences (Count {differences.Count})"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
 
@@ -139,7 +139,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             var expectedName = GetExpectedName(context);
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle($"📄 Expected ({expectedName})"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, $"Expected ({expectedName})"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
             stringBuilder.Append(NormalizeJsonToSingleLine(expectedJson));
@@ -151,7 +151,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle("📄 Current"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, "Current"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
             stringBuilder.Append(NormalizeJsonToSingleLine(currentJson));

@@ -87,7 +87,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("❌ ENDPOINT NOT FOUND"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "ENDPOINT NOT FOUND"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
@@ -95,7 +95,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Failure Details
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Failure Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("The requested endpoint was not found.");
@@ -125,7 +125,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("❌ AMBIGUOUS ENDPOINT MATCH"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "AMBIGUOUS ENDPOINT MATCH"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
@@ -133,7 +133,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Failure Details
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Failure Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"Multiple endpoints match the request. Found {matchingEndpoints.Count} matching endpoints.");
@@ -143,7 +143,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             BuildHttpCallTable(sb, context, "Ambiguous");
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("🔍 Matching Endpoints (Count " + matchingEndpoints.Count + ")"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Search, "Matching Endpoints (Count " + matchingEndpoints.Count + ")"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -211,14 +211,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("❌ ENDPOINT RETURNS NO RESPONSE BODY"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "ENDPOINT RETURNS NO RESPONSE BODY"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
             BuildTestInfo(sb, context);
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Failure Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"The action returns '{textDecorator.Error(returnTypeName)}' - there is no response body,");
@@ -232,7 +232,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("🚦 Status Code"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.StatusCode, "Status Code"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"The endpoint declares no {textDecorator.Success("[ProducesResponseType]")}, so asp.net answers");
@@ -245,14 +245,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.AssertCall, "Assert Call"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine(sourceCode);
                 sb.AppendLine();
             }
 
-            sb.AppendLine(textDecorator.SectionTitle("✅ How To Fix"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Success, "How To Fix"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("1. Endpoint (preferred) - declare and return 204:");
@@ -303,7 +303,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("❌ HTTP RESPONSE TYPE MISMATCH"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "HTTP RESPONSE TYPE MISMATCH"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
@@ -311,7 +311,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Failure reason
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Failure Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("HTTP Response Type Mismatch");
@@ -345,7 +345,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             var typeTable = tableBuilder.BuildTable(typeColumns, typeRows, enableCount: false);
 
-            sb.AppendLine(textDecorator.SectionTitle("🔍 Type Validation"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Search, "Type Validation"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.Append(typeTable.TrimEnd());
@@ -360,7 +360,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.AssertCall, "Assert Call"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine(sourceCode);
@@ -420,7 +420,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                     }
                 }
 
-                sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Success, "Suggested Fix"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine(textDecorator.Success(suggestedFix));
@@ -445,7 +445,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("❌ HTTP RESPONSE TYPE MISMATCH"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "HTTP RESPONSE TYPE MISMATCH"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
@@ -453,7 +453,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Failure reason
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Failure Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("HTTP Response Type Mismatch");
@@ -488,7 +488,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var suggestedTypeName = fallbackType.IsNotNull() ? TypeNameFormatter.Format(fallbackType, shownTypes) : "object";
             var endpointReturnsVoid = fallbackType.IsNull();
 
-            sb.AppendLine(textDecorator.SectionTitle("🔍 Type Validation"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Search, "Type Validation"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -503,7 +503,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             foreach (var statusCode in relevantStatusCodes.OrderBy(kvp => kvp.Key))
             {
                 var actualTypeName = TypeNameFormatter.Format(statusCode.Value, shownTypes);
-                var isMatch = statusCode.Value == expectedType ? "✓" : "✗";
+                var isMatch = textDecorator.Symbol(statusCode.Value == expectedType ? OutputSymbol.Match : OutputSymbol.Mismatch);
 
                 typeRows.Add(new object[]
                              {
@@ -544,7 +544,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.AssertCall, "Assert Call"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine(sourceCode);
@@ -604,7 +604,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                     }
                 }
 
-                sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Success, "Suggested Fix"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine(textDecorator.Success(suggestedFix));
@@ -626,7 +626,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var className = testContextHelper.ExtractFullyQualifiedClassName(context.CallerFilePath, context.CallingAssembly);
             var methodName = context.CallerMemberName;
 
-            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             var fileUri = $"file:///{context.CallerFilePath.Replace('\\', '/')}:{context.CallerLineNumber}";
@@ -640,7 +640,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         private void BuildEndpointRegistrationInfo(StringBuilder sb,
                                                    int endpointCount)
         {
-            sb.AppendLine(textDecorator.SectionTitle("🔧 Endpoint Registration"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Tool, "Endpoint Registration"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -649,7 +649,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine($"{"Status",-15} : {textDecorator.Error("No endpoints registered")}");
                 sb.AppendLine($"{"Count",-15} : {textDecorator.Error("0")}");
                 sb.AppendLine();
-                sb.AppendLine(textDecorator.Highlight("⚠️  MISSING REGISTRATION"));
+                sb.AppendLine(textDecorator.Highlight(OutputSymbol.Warning, "MISSING REGISTRATION"));
                 sb.AppendLine();
                 sb.AppendLine("The AssertableHttpClient requires endpoint registration to validate HTTP calls.");
                 sb.AppendLine("Please ensure the sdk is registered in the host under test and the host is started");
@@ -660,7 +660,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine();
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
-                sb.AppendLine(textDecorator.Highlight("🌐 External API?"));
+                sb.AppendLine(textDecorator.Highlight(OutputSymbol.External, "External API?"));
                 sb.AppendLine();
                 sb.AppendLine("If you're testing an external API that cannot be started via WebApplicationFactory,");
                 sb.AppendLine("you can skip endpoint validation using:");
@@ -671,7 +671,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 sb.AppendLine("  Globally:");
                 sb.AppendLine(textDecorator.Success("    services.AddAssertableHttpClient(configuration, settings => settings.SkipEndpointValidation = true);"));
                 sb.AppendLine();
-                sb.AppendLine(textDecorator.Error("    ⚠️  Use with caution! Skipping validation disables type-safety checks."));
+                sb.AppendLine("    " + textDecorator.Error(OutputSymbol.Warning, "Use with caution! Skipping validation disables type-safety checks."));
             }
             else
             {
@@ -700,7 +700,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                               ? new Uri(context.Client.BaseAddress, context.Url).ToString()
                               : context.Url;
 
-            sb.AppendLine(textDecorator.SectionTitle("🌍 HTTP"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Http, "HTTP"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Method",-10} : {context.HttpMethod.Method}");
@@ -791,7 +791,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error($"❌ ASSERT METHOD MISMATCH - {headerSuffix}"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, $"ASSERT METHOD MISMATCH - {headerSuffix}"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
@@ -799,7 +799,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Failure reason
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Failure Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"Assert Method Mismatch - {headerSuffix}");
@@ -812,7 +812,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Problem explanation
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Problem"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Problem"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -832,7 +832,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             sb.AppendLine();
 
             // Details table
-            sb.AppendLine(textDecorator.SectionTitle("📊 Details"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Details, "Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -849,7 +849,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                sb.AppendLine(textDecorator.SectionTitle("📝 Assert Call"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.AssertCall, "Assert Call"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine(sourceCode);
@@ -884,7 +884,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                                .Replace("AssertDeleteAsErrorAsync", "AssertDeleteAsync");
                 }
 
-                sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Success, "Suggested Fix"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
                 sb.AppendLine(textDecorator.Success(suggestedFix));
@@ -893,7 +893,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             else
             {
                 // Fallback if no source code is available
-                sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Success, "Suggested Fix"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
 

@@ -62,7 +62,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error($"❌ {failureTitle}"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, $"{failureTitle}"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
         }
@@ -85,7 +85,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
 
             var fileUri = $"file:///{callerFilePath.Replace('\\', '/')}:{callerLineNumber}";
 
-            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Project",-10} : {projectName}");
@@ -102,7 +102,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
         public void BuildProblemSection(StringBuilder sb,
                                                string problemDescription)
         {
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Problem"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Problem"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine(problemDescription);
@@ -114,7 +114,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
         /// </summary>
         public void BuildDetailsSectionHeader(StringBuilder sb)
         {
-            sb.AppendLine(textDecorator.SectionTitle("📊 Details"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Details, "Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
         }
@@ -125,7 +125,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
         public void BuildContextSection(StringBuilder sb,
                                                string because)
         {
-            sb.AppendLine(textDecorator.SectionTitle("💭 Context (Why this matters)"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Context, "Context (Why this matters)"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine(because);
@@ -139,7 +139,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.AssertExtensions.Helpers
                                            string primaryFix,
                                            params string[] additionalOptions)
         {
-            sb.AppendLine(textDecorator.SectionTitle("✅ Suggested Fix"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Success, "Suggested Fix"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"Option 1: {primaryFix}");

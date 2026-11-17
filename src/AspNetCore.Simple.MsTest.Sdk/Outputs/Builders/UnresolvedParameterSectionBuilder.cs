@@ -105,7 +105,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle("💡 Unresolved Parameter"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Hint, "Unresolved Parameter"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
 

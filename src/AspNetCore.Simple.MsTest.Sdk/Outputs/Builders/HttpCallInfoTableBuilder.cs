@@ -50,7 +50,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle("🌍 HTTP"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Http, "HTTP"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
             stringBuilder.AppendLine($"{textDecorator.Highlight("Method")}   : {httpMethod}");

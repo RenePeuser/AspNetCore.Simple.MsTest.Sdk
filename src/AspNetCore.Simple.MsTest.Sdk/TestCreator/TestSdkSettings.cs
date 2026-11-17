@@ -141,6 +141,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
         public OutputMode OutputMode { get; set; } = OutputMode.Human;
 
         /// <summary>
+        /// Controls how assertion failures LOOK - orthogonal to <see cref="OutputMode"/>.
+        ///
+        /// - Auto: DEBUG build or debugger attached → emojis without colour, otherwise colour and emojis (default)
+        /// - Graphics: ANSI colours and emojis, always
+        /// - PlainText: no colours, no emojis - for TRX files and Markdown test summaries in CI
+        ///
+        /// Configure via:
+        /// - Environment variable: TestSdkSettings__OutputRendering=PlainText
+        /// - appsettings.json: "TestSdkSettings": { "OutputRendering": "PlainText" }
+        /// </summary>
+        public OutputRendering OutputRendering { get; set; } = OutputRendering.Auto;
+
+        /// <summary>
         /// Records the current response into its snapshot for every assert - a Debug-only developer
         /// feature. Configure via environment variable <c>TestSdkSettings__WriteResponse=true</c>.
         /// </summary>

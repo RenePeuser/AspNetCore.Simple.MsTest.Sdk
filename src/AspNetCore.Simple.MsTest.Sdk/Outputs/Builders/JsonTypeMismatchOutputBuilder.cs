@@ -97,7 +97,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Builders
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error($"🚫 JSON TYPE MISMATCH: {title}"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Blocked, $"JSON TYPE MISMATCH: {title}"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
@@ -106,7 +106,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Builders
                                  memberName);
 
             // Error Details Section
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Error Details"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Error Details"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{textDecorator.Highlight("Parameter")}  : {parameterName}");
@@ -115,21 +115,21 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Builders
             sb.AppendLine();
 
             // Expected JSON Section
-            sb.AppendLine(textDecorator.SectionTitle("📄 Expected JSON (Source)"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, "Expected JSON (Source)"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             AppendFormattedJson(sb, expectedJson, "expected");
             sb.AppendLine();
 
             // Current JSON Section
-            sb.AppendLine(textDecorator.SectionTitle("📄 Current JSON (Actual)"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, "Current JSON (Actual)"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             AppendFormattedJson(sb, currentJson, "actual");
             sb.AppendLine();
 
             // Help Section
-            sb.AppendLine(textDecorator.SectionTitle("💡 How to Fix"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Hint, "How to Fix"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
@@ -157,7 +157,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Builders
                                           int sourceLineNumber,
                                           string memberName)
         {
-            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 

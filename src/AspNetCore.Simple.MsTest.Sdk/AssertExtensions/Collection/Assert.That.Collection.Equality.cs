@@ -243,7 +243,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                         actualValue = actualValue[..25] + "...";
                     }
 
-                    var matchSymbol = match ? "✓" : "✗";
+                    var matchSymbol = HttpClientAssertExtensions.GetService<ITextDecorator>(callingAssembly).Symbol(match ? OutputSymbol.Match : OutputSymbol.Mismatch);
                     sb.AppendLine($"{i,-8} {expectedValue,-30} {actualValue,-30} {matchSymbol,-10}");
                 }
 

@@ -1869,6 +1869,7 @@ Per-test deviations go through the per-assert parameters (`differenceFilter:`, `
 | Setting                   | Type           | Default         | Description                                               |
 |---------------------------|----------------|-----------------|-----------------------------------------------------------|
 | `OutputMode`              | `OutputMode`   | `Human`         | Output format: Human, Ai, or Hybrid                       |
+| `OutputRendering`         | `OutputRendering` | `Auto`       | Output look: Auto, Graphics, or PlainText                 |
 | `TestMethodAttribute`     | `string`       | `[TestMethod]`  | Test method attribute for code generation                 |
 | `ResponseFolderName`      | `string`       | `Responses`     | Folder name for response snapshots                        |
 | `RequestFolderName`       | `string`       | `Requests`      | Folder name for request payloads                          |
@@ -2600,6 +2601,47 @@ The AI mode enables AI agents to:
 6. **Batch processing** - JSON arrays of differences for bulk analysis
 
 ---
+
+## Output Rendering: Graphics and Plain Text
+
+`OutputMode` picks WHAT a failure says, `OutputRendering` picks how it LOOKS. Both combine freely.
+
+| Rendering     | Colours (ANSI) | Emojis | Use Case                                                          |
+|---------------|----------------|--------|-------------------------------------------------------------------|
+| **Auto**      | RELEASE only   | yes    | Default - unchanged behavior, see below                           |
+| **Graphics**  | always         | yes    | Colour also in a DEBUG build, e.g. a terminal-only local run      |
+| **PlainText** | never          | never  | CI pipelines that publish the TRX file as a Markdown test summary |
+
+`Auto` decides per consumer test assembly: a DEBUG build or an attached debugger gets emojis without colour (the
+Visual Studio Test Explorer shows ANSI codes as raw characters), everything else gets colour and emojis.
+
+**Why PlainText exists:** the VSTest TRX logger (`--logger trx`) writes characters that are invalid in XML as
+literal text - ESC becomes `\u001b`, every emoji becomes its two escaped surrogate halves. A summary built from the
+TRX (e.g. `dorny/test-reporter`) then shows
+
+```plaintext
+\u001b[1;31m\ud83d\udccb SCHEMA MISMATCH\u001b[0m
+```
+
+instead of the header. `PlainText` keeps the layout - borders, tables, sections - and drops only colour and emojis.
+Symbols that carry information on their own become ASCII (`yes`/`no` in a match column, `>>` at the failing line).
+The job log loses its colours in exchange; the message is one string for both targets.
+
+```yaml
+# GitHub Actions
+- name: Run Tests
+  env:
+    TestSdkSettings__OutputRendering: PlainText
+  run: dotnet test --logger trx
+```
+
+```json
+{
+  "TestSdkSettings": {
+    "OutputRendering": "PlainText"
+  }
+}
+```
 
 ## Fluent Assert API
 

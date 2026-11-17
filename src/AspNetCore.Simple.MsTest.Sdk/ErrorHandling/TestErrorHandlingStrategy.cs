@@ -30,6 +30,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddDefaultErrorHandler();
 
             // Register the strategy itself
+            services.AddTextDecoratorProvider();
             services.AddSingletonIfNotExists<ITestErrorHandlingStrategy, TestErrorHandlingStrategy>();
         }
     }
@@ -62,7 +63,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// 3. If no specific handler is found, use the default handler as fallback
     /// 4. Return the formatted error message for display in test output
     /// </summary>
-    internal sealed class TestErrorHandlingStrategy(IEnumerable<ITestErrorHandler> testErrorHandlers) : ITestErrorHandlingStrategy
+    internal sealed class TestErrorHandlingStrategy(IEnumerable<ITestErrorHandler> testErrorHandlers,
+                                                    ITextDecoratorProvider textDecoratorProvider) : ITestErrorHandlingStrategy
     {
         /// <summary>
         /// Handles the exception by finding the most suitable handler and returning a formatted error message.
@@ -100,7 +102,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// Builds a minimal error message when no handler can process the exception.
         /// This should never be called if the handlers are registered correctly.
         /// </summary>
-        private static string BuildFallbackError(IObjectAssertContext context,
+        private string BuildFallbackError(IObjectAssertContext context,
                                                  Exception exception)
         {
             var origin = context is IHttpAssertContext httpContext
@@ -116,7 +118,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             return $"""
 
                     ══════════════════════════════════════════════════════════════
-                    ❌ UNHANDLED EXCEPTION
+                    {textDecoratorProvider.For(context.CallingAssembly).Error(OutputSymbol.Failure, "UNHANDLED EXCEPTION")}
                     ══════════════════════════════════════════════════════════════
 
                     Exception Type : {exception.GetType().Name}

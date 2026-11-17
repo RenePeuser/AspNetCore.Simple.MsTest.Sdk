@@ -33,7 +33,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("🚫 UNEXPECTED STATUS CODE"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Blocked, "UNEXPECTED STATUS CODE"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
@@ -42,7 +42,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Outputs.Strategies.Http
             // Failure Details section with expected vs actual
             if (context.ExpectedStatusCode.HasValue && context.ActualStatusCode.HasValue)
             {
-                sb.AppendLine(textDecorator.SectionTitle("⚠️ Failure Details"));
+                sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Failure Details"));
                 sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
                 sb.AppendLine();
 

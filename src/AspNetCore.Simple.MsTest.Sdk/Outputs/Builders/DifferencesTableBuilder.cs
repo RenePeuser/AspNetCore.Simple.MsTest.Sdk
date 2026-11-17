@@ -75,7 +75,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle($"🔍 Differences (Count {consolidatedDifferences.Count})"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Search, $"Differences (Count {consolidatedDifferences.Count})"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
             stringBuilder.Append(BuildTableWithDetails(consolidatedDifferences, responseFileName, "CurrentResult").TrimEnd());
@@ -185,7 +185,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                            string currentColumnName)
         {
             var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine(textDecorator.SectionTitle($"📋 Difference details (Count {details.Count})"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Clipboard, $"Difference details (Count {details.Count})"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
 
             foreach (var detail in details)

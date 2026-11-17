@@ -71,7 +71,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
                                      string currentJson)
         {
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle("📊 Comparison"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Details, "Comparison"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
 
@@ -92,10 +92,10 @@ namespace AspNetCore.Simple.MsTest.Sdk.Strategies
             stringBuilder.AppendLine();
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            stringBuilder.AppendLine(textDecorator.Error("❌ VALUE COMPARISON FAILED"));
+            stringBuilder.AppendLine(textDecorator.Error(OutputSymbol.Failure, "VALUE COMPARISON FAILED"));
             stringBuilder.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            stringBuilder.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             stringBuilder.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             stringBuilder.AppendLine();
             var fileUri = $"file:///{context.CallerFilePath.Replace('\\', '/')}:{context.CallerLineNumber}";

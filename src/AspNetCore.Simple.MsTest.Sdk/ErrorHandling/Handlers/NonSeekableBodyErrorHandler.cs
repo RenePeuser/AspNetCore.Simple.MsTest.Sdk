@@ -65,18 +65,18 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
-            sb.AppendLine(textDecorator.Error("❌ REQUEST BODY WAS READ TWICE WITHOUT BUFFERING"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "REQUEST BODY WAS READ TWICE WITHOUT BUFFERING"));
             sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("📦 Test Information"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Method",-10} : {httpContext.CallerMemberName}");
             sb.AppendLine($"{"Line",-10} : {httpContext.CallerLineNumber}");
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("🌍 HTTP"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Http, "HTTP"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Method",-10} : {httpContext.HttpMethod.Method}");
@@ -91,7 +91,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ What Happened"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "What Happened"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("Something rewound the request body, but the body was never buffered.");
@@ -100,7 +100,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine(textDecorator.Error("This exception comes from YOUR application pipeline, not from the test sdk."));
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("🔎 Read The Stack Trace Below"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Inspect, "Read The Stack Trace Below"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("The frame directly above the stream access names the culprit. If it sits in error");
@@ -108,7 +108,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine("the original one - fix the buffering first, then look at the real failure.");
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("✅ How To Fix"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Success, "How To Fix"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("1. Enable buffering for every request that carries a body. Register this as early");
@@ -141,7 +141,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine(textDecorator.Success("         context.Request.Body.Position = 0;"));
             sb.AppendLine(textDecorator.Success("     }"));
             sb.AppendLine();
-            sb.AppendLine(textDecorator.SectionTitle("🪤 Common Traps"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Trap, "Common Traps"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("  • Buffering only when the endpoint declares metadata (AcceptsMetadata from");
@@ -151,7 +151,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             sb.AppendLine("  • Buffering after the component that reads the body is too late.");
             sb.AppendLine();
 
-            sb.AppendLine(textDecorator.SectionTitle("⚠️ Exception"));
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Exception"));
             sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Type",-10} : {exception.GetType().Name}");

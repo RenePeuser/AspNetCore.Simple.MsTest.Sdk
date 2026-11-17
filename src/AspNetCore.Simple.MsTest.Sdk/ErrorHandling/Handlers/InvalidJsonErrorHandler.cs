@@ -21,6 +21,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             services.AddCurlFormatter();
             services.AddSourceCodeExtractor();
             services.AddEndpointSourceResolver();
+            services.AddTextDecoratorProvider();
             services.AddSingletonIfNotExists<ITestErrorHandler, InvalidJsonErrorHandler>();
         }
     }
@@ -32,7 +33,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     internal sealed class InvalidJsonErrorHandler(ICurlBuilder curlBuilder,
                                                   ICurlFormatter curlFormatter,
                                                   ISourceCodeExtractor sourceCodeExtractor,
-                                                  IEndpointSourceResolver endpointSourceResolver)
+                                                  IEndpointSourceResolver endpointSourceResolver,
+                                                  ITextDecoratorProvider textDecoratorProvider)
         : TestErrorHandler<InvalidJsonException>
     {
         protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
@@ -57,27 +59,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                              InvalidJsonException exception)
         {
             var sb = new StringBuilder();
+            var textDecorator = textDecoratorProvider.For(context.CallingAssembly);
 
             sb.AppendLine();
             sb.AppendLine();
-            sb.AppendLine("══════════════════════════════════════════════════════════════");
-            sb.AppendLine("❌ INVALID JSON FORMAT ERROR");
-            sb.AppendLine("══════════════════════════════════════════════════════════════");
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "INVALID JSON FORMAT ERROR"));
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
-            BuildTestInfo(sb, context);
+            BuildTestInfo(sb, textDecorator, context);
             sb.AppendLine();
 
-            BuildHttpInfo(sb, context);
+            BuildHttpInfo(sb, textDecorator, context);
             sb.AppendLine();
 
-            BuildJsonFormatError(sb, exception);
+            BuildJsonFormatError(sb, textDecorator, exception);
             sb.AppendLine();
 
-            BuildJsonContent(sb, context, exception);
+            BuildJsonContent(sb, textDecorator, context, exception);
             sb.AppendLine();
 
-            BuildExplanation(sb);
+            BuildExplanation(sb, textDecorator);
             sb.AppendLine();
 
             // Show the assert call if available
@@ -85,7 +88,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
 
             if (sourceCode.IsNotNullOrWhiteSpace())
             {
-                BuildAssertCall(sb, sourceCode);
+                BuildAssertCall(sb, textDecorator, sourceCode);
                 sb.AppendLine();
             }
 
@@ -98,13 +101,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static void BuildTestInfo(StringBuilder sb,
+                                          ITextDecorator textDecorator,
                                           IHttpAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var fullClassName = GetFullClassName(context.CallerFilePath, projectName);
 
-            sb.AppendLine("📦 Test Information");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Project",-15} : {projectName}");
             sb.AppendLine($"{"Class",-15} : {fullClassName}");
@@ -147,14 +151,15 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private void BuildHttpInfo(StringBuilder sb,
+                                   ITextDecorator textDecorator,
                                    IHttpAssertContext context)
         {
             var fullUrl = context.Client.BaseAddress.IsNotNull()
                               ? new Uri(context.Client.BaseAddress, context.Url).ToString()
                               : context.Url;
 
-            sb.AppendLine("🌍 HTTP Request/Response");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Http, "HTTP Request/Response"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Method",-15} : {context.HttpMethod.Method}");
             sb.AppendLine($"{"URL",-15} : {fullUrl}");
@@ -170,10 +175,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static void BuildJsonFormatError(StringBuilder sb,
+                                                 ITextDecorator textDecorator,
                                                  InvalidJsonException exception)
         {
-            sb.AppendLine("⚠️ What Went Wrong");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "What Went Wrong"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("The response is not valid JSON format.");
             sb.AppendLine();
@@ -183,12 +189,13 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private void BuildJsonContent(StringBuilder sb,
+                                      ITextDecorator textDecorator,
                                       IHttpAssertContext context,
                                       InvalidJsonException exception)
         {
             sb.AppendLine();
-            sb.AppendLine("📄 Response Content");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, "Response Content"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
             // Extract the invalid string from the exception message (fallback if no HttpResponseContext)
@@ -246,11 +253,12 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private static void BuildExplanation(StringBuilder sb)
+        private static void BuildExplanation(StringBuilder sb,
+                                             ITextDecorator textDecorator)
         {
             sb.AppendLine();
-            sb.AppendLine("💡 Common Causes");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Hint, "Common Causes"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("  • The API returned an HTML error page (404, 500, etc.)");
             sb.AppendLine("  • Wrong endpoint URL or HTTP method");
@@ -265,10 +273,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static void BuildAssertCall(StringBuilder sb,
+                                            ITextDecorator textDecorator,
                                             string sourceCode)
         {
-            sb.AppendLine("📝 Assert Call");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.AssertCall, "Assert Call"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine(sourceCode);
         }

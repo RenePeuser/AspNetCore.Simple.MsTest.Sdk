@@ -17,6 +17,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // Default handler must be registered LAST so it acts as a catch-all
             services.AddTestClassNameResolver();
             services.AddEndpointSourceResolver();
+            services.AddTextDecoratorProvider();
             services.AddSingletonIfNotExists<ITestErrorHandler, DefaultErrorHandler>();
         }
     }
@@ -26,7 +27,8 @@ namespace AspNetCore.Simple.MsTest.Sdk
     /// This handles SDK bugs, network errors, serialization issues, and any other unexpected exceptions.
     /// </summary>
     internal sealed class DefaultErrorHandler(ITestClassNameResolver testClassNameResolver,
-                                            IEndpointSourceResolver endpointSourceResolver) : TestErrorHandler<Exception>
+                                            IEndpointSourceResolver endpointSourceResolver,
+                                            ITextDecoratorProvider textDecoratorProvider) : TestErrorHandler<Exception>
     {
         protected override Task<string> HandleExceptionAsync(IObjectAssertContext context,
                                                              Exception exception)
@@ -43,32 +45,33 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                                Exception exception)
         {
             var sb = new StringBuilder();
+            var textDecorator = textDecoratorProvider.For(context.CallingAssembly);
 
             sb.AppendLine();
             sb.AppendLine();
-            sb.AppendLine("══════════════════════════════════════════════════════════════");
-            sb.AppendLine("❌ UNEXPECTED TEST SDK ERROR");
-            sb.AppendLine("══════════════════════════════════════════════════════════════");
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
+            sb.AppendLine(textDecorator.Error(OutputSymbol.Failure, "UNEXPECTED TEST SDK ERROR"));
+            sb.AppendLine(textDecorator.Error("══════════════════════════════════════════════════════════════"));
             sb.AppendLine();
 
-            BuildTestInfo(sb, context);
+            BuildTestInfo(sb, textDecorator, context);
             sb.AppendLine();
 
             // The direct object route has no request and no response - printing empty http sections
             // there would only be noise.
             if (context is IHttpAssertContext httpContext)
             {
-                BuildHttpInfo(sb, httpContext);
+                BuildHttpInfo(sb, textDecorator, httpContext);
                 sb.AppendLine();
 
-                BuildResponseContent(sb, httpContext);
+                BuildResponseContent(sb, textDecorator, httpContext);
                 sb.AppendLine();
             }
 
-            BuildExceptionDetails(sb, exception);
+            BuildExceptionDetails(sb, textDecorator, exception);
             sb.AppendLine();
 
-            BuildExplanation(sb);
+            BuildExplanation(sb, textDecorator);
             sb.AppendLine();
 
             sb.AppendLine("══════════════════════════════════════════════════════════════");
@@ -77,13 +80,14 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private void BuildTestInfo(StringBuilder sb,
+                                   ITextDecorator textDecorator,
                                    IObjectAssertContext context)
         {
             var projectName = context.CallingAssembly.GetName().Name ?? "Unknown";
             var fullClassName = testClassNameResolver.Resolve(context.CallerFilePath, projectName);
 
-            sb.AppendLine("📦 Test Information");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Information, "Test Information"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Project",-10} : {projectName}");
             sb.AppendLine($"{"Class",-10} : {fullClassName}");
@@ -92,10 +96,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private void BuildHttpInfo(StringBuilder sb,
+                                   ITextDecorator textDecorator,
                                    IHttpAssertContext context)
         {
-            sb.AppendLine("🌍 HTTP Request");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Http, "HTTP Request"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
             var fullUrl = context.Client.BaseAddress.IsNotNull()
@@ -114,10 +119,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static void BuildResponseContent(StringBuilder sb,
+                                                 ITextDecorator textDecorator,
                                                  IHttpAssertContext context)
         {
-            sb.AppendLine("📄 Response Content");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Document, "Response Content"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
 
             // Try to extract response content if available
@@ -152,10 +158,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
         }
 
         private static void BuildExceptionDetails(StringBuilder sb,
+                                                  ITextDecorator textDecorator,
                                                   Exception exception)
         {
-            sb.AppendLine("⚠️ Exception Details");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Warning, "Exception Details"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine($"{"Type",-10} : {exception.GetType().FullName}");
             sb.AppendLine($"{"Message",-10} : {exception.Message}");
@@ -176,10 +183,11 @@ namespace AspNetCore.Simple.MsTest.Sdk
             }
         }
 
-        private static void BuildExplanation(StringBuilder sb)
+        private static void BuildExplanation(StringBuilder sb,
+                                             ITextDecorator textDecorator)
         {
-            sb.AppendLine("💡 What This Means");
-            sb.AppendLine("──────────────────────────────────────────────────────────────");
+            sb.AppendLine(textDecorator.SectionTitle(OutputSymbol.Hint, "What This Means"));
+            sb.AppendLine(textDecorator.Dim("──────────────────────────────────────────────────────────────"));
             sb.AppendLine();
             sb.AppendLine("An unexpected error occurred in the Test SDK. This could indicate:");
             sb.AppendLine();
