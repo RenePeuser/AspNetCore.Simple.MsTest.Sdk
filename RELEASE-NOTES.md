@@ -1,5 +1,59 @@
 # Release Notes
 
+## 10.3.0 - Endpoint validation for side-by-side api versions
+
+**Your api calls were always correct - the endpoint validator was not.** The request went to the right endpoint and
+the response was compared correctly. But the endpoint validation, which runs before the call, did not know which
+api version an endpoint belongs to. As soon as V1 and V2 ran side by side, it failed the test before the request
+was even sent - with `AMBIGUOUS ENDPOINT MATCH`, `ENDPOINT NOT FOUND` or a wrong `HTTP RESPONSE TYPE MISMATCH`. The
+only way out was `skipEndpointValidation: true`. That workaround is no longer needed.
+
+### Fixed: endpoint validation with V1 and V2 side by side
+
+- **Every endpoint is validated against the version it is mapped to.** The validator filed every endpoint under the
+  first version of its version set / controller. So the same route in V1 and V2 (`MapToApiVersion(1)` /
+  `MapToApiVersion(2)`) looked like two V1 endpoints, and a V2-only endpoint was not found under V2.
+  - Minimal API (Asp.Versioning): the versions come from the endpoint's `ApiVersionMetadata`. `MapToApiVersion`
+    wins; an endpoint without its own mapping serves every version of the set.
+  - Controllers (`Microsoft.AspNetCore.Mvc.Versioning`): `[MapToApiVersion]` wins over all `[ApiVersion]`s of the
+    controller (before, only the first `[ApiVersion]` counted). `[ApiVersionNeutral]` is recognized. A version
+    without minor part no longer turns into `x.1`.
+- **The version sent as header is read from the request.** `WithHeader("x-api-version", "2")` was ignored - only
+  the client's `DefaultRequestHeaders` were looked at, so V1 and V2 both matched.
+- **Versions are compared by value.** `?api-version=2.0` did not match the endpoint `2` (text comparison), the
+  validator reported `ENDPOINT NOT FOUND`. `2`, `2.0` and `v2` are now the same version.
+
+### New: the validator reads the version where your api reads it
+
+- **No setting needed.** The sdk asks your api's own `ApiVersionReader` where the version lives - url segment, query
+  string, header, media type or a combination (`ApiVersionReader.Combine`). Asp.Versioning and
+  `Microsoft.AspNetCore.Mvc.Versioning` are both supported. A custom header like `x-my-version` or a query name like
+  `?ver=` works out of the box.
+- **Media type versioning** is supported: `Accept: application/json;v=2`.
+- **New setting `TestSdkSettings.ApiVersionReader`** overrides the detection, using the same reader types as the api:
+
+  ```csharp
+  services.AddAssertableHttpClient(configuration, settings =>
+      settings.ApiVersionReader = new HeaderApiVersionReader("x-my-version"));
+  ```
+
+- **Behavior change:** once the api's reader is known, only its names count. Before, the validator always looked at
+  a fixed list (query `api-version` / `version` / `v`, header `api-version` / `x-api-version` / `version`), even
+  names the api never reads. Without a detectable reader that list is still the fallback.
+
+### Fixed: GET without payload sends no body
+
+- `GET`, `HEAD`, `DELETE`, `OPTIONS` and `TRACE` without payload sent an empty body with
+  `Content-Type: application/json`. A real client never does that, and the api may read it:
+  `Microsoft.AspNetCore.Mvc.Versioning` reads the media type version from `Content-Type` before `Accept` and answered
+  with the default version instead of `Accept: …;v=2`.
+
+### Note for controllers on Microsoft.AspNetCore.Mvc.Versioning
+
+That package only versions controllers marked `[ApiController]` (`UseApiBehavior = true` is its default). Without it,
+`[MapToApiVersion]` is ignored by routing and two actions on the same route answer `500 AmbiguousMatchException` -
+in your api, not only in the test.
+
 ## 10.2.0 - Output rendering
 
 - **New setting `TestSdkSettings.OutputRendering` (`Auto` | `Graphics` | `PlainText`).** It picks how a failure

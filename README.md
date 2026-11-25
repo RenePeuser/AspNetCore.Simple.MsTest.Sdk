@@ -951,6 +951,41 @@ header clearly shows whether the test expected SUCCESS or ERROR.
 
 ---
 
+### API versioning - V1 and V2 side by side
+
+Endpoint validation knows which api version every endpoint is mapped to, so the same route can exist in V1 and V2
+with different response types:
+
+```csharp
+group.MapGet("number", () => Results.Ok(1)).Produces<int>().MapToApiVersion(1);
+group.MapGet("number", () => Results.Ok("one")).Produces<string>().MapToApiVersion(2);
+```
+
+```csharp
+await Client.AssertGetAsync<int>("api/v1/versioning/number", expectedResult: "1");
+
+await Client.AssertGet("api/versioning/number")
+            .WithHeader("x-api-version", "2")   // or .WithQueryParameter("api-version", 2)
+            .Produces<string>(HttpStatusCode.OK)
+            .ExpectedResponse("one")
+            .ExecuteAsync();
+```
+
+The requested version is read where your api reads it. The sdk asks the api's own `ApiVersionReader` (Asp.Versioning
+or `Microsoft.AspNetCore.Mvc.Versioning`): url segment (`/v2/`), query string, header, media type
+(`Accept: application/json;v=2`) or any combination - custom names included, no setting needed. Only when the reader
+cannot be detected, override it with the same reader type the api uses:
+
+```csharp
+services.AddAssertableHttpClient(configuration, settings =>
+    settings.ApiVersionReader = new HeaderApiVersionReader("x-my-version"));
+```
+
+> Controllers on `Microsoft.AspNetCore.Mvc.Versioning` need `[ApiController]` - that package versions api
+> controllers only, otherwise `[MapToApiVersion]` is ignored by routing.
+
+---
+
 ### Endpoint-only validation mode
 
 Sometimes you need to validate that an endpoint exists and returns the correct type, but don't care about the response
