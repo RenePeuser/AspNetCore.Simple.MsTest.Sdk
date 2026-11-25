@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,12 +20,18 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
     internal interface IApiVersionResolver
     {
         /// <summary>
-        /// Resolves the API version from the URL and HTTP client headers.
+        /// Resolves the API version a request asks for - from the same places the api reads it.
         /// Checks multiple sources in priority order:
         /// 1. URL path segment (e.g., /v1/, /v2/, /api/v3/)
         /// 2. Query string parameter (e.g., ?api-version=1.0)
-        /// 3. Request headers of this call (e.g., WithHeader("x-api-version", "2"))
-        /// 4. HTTP client default headers (e.g., api-version: 1.0, x-api-version: 2)
+        /// 3. Request headers of this call (e.g., WithHeader("x-api-version", "2")) - header names
+        ///    first, then a media type parameter in Accept / Content-Type (e.g., application/json;v=2)
+        /// 4. HTTP client default headers, same order
+        /// <para>
+        /// The query, header and media type names come from the api's own ApiVersionReader (or
+        /// <see cref="TestSdkSettings.ApiVersionReader" />). Only when none can be detected the
+        /// common names are used: query api-version / version / v, header api-version / x-api-version / version.
+        /// </para>
         /// </summary>
         /// <param name="url">The request URL</param>
         /// <param name="httpClient">The HTTP client (to check default headers)</param>
@@ -36,60 +44,51 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
 
     internal sealed class ApiVersionResolver : IApiVersionResolver
     {
-        // Common API version header names
-        private static readonly string[] VersionHeaderNames =
+        // Common API version header names - only used when the api's reader is unknown
+        private static readonly ImmutableList<string> CommonHeaderNames =
         [
             "api-version",
             "x-api-version",
             "version"
         ];
 
-        // Common query string parameter names
-        private static readonly string[] VersionQueryNames =
+        // Common query string parameter names - only used when the api's reader is unknown
+        private static readonly ImmutableList<string> CommonQueryNames =
         [
             "api-version",
             "version",
             "v"
         ];
 
+        private static readonly string[] MediaTypeHeaderNames =
+        [
+            "Accept",
+            "Content-Type"
+        ];
+
+        private readonly Lazy<VersionParameterNames> _names;
+
+        public ApiVersionResolver(IServiceProvider serviceProvider,
+                                  TestSdkSettings testSdkSettings)
+        {
+            // Lazy: the api's versioning services are complete only once the host is built
+            _names = new Lazy<VersionParameterNames>(() => VersionParameterNames.From(ApiVersionParameterDetector.Detect(serviceProvider, testSdkSettings)));
+        }
+
         public string? Resolve(string url,
                                HttpClient httpClient,
                                IReadOnlyDictionary<string, string>? requestHeaders = null)
         {
-            // 1. Try to extract version from URL path segment (highest priority)
-            var versionFromPath = ResolveFromUrlPath(url);
+            var names = _names.Value;
 
-            if (versionFromPath.IsNotNullOrWhiteSpace())
-            {
-                return versionFromPath;
-            }
-
-            // 2. Try to extract version from query string
-            var versionFromQuery = ResolveFromQueryString(url);
-
-            if (versionFromQuery.IsNotNullOrWhiteSpace())
-            {
-                return versionFromQuery;
-            }
-
-            // 3. Try the headers of this request - they override the client defaults on the wire
-            var versionFromRequestHeaders = ResolveFromRequestHeaders(requestHeaders);
-
-            if (versionFromRequestHeaders.IsNotNullOrWhiteSpace())
-            {
-                return versionFromRequestHeaders;
-            }
-
-            // 4. Try to extract version from HTTP client default headers (lowest priority)
-            var versionFromHeaders = ResolveFromHeaders(httpClient);
-
-            if (versionFromHeaders.IsNotNullOrWhiteSpace())
-            {
-                return versionFromHeaders;
-            }
-
-            // No version found
-            return null;
+            // 1. URL path segment (highest priority) - the route template carries it
+            return ResolveFromUrlPath(url)
+                   // 2. Query string
+                   ?? ResolveFromQueryString(url, names.Query)
+                   // 3. This request - it overrides the client defaults on the wire
+                   ?? ResolveFromHeaders(ToLookup(requestHeaders), names)
+                   // 4. Client default headers (lowest priority)
+                   ?? ResolveFromHeaders(ToLookup(httpClient?.DefaultRequestHeaders), names);
         }
 
         private static string? ResolveFromUrlPath(string url)
@@ -111,14 +110,14 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             return null;
         }
 
-        private static string? ResolveFromQueryString(string url)
+        private static string? ResolveFromQueryString(string url,
+                                                      ImmutableList<string> queryNames)
         {
-            if (url.IsNullOrWhiteSpace())
+            if (url.IsNullOrWhiteSpace() || queryNames.IsEmpty)
             {
                 return null;
             }
 
-            // Check if URL contains query string
             var queryStartIndex = url.IndexOf('?');
 
             if (queryStartIndex == -1)
@@ -126,48 +125,68 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 return null;
             }
 
-            var queryString = url.Substring(queryStartIndex + 1);
+            var parameters = url.Substring(queryStartIndex + 1)
+                                .Split('#', 2)[0]
+                                .Split('&', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(parameter => parameter.Split('=', 2))
+                                .Where(keyValue => keyValue.Length == 2)
+                                .Select(keyValue => (Key: Uri.UnescapeDataString(keyValue[0].Trim()),
+                                                     Value: Uri.UnescapeDataString(keyValue[1].Trim())))
+                                .ToList();
 
-            // Parse query string parameters (simple approach)
-            var parameters = queryString.Split('&', StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var parameter in parameters)
+            // The name order decides, not the order in the url - same as the reader does
+            foreach (var name in queryNames)
             {
-                var keyValue = parameter.Split('=', 2, StringSplitOptions.RemoveEmptyEntries);
+                var value = parameters.FirstOrDefault(p => p.Key.Equals(name, StringComparison.OrdinalIgnoreCase)).Value;
 
-                if (keyValue.Length != 2)
+                if (value.IsNotNullOrWhiteSpace())
                 {
-                    continue;
-                }
-
-                var key = keyValue[0].Trim();
-                var value = keyValue[1].Trim();
-
-                // Check if this is a version parameter
-                if (VersionQueryNames.Any(name => name.Equals(key, StringComparison.OrdinalIgnoreCase)))
-                {
-                    // Remove 'v' prefix if present
-#pragma warning disable CA1867
-                    return value.StartsWith("v", StringComparison.OrdinalIgnoreCase)
-#pragma warning restore CA1867
-                               ? value.Substring(1)
-                               : value;
+                    return StripVersionPrefix(value);
                 }
             }
 
             return null;
         }
 
-        private static string? ResolveFromRequestHeaders(IReadOnlyDictionary<string, string>? requestHeaders)
+        private static string? ResolveFromHeaders(ILookup<string, string> headers,
+                                                  VersionParameterNames names)
         {
-            if (requestHeaders.IsNull())
+            foreach (var headerName in names.Header)
+            {
+                var version = headers[headerName].FirstOrDefault(value => value.IsNotNullOrWhiteSpace());
+
+                if (version.IsNotNull())
+                {
+                    return StripVersionPrefix(version);
+                }
+            }
+
+            return ResolveFromMediaType(headers, names.MediaTypeParameter);
+        }
+
+        /// <summary>
+        ///     Media type versioning: "Accept: application/json;v=2" - the version is a parameter of
+        ///     the media type in Accept or Content-Type.
+        /// </summary>
+        private static string? ResolveFromMediaType(ILookup<string, string> headers,
+                                                    ImmutableList<string> parameterNames)
+        {
+            if (parameterNames.IsEmpty)
             {
                 return null;
             }
 
-            foreach (var headerName in VersionHeaderNames)
+            var mediaTypes = MediaTypeHeaderNames.SelectMany(headerName => headers[headerName])
+                                                 .SelectMany(value => value.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                                 .Select(value => MediaTypeHeaderValue.TryParse(value.Trim(), out var mediaType) ? mediaType : null)
+                                                 .Where(mediaType => mediaType.IsNotNull())
+                                                 .ToList();
+
+            foreach (var parameterName in parameterNames)
             {
-                var version = requestHeaders.FirstOrDefault(header => header.Key.Equals(headerName, StringComparison.OrdinalIgnoreCase)).Value;
+                var version = mediaTypes.SelectMany(mediaType => mediaType!.Parameters)
+                                        .FirstOrDefault(parameter => parameter.Name.Equals(parameterName, StringComparison.OrdinalIgnoreCase))
+                                        ?.Value?.Trim('"');
 
                 if (version.IsNotNullOrWhiteSpace())
                 {
@@ -176,6 +195,22 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             return null;
+        }
+
+        private static ILookup<string, string> ToLookup(IReadOnlyDictionary<string, string>? headers)
+        {
+            return (headers ?? ImmutableDictionary<string, string>.Empty).ToLookup(header => header.Key,
+                                                                                   header => header.Value,
+                                                                                   StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static ILookup<string, string> ToLookup(HttpRequestHeaders? headers)
+        {
+            return (headers ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<string>>>())
+                   .SelectMany(header => header.Value.Select(value => (header.Key, Value: value)))
+                   .ToLookup(header => header.Key,
+                             header => header.Value,
+                             StringComparer.OrdinalIgnoreCase);
         }
 
         private static string StripVersionPrefix(string version)
@@ -189,33 +224,34 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                        : version;
         }
 
-        private static string? ResolveFromHeaders(HttpClient httpClient)
+        /// <summary>
+        ///     The names to look at per location. Detected from the api's reader; when nothing was
+        ///     detected, the common names stand in - and media type versioning stays off.
+        /// </summary>
+        private sealed record VersionParameterNames(ImmutableList<string> Query,
+                                                    ImmutableList<string> Header,
+                                                    ImmutableList<string> MediaTypeParameter)
         {
-            if (httpClient.IsNull())
+            public static VersionParameterNames From(ImmutableList<ApiVersionParameter> detected)
             {
-                return null;
-            }
-
-            // Check default request headers
-            foreach (var headerName in VersionHeaderNames)
-            {
-                if (httpClient.DefaultRequestHeaders.TryGetValues(headerName, out var values))
+                if (detected.IsEmpty)
                 {
-                    var version = values.FirstOrDefault();
-
-                    if (version.IsNotNullOrWhiteSpace())
-                    {
-                        // Remove 'v' prefix if present
-#pragma warning disable CA1867
-                        return version.StartsWith("v", StringComparison.OrdinalIgnoreCase)
-#pragma warning restore CA1867
-                                   ? version.Substring(1)
-                                   : version;
-                    }
+                    return new VersionParameterNames(CommonQueryNames, CommonHeaderNames, ImmutableList<string>.Empty);
                 }
+
+                return new VersionParameterNames(NamesOf(detected, ApiVersionParameterKind.Query),
+                                                 NamesOf(detected, ApiVersionParameterKind.Header),
+                                                 NamesOf(detected, ApiVersionParameterKind.MediaTypeParameter));
             }
 
-            return null;
+            private static ImmutableList<string> NamesOf(ImmutableList<ApiVersionParameter> detected,
+                                                         ApiVersionParameterKind kind)
+            {
+                return detected.Where(parameter => parameter.Kind == kind)
+                               .Select(parameter => parameter.Name)
+                               .Distinct(StringComparer.OrdinalIgnoreCase)
+                               .ToImmutableList();
+            }
         }
     }
 }

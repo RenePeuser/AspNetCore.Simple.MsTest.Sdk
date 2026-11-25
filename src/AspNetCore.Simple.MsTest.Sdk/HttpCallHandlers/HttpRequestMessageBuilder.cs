@@ -40,7 +40,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
                                             object? payload,
                                             string payloadParameterName)
         {
-            var content = payload.IsNotNull() ? GetContent() : null;
+            var content = HasBody(method, payload) ? GetContent() : null;
 
             var httpRequestMessage = new HttpRequestMessage(method, uri)
             {
@@ -62,6 +62,28 @@ namespace AspNetCore.Simple.MsTest.Sdk
                     _ => new StringContent(jsonSerializer.Serialize(payload), Encoding.UTF8, Application.Json)
                 };
             }
+        }
+
+        /// <summary>
+        /// A GET without payload must go out without content. An empty StringContent still carries
+        /// "Content-Type: application/json" - a real client never sends that, and the api may read it:
+        /// media type versioning (Microsoft.AspNetCore.Mvc.Versioning reads Content-Type before Accept)
+        /// then sees no version and answers with the default version instead of "Accept: …;v=2".
+        /// </summary>
+        private static bool HasBody(HttpMethod method,
+                                    object? payload)
+        {
+            if (payload is string text && text.Length == 0)
+            {
+                // Empty payload: only a method that carries a body keeps the (empty) content
+                return method != HttpMethod.Get &&
+                       method != HttpMethod.Head &&
+                       method != HttpMethod.Delete &&
+                       method != HttpMethod.Options &&
+                       method != HttpMethod.Trace;
+            }
+
+            return payload.IsNotNull();
         }
 
         private string GetContentType(HttpMethod httpMethod)

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Asp.Versioning;
 using Extensions.Pack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -164,6 +165,19 @@ namespace AspNetCore.Simple.MsTest.Sdk
         /// <c>skipEndpointValidation: true</c>.
         /// </summary>
         public bool SkipEndpointValidation { get; set; }
+
+        /// <summary>
+        /// Where the endpoint validation reads the requested api version from (query string, header,
+        /// media type parameter). Leave it <c>null</c>: the sdk asks the api's own ApiVersionReader -
+        /// Asp.Versioning and Microsoft.AspNetCore.Mvc.Versioning alike - so a custom header such as
+        /// <c>x-my-version</c> works without any setting. Set it only when that detection cannot see the
+        /// reader, using the same reader types as the api, e.g.
+        /// <c>settings.ApiVersionReader = new HeaderApiVersionReader("x-my-version")</c>. Code only.
+        /// <para>
+        /// The url segment (<c>/v2/</c>) is always read from the url itself.
+        /// </para>
+        /// </summary>
+        public IApiVersionReader? ApiVersionReader { get; set; }
 
         /// <summary>
         /// Prints the bearer token in the curl output instead of masking it.

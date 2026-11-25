@@ -24,6 +24,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <!-- Unit tests of internals (api version detection) -->
+        <InternalsVisibleTo Include="Core.Test" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="..\..\License.txt">
             <Pack>True</Pack>
             <PackagePath></PackagePath>

@@ -35,10 +35,12 @@ builder.Services.AddProblemDetails();
 builder.Services.AddApiVersioning(apiVersion =>
 {
     // apiVersion.DefaultApiVersion = new ApiVersion(1, 0);
-    // Url segment for the classic routes, query string and header for the versioning samples
+    // Url segment for the classic routes; query string, header and media type for the versioning samples.
+    // "ver", "x-custom-version" and ";v=" are no common names - the sdk has to detect them from this reader
     apiVersion.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader(),
-                                                           new QueryStringApiVersionReader("api-version"),
-                                                           new HeaderApiVersionReader("x-api-version"));
+                                                           new QueryStringApiVersionReader("api-version", "ver"),
+                                                           new HeaderApiVersionReader("x-api-version", "x-custom-version"),
+                                                           new MediaTypeApiVersionReader("v"));
 }).AddApiExplorer(apiExplorer =>
 {
     apiExplorer.GroupNameFormat = "'v'V";

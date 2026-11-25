@@ -16,10 +16,12 @@ namespace Controllers
 
             services.AddMvc(config => config.Filters.Clear());
 
-            // Url segment for the classic routes, query string and header for the versioning samples
+            // Url segment for the classic routes; query string, header and media type for the versioning samples.
+            // "ver", "x-custom-version" and ";v=" are no common names - the sdk has to detect them from this reader
             services.Configure<ApiVersioningOptions>(options => options.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader(),
-                                                                                                                     new QueryStringApiVersionReader("api-version"),
-                                                                                                                     new HeaderApiVersionReader("x-api-version")));
+                                                                                                                     new QueryStringApiVersionReader("api-version", "ver"),
+                                                                                                                     new HeaderApiVersionReader("x-api-version", "x-custom-version"),
+                                                                                                                     new MediaTypeApiVersionReader("v")));
         }
     }
 }
