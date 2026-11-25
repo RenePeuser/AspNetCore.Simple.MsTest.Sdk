@@ -62,7 +62,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // URL parameter replacement
             var resolvedUrl = parameterReplacer.ReplaceInUrl(url, fluentParameters, parameters);
 
-            var apiVersion = GetService<IApiVersionResolver>(callingAssembly).Resolve(url, client);
+            var apiVersion = GetService<IApiVersionResolver>(callingAssembly).Resolve(url, client, requestHeaders);
 
             // Create context with ExpectedType = typeof(void) for NoContent scenarios
             var context = new HttpAssertContext<string>
@@ -303,7 +303,7 @@ namespace AspNetCore.Simple.MsTest.Sdk
             // This is the only preprocessing needed here, all other logic is handled by AssertableHttpClient
             var resolvedUrl = parameterReplacer.ReplaceInUrl(url, fluentParameters, parameters);
 
-            var apiVersion = GetService<IApiVersionResolver>(callingAssembly).Resolve(url, client);
+            var apiVersion = GetService<IApiVersionResolver>(callingAssembly).Resolve(url, client, requestHeaders);
 
             // PROTOTYPE: Detect empty anonymous object for code generation
             // Use provided detection result or fallback to JSON check.

@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MinimalApi.Api.Errors;
 using MinimalApi.Api.NativeTypes;
 using MinimalApi.Api.Persons;
+using MinimalApi.Api.Versioning;
 using MinimalApi.Endpoints;
 using MinimalApi.ErrorHandling;
 
@@ -34,7 +35,10 @@ builder.Services.AddProblemDetails();
 builder.Services.AddApiVersioning(apiVersion =>
 {
     // apiVersion.DefaultApiVersion = new ApiVersion(1, 0);
-    apiVersion.ApiVersionReader = new UrlSegmentApiVersionReader();
+    // Url segment for the classic routes, query string and header for the versioning samples
+    apiVersion.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader(),
+                                                           new QueryStringApiVersionReader("api-version"),
+                                                           new HeaderApiVersionReader("x-api-version"));
 }).AddApiExplorer(apiExplorer =>
 {
     apiExplorer.GroupNameFormat = "'v'V";
@@ -61,6 +65,9 @@ var basePath = app.MapGroup("api/v{version:apiVersion}")
 // Register endpoints
 var registerEndpoints = app.Services.GetRequiredService<RegisterEndpoints>();
 registerEndpoints.MapEndpoints(basePath);
+
+// V1 and V2 side by side (own version sets) - via url segment, query string and header
+app.MapVersioningEndpoints();
 
 app.Run();
 

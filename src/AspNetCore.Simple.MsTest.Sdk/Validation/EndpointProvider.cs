@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Asp.Versioning;
 using Extensions.Pack;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -157,7 +159,7 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             // Filter candidates by HTTP method and version first
             var candidateEndpoints = processedEndpoints.Where(ep =>
                                                                   ep.Endpoint.HttpMethod.Equals(httpMethod, StringComparison.OrdinalIgnoreCase) &&
-                                                                  (requestedVersion.IsNullOrWhiteSpace() || ep.VersionString == requestedVersion || ep.VersionString.IsNullOrWhiteSpace())).ToImmutableList();
+                                                                  VersionMatches(ep.Endpoint.ApiVersion, requestedVersion)).ToImmutableList();
 
             // Now match URL patterns only for filtered candidates
             var matches = candidateEndpoints.Where(processed =>
@@ -197,6 +199,32 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                                                     .ToImmutableList();
 
             return OrderByRouteSpecificity(fallbackMatches);
+        }
+
+        /// <summary>
+        ///     Compares the requested version with the version of an endpoint by value, not by text:
+        ///     "1", "1.0" and "v1" are the same version. The url segment usually carries "1", while
+        ///     ?api-version=1.0 or an x-api-version header often carry "1.0".
+        /// </summary>
+        private static bool VersionMatches(ApiVersion? endpointVersion,
+                                           string? requestedVersion)
+        {
+            // No version requested, or a version-neutral / unversioned endpoint: serves every version
+            if (requestedVersion.IsNullOrWhiteSpace() || endpointVersion.IsNull())
+            {
+                return true;
+            }
+
+            if (ApiVersionParser.Default.TryParse(requestedVersion, out var parsed).IsFalse() || parsed.IsNull())
+            {
+                // Not parseable as api version - keep the old major-only text comparison
+                return endpointVersion.MajorVersion?.ToString(CultureInfo.InvariantCulture) == requestedVersion;
+            }
+
+            return endpointVersion.MajorVersion == parsed.MajorVersion &&
+                   (endpointVersion.MinorVersion ?? 0) == (parsed.MinorVersion ?? 0) &&
+                   endpointVersion.GroupVersion == parsed.GroupVersion &&
+                   string.Equals(endpointVersion.Status, parsed.Status, StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool UrlMatchesOptimized(string requestUrl,

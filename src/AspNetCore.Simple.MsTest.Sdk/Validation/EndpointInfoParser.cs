@@ -95,6 +95,47 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                    type.Name.EqualsTo("Void");
         }
 
+        /// <summary>
+        ///     Reads the API versions one endpoint is mapped to from the <see cref="ApiVersionMetadata" />
+        ///     Asp.Versioning attaches to every versioned endpoint (Minimal API and controllers).
+        ///     <para>
+        ///         The metadata holds two models: the API model (every version the version set or
+        ///         controller declares, e.g. "1, 2") and the endpoint model (the versions this endpoint
+        ///         is mapped to via MapToApiVersion, e.g. "2"). The endpoint model wins; the API model
+        ///         is only the fallback for an endpoint without its own mapping, which then serves every
+        ///         version of the API. Taking the first version of the API model would file every
+        ///         endpoint under V1 as soon as V1 and V2 run side by side.
+        ///     </para>
+        /// </summary>
+        /// <returns>
+        ///     The versions the endpoint is mapped to; an empty list when there is no metadata.
+        ///     A version-neutral endpoint returns a single null entry (it serves every version).
+        /// </returns>
+        public static ImmutableList<ApiVersion?> ExtractMappedApiVersions(RouteEndpoint routeEndpoint)
+        {
+            var apiVersionMetadata = routeEndpoint.Metadata.GetMetadata<ApiVersionMetadata>();
+
+            if (apiVersionMetadata.IsNull())
+            {
+                return ImmutableList<ApiVersion?>.Empty;
+            }
+
+            if (apiVersionMetadata.IsApiVersionNeutral)
+            {
+                return [null];
+            }
+
+            apiVersionMetadata.Deconstruct(out var apiModel, out var endpointModel);
+
+            var mappedVersions = endpointModel.DeclaredApiVersions.Count > 0
+                                     ? endpointModel.DeclaredApiVersions
+                                     : apiModel.DeclaredApiVersions;
+
+            return mappedVersions.Distinct()
+                                 .Cast<ApiVersion?>()
+                                 .ToImmutableList();
+        }
+
         public static string ResolvePlaceholders(string routePattern,
                                                  ApiVersion? apiVersion)
         {
@@ -415,11 +456,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 return ImmutableList<EndpointInfo>.Empty;
             }
 
-            // Get API version
-            var apiVersion = ExtractApiVersion(routeEndpoint);
-
-            // Build the full route pattern including route groups and prefixes
-            var resolvedUrl = EndpointParsingHelpers.BuildFullRoutePattern(routeEndpoint, apiVersion);
+            // Get the API versions this action is mapped to - one EndpointInfo per version
+            var apiVersions = ExtractApiVersions(routeEndpoint);
 
             // Get response type from controller action method (deprecated, for backward compatibility)
             var responseType = ExtractResponseType(controllerActionDescriptor);
@@ -432,69 +470,135 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var summary = EndpointParsingHelpers.ExtractSummary(routeEndpoint);
             var sourceLocation = ExtractSourceLocation(controllerActionDescriptor);
 
-            // Create EndpointInfo for each HTTP method
-            var endpointInfos = httpMethods.Select(httpMethod => new EndpointInfo
-            {
-                HttpMethod = httpMethod,
-                Url = resolvedUrl,
-                ApiVersion = apiVersion,
-                ResponseType = responseType,
-                ResponseTypesByStatusCode = responseTypesByStatusCode,
-                Tags = tags,
-                Name = name,
-                Description = description,
-                Summary = summary,
-                SourceLocation = sourceLocation
-            }).ToImmutableList();
+            // Create EndpointInfo for each API version and HTTP method
+            var endpointInfos = (from apiVersion in apiVersions
+                                 let resolvedUrl = EndpointParsingHelpers.BuildFullRoutePattern(routeEndpoint, apiVersion)
+                                 from httpMethod in httpMethods
+                                 select new EndpointInfo
+                                 {
+                                     HttpMethod = httpMethod,
+                                     Url = resolvedUrl,
+                                     ApiVersion = apiVersion,
+                                     ResponseType = responseType,
+                                     ResponseTypesByStatusCode = responseTypesByStatusCode,
+                                     Tags = tags,
+                                     Name = name,
+                                     Description = description,
+                                     Summary = summary,
+                                     SourceLocation = sourceLocation
+                                 }).ToImmutableList();
 
             return endpointInfos;
         }
 
-        private static ApiVersion? ExtractApiVersion(RouteEndpoint routeEndpoint)
+        private static ImmutableList<ApiVersion?> ExtractApiVersions(RouteEndpoint routeEndpoint)
         {
-            // Try ApiVersionAttribute (MVC Controllers)
-            var apiVersionAttribute = routeEndpoint.Metadata.FirstOrDefault(f => f.GetType().FullName == "Microsoft.AspNetCore.Mvc.ApiVersionAttribute");
+            // ApiVersionMetadata knows the versions of this action, not just of its controller
+            var mappedVersions = EndpointParsingHelpers.ExtractMappedApiVersions(routeEndpoint);
 
-            if (apiVersionAttribute.IsNotNull())
+            if (mappedVersions.Any())
             {
-                var enumerable = apiVersionAttribute.GetType().GetProperty("Versions")?.GetValue(apiVersionAttribute) as IEnumerable;
-
-                if (enumerable.IsNullOrEmpty())
-                {
-                    return null;
-                }
-
-                // ApiVersionAttribute can have multiple versions, take the first one
-                var version = enumerable.FirstOfType<object>();
-                var major = version.GetType().GetProperty("MajorVersion")?.GetValue(version)?.Cast<int?>();
-                var minor = version.GetType().GetProperty("MinorVersion")?.GetValue(version)?.Cast<int?>();
-
-                return new ApiVersion(major ?? 0, minor ?? 1);
+                return mappedVersions;
             }
 
-            // Try IApiVersionProvider interface
+            var legacyVersions = ExtractLegacyApiVersions(routeEndpoint);
+
+            if (legacyVersions.Any())
+            {
+                return legacyVersions;
+            }
+
+            // Asp.Versioning attributes without ApiVersionMetadata
             var apiVersionProvider = routeEndpoint.Metadata.GetMetadata<IApiVersionProvider>();
 
-            if (apiVersionProvider.IsNotNull())
+            if (apiVersionProvider.IsNotNull() && apiVersionProvider.Versions.Count > 0)
             {
-                var versions = apiVersionProvider.Versions;
+                return apiVersionProvider.Versions
+                                         .Distinct()
+                                         .Cast<ApiVersion?>()
+                                         .ToImmutableList();
+            }
 
-                if (versions.Count > 0)
+            // Unversioned action
+            return [null];
+        }
+
+        private const string LegacyApiVersionAttribute = "Microsoft.AspNetCore.Mvc.ApiVersionAttribute";
+        private const string LegacyMapToApiVersionAttribute = "Microsoft.AspNetCore.Mvc.MapToApiVersionAttribute";
+        private const string LegacyApiVersionNeutralAttribute = "Microsoft.AspNetCore.Mvc.ApiVersionNeutralAttribute";
+
+        /// <summary>
+        ///     Reads the versions of a controller action from the attributes of the legacy
+        ///     Microsoft.AspNetCore.Mvc.Versioning package (no ApiVersionMetadata there).
+        ///     <para>
+        ///         [MapToApiVersion] on the action wins; without it the action serves every version
+        ///         the controller declares via [ApiVersion]. Taking only the first [ApiVersion] would
+        ///         file every action under V1 as soon as V1 and V2 run side by side.
+        ///     </para>
+        /// </summary>
+        /// <returns>
+        ///     The versions the action is mapped to; an empty list when no legacy attribute is present.
+        ///     A version-neutral action returns a single null entry (it serves every version).
+        /// </returns>
+        private static ImmutableList<ApiVersion?> ExtractLegacyApiVersions(RouteEndpoint routeEndpoint)
+        {
+            var metadata = routeEndpoint.Metadata;
+
+            if (metadata.Any(m => IsLegacyAttribute(m, LegacyApiVersionNeutralAttribute)))
+            {
+                return [null];
+            }
+
+            var mappedVersions = metadata.Where(m => IsLegacyAttribute(m, LegacyMapToApiVersionAttribute))
+                                         .SelectMany(ReadLegacyVersions)
+                                         .ToList();
+
+            var versions = mappedVersions.Count > 0
+                               ? mappedVersions
+                               : metadata.Where(m => IsLegacyAttribute(m, LegacyApiVersionAttribute))
+                                         .SelectMany(ReadLegacyVersions)
+                                         .ToList();
+
+            return versions.Distinct()
+                           .Cast<ApiVersion?>()
+                           .ToImmutableList();
+        }
+
+        private static bool IsLegacyAttribute(object metadata,
+                                              string fullName)
+        {
+            // Walk the hierarchy - a custom attribute deriving from the legacy one counts as well
+            for (var type = metadata.GetType(); type.IsNotNull(); type = type.BaseType)
+            {
+                if (type.FullName == fullName)
                 {
-                    return versions[0];
+                    return true;
                 }
             }
 
-            // Try ApiVersionMetadata (for neutrality check)
-            var apiVersionMetadata = routeEndpoint.Metadata.GetMetadata<ApiVersionMetadata>();
+            return false;
+        }
 
-            if (apiVersionMetadata.IsNotNull() && apiVersionMetadata.IsApiVersionNeutral)
+        private static IEnumerable<ApiVersion> ReadLegacyVersions(object attribute)
+        {
+            if (attribute.GetType().GetProperty("Versions")?.GetValue(attribute) is not IEnumerable versions)
             {
-                // Endpoint is version-neutral (supports all versions)
-                return null;
+                yield break;
             }
 
-            return null;
+            foreach (var version in versions)
+            {
+                if (version.IsNull())
+                {
+                    continue;
+                }
+
+                var versionType = version.GetType();
+                var major = versionType.GetProperty("MajorVersion")?.GetValue(version) as int?;
+                var minor = versionType.GetProperty("MinorVersion")?.GetValue(version) as int?;
+
+                yield return new ApiVersion(major ?? 0, minor);
+            }
         }
 
         private static Type? ExtractResponseType(ControllerActionDescriptor controllerActionDescriptor)
@@ -599,11 +703,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 return ImmutableList<EndpointInfo>.Empty;
             }
 
-            // Get API version
-            var apiVersion = ExtractApiVersion(routeEndpoint);
-
-            // Build the full route pattern including route groups and prefixes
-            var resolvedUrl = EndpointParsingHelpers.BuildFullRoutePattern(routeEndpoint, apiVersion);
+            // Get the API versions this endpoint is mapped to - one EndpointInfo per version
+            var apiVersions = ExtractApiVersions(routeEndpoint);
 
             // Get response type from ProducesAttribute (deprecated, for backward compatibility)
             var responseType = ExtractResponseType(routeEndpoint);
@@ -616,53 +717,50 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             var summary = EndpointParsingHelpers.ExtractSummary(routeEndpoint);
             var sourceLocation = ExtractSourceLocation(routeEndpoint);
 
-            // Create EndpointInfo for each HTTP method
-            var endpointInfos = httpMethods.Select(httpMethod => new EndpointInfo
-            {
-                HttpMethod = httpMethod,
-                Url = resolvedUrl,
-                ApiVersion = apiVersion,
-                ResponseType = responseType,
-                ResponseTypesByStatusCode = responseTypesByStatusCode,
-                Tags = tags,
-                Name = name,
-                Description = description,
-                Summary = summary,
-                SourceLocation = sourceLocation
-            }).ToImmutableList();
+            // Create EndpointInfo for each API version and HTTP method
+            var endpointInfos = (from apiVersion in apiVersions
+                                 let resolvedUrl = EndpointParsingHelpers.BuildFullRoutePattern(routeEndpoint, apiVersion)
+                                 from httpMethod in httpMethods
+                                 select new EndpointInfo
+                                 {
+                                     HttpMethod = httpMethod,
+                                     Url = resolvedUrl,
+                                     ApiVersion = apiVersion,
+                                     ResponseType = responseType,
+                                     ResponseTypesByStatusCode = responseTypesByStatusCode,
+                                     Tags = tags,
+                                     Name = name,
+                                     Description = description,
+                                     Summary = summary,
+                                     SourceLocation = sourceLocation
+                                 }).ToImmutableList();
 
             return endpointInfos;
         }
 
-        private static ApiVersion? ExtractApiVersion(RouteEndpoint routeEndpoint)
+        private static ImmutableList<ApiVersion?> ExtractApiVersions(RouteEndpoint routeEndpoint)
         {
-            // Try IApiVersionProvider interface (Minimal API)
+            // ApiVersionMetadata knows the versions of this endpoint, not just of its version set
+            var mappedVersions = EndpointParsingHelpers.ExtractMappedApiVersions(routeEndpoint);
+
+            if (mappedVersions.Any())
+            {
+                return mappedVersions;
+            }
+
+            // Fallback: IApiVersionProvider metadata without Asp.Versioning's endpoint metadata
             var apiVersionProvider = routeEndpoint.Metadata.GetMetadata<IApiVersionProvider>();
 
-            if (apiVersionProvider.IsNotNull())
+            if (apiVersionProvider.IsNotNull() && apiVersionProvider.Versions.Count > 0)
             {
-                var versions = apiVersionProvider.Versions;
-
-                if (versions.Count > 0)
-                {
-                    return versions[0];
-                }
+                return apiVersionProvider.Versions
+                                         .Distinct()
+                                         .Cast<ApiVersion?>()
+                                         .ToImmutableList();
             }
 
-            // Try ApiVersionMetadata (for neutrality check)
-            var apiVersionMetadata = routeEndpoint.Metadata.GetMetadata<ApiVersionMetadata>();
-
-            if (apiVersionMetadata.IsNotNull())
-            {
-                apiVersionMetadata.Deconstruct(out var model, out _);
-
-                if (model.DeclaredApiVersions.Count > 0)
-                {
-                    return model.DeclaredApiVersions[0];
-                }
-            }
-
-            return null;
+            // Unversioned endpoint
+            return [null];
         }
 
         private static Type? ExtractResponseType(RouteEndpoint routeEndpoint)

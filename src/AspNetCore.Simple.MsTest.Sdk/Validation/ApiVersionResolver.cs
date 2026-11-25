@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using Extensions.Pack;
@@ -21,13 +22,16 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         /// Checks multiple sources in priority order:
         /// 1. URL path segment (e.g., /v1/, /v2/, /api/v3/)
         /// 2. Query string parameter (e.g., ?api-version=1.0)
-        /// 3. HTTP client default headers (e.g., api-version: 1.0, x-api-version: 2)
+        /// 3. Request headers of this call (e.g., WithHeader("x-api-version", "2"))
+        /// 4. HTTP client default headers (e.g., api-version: 1.0, x-api-version: 2)
         /// </summary>
         /// <param name="url">The request URL</param>
         /// <param name="httpClient">The HTTP client (to check default headers)</param>
+        /// <param name="requestHeaders">The headers sent with this request only</param>
         /// <returns>The resolved API version or null if no version was found</returns>
         string? Resolve(string url,
-                        HttpClient httpClient);
+                        HttpClient httpClient,
+                        IReadOnlyDictionary<string, string>? requestHeaders = null);
     }
 
     internal sealed class ApiVersionResolver : IApiVersionResolver
@@ -49,7 +53,8 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
         ];
 
         public string? Resolve(string url,
-                               HttpClient httpClient)
+                               HttpClient httpClient,
+                               IReadOnlyDictionary<string, string>? requestHeaders = null)
         {
             // 1. Try to extract version from URL path segment (highest priority)
             var versionFromPath = ResolveFromUrlPath(url);
@@ -67,7 +72,15 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
                 return versionFromQuery;
             }
 
-            // 3. Try to extract version from HTTP client default headers (lowest priority)
+            // 3. Try the headers of this request - they override the client defaults on the wire
+            var versionFromRequestHeaders = ResolveFromRequestHeaders(requestHeaders);
+
+            if (versionFromRequestHeaders.IsNotNullOrWhiteSpace())
+            {
+                return versionFromRequestHeaders;
+            }
+
+            // 4. Try to extract version from HTTP client default headers (lowest priority)
             var versionFromHeaders = ResolveFromHeaders(httpClient);
 
             if (versionFromHeaders.IsNotNullOrWhiteSpace())
@@ -143,6 +156,37 @@ namespace AspNetCore.Simple.MsTest.Sdk.Validation
             }
 
             return null;
+        }
+
+        private static string? ResolveFromRequestHeaders(IReadOnlyDictionary<string, string>? requestHeaders)
+        {
+            if (requestHeaders.IsNull())
+            {
+                return null;
+            }
+
+            foreach (var headerName in VersionHeaderNames)
+            {
+                var version = requestHeaders.FirstOrDefault(header => header.Key.Equals(headerName, StringComparison.OrdinalIgnoreCase)).Value;
+
+                if (version.IsNotNullOrWhiteSpace())
+                {
+                    return StripVersionPrefix(version);
+                }
+            }
+
+            return null;
+        }
+
+        private static string StripVersionPrefix(string version)
+        {
+            version = version.Trim();
+
+#pragma warning disable CA1867
+            return version.StartsWith("v", StringComparison.OrdinalIgnoreCase)
+#pragma warning restore CA1867
+                       ? version.Substring(1)
+                       : version;
         }
 
         private static string? ResolveFromHeaders(HttpClient httpClient)
