@@ -5,8 +5,11 @@
 **Your api calls were always correct - the endpoint validator was not.** The request went to the right endpoint and
 the response was compared correctly. But the endpoint validation, which runs before the call, did not know which
 api version an endpoint belongs to. As soon as V1 and V2 ran side by side, it failed the test before the request
-was even sent - with `AMBIGUOUS ENDPOINT MATCH`, `ENDPOINT NOT FOUND` or a wrong `HTTP RESPONSE TYPE MISMATCH`. The
-only way out was `skipEndpointValidation: true`. That workaround is no longer needed.
+was even sent - with `AMBIGUOUS ENDPOINT MATCH`, `ENDPOINT NOT FOUND` or a wrong `HTTP RESPONSE TYPE MISMATCH`.
+
+**The workaround was to switch the validator off** - `skipEndpointValidation: true` in the classic api,
+`.SkipEndpointValidation()` in the fluent api, or `TestSdkSettings.SkipEndpointValidation` for everything. That
+workaround is no longer needed: remove it from versioned tests to get the endpoint and response type check back.
 
 ### Fixed: endpoint validation with V1 and V2 side by side
 
